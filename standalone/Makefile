@@ -7,6 +7,7 @@ STDOPTFLAGS.GNU = -O0
 TUNEFLAGS.GNU   = 
 
 include Rules.mk
+-include local.mk
 
 # Mac OS/X hack
 ifeq ($(UNAME_SYS),Darwin)
