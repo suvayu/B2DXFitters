@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!--- $Id: -->
+<!--- Author  : Eduardo Rodrigues -->
+<!--- Created : 2011-05-23 -->
+<lcgdict>
+    <selection>
+	<class pattern = "std::vector<*>" />
+
+	<class name = "BdPTAcceptance"              />
+	<class name = "FitMeTool"                   />
+	<class name = "CombBkgPTPdf"                />
+	<class name = "DTAcceptanceLHCbNote2007041" />
+	<class name = "IfThreeWayCat" />
+	<class name = "IfThreeWayCatPdf" />
+	<class name = "IfThreeWay" />
+	<class name = "IfThreeWayPdf" />
+	<class name = "TagEfficiencyWeight" />
+	<class name = "TagEfficiencyWeightNoCat" />
+	<class name = "Dilution" />
+	<class name = "SquaredSum" />
+	<class name = "Inverse" />
+	<class name = "MistagDistribution" />
+	<class name = "CPObservable" />
+	<class name = "MistagCalibration" />
+
+	<class name = "RooBinnedPdf" />
+	<class name = "RooAbsEffResModel"/>
+	<class name = "RooEffConvGenContext"/>
+	<class name = "RooEffResModel">
+	    <field name = "_ranges" transient = "true" />
+	    <field name = "_cacheMgr" transient = "true" />
+	</class>
+	<class name = "RooEffHistProd" />
+
+	<class name = "RooGenSmearIntegrandBinding" />
+	<class pattern = "RooGeneralisedSmearingBase<*>" >
+	    <field name = "_integrator" transient = "true" />
+	    <field name = "_integrand" transient = "true" />
+	    <field name = "_integvarset" transient = "true" />
+	    <field name = "_integralset" transient = "true" />
+	    <field name = "_integrandset" transient = "true" />
+	    <field name = "_integratorset" transient = "true" />
+	    <field name = "_binnedcache" transient = "true" />
+	    <field name = "_binnedcacheLastVal" transient = "true" />
+	    <field name = "_binnedvarClone" transient = "true" />
+	</class>
+	<class name = "RangeAcceptance" />
+	<class name = "PowLawAcceptance" />
+	<class name = "NonOscTaggingPdf" />
+
+	<class name = "std::pair<std::string, RooAbsData*>" /> 
+
+	<function pattern = "GeneralModels::*"          />
+	<function pattern = "PTResModels::*"            />
+	<function pattern = "Bd2DhModels::*"            />
+	<function pattern = "Bs2DshModels::*"           />
+	<function pattern = "Bs2Dsh2011TDAnaModels::*"  />
+
+	<function pattern = "GeneralUtils::*" />
+        <function pattern = "SFitUtils::*" />
+        <function pattern = "MassFitUtils::*" /> 
+
+	<class pattern = "Bdecaytree" />
+
+	<class pattern="SharedArrayImp<*>"/>
+	<class pattern="SharedArray<*>"/>
+	<class pattern="RooBinned1DQuinticBase<*>"/>
+	<class pattern="RooBinned2DBicubicBase<*>"/>
+	<class name="DecRateCoeff">
+	    <field name = "m_cacheMgr" transient = "true" />
+	    <field name = "m_nsets" transient = "true" />
+	    <field name = "m_nset" transient = "true" />
+	    <field name = "m_nsethash" transient = "true" />
+	</class>
+	<class name="FinalStateChargePdf" />
+    </selection>
+</lcgdict>

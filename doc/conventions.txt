@@ -1,0 +1,103 @@
+# -----------------------------------------------------------------------------
+# Conventions
+# -----------------------------------------------------------------------------
+1. Configuration variables start with capital letters
+2. Code variables (RooRealVar, PDFs, etc.) start in lowercase
+3. Classes  start with capital letters
+
+# -----------------------------------------------------------------------------
+# Decay modes
+# -----------------------------------------------------------------------------
+Bd2DPi, Bd2D3Pi, Bd2DK, Bd2DRho, Bd2DstPi, Bd2DstK, Bd2DstRho, Bd2DKst
+Bs2DsPi, Bs2Ds3Pi, Bs2DsK, Bs2DsRho, Bs2DsstPi, Bs2DsstK, Bs2DsstRho
+Lb2DsP, Lb2DsstP, Lb2LcPi, Lb2LcK
+
+# -----------------------------------------------------------------------------
+# PHYSICAL PARAMETERS
+# -----------------------------------------------------------------------------
+Gammad
+Gammas
+DeltaGammas
+DGsOverGs
+DeltaMd
+DeltaMs
+
+# -----------------------------------------------------------------------------
+# CP observables
+# -----------------------------------------------------------------------------
+ArgLf
+ArgLbarfbar
+ModLf
+
+# -----------------------------------------------------------------------------
+# Yields
+# -----------------------------------------------------------------------------
+N<decay>Evts
+# E.g. NBs2DsPiEvts, NCombBkgEvts
+
+# -----------------------------------------------------------------------------
+# Tagging
+# -----------------------------------------------------------------------------
+TagEffSig
+TagEffBkg
+TagOmegaSig
+TagOmegaBkg
+
+# -----------------------------------------------------------------------------
+# RooRealVar & co. definitions
+# -----------------------------------------------------------------------------
+# Mass and time
+mass
+time
+
+# Physical parameters
+deltaGammas = RooRealVar( 'deltaGammas', 'Bs lifetime difference',
+	                  DGsOverGs*Gammas, -1., 1., 'ps^{-1}' )
+
+# Number of events
+n<decay>Evts = RooRealVar( 'n<decay>Evts' , 'n<decay>Evts' ,
+                           N<decay>Evts , <min> , <max> )
+# E.g.
+# nBs2DsPiEvts = RooRealVar( 'nBs2DsPiEvts' , 'nBs2DsPiEvts' , nBs2DsPiEvts , <min> , <max> )
+
+# Tagging
+tagEffSig = RooRealVar( 'tagEffSig', 'Signal tagging efficiency', TagEffSig, 0., 1. )
+
+# -----------------------------------------------------------------------------
+# Functions such as decay time acceptances, resolution functions, etc.
+# -----------------------------------------------------------------------------
+trm<Sig/Bkg>
+tacc<Sig/Bkg>
+tacc<Sig/Bkg>_<varName>
+# E.g.
+# taccBs function of time, taccBs_slope, taccBs_offset
+
+# -----------------------------------------------------------------------------
+# PDFs
+# -----------------------------------------------------------------------------
+# Mass and time PDF / extended PDF
+mtpdf<decay>
+mtepdf<decay>
+
+# Mass PDF / extended PDF
+mpdf<decay>  = <MyPDF>( '<mpdfdecay>', 'MyPDF in mass', mass, <decay>_aPdfVar )
+mepdf<decay> = <MyEPDF>( 'mepdf<decay>', mpdf<decay>.GetTitle(), mpdf<decay>, n<decay>Evts )
+
+# PDF variables
+<pdfName>_<varName>
+
+# RooBDecay variables example
+#tpdfBs2DsPi_tagWeight
+#tpdfBs2DsPi_sin
+#tpdfBs2DsPi_cos
+#tpdfBs2DsPi_sinh
+#tpdfBs2DsPi_cosh
+#tpdfBs2DsPi: function of
+#             time, gammas, deltaGammas, deltaMs,
+#             tpdfBs2DsPi_cosh, tpdfBs2DsPi_sinh,
+#             tpdfBs2DsPi_cos, tpdfBs2DsPi_sin,
+#             dtrmBs, dtaccBs,
+#             nBs2DsPiEvts
+
+# Decay time error PDF
+terrpdf<decay>

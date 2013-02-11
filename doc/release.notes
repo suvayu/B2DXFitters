@@ -1,0 +1,1121 @@
+!-----------------------------------------------------------------------------
+! Package     : PhysFit/B2DXFitters
+! Responsible : Eduardo Rodrigues
+! Purpose     : RooFit-based fitters for B -> D X
+!-----------------------------------------------------------------------------
+
+
+! 2013-02-04 - Manuel Tobias Schiller
+ - some more cleanups in RooEffResModel, RooBinnedPdf 
+
+! 2012-11-26 - Manuel Tobias Schiller
+ - runBs2DsKCPAsymmObsFitter-cFit.py: adapt to new classes (DecRateCoeff,
+   NonOscTaggingPdf, MistagCalibration), some cleanups
+
+! 2012-11-26 - Manuel Tobias Schiller
+ - NonOscTaggingPdf: fix gcc4.6 compile error
+
+! 2012-11-21 - Manuel Tobias Schiller
+ - DecRateCoeff, NonOscTaggingPdf: relax the constraints imposed by the
+   constructors somewhat
+
+! 2012-11-21 - Manuel Tobias Schiller
+ - NonOscTaggingPdf: correct description of untagged events in the same way as
+   was done in DecRateCoeff
+
+! 2012-11-19 - Manuel Tobias Schiller
+ - DecRateCoeff: fix a couple of uninitialised pointers
+
+! 2012-11-14 - Manuel Tobias Schiller
+ - new class DecRateCoeff to replace DecayRateCoeff: proper treatment of
+   coefficients in decay rate equations for oscillating decays - makes things
+   quite a bit faster, and can handle various asymmetries (DecayRateCoeff had
+   a few deficiencies)
+ - PowLawAcceptance: fix includes
+ - new class FinalStateChargePdf: finals state charge distribution with
+   detection asymmetry
+ - RooBinned1DQuinticBase: histogram can now either represent function value
+   in bin middle or function integral over bin
+ - MistagCalibration: implement the "proper" way to calibrate in addition to
+   the present functionality, provide analytical integrals
+ - RooBinned2DBicubicBase: technical fix for OS/X compatibility
+ - standalone build system has doxygen config file, type "make doxy" to
+   generate
+ - changes in dictionaries to go with above points
+
+! 2012-10-12 - Manuel Tobias Schiller
+ - standalone/readTree/Makefile: slight tweak to improve time needed in
+   parallel builds
+
+! 2012-10-12 - Manuel Tobias Schiller
+ - RooEffResModel: fix experimental code to actually work - it's a bit faster
+   and uses a lot less memory, but the experimental code stays disabled for
+   now until it's better tested...
+
+! 2012-10-11 - Manuel Tobias Schiller
+ - src/MassFitUtils.cxx: fix incorrect usage of std::fabs (and use std::abs
+   which is clearer anyway)
+ - standalone/Makefile: make better use of parallelism in multi-core builds by
+   builing the dictionary first (so the longest job blocks a core from the
+   beginning of the build job on while the other source files are built on the
+   other CPUs instead of keeping this job until the end when all other files
+   have been build already)
+
+! 2012-10-10 - Manuel Tobias Schiller
+ - DecayRateCoeff: some cleanup work
+ - NonOscTaggingPdf: implement analytical integrals
+
+! 2012-10-10 - Manuel Tobias Schiller
+ - DecayRateCoeff: add a few comments to clarify
+
+! 2012-10-10 - Manuel Tobias Schiller
+ - add DecayRateCoeff class which calculates the coefficients to go into the
+   decay rate equations in front of cosh, sinh, cos, sin as a function of CP
+   parameters, tagging efficiency, mistag, and (production, tagging
+   efficiency, mistag) asymmetries; this class gives the same results as the
+   old expressions when the asymmetries are put to zero, and it provides
+   analytical integrals over all potential observables
+
+! 2012-10-10 - Suvayu Ali
+ - Add acceptance fit and plotting scripts
+ - readTree: used to create ntuple for acceptance fit
+
+! 2012-10-09 - Manuel Tobias Schiller
+ - put in symlinks to accomodate Agnieszka's split of GeneralUtils in the
+   standalone build system
+
+! 2012-10-09 - Agnieszka Dziurda
+ - Fix last few warnings
+
+! 2012-10-08 - Agnieszka Dziurda
+ - Split GeneralUtils into three files:
+   . GeneralUtils:
+     . saveDataTemplateToFile, ReadPIDHist,  AddHist,  ReadOneName, ReadTreeData, ReadTreeMC
+       ReadOneMode, ReadMode, TreeCut, SaveTemplate, SaveTemplateHist, SaveDataSet, CreatePDFMC
+       GetObservable, GetDataSet, GetDataHist, SaveWorkspace, SaveWorkspace, CheckPolarity, CheckDMode
+   . MassFitUtils:
+     . ObtainData, ObtainMissForBsDsK, ObtainMissForBsDsPi, ObtainSpecBack, getSpecBkg4kfactor, 
+       ObtainSignal, CreatePdfSpecBackground, ExpectedYield, Blabla
+   . SFitUtiles:
+     . ReadDataFromSWeights, ReadDataFromSWeightsToys, CopyDataForToys  
+
+! 2012-10-08 - Agnieszka Dziurda
+ - Modify scripts GenerateToySWeights_Ds{Pi,K}.py
+   . add options
+   . add confing files
+   . clean up 
+
+! 2012-10-05 - Agnieszka Dziurda
+ - clean up mass and sFit fitters
+ - add to all functions in GeneralUtils and Bs2Dsh2011TDAnaModels 
+   bool variable "debug" as the last argument (especially for Vava ;-)) which suppress all couts
+ - deal with annoying WARNING in sPlot creation (finally suppressed!)
+ - add config files for mass fits
+ - remove .txt Vava's files with configuration time fit   
+ - change mass fit: now all scripts using confing python files
+ - delate some options in scirpts (sorry if somebody (Vava?) is surprised)
+ - change read sweights: 
+   now for both MC and data are loaded directly from path (--pathName) with tree (--treeName)
+ - add some new functions to GeneralUtils       
+ - move .csh script to scripts/Csh
+ 
+! 2012-10-04 - Manuel Tobias Schiller
+ - adapt fitting/plotting scripts for cFit to changes committed today
+ - rearrange PDF somewhat to save about a factor of 3 in RAM
+
+! 2012-10-04 - Manuel Tobias Schiller
+ - RooEffResModel: re-import from upstream, apply some experimental changes,
+   which are disabled for now
+
+! 2012-10-04 - Manuel Tobias Schiller
+ - CPObservable: steamline code, size of object
+
+! 2012-10-04 - Manuel Tobias Schiller
+ - fix persistency problem in SharedArray
+
+! 2012-10-04 - Manuel Tobias Schiller
+ - MistagCalibration: add additional constructor to allow the use of
+   unmodified calibration parameters (p_0, p_1, average mistag)
+
+!============================== v1r5 03-10-2012 ==============================
+! 2012-10-03 - Eduardo Rodrigues
+ - Package tagged as v1r5 to reflect all code related to the CONF note
+   LHCb-CONF-2012-029 produced for CKM 2012
+
+! 2012-10-02 - Agnieszka Dziurda
+ - update GeneralUtils (ReadDataFromsWeights, ObtainSignal)  
+ - add script for plotting time with contributions
+
+! 2012-09-20 - Manuel Tobias Schiller
+ - fix bug in analytical integral of MistagDistribution (toy mock-distribution
+   of per event mistag); spotted by Chiara Farinelli - thanks!
+
+! 2012-09-15 - Agnieszka Dziurda 
+ - modify sFit for signal MC  
+
+! 2012-09-15 - Agnieszka Dziurda
+ - update plotting scripts for mass model
+
+! 2012-09-14 - Manuel Tobias Schiller
+ - cFit: fix bug in PDF (S/Sbar swap, multiply with -1)
+ - cFit: add bug-for-bug compatibility flags
+ - cFit: add possibility to interpolate acceptance correction
+ - cFit: add possibility to fit directly for |lambda|, gamma+phi_s, delta
+ - cFit: add possibility to constrain C^2+S^2+D^2=1 (similar for "bar")
+ - SharedArray: small technical fix
+ - RooBinned{1DQuinticBase,2DBicubicBase}: small technical fix
+
+! 2012-09-13 - Manuel Tobias Schiller
+ - CPObservable: fix bug in formulae, now in line with LHCb-INT-2011-051
+
+! 2012-09-12 - Agnieszka Dziurda
+ - update BsDsPi time sFit scripts 
+
+! 2012-09-12 - Manuel Tobias Schiller
+ - NonOscTaggingPdf: remove analytical integral which was disabled because it
+   did not work properly - in retrospect, it's clear why: integrating over a
+   category variable means summing over category states, something which
+   RooFit knows how to do quickly and efficiently ;)
+
+! 2012-09-12 - Manuel Tobias Schiller
+ - cFit: some cleanups, unblinded settings
+
+! 2012-09-12 - Manuel Tobias Schiller
+ - cFit: after extensive bug search, it turned out that real real data was
+   missing a conversion between different units in the decay time; use
+   the opportunity to robustify a few other bits
+
+! 2012-09-11 - Manuel Tobias Schiller
+ - prepare cFit for data: adjust parameters, implement tagging calibration
+
+! 2012-09-11 - Manuel Tobias Schiller
+ - NonOscTaggingPdf: should derive from RooAbsPdf, not RooAbsReal
+
+! 2012-09-11 - Manuel Tobias Schiller
+ - make_histos.py: Auto-exclude toy results based on fit quality flags stored
+   in RooFitResult
+
+! 2012-09-11 - Manuel Tobias Schiller
+ - cFit: protect against typos in config dictionary files/command line
+
+! 2012-09-11 - Manuel Tobias Schiller
+ - cFit: description of Lambda_b/combinatorial BG completely screwed up, fix
+   by putting in correct descriptions
+
+! 2012-09-11 - Manuel Tobias Schiller
+ - cFit: fix bug in yield adjustment procedure: Vava's toys include only on of
+   the six data subsamples, so the (up,down)x(kkpi,kpipi,pipipi)-mixture needs
+   to be adjusted accordingly
+
+! 2012-09-11 - Manuel Tobias Schiller
+ - cFit changes:
+   - routine to read in datasets from official tuple production/Vava's tuples
+     this is based on reading the corresponding workspaces, and takes care of
+     converting the variables that should have been categories to real
+     categories
+   - implement "shut up Minuit"-style blinding - this stays on as long as the
+     referees say so, even for toys (it's ignored for toys)
+   - make the fit crash before it does anything if people accidentally read
+     real data in the toy configuration or vice-versa (thankfully, variable
+     names in the dataset are slightly different)
+   - during the fitting stage, adjust yields automatically to data set which
+     was read in or generated
+   - several small cleanups
+
+! 2012-09-10 - Manuel Tobias Schiller
+ - BdPTAcceptance: provide analytical time integral - while time is not the
+   issue when integrating the acceptance function, numerical accuracy is, and
+   here the analytical formula beats any numerical integrator...
+ - cFit: clean up a little, make Optimize/Strategy settings part of the fit
+   configuration
+
+! 2012-09-09 - Manuel Tobias Schiller
+ - added two new classes to interpolate smoothly between a given set of
+   values in 1D and 2D, emphasis is on derivatives being well behaved
+   (interpolation agrees with histogram values at bin centers, first and
+   second derivatives in these points are continuous and differentiable);
+   names are RooBinned1DQuinticBase and RooBinned2DBicubicBase
+
+   these are templated classes, enabling one to get either a RooAbsPdf or a
+   RooAbsReal derived class, depending on the template parameter specified
+
+   these interpolation classes provide analytical integrals, and require a the
+   histograms on which they are based to have uniform bin sizes
+
+   the 1D version is not the final word on the issue, but is good enough for
+   now...
+
+ - helper class for interpolation classes: SharedArray, a copy-on-write array
+   implementation (lots of interpolation coefficients, and RooFit loves
+   cloning, so we better make sure we only have to clone a pointer ;)
+ 
+ - make it possible for the cFit to use this interpolation as an option
+ 
+ - cFit: work around yet another ownership issue between ROOT, Python and
+   FitMeTool
+
+! 2012-09-08 - Manuel Tobias Schiller
+ - cFit: StaticAcceptance config option did not work as intended, fix
+
+! 2012-09-08 - Manuel Tobias Schiller
+ - fix issue in cFit where some data structures were released too early,
+   causing a crash in FitMeTool
+
+! 2012-09-08 - Manuel Tobias Schiller
+ - adapt kfactorTDPartRecoBkgBs2DsK.py to run in standalone mode, put output
+   into data/workspace
+ - put the resulting k-factor distribution workspace into svn
+ - make cFit use files in data/workspace
+ - update cFit mass fitter constants to latest values
+
+! 2012-09-06 - Manuel Tobias Schiller
+ - FitMeTool: add possibility to add conditional observables and external
+   constraints to the fit (with objects properly imported into workspace)
+ - RooBinnedPdf, RooEffResModel: update from Gerhard Raven's repository
+   upstream, with some changes to RooEffResModel to ensure that there are no
+   memory leaks (probably not a problem in the first place, but hey, it was
+   easy to make relatively airtight... ;)
+ - RooGeneralisedSmearingBase: implement maximum value determination if
+   underlying pdf and model support it (helps during generation,
+   unfortunately not in our particular case - the pdf and mode we use do not
+   support it)
+ - RooGeneralisedSmearingBase: fix bug: when cloning an instance of
+   RooGeneralisedSmearingBase and the original binning goes out of scope
+   before the clone does, the clone has a dangling pointer; solution is to
+   require the binning to be registered with the variable which is being
+   binned, and then keeping a copy of the binning name within
+   RooGeneralisedSmearingBase
+ - cFit improvements:
+   - fix several memory leaks on the python side of things
+   - write and enable config dictionary sanitation and consistency checks
+   - enable fitting with per-event mistag with the mistag being a purely
+     conditional variable, i.e. without making the mistag distribution part of
+     the pdf in the fit
+   - only parametrise integrals of mistag/per event decay time when the
+     conditional part of the pdf actually depends on it - this allows to
+     generate with a per-event mistag distribution while the true mistag is
+     something else entirely
+   - fix setParameterizeIntegral usage for conditional PDFs; this brings
+     conditional PDFs on par with neglecting the PDF and just specifying
+     conditional observables; more importantly, is also fixes a crash when
+     using conditional observables
+   - have to revert to Optimize(0), or things will not converge properly -
+     costs about a factor two in speed, but well worth it... ;)
+
+! 2012-09-06 - Manuel Tobias Schiller
+ - fix automatic dependency tracking in standalone build system for Reflex
+   dictionaries (make could miss occasions when the dictionaries need to be
+   remade)
+
+! 2012-09-04 - Manuel Tobias Schiller
+ - fix most compiler warnings in C++ code (no changes in behaviour)
+   (there are still lots of warnings in GeneralUtils.cxx, mostly about
+   potentially uninitialised variables, please check)
+ - get rid of confusing pow(10,3)-style calls when we have perfectly
+   acceptable 1e3 around
+
+! 2012-09-04 - Manuel Tobias Schiller
+ - fix a bug in the standalone setup.sh script for use with bash
+
+! 2012-09-04 - Manuel Tobias Schiller
+ - standalone builds are possible now; here's how:
+   
+   1. cd to the standalone subdirectory
+   2. source setup.sh in that directory
+   3. type "make distclean; make" in standalone
+   4. run your favourite python scripts
+
+   Some scripts may require a little modification, since GaudiPython is
+   unavailable, see runBs2DsKCPAsymmObsFitter-cFit.py on how to do it
+ - various cleanups throughout the code to make things work with newer
+   compilers, no user-visible changes for what we use in the LHCb software
+   stack, no changes in behaviour
+ - cFit changes:
+   - work in standalone setting
+   - debug the long-standing bug with per-event mistags
+   - keep variables common across modes where possible (e.g. if two modes have
+     the same mistag, make sure they get the same RooFit Dilution object) to
+     save some time in propagating value changes
+   - some more k-factor integration tuning (although I suspect it's not final
+     yet)
+   - add possibility to switch between experimental mistag distribution and my
+     MistagDistribution mock class for debugging purposes
+   - autotune mistag binning for experimental mistag distributions
+ - RooGeneralisedSmearingBase: remove unneeded member
+
+! 2012-09-01 - Agnieszka Dziurda
+ - mass fit: add script dsdsstpirho.py and file conf_dsdsstpirho.txt
+ 
+! 2012-08-30 - Agnieszka Dziurda
+ - mass fit: new result in data/workspace for BsDsK
+ - mass fit: change DsDsstPiRho fractions in BsDsK mass fit
+
+! 2012-08-29 - Agnieszka Dziurda
+ - mass fit: add data/workspace repository with mass fit workspace before and after fit. 
+ - mass fit: change BdRho yield to be 1/3.5 of BdDPi 
+
+! 2012-08-28 - Agnieszka Dziurda
+ - mass fit: fix tiny bug in BsDsK, Down, KPiPi plotting
+
+! 2012-08-27 - Manuel Tobias Schiller
+ - cFit k-factor handling: fix pathology for 1 entry k-factor distributions
+
+! 2012-08-27 - Manuel Tobias Schiller
+ - cFit: fix a tiny issue in k-factor: for Bs -> Ds*K* we don't have a
+   k-factor distribution, but we have practically no events either, so fit and
+   generate them without k-factor
+
+! 2012-08-27 - Manuel Tobias Schiller
+ - cFit: possibility to combine CP observables and tagging efficiencies for
+   DsK-like modes to effective CP observables and tagging efficiency during
+   fit
+ - cFit: take per-event mistag distribution from template (doesn't quite work
+   yet)
+ - cFit: some more integrator tuning
+
+! 2012-08-26 - Manuel Tobias Schiller
+ - work on runBs2DsKCPAsymmObsFitterToyMC, runBs2DsKCPAsymmObsFitter-cFit:
+   - figure out "correct" acceptance binning to avoid biases: 100 bins, adapt
+     binning to turnon point of acceptance function
+   - cFit: yield dump in log file (signal region)
+   - cFit: allow to scale yields by given factor (10 x stats. and similar
+     studies)
+   - ToyMC: allow to fit |lambda|, weak, strong phase directly instead of
+     using C, D, S, Dbar, Sbar
+   - ToyMC: experimental: different way to normalise PDF - not equivalent to
+     standard PDF, don't use for anything but research for now
+
+! 2012-08-26 - Manuel Tobias Schiller
+ - runBs2DsKCPAsymmObsFitterToyMC, runBs2DsKCPAsymmObsFitter-cFit:
+   - update to include changes to calling conventions in last few commits
+   - seems we can run at Optimize(1) after all 
+   - retune integrator settings
+   - take advantage of RooEffResModel, binned cache evaluation in k-factor
+     smearing
+   - order dataset before fit by categories to avoid cache poisoning; this
+     gives cached values in RooFit Pdfs a better chance to be reused because
+     input arguments to pdfs change less frequently
+   - cFit only: move to triple gaussian resolution model
+
+! 2012-08-26 - Manuel Tobias Schiller
+ - RooGeneralisedSmearingBase:
+   - fix bad bug in binned cache evaluation (did not always see when a
+     variable changed)
+   - add possibility to give a set of categories, so the binned cache isn't
+     poisoned if one of the categories changes value (but that mean keeping a
+     cache for each category value)
+   - allow the cache to be used for "analytical" integration
+
+! 2012-08-26 - Manuel Tobias Schiller
+ - RooEffHistProd, RooEffResModel: fix various small memory leaks
+
+! 2012-08-26 - Manuel Tobias Schiller
+ - FitMeTool: in destructor, delete workspace to avoid memory leaks
+   - consequence: if you want to use any objects that you got from FitMeTool
+     (which are all owned by the workspace), you either have to make sure that
+     you don't delete the instance of FitMeTool which owns the object, or your
+     have to Clone() that object to get your private version
+
+! 2012-08-24 - Manuel Tobias Schiller
+ - update cFit script:
+   - take advantage of new classes/improvements
+   - get rid of unneccessary mass acceptance
+   - fix a few bugs
+   - new integrator settings
+ - update dictionary files
+
+! 2012-08-24 - Manuel Tobias Schiller
+ - update to versions from upstream: RooEffHistProd, RooBinnedPdf
+ - pull new class from G. Raven: RooEffResModel
+
+! 2012-08-21 - Manuel Tobias Schiller
+ - new class RooGeneralisedSmearingBase:
+   - based on RooGeneralisedSmearing, replaces it and RooNumGenSmearPdf
+   - implement optional binned caching & interpolation of smearing results integrals
+     one variable to allow substatially faster evaluation of k-factor integrals;
+     cache is filled lazily so low statistics data samples can benefit from not
+     having to pre-calculate bins which are not going to be used
+
+! 2012-08-23 - Agnieszka Dziurda
+ - update plots scripts
+ - update combinatorial bakcground slopes
+
+! 2012-08-09 - V. Gligorov
+ - Update PropertimeResolutionModels to take a bias on the propertime as a 
+   paramter
+ - Update sFit scripts to be configured even more fully from the configuration
+   files in the data directory
+ - Update these configuration files to inherit from the nominal configuration
+ - Make many new configuration files for the systematics  
+
+! 2012-08-08 - Manuel Tobias Schiller
+ - cFit: further stabilise fit (and improve fitting time) by parametrising the
+   DsK-like backgrounds in terms of |lambda|, strong and weak phase instead of
+   C,D,S,Dbar,Sbar and putting constraints
+
+! 2012-08-08 - Manuel Tobias Schiller
+ - cFit: fix bug in binned acceptance handling, speed up constraints for
+   DsK-like modes
+
+! 2012-08-07 - Agnieszka Dziurda
+ - change expected yields in mass fitter
+
+! 2012-08-06 - Agnieszka Dziurda
+ - changes for tag omega pdf distributions -> GeneralUtils.cxx
+
+! 2012-08-06 - Manuel Tobias Schiller
+ - cFit changes
+   * fit for tagging efficiencies (signal, DsK-like per channel, DsPi-like
+     separate for decaying Bs and Bd, Lb, comb. BG)
+   * do not float Delta m_s (gives biases on CP parameters if I float it)
+   * better description of Lb BG in time
+ - old fitting scripts (runBs2DsKCPAsymmObsFitterToyMC): allow to constrain
+   C from magnitude of lambda 
+
+! 2012-08-04 - Agnieszka Dziurda
+ - fix bug in PID histos 
+ - changes in all plotting scripts (time and mass)
+ - small changes in run Bs->DsK time script -> add workspace
+ - add scripts to fit Bd->DPi from data
+ - changes in data/config.. files for DsK and DsPi
+ 
+! 2012-08-02 - V. Gligorov
+ - Change the PropertimeResolutionModels.cxx code to return a single Gaussian
+   model which can be used outside the FitMeTool framework as well as inside
+   it when asked to do so. This change effectively makes the returning of the
+   single and triple Gaussian models consistent.
+ - Make the type of resolution model a command line option. 
+ - Major rewrite of the sFit time fitting scripts. All parameter configuration
+   is now done via python dictionaries placed in the "/data" directory of this
+   package. The fitters for DsPi and DsK then take the name of the configuration
+   file to run with from which the options are read. 
+ - Three configurations have been added so far 
+   . Bs2DsPiConfigForNominalDMSFit
+   . Bs2DsPiConfigForDMSFitWithFloatingTAcc
+   . Bs2DsKConfigForNominalGammaFit
+   Their names should be pretty self explanatory.
+ - Make the time fitting scripts print all their configuration options to the
+   logfile now.
+
+! 2012-08-01 - V. Gligorov
+ - Change blinding to be done by forcing Minuit to be quiet. In blinded mode
+   the sFitters now print only the parameter uncertainties.
+ - Update triple Gaussian resolution model code so it can be used in the fits.
+ - Many other small updates on the sFit side to the fitting interface. Can
+   now choose to use fitMeTool or not on the command line.  
+
+! 2012-08-01 - Manuel Tobias Schiller
+ - add RangeAcceptance class: function to return 1 if some variable is within
+   a range of min, max
+ - enforce a mass RangeAcceptance in cFit to get rid of biases
+
+! 2012-07-31 - Manuel Tobias Schiller
+ - scripts/make_histos.py: fix a bug in the pull calculation for histogram
+   bounds autocalculation
+ - runBs2DsKCPAsymmObsFitter-cFit.py: tune integrator settings a tiny little
+   bit
+
+! 2012-07-30 - Manuel Tobias Schiller
+ - runBs2DsKCPAsymmObsFitter-cFit.py:
+   * clean up the code and modularise
+   * put in the combinatorial BG used by our cFit colleagues
+   * put in the machinery for blinding C, D, Dbar, S, Sbar, for the Bs->DsK
+     and Delta m_s which shared by all B_s decays (some more logic is needed
+     to activate this automatically when reading data tuples)
+
+! 2012-07-29 - Manuel Tobias Schiller
+ - fork runBs2DsKCPAsymmObsFitterToyMC.py: cFit will continue to be developed
+   in runBs2DsKCPAsymmObsFitter-cFit.py which contains these improvements
+   * include all backgrounds (although for some the parameterisation may not
+     be final yet)
+   * update acceptance parameters to what Vava reports from fit to DsPi
+   * changes needed to accomodate the additional CP parameters for the
+     DsK-like backgrounds, including constraining the sum of squares of the CP
+     parameters
+   * fine-tune k-factor integration range from mode/template width
+   * fine-tune k-factor integration settings (still complains about not being
+     able to reach target precision, but I'd guess that's due to the templates
+     looking strange to the integrator)
+   * use binned acceptance function by default, otherwise it's unbearably slow
+     (per event mistag does not work at the moment, runs out of memory)
+
+! 2012-07-29 - Manuel Tobias Schiller
+ - fix a few minor issues with TagEfficiencyWeightNoCat.cxx, generate
+   dictionaries for it
+
+! 2012-07-29 - Manuel Tobias Schiller
+ - python/B2DXFitters/cpobservables.py: when printing CP observables,
+   optionally print which mode they're for
+
+ - FitMeTool: allow to pass more RooCmdArgs when fitting/generating; this
+   change is backwards-compatible with existing code
+
+ - GeneralUtils.cxx: in k-factor extraction, constrain missing daughter from
+   K* to pion mass, in Ds* case, autodetect photon/pion and constrain
+   accordingly
+
+! 2012-07-28 - V. Gligorov 
+ - Lots of commits all over the place for sFit and similar. Some highlights
+   of what was added/changed
+   . DrawPullsFor* are scripts to scan logfiles and produce pull plots for 
+     toy studies
+   . runBsDsK_sFit_* are scripts to run toys on a large scale
+   . Changes to toy generators to generate with correct Lb and combo lifetimes
+   . Add upper time cut of 10ps and upper mistag cut of 0.48 for the toys
+   . TagEfficiencyWeightNoCat.cxx class to compute tag efficiency weight
+     without use of categories
+
+! 2012-07-28 - Manuel Tobias Schiller
+ - runBs2DsKCPAsymmObsFitterToyMC.py: finish routine to extract pdfs and
+   yields from mass fitter workspace; the new routine will automatically
+   correct for different mass ranges considered in mass fit and cFit
+
+! 2012-07-28 - Manuel Tobias Schiller
+ - runBs2DsKCPAsymmObsFitterToyMC.py: routine to read in k-factor
+   distributions; reading in yields from mass fitter will need some more workspace
+   and will be fixed in a future commit
+
+! 2012-07-28 - Manuel Tobias Schiller
+ - merge plot_histos and make_histos scripts, figure out ranges and plot all
+   plottable variables automatically in a 3 * RMS range around the central
+   value of the variable (gets rid of strange binning effect in
+   pulls/residuals)
+
+! 2012-07-27 - Manuel Tobias Schiller
+ - runBs2DsKCPAsymmObsFitterToyMC.py: first shot at reading mass pdfs or
+   templates from result of mass fit (not used so far)
+
+! 2012-07-27 - Manuel Tobias Schiller
+ - some improvements to {make,plot}_histos.py scripts
+ - in runBs2DsKCPAsymmObsFitterToyMC.py: go back to the somewhat safer
+   integrator settings
+
+! 2012-07-27 Suvayu Ali 
+ - Bug fix plotting script
+ - Rewrite for clarity, include "shifted" modes
+ - Add more MC samples for partially reco'd bkg modes
+ - More precise DecayTreeTupleSucksFitter
+ - Rewrite Bdecaytree to TwoBodyDecay
+ - Veto outliers in MC truth
+
+! 2012-07-27 - Manuel Tobias Schiller
+ - make_histos.py: automatic histogram bounds for CP value parameters in toy
+   studies
+
+! 2012-07-25 - Agnieszka Dziurda
+ - fix small bug for option --tagOmegaPdf in GeneralUtils.cxx 
+
+! 2012-07-25 - Manuel Tobias Schiller
+ - fix bug in IfThreeWay and IfThreeWayPdf classes: when truncating the
+   condition to an integer, imprecisely rounded float values in the input
+   could screw up the intended result. Fix is to explicitly convert to double,
+   with an area from -epsilon to epsilon reserved to represent the zero where
+   epsilon is tuned to the floating point accuracy of the float data type
+   which is used to store the data in our tuples
+
+! 2012-07-24 - Agnieszka Dziurda
+ - add lab1_PT to observables for --tagTool option
+ 
+! 2012-07-24 - Manuel Tobias Schiller
+ - update runBs2DsKCPAsymmObsFitterToyMC.py: make acceptance parameters
+   tunable via configuration dictionary
+
+! 2012-07-23 - Manuel Tobias Schiller
+ - make DecayTreeTupleSucksFitter fail if it converges to unphysical values
+   when constraining particles to a completely wrong mass
+
+! 2012-07-22 - Suvayu Ali 
+ - K-factor distributions for partially reconstructed backgrounds.
+   Also account for wrong mass hypothesis for mis-id'd bachelor.
+ - Experimental kinematics hack (class Bdecaytree) for partially
+   reco'd backgrounds with missing MC.
+
+! 2012-07-20 - Manuel Tobias Schiller
+ - DecayTreeTupleSucksFitter: relax convergence criterion somewhat to ensure
+   convergence also under difficult conditions
+
+! 2012-07-20 - Agnieszka Dziurda
+ - fix minor bug in GenerateToySWeights_DsX.py X={K,Pi}
+ - add option --tagTool (for Matt) to 
+   prepareBsDs{K,Pi}MassFitterOnData.py and runBsDs{K,Pi}MassFitterOnData.py
+   Option add to RooDataSet variables:
+   lab0_BsTaggingTool_SS_Kaon_PROB
+   lab0_BsTaggingTool_OS_Muon_PROB
+   lab0_BsTaggingTool_OS_Electron_PROB
+   lab0_BsTaggingTool_OS_Kaon_PROB
+   lab0_BsTaggingTool_VtxCharge_PROB
+   lab1_P
+   
+! 2012-07-20 - Manuel Tobias Schiller
+ - polish DecayTreeTupleSucksFitter somewhat so it can constrain zero mass
+   particles
+
+! 2012-07-20 - Manuel Tobias Schiller
+ - change mass constraint method in DecayTreeTupleSucksFitter from a
+   constraint on the mass to a constraint on the mass squared; this method
+   behaves somewhat nicer in corner cases because the problem spot in sqrt(x)
+   around x = 0 is not there; there should not be any user visible change in
+   behaviour or results
+
+! 2012-07-19 - Manuel Tobias Schiller
+ - extend DecayTreeTupleSucksFitter to allow constraining the mass of the
+   intermediate resonance of which we lose one daughter (e.g. in
+   D_s*->D_s gamma, allow to also constrain the D_s* mass)
+
+! 2012-07-18 - Manuel Tobias Schiller
+ - add DecayTreeTupleSucksFitter class: refit (MC truth) momenta read from
+   DecayTreeTuple because the floating point precision used to save 4-momenta
+   is insufficient for k-factor extraction in some modes (refit here means a
+   fit with mass constraints and imposed 4-momentum conservation)
+
+! 2012-07-16 - Manuel Tobias Schiller
+ - fix bad bug in runBs2DsKCPAsymmObsFitterToyMC.py which caused the updates
+   to fit and generation configuration dictionary go to the same underlying
+   object - fix by explicitly making 2 copies of the default config dictionary
+
+! 2012-07-11 - Manuel Tobias Schiller
+ - runBs2DsKCPAsymmObsFitterToyMC.py: Implement a sustainable configuration
+   management solution for toys: All fit/generator configuration options and
+   settings are saved in a dictionary; a default dictionary is contained in
+   the source code, and both fit and generator configuration are based on it.
+   Command line options allow to read in an expression like '{"NSigEvts":20}'
+   which update the fit or generator configuration. These expressions can be
+   read in from a file, or they can be given at the command line. If both are
+   supplied, the expression given on the command line overrides what is given
+   in the file for those dictionary entries which occur in both.
+
+   (Hint: feel free to steal the mechanism, even if the variables in your
+   configuration are called differently - running different scenarios will
+   become much easier... ;)
+
+! 2012-07-11 - Manuel Tobias Schiller
+ - runBs2DsKCPAsymmObsFitterToyMC.py: fix python/workspace ownership issues
+   once and for all by introducing the WS(ws, obj) routine which makes the
+   workspace ws "swallow" the object and returns a pointer to the swallowed
+   object; thus, constructor calls now can be written as:
+   var = WS(ws, RooConstVar('var', 'variable', 42.0))
+
+! 2012-07-11 - Manuel Tobias Schiller
+ - changes to runBs2DsKCPAsymmObsFitterToyMC.py
+   * first "k-factor ready" version
+   * split running the toy and preparing the pdf (allows for different pdfs in
+     generation and fitting (to test effect of simplifications like per event
+     errors vs. average errors)
+
+! 2012-07-10 - Manuel Tobias Schiller
+ - change CombBkgPTPdf to provide analytical integrals over time to speed
+   things up a bit (easy to do and does not hurt)
+
+! 2012-07-10 - Manuel Tobias Schiller
+ - change cmt/requirements to put debugging symbols in - we still optimize the
+   code, but like this, a crash dump will contain a line number, making things
+   a bit easier
+
+! 2012-07-10 - Manuel Tobias Schiller
+ - Implement the speedup in k-factor smearing discussed in last Wednesday's
+   time-dependent B2OC meeting: we exploit analytical integrals the physics
+   pdf may provide to avoid a 2D integration over time and k-factor, thus
+   arriving at an "analytical" integral over k-factor distribution times
+   analytical time integral over physics pdf; the integration over k is still
+   done numerically, despite what the name says... This gives a speedup of
+   several orders of magnitude.
+
+! 2012-07-08 - Manuel Tobias Schiller
+ - fix dictionary for k-factor smearing classes: correctly specify transient
+   class members (ROOT dictionaries use the "//!" comment whereas you need
+   to put a special xml tag into the xml for genreflex...
+
+! 2012-07-06 - Manuel Tobias Schiller
+ - add classes needed for the k-factor smearing integral:
+   RooGeneralisedSmearing RooGenSmearIntegrandBinding RooNumGenSmearPdf
+
+! 2012-07-06 - Agnieszka Dziurda
+ - toys update:
+   . in scripts "run" (time and mass model) add new option - toys (yes/no)
+   . add new functions to GeneralUtils.{cxx,h}
+   . modify "Generate" scripts  
+  
+! 2012-07-05 - Manuel Tobias Schiller
+ - fix src/GeneralModels.cxx which got polluted with some local debugging
+   changes by reverting it to the previous version. I'm terribly sorry for the
+   inconvenience
+
+! 2012-07-05 - Manuel Tobias Schiller
+ - fix scripts/plotBs2DSHTimeModels.py so that it works well with the changes
+   in the fitter code; also move to ROOT batch mode, so one can do the
+   plotting in a screen where the X connection may be lost
+
+! 2012-07-02 - Manuel Tobias Schiller
+ - added class which mimics shape of typical mistag distribution on data
+   (careful, the average mistag of the distribution cannot be tuned between
+   arbirary limits for all sets of parameters, so read documentation, test
+   and plot the pdf before you fit)
+ - imported two classes (RooBinnedPdf, RooEffHistProd) from G. Raven's (et
+   al.) p2vv fitter repository; these two classes allow to bin the acceptance
+   function from any given distribution, thus allowing to speed up the fitter
+   (anything that doesn't work as advertised was probably broken by me during
+   the import)
+ - speed up the toy fitter by moving from decayPath to two separate categories
+   (gains about a factor 2-3)
+ - restructure the code of the toy fitter to allow for per-event mistag (for
+   now Bs->DsK and Bs->DsPi), and also per-event decay time errors
+ - build a new (python) procedure to return a time pdf for all of these options,
+   include (dummy) parameters which will allow the inclusion of the k-factor
+   approach for the backgrounds in the future cFit
+ - edit scripts/{make,plot}_histos.py to get rid of the ROOT crash
+
+! 2012-07-01 - Agnieszka Dziurda
+ - Clean up campaign
+ - Add function GetRooKeysPdfFromWorkspace to Bs2Dsh2011TDAnaModels.h
+ - small changes in "prepare" and "run" scripts (mass model)   
+
+
+! 2012-06-30 - Agnieszka Dziurda
+ - fixed bug in savesWeights (part of FitMeTool), now saving works for Erasmus7
+ - changed slopes in combinatorial background description corespond to BDTGResponse>0.5
+ - changed expected yield of Lb->LcK corespond to BDTGResponse>0.5
+ - toys
+   - added two scripts: GenerateToySWeights_DsPi.py and GenerateToySWeights_DsK.py (wrote by Vava&myself)   
+   - we needed RooKeysPdf for TagOmega, because of that:
+     . added new bool argument in GeneralUtils function: 
+   CreatePDFMC, ObtainMissForBsDsK, ObtainMissForBsDsPi, ObtainSpecBack  
+       and changed prepareBsDsPiMassFitterOnData.py, prepareBsDsKMassFitterOnData.py
+   - added to GeneralUtils function: generateFlavProd 
+       
+! 2012-06-26 - Manuel Tobias Schiller
+ - remove the bogus mistag parameter from the buildRooBDecayPDF family of
+   functions in GeneralModels.cxx/.h
+ - adapt the sFit script to reflect this change
+ - minor point: be correct about floating point constants in
+   BdPTAcceptance.cxx
+
+! 2012-06-26 - Manuel Tobias Schiller
+ - revert changes Vava made to IfThreeWayCat and IfThreeWayCatPdf classes,
+   introducing classes IfThreeWay and IfThreeWayPdf for Vava's use (Vava's
+   changes broke the cFit toy)
+ - adapt sFit scripts to use the new classes
+
+! 2012-06-24 - Manuel Tobias Schiller
+ - fix bug in runBs2DshMassFitterOnData.py (h=K,pi) which caused it to crash
+   near the end of the fit (trying to save sweights despite being told not to
+   do so in job options)
+
+! 2012-18-06 - Agnieszka Dziurda
+ - changed reading data for TD model;  
+
+! 2012-17-06 - V. Gligorov
+ - commit some changes for Agnieszka and Eduardo to fix parameters before making
+   the sweights
+ - change the prepare and mass scripts to save the time variables to the workspace
+   in order to make time fitting simpler (no longer need to read separate sweights
+   and ntuple files)
+ - change the parameters in the DsPi fit which were RooFormulaVar governed (i.e. the
+   Bd->DsPi backgrounds and similar) to fixed values 
+
+! 2012-08-06 - Agnieszka Dziurda
+- the mass fitter:
+  . constrain yields from misID expectation:
+   Bd->DPi under Bs->DsPi
+   Bd->DK under Bs->DsK
+   Lb->LcK under Bs->DsK
+   Lb->Dsp, Dsstp under Bs->DsK
+   Bs->DsRho, DsstPi, DsstRho with respect to Bs->DsPi in Bs->DsK fitter
+   add option "constr", by default "yes"
+  . change slope for combinatorial backgrounds 
+  . change shift data-MC
+  . change signal line shapes 
+- add script for fitting signal lineshapes: fitSignal.py
+- add script for ploting signal: plotSignal.py 
+- add script for expected yields: expectedEvents.py
+- the time fitter:
+  . add script to run time fitter on data for Bs->DsK and Bs->DsPi
+   runBs2DsKCPAsymmObsFitterOnData.py and runBs2DsPiCPAsymmObsFitterOnData.py      
+   run: python runBs2DsKCPAsymmObsFitterOnData.py -s name_of_workspace
+  . add script to run plotting on data for Bs->DsK and Bs->DsPi
+   plotBs2DsKTimeModelsOnData.py and plotBs2DsPiTimeModelsOnData.py
+   run: python  plotBs2DsKTimeModelsOnData.py WS_name_of_workspace.root 
+- some minor changes
+
+
+! 2012-05-14 - Agnieszka Dziurda
+- the mass fitter:
+  . reorganization of prepraring workspace
+  . divide preparing workspace, code is flexible
+  . add simultaneous mass fit for Bs->DsPi
+  . add Monte Carlo for both polarity
+  . a lot of small changes    
+
+! 2012-04-30 - Agnieszka Dziurda
+- the mass fitter:
+  . prepareBsDsPiMassFitterOnData.py and prepareBsDsKMassFitterOnData.py- 
+    added new option -c --cutvariable for PID cut, by default: lab1_PIDK
+    fixed small bug for option -v
+  . runBsDsPiMassFitterOnData.py and runBsDsKMassFitterOnData.py
+    fixed small bug for option -v and fitter.printYieldsInRange() function
+  . runBsDsKMassFitterOnData.py and config_Bs2Dsh2011TDAna_Bs2DsK.txt
+    created template for Bd->DsK, took it from MC sample 
+  . plotBs2DsPiMassModels.py
+    fixed small bug in plotting signal
+  . GeneralUtils
+    added function setSignal   
+
+! 2012-04-28 - Agnieszka Dziurda
+ - the mass fitter for Bs -> DsK:
+   . script runBsDsKMassFitterOnData.py was modified
+     new option -w: "yes" or "no" (saving sWeights to the file)
+     new option -o: "all", "kkpi", "kpipi", "pipipi" (possibilities for fitting)
+     new option -m: "both", "up", "down" (possibilities for fitting)
+     all mixing options -o and -m work well
+   . script plotBs2DsKMassModels.py was modified
+     new option   -o: "all", "kkpi", "kpipi", "pipipi"
+     all mixing options -o and -m work well
+   . in Bs2Dsh2011TDAnaModels.cxx fixed some small bugs            
+
+! 2012-04-27 - Eduardo Rodrigues
+ - Tiny fix to GeneralModels
+
+! 2012-04-26 - Agnieszka Dziurda
+ - Added savesWeights function to FitMeTool
+ - Added the simultaneous fit for BsDsK 
+
+! 2012-04-23 - Eduardo Rodrigues
+ - Added more models to GeneralModels and more functionality to FitMeTool
+
+! 2012-04-22 - Manuel Tobias Schiller
+ - TD DsK fitter:
+   - tune RooFit integration settings to get rid of bad convergence cases
+   - update values for weak and strong phase, lambda
+   - update some of the plotting scripts
+
+! 2012-04-21 - Agnieszka Dziurda
+ - Small bugs fixed in GeneralUtils
+
+! 2012-04-20 - Agnieszka Dziurda
+ - add Bs -> Ds K mass fit:
+   . Script scripts/prepareBsDsKMassFitterOnData.py added. It prepares the
+     workspace with the necessary mass models and data
+   . Script scripts/runBsDsKMassFitterOnData.py added to plot the Bs -> Ds pi
+     mass models
+   . Configuration file data/config_Bs2Dsh2011TDAna_Bs2DsK.txt added.
+     It contains config info the the mass fit 
+   . Script scripts/plotBs2DsKMassModels.py updated
+   . Class GeneralUtils extended with a bunch of code for the new scripts above
+ - modify python scripts for Bs -> DsPi mass fit for several additional options      
+
+! 2012-04-18 - Manuel Tobias Schiller
+ - replace RooFormulaVars with compiled C++ classes to speed up computations
+ - fix stupid bug in DsK TD fit which made fit aware of type of individual
+   events (signal/DsPi/comb. BG)
+ - adapt plotting script to changes in last item (not everything is tested,
+   though)
+ - per event proper time errors are disabled for now (appears to be a bug in
+   RooFit; apparently it generates the acceptance and not the full PDF)
+ - since the different variants of the buildRooBDecay* function do essentially
+   the same thing, I refactored a bit such that they all share the same code
+   to avoid duplication
+
+! 2012-04-18 - Eduardo Rodrigues
+ - Small additions to GeneralUtils, bug fixes to the Dsh mass model making
+
+! 2012-04-18 - Agnieszka Dziurda
+- Fixed a few bugs in GeneralUtils (in function SetBsDsPi)
+- Changed file data/config_Bs2Dsh2011TDAna_Bs2DsPi.txt. 
+  Bs->DsPi data are taken from Sajan's public area.    
+
+! 2012-04-17 - Agnieszka Dziurda, Eduardo Rodrigues
+ - A variety of new things for the 2011 Bs -> Ds pi mass fit part of the
+   time-dependent Bs -> Ds K analysis:
+   . Class Bs2Dsh2011TDAnaModels added. It contains the code necessary for the
+     creation of the mass models
+   . Script scripts/prepareBsDsPiMassFitterOnData.py added. It prepares the
+     workspace with the necessary mass models and data
+   . Script scripts/runBsDsPiMassFitterOnData.py added to plot the Bs -> Ds pi
+     mass models
+   . Configuration file data/config_Bs2Dsh2011TDAna_Bs2DsPi.txt added.
+     It contains config info the the mass fit ... obviously ;-)
+   . Script scripts/plotBs2DsPiMassModels.py updated
+   . Class GeneralUtils extended with a bunch of code for the new scripts above
+ - To give it a go do the following:
+   . python prepareBsDsPiMassFitterOnData.py
+   . python runBsDsPiMassFitterOnData.py -s DsPi
+   . python -i plotBs2DsPiMassModels.py WS_DsPi.root
+
+! 2012-04-13 - Agnieszka Dziurda, Eduardo Rodrigues
+ - New script scripts/plotBs2DsPiMassModels.py to plot the Bs -> Ds pi mass
+   models (relevant to the TD DsK analysis)
+ - scripts/plotBs2DsKMassModels.py updated to be able to plot the complete
+   list of DsK background components
+
+! 2012-04-12 - Eduardo Rodrigues
+ - GeneralUtils class added: contains for now various utility functions
+   from Agnieszka Dziurda. To be improved/extended
+
+! 2012-04-11 - Eduardo Rodrigues
+ - FitMeTool: small improvements and added functionality
+ - scripts/fitFromWorkspace.py: new script that makes it trivial to fit a model
+   to a data sample provided in a RooWorkspace on an input file to the user
+
+! 2012-04-06 - Eduardo Rodrigues
+ - Major improvements to FitMeTool: all PDFs, functions, variables are now
+   stored in a workspace; make sure all object pointers in local workspace
+   are consistent; make sure the class can also deal with binned datasets
+ - Added the possibility of using per-event decay time errors in the resolution
+   model input to a RooBDecay. Helper function for this added to GeneralModels
+ - Scripts runBs2DsKCPAsymmObsFitterToyMC.py updated to be able to use per-event
+   decay time errors in the resolution function. But more testing is required
+ - More code/files updated to follow the conventions
+
+! 2012-04-04 - Eduardo Rodrigues
+ - New acceptance function (class) DTAcceptanceLHCbNote2007041 added.
+   It implements the acceptance function used in the 2007 sensitivity studies
+   documented in LHCb-2007-041
+ - Conventions file updated
+ - Several files updated to follow the conventions
+ - Extra documentation added here and there
+
+! 2012-04-04 - Manuel Tobias Schiller
+ - add missing dictionary for std::pair<std::string,RooAbsData*>
+ - include signal, midid'ed DsPi and comb. Bg in DsK TD fitter
+ - adapt the make_histos.py and plot_histos.py scripts to plot the total PDF
+
+! 2012-03-31 - Manuel Tobias Schiller
+ - fix bad bug in TD fitter: Bs->DsK component PDF was non-zero for DsPi
+   events and vice versa
+
+! 2012-03-31 - Manuel Tobias Schiller
+ - update tagging performance and DeltsGamma_s inputs in TD fitter
+ - fix a bug in DsPi generation
+
+! 2011-12-06 - Eduardo Rodrigues
+ - Added a couple of examples scripts (make_histos.py and plot_histos.py) to
+   produce and plot variable distributions and pulls for toy studies.
+   They are easily modifiable.
+
+! 2011-12-06 - Manuel Tobias Schiller
+ - fix typo in runBdDeltaMFitterToyMC.py
+ - continue to work on runBs2DsKCPAsymmObsFitterToyMC.py
+ - add first shot at some simple plotting for Bs2DsK fit in
+   plotBs2DsHTimeModels.py
+
+! 2011-12-05 - Manuel Tobias Schiller
+ - rewrite to use RooConstVar for things which are constant for physics
+   reasons in scripts/runBdDeltaMFitterToyMC.py,
+   scripts/runBs2DsKCPAsymmObsFitterToyMC.py
+ - check formulae in scripts/runBs2DsKCPAsymmObsFitterToyMC.py to make sure
+   they coincide with the text in the note (to appear soon); some minor
+   cleanups
+ - FitMeTool: use saner conventions when setting seeds for toys, i.e. exploit
+   the whole range of an (unsigned) int...
+ - add a few required packages to cmt/requirements (now builds with just
+   SetupProject Erasmus)
+
+! 2011-12-01 - Eduardo Rodrigues
+ - Added doc/conventions.txt defining fitter code/usage conventions
+ - Added C++ template for a double Crystal Ball PDF and a tiny testing script
+ - python/B2DXFitters/taggingutils.py extended with definition of values
+   of the head_TAGGER variable as stored by TupleToolTagging
+ - Added module python/B2DXFitters/particleutils.py for collecting info and
+   properties related to particles
+
+! 2011-11-25 - Eduardo Rodrigues
+ - Added new methods to FitMeTool class
+
+!============================== v1r2 06-11-2011 ==============================
+! 2011-11-06 - Diego Martinez Santos
+ - Make version v1r2.
+
+! 2011-10-25 - Eduardo Rodrigues
+ - Added scripts/runBs2DsKCPAsymmObsFitterToyMC.py, a test/development script
+   for the TD CP asymmetry fit with DsPi+DsK
+
+!============================== v1r1 28-07-2011 ==============================
+! 2011-07-28 - Diego Martinez Santos
+ - Make version v1r1.
+
+! 2011-07-29 - Eduardo Rodrigues
+ - Added tests/test_combBkgPTPdf.py to check the CombBkgPTPdf class
+ - Trivial improvements here and there
+
+! 2011-06-20 - Eduardo Rodrigues
+ - new module python/B2DXFitters/cpobservables.py to deal with CP observables
+ - FitMeTool: new functions for calculation of yields in specified region
+ - New scripts for Bs -> Ds K toy studies:
+   - scripts/runBs2DsKMassFitterToyMC.py: (too) simple toy for the mass fit
+   - scripts/plotBs2DsKMassModels.py: make the model plots in mass
+ - Major updates to scripts/runBdDeltaMFitterToyMC.py concerning background
+
+! 2011-06-09 - Eduardo Rodrigues
+ - Added new module taggingutils.py under python/B2DXFitters containing helper
+   functions to deal with tagging.
+ - Added a test script for taggingutils.py under tests/
+ - Improvements to various scripts
+ - Added documentation to FitMeTool
+ - Bd -> D pi mass fit with 2010 data:
+   - Added scripts/runBdMassFitterOnData.py to run the Bd -> D pi mass fit
+   - Added data/2010DataNtuple_Bd2DPi.root with the data sample from the 2010
+     Delta m_d analysis
+
+! 2011-06-07 - Eduardo Rodrigues
+ - scripts/runBdDeltaMFitterToyMC.py extended to take into account acceptances,
+   etc.
+
+! 2011-06-01 - Eduardo Rodrigues
+ - Added a test script to tests/: checks the mass fit plotter
+ - Major improvements to the Gamma_d fit
+ - Bd2DhModels added the no-tagging background model in time as used in the
+   Delta m_d analysis
+ - Added scripts/plotBdTimeModels.py to plot the Bd -> D pi time models
+ - Minor improvements to various running and plotting scripts
+
+! 2011-05-31 - Eduardo Rodrigues
+ - GeneralModels: added easy creation of (extended) RooBDecay PDFs
+ - Added scripts/runBdDeltaMFitterToyMC.py to run a toy delta m_d fit
+ - Added scripts/runBsMassFitterToyMC.py to run a toy mass Bs -> Ds pi fit
+ - Added scripts/plotBdMassModels.py to plot the Bd -> D pi mass models
+ - Added scripts/plotBsMassModels.py to plot the Bs -> Ds pi mass models
+ - New tests/ directory created.
+   Added a script testToyFitFromWorkspace.py and corresponding ROOT file
+   to test running a toy MC fit defining the model PDF from the one stored
+   on a RooWorkspace.
+
+! 2011-05-27 - Eduardo Rodrigues
+ - New helper files PropertimeResolutionModels.h/.cxx implementing various
+   propertime resolution models for Bx -> Dx h. So far are available:
+   truth, Gaussian and DoubleGaussian models
+ - GeneralModels: added easy creation of (extended) RooDecay PDFs
+ - Added script runBdGammaFitterToyMC.py to run a Gamma_d toy fit on Bd -> D pi
+ - Additions and improvements to FitMeTool
+
+! 2011-05-25 - Eduardo Rodrigues
+ - New helper files Bs2DshModels.h/.cxx for RooFit models for Bs -> Ds h.
+   For now it provides the background PDF models for Bs -> Ds pi as defined
+   in the Delta m_s analysis:
+   - combinatorial backgroud
+   - physical backgrounds
+   All individual models (templates) stored in ROOT files under data/:
+   - Bs2DsPiPhysBkg_Bd2DPi.root, Bs2DsPiPhysBkg_Bs2DsstPi.root,
+     Bs2DsPiPhysBkg_Bs2DsRho.root, Bs2DsPiPhysBkg_Bs2DsX.root,
+     Bs2DsPiPhysBkg_Lb2LcPi.root
+
+! 2011-05-24 - Eduardo Rodrigues
+ - New helper files GeneralModels.h/.cxx for general RooFit models.
+   For now it provides easy creation of Gaussian (extended) PDFs.
+ - Class CombBkgPTPdf added. Describes the combinatorial background PDF in time
+   as used in the Delta m_d and Delta m_s analyses.
+ - Class BdPTAcceptance added. Describes the Bd -> D Pi propertime acceptance
+   function as used in the Delta m_d and Delta m_s analyses.
+ - New helper files Bd2DhModels.h/.cxx for RooFit models for Bd -> D h.
+   For now it provides the background PDF models for Bd -> D pi as defined
+   in the Delta m_d analysis:
+   - combinatorial backgroud
+   - physical backgrounds
+   All individual models (templates) stored in ROOT files under data/:
+   - Bd2DPiPhysBkg_Bd2DK.root, Bd2DPiPhysBkg_Bd2DRho.root,
+     Bd2DPiPhysBkg_Bd2DstPi.root, Bd2DPiPhysBkg_Bd2DX.root
+ - Added script runBdMassFitterToyMC.py to run a toy mass Bd -> D pi fit
+ - Improved messaging in FitMeTool
+
+! 2011-05-23 - Eduardo Rodrigues
+ - Package creation
+ - Base class FitMeTool for fitting taken from package Phys/DeltaMsRooFitter.
+   Various improvements and extensions.

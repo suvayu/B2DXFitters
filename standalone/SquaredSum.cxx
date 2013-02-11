@@ -1,0 +1,1 @@
+../src/SquaredSum.cxx

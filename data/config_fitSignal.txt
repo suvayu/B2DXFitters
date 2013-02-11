@@ -1,0 +1,54 @@
+#BdDPi
+/afs/cern.ch/work/g/gligorov/public/Bs2DsKFitTuples/
+FitTuple_MergedTree_Bd2DPi_D2KPiPi_MD_BDTG_MINI.root
+FitTuple_MergedTree_Bd2DPi_D2KPiPi_MU_BDTG_MINI.root
+DecayTree
+DecayTree
+###
+
+#Signal BdDPi
+/afs/cern.ch/work/a/adudziak/public/
+Merged_Bd2DPi_D2KPiPi_MD_BsHypo_BDTG.root
+Merged_Bd2DPi_D2KPiPi_MU_BsHypo_BDTG.root
+DecayTree;1
+DecayTree;1
+###
+
+#Signal BsDsPi
+/afs/cern.ch/work/a/adudziak/public/
+Merged_Bs2DsPi_Ds2KKPi_MD_BsHypo_BDTG.root
+Merged_Bs2DsPi_Ds2KKPi_MU_BsHypo_BDTG.root
+DecayTree;1
+DecayTree;1
+###
+
+#Signal BsDsK
+/afs/cern.ch/work/a/adudziak/public/
+Merged_Bs2DsK_Ds2KKPi_MD_BsHypo_BDTG.root
+Merged_Bs2DsK_Ds2KKPi_MU_BsHypo_BDTG.root
+DecayTree;1
+DecayTree;1
+###
+
+#Signal BdDsK
+/afs/cern.ch/work/a/adudziak/public/
+Merged_Bd2DsK_Ds2KKPi_MD_BsHypo_BDTG.root
+Merged_Bd2DsK_Ds2KKPi_MU_BsHypo_BDTG.root
+DecayTree;1
+DecayTree;1
+###
+
+
+
+#PIDp
+/afs/cern.ch/user/l/lcarson/public/ForAgnieszka/
+EffHistos_Reco12_39Mom_Proton_MagDown_TightCuts.root
+EffHistos_Reco12_39Mom_Proton_MagDown_TightCuts.root
+###
+
+#PID
+/afs/cern.ch/user/l/lcarson/public/ForAgnieszka/
+EffHistos_Reco12_39Mom_MagDown_0123.root
+EffHistos_Reco12_39Mom_MagUp_012.root
+###
+
