@@ -5,6 +5,14 @@
 !-----------------------------------------------------------------------------
 
 
+! 2013-02-14 - Manuel Tobias Schiller
+ - cmt/requirements: undefine NDEBUG on the compiler command line for our
+   package - we would like to keep our asserts, thank you very much, and it
+   silences a few assert-related "Heisenwarnings"
+ - src/MassFitUtils.cxx: silence a few warnings about unused variables, dirty
+   style...
+
+
 ! 2013-02-04 - Manuel Tobias Schiller
  - some more cleanups in RooEffResModel, RooBinnedPdf 
 

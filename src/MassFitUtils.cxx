@@ -1379,6 +1379,11 @@ namespace MassFitUtils {
       heffProton[i] = ReadPIDHist(FileNamePIDp, namehist, i, debug);
       
       smpProton[i] = CheckPolarity(FileNamePIDp[i+1], debug);
+
+
+      if (heff[i]) {}; // hush up compiler warning
+      if (heffmiss[i]) {}; // hush up compiler warning
+      if (heffProton[i]) {}; // hush up compiler warning
     } // end of for loop
 
     //Read sample (means down or up) from path//
@@ -2222,9 +2227,8 @@ namespace MassFitUtils {
     
     //Merged data sets//
 
-    double minsize = 0;
-    if( sizeMU > sizeMD ){ minsize=sizeMD; }
-    else{ minsize = sizeMU; }
+    double minsize = std::min(sizeMD, sizeMU);
+    if (minsize) {}; // hush up compiler warning
   
     std::vector <RooDataSet*> data;
     std::vector <TString> mode;
@@ -2660,7 +2664,7 @@ namespace MassFitUtils {
 	    heff0=AddHist(heff0_1,  histent1[i], heff10_2, histent2[i], true);
 	    heff10=AddHist(heff10_1,  histent1[i], heff10_2, histent2[i], true);
 	  }
-		
+	if (heff0_2) {}; // hush up compiler warning
 	//std::cout<<"Tuuu"<<std::endl;
 	//TH2F *hist2D_1 = new TH2F("hist2D_1","hist2D_1", nbins, 0, max, nbins, 0, max);
 	TH2F *hist2D_2 = new TH2F("hist2D_2","hist2D_2", nbins, 0, max, nbins, 0, max);   

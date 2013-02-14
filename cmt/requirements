@@ -44,7 +44,7 @@ macro_append B2DXFittersLib_cppflags " -g"
 apply_pattern     linker_library library=B2DXFittersLib
 macro_append B2DXFittersLib_dependencies B2DXFittersGen
 macro_append ROOT_linkopts "  -lCore -lCint -lRooFitCore -lRooStats -lRooFit -lHist -lMatrix -lMathCore -lMathMore -lPhysics -lCintex -lGpad -lGraf"
-
+macro_append B2DXFittersLib_cppflags " -UNDEBUG"
 #apply_pattern    component_library library=B2DXFitters
 
 #============================================================================
