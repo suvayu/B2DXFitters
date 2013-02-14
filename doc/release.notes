@@ -6,6 +6,12 @@
 
 
 ! 2013-02-14 - Manuel Tobias Schiller
+ - src/MassFitUtils.cxx: work around a bug in the Intel compiler regarding
+   isnan, isinf and friends; when working with icc, we provide our own version
+   of there isnan, isinf, isnormal, isfinite, fpclassify, and inject them into
+   the std namespace (include B2DXFitters/icc_fpclass_workaround.h)
+
+! 2013-02-14 - Manuel Tobias Schiller
  - cmt/requirements: undefine NDEBUG on the compiler command line for our
    package - we would like to keep our asserts, thank you very much, and it
    silences a few assert-related "Heisenwarnings"

@@ -10,11 +10,14 @@
 //---------------------------------------------------------------------------//
 
 // STL includes
+#include <cmath>
 #include <string>
 #include <vector>
 #include <fstream>
 #include <stdexcept>
 #include <algorithm>
+
+#include "B2DXFitters/icc_fpclass_workaround.h"
 
 // ROOT and RooFit includes
 #include "TH1D.h"
