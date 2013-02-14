@@ -5,6 +5,11 @@
 !-----------------------------------------------------------------------------
 
 
+! 2013-02-15 - Manuel Tobias Schiller
+ - B2DXFitters/icc_fpclass_workaround.h: fix a couple of warnings; when
+   compiling with icc, import the float and long double versions of isnan and
+   friends into the global namespace as well...
+
 ! 2013-02-14 - Manuel Tobias Schiller
  - B2DXFitters/icc_fpclass_workaround.h: clean up code, document better, now
    the code has even been verified for correctness... ;)

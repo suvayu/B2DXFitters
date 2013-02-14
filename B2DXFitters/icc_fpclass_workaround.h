@@ -44,7 +44,7 @@ namespace __intel_compiler_fixes {
     __DE_C_L__(static __inline int isnan(float x))
     { return x != x; }
     __DE_C_L__(static __inline int isinf(float x))
-    { return (x && x == float(2) * x) * (x > float(0) ? float(1) : float(-1)); }
+    { return (x && x == float(2) * x) * (x > float(0) ? 1 : -1); }
     __DE_C_L__(static __inline int isfinite(float x))
     { return !isnan(x) && !isinf(x); }
     __DE_C_L__(static __inline int isnormal(float x))
@@ -62,10 +62,7 @@ namespace __intel_compiler_fixes {
     __DE_C_L__(static __inline int isnan(double x))
     { return x != x; }
     __DE_C_L__(static __inline int isinf(double x))
-    {
-	return (x && x == double(2) * x) *
-	    (x > double(0) ? double(1) : double(-1));
-    }
+    { return (x && x == double(2) * x) * (x > double(0) ? 1 : -1); }
     __DE_C_L__(static __inline int isfinite(double x))
     { return !isnan(x) && !isinf(x); }
     __DE_C_L__(static __inline int isnormal(double x))
@@ -85,8 +82,7 @@ namespace __intel_compiler_fixes {
     __DE_C_L__(static __inline int isinf(long double x))
     {
 	return (x && x == static_cast<long double>(2) * x) *
-	    (x > static_cast<long double>(0) ? static_cast<long double>(1) :
-	     static_cast<long double>(-1));
+	    (x > static_cast<long double>(0) ? 1 : -1);
     }
     __DE_C_L__(static __inline int isfinite(long double x))
     { return !isnan(x) && !isinf(x); }
@@ -108,7 +104,7 @@ namespace __intel_compiler_fixes {
     __DE_C_L__(template <class F> static __inline int isnan(F x))
     { return x != x; }
     __DE_C_L__(template <class F> static __inline int isinf(F x))
-    { return (x && x == F(2) * x) * (x > F(0) ? F(1) : F(-1)); }
+    { return (x && x == F(2) * x) * (x > F(0) ? 1 : -1); }
     __DE_C_L__(template <class F> static __inline int isfinite(F x))
     { return !isnan(x) && !isinf(x); }
     __DE_C_L__(template <class F> static __inline int isnormal(F x))
@@ -134,6 +130,18 @@ namespace std {
     using __intel_compiler_fixes::isnormal;
     using __intel_compiler_fixes::fpclassify;
 }
+// make them available in the global namespace as well
+#define __DE_C_L__(n) \
+static __inline int n(float x) __attribute((unused)); \
+static __inline int n(float x) { return __intel_compiler_fixes::n(x); } \
+static __inline int n(long double x) __attribute((unused)); \
+static __inline int n(long double x) { return __intel_compiler_fixes::n(x); }
+__DE_C_L__(isnan)
+__DE_C_L__(isinf)
+__DE_C_L__(isfinite)
+__DE_C_L__(isnormal)
+__DE_C_L__(fpclassify)
+#undef __DE_C_L__
 #endif
 
 #endif // _ICC_FPCLASS_WORKAROUND
