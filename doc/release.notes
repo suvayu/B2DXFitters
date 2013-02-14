@@ -6,6 +6,10 @@
 
 
 ! 2013-02-14 - Manuel Tobias Schiller
+ - B2DXFitters/icc_fpclass_workaround.h: clean up code, document better, now
+   the code has even been verified for correctness... ;)
+
+! 2013-02-14 - Manuel Tobias Schiller
  - src/MassFitUtils.cxx: work around a bug in the Intel compiler regarding
    isnan, isinf and friends; when working with icc, we provide our own version
    of there isnan, isinf, isnormal, isfinite, fpclassify, and inject them into
