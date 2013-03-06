@@ -6,6 +6,11 @@
 
 
 ! 2013-03-06 - Manuel Tobias Schiller
+ - scripts/make_histos.py: fix a bug when making pull plots of angles:
+   differences in angles (weak and strong phases come to mind) live on the
+   unit circle, thus they have to be clamped to the usual -pi to pi range
+
+! 2013-03-06 - Manuel Tobias Schiller
  - commit on behalf of Chiara Farinelli (who is busy writing her thesis):
    new fitter script runBs2DsPiTaggingCalibFitter.py; this is taken straight
    from her work area and may or may not run out of the box; it is, however, a

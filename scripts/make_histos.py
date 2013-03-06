@@ -1,7 +1,6 @@
 import os, sys
-from math import sqrt, pi
 from glob import glob
-from math import sqrt, pi
+from math import sqrt, pi, fmod
 
 EXT = '.pdf'
 fnames = glob('fitresult_[0-9][0-9][0-9][0-9].root')
@@ -66,12 +65,32 @@ def get_vars_names(res):
    return vnames
 
 # ----------------------------------------------------------------------------
+def isphase(name):
+    # look for something that looks like a phase
+    for n in ( 'gamma', 'delta', 'phi_w' ):
+	if n in name: return True
+    return False
+
+# ----------------------------------------------------------------------------
+def normalise_phase(val):
+    # normalise a phase to be within -pi < phaase <= pi
+    val = fmod(val, 2. * pi)
+    while val > pi:
+	val -= 2. * pi
+    while val <= -pi:
+	val += 2. * pi
+    return val
+
+# ----------------------------------------------------------------------------
 def get_vars_initvals(res):
    initvals   = dict()
    initparams = res.floatParsInit()
    for i in range(initparams.getSize()):
       param = initparams.at(i)
-      initvals[ param.GetName() ] = param.getVal()
+      name = param.GetName()
+      val = param.getVal()
+      if isphase(name): val = normalise_phase(val)
+      initvals[ name ] = val
    return initvals
 
 # ----------------------------------------------------------------------------
@@ -102,11 +121,13 @@ for name in vnames:
 for obj in fitresults:
     params = obj.floatParsFinal()
     for name in vnames:
-        vals[ name ].append(params.find(name).getVal())
-        errs[ name ].append(params.find(name).getError())
+	param = params.find(name)
+	val = param.getVal()
+        if isphase(name): val = normalise_phase(val)
+        vals[ name ].append(val)
+        errs[ name ].append(param.getError())
         #print '* %s :' % name
-        #print '  %f +/- %f' % (params.find(name).getVal(),
-        #                        params.find(name).getError())
+	#print '  %f +/- %f' % (val, param.getError())
         #print 20*'#'
 print '-->', len(fnames), 'files analysed,', len(exclude), 'excluded.\n'
 
@@ -116,7 +137,6 @@ all_histos = []
 histos = { }
 
 for name in vnames:
-   from math import sqrt
    print 'Figure out ranges for variable ', name, '...'
    values = vals[ name ]
    errors = errs[ name ]
@@ -133,7 +153,9 @@ for name in vnames:
       n = n + 1.
       if err != err or (abs(err) > 1. and abs(1. / err) == 0.) or err <= 0.:
 	  continue
-      pull = (val - initvals[name]) / err
+      resid = val - initvals[name]
+      if isphase(name): resid = normalise_phase(resid)
+      pull = resid / err
       if abs(pull) > 5.:
         continue
       p = p * (np / (np + 1.0)) +  pull / (np + 1.)
@@ -151,7 +173,9 @@ for name in vnames:
       n = n + 1.
       if err != err or (abs(err) > 1. and abs(1. / err) == 0.) or err <= 0.:
 	  continue
-      pull = (val - initvals[name]) / err
+      resid = val - initvals[name]
+      if isphase(name): resid = normalise_phase(resid)
+      pull = resid / err
       if abs(pull) > 5.:
         continue
       p2 = p2 * (np / (np + 1.0)) +  (pull - p) * (pull - p) / (np + 1.)
@@ -177,7 +201,10 @@ for name in vnames:
       err = errors[i]
       h[0].Fill(val)
       if abs(err) > 1.e-9:
-         h[1].Fill((val - initvals[name]) / err)
+         resid = val - initvals[name]
+         if isphase(name): resid = normalise_phase(resid)
+         pull = resid / err
+         h[1].Fill(pull)
       else:
          print 'WARNING: skipped entry in pull dist. of', name,\
                'error =', err
