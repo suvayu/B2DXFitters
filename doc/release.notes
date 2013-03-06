@@ -5,6 +5,11 @@
 !-----------------------------------------------------------------------------
 
 
+! 2013-03-06 - Manuel Tobias Schiller
+ - commit on behalf of Chiara Farinelli (who is busy writing her thesis):
+   new class TaggingCat, which will "multiplex" between the different
+   per-category mistags
+
 ! 2013-02-15 - Manuel Tobias Schiller
  - B2DXFitters/icc_fpclass_workaround.h: fix a couple of warnings; when
    compiling with icc, import the float and long double versions of isnan and

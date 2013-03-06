@@ -68,5 +68,6 @@ template class std::pair<std::string,RooAbsData*>;
 #include "B2DXFitters/NonOscTaggingPdf.h"
 #include "B2DXFitters/DecRateCoeff.h"
 #include "B2DXFitters/FinalStateChargePdf.h"
+#include "B2DXFitters/TaggingCat.h"
 
 #endif // DICT_B2DXFITTERSDICT_H

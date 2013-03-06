@@ -27,7 +27,7 @@
 	<class name = "RooAbsEffResModel"/>
 	<class name = "RooEffConvGenContext"/>
 	<class name = "RooEffResModel">
-	    <field name = "_ranges" transient = "true" />
+	    <!--- <field name = "_ranges" transient = "true" /> -->
 	    <field name = "_cacheMgr" transient = "true" />
 	</class>
 	<class name = "RooEffHistProd" />
@@ -73,5 +73,6 @@
 	    <field name = "m_nsethash" transient = "true" />
 	</class>
 	<class name="FinalStateChargePdf" />
+	<class name="TaggingCat" />
     </selection>
 </lcgdict>
