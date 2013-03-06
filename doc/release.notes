@@ -7,6 +7,12 @@
 
 ! 2013-03-06 - Manuel Tobias Schiller
  - commit on behalf of Chiara Farinelli (who is busy writing her thesis):
+   new fitter script runBs2DsPiTaggingCalibFitter.py; this is taken straight
+   from her work area and may or may not run out of the box; it is, however, a
+   good starting point for further tagging studies
+
+! 2013-03-06 - Manuel Tobias Schiller
+ - commit on behalf of Chiara Farinelli (who is busy writing her thesis):
    new class TaggingCat, which will "multiplex" between the different
    per-category mistags
 
