@@ -46,78 +46,19 @@
 //_____________________________________________________________________________
 RooEffResModel::CacheElem::~CacheElem()
 {
-#ifndef _NEWCACHE
-    delete _I;
-#else
     delete _eff;
     delete _int; // _int owns _x, _xmin, _xmax, so no need to free them
-#endif
 }
 
 //_____________________________________________________________________________
 RooArgList RooEffResModel::CacheElem::containedArgs(Action)
 {
     // Return list of all RooAbsArgs in cache element
-#ifndef _NEWCACHE
-    return RooArgList(*_I);
-#else
     return RooArgList(*_int, *_eff);
-#endif
 }
 
 //_____________________________________________________________________________
-#ifndef _NEWCACHE
-RooEffResModel::CacheElem::CacheElem(const RooEffResModel& parent, const RooArgSet& iset,
-	const TNamed* rangeName)
-: _I(0)
-{
-    RooRealVar& x = parent.convVar(); // binboundaries not const...
-    const RooAbsReal& eff = *parent.efficiency();
-    const RooAbsReal& model = parent.model();
-    // the subset of iset on which the efficiency depends
-    std::auto_ptr<const RooArgSet> effInt( eff.getObservables(iset) );
 
-    assert(effInt->getSize() < 2); // for now, we only do 1D efficiency histograms...
-    if (effInt->getSize()==0) {
-	_I = parent.model().createIntegral(iset,RooNameReg::str(rangeName));
-	return;
-    }
-
-    RooArgList iList, eList;
-    const RooArgList& ranges = parent.getIntegralRanges(iset, RooNameReg::str(rangeName));
-    RooFIter it = ranges.fwdIterator();
-    std::string tmp;
-    while (RooStringVar* rangeVar = static_cast<RooStringVar*>(it.next())) {
-	const char* range = rangeVar->getVal();
-	assert(x.hasRange(range));
-
-	Double_t xmin = x.getMin(range);
-	Double_t xmax = x.getMax(range);
-
-	RooAbsReal* binint = model.createIntegral(iset, range);
-	iList.add(*binint);
-
-	// create RooAbsReal for (average) efficiency in this range
-	tmp = range;
-	tmp += "_customizer";
-	RooCustomizer customizer(eff, tmp.c_str());
-	tmp = x.GetName();
-	tmp += "_";
-	tmp += range;
-	RooRealVar* cv = static_cast<RooRealVar*>(x.clone(tmp.c_str()));
-	cv->setVal((xmin + xmax) / 2.);
-	cv->setConstant(true);
-	customizer.replaceArg(x, *cv);
-	RooAbsReal *ceff = static_cast<RooAbsReal*>(customizer.build(kFALSE));
-	ceff->addOwnedComponents(*cv);
-	eList.add(*ceff);
-    }
-    tmp = parent.GetName();
-    tmp += "_I_";
-    tmp += x.GetName();
-    _I = new RooAddition(tmp.c_str(), tmp.c_str(), eList, iList, kTRUE);
-}
-#else
 RooEffResModel::CacheElem::CacheElem(const RooEffResModel& parent, const RooArgSet& iset,
 	const TNamed* rangeName) :
     _x(0), _eff(0), _xmin(0), _xmax(0), _int(0),
@@ -194,13 +135,9 @@ RooEffResModel::CacheElem::CacheElem(const RooEffResModel& parent, const RooArgS
     _eff = static_cast<RooAbsReal*>(customizer.build(false));
     assert(_eff);
 }
-#endif
 
 Double_t RooEffResModel::CacheElem::getVal(const RooArgSet* nset) const
 {
-#ifndef _NEWCACHE
-    return _I->getVal(nset);
-#else
     if (0 == _x) {
 	// handle trivial case
 	return _int->getVal(nset);
@@ -219,7 +156,6 @@ Double_t RooEffResModel::CacheElem::getVal(const RooArgSet* nset) const
     }
 
     return _val;
-#endif
 }
 
 //_____________________________________________________________________________
@@ -241,10 +177,7 @@ RooEffResModel::RooEffResModel(const RooEffResModel& other, const char* name) :
     , _observables("observables", this, other._observables)
     , _model("!model", this, other._model)
     , _eff("!efficiency", this, other._eff)
-#ifndef _NEWCACHE
-    , _ranges(other._ranges)
-#endif
-, _cacheMgr(other._cacheMgr, this)
+    , _cacheMgr(other._cacheMgr, this)
 {
     // copy constructor
 }
@@ -408,58 +341,6 @@ void RooEffResModel::generateEvent(Int_t code)
     model().generateEvent(code);
 }
 
-//_____________________________________________________________________________
-#ifndef _NEWCACHE
-const RooArgList& RooEffResModel::getIntegralRanges(const RooArgSet& iset,
-	const char* rangeName) const
-{
-    rangeName = rangeName ? rangeName : "default";
-    RangeMap::const_iterator it = _ranges.find(rangeName);
-    if (it != _ranges.end()) return it->second;
-
-    RooRealVar& x = static_cast<RooRealVar&>(convVar());
-    Double_t xmin = x.getMin(rangeName);
-    Double_t xmax = x.getMax(rangeName);
-
-    pair<RangeMap::iterator, bool> r = _ranges.insert(make_pair(std::string(rangeName), RooArgList()));
-    assert(r.second);
-    RooArgList& ranges = r.first->second;
-    std::auto_ptr<std::list<Double_t> > bounds(efficiency()->binBoundaries(x, x.getMin(), x.getMax()));
-    std::list<Double_t>::const_iterator lo, hi = bounds->begin();
-    for (unsigned int i = 0; i + 1 < bounds->size();++i) {
-	lo = hi++;
-	if (*hi < xmin) continue; // not there yet...
-	if (*lo > xmax) break;    // past the requested interval...
-	Double_t thisxmin = std::max(*lo, xmin);
-	Double_t thisxmax = std::min(*hi, xmax);
-
-	// add eff name, as it specifies the boundaries...
-	std::string trange = Form("R%d_%s_%s", i, x.GetName(), efficiency()->GetName());
-
-	// Add original rangeName if there is one
-	if (rangeName) {
-	    trange += "_";
-	    trange += rangeName;
-	}
-
-	trange += "_I_";
-	RooNameSet ns(iset);
-	trange += ns._nameList;
-	const char* range = trange.c_str();
-
-	// Create a new name for the range
-	// check if already exists and matches..
-	if (!x.hasRange(range)) {
-	    x.setRange(range, thisxmin, thisxmax);
-	}
-	assert(x.getMin(range)==thisxmin);
-	assert(x.getMax(range)==thisxmax);
-	RooStringVar* stringVar = new RooStringVar(range, range, range);
-	ranges.addOwned(*stringVar);
-    }
-    return ranges;
-}
-#endif
 //_____________________________________________________________________________
 RooEffResModel::CacheElem* RooEffResModel::getCache(
 	const RooArgSet *iset, const TNamed *rangeName) const

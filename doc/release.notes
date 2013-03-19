@@ -4,6 +4,11 @@
 ! Purpose     : RooFit-based fitters for B -> D X
 !-----------------------------------------------------------------------------
 
+! 2013-03-19 - Manuel Tobias Schiller
+ - RooEffResModel: promote the "experimental" code activated by the _NEWCACHE
+   preprocessor macro to the default now that it is clear that it does not
+   cause problems in the per-event decay time error; we save a lot of RAM this
+   way...
 
 ! 2013-03-19 - Manuel Tobias Schiller
  - runBs2DsKCPAsymmObsFitter-cFit.py:

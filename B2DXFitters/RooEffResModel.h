@@ -23,9 +23,6 @@
 #include <RooSetProxy.h>
 #include "RooAbsEffResModel.h"
 
-// experimental code - do not define these for now...
-#define _NEWCACHE
-
 class RooCustomizer;
 class RooResoluitionModel;
 class RooAbsAnaConvPdf;
@@ -71,11 +68,6 @@ class RooEffResModel : public RooAbsEffResModel {
 	const RooArgSet* observables() const
 	{ return static_cast<const RooArgSet*>(&_observables); }
 
-#ifndef _NEWCACHE
-	const RooArgList& getIntegralRanges(
-		const RooArgSet& iset, const char* rangeName = 0) const;
-#endif
-
     protected:
 	virtual Double_t evaluate() const;
 	virtual RooEffResModel* convolution(
@@ -94,9 +86,6 @@ class RooEffResModel : public RooAbsEffResModel {
 
 	    private:
 		// Payload
-#ifndef _NEWCACHE
-		RooAbsReal *_I;
-#else
 		std::vector<double> _bounds;
 		RooRealVar* _x; // variable in which we parametrise
 		RooAbsReal* _eff; // efficiency as function of _x
@@ -104,7 +93,6 @@ class RooEffResModel : public RooAbsEffResModel {
 		RooRealVar* _xmax; // model integral high bound
 		RooAbsReal* _int; // integral of model
 		mutable Double_t _val; //! cached value
-#endif
 	};
 
 	CacheElem *getCache(
@@ -114,11 +102,6 @@ class RooEffResModel : public RooAbsEffResModel {
 	RooSetProxy _observables;
 	RooRealProxy _model;     // RooResolutionModel
 	RooRealProxy _eff;       // RooAbsReal
-
-#ifndef _NEWCACHE
-	typedef std::map<std::string, RooArgList> RangeMap;
-	mutable RangeMap _ranges; //!
-#endif
 
 	mutable RooObjCacheManager _cacheMgr; //!
 
