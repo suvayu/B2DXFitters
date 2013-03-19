@@ -5,6 +5,15 @@
 !-----------------------------------------------------------------------------
 
 
+! 2013-03-19 - Manuel Tobias Schiller
+ - runBs2DsKCPAsymmObsFitter-cFit.py:
+   - fix the issues we have been having when using per-event mistag and
+     per-event decay time error at the same time
+   - refactor the code a little to better use the commonalities between the
+     oscillating and non-oscillating time PDFs
+ - standalone/Doxyfile: produce nicer doxygen documentation (i.e. tweak
+   settings a little)
+
 ! 2013-03-06 - Manuel Tobias Schiller
  - scripts/make_histos.py: fix a bug when making pull plots of angles:
    differences in angles (weak and strong phases come to mind) live on the
