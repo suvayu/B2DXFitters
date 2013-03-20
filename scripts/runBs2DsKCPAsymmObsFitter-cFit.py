@@ -259,6 +259,7 @@ defaultConfig = {
 	# fitter settings
 	'Optimize':			2,
 	'Strategy':			2,
+	'Offset':			True,
 	'Minimizer':			[ 'Minuit', 'migrad' ],
 	'NumCPU':			1,
 	'Debug':			False,
@@ -2121,12 +2122,14 @@ def runBsGammaFittercFit(generatorConfig, fitConfig, toy_num, debug, wsname, ini
 	    RooFit.Optimize(fitConfig['Optimize']),
 	    RooFit.Strategy(fitConfig['Strategy']),
 	    RooFit.Minimizer(*fitConfig['Minimizer']),
-	    RooFit.Offset(True),
-	    RooFit.NumCPU(fitConfig['NumCPU']),
 	    RooFit.Timer(), RooFit.Save(),
 	    # shut up Minuit in blinding mode
 	    RooFit.Verbose(fitConfig['IsToy'] or not fitConfig['Blinding'])
 	    ]
+    if fitConfig['Offset']:
+	fitOpts.append(RooFit.Offset(fitConfig['Offset']))
+    if fitConfig['NumCPU'] > 1:
+	fitOpts.append(RooFit.NumCPU(fitConfig['NupCPU']))
     if not fitConfig['IsToy'] and fitConfig['Blinding']:
 	# make RooFit quiet as well
 	from ROOT import RooMsgService
@@ -2145,6 +2148,12 @@ def runBsGammaFittercFit(generatorConfig, fitConfig, toy_num, debug, wsname, ini
 
     printResult(fitConfig, fitResult,
 	    fitConfig['Blinding'] and not fitConfig['IsToy'])
+    # dump fit result to a ROOT file
+    from ROOT import TFile
+    fitresfile = TFile('fitresult_%04d.root' % toy_num, 'RECREATE')
+    fitresfile.WriteTObject(fitResult, 'fitresult_%04d' % toy_num)
+    fitresfile.Close()
+    del fitresfile
 
     if plot_fitted:
         pdf['ws'].writeToFile(wsname)

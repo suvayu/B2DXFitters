@@ -5,6 +5,12 @@
 !-----------------------------------------------------------------------------
 
 ! 2013-03-20 - Manuel Tobias Schiller
+ - runBs2DsKCPAsymmObsFitter-cFit.py: fix to run on older ROOT versions: make
+   the RooFit.Offset modifier optional (i.e. it's possible to switch it off)
+ - runBs2DsKCPAsymmObsFitter-cFit.py: add code to write fit results to ROOT
+   files (was lost somewhere along the way)
+
+! 2013-03-20 - Manuel Tobias Schiller
  - runBs2DsKCPAsymmObsFitter-cFit.py: fix the shell part of the script to work
    correctly on Scientific Linux machines
 
