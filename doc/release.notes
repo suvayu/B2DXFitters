@@ -4,6 +4,10 @@
 ! Purpose     : RooFit-based fitters for B -> D X
 !-----------------------------------------------------------------------------
 
+! 2013-03-20 - Manuel Tobias Schiller
+ - runBs2DsKCPAsymmObsFitter-cFit.py: fix the shell part of the script to work
+   correctly on Scientific Linux machines
+
 ! 2013-03-19 - Manuel Tobias Schiller
  - RooEffResModel: promote the "experimental" code activated by the _NEWCACHE
    preprocessor macro to the default now that it is clear that it does not

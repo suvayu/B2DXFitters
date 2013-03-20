@@ -66,11 +66,12 @@ for i in libjemalloc libtcmalloc; do
 done
 
 # set batch scheduling (if schedtool is available)
-schedtool=""
-if test -x `which schedtool 2>/dev/zero`; then
+schedtool="`which schedtool 2>/dev/zero`"
+if test -n "$schedtool" -a -x "$schedtool"; then
     echo "enabling batch scheduling for this job (schedtool -B)"
-    schedtool=`which schedtool 2>/dev/zero`
     schedtool="$schedtool -B -e"
+else
+    schedtool=""
 fi
 
 # set ulimit to protect against bugs which crash the machine: 2G vmem max,
