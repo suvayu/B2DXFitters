@@ -5,6 +5,14 @@
 !-----------------------------------------------------------------------------
 
 ! 2013-03-22 - Manuel Tobias Schiller
+ - DecRateCoeff: implement mistag asymmetries correctly: it's now possible to
+   supply different average mistags (or different calibrations) for true
+   initial B and true initial Bbar
+ - runBs2DsKCPAsymmObsFitter-cFit.py:
+   * add support for proper mistag asymmetries, see above
+   * add support for <C>, DeltaC parametrisation, see last commit for details
+
+! 2013-03-22 - Manuel Tobias Schiller
  - DecRateCoeff: Instead of fitting for Cf/Cfbar, the class can optionally
    interpret the given coefficients as <C>=(Cf+Cfbar)/2 and
    DeltaC=(Cf-Cfbar)/2; this typically gives less correlated fit results in

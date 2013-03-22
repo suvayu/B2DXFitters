@@ -165,6 +165,8 @@ defaultConfig = {
 	# 'CDS' 		- C, D, Dbar, S, Sbar
 	# 'CDSConstrained'	- same as CDS, but constrain C^2+D^2+S^2 = 1
 	#			  (same for bar)
+	# 'CADDADS'		- C, <D>, Delta D, <S>, Delta S
+	#			  (<D>=(D+Dbar)/2, Delta D=(D-Dbar)/2 etc.)
 	# 'LambdaPhases'	- |lambda|, strong and weak phase
 	'Bs2DsKCPObs': 			'CDS',
 	'SqSumCDSConstraintWidth':	0.01,
@@ -228,7 +230,11 @@ defaultConfig = {
 	'TagEffSig':			0.403,
 	'TagOmegaSig':			0.396,
 	'TagEffBkg':			0.403,
-	'MistagCalibrationParams':	[ 0.392, 1.035, 0.391 ], 
+	# first entry is for true B (and true Bbar, if no second entry exists)
+	'MistagCalibrationParams':	[
+		[ 0.392, 1.035, 0.391 ], # true B
+		#[ 0.392, 1.035, 0.391 ]  # true Bbar
+		], 
 
 	# truth/Gaussian/DoubleGaussian/GaussianWithPEDTE/GaussianWithLandauPEDTE/GaussianWithScaleAndPEDTE
 	'DecayTimeResolutionModel':	'TripleGaussian',
@@ -270,7 +276,8 @@ defaultConfig = {
 	    'Gammad', 'deltaGammad', 'deltaMd',
 	    'tagOmegaSig',
             'deltaMs',
-	    'MistagCalib_p0', 'MistagCalib_p1', 'MistagCalib_avgmistag',
+	    'MistagCalibB_p0', 'MistagCalibB_p1', 'MistagCalibB_avgmistag',
+	    'MistagCalibBbar_p0', 'MistagCalibBbar_p1', 'MistagCalibBbar_avgmistag',
 	    ],
 
 	# mass templates
@@ -1250,8 +1257,7 @@ def buildBDecayTimePdf(
 	kvar = None,				# variable k which to integrate out
 	aprod = None,				# production asymmetry
 	adet = None,				# detection asymmetry
-	atageff = None,				# asymmetry in tagging efficiency
-	amistag = None				# asymmetry in mistag
+	atageff = None				# asymmetry in tagging efficiency
 	):
     # Look in LHCb-INT-2011-051 for the conventions used
     from ROOT import ( RooConstVar, RooProduct, RooTruthModel, RooGaussModel,
@@ -1265,12 +1271,11 @@ def buildBDecayTimePdf(
     if None == aprod: aprod = zero
     if None == adet: adet = zero
     if None == atageff: atageff = zero
-    if None == amistag: amistag = zero
     if None == mistagpdf:
-	mistagobs = mistag
-    else:
-	if None == mistagobs and mistag.InheritsFrom('RooAbsReal'):
-	    mistagobs = mistag
+	mistagobs = None
+    else: # None != mistagpdf
+	if None == mistagobs:
+	    raise NameError('mistag pdf set, but no mistag observable given')
 
     # if no time resolution model is set, fake one
     if timeresmodel == None:
@@ -1288,23 +1293,29 @@ def buildBDecayTimePdf(
     # if there is a per-event mistag distributions and we need to do things
     # correctly
     if None != mistagpdf:
-	otherargs = [ mistagobs, mistagpdf, tageff, mistag, aprod, adet,
-		atageff, amistag ]
+	otherargs = [ mistagobs, mistagpdf, tageff ]
     else:
-	otherargs = [ tageff, mistag, aprod, adet, atageff, amistag ]
+	otherargs = [ tageff ]
+    otherargs += mistag
+    otherargs += [ aprod, adet, atageff ]
+    flag = 0
+    if 'Bs2DsK' == name and 'CADDADS' == config['Bs2DsKCPObs']:
+	flag = DecRateCoeff.AvgDelta
     # build coefficients to go into RooBDecay
     cosh = WS(ws, DecRateCoeff('%s_cosh' % name, '%s_cosh' % name,
 	DecRateCoeff.CPEven, qf, qt, one, one, *otherargs))
     sinh = WS(ws, DecRateCoeff('%s_sinh' % name, '%s_sinh' % name,
-	DecRateCoeff.CPEven, qf, qt, D, Dbar, *otherargs))
+	flag | DecRateCoeff.CPEven, qf, qt, D, Dbar, *otherargs))
     cos = WS(ws, DecRateCoeff('%s_cos' % name, '%s_cos' % name,
 	DecRateCoeff.CPOdd, qf, qt, C, C, *otherargs))
     if 'PdfSSbarSwapMinusOne' in config['BugFlags']:
 	sin = WS(ws, DecRateCoeff('%s_sin' % name, '%s_sin' % name,
-	    DecRateCoeff.CPOdd, qf, qt, Sbar, S, *otherargs))
+	    flag | DecRateCoeff.CPOdd, qf, qt, Sbar, S, *otherargs))
     else:
 	sin = WS(ws, DecRateCoeff('%s_sin' % name, '%s_sin' % name,
-	    DecRateCoeff.CPOdd | DecRateCoeff.Minus, qf, qt, S, Sbar, *otherargs))
+	    flag | DecRateCoeff.CPOdd | DecRateCoeff.Minus,
+	    qf, qt, S, Sbar, *otherargs))
+    del flag
     del otherargs
 
     # perform the actual k-factor smearing integral (if needed)
@@ -1508,27 +1519,42 @@ def getMasterPDF(config, name, debug = False):
     condobservables = [ ]
 
     if config['PerEventMistag']:
-	mistagcalib = RooArgList()
-	avgmistag = zero
-        if len(config['MistagCalibrationParams']) == 2 or \
-		len(config['MistagCalibrationParams']) == 3:
-            i = 0
-    	    for p in config['MistagCalibrationParams'][0:2]:
-		mistagcalib.add(WS(ws, RooRealVar(
-		    'MistagCalib_p%u' % i, 'MistagCalib_p%u' % i, p)))
-    	        i = i + 1
-	    del i
-    	    if len(config['MistagCalibrationParams']) == 3:
+	tagOmegaSigCal = []
+	namsfx = [ 'B', 'Bbar' ]
+	if len(config['MistagCalibrationParams']) > 2:
+	    raise NameError('MistagCalibrationParams configurable slot must'
+		    ' not have more than two entries (B, Bbar)!')
+	for j in xrange(0, len(config['MistagCalibrationParams'])):
+	    if len(config['MistagCalibrationParams'][j]) != 2 and \
+		    len(config['MistagCalibrationParams'][j]) != 3:
+		raise NameError('MistagCalibrationParams configurable slot '
+			'calibration %u must be an array of length 2 or 3!' %
+			j)
+	    mistagcalib = RooArgList()
+	    avgmistag = zero
+	    if len(config['MistagCalibrationParams'][j]) == 2 or \
+		    len(config['MistagCalibrationParams'][j]) == 3:
+		i = 0
+                for p in config['MistagCalibrationParams'][j][0:2]:
+		    mistagcalib.add(WS(ws, RooRealVar(
+			'MistagCalib%s_p%u' % (namsfx[j], i),
+			'MistagCalib%s_p%u' % (namsfx[j], i), p)))
+		    i = i + 1
+		del i
+	    if len(config['MistagCalibrationParams'][j]) == 3:
 		avgmistag = WS(ws, RooRealVar(
-		    'MistagCalib_avgmistag', 'MistagCalib_avgmistag', 
-		    config['MistagCalibrationParams'][2]))
-	tagOmegaSigCal = WS(ws, MistagCalibration(
-	    '%s_c' % tagOmegaSig.GetName(), '%s_c' % tagOmegaSig.GetName(),
-	    tagOmegaSig, mistagcalib, avgmistag))
-	del mistagcalib
-	del avgmistag
+		    'MistagCalib%s_avgmistag' % namsfx[j],
+		    'MistagCalib%s_avgmistag' % namsfx[j],
+		    config['MistagCalibrationParams'][j][2]))
+	    tagOmegaSigCal.append(WS(ws, MistagCalibration(
+		'%s%s_c' % (tagOmegaSig.GetName(), namsfx[j]),
+		'%s%s_c' % (tagOmegaSig.GetName(), namsfx[j]),
+		tagOmegaSig, mistagcalib, avgmistag)))
+	    del mistagcalib
+	    del avgmistag
+	del namsfx
     else:
-	tagOmegaSigCal = tagOmegaSig
+	tagOmegaSigCal = [ tagOmegaSig ]
     # read in templates
     if config['PerEventMistag']:
 	mistagtemplate = getMistagTemplate(config, ws, tagOmegaSig)
@@ -1689,7 +1715,7 @@ def getMasterPDF(config, name, debug = False):
 	    omegaa = WS(ws, RooConstVar('omegaa', 'omegaa', config['TagOmegaSig']))
 	    sigMistagPDF = WS(ws, MistagDistribution(
 	        'sigMistagPDF_trivial', 'sigMistagPDF_trivial',
-	        tagOmegaSigCal, omega0, omegaa, omegaf))
+	        tagOmegaSig, omega0, omegaa, omegaf))
 	else:
 	    sigMistagPDF = mistagtemplate
     else:
@@ -1789,6 +1815,30 @@ def getMasterPDF(config, name, debug = False):
 			WS(ws, RooGaussian(
 			    '%s_bar_constraint' % mode, '%s_bar_constraint' % mode,
 			    sqsumbar, one, strength)))
+	elif 'Bs2DsK' == mode and 'CADDADS' == config['Bs2DsKCPObs']:
+	    # calculate CP observables from the respective |lambda|, arg(lambda),
+	    # arg(lambdabar)
+	    ACPobs = cpobservables.AsymmetryObservables(
+		    config['StrongPhase'][mode] - config['WeakPhase'][mode],
+		    config['StrongPhase'][mode] + config['WeakPhase'][mode],
+		    config['ModLf'][mode])
+            ACPobs.printtable(mode)
+	    # standard C, D, Dbar, S, Sbar parametrisation
+	    myconfig = config
+	    modenick = mode
+	    C    = WS(ws, RooRealVar(
+	        '%s_C' % mode   , '%s_C' % mode   , ACPobs.Cf()   , -limit, limit))
+	    D    = WS(ws, RooRealVar('%s_<D>' % mode   , '%s_<D>' % mode   ,
+		0.5 * (ACPobs.Df() + ACPobs.Dfbar()), -limit, limit))
+	    Dbar = WS(ws, RooRealVar('%s_DeltaD' % mode, '%s_DeltaD' % mode,
+		0.5 * (ACPobs.Df() - ACPobs.Dfbar()), -limit, limit))
+	    S    = WS(ws, RooRealVar('%s_<S>' % mode   , '%s_<S>' % mode   ,
+		0.5 * (ACPobs.Sf() + ACPobs.Sfbar()), -limit, limit))
+	    Sbar = WS(ws, RooRealVar('%s_DeltaS' % mode, '%s_DeltaS' % mode,
+		0.5 * (ACPobs.Sf() - ACPobs.Sfbar()), -limit, limit))
+	    C.setError(0.4)
+	    for v in (D, Dbar, S, Sbar):
+		v.setError(0.6)
 	else: # either not Bs->DsK, or we fit directly for gamma, delta, lambda
 	    if mode in config['CombineModesForEffCPObs']:
 		for m in config['CombineModesForEffCPObs']:
@@ -1825,7 +1875,7 @@ def getMasterPDF(config, name, debug = False):
 	    Sbar = WS(ws, CPObservable('%s_Sbar' % modenick, '%s_Sbar' % modenick,
 		Lambda, delta, phi_w, CPObservable.Sbar))
 	# figure out asymmetries to use
-	asyms = { 'Prod': None, 'Det': None, 'TagEff': None, 'Mistag': None }
+	asyms = { 'Prod': None, 'Det': None, 'TagEff': None }
 	for k in asyms.keys():
 	    for n in (mode, modenick, mode.split('2')[0]):
 		if n in config['Asymmetries'][k]:
@@ -1845,7 +1895,7 @@ def getMasterPDF(config, name, debug = False):
 		time, timeerr, qt, qf, tagOmegaSigCal, tageff,
 		gammas, deltaGammas, deltaMs, C, D, Dbar, S, Sbar,
 		trm, tacc, terrpdf, sigMistagPDF, tagOmegaSig, kfactorpdf, kfactor,
-		asyms['Prod'], asyms['Det'], asyms['TagEff'], asyms['Mistag'])
+		asyms['Prod'], asyms['Det'], asyms['TagEff'])
 
     ########################################################################
     # Bs -> Ds Pi like modes
@@ -1864,7 +1914,7 @@ def getMasterPDF(config, name, debug = False):
 	    gamma, deltagamma, deltam = None, None, None
 	    modenick = mode
 	# figure out asymmetries to use
-	asyms = { 'Prod': None, 'Det': None, 'TagEff': None, 'Mistag': None }
+	asyms = { 'Prod': None, 'Det': None, 'TagEff': None }
 	for k in asyms.keys():
 	    for n in (mode, modenick, mode.split('2')[0]):
 		if n in config['Asymmetries'][k]:
@@ -1886,8 +1936,7 @@ def getMasterPDF(config, name, debug = False):
 		time, timeerr, qt, qf, tagOmegaSigCal, tageff,
 		gamma, deltagamma, deltam, one, zero, zero, zero, zero,
 		trm, tacc, terrpdf, sigMistagPDF, tagOmegaSig, kfactorpdf, kfactor,
-		asyms['Prod'], asyms['Det'], asyms['TagEff'],
-		asyms['Mistag'])
+		asyms['Prod'], asyms['Det'], asyms['TagEff'])
 
     ########################################################################
     # non-osciallating modes

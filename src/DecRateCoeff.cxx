@@ -27,8 +27,7 @@ DecRateCoeff::DecRateCoeff(
 	RooAbsReal& Cf, RooAbsReal& Cfbar,
 	RooAbsRealLValue& etaobs, RooAbsPdf& etapdf,
 	RooAbsReal& tageff, RooAbsReal& eta,
-	RooAbsReal& aprod, RooAbsReal& adet,
-	RooAbsReal& atageff, RooAbsReal& amistag) :
+	RooAbsReal& aprod, RooAbsReal& adet, RooAbsReal& atageff) :
     RooAbsReal(name, title),
     m_qf("qf", "qf", this, qf), m_qt("qt", "qt", this, qt),
     m_Cf("Cf", "Cf", this, Cf), m_Cfbar("Cfbar", "Cfbar", this, Cfbar),
@@ -44,7 +43,6 @@ DecRateCoeff::DecRateCoeff(
     m_aprod("aprod", "aprod", this, aprod),
     m_adet("adet", "adet", this, adet),
     m_atageff("atageff", "atageff", this, atageff),
-    m_amistag("amistag", "amistag", this, amistag),
     m_cacheMgr(this), m_nset(0), m_nsethash(0), m_flags(flags)
 {
     // make sure there are no crazy dependencies which would make analytic
@@ -60,7 +58,6 @@ DecRateCoeff::DecRateCoeff(
 	assert(!qf.overlaps(aprod) || aprod.isConstant());
 	assert(!qf.overlaps(adet) || adet.isConstant());
 	assert(!qf.overlaps(atageff) || atageff.isConstant());
-	assert(!qf.overlaps(amistag) || amistag.isConstant());
     }
 
     if (!qt.isConstant()) {
@@ -74,7 +71,6 @@ DecRateCoeff::DecRateCoeff(
 	assert(!qt.overlaps(aprod) || aprod.isConstant());
 	assert(!qt.overlaps(adet) || adet.isConstant());
 	assert(!qt.overlaps(atageff) || atageff.isConstant());
-	assert(!qt.overlaps(amistag) || amistag.isConstant());
     }
 
     if (!Cf.isConstant()) {
@@ -87,7 +83,6 @@ DecRateCoeff::DecRateCoeff(
 	assert(!Cf.overlaps(aprod) || aprod.isConstant());
 	assert(!Cf.overlaps(adet) || adet.isConstant());
 	assert(!Cf.overlaps(atageff) || atageff.isConstant());
-	assert(!Cf.overlaps(amistag) || amistag.isConstant());
     }
 
     if (!Cfbar.isConstant()) {
@@ -100,7 +95,6 @@ DecRateCoeff::DecRateCoeff(
 	assert(!Cfbar.overlaps(aprod) || aprod.isConstant());
 	assert(!Cfbar.overlaps(adet) || adet.isConstant());
 	assert(!Cfbar.overlaps(atageff) || atageff.isConstant());
-	assert(!Cfbar.overlaps(amistag) || amistag.isConstant());
     }
 
     if (!etaobs.isConstant()) {
@@ -114,7 +108,6 @@ DecRateCoeff::DecRateCoeff(
 	assert(!etaobs.overlaps(aprod) || aprod.isConstant());
 	assert(!etaobs.overlaps(adet) || adet.isConstant());
 	assert(!etaobs.overlaps(atageff) || atageff.isConstant());
-	assert(!etaobs.overlaps(amistag) || amistag.isConstant());
     }
 
     if (!etapdf.isConstant()) {
@@ -127,7 +120,6 @@ DecRateCoeff::DecRateCoeff(
 	assert(!etapdf.overlaps(aprod) || aprod.isConstant());
 	assert(!etapdf.overlaps(adet) || adet.isConstant());
 	assert(!etapdf.overlaps(atageff) || atageff.isConstant());
-	assert(!etapdf.overlaps(amistag) || amistag.isConstant());
     }
 
     if (!tageff.isConstant()) {
@@ -141,7 +133,6 @@ DecRateCoeff::DecRateCoeff(
 	assert(!tageff.overlaps(aprod) || aprod.isConstant());
 	assert(!tageff.overlaps(adet) || adet.isConstant());
 	assert(!tageff.overlaps(atageff) || atageff.isConstant());
-	assert(!tageff.overlaps(amistag) || amistag.isConstant());
     }
 
     if (!eta.isConstant()) {
@@ -154,7 +145,6 @@ DecRateCoeff::DecRateCoeff(
 	assert(!eta.overlaps(aprod) || aprod.isConstant());
 	assert(!eta.overlaps(adet) || adet.isConstant());
 	assert(!eta.overlaps(atageff) || atageff.isConstant());
-	assert(!eta.overlaps(amistag) || amistag.isConstant());
     }
 
     if (!aprod.isConstant()) {
@@ -168,7 +158,6 @@ DecRateCoeff::DecRateCoeff(
 	assert(!aprod.overlaps(eta) || eta.isConstant());
 	assert(!aprod.overlaps(adet) || adet.isConstant());
 	assert(!aprod.overlaps(atageff) || atageff.isConstant());
-	assert(!aprod.overlaps(amistag) || amistag.isConstant());
     }
 
     if (!adet.isConstant()) {
@@ -182,7 +171,6 @@ DecRateCoeff::DecRateCoeff(
 	assert(!adet.overlaps(eta) || eta.isConstant());
 	assert(!adet.overlaps(aprod) || aprod.isConstant());
 	assert(!adet.overlaps(atageff) || atageff.isConstant());
-	assert(!adet.overlaps(amistag) || amistag.isConstant());
     }
 
     if (!atageff.isConstant()) {
@@ -196,21 +184,194 @@ DecRateCoeff::DecRateCoeff(
 	assert(!atageff.overlaps(eta) || eta.isConstant());
 	assert(!atageff.overlaps(aprod) || aprod.isConstant());
 	assert(!atageff.overlaps(adet) || adet.isConstant());
-	assert(!atageff.overlaps(amistag) || amistag.isConstant());
+    }
+} 
+
+DecRateCoeff::DecRateCoeff(
+	const char* name, const char* title, Flags flags,
+	RooAbsCategory& qf, RooAbsCategory& qt,
+	RooAbsReal& Cf, RooAbsReal& Cfbar,
+	RooAbsRealLValue& etaobs, RooAbsPdf& etapdf,
+	RooAbsReal& tageff, RooAbsReal& eta, RooAbsReal& etabar,
+	RooAbsReal& aprod, RooAbsReal& adet, RooAbsReal& atageff) :
+    RooAbsReal(name, title),
+    m_qf("qf", "qf", this, qf), m_qt("qt", "qt", this, qt),
+    m_Cf("Cf", "Cf", this, Cf), m_Cfbar("Cfbar", "Cfbar", this, Cfbar),
+    m_etaobs("etaobs", "etaobs", this, etaobs),
+    m_etapdf("etapdf", "etapdf", this, etapdf),
+    m_etapdfutinstance(
+		(std::string(etapdf.GetName()) + "_untagged").c_str(),
+		(std::string(etapdf.GetName()) + "_untagged").c_str(),
+		RooArgSet(etaobs)),
+    m_etapdfut("etapdfut", "etapdfut", this, m_etapdfutinstance),
+    m_tageff("tageff", "tageff", this, tageff),
+    m_eta("eta", "eta", this, eta),
+    m_etabar("etabar", "etabar", this, etabar),
+    m_aprod("aprod", "aprod", this, aprod),
+    m_adet("adet", "adet", this, adet),
+    m_atageff("atageff", "atageff", this, atageff),
+    m_cacheMgr(this), m_nset(0), m_nsethash(0), m_flags(flags)
+{
+    // make sure there are no crazy dependencies which would make analytic
+    // integrals impossible
+    if (!qf.isConstant()) {
+	assert(!qf.overlaps(qt) || qt.isConstant());
+	assert(!qf.overlaps(Cf) || Cf.isConstant());
+	assert(!qf.overlaps(Cfbar) || Cfbar.isConstant());
+	assert(!qf.overlaps(etaobs) || etaobs.isConstant());
+	assert(!qf.overlaps(etapdf) || etapdf.isConstant());
+	assert(!qf.overlaps(tageff) || tageff.isConstant());
+	assert(!qf.overlaps(eta) || eta.isConstant());
+	assert(!qf.overlaps(etabar) || etabar.isConstant());
+	assert(!qf.overlaps(aprod) || aprod.isConstant());
+	assert(!qf.overlaps(adet) || adet.isConstant());
+	assert(!qf.overlaps(atageff) || atageff.isConstant());
     }
 
-    if (!amistag.isConstant()) {
-	assert(!amistag.overlaps(qf) || qf.isConstant());
-	assert(!amistag.overlaps(qt) || qt.isConstant());
-	assert(!amistag.overlaps(Cf) || Cf.isConstant());
-	assert(!amistag.overlaps(Cfbar) || Cfbar.isConstant());
-	assert(!amistag.overlaps(etaobs) || etaobs.isConstant());
-	assert(!amistag.overlaps(etapdf) || etapdf.isConstant());
-	assert(!amistag.overlaps(tageff) || tageff.isConstant());
-	assert(!amistag.overlaps(eta) || eta.isConstant());
-	assert(!amistag.overlaps(aprod) || aprod.isConstant());
-	assert(!amistag.overlaps(adet) || adet.isConstant());
-	assert(!amistag.overlaps(atageff) || atageff.isConstant());
+    if (!qt.isConstant()) {
+	assert(!qt.overlaps(qf) || qf.isConstant());
+	assert(!qt.overlaps(Cf) || Cf.isConstant());
+	assert(!qt.overlaps(Cfbar) || Cfbar.isConstant());
+	assert(!qt.overlaps(etaobs) || etaobs.isConstant());
+	assert(!qt.overlaps(etapdf) || etapdf.isConstant());
+	assert(!qt.overlaps(tageff) || tageff.isConstant());
+	assert(!qt.overlaps(eta) || eta.isConstant());
+	assert(!qt.overlaps(etabar) || etabar.isConstant());
+	assert(!qt.overlaps(aprod) || aprod.isConstant());
+	assert(!qt.overlaps(adet) || adet.isConstant());
+	assert(!qt.overlaps(atageff) || atageff.isConstant());
+    }
+
+    if (!Cf.isConstant()) {
+	assert(!Cf.overlaps(qf) || qf.isConstant());
+	assert(!Cf.overlaps(qt) || qt.isConstant());
+	assert(!Cf.overlaps(etaobs) || etaobs.isConstant());
+	assert(!Cf.overlaps(etapdf) || etapdf.isConstant());
+	assert(!Cf.overlaps(tageff) || tageff.isConstant());
+	assert(!Cf.overlaps(eta) || eta.isConstant());
+	assert(!Cf.overlaps(etabar) || etabar.isConstant());
+	assert(!Cf.overlaps(aprod) || aprod.isConstant());
+	assert(!Cf.overlaps(adet) || adet.isConstant());
+	assert(!Cf.overlaps(atageff) || atageff.isConstant());
+    }
+
+    if (!Cfbar.isConstant()) {
+	assert(!Cfbar.overlaps(qf) || qf.isConstant());
+	assert(!Cfbar.overlaps(qt) || qt.isConstant());
+	assert(!Cfbar.overlaps(etaobs) || etaobs.isConstant());
+	assert(!Cfbar.overlaps(etapdf) || etapdf.isConstant());
+	assert(!Cfbar.overlaps(tageff) || tageff.isConstant());
+	assert(!Cfbar.overlaps(eta) || eta.isConstant());
+	assert(!Cfbar.overlaps(etabar) || etabar.isConstant());
+	assert(!Cfbar.overlaps(aprod) || aprod.isConstant());
+	assert(!Cfbar.overlaps(adet) || adet.isConstant());
+	assert(!Cfbar.overlaps(atageff) || atageff.isConstant());
+    }
+
+    if (!etaobs.isConstant()) {
+	assert(!etaobs.overlaps(qf) || qf.isConstant());
+	assert(!etaobs.overlaps(qt) || qt.isConstant());
+	assert(!etaobs.overlaps(Cf) || Cf.isConstant());
+	assert(!etaobs.overlaps(Cfbar) || Cfbar.isConstant());
+	assert(etaobs.overlaps(etapdf));
+	assert(!etaobs.overlaps(tageff) || tageff.isConstant());
+	assert(etaobs.overlaps(eta));
+	assert(etaobs.overlaps(etabar));
+	assert(!etaobs.overlaps(aprod) || aprod.isConstant());
+	assert(!etaobs.overlaps(adet) || adet.isConstant());
+	assert(!etaobs.overlaps(atageff) || atageff.isConstant());
+    }
+
+    if (!etapdf.isConstant()) {
+	assert(!etapdf.overlaps(qf) || qf.isConstant());
+	assert(!etapdf.overlaps(qt) || qt.isConstant());
+	assert(!etapdf.overlaps(Cf) || Cf.isConstant());
+	assert(!etapdf.overlaps(Cfbar) || Cfbar.isConstant());
+	assert(etapdf.overlaps(etaobs));
+	assert(!etapdf.overlaps(tageff) || tageff.isConstant());
+	assert(!etapdf.overlaps(aprod) || aprod.isConstant());
+	assert(!etapdf.overlaps(adet) || adet.isConstant());
+	assert(!etapdf.overlaps(atageff) || atageff.isConstant());
+    }
+
+    if (!tageff.isConstant()) {
+	assert(!tageff.overlaps(qf) || qf.isConstant());
+	assert(!tageff.overlaps(qt) || qt.isConstant());
+	assert(!tageff.overlaps(Cf) || Cf.isConstant());
+	assert(!tageff.overlaps(Cfbar) || Cfbar.isConstant());
+	assert(!tageff.overlaps(etaobs) || etaobs.isConstant());
+	assert(!tageff.overlaps(etapdf) || etapdf.isConstant());
+	assert(!tageff.overlaps(eta) || eta.isConstant());
+	assert(!tageff.overlaps(etabar) || etabar.isConstant());
+	assert(!tageff.overlaps(aprod) || aprod.isConstant());
+	assert(!tageff.overlaps(adet) || adet.isConstant());
+	assert(!tageff.overlaps(atageff) || atageff.isConstant());
+    }
+
+    if (!eta.isConstant()) {
+	assert(!eta.overlaps(qf) || qf.isConstant());
+	assert(!eta.overlaps(qt) || qt.isConstant());
+	assert(!eta.overlaps(Cf) || Cf.isConstant());
+	assert(!eta.overlaps(Cfbar) || Cfbar.isConstant());
+	assert(eta.overlaps(etaobs));
+	assert(!eta.overlaps(tageff) || tageff.isConstant());
+	assert(!eta.overlaps(aprod) || aprod.isConstant());
+	assert(!eta.overlaps(adet) || adet.isConstant());
+	assert(!eta.overlaps(atageff) || atageff.isConstant());
+    }
+
+    if (!etabar.isConstant()) {
+	assert(!etabar.overlaps(qf) || qf.isConstant());
+	assert(!etabar.overlaps(qt) || qt.isConstant());
+	assert(!etabar.overlaps(Cf) || Cf.isConstant());
+	assert(!etabar.overlaps(Cfbar) || Cfbar.isConstant());
+	assert(etabar.overlaps(etaobs));
+	assert(!etabar.overlaps(tageff) || tageff.isConstant());
+	assert(!etabar.overlaps(aprod) || aprod.isConstant());
+	assert(!etabar.overlaps(adet) || adet.isConstant());
+	assert(!etabar.overlaps(atageff) || atageff.isConstant());
+    }
+
+    if (!aprod.isConstant()) {
+	assert(!aprod.overlaps(qf) || qf.isConstant());
+	assert(!aprod.overlaps(qt) || qt.isConstant());
+	assert(!aprod.overlaps(Cf) || Cf.isConstant());
+	assert(!aprod.overlaps(Cfbar) || Cfbar.isConstant());
+	assert(!aprod.overlaps(etaobs) || etaobs.isConstant());
+	assert(!aprod.overlaps(etapdf) || etapdf.isConstant());
+	assert(!aprod.overlaps(tageff) || tageff.isConstant());
+	assert(!aprod.overlaps(eta) || eta.isConstant());
+	assert(!aprod.overlaps(etabar) || etabar.isConstant());
+	assert(!aprod.overlaps(adet) || adet.isConstant());
+	assert(!aprod.overlaps(atageff) || atageff.isConstant());
+    }
+
+    if (!adet.isConstant()) {
+	assert(!adet.overlaps(qf) || qf.isConstant());
+	assert(!adet.overlaps(qt) || qt.isConstant());
+	assert(!adet.overlaps(Cf) || Cf.isConstant());
+	assert(!adet.overlaps(Cfbar) || Cfbar.isConstant());
+	assert(!adet.overlaps(etaobs) || etaobs.isConstant());
+	assert(!adet.overlaps(etapdf) || etapdf.isConstant());
+	assert(!adet.overlaps(tageff) || tageff.isConstant());
+	assert(!adet.overlaps(eta) || eta.isConstant());
+	assert(!adet.overlaps(etabar) || etabar.isConstant());
+	assert(!adet.overlaps(aprod) || aprod.isConstant());
+	assert(!adet.overlaps(atageff) || atageff.isConstant());
+    }
+
+    if (!atageff.isConstant()) {
+	assert(!atageff.overlaps(qf) || qf.isConstant());
+	assert(!atageff.overlaps(qt) || qt.isConstant());
+	assert(!atageff.overlaps(Cf) || Cf.isConstant());
+	assert(!atageff.overlaps(Cfbar) || Cfbar.isConstant());
+	assert(!atageff.overlaps(etaobs) || etaobs.isConstant());
+	assert(!atageff.overlaps(etapdf) || etapdf.isConstant());
+	assert(!atageff.overlaps(tageff) || tageff.isConstant());
+	assert(!atageff.overlaps(eta) || eta.isConstant());
+	assert(!atageff.overlaps(etabar) || etabar.isConstant());
+	assert(!atageff.overlaps(aprod) || aprod.isConstant());
+	assert(!atageff.overlaps(adet) || adet.isConstant());
     }
 } 
 
@@ -220,7 +381,7 @@ DecRateCoeff::DecRateCoeff(
 	RooAbsReal& Cf, RooAbsReal& Cfbar,
 	RooAbsReal& tageff, RooAbsReal& eta,
 	RooAbsReal& aprod, RooAbsReal& adet,
-	RooAbsReal& atageff, RooAbsReal& amistag) :
+	RooAbsReal& atageff) :
     RooAbsReal(name, title),
     m_qf("qf", "qf", this, qf), m_qt("qt", "qt", this, qt),
     m_Cf("Cf", "Cf", this, Cf), m_Cfbar("Cfbar", "Cfbar", this, Cfbar),
@@ -229,7 +390,6 @@ DecRateCoeff::DecRateCoeff(
     m_aprod("aprod", "aprod", this, aprod),
     m_adet("adet", "adet", this, adet),
     m_atageff("atageff", "atageff", this, atageff),
-    m_amistag("amistag", "amistag", this, amistag),
     m_cacheMgr(this), m_nset(0), m_nsethash(0), m_flags(flags)
 {
     // make sure there are no crazy dependencies which would make analytic
@@ -243,7 +403,6 @@ DecRateCoeff::DecRateCoeff(
 	assert(!qf.overlaps(aprod) || aprod.isConstant());
 	assert(!qf.overlaps(adet) || adet.isConstant());
 	assert(!qf.overlaps(atageff) || atageff.isConstant());
-	assert(!qf.overlaps(amistag) || amistag.isConstant());
     }
 
     if (!qt.isConstant()) {
@@ -255,7 +414,6 @@ DecRateCoeff::DecRateCoeff(
 	assert(!qt.overlaps(aprod) || aprod.isConstant());
 	assert(!qt.overlaps(adet) || adet.isConstant());
 	assert(!qt.overlaps(atageff) || atageff.isConstant());
-	assert(!qt.overlaps(amistag) || amistag.isConstant());
     }
 
     if (!Cf.isConstant()) {
@@ -266,7 +424,6 @@ DecRateCoeff::DecRateCoeff(
 	assert(!Cf.overlaps(aprod) || aprod.isConstant());
 	assert(!Cf.overlaps(adet) || adet.isConstant());
 	assert(!Cf.overlaps(atageff) || atageff.isConstant());
-	assert(!Cf.overlaps(amistag) || amistag.isConstant());
     }
 
     if (!Cfbar.isConstant()) {
@@ -277,7 +434,6 @@ DecRateCoeff::DecRateCoeff(
 	assert(!Cfbar.overlaps(aprod) || aprod.isConstant());
 	assert(!Cfbar.overlaps(adet) || adet.isConstant());
 	assert(!Cfbar.overlaps(atageff) || atageff.isConstant());
-	assert(!Cfbar.overlaps(amistag) || amistag.isConstant());
     }
 
     if (!tageff.isConstant()) {
@@ -289,7 +445,6 @@ DecRateCoeff::DecRateCoeff(
 	assert(!tageff.overlaps(aprod) || aprod.isConstant());
 	assert(!tageff.overlaps(adet) || adet.isConstant());
 	assert(!tageff.overlaps(atageff) || atageff.isConstant());
-	assert(!tageff.overlaps(amistag) || amistag.isConstant());
     }
 
     if (!eta.isConstant()) {
@@ -301,7 +456,6 @@ DecRateCoeff::DecRateCoeff(
 	assert(!eta.overlaps(aprod) || aprod.isConstant());
 	assert(!eta.overlaps(adet) || adet.isConstant());
 	assert(!eta.overlaps(atageff) || atageff.isConstant());
-	assert(!eta.overlaps(amistag) || amistag.isConstant());
     }
 
     if (!aprod.isConstant()) {
@@ -313,7 +467,6 @@ DecRateCoeff::DecRateCoeff(
 	assert(!aprod.overlaps(eta) || eta.isConstant());
 	assert(!aprod.overlaps(adet) || adet.isConstant());
 	assert(!aprod.overlaps(atageff) || atageff.isConstant());
-	assert(!aprod.overlaps(amistag) || amistag.isConstant());
     }
 
     if (!adet.isConstant()) {
@@ -325,7 +478,6 @@ DecRateCoeff::DecRateCoeff(
 	assert(!adet.overlaps(eta) || eta.isConstant());
 	assert(!adet.overlaps(aprod) || aprod.isConstant());
 	assert(!adet.overlaps(atageff) || atageff.isConstant());
-	assert(!adet.overlaps(amistag) || amistag.isConstant());
     }
 
     if (!atageff.isConstant()) {
@@ -337,19 +489,142 @@ DecRateCoeff::DecRateCoeff(
 	assert(!atageff.overlaps(eta) || eta.isConstant());
 	assert(!atageff.overlaps(aprod) || aprod.isConstant());
 	assert(!atageff.overlaps(adet) || adet.isConstant());
-	assert(!atageff.overlaps(amistag) || amistag.isConstant());
+    }
+}
+
+DecRateCoeff::DecRateCoeff(
+	const char* name, const char* title, Flags flags,
+	RooAbsCategory& qf, RooAbsCategory& qt,
+	RooAbsReal& Cf, RooAbsReal& Cfbar,
+	RooAbsReal& tageff, RooAbsReal& eta, RooAbsReal& etabar,
+	RooAbsReal& aprod, RooAbsReal& adet, RooAbsReal& atageff) :
+    RooAbsReal(name, title),
+    m_qf("qf", "qf", this, qf), m_qt("qt", "qt", this, qt),
+    m_Cf("Cf", "Cf", this, Cf), m_Cfbar("Cfbar", "Cfbar", this, Cfbar),
+    m_tageff("tageff", "tageff", this, tageff),
+    m_eta("eta", "eta", this, eta),
+    m_etabar("etabar", "etabar", this, etabar),
+    m_aprod("aprod", "aprod", this, aprod),
+    m_adet("adet", "adet", this, adet),
+    m_atageff("atageff", "atageff", this, atageff),
+    m_cacheMgr(this), m_nset(0), m_nsethash(0), m_flags(flags)
+{
+    // make sure there are no crazy dependencies which would make analytic
+    // integrals impossible
+    if (!qf.isConstant()) {
+	assert(!qf.overlaps(qt) || qt.isConstant());
+	assert(!qf.overlaps(Cf) || Cf.isConstant());
+	assert(!qf.overlaps(Cfbar) || Cfbar.isConstant());
+	assert(!qf.overlaps(tageff) || tageff.isConstant());
+	assert(!qf.overlaps(eta) || eta.isConstant());
+	assert(!qf.overlaps(etabar) || etabar.isConstant());
+	assert(!qf.overlaps(aprod) || aprod.isConstant());
+	assert(!qf.overlaps(adet) || adet.isConstant());
+	assert(!qf.overlaps(atageff) || atageff.isConstant());
     }
 
-    if (!amistag.isConstant()) {
-	assert(!amistag.overlaps(qf) || qf.isConstant());
-	assert(!amistag.overlaps(qt) || qt.isConstant());
-	assert(!amistag.overlaps(Cf) || Cf.isConstant());
-	assert(!amistag.overlaps(Cfbar) || Cfbar.isConstant());
-	assert(!amistag.overlaps(tageff) || tageff.isConstant());
-	assert(!amistag.overlaps(eta) || eta.isConstant());
-	assert(!amistag.overlaps(aprod) || aprod.isConstant());
-	assert(!amistag.overlaps(adet) || adet.isConstant());
-	assert(!amistag.overlaps(atageff) || atageff.isConstant());
+    if (!qt.isConstant()) {
+	assert(!qt.overlaps(qf) || qf.isConstant());
+	assert(!qt.overlaps(Cf) || Cf.isConstant());
+	assert(!qt.overlaps(Cfbar) || Cfbar.isConstant());
+	assert(!qt.overlaps(tageff) || tageff.isConstant());
+	assert(!qt.overlaps(eta) || eta.isConstant());
+	assert(!qt.overlaps(etabar) || etabar.isConstant());
+	assert(!qt.overlaps(aprod) || aprod.isConstant());
+	assert(!qt.overlaps(adet) || adet.isConstant());
+	assert(!qt.overlaps(atageff) || atageff.isConstant());
+    }
+
+    if (!Cf.isConstant()) {
+	assert(!Cf.overlaps(qf) || qf.isConstant());
+	assert(!Cf.overlaps(qt) || qt.isConstant());
+	assert(!Cf.overlaps(tageff) || tageff.isConstant());
+	assert(!Cf.overlaps(eta) || eta.isConstant());
+	assert(!Cf.overlaps(etabar) || etabar.isConstant());
+	assert(!Cf.overlaps(aprod) || aprod.isConstant());
+	assert(!Cf.overlaps(adet) || adet.isConstant());
+	assert(!Cf.overlaps(atageff) || atageff.isConstant());
+    }
+
+    if (!Cfbar.isConstant()) {
+	assert(!Cfbar.overlaps(qf) || qf.isConstant());
+	assert(!Cfbar.overlaps(qt) || qt.isConstant());
+	assert(!Cfbar.overlaps(tageff) || tageff.isConstant());
+	assert(!Cfbar.overlaps(eta) || eta.isConstant());
+	assert(!Cfbar.overlaps(etabar) || etabar.isConstant());
+	assert(!Cfbar.overlaps(aprod) || aprod.isConstant());
+	assert(!Cfbar.overlaps(adet) || adet.isConstant());
+	assert(!Cfbar.overlaps(atageff) || atageff.isConstant());
+    }
+
+    if (!tageff.isConstant()) {
+	assert(!tageff.overlaps(qf) || qf.isConstant());
+	assert(!tageff.overlaps(qt) || qt.isConstant());
+	assert(!tageff.overlaps(Cf) || Cf.isConstant());
+	assert(!tageff.overlaps(Cfbar) || Cfbar.isConstant());
+	assert(!tageff.overlaps(eta) || eta.isConstant());
+	assert(!tageff.overlaps(etabar) || etabar.isConstant());
+	assert(!tageff.overlaps(aprod) || aprod.isConstant());
+	assert(!tageff.overlaps(adet) || adet.isConstant());
+	assert(!tageff.overlaps(atageff) || atageff.isConstant());
+    }
+
+    if (!eta.isConstant()) {
+	assert(!eta.overlaps(qf) || qf.isConstant());
+	assert(!eta.overlaps(qt) || qt.isConstant());
+	assert(!eta.overlaps(Cf) || Cf.isConstant());
+	assert(!eta.overlaps(Cfbar) || Cfbar.isConstant());
+	assert(!eta.overlaps(tageff) || tageff.isConstant());
+	assert(!eta.overlaps(aprod) || aprod.isConstant());
+	assert(!eta.overlaps(adet) || adet.isConstant());
+	assert(!eta.overlaps(atageff) || atageff.isConstant());
+    }
+
+    if (!etabar.isConstant()) {
+	assert(!etabar.overlaps(qf) || qf.isConstant());
+	assert(!etabar.overlaps(qt) || qt.isConstant());
+	assert(!etabar.overlaps(Cf) || Cf.isConstant());
+	assert(!etabar.overlaps(Cfbar) || Cfbar.isConstant());
+	assert(!etabar.overlaps(tageff) || tageff.isConstant());
+	assert(!etabar.overlaps(aprod) || aprod.isConstant());
+	assert(!etabar.overlaps(adet) || adet.isConstant());
+	assert(!etabar.overlaps(atageff) || atageff.isConstant());
+    }
+
+    if (!aprod.isConstant()) {
+	assert(!aprod.overlaps(qf) || qf.isConstant());
+	assert(!aprod.overlaps(qt) || qt.isConstant());
+	assert(!aprod.overlaps(Cf) || Cf.isConstant());
+	assert(!aprod.overlaps(Cfbar) || Cfbar.isConstant());
+	assert(!aprod.overlaps(tageff) || tageff.isConstant());
+	assert(!aprod.overlaps(eta) || eta.isConstant());
+	assert(!aprod.overlaps(etabar) || etabar.isConstant());
+	assert(!aprod.overlaps(adet) || adet.isConstant());
+	assert(!aprod.overlaps(atageff) || atageff.isConstant());
+    }
+
+    if (!adet.isConstant()) {
+	assert(!adet.overlaps(qf) || qf.isConstant());
+	assert(!adet.overlaps(qt) || qt.isConstant());
+	assert(!adet.overlaps(Cf) || Cf.isConstant());
+	assert(!adet.overlaps(Cfbar) || Cfbar.isConstant());
+	assert(!adet.overlaps(tageff) || tageff.isConstant());
+	assert(!adet.overlaps(eta) || eta.isConstant());
+	assert(!adet.overlaps(etabar) || etabar.isConstant());
+	assert(!adet.overlaps(aprod) || aprod.isConstant());
+	assert(!adet.overlaps(atageff) || atageff.isConstant());
+    }
+
+    if (!atageff.isConstant()) {
+	assert(!atageff.overlaps(qf) || qf.isConstant());
+	assert(!atageff.overlaps(qt) || qt.isConstant());
+	assert(!atageff.overlaps(Cf) || Cf.isConstant());
+	assert(!atageff.overlaps(Cfbar) || Cfbar.isConstant());
+	assert(!atageff.overlaps(tageff) || tageff.isConstant());
+	assert(!atageff.overlaps(eta) || eta.isConstant());
+	assert(!atageff.overlaps(etabar) || etabar.isConstant());
+	assert(!atageff.overlaps(aprod) || aprod.isConstant());
+	assert(!atageff.overlaps(adet) || adet.isConstant());
     }
 } 
 
@@ -362,11 +637,11 @@ DecRateCoeff::DecRateCoeff(
     m_etapdf("etapdf", this, other.m_etapdf),
     m_etapdfutinstance(other.m_etapdfutinstance),
     m_etapdfut("etapdfut", this, other.m_etapdfut),
-    m_tageff("tageff", this, other.m_tageff), m_eta("eta", this, other.m_eta),
+    m_tageff("tageff", this, other.m_tageff),
+    m_eta("eta", this, other.m_eta), m_etabar("etabar", this, other.m_etabar),
     m_aprod("aprod", this, other.m_aprod),
     m_adet("adet", this, other.m_adet),
     m_atageff("atageff", this, other.m_atageff),
-    m_amistag("amistag", this, other.m_amistag),
     m_cacheMgr(other.m_cacheMgr, this), m_nsets(other.m_nsets),
     m_nset(other.m_nset), m_nsethash(other.m_nsethash), m_flags(other.m_flags)
 {
@@ -561,12 +836,16 @@ DecRateCoeff::CacheElem::CacheElem(const DecRateCoeff& parent,
 	const RooArgSet& iset, const RooArgSet* nset,
 	const TNamed* rangeName) :
     m_etaintpdftagged(0),
-    m_etaintprodpdfmistagtagged(0), m_etaintpdfuntagged(0),
+    m_etaintprodpdfmistagtaggedplus(0),
+    m_etaintprodpdfmistagtaggedminus(0),
+    m_etaintpdfuntagged(0),
     m_rangeName(rangeName ? rangeName->GetName() : 0),
-    m_parent(parent), m_workRange(0, 0),
-    m_prodcachedval(std::numeric_limits<double>::quiet_NaN()),
-    m_flags(None)
+    m_parent(parent), m_flags(None)
 {
+    m_prodcachedval[0] = m_prodcachedval[1] =
+	std::numeric_limits<double>::quiet_NaN();
+    m_workRange[0] = m_workRange[1] =
+	std::make_pair<RooRealVar*, RooRealVar*>(0, 0);
     // set flag for qf/qt integration
     if (iset.find(parent.m_qf.arg()))
 	m_flags = static_cast<Flags>(m_flags | IntQf);
@@ -594,45 +873,71 @@ DecRateCoeff::CacheElem::CacheElem(const DecRateCoeff& parent,
 	RooAbsReal* prod = new RooProduct(newname.c_str(), newname.c_str(),
 		RooArgList(parent.m_etapdf.arg(), parent.m_eta.arg()));
 	assert(prod);
+	RooAbsReal* prod2 = 0;
+	if (m_parent.m_etabar.absArg()) {
+	    // different calibrations for B/Bbar, need the second product
+	    const std::string newname2(newname + "bar");
+	    prod2 = new RooProduct(newname2.c_str(), newname2.c_str(),
+		    RooArgList(parent.m_etapdf.arg(), parent.m_etabar.arg()));
+	    assert(prod2);
+	}
 	if (m_flags & IntEta) {
 	    // integrate over eta
 	    m_etaintpdftagged = parent.m_etapdf.arg().createIntegral(
 		    etaiset, nset ? &m_nset : 0, 0, m_rangeName);
 	    assert(m_etaintpdftagged);
-	    m_etaintprodpdfmistagtagged = prod->createIntegral(
+	    m_etaintprodpdfmistagtaggedplus = prod->createIntegral(
 		    etaiset, nset ? &m_nset : 0, 0, m_rangeName);
-	    assert(m_etaintprodpdfmistagtagged);
-	    m_etaintprodpdfmistagtagged->addOwnedComponents(*prod);
+	    assert(m_etaintprodpdfmistagtaggedplus);
+	    m_etaintprodpdfmistagtaggedplus->addOwnedComponents(*prod);
+	    if (prod2) {
+		m_etaintprodpdfmistagtaggedminus = prod2->createIntegral(
+			etaiset, nset ? &m_nset : 0, 0, m_rangeName);
+		assert(m_etaintprodpdfmistagtaggedminus);
+		m_etaintprodpdfmistagtaggedminus->addOwnedComponents(*prod2);
+	    }
 	    m_etaintpdfuntagged = parent.m_etapdfut.arg().createIntegral(
 		    etaiset, nset ? &m_nset : 0, 0, m_rangeName);
 	    assert(m_etaintpdfuntagged);
 	} else {
 	    m_etaintpdftagged = const_cast<RooAbsReal*>(
 		    &parent.m_etapdf.arg());
-	    m_etaintprodpdfmistagtagged = prod;
+	    m_etaintprodpdfmistagtaggedplus = prod;
+	    m_etaintprodpdfmistagtaggedminus = prod2;
 	    m_etaintpdfuntagged = const_cast<RooAbsReal*>(
 		    &parent.m_etapdfut.arg());
 	}
     } else {
 	// case with average mistag
-	m_etaintprodpdfmistagtagged = const_cast<RooAbsReal*>(
+	m_etaintprodpdfmistagtaggedplus = const_cast<RooAbsReal*>(
 		&parent.m_eta.arg());
+	if (m_parent.m_etabar.absArg()) {
+	    // different calibrations for B/Bbar
+	    m_etaintprodpdfmistagtaggedminus = const_cast<RooAbsReal*>(
+		    &parent.m_etabar.arg());
+	}
     }
     if (m_flags & ProdIntBinned) {
 	// patch configuration: set up binned evaluation of product integral
-	setupBinnedProdctIntegral();
+	setupBinnedProductIntegral(
+		m_etaintprodpdfmistagtaggedplus, m_parent.m_eta.arg(), 0);
+	if (m_etaintprodpdfmistagtaggedminus)
+	    setupBinnedProductIntegral(
+		    m_etaintprodpdfmistagtaggedminus, m_parent.m_etabar.arg(), 1);
     }
 }
 
-void DecRateCoeff::CacheElem::setupBinnedProdctIntegral()
+void DecRateCoeff::CacheElem::setupBinnedProductIntegral(
+	RooAbsReal* &prod, const RooAbsReal& eta, int idx)
 {
     // define name of working range
-    m_workRangeName = m_etaintprodpdfmistagtagged->GetName();
-    m_workRangeName += "_workRange";
+    m_workRangeName[idx] = prod->GetName();
+    m_workRangeName[idx] += "_workRange";
     // get binning
     const double rxmin = m_parent.m_etaobs.min(m_rangeName);
     const double rxmax = m_parent.m_etaobs.max(m_rangeName);
-    {
+    if (m_etabins.empty()) {
+	// bin vector can be shared between B/Bbar
 	std::auto_ptr<std::list<Double_t> > bins(
 		dynamic_cast<const RooAbsPdf&>(
 		    m_parent.m_etapdf.arg()).binBoundaries(
@@ -656,33 +961,32 @@ void DecRateCoeff::CacheElem::setupBinnedProdctIntegral()
 	assert(m_etabins.back() == rxmax);
     }
     // set up required binning
-    m_workRange.first = new RooRealVar(
-	    (m_workRangeName + "_min").c_str(),
-	    (m_workRangeName + "_min").c_str(), rxmin, rxmin, rxmax);
-    m_workRange.second = new RooRealVar(
-	    (m_workRangeName + "_max").c_str(),
-	    (m_workRangeName + "_max").c_str(), rxmax, rxmin, rxmax);
+    m_workRange[idx].first = new RooRealVar(
+	    (m_workRangeName[idx] + "_min").c_str(),
+	    (m_workRangeName[idx] + "_min").c_str(), rxmin, rxmin, rxmax);
+    m_workRange[idx].second = new RooRealVar(
+	    (m_workRangeName[idx] + "_max").c_str(),
+	    (m_workRangeName[idx] + "_max").c_str(), rxmax, rxmin, rxmax);
     const_cast<RooRealVar&>(dynamic_cast<const RooRealVar&>(
 		m_parent.m_etaobs.arg())).setRange(
-	    m_workRangeName.c_str(),
-	    *m_workRange.first, *m_workRange.second);
-    // ok get rid of m_etaintprodpdfmistagtagged, and set to what is needed
-    // for binned evaluation
-    std::string prodname(m_etaintprodpdfmistagtagged->GetName());
-    delete m_etaintprodpdfmistagtagged;
+	    m_workRangeName[idx].c_str(),
+	    *m_workRange[idx].first, *m_workRange[idx].second);
+    // ok get rid of prod, and set to what is needed for binned evaluation
+    std::string prodname(prod->GetName());
+    delete prod;
     RooArgSet etaiset(m_parent.m_etaobs.arg());
     RooAbsReal* pdf = m_parent.m_etapdf.arg().createIntegral(etaiset,
-	    (m_flags & NormEta) ? &m_nset : 0, 0, m_workRangeName.c_str());
+	    (m_flags & NormEta) ? &m_nset : 0, 0, m_workRangeName[idx].c_str());
     assert(pdf);
-    RooAbsReal* eta = m_parent.m_eta.arg().createIntegral(etaiset,
-	    (m_flags & NormEta) ? &m_nset : 0, 0, m_workRangeName.c_str());
-    assert(eta);
-    m_etaintprodpdfmistagtagged = new RooProduct(
-	    prodname.c_str(), prodname.c_str(), RooArgList(*pdf, *eta));
-    assert(m_etaintprodpdfmistagtagged);
+    RooAbsReal* etai = eta.createIntegral(etaiset,
+	    (m_flags & NormEta) ? &m_nset : 0, 0, m_workRangeName[idx].c_str());
+    assert(etai);
+    prod = new RooProduct(
+	    prodname.c_str(), prodname.c_str(), RooArgList(*pdf, *etai));
+    assert(prod);
     // make sure we do not leak
-    m_etaintprodpdfmistagtagged->addOwnedComponents(*pdf);
-    m_etaintprodpdfmistagtagged->addOwnedComponents(*eta);
+    prod->addOwnedComponents(*pdf);
+    prod->addOwnedComponents(*etai);
     // all done
 }
 
@@ -692,15 +996,18 @@ DecRateCoeff::CacheElem::~CacheElem()
 	// per-event mistag case
 	// we own the (integral of the) product of mistag pdf and per-event
 	// mistag in any case
-	delete m_etaintprodpdfmistagtagged;
+	delete m_etaintprodpdfmistagtaggedplus;
+	delete m_etaintprodpdfmistagtaggedminus;
 	// work out if we own m_etaintpdftagged and m_etaintpdfuntagged -
 	// that is only the case if integrate over mistag
 	if (m_flags & IntEta) {
 	    delete m_etaintpdftagged;
 	    delete m_etaintpdfuntagged;
 	}
-	delete m_workRange.first;
-	delete m_workRange.second;
+	delete m_workRange[0].first;
+	delete m_workRange[0].second;
+	delete m_workRange[1].first;
+	delete m_workRange[1].second;
     } else {
 	// we're in the average mistag case, so we do not own the pointers and
 	// must not delete them...
@@ -712,14 +1019,20 @@ RooArgList DecRateCoeff::CacheElem::containedArgs(Action)
     RooArgList retVal;
     if (m_etaintpdftagged)
 	retVal.add(*m_etaintpdftagged);
-    if (m_etaintprodpdfmistagtagged)
-	retVal.add(*m_etaintprodpdfmistagtagged);
     if (m_etaintpdfuntagged)
 	retVal.add(*m_etaintpdfuntagged);
-    if (m_workRange.first)
-	retVal.add(*m_workRange.first);
-    if (m_workRange.second)
-	retVal.add(*m_workRange.second);
+    if (m_etaintprodpdfmistagtaggedplus)
+	retVal.add(*m_etaintprodpdfmistagtaggedplus);
+    if (m_etaintprodpdfmistagtaggedminus)
+	retVal.add(*m_etaintprodpdfmistagtaggedminus);
+    if (m_workRange[0].first)
+	retVal.add(*m_workRange[0].first);
+    if (m_workRange[0].second)
+	retVal.add(*m_workRange[0].second);
+    if (m_workRange[1].first)
+	retVal.add(*m_workRange[1].first);
+    if (m_workRange[1].second)
+	retVal.add(*m_workRange[1].second);
     return retVal;
 }
 
@@ -742,11 +1055,12 @@ double DecRateCoeff::CacheElem::qtetapdf(const int qf, const int qt,
     switch (qt) {
 	case -1:
 	    {
-		const double am(m_parent.m_amistag), m(etaintpdftagged());
-		const double mp(etaintprodpdfmistagtagged());
+		const double m(etaintpdftagged());
+		const double mpp(etaintprodpdfmistagtagged(+1));
+		const double mpm(etaintprodpdfmistagtagged(-1));
 		return
-		    (1. + ap) * eps * (1. + at) * mp * (1. + am) * cp +
-		    (1. - ap) * eps * (1. - at) * (m - mp * (1. - am)) * cm;
+		    (1. + ap) * eps * (1. + at) * mpp * cp +
+		    (1. - ap) * eps * (1. - at) * (m - mpm) * cm;
 	    }
 	case 0:
 	    return etaintpdfuntagged() * (
@@ -754,11 +1068,12 @@ double DecRateCoeff::CacheElem::qtetapdf(const int qf, const int qt,
 		    (1. - ap) * (1 - eps * (1. - at)) * cm);
 	case +1:
 	    {
-		const double am(m_parent.m_amistag), m(etaintpdftagged());
-		const double mp(etaintprodpdfmistagtagged());
+		const double m(etaintpdftagged());
+		const double mpp(etaintprodpdfmistagtagged(+1));
+		const double mpm(etaintprodpdfmistagtagged(-1));
 		return
-		    (1. + ap) * eps * (1. + at) * (m - mp * (1. + am)) * cp +
-		    (1. - ap) * eps * (1. - at) * mp * (1. - am) * cm;
+		    (1. + ap) * eps * (1. + at) * (m - mpp) * cp +
+		    (1. - ap) * eps * (1. - at) * mpm * cm;
 	    }
 	default:
 	    // should never get here
@@ -905,26 +1220,30 @@ double DecRateCoeff::CacheElem::eval(
     return std::numeric_limits<double>::quiet_NaN();
 }
 
-double DecRateCoeff::CacheElem::etaintprodpdfmistagtagged() const
+double DecRateCoeff::CacheElem::etaintprodpdfmistagtagged(int qt) const
 {
-    if (!m_etaintprodpdfmistagtagged)
+    assert(0 != qt);
+    if (!m_etaintprodpdfmistagtaggedplus)
 	return 1.0;
+    RooAbsReal* prodint = (m_etaintprodpdfmistagtaggedminus && qt < 0) ?
+	m_etaintprodpdfmistagtaggedminus : m_etaintprodpdfmistagtaggedplus;
+    const int cacheidx = (m_etaintprodpdfmistagtaggedminus && qt < 0) ? 1 : 0;
     const RooArgSet* nset = (m_flags & NormEta) ? &m_nset : 0;
     if (!(m_flags & ProdIntBinned))
-	return m_etaintprodpdfmistagtagged->getValV(nset);
+	return prodint->getValV(nset);
     // use binned approximation to integral
-    if (m_prodcachedval == m_prodcachedval &&
-	    !m_etaintprodpdfmistagtagged->isValueOrShapeDirtyAndClear())
-	return m_prodcachedval;
+    if (m_prodcachedval[cacheidx] == m_prodcachedval[cacheidx] &&
+	    !prodint->isValueOrShapeDirtyAndClear())
+	return m_prodcachedval[cacheidx];
     double retVal = 0.;
     for (std::vector<double>::const_iterator it = m_etabins.begin() + 1;
 	    m_etabins.end() != it; ++it) {
 	const double xmin(*(it - 1)), xmax(*it);
-	m_workRange.first->setVal(xmin);
-	m_workRange.second->setVal(xmax);
-	retVal += m_etaintprodpdfmistagtagged->getValV(nset);
+	m_workRange[cacheidx].first->setVal(xmin);
+	m_workRange[cacheidx].second->setVal(xmax);
+	retVal += prodint->getValV(nset);
     }
-    return (m_prodcachedval = retVal);
+    return (m_prodcachedval[cacheidx] = retVal);
 }
 
 // vim: sw=4:tw=78:ft=cpp
