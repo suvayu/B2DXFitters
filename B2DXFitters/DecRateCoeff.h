@@ -119,10 +119,10 @@ class DecRateCoeff : public RooAbsReal
     public:
 	/// flags
 	typedef enum {
-	    CPEven = 0,	  /// nothing set for CP even coefficients
-	    CPOdd = 1,	  /// bit 0 set for CP odd coefficient
-	    Minus = 2,	  /// bit 1 set to apply an overall minus sign
-	    AvgDelta = 4, /// bit 2 set if Cf/Cfbar refer to average and Delta C
+	    CPEven = 0,	  ///< nothing set for CP even coefficients
+	    CPOdd = 1,	  ///< bit 0 set for CP odd coefficient
+	    Minus = 2,	  ///< bit 1 set to apply an overall minus sign
+	    AvgDelta = 4, ///< bit 2 set if Cf/Cfbar refer to average and Delta C
 	} Flags;
 
 	/// default constructor for ROOT I/O
