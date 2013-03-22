@@ -95,6 +95,16 @@
  * Moreover, an overall minus sign can be prepended in the definition of the
  * @f$\alpha(q_i,q_f)@f$.
  *
+ * Instead of using @f$C_f@f$ and @f$C_{\bar{f}}@f$ directly, it is also
+ * possible to use the average @f$\langle C\rangle=(C_f+C_{\bar{f}})/2@f$
+ * difference @f$\Delta C=(C_f-C_{\bar{f}})/2@f$ of @f$C_f@f$ and
+ * @f$C_{\bar{f}}@f$. The advantage to fitting for @f$\langle C\rangle@f$ and
+ * @f$\Delta C@f$ are smaller correlations in the typical case, see e.g.
+ *
+ * http://de.arxiv.org/abs/1208.6463
+ *
+ * for details.
+ *
  * @author Manuel Schiller <manuel.schiller@nikhef.nl>
  * @date 2012-10-24
  */
@@ -109,9 +119,10 @@ class DecRateCoeff : public RooAbsReal
     public:
 	/// flags
 	typedef enum {
-	    CPEven = 0,	/// nothing set for CP even coefficients
-	    CPOdd = 1,	/// bit 0 set for CP odd coefficient
-	    Minus = 2	/// bit 1 set to apply an overall minus sign
+	    CPEven = 0,	  /// nothing set for CP even coefficients
+	    CPOdd = 1,	  /// bit 0 set for CP odd coefficient
+	    Minus = 2,	  /// bit 1 set to apply an overall minus sign
+	    AvgDelta = 4, /// bit 2 set if Cf/Cfbar refer to average and Delta C
 	} Flags;
 
 	/// default constructor for ROOT I/O
@@ -137,6 +148,16 @@ class DecRateCoeff : public RooAbsReal
 	 * @param adet		detection asymmetry
 	 * @param atageff	tagging efficiency asymmetry (as function of qi)
 	 * @param amistag	per-event mistag asymmetry
+	 *
+	 * If flags has AvgDelta set, we interpret the parameter Cf to be the
+	 * average C, @f$\langle C\rangle=(C_f+C_{\bar{f}})/2@f$, and Cfbar to
+	 * be the difference in C, @f$\Delta C=(C_f-C_{\bar{f}})/2@f$. The
+	 * advantage to fitting for @f$\langle C\rangle@f$ and @f$\Delta C@f$
+	 * are smaller correlations in the typical case, see e.g.
+	 *
+	 * http://de.arxiv.org/abs/1208.6463
+	 *
+	 * for details.
 	 */
 	DecRateCoeff(const char* name, const char* title, Flags flags,
 		RooAbsCategory& qf, RooAbsCategory& qt,
@@ -164,6 +185,16 @@ class DecRateCoeff : public RooAbsReal
 	 * @param adet		detection asymmetry
 	 * @param atageff	tagging efficiency asymmetry (as function of qi)
 	 * @param amistag	per-event mistag asymmetry
+	 *
+	 * If flags has AvgDelta set, we interpret the parameter Cf to be the
+	 * average C, @f$\langle C\rangle=(C_f+C_{\bar{f}})/2@f$, and Cfbar to
+	 * be the difference in C, @f$\Delta C=(C_f-C_{\bar{f}})/2@f$. The
+	 * advantage to fitting for @f$\langle C\rangle@f$ and @f$\Delta C@f$
+	 * are smaller correlations in the typical case, see e.g.
+	 *
+	 * http://de.arxiv.org/abs/1208.6463
+	 *
+	 * for details.
 	 */
 	DecRateCoeff(const char* name, const char* title, Flags flags,
 		RooAbsCategory& qf, RooAbsCategory& qt,

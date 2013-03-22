@@ -413,8 +413,12 @@ Double_t DecRateCoeff::evaluate() const
     const double oep((m_flags & Minus ? -1. : 1.) *
 	    (m_flags & CPOdd ? double(int(m_qf)) : 1.));
     const double oem((m_flags & CPOdd) ? (-oep) : oep);
-    const double alphapp(double(m_Cf) * oep), alphapm(double(m_Cf) * oem);
-    const double alphamp(double(m_Cfbar) * oep), alphamm(double(m_Cfbar) * oem);
+    const double Cf = (m_flags & AvgDelta) ?
+	(double(m_Cf) + double(m_Cfbar)) : double(m_Cf);
+    const double Cfbar = (m_flags & AvgDelta) ?
+	(double(m_Cf) - double(m_Cfbar)) : double(m_Cfbar);
+    const double alphapp(oep * Cf), alphapm(oem * Cf);
+    const double alphamp(oep * Cfbar), alphamm(oem * Cfbar);
     // get value
     const double val = getCache(s_emptyset, m_nset, RooNameReg::ptr(0)).first->eval(
 	    alphapp, alphapm, alphamp, alphamm);
@@ -483,8 +487,12 @@ Double_t DecRateCoeff::analyticalIntegralWN(
     const double oep((m_flags & Minus ? -1. : 1.) *
 	    (m_flags & CPOdd ? double(iqf) : 1.));
     const double oem((m_flags & CPOdd) ? (-oep) : oep);
-    const double alphapp(oep * double(m_Cf)), alphapm(oem * double(m_Cf));
-    const double alphamp(oep * double(m_Cfbar)), alphamm(oem * double(m_Cfbar));
+    const double Cf = (m_flags & AvgDelta) ?
+	(double(m_Cf) + double(m_Cfbar)) : double(m_Cf);
+    const double Cfbar = (m_flags & AvgDelta) ?
+	(double(m_Cf) - double(m_Cfbar)) : double(m_Cfbar);
+    const double alphapp(oep * Cf), alphapm(oem * Cf);
+    const double alphamp(oep * Cfbar), alphamm(oem * Cfbar);
     const double ival = ic->eval(alphapp, alphapm, alphamp, alphamm);
     if (ncode) {
 	CacheElem* nc =
