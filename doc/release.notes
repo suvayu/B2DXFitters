@@ -4,6 +4,11 @@
 ! Purpose     : RooFit-based fitters for B -> D X
 !-----------------------------------------------------------------------------
 
+! 2013-04-09 - Manuel Tobias Schiller
+ - standalone/Makefile, standalone/readTree/Makefile: better isolate the
+   MacOS/X changes in the Makefiles, so that we get the old behaviour for non
+   OS/X machines
+
 ! 2013-04-09 - Giulia Tellarini (with Manuel Schiller who gets the blame)
  - standalone/Rules.mk: add support for MacOS/X for standalone builds
  - standalone/Makefile, standalone/readTree/Makefile: some MacOS/X fixes
