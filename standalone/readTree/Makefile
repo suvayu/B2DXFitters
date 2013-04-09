@@ -5,6 +5,7 @@ alldicts += readTreeDict.cxx
 include Rules.mk
 
 libreadTree.so: readTreeDict.os $(patsubst %.cxx,%.os,$(filter-out accept.cc,$(ccsrc)))
+libreadTree.so:	LDLIBS+=-lstdc++ $(ROOTLIBS)
 
 readTreeDict.cxx: readTree.hxx readMCTree.hxx lifetime.hxx readTreeLinkDef.h
 

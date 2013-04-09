@@ -482,10 +482,10 @@ namespace MassFitUtils {
 	treetmp[i]->GetEntry(jentry);
 	Int_t bin;
 	
-	masshypo = (Float_t)sqrt(pow(sqrt(pow(493.677,2)+pow(lab1_P3,2))+sqrt(pow(lab2_MM3,2)+pow(lab2_P3,2)),2)
-				 -pow(lab1_PX3+lab2_PX3,2)
-				 -pow(lab1_PY3+lab2_PY3,2)
-				 -pow(lab1_PZ3+lab2_PZ3,2)); // change hypo Pi->K
+	masshypo = (Float_t)std::sqrt(std::pow(std::sqrt(std::pow(493.677,2)+std::pow(lab1_P3,2))+std::sqrt(std::pow(lab2_MM3,2)+std::pow(lab2_P3,2)),2)
+				 -std::pow(lab1_PX3+lab2_PX3,2)
+				 -std::pow(lab1_PY3+lab2_PY3,2)
+				 -std::pow(lab1_PZ3+lab2_PZ3,2)); // change hypo Pi->K
 
 	//std::cout<<"mass: "<<masshypo<<std::endl;
 	if (masshypo > BMassRange[0] && masshypo < BMassRange[1]) {  // accept event only is in range, usually 5100,5800 // 
@@ -764,16 +764,16 @@ namespace MassFitUtils {
 	for( int k=0; k<2; k++)
 	  {
 	    if(k == 0 ) {
-	      E3 = sqrt(v3.P()*v3.P()+493.677*493.677);
-	      E4 = sqrt(v4.P()*v4.P()+139.57*139.57);
-	      E5 = sqrt(v5.P()*v5.P()+493.677*493.677);
+	      E3 = std::sqrt(v3.P()*v3.P()+493.677*493.677);
+	      E4 = std::sqrt(v4.P()*v4.P()+139.57*139.57);
+	      E5 = std::sqrt(v5.P()*v5.P()+493.677*493.677);
 	      v3.SetE(E3); v4.SetE(E4); v5.SetE(E5);
 	      phypo = v3.P();
 	    }
 	    else if (k == 1){
-	      E3 = sqrt(v3.P()*v3.P()+139.57*139.57);
-	      E4 = sqrt(v4.P()*v4.P()+493.677*493.677);
-	      E5 = sqrt(v5.P()*v5.P()+493.677*493.677);
+	      E3 = std::sqrt(v3.P()*v3.P()+139.57*139.57);
+	      E4 = std::sqrt(v4.P()*v4.P()+493.677*493.677);
+	      E5 = std::sqrt(v5.P()*v5.P()+493.677*493.677);
 	      v3.SetE(E3); v4.SetE(E4); v5.SetE(E5);
 	      phypo = v4.P();
 	    }
@@ -786,9 +786,9 @@ namespace MassFitUtils {
 	    if (masshypod > Dmass_down && masshypod < Dmass_up)  //only events which fall into Ds mass window are acceptable
 	      {
 
-		masshypo = (Float_t) sqrt( pow(sqrt(pow(lab1_M2,2) + pow(lab1_P2,2))
-					       + sqrt(pow(vd.M(),2)+pow(vd.P(),2)),2)
-					   - pow(lab1_PX2+vd.Px(),2)-pow(lab1_PY2+vd.Py(),2)-pow(lab1_PZ2+vd.Pz(),2)
+		masshypo = (Float_t) std::sqrt( std::pow(std::sqrt(std::pow(lab1_M2,2) + std::pow(lab1_P2,2))
+					       + std::sqrt(std::pow(vd.M(),2)+std::pow(vd.P(),2)),2)
+					   - std::pow(lab1_PX2+vd.Px(),2)-std::pow(lab1_PY2+vd.Py(),2)-std::pow(lab1_PZ2+vd.Pz(),2)
 					   );  // build Bs
 		
 		//std::cout<<"massb: "<<masshypo<<std::endl;
@@ -3025,7 +3025,7 @@ namespace MassFitUtils {
 	  }
 	Float_t v_lab45_av, v_lab45_u;
 	v_lab45_av = (v_lab45_1+v_lab45_2)/2;
-	v_lab45_u = pow((pow(v_lab45_1-v_lab45_av,2)+pow(v_lab45_2-v_lab45_av,2))/2,0.5)*1.414214;
+	v_lab45_u = std::pow((std::pow(v_lab45_1-v_lab45_av,2)+std::pow(v_lab45_2-v_lab45_av,2))*.5,0.5)*1.414214;
 	
 	std::cout<<"DOWN: "<<v_lab45_1<<" UP: "<<v_lab45_2<<std::endl;
 	std::cout<<"= ("<<v_lab45_av*100<<" +/- "<<v_lab45_u*100<<")%"<<std::endl;
@@ -3153,7 +3153,7 @@ namespace MassFitUtils {
 	std::cout<<"DOWN: "<<v_lab1_1<<" UP: "<<v_lab1_2<<std::endl;
 	Float_t v_lab1_av, v_lab1_u;
 	v_lab1_av = (v_lab1_1+v_lab1_2)/2;
-	v_lab1_u = pow((pow(v_lab1_1-v_lab1_av,2)+pow(v_lab1_2-v_lab1_av,2))/2,0.5)*1.414214;
+	v_lab1_u = std::pow((std::pow(v_lab1_1-v_lab1_av,2)+std::pow(v_lab1_2-v_lab1_av,2))/2.,0.5)*1.414214;
 	std::cout<<"= ("<<v_lab1_av*100<<" +/- "<<v_lab1_u*100<<")%"<<std::endl;
 	
 	std::cout<<std::endl;
@@ -3207,7 +3207,7 @@ namespace MassFitUtils {
 	v_lab1_1 = cal_lab1[0]*ratio[0]/n_events[0];
 	v_lab1_2 = cal_lab1[1]*ratio[1]/n_events[1];
         v_lab1_av = (v_lab1_1+v_lab1_2)/2;
-        v_lab1_u = pow((pow(v_lab1_1-v_lab1_av,2)+pow(v_lab1_2-v_lab1_av,2))/2,0.5)*1.414214;
+        v_lab1_u = std::pow((std::pow(v_lab1_1-v_lab1_av,2)+std::pow(v_lab1_2-v_lab1_av,2))/2.,0.5)*1.414214;
         std::cout<<"("<<v_lab1_av*100<<" +/- "<<v_lab1_u*100<<")%"<<std::endl;
 
         Float_t fitted_BsDsPi_1=0; 
@@ -3424,10 +3424,10 @@ namespace MassFitUtils {
 		/*
 		if (MC == true)
 		  {
-		    masshypo = (Float_t)sqrt(pow(sqrt(pow(493.677,2)+pow(lab1_P3,2))+sqrt(pow(lab2_MM3,2)+pow(lab2_P3,2)),2)
-					     -pow(lab1_PX3+lab2_PX3,2)
-					     -pow(lab1_PY3+lab2_PY3,2)
-					     -pow(lab1_PZ3+lab2_PZ3,2)); // change hypo Pi->K
+		    masshypo = (Float_t)std::sqrt(std::pow(std::sqrt(std::pow(493.677,2)+std::pow(lab1_P3,2))+std::sqrt(std::pow(lab2_MM3,2)+std::pow(lab2_P3,2)),2)
+					     -std::pow(lab1_PX3+lab2_PX3,2)
+					     -std::pow(lab1_PY3+lab2_PY3,2)
+					     -std::pow(lab1_PZ3+lab2_PZ3,2)); // change hypo Pi->K
 
 		    if (masshypo > BMassRange[0] && masshypo < BMassRange[1])
 		      {

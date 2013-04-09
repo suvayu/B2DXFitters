@@ -4,6 +4,11 @@
 ! Purpose     : RooFit-based fitters for B -> D X
 !-----------------------------------------------------------------------------
 
+! 2013-04-09 - Giulia Tellarini (with Manuel Schiller who gets the blame)
+ - standalone/Rules.mk: add support for MacOS/X for standalone builds
+ - standalone/Makefile, standalone/readTree/Makefile: some MacOS/X fixes
+ - src/MassFitUtils.cxx: fix compile error on MacOS/X
+
 ! 2013-03-22 - Manuel Tobias Schiller
  - DecRateCoeff: implement mistag asymmetries correctly: it's now possible to
    supply different average mistags (or different calibrations) for true
