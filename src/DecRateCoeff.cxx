@@ -972,6 +972,7 @@ void DecRateCoeff::CacheElem::setupBinnedProductIntegral(
     // things die a horrible death when using more than one CPU
     RooRealVar* etaobs = dynamic_cast<RooRealVar*>(
 	    m_parent.m_etaobs.arg().clone(0));
+    assert(etaobs);
     etaobs->setRange(
 	    m_workRangeName[idx].c_str(),
 	    *m_workRange[idx].first, *m_workRange[idx].second);
