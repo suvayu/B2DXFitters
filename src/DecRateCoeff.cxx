@@ -16,6 +16,7 @@
 #include <RooRealVar.h>
 #include <RooProduct.h>
 #include <RooCategory.h>
+#include <RooCustomizer.h>
 
 #include "B2DXFitters/DecRateCoeff.h"
 
@@ -931,7 +932,7 @@ void DecRateCoeff::CacheElem::setupBinnedProductIntegral(
 	RooAbsReal* &prod, const RooAbsReal& eta, int idx)
 {
     // define name of working range
-    m_workRangeName[idx] = prod->GetName();
+    m_workRangeName[idx] += prod->GetName();
     m_workRangeName[idx] += "_workRange";
     // get binning
     const double rxmin = m_parent.m_etaobs.min(m_rangeName);
@@ -967,18 +968,40 @@ void DecRateCoeff::CacheElem::setupBinnedProductIntegral(
     m_workRange[idx].second = new RooRealVar(
 	    (m_workRangeName[idx] + "_max").c_str(),
 	    (m_workRangeName[idx] + "_max").c_str(), rxmax, rxmin, rxmax);
-    const_cast<RooRealVar&>(dynamic_cast<const RooRealVar&>(
-		m_parent.m_etaobs.arg())).setRange(
+    RooRealVar* etaobs = dynamic_cast<RooRealVar*>(
+	    m_parent.m_etaobs.arg().clone(0));
+    etaobs->setRange(
 	    m_workRangeName[idx].c_str(),
 	    *m_workRange[idx].first, *m_workRange[idx].second);
     // ok get rid of prod, and set to what is needed for binned evaluation
     std::string prodname(prod->GetName());
     delete prod;
-    RooArgSet etaiset(m_parent.m_etaobs.arg());
-    RooAbsReal* pdf = m_parent.m_etapdf.arg().createIntegral(etaiset,
+    RooArgSet etaiset(*etaobs);
+    RooAbsPdf* etapdf = 0;
+    {
+	std::string str(m_parent.m_etapdf.arg().GetName());
+	str += "_for_";
+	str += m_workRangeName[idx];
+	RooCustomizer cust(m_parent.m_etapdf.arg(), str.c_str());
+	cust.replaceArg(m_parent.m_etaobs.arg(), *etaobs);
+	etapdf = dynamic_cast<RooAbsPdf*>(cust.build());
+	assert(etapdf);
+    }
+    RooAbsReal* etaa = 0;
+    {
+	std::string str(eta.GetName());
+	str += "_for_";
+	str += m_workRangeName[idx];
+	RooCustomizer cust(eta, str.c_str());
+	cust.replaceArg(m_parent.m_etaobs.arg(), *etaobs);
+	etaa = dynamic_cast<RooAbsReal*>(cust.build());
+	assert(etaa);
+    }
+
+    RooAbsReal* pdf = etapdf->createIntegral(etaiset,
 	    (m_flags & NormEta) ? &m_nset : 0, 0, m_workRangeName[idx].c_str());
     assert(pdf);
-    RooAbsReal* etai = eta.createIntegral(etaiset,
+    RooAbsReal* etai = etaa->createIntegral(etaiset,
 	    (m_flags & NormEta) ? &m_nset : 0, 0, m_workRangeName[idx].c_str());
     assert(etai);
     prod = new RooProduct(
@@ -987,6 +1010,9 @@ void DecRateCoeff::CacheElem::setupBinnedProductIntegral(
     // make sure we do not leak
     prod->addOwnedComponents(*pdf);
     prod->addOwnedComponents(*etai);
+    prod->addOwnedComponents(*etapdf);
+    prod->addOwnedComponents(*etaa);
+    prod->addOwnedComponents(*etaobs);
     // all done
 }
 

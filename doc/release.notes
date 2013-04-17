@@ -4,6 +4,11 @@
 ! Purpose     : RooFit-based fitters for B -> D X
 !-----------------------------------------------------------------------------
 
+! 2013-04-17 - Manuel Tobias Schiller
+ - src/DecRateCoeff.cxx: fix bug which prevented the class from being used
+   with more than one core (RooFit.NumCPU(n) where n > 1); no user visible
+   changes
+
 ! 2013-04-09 - Manuel Tobias Schiller
  - standalone/Makefile, standalone/readTree/Makefile: better isolate the
    MacOS/X changes in the Makefiles, so that we get the old behaviour for non
