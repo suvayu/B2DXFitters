@@ -968,6 +968,8 @@ void DecRateCoeff::CacheElem::setupBinnedProductIntegral(
     m_workRange[idx].second = new RooRealVar(
 	    (m_workRangeName[idx] + "_max").c_str(),
 	    (m_workRangeName[idx] + "_max").c_str(), rxmax, rxmin, rxmax);
+    // we need to operate on a clone of etaobs with our custom binning, or
+    // things die a horrible death when using more than one CPU
     RooRealVar* etaobs = dynamic_cast<RooRealVar*>(
 	    m_parent.m_etaobs.arg().clone(0));
     etaobs->setRange(
