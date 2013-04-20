@@ -4,6 +4,35 @@
 ! Purpose     : RooFit-based fitters for B -> D X
 !-----------------------------------------------------------------------------
 
+! 2013-04-20 - Manuel Tobias Schiller
+ - scripts/runBs2DsKCPAsymmObsFitter-cFit.py: various fixes/improvements:
+   * fix bug which caused values of generation and fitting configuration
+     dictionaries to be shared (under rare circumstances, the set of constant
+     parameters could be wrong - never happened in the analysis)
+   * activate mistag histogram interpolation for the mistag PDFs
+   * addjust binnings used in various speedups to take care of the fact that
+     we can now run toys with per-event sigma_t (for the small values in the
+     sigma_t distribution, a smaller binning in the acceptance is useful)
+   * adjust the per-event sigma_t mock model to be closer to what we see in MC
+     to facilitate tests
+   * fix bug in setConstantIfSoConfigured which could miss some variables
+     under rare circumstances (never happend in analysis)
+   * silence workspace imports to make the fit less "chatty"
+   * fix small bug in parameteriseResModelIntegrals
+   * decay time resolution models can now be fed from the command line for the
+     "average" decay time resolution scenario; this works by setting
+
+     'DecayTimeResolutionModel':[[sigma_0,sigma_1,sigma_2],[f_0,f_1]]
+
+     which will create a triple Gaussian with common mean (at zero), widths
+     sigma_0, sigma_1 and sigma_2 where the Gaussian with width sigma_0 gets
+     the fraction f_0, the one with width sigma_1 gets the fraction f_1 and
+     the last one gets 1 - f_0 - f_1 (the third fraction can optionally be
+     specified, but if omitted the last Gaussian will get a fractions
+     1 - sum_i f_i
+   * acceptance can itself can now be interpolated with a spline interpolation
+   * fix a bug in the multicore config option 'NumCPU'
+
 ! 2013-04-17 - Manuel Tobias Schiller
  - src/DecRateCoeff.cxx: fix bug which prevented the class from being used
    with more than one core (RooFit.NumCPU(n) where n > 1); no user visible

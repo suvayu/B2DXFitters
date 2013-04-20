@@ -246,8 +246,9 @@ defaultConfig = {
 	'AcceptanceCorrectionFile':	os.environ['B2DXFITTERSROOT']+'/data/acceptance-ratio-hists.root',
 	'AcceptanceCorrectionHistName':	'haccratio_cpowerlaw',
 	'AcceptanceCorrectionInterpolation': False,
-	# acceptance can really be made a histogram
+	# acceptance can really be made a histogram/spline interpolation
 	'StaticAcceptance':		False,
+	'AcceptanceInterpolation':	False,
 	# acceptance parameters BdPTAcceptance
 	'BdPTAcceptance_slope':		1.09,
 	'BdPTAcceptance_offset':	0.187,
@@ -272,10 +273,9 @@ defaultConfig = {
 
 	# list of constant parameters
 	'constParams': [
-	    'Gammas', 'deltaGammas',
+	    'Gammas', 'deltaGammas', 'deltaMs',
 	    'Gammad', 'deltaGammad', 'deltaMd',
-	    'tagOmegaSig',
-            'deltaMs',
+	    'tagOmegaSig', 'timeerr_bias', 'timeerr_scalefactor',
 	    'MistagCalibB_p0', 'MistagCalibB_p1', 'MistagCalibB_avgmistag',
 	    'MistagCalibBbar_p0', 'MistagCalibBbar_p1', 'MistagCalibBbar_avgmistag',
 	    ],
@@ -291,7 +291,7 @@ defaultConfig = {
 	'MistagTemplateWorkspace':	'workspace',
 	'MistagTemplateName':		'PhysBkgBsDsPiPdf_m_down_kkpi_mistag',
 	'MistagVarName':		'lab0_BsTaggingTool_TAGOMEGA_OS',
-	'MistagInterpolation':		False,
+	'MistagInterpolation':		True,
 
 	# k-factor templates
 	# ROOT file to read
@@ -307,11 +307,11 @@ defaultConfig = {
 	'Sanitise':			True,
 
 	# fitter on speed: binned PDFs
-	'NBinsAcceptance':		150,  # if >0, bin acceptance
-	'NBinsTimeKFactor':		200,  # if >0, use binned cache for k-factor integ.
-	'NBinsMistag':			50,   # if >0, parametrize Mistag integral
-	'NBinsProperTimeErr':		50,   # if >0, parametrize proper time int.
-	'NBinsMass':			0,    # if >0, bin mass templates
+	'NBinsAcceptance':		300, # if >0, bin acceptance
+	'NBinsTimeKFactor':		50,  # if >0, use binned cache for k-factor integ.
+	'NBinsMistag':			50,  # if >0, parametrize Mistag integral
+	'NBinsProperTimeErr':		200, # if >0, parametrize proper time int.
+	'NBinsMass':			200, # if >0, bin mass templates
 
 	# Data file settings
 	'IsToy':			True,
@@ -434,8 +434,14 @@ def printResult(config, result, blind = False):
 
 #------------------------------------------------------------------------------
 def setConstantIfSoConfigured(config, obj):
-    from ROOT import RooAbsPdf
-    if obj.InheritsFrom(RooAbsPdf.Class()):
+    from ROOT import RooAbsArg, RooRealVar
+    if obj.InheritsFrom(RooRealVar.Class()):
+	# set desired RooRealVar-derived objects to const
+	if obj.GetName() in config['constParams']:
+	    obj.setConstant(True)
+    elif obj.InheritsFrom(RooAbsArg.Class()):
+	# for everything else, descend hierarchy of RooFit objects to find
+	# RooRealVars which might need to be set to constant
 	v = obj.getVariables()
 	ROOT.SetOwnership(v, True)
 	i = v.createIterator()
@@ -446,11 +452,11 @@ def setConstantIfSoConfigured(config, obj):
 	    if None != o:
 		setConstantIfSoConfigured(config, o)
     else:
-	if obj.GetName() in config['constParams']:
-	    obj.setConstant(True)
+	# ignore everything else
+	pass
 
 # "swallow" object into a workspace, returns swallowed object
-def WS(ws, obj, opts = [RooFit.RecycleConflictNodes()]):
+def WS(ws, obj, opts = [RooFit.RecycleConflictNodes(), RooFit.Silence()]):
     name = obj.GetName()
     wsobj = ws.obj(name)
     if obj.InheritsFrom('RooAbsArg') or obj.InheritsFrom('RooAbsData'):
@@ -733,12 +739,14 @@ def getKFactorTemplates(
 		kmax += 1e-3
 	    pdf = RooHistPdf(name, name, RooArgSet(var), dhist)
             allpdfs[mode]['pdf'] = WS(ws, pdf,
-		    [RooFit.RenameVariable(fromvarname, k.GetName())])
+		    [RooFit.RenameVariable(fromvarname, k.GetName()),
+			RooFit.Silence()])
 	    del dhist
         else:
 	    pdf = RooKeysPdf(name, name, var, ds)
             allpdfs[mode]['pdf'] = WS(ws, pdf,
-		    [RooFit.RenameVariable(fromvarname, k.GetName())])
+		    [RooFit.RenameVariable(fromvarname, k.GetName()),
+			RooFit.Silence()])
 	allpdfs[mode]['range'] = [kmin, kmax]
 	del pdf
 	del ds
@@ -947,7 +955,8 @@ def getMassTemplateOneMode(
     # in the way, we rename whatever mass variable was used to the one supplied
     # by our caller
     nYield = WS(ws, nYield, [
-	RooFit.RenameConflictNodes('_%s_%s_%s' % (mode, polarity, DsMode))])
+	RooFit.RenameConflictNodes('_%s_%s_%s' % (mode, polarity, DsMode)),
+	RooFit.Silence()])
 
     if None != ws.pdf(pdf.GetName()):
 	# reuse pdf if it is already in the workspace - that's fine as long
@@ -961,10 +970,12 @@ def getMassTemplateOneMode(
 	if None != massname:
 	    pdf = WS(ws, pdf, [
 		RooFit.RenameVariable(massname, mass.GetName()),
-		RooFit.RenameConflictNodes('_%s_%s_%s' % (mode, polarity, DsMode))])
+		RooFit.RenameConflictNodes('_%s_%s_%s' % (mode, polarity, DsMode)),
+		RooFit.Silence()])
         else:
 	    pdf = WS(ws, pdf, [
-		RooFit.RenameConflictNodes('_%s_%s_%s' % (mode, polarity, DsMode))])
+		RooFit.RenameConflictNodes('_%s_%s_%s' % (mode, polarity, DsMode)),
+		RooFit.Silence()])
     if config['NBinsMass'] > 0 and not config['MassInterpolation']:
 	obins = mass.getBins()
 	mass.setBins(config['NBinsMass'])
@@ -1086,7 +1097,7 @@ def applyUnbinnedAcceptance(config, name, ws, pdf, acceptance):
 # time in the (per-event) time error (builds a table if integral values and
 # interpolates)
 def parameteriseResModelIntegrals(config, timeerrpdf, timeerr, timeresmodel):
-    if None == timeerrpdf:
+    if None == timeerrpdf or 0 == config['NBinsProperTimeErr']:
 	return
     from ROOT import RooArgSet
     if not timeerr.hasBinning('cache'):
@@ -1433,7 +1444,7 @@ def getMasterPDF(config, name, debug = False):
 	# for generation, this is both faster and more accurate
 	config['NBinsAcceptance'] = 0
 	config['NBinsMistag'] = 0
-	config['NBinsProperTime'] = 0
+	config['NBinsProperTimeErr'] = 0
 	config['NBinsMass'] = 0
 	config['MistagInterpolation'] = False
 	config['MassInterpolation'] = False
@@ -1464,8 +1475,8 @@ def getMasterPDF(config, name, debug = False):
 	    time.getMin(), time.getMax(), config['NBinsAcceptance'],
 	    'acceptanceBinning'))
 	time.setBinning(acceptanceBinning, 'acceptanceBinning')
-    timeerr = WS(ws, RooRealVar('timeerr', 'decay time error',
-	0.05, 1e-3, 0.25, 'ps'))
+    timeerr = WS(ws, RooRealVar('timeerr', 'decay time error', 1e-6, 0.25,
+	'ps'))
 
     mass = WS(ws, RooRealVar('mass', 'mass', 5320., 5420.))
     if config['NBinsMass'] > 0:
@@ -1494,7 +1505,6 @@ def getMasterPDF(config, name, debug = False):
     tagOmegaSig = WS(ws, RooRealVar(
 	    'tagOmegaSig', 'Signal mistag rate',
 	    config['TagOmegaSig'], 0., 0.5))
-    tagOmegaSig.setError(0.1)
 
     qt = WS(ws, RooCategory('qt', 'flavour tagging result'))
     qt.defineType('B'       ,  1)
@@ -1609,19 +1619,68 @@ def getMasterPDF(config, name, debug = False):
 
     # Decay time resolution model
     # ---------------------------
-    if 'PEDTE' not in config['DecayTimeResolutionModel']:
-        trm = WS(ws, PTResModels.getPTResolutionModel(
-	    config['DecayTimeResolutionModel'],
-	    time, 'Bs', debug,
-	    config['DecayTimeResolutionScaleFactor'],
-	    config['DecayTimeResolutionBias']))
-    else :
-        # the decay time error is an extra observable!
-        observables.append(timeerr)
-        # time, mean, scale, timeerr
-        trm = WS(ws, RooGaussModel('GaussianWithPEDTE',
-	    'GaussianWithPEDTE',
-	    time, RooFit.RooConst(0.), timeerr, RooFit.RooConst(1.)))
+    if type(config['DecayTimeResolutionModel']) == type([]):
+	# ok, we got a list of: [sigma_0,sigma_1, ...] and [f0,f1,...]
+	# build specified resolution model on the fly
+	from ROOT import ( RooArgList, RooRealVar, RooGaussModel, RooAddModel )
+	if 2 != len(config['DecayTimeResolutionModel']):
+	    raise TypeError('Unknown type of resolution model')
+	ncomp = len(config['DecayTimeResolutionModel'][0])
+	if ncomp < 1:
+	    raise TypeError('Unknown type of resolution model')
+	if ncomp != len(config['DecayTimeResolutionModel'][1]) and \
+		ncomp - 1 != len(config['DecayTimeResolutionModel'][1]):
+	    raise TypeError('Unknown type of resolution model')
+	pdfs = RooArgList()
+	fracs = RooArgList()
+	i = 0
+	for s in config['DecayTimeResolutionModel'][0]:
+	    sigma = WS(ws, RooRealVar('resmodel%02d_sigma' % i,
+		'resmodel%02d_sigma' % i, s, 'ps'))
+	    bias = WS(ws, RooRealVar('timeerr_bias',
+		'timeerr_bias', config['DecayTimeResolutionBias']))
+	    sf = WS(ws, RooRealVar('timeerr_scalefactor',
+		'timeerr_scalefactor',
+		config['DecayTimeResolutionScaleFactor'], .5, 2.))
+	    pdfs.add(WS(ws, RooGaussModel('resmodel%02d' % i, 'resmodel%02d' % i,
+		time, bias, sigma, sf)))
+	    del sf
+	    del bias
+	    i += 1
+	i = 0
+	for s in config['DecayTimeResolutionModel'][1]:
+	    fracs.add(WS(ws, RooRealVar('resmodel%02d_frac' % i,
+		'resmodel%02d_frac' % i, s, 'ps')))
+	    i += 1
+	del s
+	del i
+	trm = WS(ws, RooAddModel('resmodel', 'resmodel', pdfs, fracs))
+	del pdfs
+	del fracs
+	del ncomp
+    elif type(config['DecayTimeResolutionModel']) == type(''):
+        if 'PEDTE' not in config['DecayTimeResolutionModel']:
+            trm = WS(ws, PTResModels.getPTResolutionModel(
+		config['DecayTimeResolutionModel'],
+		time, 'Bs', debug,
+		config['DecayTimeResolutionScaleFactor'],
+		config['DecayTimeResolutionBias']))
+        else :
+	    from ROOT import RooRealVar, RooGaussModel
+            # the decay time error is an extra observable!
+            observables.append(timeerr)
+            # time, mean, timeerr, scale
+	    bias = WS(ws, RooRealVar('timeerr_bias',
+		'timeerr_bias', config['DecayTimeResolutionBias']))
+	    sf = WS(ws, RooRealVar('timeerr_scalefactor',
+		'timeerr_scalefactor',
+		config['DecayTimeResolutionScaleFactor'], .5, 2.))
+            trm = WS(ws, RooGaussModel('GaussianWithPEDTE',
+		'GaussianWithPEDTE', time, bias, timeerr, sf))
+	    del bias
+	    del sf
+    else:
+	raise TypeError('Unknown type of resolution model')
 
     # Decay time acceptance function
     # ------------------------------
@@ -1659,29 +1718,43 @@ def getMasterPDF(config, name, debug = False):
 	else:
 	    print 'ERROR: unknown acceptance function: ' + config['AcceptanceFunction']
 	    sys.exit(1)
-	if 0 < config['NBinsAcceptance'] and config['StaticAcceptance']:
-	    from ROOT import RooDataHist, RooHistPdf
-	    dhist = WS(ws, RooDataHist(
+	if 0 < config['NBinsAcceptance']:
+	    if config['StaticAcceptance']:
+	        from ROOT import RooDataHist, RooHistPdf
+	        dhist = WS(ws, RooDataHist(
 		    '%s_dhist' % tacc.GetName(), '%s_dhist' % tacc.GetName(),
 		    RooArgSet(time), 'acceptanceBinning'))
-	    tacc.fillDataHist(dhist, RooArgSet(time), 1.)
-	    dhist.SetNameTitle('%s_dhist' % tacc.GetName(), '%s_dhist' % tacc.GetName())
-	    tacc = WS(ws, RooHistPdf(
-		'%s_binned' % tacc.GetName(), '%s_binned' % tacc.GetName(),
-		RooArgSet(time), dhist, 0))
+	        tacc.fillDataHist(dhist, RooArgSet(time), 1.)
+		dhist.SetNameTitle('%s_dhist' % tacc.GetName(),
+			'%s_dhist' % tacc.GetName())
+		tacc = WS(ws, RooHistPdf('%s_binned' % tacc.GetName(),
+		    '%s_binned' % tacc.GetName(), RooArgSet(time), dhist, 0))
+	    elif config['AcceptanceInterpolation']:
+                from ROOT import RooBinned1DQuinticBase, RooAbsReal
+                RooBinned1DQuintic = RooBinned1DQuinticBase(RooAbsReal)
+	        obins = time.getBins()
+	        time.setBins(config['NBinsAcceptance'])
+	        hist = tacc.createHistogram('%s_hist' % tacc, time)
+	        hist.Scale(1. / hist.Integral())
+	        ROOT.SetOwnership(hist, True)
+	        tacc = WS(ws, RooBinned1DQuintic(
+		    '%s_binned' % tacc.GetName(), '%s_binned' % tacc.GetName(),
+	            hist, time))
+	        time.setBins(obins)
     else:
         tacc = None
     
     # Decay time error distribution
     # -----------------------------
     if 'PEDTE' in config['DecayTimeResolutionModel']:
-	# resolution in ps: 3*terrpdf_shape
-        terrpdf_shape = WS(ws, RooConstVar('terrpdf_shape', 'terrpdf_shape', 1./60.))
+	# resolution in ps: 7*terrpdf_shape
+        terrpdf_shape = WS(ws, RooConstVar('terrpdf_shape', 'terrpdf_shape',
+	    .0352 / 7.))
         terrpdf_truth = WS(ws, RooTruthModel('terrpdf_truth', 'terrpdf_truth', timeerr))
         terrpdf_i0 = WS(ws, RooDecay('terrpdf_i0', 'terrpdf_i0', timeerr, terrpdf_shape,
                 terrpdf_truth, RooDecay.SingleSided))
         terrpdf_i1 = WS(ws, RooPolynomial('terrpdf_i1','terrpdf_i1',
-                timeerr, RooArgList(zero, zero, one), 0))
+                timeerr, RooArgList(zero, zero, zero, zero, zero, zero, one), 0))
         terrpdf = WS(ws, RooProdPdf('terrpdf', 'terrpdf', terrpdf_i0, terrpdf_i1))
 	if config['DecayTimeErrInterpolation']:
             from ROOT import RooBinned1DQuinticBase, RooAbsPdf
@@ -2178,7 +2251,7 @@ def runBsGammaFittercFit(generatorConfig, fitConfig, toy_num, debug, wsname, ini
     if fitConfig['Offset']:
 	fitOpts.append(RooFit.Offset(fitConfig['Offset']))
     if fitConfig['NumCPU'] > 1:
-	fitOpts.append(RooFit.NumCPU(fitConfig['NupCPU']))
+	fitOpts.append(RooFit.NumCPU(fitConfig['NumCPU']))
     if not fitConfig['IsToy'] and fitConfig['Blinding']:
 	# make RooFit quiet as well
 	from ROOT import RooMsgService
@@ -2269,8 +2342,9 @@ parser.add_option('-g', '--gen-config-file',
 # -----------------------------------------------------------------------------
 
 if __name__ == '__main__' :
-    generatorConfig = dict(defaultConfig)
-    fitConfig = dict(defaultConfig)
+    import copy
+    generatorConfig = copy.deepcopy(defaultConfig)
+    fitConfig = copy.deepcopy(defaultConfig)
     #
     # example: change Gammas in fitting:
     # fitConfig.update({'Gammas': 0.700})
