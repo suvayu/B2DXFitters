@@ -4,6 +4,11 @@
 ! Purpose     : RooFit-based fitters for B -> D X
 !-----------------------------------------------------------------------------
 
+! 2013-04-21 - Manuel Tobias Schiller
+ - scripts/make_histos.py: crashed on me straight out of the repository, so
+   sorted out a few ownership issues, restructured the code, and made it quite
+   a bit faster
+
 ! 2013-04-20 - Manuel Tobias Schiller
  - scripts/runBs2DsKCPAsymmObsFitter-cFit.py: various fixes/improvements:
    * fix bug which caused values of generation and fitting configuration

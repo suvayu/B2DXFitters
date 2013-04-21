@@ -1,9 +1,8 @@
 import os, sys
-from glob import glob
 from math import sqrt, pi, fmod
 
 EXT = '.pdf'
-fnames = glob('fitresult_[0-9][0-9][0-9][0-9].root')
+fnamepattern = 'fitresult_[0-9][0-9][0-9][0-9].root'
 exclude = []
 
 # Load PyROOT
@@ -19,34 +18,78 @@ else:
    print 'Unable to find ROOT! Nothing done.'
    sys.exit(0)
 
+ROOT.SetMemoryPolicy(ROOT.kMemoryStrict)
 from ROOT import gROOT, TFile, TH1D
 from ROOT import gDirectory, TStyle, TF1, TFile, TCanvas, gROOT
-ROOT.SetMemoryPolicy(ROOT.kMemoryStrict)
 gROOT.SetBatch(True)
 
 # ----------------------------------------------------------------------------
-def getRooFitResultObjects(filenames, exclude):
-    from ROOT import RooFitResult
-    rooFitResults = []
-    for fname in filenames:
+# returns 1st fitresult, vnames, initvals, vals, errs
+def readRooFitResults(fnamepattern, exclude, resultsfile = None):
+    from glob import iglob
+    from ROOT import RooFitResult, TClass
+    import gc
+    nftot = 0
+    nfexcl = 0
+    checkexcludes = 0 < len(exclude)
+    initvals = None
+    vals = dict()
+    errs = dict()
+    vnames = None
+    firstfitresult = None
+    for fname in iglob(fnamepattern):
+        nftot += 1
         num = number_exp(fname)
-        if num in exclude:
-	    print 'Experiment #%d excluded!' % num
-            continue
+        if checkexcludes:
+            if num in exclude:
+	        print 'Experiment #%d excluded!' % num
+		nfexcl += 1
+                continue
         f = TFile(fname, 'READ')
+        ROOT.SetOwnership(f, True)
         for key in f.GetListOfKeys():
-	    obj = key.ReadObj()
+	    if not TClass.GetClass(key.GetClassName()).InheritsFrom('RooFitResult'):
+		continue
+            obj = key.ReadObj()
 	    ROOT.SetOwnership(obj, True)
-	    if obj.InheritsFrom('RooFitResult'):
-                if 0 == obj.status() and 3 == obj.covQual():
-                    obj = obj.Clone()
-		    ROOT.SetOwnership(obj, True)
-		    rooFitResults.append(obj)
-                else:
-		    print 'Experiment #%d excluded based on fit quality!' % num
+            if 0 == obj.status() and 3 == obj.covQual():
+                if None == vnames:
+                    firstfitresult = obj.Clone()
+                    ROOT.SetOwnership(firstfitresult, True)
+                    if None != resultsfile:
+                        print 'Saving a RooFitResult to store the initial values of the fitted parameters ...'
+                        # upon write to file, ROOT will take ownership
+                        resfile.WriteTObject(firstfitresult, firstfitresult.GetName())
+                        ROOT.SetOwnership(firstfitresult, False)
+                        print '... done.'
+		    vnames = get_vars_names(obj)
+                    print '--> variable names:', vnames
+		    initvals = get_vars_initvals(obj)
+		    for name in vnames:
+	                vals[name] = []
+                        errs[name] = []
+		params = obj.floatParsFinal()
+	        for name in vnames:
+                    param = params.find(name)
+                    if None == param: continue
+	            val = param.getVal()
+                    if isphase(name): val = normalise_phase(val)
+                    vals[ name ].append(val)
+                    errs[ name ].append(param.getError())
+                    #print '* %s :' % name
+	            #print '  %f +/- %f' % (val, param.getError())
+                    #print 20*'#'
+            else:
+		print 'Experiment #%d excluded based on fit quality!' % num
+		nfexcl += 1
             del obj
+        f.Close()
 	del f
-    return rooFitResults
+        del fname
+        del num
+        gc.collect()
+    print '-->', nftot, 'files analysed,', nfexcl, 'excluded.\n'
+    return firstfitresult, vnames, initvals, vals, errs
 
 # ----------------------------------------------------------------------------
 def printMinuitQuality() :
@@ -98,38 +141,17 @@ def rad2deg(angle):
    return angle * 180. / pi
 
 # ----------------------------------------------------------------------------
-def number_exp(file):
-   imin = file.find('_')
-   imax = file.find('.')
-   id   = file[imin+1:imax]
-   return int(id)
+def number_exp(fname):
+   imin = fname.find('_')
+   imax = fname.find('.')
+   nstr = fname[imin+1:imax]
+   return int(nstr)
 
 # ----------------------------------------------------------------------------
 
-fitresults = getRooFitResultObjects(fnames, exclude)
-NTOYSGOOD = len(fitresults)
-
-vals = dict()
-errs = dict()
-vnames = get_vars_names(fitresults[0])
-print '--> variable names:', vnames
-initvals = get_vars_initvals(fitresults[0])
-for name in vnames:
-   vals[name] = []
-   errs[name] = []
-
-for obj in fitresults:
-    params = obj.floatParsFinal()
-    for name in vnames:
-	param = params.find(name)
-	val = param.getVal()
-        if isphase(name): val = normalise_phase(val)
-        vals[ name ].append(val)
-        errs[ name ].append(param.getError())
-        #print '* %s :' % name
-	#print '  %f +/- %f' % (val, param.getError())
-        #print 20*'#'
-print '-->', len(fnames), 'files analysed,', len(exclude), 'excluded.\n'
+resfile = TFile('results.root', 'RECREATE')
+fitresult, vnames, initvals, vals, errs = readRooFitResults(fnamepattern, exclude, resfile)
+NTOYSGOOD = len(vals[vnames[0]])
 
 # temporary variable to contain histos to be written out to a ROOT file
 # (i.e. histos for the floating parameters)
@@ -184,8 +206,10 @@ for name in vnames:
    sigmap = sqrt(p2)
    hv = TH1D('%s value' % name, '%s value' % name,
 	   50, v - 3. * sigmav, v + 3. * sigmav)
+   hv.SetDirectory(None)
    hp = TH1D('%s pull' % name, '%s pull' % name,
 	       50, p - 3. * sigmap, p + 3. * sigmap)
+   hp.SetDirectory(None)
    histos[name] = [hv, hp]
    all_histos.append(hv)
    all_histos.append(hp)
@@ -196,9 +220,11 @@ for name in vnames:
    print 'Filling the fit values and pull histograms for the variable', name, '...'
    values = vals[ name ]
    errors = errs[ name ]
-   for i in range(len(values)) :
+   for i in xrange(len(values)):
       val = values[i]
       err = errors[i]
+      if val != val or (abs(val) > 1. and abs(1. / val) == 0.): continue
+      if err != err or (abs(err) > 1. and abs(1. / err) == 0.) or err <= 0.: continue
       h[0].Fill(val)
       if abs(err) > 1.e-9:
          resid = val - initvals[name]
@@ -215,7 +241,7 @@ if 'C' in vals and 'S' in vals and 'D' in vals:
     h_sum = TH1D('|C|^2+|S|^2+|D|^2 values', '|C|^2+|S|^2+|D|^2',
                   30, 0.0, 0.0)
     all_histos.append(h_sum)
-    for i in range(len(vals[ 'C' ])):
+    for i in xrange(len(vals[ 'C' ])):
        val_c = vals[ 'C' ][i]
        val_s = vals[ 'S' ][i]
        val_d = vals[ 'D' ][i]
@@ -234,14 +260,11 @@ if 'C' in vals and 'Sbar' in vals and 'Dbar' in vals:
        h_sum2.Fill(val_c*val_c + val_s*val_s + val_d*val_d)
     print '... done.'
 
-print 'Saving a RooFitResult to store the initial values of the fitted parameters ...'
-resfile = TFile('results.root', 'RECREATE')
-resfile.WriteTObject(fitresults[0])
-print '... done.'
-
 print 'Saving all histograms to results.root ...'
 for histo in all_histos:
-   histo.Write()
+   # upon write to file, ROOT will take ownership
+   ROOT.SetOwnership(histo, False)
+   resfile.WriteTObject(histo, histo.GetName())
 print '... done.'
 
 del resfile
@@ -332,7 +355,7 @@ def make_fit_vars(h, fitvars):
    sig   = func.GetParameter(func.GetParNumber('Sigma'))
    meanerr  = func.GetParError(func.GetParNumber('Mean'))
    sigerr   = func.GetParError(func.GetParNumber('Sigma'))
-   initparams = get_vars_initvals(fitresults[0])
+   initparams = get_vars_initvals(fitresult)
    if title in initparams and h.GetEntries() > 0.:
       fitvars[ title ] = [
          initparams[title], mean, sig, meanerr, sigerr]
@@ -343,7 +366,7 @@ def make_eval_vars(h, evalvars):
    func  = h.GetFunction('Gaussian')
    mean  = func.GetParameter(func.GetParNumber('Mean'))
    sig   = func.GetParameter(func.GetParNumber('Sigma'))
-   initparams = get_vars_initvals(fitresults[0])
+   initparams = get_vars_initvals(fitresult)
    val_l    = initparams['arg_lam'].getVal()
    val_lbar = initparams['arg_lam_bar'].getVal()
    delta = rad2deg(0.5 * (val_l + val_lbar))
@@ -365,7 +388,7 @@ def make_pull_vars(h, pullvars):
 
 # ----------------------------------------------------------------------------
 def print_const_vars(rootfile):
-   res         = fitresults[0]
+   res         = fitresult
    if None == res:
       return
    constparams = res.constPars()
