@@ -291,7 +291,7 @@ defaultConfig = {
 	'MistagTemplateWorkspace':	'workspace',
 	'MistagTemplateName':		'PhysBkgBsDsPiPdf_m_down_kkpi_mistag',
 	'MistagVarName':		'lab0_BsTaggingTool_TAGOMEGA_OS',
-	'MistagInterpolation':		True,
+	'MistagInterpolation':		False,
 
 	# k-factor templates
 	# ROOT file to read

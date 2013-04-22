@@ -4,6 +4,10 @@
 ! Purpose     : RooFit-based fitters for B -> D X
 !-----------------------------------------------------------------------------
 
+! 2013-04-22 - Manuel Tobias Schiller
+ - scripts/runBs2DsKCPAsymmObsFitter-cFit.py: disable mistag histogram
+   interpolation for the mistag PDFs (this causes too many fit failures)
+
 ! 2013-04-21 - Manuel Tobias Schiller
  - scripts/make_histos.py: crashed on me straight out of the repository, so
    sorted out a few ownership issues, restructured the code, and made it quite
