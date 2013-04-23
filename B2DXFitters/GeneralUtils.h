@@ -21,6 +21,8 @@
 #include "TFile.h"
 #include "TString.h"
 #include "TH1F.h"
+#include "TH2F.h"
+#include "TH3F.h"
 #include "TTree.h"
 #include "TCut.h"
 #include "RooAbsData.h"
@@ -60,6 +62,27 @@ namespace GeneralUtils {
                      int sample,
 		     bool        debug = false
                      );
+  TH2F* Read2DHist( std::vector<std::string> &FilePID,
+		    TString &nameHist,
+		    int sample,
+		    bool        debug = false
+		    );
+
+  TH3F* Read3DHist( std::vector<std::string> &FilePID,
+                    TString &nameHist,
+                    int sample,
+                    bool        debug = false
+                    );
+
+  void Save2DHist(TH2F* hist, TString& ext);
+  void Save3DHist(TH3F* hist, TString& ext);
+
+  void Save2DComparison(TH2F* hist1, TString& l1,
+                        TH2F* hist2, TString& l2,
+                        TH2F* hist3, TString& l3,
+                        TString& ext);
+
+
   //===========================================================================
   // Add PID histogram with weights,
   // hist1 - first histogram;
@@ -198,11 +221,18 @@ namespace GeneralUtils {
   // Check polarity (down,up) from check 
   //==========================================================================
   TString CheckPolarity(std::string& check, bool debug);
+  TString CheckPolarity(TString& check, bool debug);
 
   //===========================================================================
   // Check D/Ds final state (kkpi,kpipi,pipipi) from check
   //==========================================================================
   TString CheckDMode(std::string& check, bool debug);
+  TString CheckDMode(TString& check, bool debug);
+
+  TString CheckKKPiMode(std::string& check, bool debug);
+  TString CheckKKPiMode(TString& check, bool debug);
+
+  TString GetLabel(TString& mode, bool debug);
 
 } // end of namespace
 

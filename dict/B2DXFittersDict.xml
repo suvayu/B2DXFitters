@@ -58,6 +58,7 @@
 	<function pattern = "GeneralUtils::*" />
         <function pattern = "SFitUtils::*" />
         <function pattern = "MassFitUtils::*" /> 
+        <function pattern = "WeightingUtils::*" />
 
 	<class pattern = "Bdecaytree" />
 
@@ -73,5 +74,6 @@
 	</class>
 	<class name="FinalStateChargePdf" />
 	<class name="TaggingCat" />
+        <class name="RooCruijff" />
     </selection>
 </lcgdict>

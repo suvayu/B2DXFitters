@@ -1,31 +1,80 @@
 #BdPi
-/afs/cern.ch/work/g/gligorov/public/Bs2DsKFitTuples/
-FitTuple_MergedTree_Bd2DPi_D2KPiPi_MD_BDTG_MINI.root
-FitTuple_MergedTree_Bd2DPi_D2KPiPi_MU_BDTG_MINI.root
+/afs/cern.ch/work/a/adudziak/public/Bs2DsKFitTuple/
+FitTuple_Loose_MergedTree_Bd2DPi_D2KPiPi_MD_BDTG_MINI.root
+FitTuple_Loose_MergedTree_Bd2DPi_D2KPiPi_MU_BDTG_MINI.root
 DecayTree
 DecayTree
 ###
 
-#BsPi kkpi
-/afs/cern.ch/work/g/gligorov/public/Bs2DsKFitTuples/
-FitTuple_LooseBDT_MergedTree_Bs2DPi_D2KKPi_MD_BDTG_MINI.root
-FitTuple_LooseBDT_MergedTree_Bs2DPi_D2KKPi_MU_BDTG_MINI.root
+#BsPi kkpi old
+/afs/cern.ch/work/a/adudziak/public/Bs2DsKFitTuple/
+FitTuple_Loose_MergedTree_Bs2DPi_D2KKPi_MD_BDTG_MINI.root
+FitTuple_Loose_MergedTree_Bs2DPi_D2KKPi_MU_BDTG_MINI.root
 DecayTree
 DecayTree
 ###
 
-#BsPi kpipi
-/afs/cern.ch/work/g/gligorov/public/Bs2DsKFitTuples/
-FitTuple_LooseBDT_MergedTree_Bs2DPi_D2KPiPi_MD_BDTG_MINI.root
-FitTuple_LooseBDT_MergedTree_Bs2DPi_D2KPiPi_MU_BDTG_MINI.root
+#BsPi kpipi old
+/afs/cern.ch/work/a/adudziak/public/Bs2DsKFitTuple/
+FitTuple_Loose_MergedTree_Bs2DPi_D2KPiPi_MD_BDTG_MINI.root
+FitTuple_Loose_MergedTree_Bs2DPi_D2KPiPi_MU_BDTG_MINI.root
 DecayTree
 DecayTree
 ###
 
-#BsPi pipipi
-/afs/cern.ch/work/g/gligorov/public/Bs2DsKFitTuples/
-FitTuple_LooseBDT_MergedTree_Bs2DPi_D2PiPiPi_MD_BDTG_MINI.root
-FitTuple_LooseBDT_MergedTree_Bs2DPi_D2PiPiPi_MU_BDTG_MINI.root
+#BsPi pipipi old
+/afs/cern.ch/work/a/adudziak/public/Bs2DsKFitTuple/
+FitTuple_Loose_MergedTree_Bs2DPi_D2PiPiPi_MD_BDTG_MINI.root
+FitTuple_Loose_MergedTree_Bs2DPi_D2PiPiPi_MU_BDTG_MINI.root
+DecayTree
+DecayTree
+###
+
+#BsDsPi KKPi All
+/afs/cern.ch/work/g/gligorov/public/Bs2DsKFitTuples/DV_v33r1/SmallTuples/
+DsPi_KKPi_MD_BDTG_MINI.root
+DsPi_KKPi_MU_BDTG_MINI.root
+DecayTree
+DecayTree
+###
+
+#BsDsPi KKPi NonRes
+/afs/cern.ch/work/g/gligorov/public/Bs2DsKFitTuples/DV_v33r1/SmallTuples/
+DsPi_KKPi_NonRes_MD_BDTG_MINI.root
+DsPi_KKPi_NonRes_MU_BDTG_MINI.root
+DecayTree
+DecayTree
+###
+
+#BsDsPi KKPi PhiPi
+/afs/cern.ch/work/g/gligorov/public/Bs2DsKFitTuples/DV_v33r1/SmallTuples/
+DsPi_KKPi_PhiPi_MD_BDTG_MINI.root
+DsPi_KKPi_PhiPi_MU_BDTG_MINI.root
+DecayTree
+DecayTree
+###
+
+#BsDsPi KKPi KstK
+/afs/cern.ch/work/g/gligorov/public/Bs2DsKFitTuples/DV_v33r1/SmallTuples/
+DsPi_KKPi_KstK_MD_BDTG_MINI.root
+DsPi_KKPi_KstK_MU_BDTG_MINI.root
+DecayTree
+DecayTree
+###
+
+
+#BsDsPi KPiPi
+/afs/cern.ch/work/g/gligorov/public/Bs2DsKFitTuples/DV_v33r1/SmallTuples/
+DsPi_KPiPi_MD_BDTG_MINI.root
+DsPi_KPiPi_MU_BDTG_MINI.root
+DecayTree
+DecayTree
+###
+
+#BsDsPi PiPiPi
+/afs/cern.ch/work/g/gligorov/public/Bs2DsKFitTuples/DV_v33r1/SmallTuples/
+DsPi_PiPiPi_MD_BDTG_MINI.root
+DsPi_PiPiPi_MU_BDTG_MINI.root
 DecayTree
 DecayTree
 ###
@@ -57,7 +106,20 @@ EffHistos_Reco12_39Mom_MagDown_45678.root
 EffHistos_Reco12_39Mom_MagUp_3456.root
 ###
 
+#RatioDataMC2D
+/afs/cern.ch/work/a/adudziak/public/workspace/
+MomVsnTr_Comp_DPi_Down_hist.root
+MomVsnTr_Comp_DPi_Up_hist.root
+###
+
+#RatioDataMC3D
+/afs/cern.ch/work/a/adudziak/public/workspace/
+PtVsnTrVsP_Comp_DPi_Down_hist.root
+PtVsnTrVsP_Comp_DPi_Up_hist.root
+###
+
 #MC FileName MD
+/afs/cern.ch/work/a/adudziak/public/Merged_Bd2DPi_D2KPiPi_MD_BsHypo_BDTG.root
 /afs/cern.ch/work/a/adudziak/public/Merged_Bd2DstPi_Dst2D-Pi0_MD_BsHypo_BDTG.root
 /afs/cern.ch/work/a/adudziak/public/Merged_Bd2DRho_D2KPiPi_MD_BsHypo_BDTG.root
 /afs/cern.ch/work/a/adudziak/public/Merged_Bs2DsRho_Ds2KKPi_MD_BsHypo_BDTG.root
@@ -65,9 +127,11 @@ EffHistos_Reco12_39Mom_MagUp_3456.root
 /afs/cern.ch/work/a/adudziak/public/Merged_Bs2DsstPi_Ds2KKPi_MD_BsHypo_BDTG.root
 /afs/cern.ch/work/a/adudziak/public/Merged_Bs2DsstPi_Ds2KKPi_MD_BsHypo_BDTG.root
 /afs/cern.ch/work/a/adudziak/public/Merged_Lb2LcPi_Lc2pKPi_MD_BsHypo_BDTG.root
+/afs/cern.ch/work/a/adudziak/public/Merged_Bs2DsK_Ds2KKPi_MD_BsHypo_BDTG.root
 ###
 
 #MC FileName MU
+/afs/cern.ch/work/a/adudziak/public/Merged_Bd2DPi_D2KPiPi_MU_BsHypo_BDTG.root
 /afs/cern.ch/work/a/adudziak/public/Merged_Bd2DstPi_Dst2D-Pi0_MU_BsHypo_BDTG.root
 /afs/cern.ch/work/a/adudziak/public/Merged_Bd2DRho_D2KPiPi_MU_BsHypo_BDTG.root
 /afs/cern.ch/work/a/adudziak/public/Merged_Bs2DsRho_Ds2KKPi_MU_BsHypo_BDTG.root
@@ -75,9 +139,12 @@ EffHistos_Reco12_39Mom_MagUp_3456.root
 /afs/cern.ch/work/a/adudziak/public/Merged_Bs2DsstPi_Ds2KKPi_MU_BsHypo_BDTG.root
 /afs/cern.ch/work/a/adudziak/public/Merged_Bs2DsstPi_Ds2KKPi_MU_BsHypo_BDTG.root
 /afs/cern.ch/work/a/adudziak/public/Merged_Lb2LcPi_Lc2pKPi_MU_BsHypo_BDTG.root
+/afs/cern.ch/work/a/adudziak/public/Merged_Bs2DsK_Ds2KKPi_MU_BsHypo_BDTG.root
 ###
 
 #MC TreeName
+DecayTree;1
+DecayTree;1
 DecayTree;1
 DecayTree;1
 DecayTree;1
@@ -95,10 +162,43 @@ DecayTree;1
 DecayTree;1
 ###
 
+#Signal BdDPi
+/afs/cern.ch/work/a/adudziak/public/
+Merged_Bd2DPi_D2KPiPi_MD_BsHypo_BDTG.root
+Merged_Bd2DPi_D2KPiPi_MU_BsHypo_BDTG.root
+DecayTree;1
+DecayTree;1
+###
+
+
 #Signal BdDsPi
 /afs/cern.ch/work/a/adudziak/public/
 Merged_Bd2DsPi_Ds2KKPi_MD_BsHypo_BDTG.root
 Merged_Bd2DsPi_Ds2KKPi_MU_BsHypo_BDTG.root
 DecayTree;1
 DecayTree;1
+###
+
+#BsDsPi KKPi WS
+/afs/cern.ch/work/g/gligorov/public/Bs2DsKFitTuples/DV_v33r1/SmallTuples/
+DsPi_KKPi_WS_MD_BDTG_MINI.root
+DsPi_KKPi_WS_MU_BDTG_MINI.root
+DecayTree
+DecayTree
+###
+
+#BsDsPi KPiPi WS
+/afs/cern.ch/work/g/gligorov/public/Bs2DsKFitTuples/DV_v33r1/SmallTuples/
+DsPi_KPiPi_WS_MD_BDTG_MINI.root
+DsPi_KPiPi_WS_MU_BDTG_MINI.root
+DecayTree
+DecayTree
+###
+
+#BsDsPi PiPiPi WS
+/afs/cern.ch/work/g/gligorov/public/Bs2DsKFitTuples/DV_v33r1/SmallTuples/
+DsPi_PiPiPi_WS_MD_BDTG_MINI.root
+DsPi_PiPiPi_WS_MU_BDTG_MINI.root
+DecayTree
+DecayTree
 ###

@@ -1,11 +1,11 @@
 #!/usr/bin/env python
 # --------------------------------------------------------------------------- #
 #                                                                             #
-#   Python script to run a mass fit on data for Bd -> D pi                    #
+#   Python script to run a signal fit on MC for B->DPi, Bs->DsPi, Bs->DsK     #
 #   with the FitMeTool fitter                                                 #
 #                                                                             #
 #   Example usage:                                                            #
-#      python runBdMassFitterOnData.py [-d | --debug]                         #
+#      python fitSignal.py --mode BDPi -s WS.root --debug --veto              #
 #                                                                             #
 #   Author: Eduardo Rodrigues                                                 #
 #   Date  : 08 / 06 / 2011                                                    #
@@ -25,40 +25,35 @@ import GaudiPython
 GaudiPython.loaddict( 'B2DXFittersDict' )
 
 from ROOT import *
-#from ROOT import RooRealVar, RooStringVar
-#from ROOT import RooArgSet, RooArgList
-#from ROOT import RooAddPdf
-#from ROOT import FitMeTool
 
 GeneralUtils = GaudiPython.gbl.GeneralUtils
 MassFitUtils = GaudiPython.gbl.MassFitUtils
-
 Bs2Dsh2011TDAnaModels = GaudiPython.gbl.Bs2Dsh2011TDAnaModels
 
 # -----------------------------------------------------------------------------
 # Configuration settings
 # -----------------------------------------------------------------------------
 
-# FIT CONFIGURATION
-extendedFit =  True
 
 # INITIAL PARAMETERS
-#mean  = 5367.51
-#sigma1 = 10.00
-#sigma2 = 15.00
-#alpha1 = 2.0
-#alpha2 = -2.0
-#n1 = 0.01
-#n2 = 5.0
-#frac = 0.50
+mean  = 5367.51
+sigma1 = 10.00
+sigma2 = 15.00
+alpha1 = 2.0
+alpha2 = -2.0
+n1 = 0.01
+n2 = 5.0
+frac = 0.50
                         
-
-PIDcut = 0
 Pcut_down = 0.0
-Pcut_up = 100000000000.0
-BDTGCut = 0.30
-Dmass_down = 1948
-Dmass_up = 1990
+Pcut_up = 650000000.0
+Time_down = 0.0
+Time_up = 15.0
+PT_down  = 500.0
+PT_up = 45000.0
+nTr_down = 1.0
+nTr_up = 1000.0
+
 dataName      = '../data/config_fitSignal.txt'
 
 # DATA FILES
@@ -67,85 +62,215 @@ bName = 'B_{s}'
 
 
 #------------------------------------------------------------------------------
-def fitSignal( debug, var ) :
+def fitSignal( debug, var , mode, modeDs,  reweight, veto, merge, BDTG) :
 
     
     dataTS = TString(dataName)
-    mVarTS = TString(var)
-    modeTS = TString("BsDsPi")
-    mProbVarTS = TString("lab1_PIDK") 
-                
-    workspace = MassFitUtils.ObtainSignal(dataTS, TString("#Signal BsDsPi"),
+    mVarTS = TString("lab0_MassFitConsD_M")
+    mdVarTS = TString("lab2_MM")
+    tVarTS = TString("lab0_LifetimeFit_ctau")
+    tagVarTS = TString("lab0_BsTaggingTool_TAGDECISION_OS")
+    tagOmegaVarTS = TString("lab0_BsTaggingTool_TAGOMEGA_OS")
+    idVarTS = TString("lab1_ID")
+    modeTS = TString(mode)
+    mProbVarTS = TString("lab1_PIDK")
+    if modeTS  == "BsDsK":
+        PIDcut = 5
+    else:
+        PIDcut = 0
+    obsTS = TString(var)    
+    if modeTS == "BDPi":
+        modeDsTS = TString("KPiPi")
+        tagVarTS = TString("lab0_BdTaggingTool_TAGDECISION_OS")
+        tagOmegaVarTS = TString("lab0_BdTaggingTool_TAGOMEGA_OS")
+        Dmass_down = 1830 #1930
+        Dmass_up = 1920 #2015
+        Bmass_down = 5000
+        Bmass_up = 5500
+        if ( obsTS == "lab2_MM"):
+            mean  =  1869 #1968.49
+        else:
+            mean  = 5279 #367.51
+                                
+    else:
+        modeDsTS=TString(modeDs)
+        Dmass_down = 1930
+        Dmass_up = 2015
+        Bmass_down = 5000
+        Bmass_up = 5600
+        if ( obsTS == "lab2_MM"):
+            mean  =  1968.49
+        else:
+            mean  = 5367.51
+
+    BDTGTS = TString(BDTG)
+    if  BDTGTS == "BDTGA":
+        BDTG_down = 0.3
+        BDTG_up = 1.0
+    elif BDTGTS == "BDTGC":
+        BDTG_down = 0.5
+        BDTG_up= 1.0
+    elif BDTGTS== "BDTG1":
+        BDTG_down = 0.3
+        BDTG_up= 0.7
+    elif BDTGTS== "BDTG2":
+        BDTG_down = 0.7
+        BDTG_up= 0.9
+    elif BDTGTS== "BDTG3":
+        BDTG_down = 0.9
+        BDTG_up= 1.0
+        
+    print "BDTG Range: (%f,%f)"%(BDTG_down,BDTG_up)
+                                                                                    
+                                
+    nameTS = TString("#Signal ")+modeTS+TString(" ")+modeDsTS
+    print nameTS
+    workspace = MassFitUtils.ObtainSignal(dataTS, nameTS,
                                           PIDcut,
                                           Pcut_down, Pcut_up,
-                                          BDTGCut,
+                                          BDTG_down, BDTG_up,
                                           Dmass_down, Dmass_up,
-                                          mVarTS, mProbVarTS,
-                                          modeTS, NULL)
+                                          Bmass_down, Bmass_up,
+                                          Time_down, Time_up,
+                                          PT_down, PT_up,
+                                          nTr_down, nTr_up,
+                                          mVarTS, mdVarTS, tVarTS, tagVarTS,
+                                          tagOmegaVarTS, idVarTS, mProbVarTS,
+                                          modeTS,
+                                          reweight, veto,
+                                          NULL, debug)
     
-
+                                             
+    #workspace = GeneralUtils.LoadWorkspace(TString("/afs/cern.ch/work/a/adudziak/public/workspace/work_pid_dspi.root"),TString("workspace"),debug)
     
-            
-    obsTS = TString(var)
+    
     mass = GeneralUtils.GetObservable(workspace,obsTS, debug)
     observables = RooArgSet( mass )
-
+    
     
     data= []
     nEntries = []
-    sample = [TString("up"),TString("down")]
+    if merge:
+        sample = [TString("both"),TString("both")]
+    else:    
+        sample = [TString("up"),TString("down")]
     for i in range(0,2):
-        datasetTS = TString("dataSetMC")+modeTS+TString("_")+sample[i]
-        data.append(GeneralUtils.GetDataSet(workspace,datasetTS), debug)
+        datasetTS = TString("dataSetMC_")+modeTS+TString("_")+sample[i]
+        data.append(GeneralUtils.GetDataSet(workspace,datasetTS, debug))
         nEntries.append(data[i].numEntries())
         print "Data set: %s with number of events: %s"%(data[i].GetName(),nEntries[i])
 
-
-    mean  = 5367.51
-    sigma1 = 10.77
-    sigma2 = 16.0
-    alpha1 = 2.0
-    alpha2 = -2.0
-    n1 = 1.33
-    n2 = 5.0
-    frac = 0.30
+        
+    if obsTS != "lab2_MM":
+        sigma1 = 8.00
+        sigma2 = 7.00
+        alpha1 = 3.0
+        alpha2 = -2.0
+        n1 = 0.1
+        n2 = 5.0
+        frac = 0.50
+        alpha1Var =  RooRealVar( "DblCBPDF_alpha1", "alpha1",  alpha1,  0,     5)
+        alpha2Var =  RooRealVar( "DblCBPDF_alpha2", "alpha2",  alpha2,  -5,    0)
+        n1Var     =  RooRealVar( "DblCBPDF_n1",     "n1",      n1,      0.001,  15)
+        n2Var     =  RooRealVar( "DblCBPDF_n2",     "n2",      n2,      0.001,  15)
+        fracVar   =  RooRealVar( "DblCBPDF_frac",   "frac",    frac,    0,     1)
+        sigma1Var =  RooRealVar( "DblCBPDF_sigma1", "sigma1",  sigma1,  1,    20, "MeV/c^{2}")
+        sigma2Var =  RooRealVar( "DblCBPDF_sigma2", "sigma2",  sigma2,  1,    20, "MeV/c^{2}")
             
+    else:
+        sigma1 = 7.00
+        sigma2 = 5.0
+        sigma3 = 1.0
+        alpha1 = 3.4
+        alpha2 = -3.4
+        n1 = 50
+        n2 = 50 
+        frac = 0.50
+        frac2 = 0.50
+        alpha1Var =  RooRealVar( "DblCBPDF_alpha1", "alpha1",  alpha1,  0.0,  7.0)
+        alpha2Var =  RooRealVar( "DblCBPDF_alpha2", "alpha2",  alpha2,  -7.0,  0.0)
+        n1Var     =  RooRealVar( "DblCBPDF_n1",     "n1",      n1,      0.0001,   50)
+        n2Var     =  RooRealVar( "DblCBPDF_n2",     "n2",      n2,      0.0001,   50)
                 
-    meanVar   =  [RooRealVar( "DblCBPDF_mean_up" ,  "mean",    mean,    5000., 5500., "MeV/c^{2}"),
-                  RooRealVar( "DblCBPDF_mean_down" ,  "mean",    mean,    5000., 5500., "MeV/c^{2}")]
-    sigma1Var =  RooRealVar( "DblCBPDF_sigma1", "sigma1",  12.691 )#sigma1,  8,    20, "MeV/c^{2}")
-    sigma2Var =  RooRealVar( "DblCBPDF_sigma2", "sigma2",  20.486 ) #sigma2,  10,    30, "MeV/c^{2}")
-    alpha1Var =  RooRealVar( "DblCBPDF_alpha1", "alpha1",  2.1260) #alpha1,  0,     5)
-    alpha2Var =  RooRealVar( "DblCBPDF_alpha2", "alpha2",  -2.0649) #alpha2,  -5,    0)
-    n1Var     =  RooRealVar( "DblCBPDF_n1",     "n1",      1.1019) #,      0.0001,   10)
-    n2Var     =  RooRealVar( "DblCBPDF_n2",     "n2",      5.8097) #n2,      0.001,   10)
-    fracVar   =  RooRealVar( "DblCBPDF_frac",   "frac",    0.7844) #frac,    0,     1);
+        fracVar   =  RooRealVar( "DblCBPDF_frac",   "frac",    frac,    0,     1)
+        frac2Var   =  RooRealVar( "DblCBPDF_frac2",   "frac2",    frac2,    0,     1)
+        sigma1Var =  RooRealVar( "DblCBPDF_sigma1", "sigma1",  sigma1,  1,    40, "MeV/c^{2}")
+        sigma2Var =  RooRealVar( "DblCBPDF_sigma2", "sigma2",  sigma2,  1,    40, "MeV/c^{2}")
+        sigma3Var =  RooRealVar( "DblCBPDF_sigma3", "sigma3",  sigma3,  0.0001,    20, "MeV/c^{2}")
+        
+    meanVar   =  [RooRealVar( "DblCBPDF_mean_up" ,  "mean",    mean,    mean-50, mean+50, "MeV/c^{2}"),
+                  RooRealVar( "DblCBPDF_mean_down" ,  "mean",    mean,    mean-50, mean+50, "MeV/c^{2}")]
 
+
+    #sigma1Var =  RooRealVar( "DblCBPDF_sigma1", "sigma1",  sigma1,  1,    20, "MeV/c^{2}")
+    #sigma2Var =  RooRealVar( "DblCBPDF_sigma2", "sigma2",  sigma2,  1,    20, "MeV/c^{2}")
+                
+    
     nSigEvts = []
     nSig = []
+    sigPDF1 = []
+    sigPDF2 = []
+    sigPDF3 = []
     sigPDF = []
+    sigEPDF = []
+    
     for i in range(0,2):
         nSigEvts.append(0.9*nEntries[i])
         nameSig = TString("nSigEvts_")+sample[i]
         nSig.append(RooRealVar( nameSig.Data(), nameSig.Data(), nEntries[i], 0.8*nEntries[i], 1.2*nEntries[i]))
-        sigPDF.append(Bs2Dsh2011TDAnaModels.buildDoubleCBEPDF_sim(mass, meanVar[i], sigma1Var, alpha1Var, n1Var, sigma2Var, alpha2Var, n2Var, fracVar, nSig[i], sample[i].Data(), bName, debug ))
-        
-    #sigPDF = GeneralModels.buildDoubleCBEPDF( mass, mean, sigma1, alpha1, n1, sigma1, alpha2, n2, frac, nSig, 'SigMC', bName, debug )
+        if obsTS != "lab2_MM":
+            sigPDF.append(Bs2Dsh2011TDAnaModels.buildDoubleCBEPDF_sim(mass, meanVar[i], sigma1Var, alpha1Var, n1Var, sigma2Var,
+                                                                      alpha2Var, n2Var, fracVar, nSig[i], sample[i].Data(), bName, debug ))
+        else:
+            nameSigPDF = TString("pdfSignal_")+sample[i]
+            #sigPDF.append(RooCruijff(nameSigPDF.Data(), nameSigPDF.Data(),mass, meanVar[i], sigma1Var, sigma2Var,alpha1Var, alpha2Var))
+            #sigPDF.append(Bs2Dsh2011TDAnaModels.buildDoubleGEPDF_sim(mass, meanVar[i], sigma1Var, sigma2Var,  fracVar,
+            #                                                         nSig[i], sample[i].Data(), bName, false, debug ))
+            sigPDF.append(Bs2Dsh2011TDAnaModels.buildDoubleCBEPDF_sim(mass, meanVar[i], sigma1Var, alpha1Var, n1Var, sigma2Var,
+                                                                      alpha2Var, n2Var, fracVar, nSig[i], sample[i].Data(), bName, debug ))
+
+            #sigPDF.append(RooCBShape( nameSigPDF.Data(), nameSigPDF.Data(), mass ,meanVar[i], sigma1Var, alpha1Var, n1Var))
             
+            #name1 = TString("gauss1_")+sample[i]
+            #sigPDF1.append(RooGaussian(name1.Data(), name1.Data(), mass, meanVar[i], sigma1Var))
+            #name2 = TString("gauss2_")+sample[i]
+            #sigPDF2.append(RooGaussian(name2.Data(), name2.Data(), mass, meanVar[i], sigma2Var))
+            #name3 = TString("gauss3_")+sample[i]
+            #sigPDF3.append(RooGaussian(name3.Data(), name3.Data(), mass, meanVar[i], sigma3Var))
+            #sigPDF.append(RooAddPdf(nameSigPDF.Data(), nameSigPDF.Data(),
+            #                        RooArgList(sigPDF1[i],sigPDF2[i],sigPDF3[i]),
+            #                        RooArgList(fracVar, frac2Var), True))
+            
+        nameEPDF = TString("SigEPDF_")+sample[i]
+        sigEPDF.append(RooExtendPdf( nameEPDF.Data() , nameEPDF.Data(), sigPDF[i]  , nSig[i]  ))
+                
+                   
 
     sam = RooCategory("sample","sample")
-    sam.defineType(sample[0].Data())
-    sam.defineType(sample[1].Data())
+    if merge:
+        sam.defineType(sample[0].Data())
+    else:
+        sam.defineType(sample[0].Data())
+        sam.defineType(sample[1].Data())
 
-    combData = RooDataSet("combData","combined data",RooArgSet(observables),
-                          RooFit.Index(sam),
-                          RooFit.Import(sample[0].Data(),data[0]),
-                          RooFit.Import(sample[1].Data(),data[1]))
-
+    if merge:
+        combData = RooDataSet("combData","combined data",RooArgSet(observables),
+                              RooFit.Index(sam),
+                              RooFit.Import(sample[0].Data(),data[0]))
+        
+    else:
+        combData = RooDataSet("combData","combined data",RooArgSet(observables),
+                              RooFit.Index(sam),
+                              RooFit.Import(sample[0].Data(),data[0]),
+                              RooFit.Import(sample[1].Data(),data[1]))
+        
     totPDF = RooSimultaneous("simPdf","simultaneous pdf",sam)
-    totPDF.addPdf(sigPDF[0], sample[0].Data())
-    totPDF.addPdf(sigPDF[1], sample[1].Data())            
-                          
+    if merge:
+        totPDF.addPdf(sigEPDF[0], sample[0].Data())
+    else:
+        totPDF.addPdf(sigEPDF[0], sample[0].Data())
+        totPDF.addPdf(sigEPDF[1], sample[1].Data())            
+                    
     # Instantiate and run the fitter
     c = TString("no")
     if( c == "yes"):
@@ -251,14 +376,14 @@ def fitSignal( debug, var ) :
             fitter.saveModelPDF( options.wsname )
             fitter.saveData ( options.wsname )
     
-        fitter.fit(True, RooFit.Optimize(0), RooFit.Strategy(2),  RooFit.Verbose(True), RooFit.InitialHesse(True))
+        fitter.fit(True, RooFit.Optimize(0), RooFit.Strategy(2)) #,  RooFit.Verbose(True), RooFit.InitialHesse(True))
             
         if plot_fitted :
             fitter.saveModelPDF( options.wsname )
             fitter.saveData ( options.wsname )
 
         gROOT.SetStyle( 'Plain' )
-    #gROOT.SetBatch( False )
+    
         gStyle.SetOptLogy(1)
 
         result = fitter.getFitResult()
@@ -271,87 +396,6 @@ def fitSignal( debug, var ) :
         print "Integral %f"%(integralVal)
 
         del fitter
-    
-#    exit(0)
-#    canvas = TCanvas( 'MassCanvas', 'Mass canvas', 1200, 800 )
-#    canvas.SetTitle( 'Fit in mass' )
-#    canvas.cd()
-#    gStyle.SetOptLogy(1)
-    
-#    frame_m = mass.frame()
-
-#    frame_m.SetTitle( 'Fit in reconstructed %s mass' % bName )
-
-#    frame_m.GetXaxis().SetLabelSize( 0.03 )
-#    frame_m.GetYaxis().SetLabelSize( 0.03 )
-
-#    model.plotOn( frame_m,
-#                   RooFit.Components("mpdfSigMC"),
-#                   RooFit.LineColor(kRed),
-#                   RooFit.Normalization( 1., RooAbsReal.RelativeExpected )
-#                  )
-#    model.plotOn( frame_m,
-#                   RooFit.Components("mpdfSigMC_CB1"),
-#                   RooFit.LineColor(kBlue),
-#                   RooFit.LineStyle(kDashed),
-#                   RooFit.Normalization( 1., RooAbsReal.RelativeExpected )
-#                   )
-#    model.plotOn( frame_m,
-#                   RooFit.Components("mpdfSigMC_CB2"),
-#                   RooFit.LineColor(kGreen),
-#                   RooFit.LineStyle(kDashed),
-#                   RooFit.Normalization( 1., RooAbsReal.RelativeExpected )
-#                   )
-#    
-#    
-    #model.paramOn( frame_m,
-    #               RooFit.Layout( 0.56, 0.90, 0.85 ),
-    #               RooFit.Format( 'NEU', RooFit.AutoPrecision( 2 ) )
-    #               )
-                   
-                           
-#    data.plotOn( frame_m, RooFit.Binning( 70 ) )
-#    data.statOn( frame_m, RooFit.Layout( 0.10, 0.35, 0.90 ), RooFit.What('N') )#
-#
-#    canvas = TCanvas("canvas", "canvas", 600, 700)
-#    pad1 =  TPad("pad1","pad1",0.01,0.31,0.99,0.99)
-#    pad2 =  TPad("pad2","pad2",0.01,0.01,0.99,0.30)
-#    pad1.Draw()
-#    pad2.Draw()
-#    pad1.cd()
-#    frame_m.Draw()
-#    pad1.Update()#
-#
-#    gStyle.SetOptLogy(0)#
-#
-#    frame_m.Print("v")
-    
-    #pullnameTS = TString("mpdfSigMC_CB1+mpdfSigMC_CB2_Norm[")+mVarTS+TString("]")
-#    pullnameTS = TString("mepdfSigMC_Norm[")+mVarTS+TString("]_Comp[mpdfSigMC]")
-#    pullHist  = frame_m.pullHist("h_dataSetMC",pullnameTS.Data())
-    #residHist = mframe->residHist("h_dh",Form("mpdfSigMC_CB1+mpdfSigMC_CB2_Norm[%s]",mVarTS.Data()))
-#    pad2.SetLogy(0)
-#    pad2.cd()
-#    gStyle.SetOptLogy(0)
-#    pullHist.Draw("ap")
-#    pad2.Update()
-#    canvas.Update()
-
-    
-    #frame_m.Draw()
-#    n = TString("SigPDF_paramBox")
-#    pt = canvas.FindObject( n.Data() )
-#    if pt :
-#        print ''
-#        pt.SetY1NDC( 0.40 )
-#                            
-#    canvas.Modified()
-#    canvas.Update()
-#    canName = TString("mass_Signal.pdf")
-#    canvas.Print(canName.Data())
-                
-    
-#del fitter
 
 #------------------------------------------------------------------------------
 _usage = '%prog [options]'
@@ -381,6 +425,47 @@ parser.add_option( '-v', '--variable',
                    help = 'set observable '
                    )
 
+parser.add_option( '-m', '--mode',
+                   dest = 'mode',
+                   default = 'BsDsPi',
+                   help = 'set observable '
+                   )
+parser.add_option( '--modeDs',
+                   dest = 'modeDs',
+                   default = 'KKPi',
+                   help = 'set observable '
+                   )
+parser.add_option( '--shape',
+                   dest = 'shape',
+                   default = 'dCB',
+                   help = 'set shape '
+                   )
+parser.add_option( '--veto',
+                   action = 'store_true',
+                   dest = 'veto',
+                   default = False,
+                   help = 'save the model PDF parameters before the fit (default: after the fit)'
+                   )
+parser.add_option( '--reweight',
+                   action = 'store_true',
+                   dest = 'reweight',
+                   default = False,
+                   help = 'save the model PDF parameters before the fit (default: after the fit)'
+                   )
+parser.add_option( '--merge',
+                   action = 'store_true',
+                   dest = 'merge',
+                   default = False,
+                   help = 'save the model PDF parameters before the fit (default: after the fit)'
+                   )
+parser.add_option( '--BDTG',
+                   dest = 'BDTG',
+                   default = 'BDTGA',
+                   help = 'Set BDTG range '
+                   )
+
+
+
 # -----------------------------------------------------------------------------
 
 if __name__ == '__main__' :
@@ -390,6 +475,9 @@ if __name__ == '__main__' :
         parser.print_help()
         exit( -1 )
     
-    fitSignal( options.debug, options.var)
+    fitSignal( options.debug, options.var, options.mode, options.modeDs,
+               options.reweight,
+               options.veto,  options.merge,
+               options.BDTG)
 
 # -----------------------------------------------------------------------------

@@ -13,7 +13,8 @@ def getconfig() :
     configdict["TimeUp"]     = 15.0
     configdict["PDown"]      = 0.0
     configdict["PUp"]        = 100000000000.0
-    configdict["BDTG"]       = 0.5
+    configdict["BDTGDown"]   = 0.5
+    configdict["BDTGUp"]     = 1.0
     configdict["PIDBach"]    = 0
     configdict["PIDChild"]   = 0
     configdict["PIDProton"]  = 5    

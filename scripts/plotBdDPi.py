@@ -18,7 +18,12 @@
 # -----------------------------------------------------------------------------
 from optparse import OptionParser
 from os.path  import exists
+#import os, sys, gc
 
+import GaudiPython
+GaudiPython.loaddict( 'B2DXFittersDict' )
+from ROOT import *
+from ROOT import RooCruijff
 
 # -----------------------------------------------------------------------------
 # Configuration settings
@@ -32,46 +37,75 @@ plotModel =  True
 debug = True
 bName = 'B_{d}'
 
+Dmass_dw = 1830
+Dmass_up = 1910
+
+Bmass_dw = 5000
+Bmass_up = 6000
+
+bin = 120
 #------------------------------------------------------------------------------
 _usage = '%prog [options] <filename>'
 
 parser = OptionParser( _usage )
 
 parser.add_option( '-w', '--workspace',
-                                      dest = 'wsname',
-                                      metavar = 'WSNAME',
-                                      default = 'FitMeToolWS',
-                                      help = 'RooWorkspace name as stored in ROOT file'
-                                      )
+                   dest = 'wsname',
+                   metavar = 'WSNAME',
+                   default = 'FitMeToolWS',
+                   help = 'RooWorkspace name as stored in ROOT file'
+                   )
 
 parser.add_option( '-m', '--sample',
-                                      dest = 'sample',
-                                      metavar = 'SAMPLE',
-                                      default = 'up',
-                                      help = 'Sample: choose up or down '
-                                      )
+                   dest = 'sample',
+                   metavar = 'SAMPLE',
+                   default = 'up',
+                   help = 'Sample: choose up or down '
+                   )
 
 parser.add_option( '-v', '--variable',
-                                      dest = 'var',
-                                      default = 'lab0_MassFitConsD_M',
-                                      help = 'set observable '
-                                      )
+                   dest = 'var',
+                   default = 'lab0_MassFitConsD_M',
+                   help = 'set observable '
+                   )
+
+parser.add_option( '--merge',
+                   action = 'store_true',
+                   dest = 'merge',
+                   default = False,
+                   help = 'save the model PDF parameters before the fit (default: after the fit)'
+                   )
+
+parser.add_option( '-s', '--sufix',
+                   dest = 'sufix',
+                   metavar = 'SUFIX',
+                   default = '',
+                   help = 'Add sufix to output'
+                   )
+
+
 #------------------------------------------------------------------------------
-def plotDataSet( dataset, frame, sample ) :
+def plotDataSet( dataset, frame, sample, merge ) :
 
     if sample == "both":
-        dataset.plotOn( frame,
-                        RooFit.Cut("sample==sample::up || sample==sample::down"),
-                        RooFit.Binning( 70 ) )
+        if merge:
+            dataset.plotOn( frame,
+                            RooFit.Cut("sample==sample::both"),
+                            RooFit.Binning( bin ) )
+            
+        else:
+            dataset.plotOn( frame,
+                            RooFit.Cut("sample==sample::up || sample==sample::down"),
+                            RooFit.Binning( bin ) )
     elif sample == "up":
         dataset.plotOn( frame,
                         RooFit.Cut("sample==sample::up"),
-                        RooFit.Binning( 70 ) )
+                        RooFit.Binning( bin ) )
                                                 
     elif sample == "down":
          dataset.plotOn( frame,
                          RooFit.Cut("sample==sample::down"),
-                         RooFit.Binning( 70 ) )
+                         RooFit.Binning( bin ) )
     else:
         print "[ERROR] Wrong sample!"
                                                                          
@@ -81,7 +115,7 @@ def plotDataSet( dataset, frame, sample ) :
    #                 RooFit.What('N') )
 
 #------------------------------------------------------------------------------
-def plotFitModel( model, frame, sam, var) :
+def plotFitModel( model, frame, sam, var, merge) :
     #if debug :
     
     print "model"    
@@ -93,30 +127,124 @@ def plotFitModel( model, frame, sam, var) :
     p=TString(",")
     nameTot = TString("FullPdf")
     if sam == "both":
-        nameSig1 = TString("DblCBPDFdown_CB1,DblCBPDFup_CB1")
-        nameSig2 = TString("DblCBPDFdown_CB2,DblCBPDFup_CB2")
-        nameSig  = TString("SigEPDF_down,SigEPDF_up") 
-        nameBkg = TString("BkgEPDF_down,BkgEPDF_up")
+        if merge:
+            nameSig = TString("SigEPDF_both")
+            nameBkg = TString("BkgEPDF_both")
+            nameBDK = nameBkg + TString(",BkgBDKEPDF_both")
+            nameBsDsPi = nameBDK + TString(",BkgBsDsPiEPDF_both")
+            nameLbLcPi = nameBsDsPi + TString(",BkgLbLcPiEPDF_both")
+            nameBkgX = nameLbLcPi + TString(",BkgBkgXEPDF_both")
+            nameDRho = nameLbLcPi+TString(",BkgBdDRhoEPDF_both")
+            nameDstPi = nameDRho + TString(",BkgBdDstPiEPDF_both")
+                                                                                                        
+        else:
+            nameSig1 = TString("DblCBPDFdown_CB1,DblCBPDFup_CB1")
+            nameSig2 = TString("DblCBPDFdown_CB2,DblCBPDFup_CB2")
+            nameSig  = TString("SigEPDF_down,SigEPDF_up") 
+            nameBkg = TString("BkgEPDF_down,BkgEPDF_up")
+            nameBDK = TString("BkgBDKEPDF_down,BkgEPDF_down,BkgBDKEPDF_up,BkgEPDF_up")
+            nameBsDsPi = TString("BkgBDKEPDF_down,BkgEPDF_down,BkgBDKEPDF_up,BkgEPDF_up,BkgBsDsPiEPDF_down,BkgBsDsPiEPDF_up")
+            nameLbLcPi = TString("BkgBDKEPDF_down,BkgEPDF_down,BkgBDKEPDF_up,BkgEPDF_up,BkgBsDsPiEPDF_down,BkgBsDsPiEPDF_up,BkgLbLcPiEPDF_down,BkgLbLcPiEPDF_up")
+            nameBkgX = TString("BkgBDKEPDF_down,BkgEPDF_down,BkgBDKEPDF_up,BkgEPDF_up,BkgBsDsPiEPDF_down,BkgBsDsPiEPDF_up,BkgLbLcPiEPDF_down,BkgLbLcPiEPDF_up,BkgBkgXEPDF_down,BkgBkgXEPDF_up")
+            nameDRho = nameLbLcPi+TString(",BkgBdDRhoEPDF_down,BkgBdDRhoEPDF_up")
+            nameDstPi = nameDRho + TString(",BkgBdDstPiEPDF_down,BkgBdDstPiEPDF_up")
+
     elif sam == "down" :
-        nameSig1 = TString("DblCBPDFdown_CB1")
-        nameSig2 = TString("DblCBPDFdown_CB2")
+        #nameSig1 = TString("DblCBPDFdown_CB1")
+        #nameSig2 = TString("DblCBPDFdown_CB2")
+        nameSig1 = TString("DblGPDFdown_G1")
+        nameSig2 = TString("DblGPDFdown_G2")
+                
         nameSig  = TString("SigEPDF_down")
         nameBkg = TString("BkgEPDF_down")
+        nameBDK = TString("BkgBDKEPDF_down,BkgEPDF_down")
+        nameBsDsPi = TString("BkgBDKEPDF_down,BkgEPDF_down,BkgBsDsPiEPDF_down")
+        nameLbLcPi = TString("BkgBDKEPDF_down,BkgEPDF_down,BkgBsDsPiEPDF_down,BkgLbLcPiEPDF_down")
+        nameBkgX = TString("BkgBDKEPDF_down,BkgEPDF_down,BkgBsDsPiEPDF_down,BkgLbLcPiEPDF_down,BkgBkgXEPDF_down")
+        
     elif sam == "up":
-        nameSig1 = TString("DblCBPDFup_CB1")
-        nameSig2 = TString("DblCBPDFup_CB2")
+        #nameSig1 = TString("DblCBPDFup_CB1")
+        #nameSig2 = TString("DblCBPDFup_CB2")
+        #nameSig  = TString("SigEPDF_up")
+        #nameBkg = TString("BkgEPDF_up")
+        nameSig1 = TString("DblGPDFup_G1")
+        nameSig2 = TString("DblGPDFup_G2")
+
         nameSig  = TString("SigEPDF_up")
         nameBkg = TString("BkgEPDF_up")
+        nameBDK = TString("BkgBDKEPDF_up,BkgEPDF_up")
+        nameBsDsPi = TString("BkgBDKEPDF_up,BkgEPDF_up,BkgBsDsPiEPDF_up")
+        nameLbLcPi = TString("BkgBDKEPDF_up,BkgEPDF_up,BkgBsDsPiEPDF_up,BkgLbLcPiEPDF_up")
+        nameBkgX =  TString("BkgBDKEPDF_up,BkgEPDF_up,BkgBsDsPiEPDF_up,BkgLbLcPiEPDF_up,BkgBkgXEPDF_up")
+        
+                                
     else:
         print "[ERROR] Wrong sample"
         exit(0)
-                
+
+    model.plotOn( frame,
+                  RooFit.Components(nameDstPi.Data()),
+                  RooFit.DrawOption("F"),
+                  RooFit.FillStyle(1001),
+                  RooFit.FillColor(kBlue-3),
+                  RooFit.Normalization( 1., RooAbsReal.RelativeExpected )
+                  )
+    
+    model.plotOn( frame,
+                  RooFit.Components(nameDRho.Data()),
+                  RooFit.DrawOption("F"),
+                  RooFit.FillStyle(1001),
+                  RooFit.FillColor(kYellow-7),
+                  RooFit.Normalization( 1., RooAbsReal.RelativeExpected )
+                  )
+     
+    model.plotOn( frame,
+                  RooFit.Components(nameLbLcPi.Data()),
+                  RooFit.DrawOption("F"),
+                  RooFit.FillStyle(1001),
+                  RooFit.FillColor(kRed),
+                  RooFit.Normalization( 1., RooAbsReal.RelativeExpected )
+                  )
+    
+
+    model.plotOn( frame,
+                  RooFit.Components(nameBsDsPi.Data()),
+                  RooFit.DrawOption("F"),
+                  RooFit.FillStyle(1001),
+                  RooFit.FillColor(kBlue-10),
+                  RooFit.Normalization( 1., RooAbsReal.RelativeExpected )
+                  )
+    
+    model.plotOn( frame,
+                  RooFit.Components(nameBDK.Data()),
+                  RooFit.DrawOption("F"),
+                  RooFit.FillStyle(1001),
+                  RooFit.FillColor(kOrange),
+                  RooFit.Normalization( 1., RooAbsReal.RelativeExpected )
+                  )
+    
+    model.plotOn( frame,
+                  RooFit.Components(nameBkg.Data()),
+                  RooFit.DrawOption("F"),
+                  RooFit.FillStyle(1001),
+                  RooFit.FillColor(kBlue-6),
+                  RooFit.Normalization( 1., RooAbsReal.RelativeExpected )
+                  )
+    
     
     model.plotOn( frame,
                   RooFit.Components(nameTot.Data()),
                   RooFit.LineColor(kMagenta-2),
                   RooFit.Normalization( 1., RooAbsReal.RelativeExpected )
                   )
+
+    model.plotOn( frame,
+                  RooFit.Components(nameSig.Data()),
+                  RooFit.LineColor(kBlue),
+                  RooFit.LineStyle(7),
+                  RooFit.Normalization( 1., RooAbsReal.RelativeExpected )
+                  )
+    
     
     #model.plotOn( frame,
     #              RooFit.Components(nameSig.Data()),
@@ -124,7 +252,7 @@ def plotFitModel( model, frame, sam, var) :
     #              RooFit.LineStyle(kDashed),
     #              RooFit.Normalization( 1., RooAbsReal.RelativeExpected )
     #              )
-     
+'''     
     model.plotOn( frame,
                   RooFit.Components(nameSig2.Data()),
                   RooFit.LineColor(kBlue-10),
@@ -144,93 +272,27 @@ def plotFitModel( model, frame, sam, var) :
                   RooFit.LineStyle(7),
                   RooFit.Normalization( 1., RooAbsReal.RelativeExpected )
                   )
-                        
-    model.plotOn( frame,
-                  RooFit.Components(nameBkg.Data()),
-                  RooFit.LineColor(kRed),
-                  RooFit.LineStyle(7),
-                  RooFit.Normalization( 1., RooAbsReal.RelativeExpected )
-                  )
+'''                        
+    #model.plotOn( frame,
+    #              RooFit.Components(nameBkg.Data()),
+    #              RooFit.LineColor(kRed),
+    #              RooFit.LineStyle(7),
+    #              RooFit.Normalization( 1., RooAbsReal.RelativeExpected )
+    #              )
+
+    #model.plotOn( frame,
+    #              RooFit.Components(nameBDK.Data()),
+    #              RooFit.LineColor(kOrange),
+    #              RooFit.LineStyle(7),
+    #              RooFit.Normalization( 1., RooAbsReal.RelativeExpected )
+    #              )
     
        
 #    model.paramOn( frame,
 #                   RooFit.Layout( 0.56, 0.90, 0.85 ),
 #                   RooFit.Format( 'NEU', RooFit.AutoPrecision( 2 ) )
 #                   )
-
-#    decays = ["Combinatorial",
-#              "B^{0}#rightarrow D^{-}_{s}K^{+}"]
-#    compColor = [kBlack, kGray]                 
-    #decayNameLatex="B^{0}_{s}#rightarrow D^{#pm}_{s}K^{#mp}"
-
-    #where = [0.55,0.30,0.87,0.61]
-#    legend = TLegend( 0.13, 0.57, 0.44, 0.87 )
-    ## Signal
-#    l1 = TLine()
-#    l1.SetLineColor(kRed)
-#    l1.SetLineStyle(kDashed)
-#    legend.AddEntry(l1, "Signa", "L")
-    #hs = []
-
-    #for cC in xrange(len(compColor)):
-    #    print 'mamma',decays[cC], compColor[cC]
-    #    hs.append(TH1F("h%s"%(cC),"h%s"%(cC),10,0,1))
-    #    hs[-1].SetFillColor(compColor[cC])
-    #    hs[-1].SetFillStyle(1001)
-    #    legend.AddEntry(hs[-1], "%s"%decays[cC], "f")
-    #legend.SetTextFont(12)
-#    legend.Draw()                                                                        
-
-    
-    #stat = frame.findObject( 'data_statBox' )
-    #if not stat:
-    #    statTS = TString("TotEPDF_m_")+sam+TString("_Data_statBox")
-    #    stat = frame.findObject( statTS.Data() )
-    #if stat :
-    #    stat.SetTextSize( 0.025 )
-    #ptTS = TString("TotEPDF_m_")+sam+TString("_paramBox")    
-    #pt = frame.findObject( ptTS.Data() )
-    #if pt :
-    #    pt.SetTextSize( 0.02 )
-    # Legend of EPDF components
-
-    #leg = TLegend( 0.13, 0.57, 0.44, 0.87 )
-    #leg.SetFillColor( 0 )
-    #leg.SetTextSize( 0.02 )
-
-    #comps = model.getComponents()
-
-    #pdf = comps.find(nameSig.Data())
-    #pdfNameTS = TString("TotEPDF_m_")+sam+TString("_Norm[")+var+TString("]_Comp[")+nameSig.Data()+TString("]") 
-    #pdfName = 'TotEPDF_m_Norm[mass]_Comp[%s]' % 'Bs2DsPiEPDF'
-
-    #h=TH1F(nameSig.Data(),nameSig.Data(),10,0,1)
-    #h.SetFillColor(kRed)
-    #h.SetFillStyle(1001)
-
-    #curve = frame.findObject( pdfNameTS.Data() )
-
-    #decay = TString("Signal")
-    #leg.AddEntry(curve, decay.Data(), 'l' )
-    #leg.Draw()
-    
-    #leg.AddEntry( curve, pdf.GetTitle(), 'l' )
-    #frame.addObject( leg )
-    #pdf = comps.find( 'CombBkgEPDF_m' )
-    #pdfName = 'TotEPDF_m_Norm[mass]_Comp[%s]' % 'CombBkgEPDF_m'
-    #curve5 = frame.findObject( pdfName )
-    #leg.AddEntry( curve5, pdf.GetTitle(), 'l' )
-    #frame.addObject( leg )
-    #pdf = comps.find( 'SigEPDF' )
-    #pdfName = 'TotEPDF_m_Norm[mass]_Comp[%s]' % 'SigEPDF'
-    #curve6 = frame.findObject( pdfName )
-    #leg.AddEntry( curve6, pdf.GetTitle(), 'l' )
-    #frame.addObject( leg )
-    #pdfName = 'TotEPDF_m_Norm[mass]_Comp[%s]' % 'CombBkgEPDF_m,Bs2DsPiEPDF'
-    #curve7 = frame.findObject( pdfName )
-    #leg.AddEntry( curve7, 'All but %s' % pdf.GetTitle(), 'f' )
-    #curve7.SetLineColor(0)
-
+                                                                  
 #------------------------------------------------------------------------------
 
 if __name__ == '__main__' :
@@ -245,16 +307,20 @@ if __name__ == '__main__' :
         parser.error( 'ROOT file "%s" not found! Nothing plotted.' % FILENAME )
         parser.print_help()
 
-    from ROOT import *
+    #from ROOT import *
+    #from ROOT import RooCruijff, TCanvas, TPad
+    
     #from ROOT import TFile, TCanvas, gROOT, TLegend, TString, TLine, TH1F, TBox, TPad
     #from ROOT import kYellow, kMagenta, kOrange, kCyan, kGreen, kRed, kBlue, kDashed, kBlack, kGray, kViolet
     #from ROOT import RooFit, RooRealVar, RooAbsReal, RooCategory, RooArgSet, RooAddPdf, RooArgList
     gROOT.SetStyle( 'Plain' )    
-    gROOT.SetBatch( False )
-    
-    
-    f = TFile( FILENAME )
+   # gROOT.SetBatch( False )
 
+    RooAbsData.setDefaultStorageType(RooAbsData.Tree)
+    
+    pdf = RooCruijff()
+    f = TFile( FILENAME )
+    
     w = f.Get( options.wsname )
     if not w :
         parser.error( 'Workspace "%s" not found in file "%s"! Nothing plotted.' %\
@@ -263,8 +329,18 @@ if __name__ == '__main__' :
     f.Close()
     mVarTS = TString(options.var)    
     mass = w.var(mVarTS.Data())
+    #mass.setRange(Bmass_dw,Bmass_up)
     sam = TString(options.sample)
-     
+    sufixTS = TString(options.sufix)
+    merge = options.merge
+    if merge and sam != "both":
+        print "You cannot run option megrge with sample up or down"
+        exit(0)
+    if sufixTS != "":
+        sufixTS = TString("_")+sufixTS
+                
+
+    
     w.Print('v')
     #exit(0)
         
@@ -274,16 +350,22 @@ if __name__ == '__main__' :
 
     if sam == "up":
         print "Sample up"
-        w.factory("SUM:FullPdf(nSigEvts_up*SigEPDF_up,nBkgEvts_up*BkgEPDF_up)")
+        w.factory("SUM:FullPdf(nSig_up_Evts*SigEPDF_up,nBkg_up_Evts*BkgEPDF_up,nBd2DK_up_Evts*BkgBDKEPDF_up)")
         pullname2TS = TString("h_combData_Cut[sample==sample::up]")
     elif sam == "down":
         print "Sample down"
-        w.factory("SUM:FullPdf(nSigEvts_down*SigEPDF_down,nBkgEvts_down*BkgEPDF_down)")
+        w.factory("SUM:FullPdf(nSig_down_Evts*SigEPDF_down,nBkg_down_Evts*BkgEPDF_down,nBd2DK_down_Evts*BkgBDKEPDF_down)")
         pullname2TS = TString("h_combData_Cut[sample==sample::down]")
     elif sam == "both":
-        print "Sample both"
-        w.factory("SUM:FullPdf(nSigEvts_down*SigEPDF_down,nSigEvts_up*SigEPDF_up,nBkgEvts_down*BkgEPDF_down,nBkgEvts_up*BkgEPDF_up)")
-        pullname2TS = TString("h_combData_Cut[sample==sample::up || sample==sample::down]")
+        if merge:
+            print "Sample both with merge"
+            w.factory("SUM:FullPdf(nSig_both_Evts*SigEPDF_both,nBkg_both_Evts*BkgEPDF_both,nBd2DK_both_Evts*BkgBDKEPDF_both,nBs2DsPi_both_Evts*BkgBsDsPiEPDF_both, nLb2LcPi_both_Evts*BkgLbLcPiEPDF_both, nBd2DRho_both_Evts*BkgBdDRhoEPDF_both,nBd2DstPi_both_Evts*BkgBdDstPiEPDF_both)")
+            pullname2TS = TString("h_combData_Cut[sample==sample::both]")
+                        
+        else:
+            print "Sample both"
+            w.factory("SUM:FullPdf(nSig_down_Evts*SigEPDF_down,nSig_up_Evts*SigEPDF_up,nBkg_down_Evts*BkgEPDF_down,nBkg_up_Evts*BkgEPDF_up,nBd2DK_down_Evts*BkgBDKEPDF_down,nBd2DK_up_Evts*BkgBDKEPDF_up, nBs2DsPi_down_Evts*BkgBsDsPiEPDF_down, nBs2DsPi_up_Evts*BkgBsDsPiEPDF_up, nLb2LcPi_down_Evts*BkgLbLcPiEPDF_down, nLb2LcPi_up_Evts*BkgLbLcPiEPDF_up,nBd2DRho_up_Evts*BkgBdDRhoEPDF_up,nBd2DRho_down_Evts*BkgBdDRhoEPDF_down,nBd2DstPi_up_Evts*BkgBdDstPiEPDF_up, nBd2DstPi_down_Evts*BkgBdDstPiEPDF_down)") #, nBkgX_down_Evts*BkgBkgXEPDF_down, nBkgX_up_Evts*BkgBkgXEPDF_up)")
+            pullname2TS = TString("h_combData_Cut[sample==sample::up || sample==sample::down]")
     else:
         print "[ERROR] Wrong sample"
         exit(0)
@@ -298,29 +380,42 @@ if __name__ == '__main__' :
         exit( 0 )
     #w.Print('v')
     #exit(0)
-#    canvas = TCanvas( 'MassCanvas', 'Mass canvas', 1200, 800 )
-#    canvas.SetTitle( 'Fit in mass' )
-#    canvas.cd()
     
     frame_m = mass.frame()
-    
-    frame_m.SetTitle( 'Fit in reconstructed %s mass' % bName )
+       
+    frame_m.SetTitle("") #'Fit in reconstructed %s mass' % bName )
     
     frame_m.GetXaxis().SetLabelSize( 0.03 )
     frame_m.GetYaxis().SetLabelSize( 0.03 )
-    frame_m.GetXaxis().SetTitle("m(B_{d}) [MeV/c^{2}]")
+    if ( mVarTS == "lab0_MassFitConsD_M"):
+        frame_m.GetXaxis().SetTitle("m(B_{d}) [MeV/c^{2}]")
+    else:
+        frame_m.GetXaxis().SetTitle("m(D) [MeV/c^{2}]")
+    frame_m.GetYaxis().SetTitleFont( 132 )
+    frame_m.GetYaxis().SetLabelFont( 132 )
+    frame_m.SetLabelFont(132)
+    frame_m.SetTitleFont(132)
+                 
            
-    if plotModel : plotFitModel( modelPDF, frame_m, sam, mVarTS )
-    if plotData : plotDataSet( dataset, frame_m, sam )
-    
-   # gStyle.SetOptLogy(1)
-    canvas = TCanvas("canvas", "canvas",700, 700)
+    if plotModel : plotFitModel( modelPDF, frame_m, sam, mVarTS, merge )
+    if plotData : plotDataSet( dataset, frame_m, sam, merge )
+
+    if ( mVarTS == "lab0_MassFitConsD_M"):
+        gStyle.SetOptLogy(1)
+        
+    canvas = TCanvas("canvas", "canvas",1200, 1000)
+    canvas.SetTitle( 'Fit in mass' )
+    canvas.cd()
+
     pad1 =  TPad("pad1","pad1",0.01,0.21,0.99,0.99)
     pad2 =  TPad("pad2","pad2",0.01,0.01,0.99,0.20)
     pad1.Draw()
     pad2.Draw()
 
-    legend = TLegend( 0.60, 0.50, 0.85, 0.85 )
+    if ( mVarTS == "lab0_MassFitConsD_M"):
+        legend = TLegend( 0.60, 0.50, 0.85, 0.85 )
+    else:
+        legend = TLegend( 0.12, 0.50, 0.35, 0.85 )
     legend.SetTextSize(0.03)
     legend.SetTextFont(12)
     legend.SetFillColor(4000)
@@ -333,33 +428,53 @@ if __name__ == '__main__' :
     l1.SetLineStyle(7)
     legend.AddEntry(l1, "Signal B^{0} #rightarrow D^{-}#pi^{+}", "L")
 
-    l3 = TLine()
-    l3.SetLineColor(kBlue-10)
-    l3.SetLineWidth(4)
-    l3.SetLineStyle(kDashed)
-    legend.AddEntry(l3, "Signal components", "L")
-                    
+    h1=TH1F("Combinatorial","Combinatorial",5,0,1)
+    h1.SetFillColor(kBlue-6)
+    h1.SetFillStyle(1001)
+    legend.AddEntry(h1, "Combinatorial", "f")
+    
+    h2=TH1F("B2DK","B2DK",5,0,1)
+    h2.SetFillColor(kOrange)
+    h2.SetFillStyle(1001)
+    legend.AddEntry(h2, "B_{d}#rightarrow DK", "f")
 
-    l2 = TLine()
-    l2.SetLineColor(kRed)
-    l2.SetLineWidth(4)
-    l2.SetLineStyle(7)
-    legend.AddEntry(l2, "Combinatorial", "L")
-                    
+    h3=TH1F("Bs2DsPi","Bs2DsPi",5,0,1)
+    h3.SetFillColor(kBlue-10)
+    h3.SetFillStyle(1001)
+    legend.AddEntry(h3, "B_{s}#rightarrow D_{s}#pi", "f")
 
+    h4=TH1F("Lb2LcPi","Lb2LcPi",5,0,1)
+    h4.SetFillColor(kRed)
+    h4.SetFillStyle(1001)
+    legend.AddEntry(h4, "#Lambda_{b}#rightarrow #Lambda^_{c}#pi", "f")
 
+    h5=TH1F("BkgX","BkgX",5,0,1)
+    h5.SetFillColor(kYellow-7)
+    h5.SetFillStyle(1001)
+#    legend.AddEntry(h5, "BkgX", "f")
+    
     pad1.cd()
     frame_m.Draw()
     legend.Draw("same")
     pad1.Update()
-
+    
+    pad2.SetLogy(0)
+    pad2.cd()
+    gStyle.SetOptLogy(0)
+            
+    
     frame_m.Print("v")
     pullnameTS = TString("FullPdf_Norm[")+mVarTS+TString("]_Comp[FullPdf]")
     pullHist  = frame_m.pullHist(pullname2TS.Data(),pullnameTS.Data())
+    pullHist.SetTitle("")
+    
     #pullHist.SetMaximum(5800.00)
     #pullHist.SetMinimum(5100.00)
     axisX = pullHist.GetXaxis()
-    axisX.Set(70,5200,5400)
+    if ( mVarTS == "lab0_MassFitConsD_M"):
+        axisX.Set(bin,Bmass_dw,Bmass_up)
+    else:
+        axisX.Set(bin,Dmass_dw,Dmass_up)
     axisY = pullHist.GetYaxis()
     max = axisY.GetXmax()
     min = axisY.GetXmin()
@@ -370,26 +485,34 @@ if __name__ == '__main__' :
     graph = TGraph(2)
     graph.SetMaximum(max)
     graph.SetMinimum(min)
-    graph.SetPoint(1,5200,0)
-    graph.SetPoint(2,5400,0)
-
+    if ( mVarTS == "lab0_MassFitConsD_M"):
+        graph.SetPoint(1,Bmass_dw,0)
+        graph.SetPoint(2,Bmass_up,0)
+    else:
+        graph.SetPoint(1,Dmass_dw,0)
+        graph.SetPoint(2,Dmass_up,0)
     graph2 = TGraph(2)
     graph2.SetMaximum(max)
     graph2.SetMinimum(min)
-    graph2.SetPoint(1,5200,-3)
-    graph2.SetPoint(2,5400,-3)
+    if ( mVarTS == "lab0_MassFitConsD_M"):
+        graph2.SetPoint(1,Bmass_dw,-3)
+        graph2.SetPoint(2,Bmass_up,-3)
+    else:
+        graph2.SetPoint(1,Dmass_dw,-3)
+        graph2.SetPoint(2,Dmass_up,-3)
     graph2.SetLineColor(kRed)
     graph3 = TGraph(2)
     graph3.SetMaximum(max)
     graph3.SetMinimum(min)
-    graph3.SetPoint(1,5200,3)
-    graph3.SetPoint(2,5400,3)
+    if ( mVarTS == "lab0_MassFitConsD_M"):
+        graph3.SetPoint(1,Bmass_dw,3)
+        graph3.SetPoint(2,Bmass_up,3)
+    else:
+        graph3.SetPoint(1,Dmass_dw,3)
+        graph3.SetPoint(2,Dmass_up,3)
     graph3.SetLineColor(kRed)
                                             
     
-    pad2.SetLogy(0)
-    pad2.cd()
-    gStyle.SetOptLogy(0)
     pullHist.Draw("ap")
     graph.Draw("same")
     graph2.Draw("same")
@@ -407,7 +530,13 @@ if __name__ == '__main__' :
         pt.SetY1NDC( 0.40 )
     canvas.Modified()
     canvas.Update()
-    canName = TString("mass_Signal_")+sam+TString(".pdf")
-    canvas.Print(canName.Data())
+    canName = TString("mass_BDPi_")+mVarTS+TString("_")+sam+sufixTS+TString(".pdf")
+    canvas.SaveAs(canName.Data())
+    canNamePng = TString("mass_BDPi_")+mVarTS+TString("_")+sam+sufixTS+TString(".png")
+    canvas.SaveAs(canNamePng.Data())
+    canNameROOT = TString("mass_BDPi_")+mVarTS+TString("_")+sam+sufixTS+TString(".root")
+    canvas.SaveAs(canNameROOT.Data())
+        
     
+        
 #------------------------------------------------------------------------------

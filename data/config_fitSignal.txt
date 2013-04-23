@@ -6,15 +6,24 @@ DecayTree
 DecayTree
 ###
 
-#Signal BdDPi
+#Signal BDPi old
 /afs/cern.ch/work/a/adudziak/public/
-Merged_Bd2DPi_D2KPiPi_MD_BsHypo_BDTG.root
-Merged_Bd2DPi_D2KPiPi_MU_BsHypo_BDTG.root
+Merged_Bd2DPi_D2KPiPi_MD_BdHypo_BDTG.root
+Merged_Bd2DPi_D2KPiPi_MU_BdHypo_BDTG.root
 DecayTree;1
 DecayTree;1
 ###
 
-#Signal BsDsPi
+#Signal BDPi KPiPi
+/afs/cern.ch/work/a/adudziak/public/MCMarch2013/
+MergedTree_Bd2DPi_D2KPiPi_BdHypo_BDTG.root
+MergedTree_Bd2DPi_D2KPiPi_BdHypo_BDTG.root
+DecayTree;1
+DecayTree;1
+###
+
+
+#Signal BsDsPi KKPi old
 /afs/cern.ch/work/a/adudziak/public/
 Merged_Bs2DsPi_Ds2KKPi_MD_BsHypo_BDTG.root
 Merged_Bs2DsPi_Ds2KKPi_MU_BsHypo_BDTG.root
@@ -22,10 +31,66 @@ DecayTree;1
 DecayTree;1
 ###
 
-#Signal BsDsK
+#Signal BsDsPi KKPi
+/afs/cern.ch/work/a/adudziak/public/MCMarch2013/
+MergedTree_Bs2DsPi_Ds2KKPi_BsHypo_BDTG.root
+MergedTree_Bs2DsPi_Ds2KKPi_BsHypo_BDTG.root
+DecayTree;1
+DecayTree;1
+###
+
+#Signal BsDsPi KPiPi
+/afs/cern.ch/work/a/adudziak/public/MCMarch2013/
+MergedTree_Bs2DsPi_Ds2KPiPi_BsHypo_BDTG.root
+MergedTree_Bs2DsPi_Ds2KPiPi_BsHypo_BDTG.root
+DecayTree;1
+DecayTree;1
+###
+
+#Signal BsDsPi PiPiPi
+/afs/cern.ch/work/a/adudziak/public/MCMarch2013/
+MergedTree_Bs2DsPi_Ds2PiPiPi_BsHypo_BDTG.root
+MergedTree_Bs2DsPi_Ds2PiPiPi_BsHypo_BDTG.root
+DecayTree;1
+DecayTree;1
+###
+
+#Signal BsDsstPi
+/afs/cern.ch/work/a/adudziak/public/
+Merged_Bs2DsstPi_Ds2KKPi_MD_BsHypo_BDTG.root
+Merged_Bs2DsstPi_Ds2KKPi_MU_BsHypo_BDTG.root
+DecayTree;1
+DecayTree;1
+###
+
+#Signal BsDsK KKPi old
 /afs/cern.ch/work/a/adudziak/public/
 Merged_Bs2DsK_Ds2KKPi_MD_BsHypo_BDTG.root
 Merged_Bs2DsK_Ds2KKPi_MU_BsHypo_BDTG.root
+DecayTree;1
+DecayTree;1
+###
+
+#Signal BsDsK KKPi
+/afs/cern.ch/work/a/adudziak/public/MCMarch2013/
+MergedTree_Bs2DsK_Ds2KKPi_BsHypo_BDTG.root
+MergedTree_Bs2DsK_Ds2KKPi_BsHypo_BDTG.root
+DecayTree;1
+DecayTree;1
+###
+
+#Signal BsDsK KPiPi
+/afs/cern.ch/work/a/adudziak/public/MCMarch2013/
+MergedTree_Bs2DsK_Ds2KPiPi_BsHypo_BDTG.root
+MergedTree_Bs2DsK_Ds2KPiPi_BsHypo_BDTG.root
+DecayTree;1
+DecayTree;1
+###
+
+#Signal BsDsK PiPiPi
+/afs/cern.ch/work/a/adudziak/public/MCMarch2013/
+MergedTree_Bs2DsK_Ds2PiPiPi_BsHypo_BDTG.root
+MergedTree_Bs2DsK_Ds2PiPiPi_BsHypo_BDTG.root
 DecayTree;1
 DecayTree;1
 ###
@@ -37,8 +102,6 @@ Merged_Bd2DsK_Ds2KKPi_MU_BsHypo_BDTG.root
 DecayTree;1
 DecayTree;1
 ###
-
-
 
 #PIDp
 /afs/cern.ch/user/l/lcarson/public/ForAgnieszka/
@@ -52,3 +115,8 @@ EffHistos_Reco12_39Mom_MagDown_0123.root
 EffHistos_Reco12_39Mom_MagUp_012.root
 ###
 
+#RatioDataMC2D
+/afs/cern.ch/work/a/adudziak/public/workspace/
+MomVsnTr_Comp_DPi_Down_hist.root
+MomVsnTr_Comp_DPi_Up_hist.root
+###

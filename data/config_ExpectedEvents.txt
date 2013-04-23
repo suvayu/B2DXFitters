@@ -7,12 +7,21 @@ DecayTree;1
 ###
 
 #BdPi
-/afs/cern.ch/work/g/gligorov/public/Bs2DsKFitTuples/
-FitTuple_MergedTree_Bd2DPi_D2KPiPi_MD_BDTG_MINI.root
-FitTuple_MergedTree_Bd2DPi_D2KPiPi_MU_BDTG_MINI.root
+/afs/cern.ch/work/g/gligorov/public/Bs2DsKFitTuples/DV_v33r1/SmallTuples/
+DPi_MD_BDTG_MINI.root
+DPi_MU_BDTG_MINI.root
 DecayTree
 DecayTree
 ###
+
+#BdPi WS
+/afs/cern.ch/work/g/gligorov/public/Bs2DsKFitTuples/DV_v33r1/SmallTuples/
+DPi_WS_MD_BDTG_MINI.root
+DPi_WS_MU_BDTG_MINI.root
+DecayTree
+DecayTree
+###
+
 
 #BdDPi BdHypo
 /afs/cern.ch/work/a/adudziak/public/
@@ -22,12 +31,29 @@ DecayTree;1
 DecayTree;1
 ###
 
+#BDK
+/afs/cern.ch/work/a/adudziak/public/
+Merged_Bd2DK_D2KPiPi_MD_BdHypo_BDTG.root
+Merged_Bd2DK_D2KPiPi_MU_BdHypo_BDTG.root
+DecayTree;1
+DecayTree;1
+###
+	
+
 #LbLcPi
 /afs/cern.ch/work/a/adudziak/public/
 Merged_Lb2LcPi_Lc2pKPi_MD_BsHypo_BDTG.root
 Merged_Lb2LcPi_Lc2pKPi_MU_BsHypo_BDTG.root
 DecayTree;1
 DecayTree;1
+###
+
+#LbLcPi data
+/castor/cern.ch/user/r/rkoopman/dataLbLcPi/BDT/
+Lb2LcPi_Strip17_MD_Merged_BDTG.root
+Lb2LcPi_Strip17_MU_Merged_BDTG.root
+DecayTree
+DecayTree
 ###
 
 #LbDsp
@@ -54,11 +80,43 @@ DecayTree;1
 DecayTree;1
 ###
 
+#BsDsK
+/afs/cern.ch/work/a/adudziak/public/
+Merged_Bs2DsK_Ds2KKPi_MD_BsHypo_BDTG.root
+Merged_Bs2DsK_Ds2KKPi_MU_BsHypo_BDTG.root
+DecayTree;1
+DecayTree;1
+###
+
+
+#MC FileName MD
+/afs/cern.ch/work/a/adudziak/public/Merged_Bd2DK_D2KPiPi_MD_BdHypo_BDTG.root
+/afs/cern.ch/work/a/adudziak/public/Merged_Bs2DsPi_Ds2KKPi_MD_BdHypo_BDTG.root
+/afs/cern.ch/work/a/adudziak/public/Merged_Lb2LcPi_Lc2pKPi_MD_BdHypo_BDTG.root
+###
+
+#MC FileName MU
+/afs/cern.ch/work/a/adudziak/public/Merged_Bd2DK_D2KPiPi_MU_BdHypo_BDTG.root
+/afs/cern.ch/work/a/adudziak/public/Merged_Bs2DsPi_Ds2KKPi_MU_BdHypo_BDTG.root
+/afs/cern.ch/work/a/adudziak/public/Merged_Lb2LcPi_Lc2pKPi_MU_BdHypo_BDTG.root
+###
+
+#MC TreeName
+DecayTree;1
+DecayTree;1
+DecayTree;1
+###
 
 #PIDp
 /afs/cern.ch/user/l/lcarson/public/ForAgnieszka/
 EffHistos_Reco12_39Mom_Proton_MagDown_TightCuts.root
-EffHistos_Reco12_39Mom_Proton_MagDown_TightCuts.root
+EffHistos_Reco12_39Mom_Proton_MagUp_TightCuts.root
+###
+
+#PID3
+/afs/cern.ch/user/l/lcarson/public/ForAgnieszka/
+EffHistos_Reco12_39Mom_MagDown_0123.root
+EffHistos_Reco12_39Mom_MagUp_012.root
 ###
 
 #PID
@@ -66,6 +124,13 @@ EffHistos_Reco12_39Mom_Proton_MagDown_TightCuts.root
 EffHistos_Reco12_39Mom_MagDown_0123.root
 EffHistos_Reco12_39Mom_MagUp_012.root
 ###
+
+#PID2
+/afs/cern.ch/user/l/lcarson/public/ForAgnieszka/
+EffHistos_Reco12_39Mom_MagDown_45678.root
+EffHistos_Reco12_39Mom_MagUp_3456.root
+###
+
 
 #PID Dsp
 /afs/cern.ch/user/l/lcarson/public/ForAgnieszka/
@@ -77,4 +142,16 @@ EffHistos_Reco12_39Mom_Proton_MagDown_DLLpDLLpK.root
 /afs/cern.ch/user/l/lcarson/public/ForAgnieszka/
 EffHistos_Reco12_36Mom_Proton_MagDown_DLL.root
 EffHistos_Reco12_36Mom_Proton_MagUp_DLL.root
+###
+
+#RatioDataMC2D
+/afs/cern.ch/work/a/adudziak/public/workspace/
+MomVsnTr_Comp_DPi_Down_hist.root
+MomVsnTr_Comp_DPi_Up_hist.root
+###
+
+#RatioDataMC3D
+/afs/cern.ch/work/a/adudziak/public/workspace/
+PtVsnTrVsP_Comp_DPi_Down_hist.root
+PtVsnTrVsP_Comp_DPi_Up_hist.root
 ###

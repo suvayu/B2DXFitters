@@ -51,6 +51,7 @@
 #include "B2DXFitters/GeneralUtils.h"
 #include "B2DXFitters/SFitUtils.h"
 #include "B2DXFitters/MassFitUtils.h"
+#include "B2DXFitters/WeightingUtils.h"
 #include "B2DXFitters/KinHack.h"
 
 #include "B2DXFitters/RooGeneralisedSmearingBase.h"
@@ -69,5 +70,7 @@ template class std::pair<std::string,RooAbsData*>;
 #include "B2DXFitters/DecRateCoeff.h"
 #include "B2DXFitters/FinalStateChargePdf.h"
 #include "B2DXFitters/TaggingCat.h"
+
+#include "B2DXFitters/RooCruijff.h"
 
 #endif // DICT_B2DXFITTERSDICT_H

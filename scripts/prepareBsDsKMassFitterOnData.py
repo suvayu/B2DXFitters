@@ -43,7 +43,7 @@ saveName      = 'work_'
 
 
 #------------------------------------------------------------------------------
-def prepareBsDsKMassFitterOnData( debug, mVar, tVar, tagVar, tagOmegaVar, idVar, mProbVar, save, OmegaPdf, TagTool, configName ) : 
+def prepareBsDsKMassFitterOnData( debug, mVar, mdVar, tVar, tagVar, tagOmegaVar, idVar, mProbVar, save, OmegaPdf, TagTool, configName ) : 
 
     # Get the configuration file
     myconfigfilegrabber = __import__(configName,fromlist=['getconfig']).getconfig
@@ -61,6 +61,7 @@ def prepareBsDsKMassFitterOnData( debug, mVar, tVar, tagVar, tagOmegaVar, idVar,
             
 
     mVarTS = TString(mVar)
+    mdVarTS = TString(mdVar)
     tVarTS = TString(tVar)
     tagVarTS = TString(tagVar)
     tagOmegaVarTS = TString(tagOmegaVar)
@@ -76,111 +77,160 @@ def prepareBsDsKMassFitterOnData( debug, mVar, tVar, tagVar, tagOmegaVar, idVar,
     else:
         tagTool = true
                              
-    workspace = MassFitUtils.ObtainData(myconfigfile["dataName"] ,TString("#BsK kkpi"),
+    workspace = MassFitUtils.ObtainData(TString(myconfigfile["dataName"]) ,TString("#BsDsK KKPi NonRes"),
                                         myconfigfile["PIDBach"],
                                         myconfigfile["PDown"], myconfigfile["PUp"],
-                                        myconfigfile["BDTG"],
+                                        myconfigfile["BDTGDown"], myconfigfile["BDTGUp"],
                                         myconfigfile["DMassDown"], myconfigfile["DMassUp"],
                                         myconfigfile["BMassDown"], myconfigfile["BMassUp"],
                                         myconfigfile["TimeDown"], myconfigfile["TimeUp"],
-                                        mVarTS, tVarTS, tagVarTS,
+                                        mVarTS, mdVarTS, tVarTS, tagVarTS,
                                         tagOmegaVarTS, idVarTS, mProbVarTS,
-                                        "BsDsK",tagTool,
+                                        TString("BsDsK"),tagTool,
                                         NULL,
                                         debug)
 
-    workspace = MassFitUtils.ObtainData(myconfigfile["dataName"], TString("#BsK kpipi"),
+    workspace = MassFitUtils.ObtainData(TString(myconfigfile["dataName"]) ,TString("#BsDsK KKPi KstK"),
                                         myconfigfile["PIDBach"],
                                         myconfigfile["PDown"], myconfigfile["PUp"],
-                                        myconfigfile["BDTG"],
+                                        myconfigfile["BDTGDown"], myconfigfile["BDTGUp"],
                                         myconfigfile["DMassDown"], myconfigfile["DMassUp"],
                                         myconfigfile["BMassDown"], myconfigfile["BMassUp"],
                                         myconfigfile["TimeDown"], myconfigfile["TimeUp"],
-                                        mVarTS, tVarTS, tagVarTS,
+                                        mVarTS, mdVarTS, tVarTS, tagVarTS,
                                         tagOmegaVarTS, idVarTS, mProbVarTS,
-                                        "BsDsK",tagTool,
-                                        workspace,
+                                        TString("BsDsK"),tagTool,
+                                        NULL,
                                         debug)
     
-    workspace = MassFitUtils.ObtainData(myconfigfile["dataName"], TString("#BsK pipipi"),
+    workspace = MassFitUtils.ObtainData(TString(myconfigfile["dataName"]) ,TString("#BsDsK KKPi PhiPi"),
                                         myconfigfile["PIDBach"],
                                         myconfigfile["PDown"], myconfigfile["PUp"],
-                                        myconfigfile["BDTG"],
+                                        myconfigfile["BDTGDown"], myconfigfile["BDTGUp"],
                                         myconfigfile["DMassDown"], myconfigfile["DMassUp"],
                                         myconfigfile["BMassDown"], myconfigfile["BMassUp"],
                                         myconfigfile["TimeDown"], myconfigfile["TimeUp"],
-                                        mVarTS, tVarTS, tagVarTS,
+                                        mVarTS, mdVarTS, tVarTS, tagVarTS,
                                         tagOmegaVarTS, idVarTS, mProbVarTS,
-                                        "BsDsK",tagTool,
+                                        TString("BsDsK"),tagTool,
+                                        NULL,
+                                        debug)
+    
+       
+
+    workspace = MassFitUtils.ObtainData(TString(myconfigfile["dataName"]), TString("#BsDsK KPiPi"),
+                                        myconfigfile["PIDBach"],
+                                        myconfigfile["PDown"], myconfigfile["PUp"],
+                                        myconfigfile["BDTGDown"], myconfigfile["BDTGUp"],
+                                        myconfigfile["DMassDown"], myconfigfile["DMassUp"],
+                                        myconfigfile["BMassDown"], myconfigfile["BMassUp"],
+                                        myconfigfile["TimeDown"], myconfigfile["TimeUp"],
+                                        mVarTS, mdVarTS, tVarTS, tagVarTS,
+                                        tagOmegaVarTS, idVarTS, mProbVarTS,
+                                        TString("BsDsK"),tagTool,
                                         workspace,
                                         debug)
     
-    workspace = MassFitUtils.ObtainMissForBsDsK(myconfigfile["dataName"],TString("#BsPi kkpi"),
+    workspace = MassFitUtils.ObtainData(TString(myconfigfile["dataName"]), TString("#BsDsK PiPiPi"),
+                                        myconfigfile["PIDBach"],
+                                        myconfigfile["PDown"], myconfigfile["PUp"],
+                                        myconfigfile["BDTGDown"], myconfigfile["BDTGUp"],
+                                        myconfigfile["DMassDown"], myconfigfile["DMassUp"],
+                                        myconfigfile["BMassDown"], myconfigfile["BMassUp"],
+                                        myconfigfile["TimeDown"], myconfigfile["TimeUp"],
+                                        mVarTS, mdVarTS, tVarTS, tagVarTS,
+                                        tagOmegaVarTS, idVarTS, mProbVarTS,
+                                        TString("BsDsK"),tagTool,
+                                        workspace,
+                                        debug)
+    
+    workspace = MassFitUtils.ObtainMissForBsDsK(TString(myconfigfile["dataName"]),TString("#BsDsPi KKPi NonRes"),
                                                 myconfigfile["PIDChild"],
                                                 myconfigfile["PDown"], myconfigfile["PUp"],
-                                                myconfigfile["BDTG"],
+                                                myconfigfile["BDTGDown"], myconfigfile["BDTGUp"],
                                                 myconfigfile["DMassDown"], myconfigfile["DMassUp"],
                                                 myconfigfile["BMassDown"], myconfigfile["BMassUp"],
-                                                mVarTS, mProbVarTS,
-                                                "BsDsPi", workspace, tagOmega, debug)
-    
-    workspace = MassFitUtils.ObtainMissForBsDsK(myconfigfile["dataName"],TString("#BsPi kpipi"),
+                                                mVarTS, mdVarTS, mProbVarTS,
+                                                TString("BsDsPi"), workspace, tagOmega, debug)
+
+    workspace = MassFitUtils.ObtainMissForBsDsK(TString(myconfigfile["dataName"]),TString("#BsDsPi KKPi KstK"),
                                                 myconfigfile["PIDChild"],
                                                 myconfigfile["PDown"], myconfigfile["PUp"],
-                                                myconfigfile["BDTG"],
+                                                myconfigfile["BDTGDown"], myconfigfile["BDTGUp"],
                                                 myconfigfile["DMassDown"], myconfigfile["DMassUp"],
                                                 myconfigfile["BMassDown"], myconfigfile["BMassUp"],
-                                                mVarTS, mProbVarTS,
-                                                "BsDsPi",workspace, tagOmega, debug)
-    
-    workspace = MassFitUtils.ObtainMissForBsDsK(myconfigfile["dataName"],TString("#BsPi pipipi"),
+                                                mVarTS, mdVarTS, mProbVarTS,
+                                                TString("BsDsPi"), workspace, tagOmega, debug)
+
+    workspace = MassFitUtils.ObtainMissForBsDsK(TString(myconfigfile["dataName"]),TString("#BsDsPi KKPi PhiPi"),
                                                 myconfigfile["PIDChild"],
                                                 myconfigfile["PDown"], myconfigfile["PUp"],
-                                                myconfigfile["BDTG"],
+                                                myconfigfile["BDTGDown"], myconfigfile["BDTGUp"],
                                                 myconfigfile["DMassDown"], myconfigfile["DMassUp"],
                                                 myconfigfile["BMassDown"], myconfigfile["BMassUp"],
-                                                mVarTS, mProbVarTS,
-                                                "BsDsPi",workspace, tagOmega, debug)
+                                                mVarTS, mdVarTS, mProbVarTS,
+                                                TString("BsDsPi"), workspace, tagOmega, debug)
     
-    workspace = MassFitUtils.ObtainSpecBack(myconfigfile["dataName"], TString("#MC FileName MD"), TString("#MC TreeName"),
+    
+    workspace = MassFitUtils.ObtainMissForBsDsK(TString(myconfigfile["dataName"]),TString("#BsDsPi KPiPi"),
+                                                myconfigfile["PIDChild"],
+                                                myconfigfile["PDown"], myconfigfile["PUp"],
+                                                myconfigfile["BDTGDown"], myconfigfile["BDTGUp"],
+                                                myconfigfile["DMassDown"], myconfigfile["DMassUp"],
+                                                myconfigfile["BMassDown"], myconfigfile["BMassUp"],
+                                                mVarTS, mdVarTS, mProbVarTS,
+                                                TString("BsDsPi"),workspace, tagOmega, debug)
+    
+    workspace = MassFitUtils.ObtainMissForBsDsK(TString(myconfigfile["dataName"]),TString("#BsDsPi PiPiPi"),
+                                                myconfigfile["PIDChild"],
+                                                myconfigfile["PDown"], myconfigfile["PUp"],
+                                                myconfigfile["BDTGDown"], myconfigfile["BDTGUp"],
+                                                myconfigfile["DMassDown"], myconfigfile["DMassUp"],
+                                                myconfigfile["BMassDown"], myconfigfile["BMassUp"],
+                                                mVarTS, mdVarTS, mProbVarTS,
+                                                TString("BsDsPi"),workspace, tagOmega, debug)
+    
+    workspace = MassFitUtils.ObtainSpecBack(TString(myconfigfile["dataName"]), TString("#MC FileName MD"), TString("#MC TreeName"),
                                             myconfigfile["PIDBach"], myconfigfile["PIDChild"], myconfigfile["PIDProton"],
                                             myconfigfile["PDown"], myconfigfile["PUp"],
-                                            myconfigfile["BDTG"],
+                                            myconfigfile["BDTGDown"], myconfigfile["BDTGUp"],
                                             myconfigfile["DMassDown"], myconfigfile["DMassUp"],
                                             myconfigfile["BMassDown"], myconfigfile["BMassUp"],
-                                            mVarTS, mProbVarTS,
+                                            mVarTS, mdVarTS, mProbVarTS,
                                             TString("BsDsK"),
                                             workspace, false, tagOmega, debug)
 
 
-    workspace = MassFitUtils.ObtainSpecBack(myconfigfile["dataName"], TString("#MC FileName MU"), TString("#MC TreeName"),
+    workspace = MassFitUtils.ObtainSpecBack(TString(myconfigfile["dataName"]), TString("#MC FileName MU"), TString("#MC TreeName"),
                                             myconfigfile["PIDBach"], myconfigfile["PIDChild"], myconfigfile["PIDProton"],
                                             myconfigfile["PDown"], myconfigfile["PUp"],
-                                            myconfigfile["BDTG"],
+                                            myconfigfile["BDTGDown"], myconfigfile["BDTGUp"],
                                             myconfigfile["DMassDown"], myconfigfile["DMassUp"],
                                             myconfigfile["BMassDown"], myconfigfile["BMassUp"],
-                                            mVarTS, mProbVarTS,
+                                            mVarTS, mdVarTS, mProbVarTS,
                                             TString("BsDsK"),
                                             workspace, false, tagOmega, debug)
     
-    workspace = MassFitUtils.CreatePdfSpecBackground(myconfigfile["dataName"], TString("#MC FileName MD"),
-                                                     myconfigfile["dataName"], TString("#MC FileName MU"),
+    workspace = MassFitUtils.CreatePdfSpecBackground(TString(myconfigfile["dataName"]), TString("#MC FileName MD"),
+                                                     TString(myconfigfile["dataName"]), TString("#MC FileName MU"),
                                                      mVarTS,
                                                      myconfigfile["BMassDown"], myconfigfile["BMassUp"],
                                                      workspace, tagOmega, debug)
     
     
-    workspace = MassFitUtils.ObtainSignal(myconfigfile["dataName"], TString("#Signal BsDsK"),
+    workspace = MassFitUtils.ObtainSignal(TString(myconfigfile["dataName"]), TString("#Signal BsDsK"),
                                           myconfigfile["PIDBach"],
                                           myconfigfile["PDown"], myconfigfile["PUp"],
-                                          myconfigfile["BDTG"],
+                                          myconfigfile["BDTGDown"], myconfigfile["BDTGUp"],
                                           myconfigfile["DMassDown"], myconfigfile["DMassUp"],
                                           myconfigfile["BMassDown"], myconfigfile["BMassUp"],
                                           myconfigfile["TimeDown"], myconfigfile["TimeUp"],
-                                          mVarTS, tVarTS, tagVarTS,
+                                          mVarTS, mdVarTS, tVarTS, tagVarTS,
                                           tagOmegaVarTS, idVarTS,
                                           mProbVarTS,
-                                          TString("BsDsK"), workspace, debug)
+                                          TString("BsDsK"),
+                                          true, false,
+                                          workspace, debug)
     
 #    workspace = MassFitUtils.ObtainSignal(myconfigfile["dataName"], TString("#Signal BdDsK"),
 #                                          myconfigfile["PIDBach"],
@@ -225,6 +275,11 @@ parser.add_option( '--mvar',
                    default = 'lab0_MassFitConsD_M',
                    help = 'set observable '
                    )   
+parser.add_option( '--mdvar',
+                   dest = 'mdvar',
+                   default = 'lab2_MM',
+                   help = 'set observable '
+                   )
 parser.add_option( '--tvar',
                    dest = 'tvar',
                    default = 'lab0_LifetimeFit_ctau',
@@ -277,7 +332,7 @@ if __name__ == '__main__' :
     import sys
     sys.path.append("../data/")
         
-    prepareBsDsKMassFitterOnData(  options.debug, options.mvar, options.tvar, \
+    prepareBsDsKMassFitterOnData(  options.debug, options.mvar, options.mdvar, options.tvar, \
                                    options.tagvar, options.tagomegavar, options.idvar,\
                                    options.ProbVar, options.save, options.tagOmegaPdf,
                                    options.tagTool, options.configName)

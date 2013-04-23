@@ -35,10 +35,13 @@
 #include "RooMinuit.h"
 #include "RooFitResult.h"
 #include "TH2F.h"
+#include "TH3F.h"
 #include "TRandom3.h"
 #include "RooHistPdf.h"
 #include "RooDataHist.h"
 #include "RooCategory.h"
+#include "TStyle.h"
+#include "TLatex.h"
 // B2DXFitters includes
 #include "B2DXFitters/GeneralUtils.h"
 #include "B2DXFitters/KinHack.h"
@@ -142,6 +145,139 @@ namespace GeneralUtils {
 	if ( debug == true) std::cout<<"Cannot take a histogram"<<std::endl; 
 	return NULL;
       }
+  }
+
+  TH2F* Read2DHist( std::vector <std::string> &FilePID,
+		    TString &nameHist,
+		    int sample,
+		    bool debug
+		    )
+  {
+    if ( debug == true)
+      {
+	std::cout<<"[INFO] ==> GeneralUtils::ReadPIDHist(...)"<<std::endl;
+      }
+    std::string name;
+    int i=sample;
+    TH2F* hist = NULL;
+    TFile* file = NULL;
+    name = FilePID[0]+FilePID[i+1];
+    file = TFile::Open(name.c_str());
+    hist = (TH2F*)file->Get(nameHist.Data());
+    if( hist != NULL )
+      {
+        if ( debug == true) std::cout<<"Took histogram: "<<hist->GetName()<<std::endl;
+        return hist;
+      }
+    else
+      {
+        if ( debug == true) std::cout<<"Cannot take a histogram"<<std::endl;
+        return NULL;
+      }
+  }
+
+  TH3F* Read3DHist( std::vector <std::string> &FilePID,
+                    TString &nameHist,
+                    int sample,
+                    bool debug
+                    )
+  {
+    if ( debug == true)
+      {
+	std::cout<<"[INFO] ==> GeneralUtils::ReadPIDHist(...)"<<std::endl;
+      }
+    std::string name;
+    int i=sample;
+    TH3F* hist = NULL;
+    TFile* file = NULL;
+    name = FilePID[0]+FilePID[i+1];
+    file = TFile::Open(name.c_str());
+    hist = (TH3F*)file->Get(nameHist.Data());
+    if( hist != NULL )
+      {
+        if ( debug == true) std::cout<<"Took histogram: "<<hist->GetName()<<std::endl;
+        return hist;
+      }
+    else
+      {
+        if ( debug == true) std::cout<<"Cannot take a histogram"<<std::endl;
+        return NULL;
+      }
+  }
+
+
+  void Save2DHist(TH2F* hist, TString& ext)
+  {
+    TString nameHist = hist->GetName();
+    TString save = "Plot/"+nameHist+"."+ext;
+    TCanvas *rat = new TCanvas("can","",10,10,800,600);
+    TStyle *style = new TStyle();
+    style->SetPalette(1);
+    rat->SetFillColor(0);
+    rat->cd();
+    hist->Draw("CONT4Z");
+    rat->Update();
+    rat->SaveAs(save.Data());
+  }
+
+  void Save3DHist(TH3F* hist, TString& ext)
+  {
+    TString nameHist = hist->GetName();
+    TString save = "Plot/"+nameHist+"."+ext;
+    TCanvas *rat = new TCanvas("can","",10,10,800,600);
+    TStyle *style = new TStyle();
+    style->SetPalette(1);
+    rat->SetFillColor(0);
+    rat->cd();
+    hist->Draw("BOX");
+    rat->Update();
+    rat->SaveAs(save.Data());
+  }
+
+
+  void Save2DComparison(TH2F* hist1, TString& l1, 
+			TH2F* hist2, TString& l2, 
+			TH2F* hist3, TString& l3, 
+			TString& ext)
+  {
+    TLatex* legend1 = new TLatex();
+    legend1->SetTextSize(0.06);
+    legend1->SetTextColor(0);
+    legend1->SetTextFont(132);
+
+    TLatex* legend2 = new TLatex();
+    legend2->SetTextSize(0.06);
+    legend2->SetTextColor(0);
+    legend2->SetTextFont(132);
+
+    TLatex* legend3 = new TLatex();
+    legend3->SetTextSize(0.06);
+    legend3->SetTextColor(0);
+    legend3->SetTextFont(132);
+
+    TStyle *style = new TStyle();
+    style->SetPalette(1);
+    //style->SetOptLogz(1);
+
+    TString nameHist = hist1->GetName();
+    TString save = "Plot/"+nameHist+"_comp."+ext;
+    TCanvas *rat_RW = new TCanvas("ratio_RW","",10,10,1200,400);
+    rat_RW->SetFillColor(0);
+    rat_RW->Divide(3,1);
+    rat_RW->cd(1);
+    hist1->Draw("CONT4Z");
+    legend1->DrawLatex(-0.5, 0.45,l1.Data());
+    rat_RW->cd(2);
+    hist2->Draw("CONT4Z");
+    legend2->DrawLatex(-0.5, 0.45,l2.Data());
+    rat_RW->cd(3);
+    style->SetOptLogz(1);
+    hist3->Draw("CONT4Z");
+    legend3->DrawLatex(-0.5, 0.45,l3.Data());
+    ///legend2->Draw("same");
+    rat_RW->Update();
+    rat_RW->SaveAs(save.Data());
+    
   }
 
   //===========================================================================
@@ -468,8 +604,11 @@ namespace GeneralUtils {
     frame = (RooPlot*)mass->frame();
     name="frame_"+name2;
     frame->SetName(name.Data());
-    
-    dataSet->plotOn(frame, RooFit::MarkerColor(kRed));
+
+    if ( dataSet != NULL ) 
+      {
+	dataSet->plotOn(frame, RooFit::MarkerColor(kRed));
+      }
     pdf->plotOn(frame, RooFit::LineColor(kRed));
     frame->Draw();
 
@@ -564,7 +703,7 @@ namespace GeneralUtils {
     name3="Pdf_m_"+sample;
     name2= mode+name3;
     name="PhysBkg"+name2;
-    if (mode.Contains("Lb") || mistag == true )
+    if (mode.Contains("Lb") == true || mistag == true || mode.Contains("Bs2DsPi")==true || mode.Contains("BsDsPi") == true)
       {
 	pdfMC = new RooKeysPdf(name.Data(),name.Data(),*massMC,*dataSetMC,RooKeysPdf::MirrorBoth,1.5);
       }
@@ -692,11 +831,32 @@ namespace GeneralUtils {
       }
     else 
       { 
-	polarity = ""; 
+	polarity = "both"; 
       }
     if ( debug == true) std::cout<<"[INFO] Sample: "<<polarity<<std::endl;
     return polarity;
   }  
+
+  TString CheckPolarity(TString& check, bool debug)
+  {
+    TString polarity;
+    if (check.Contains("MD") == true  || check.Contains("down") == true || check.Contains("dw") == true || check.Contains("Down") == true || 
+	check.Contains("md") == true)
+      {
+        polarity = "down";
+      }
+    else if ( check.Contains("MU") == true || check.Contains("up") == true || check.Contains("Up") == true || check.Contains("mu") == true )
+      {
+        polarity = "up";
+      }
+    else
+      {
+        polarity = "both";
+      }
+    if ( debug == true) std::cout<<"[INFO] Sample: "<<polarity<<std::endl;
+    return polarity;
+  }
+
   
   //===========================================================================
   // Check D/Ds final state (kkpi,kpipi,pipipi) from check
@@ -723,7 +883,114 @@ namespace GeneralUtils {
     if ( debug == true) std::cout<<"[INFO] Sample: "<<dmode<<std::endl;
     return dmode;
   }
- 
 
+  TString CheckDMode(TString& check, bool debug)
+  {
+    TString dmode;
+    if (check.Contains("KKpi") == true  || check.Contains("KKPi") == true || check.Contains("kkpi") == true )
+      {
+	dmode = "kkpi";
+      }
+    else if ( check.Contains("Kpipi") == true || check.Contains("KPiPi") == true || check.Contains("kpipi") == true)
+      {
+        dmode = "kpipi";
+      }
+    else if ( check.Contains("pipipi") == true || check.Contains("PiPiPi") == true)
+      {
+        dmode = "pipipi";
+      }
+    else
+      {
+	dmode = "";
+      }
+    if ( debug == true) std::cout<<"[INFO] Sample: "<<dmode<<std::endl;
+    return dmode;
+  }
+
+  TString CheckKKPiMode(std::string& check, bool debug)
+  {
+    TString dmode;
+    if (check.find("nonRes") != std::string::npos  || check.find("NonRes") != std::string::npos 
+	|| check.find("nonres") != std::string::npos || check.find("nonRes") != std::string::npos )
+      {
+        dmode = "nonres";
+      }
+    else if ( check.find("PhiPi") != std::string::npos || check.find("phipi") != std::string::npos 
+	      || check.find("Phipi") != std::string::npos || check.find("phiPi") != std::string::npos)
+      {
+        dmode = "phipi";
+      }
+    else if ( check.find("KstK") != std::string::npos || check.find("kstk") != std::string::npos ||
+	      check.find("Kstk") != std::string::npos || check.find("kstK") != std::string::npos)
+      {
+        dmode = "kstk";
+      }
+    else
+      {
+        dmode = "";
+      }
+    if ( debug == true) std::cout<<"[INFO] Sample: "<<dmode<<std::endl;
+    return dmode;
+  }
+
+
+  TString CheckKKPiMode(TString& check, bool debug)
+  {
+    TString kkpimode;
+    if (check.Contains("nonres") == true  || check.Contains("NonRes") == true || check.Contains("nonRes") == true || check.Contains("Nonres") == true )
+      {
+        kkpimode = "nonres";
+      }
+    else if ( check.Contains("phipi") == true || check.Contains("Phipi") == true || check.Contains("PhiPi") == true || check.Contains("phiPi") == true)
+      {
+        kkpimode = "phipi";
+      }
+    else if ( check.Contains("kstk") == true || check.Contains("KstK") == true || check.Contains("kstK") == true || check.Contains("Kstk") == true)
+      {
+        kkpimode = "kstk";
+      }
+    else
+      {
+	kkpimode = "";
+      }
+    if ( debug == true) std::cout<<"[INFO] Sample: "<<kkpimode<<std::endl;
+    return kkpimode;
+  }
+
+
+  
+  TString GetLabel(TString& mode, bool debug)
+  {
+    TString Bs;
+    TString ar = "#rightarrow";
+    TString Ds;
+    TString Bach;
+    TString sample;
+
+    sample = CheckPolarity(mode, debug);
+
+    if( mode.Contains("Bs") == true) { Bs = "B_{s}"; }
+    else if ( mode.Contains("Bd") == true || mode.Contains("DPi") == true){ Bs="B_{d}"; }
+    else if ( mode.Contains("Lb") == true){ Bs="#Lambda_{b}";}
+    else { Bs="Comb";}
+
+    if ( mode.Contains("Ds") == true  && mode.Contains("Dsst") != true) { Ds = "D_{s}";}
+    else if (mode.Contains("Dsst") == true ) { Ds ="D^{*}_{s}";}
+    else if (mode.Contains("D")==true && mode.Contains("Ds") != true) {Ds = "D";}
+    else if (mode.Contains("Lc") == true ) { Ds = "#Lambda_{c}";}
+    else { Ds ="bkg";}
+
+    if ( mode.Contains("Pi") == true ) { Bach = "#pi"; }
+    else if( mode.Contains("p") == true ) {Bach = "p";}
+    else if( mode.Contains("K") == true && mode.Contains("Kst")!=true ) {Bach = "K";}
+    else if( mode.Contains("Kst") == true) {Bach ="K^{*}";}
+    else if( mode.Contains("Rho") == true) {Bach = "#rho";}
+    else { Bach ="";}
+
+    TString tex;
+    if ( mode.Contains("Comb") == true ) { tex = Bs+" "+Ds+" "+sample; } else { tex = Bs+ar+Ds+Bach+" "+sample;}
+    
+    return tex;
+  }
 
 } //end of namespace

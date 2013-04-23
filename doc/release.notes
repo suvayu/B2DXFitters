@@ -4,6 +4,42 @@
 ! Purpose     : RooFit-based fitters for B -> D X
 !-----------------------------------------------------------------------------
 
+! 2013-04-23 - Agnieszka Dziurda
+ - Huge update for last half year of work
+ - Add Multidimensional fitter (MDFitter) to Bs, Ds and PIDK variables,
+   now we also fit to 5 Ds final states: NonRes, KstK, PhiPi, KPiPi and PiPiPi
+   - new namespace WeightingUtils for weighting calibration sample to look like MC
+   - new class RooCruijff for fitting signal shapes
+   - update in Bs2Dsh2011TDAnaModels.cxx, new functions
+   - update in GeneralUtils.cxx, some new functions
+   - update in MassFitUtils.cxx, adapt to MDFitter and new functions
+   - update in SFitUtils.cxx, some minor changes
+ - config files:
+   - switch to new data (paths to old files are still in config files)
+   - partially switch to new MC
+   - a lot of new confing files in B2DXFitters/data for different BDTG cuts,
+     fitting signal, combinatorial background and so on
+   - update all config_*txt files
+ - scripts:
+   - fitCombBkg.py, plotCombBkg.py - scripts for fitting combinatorial background
+   - fitLbLcPi.py, plotLbLcPi.py - fit Lc for MDFitter
+   - fitSignal.py, plotSignal.py - fit signal for DPi, DsPi, DsK
+   - expectedEvents.py - update
+   - prepareBsDsKMassFitterOnData3D5M.py, prepareBsDsPiMassFitterOnData3D5M.py
+      prepare workspace for MDFitter
+   - runBsDsKMassFitterOnData3D5M.py, runBsDsPiMassFitterOnData3D5M.py
+      fit MDFitter
+   - plotBs2DsKMassModels5M.py, plotBs2DsPiMassModels5M.py
+      plot MDFitter
+   - runBsDsKMassFitterOnData.py, runBsDsPiMassFitterOnData.py
+      adapt to new structure
+ - csh scripts:
+   - a lot of scripts to run MDFitter in B2DXFitters/scripts/Csh,
+     please look there if You don't know how to run something,
+     there is an answer!
+ - some examples for DsK and DsPi workspaces are:
+   /afs/cern.ch/work/a/adudziak/public/workspace/MDFitter/
+
 ! 2013-04-22 - Manuel Tobias Schiller
  - scripts/runBs2DsKCPAsymmObsFitter-cFit.py: disable mistag histogram
    interpolation for the mistag PDFs (this causes too many fit failures)

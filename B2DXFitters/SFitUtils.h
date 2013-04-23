@@ -76,6 +76,7 @@ namespace SFitUtils {
   //===========================================================================
   RooDataSet* CopyDataForToys(TTree* tree,
                               TString& mVar,
+			      TString& mDVar,
                               TString& tVar,
                               TString& tagVar,
                               TString& tagOmegaVar,
@@ -84,6 +85,23 @@ namespace SFitUtils {
                               TString& dataName,
 			      bool        debug = false);
 
+
+  RooWorkspace* ReadLbLcPiFromSWeights(TString& pathFile,
+				       TString& treeName,
+				       double P_down, double P_up,
+				       double PT_down, double PT_up,
+				       double nTr_down, double nTr_up,
+				       double PID_down, double PID_up,
+				       TString& mVar,
+				       TString& mDVar,
+				       TString& pVar,
+				       TString& ptVar,
+				       TString& nTrVar,
+				       TString& pidVar,
+				       RooWorkspace* workspace, 
+				       bool        debug = false
+				       );
+  
 
 } // end of namespace
 

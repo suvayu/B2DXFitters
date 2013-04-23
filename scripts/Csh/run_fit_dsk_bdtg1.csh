@@ -1,0 +1,1 @@
+python runBsDsKMassFitterOnData3D5M.py --debug --merge -m both -o 3modeskkpi --configName Bs2DsKConfigForNominalMassFitBDTG1 --fileName work_dsk_pid_53005800_PIDK5_5M_BDTG1_2.root --fileNameID work_dsk_pid_53005800_PIDK5_BDTG1_2.root -s WS_Mass_DsK_5M_BDTG1.root

@@ -95,10 +95,17 @@ namespace SFitUtils {
     TTree* treeSW = ReadTreeMC(pathFile.Data(),treeName.Data(), debug);
      
     RooRealVar* lab0_TAU = new RooRealVar(tVar.Data(),tVar.Data(),1.,time_down,time_up);
+    RooRealVar* lab0_MM = new RooRealVar("lab0_MassFitConsD_M","lab0_MassFitConsD_M",5100, 5800);
     RooRealVar* lab0_TAG = new RooRealVar(tagName.Data(),tagName.Data(),0.,-1.,1.);
     RooRealVar* lab0_TAGOMEGA = new RooRealVar(tagOmegaVar.Data(),tagOmegaVar.Data(),0.,0.,1.);
     RooRealVar* lab1_ID = new RooRealVar(idVar.Data(),idVar.Data(),1.,-1.,1.);           
- 
+    RooRealVar* nTracks = new RooRealVar("nTracks","nTracks",0,1000);
+    RooRealVar* lab1_P = new RooRealVar("lab1_P","lab1_P",0,650000);
+    RooRealVar* lab1_PIDK = new RooRealVar("lab1_PIDK","lab1_PIDK",-150,150);
+    RooRealVar* lab1_PIDp = new RooRealVar("lab1_PIDp","lab1_PIDp",-150,150);
+    RooRealVar* lab1_PT = new RooRealVar("lab1_PT","lab1_PT",0,45000);
+
+
     std::vector <TString> s;
     s.push_back("down_kkpi");
     s.push_back("down_kpipi");
@@ -137,12 +144,25 @@ namespace SFitUtils {
 
     RooDataSet*  dataSet;
     RooRealVar*  weights;
+
+    RooArgSet* obs = new RooArgSet(*lab0_TAU,
+                                   *lab0_TAG,
+				   *lab0_TAGOMEGA, 
+				   *lab1_ID);
+    obs->add(*lab1_P);
+    obs->add(*lab1_PT);
+    obs->add(*lab1_PIDp);
+    obs->add(*lab1_PIDK);
+    obs->add(*nTracks);
+    obs->add(*lab0_MM);
+
     
     TString namew = "sWeights";
     weights = new RooRealVar(namew.Data(), namew.Data(), -2.0, 2.0 );  // create weights //
+    obs->add(*weights);
 
     dataSet = new RooDataSet(   cat.Data(), cat.Data(),
-                                RooArgSet(*lab0_TAU,*lab0_TAG,*lab0_TAGOMEGA,*lab1_ID,*weights),
+                                *obs,
                                 namew.Data());  // create data set //
     
 
@@ -170,11 +190,21 @@ namespace SFitUtils {
     Double_t tag, ID;
     Double_t tagweight;
     Double_t sw[6];
+    Double_t p, pt;
+    Double_t nTr;
+    Double_t PIDK, PIDp;
+    
     treeSW->SetBranchAddress(tVar.Data(), &tau);
     treeSW->SetBranchAddress(tagName.Data(), &tag);
     treeSW->SetBranchAddress(tagOmegaVar.Data(), &tagweight);
     treeSW->SetBranchAddress("lab1_ID", &ID);
     treeSW->SetBranchAddress("lab0_MassFitConsD_M", &mass);
+    treeSW->SetBranchAddress("lab1_P", &p);
+    treeSW->SetBranchAddress("nTracks",&nTr);
+    treeSW->SetBranchAddress("lab1_PIDK",&PIDK);
+    treeSW->SetBranchAddress("lab1_PIDp",&PIDp);
+    treeSW->SetBranchAddress("lab1_PT", &pt);
+    
     for (int i = 0; i<6; i++)
       {
 	TString swname = "nSig_"+s[i]+"_Evts_sw";
@@ -192,6 +222,12 @@ namespace SFitUtils {
       if (tagweight > 0.5) tagweight = 0.5;
       lab0_TAG->setVal(tag);
       lab0_TAGOMEGA->setVal(tagweight);
+      lab1_P->setVal(p);
+      lab1_PT->setVal(pt);
+      nTracks->setVal(nTr);
+      lab1_PIDK->setVal(PIDK);
+      lab1_PIDp->setVal(PIDp);  
+      lab0_MM->setVal(mass);
       if (ID > 0) {
          lab1_ID->setVal(1.);
       } else {
@@ -202,10 +238,8 @@ namespace SFitUtils {
 	      sum_sw += sw[i];
 	  }
       weights->setVal(sum_sw);
+      dataSet->add(*obs,sum_sw,0);
 
-      dataSet->add(RooArgSet(*lab0_TAU,*lab0_TAG,*lab0_TAGOMEGA,*lab1_ID,*weights),sum_sw,0);
-
-      dataSet->add(RooArgSet(*lab0_TAU,*lab0_TAG,*lab0_TAGOMEGA,*lab1_ID,*weights),sum_sw,0);
       if( tag == 0 )
         {
           if( ID > 0 )
@@ -254,7 +288,7 @@ namespace SFitUtils {
 	} else { std::cout<<"Error in create dataset"<<std::endl; }
     }
     TString mode ="";
-    SaveDataSet(dataSet, lab0_TAU, cat, mode,debug);
+    //SaveDataSet(dataSet, lab0_MM, cat, mode,debug);
     saveDataTemplateToFile( dataSet, NULL, lab0_TAU,
 			    mode.Data(), "root", cat.Data(), debug );
 	//for (int jk = 0; jk < dataSet->numEntries(); jk++){
@@ -262,6 +296,7 @@ namespace SFitUtils {
 	//std::cout << dataSet->weight() << std::endl;
 	//}
     work->import(*dataSet);
+    //work->import(*weights);
     for (int i = 0; i< 6; i++)
       {
 	work->import(*dataSetContr[i]);
@@ -399,6 +434,7 @@ namespace SFitUtils {
 
   RooDataSet* CopyDataForToys(TTree* tree, 
 			      TString& mVar, 
+			      TString& mDVar,
 			      TString& tVar, 
 			      TString& tagVar, 
 			      TString& tagOmegaVar,
@@ -410,7 +446,8 @@ namespace SFitUtils {
     if(debug == true) 
       {
 	std::cout<<"Name of tree: "<<tree->GetName()<<std::endl;
-	std::cout<<"Name of mass observable: "<<mVar<<std::endl;
+	std::cout<<"Name of B(s) mass observable: "<<mVar<<std::endl;
+	std::cout<<"Name of D(s) mass observable: "<<mDVar<<std::endl;
 	std::cout<<"Name of time observable: "<<tVar<<std::endl;
 	std::cout<<"Name of tag observable: "<<tagVar<<std::endl;
 	std::cout<<"Name of mistag observable: "<<tagOmegaVar<<std::endl;
@@ -424,21 +461,24 @@ namespace SFitUtils {
 
     
     RooRealVar* lab0_MM = new RooRealVar(mVar.Data(),mVar.Data(),5100, 5800);
+    RooRealVar* lab2_MM = new RooRealVar(mDVar.Data(),mDVar.Data(),1930, 2015);
     RooRealVar* lab0_TAU = new RooRealVar(tVar.Data(),tVar.Data(),0.,15.);
     RooRealVar* lab0_TAG = new RooRealVar(tagVar.Data(),tagVar.Data(),-2,2);
     RooRealVar* lab0_TAGOMEGA = new RooRealVar(tagOmegaVar.Data(),tagOmegaVar.Data(),0.,1.);
     RooRealVar* lab1_ID = new RooRealVar(idVar.Data(),idVar.Data(),-1000,1000);
     RooRealVar* lab0_TRUEID = new RooRealVar(trueIDVar.Data(),trueIDVar.Data(),0,100);
 
-    dataout = new RooDataSet(dataName.Data(),dataName.Data(),RooArgSet(*lab0_MM,*lab0_TAU,*lab0_TAG,*lab0_TAGOMEGA,*lab1_ID,*lab0_TRUEID ));
+    dataout = new RooDataSet(dataName.Data(),dataName.Data(),
+			     RooArgSet(*lab0_MM,*lab0_TAU,*lab0_TAG,*lab0_TAGOMEGA,*lab1_ID,*lab0_TRUEID,*lab2_MM));
 
-    Double_t lab0_MM3,lab0_TAU3;
+    Double_t lab0_MM3,lab0_TAU3, lab2_MM3;
     Int_t  lab0_TAG3;
     Double_t lab0_TAGOMEGA3, lab0_TRUEID3;
     Int_t lab1_ID3;
     
     
     tree->SetBranchAddress(mVar.Data(), &lab0_MM3);
+    tree->SetBranchAddress(mDVar.Data(), &lab2_MM3);
     tree->SetBranchAddress(tVar.Data(),&lab0_TAU3);
     tree->SetBranchAddress(tagVar.Data(),&lab0_TAG3);
     tree->SetBranchAddress(tagOmegaVar.Data(),&lab0_TAGOMEGA3);
@@ -450,13 +490,14 @@ namespace SFitUtils {
       tree->GetEntry(jentry);
 
       lab0_MM->setVal(lab0_MM3);
+      lab2_MM->setVal(lab2_MM3);
       lab0_TAU->setVal(lab0_TAU3);
       lab0_TAG->setVal(lab0_TAG3);
       lab0_TAGOMEGA->setVal(lab0_TAGOMEGA3);
       lab1_ID->setVal(lab1_ID3);
       lab0_TRUEID->setVal(lab0_TRUEID3);
 
-      dataout->add(RooArgSet(*lab0_MM,*lab0_TAU,*lab0_TAG,*lab0_TAGOMEGA,*lab1_ID,*lab0_TRUEID));
+      dataout->add(RooArgSet(*lab0_MM,*lab0_TAU,*lab0_TAG,*lab0_TAGOMEGA,*lab1_ID,*lab0_TRUEID,*lab2_MM));
     }
 
     if (debug == true) 
@@ -469,5 +510,128 @@ namespace SFitUtils {
     return dataout;
   }
 
+  RooWorkspace* ReadLbLcPiFromSWeights(TString& pathFile,
+                                       TString& treeName,
+				       double P_down, double P_up,
+				       double PT_down, double PT_up,
+                                       double nTr_down, double nTr_up,
+				       double PID_down,double PID_up,
+                                       TString& mVar,
+				       TString& mDVar,
+				       TString& pVar,
+				       TString& ptVar,
+				       TString& nTrVar,
+				       TString& pidVar,
+				       RooWorkspace* workspace, 
+                                       bool debug
+                                       )
+
+  {
+
+    RooAbsData::setDefaultStorageType(RooAbsData::Tree);
+
+    if ( debug == true)
+      {
+	std::cout << "[INFO] ==> SFitUtils::ReadLbLcPiFromSWeights(...)."
+                  << " Obtain dataSets from sWeights for LbLcPi"
+                  << std::endl;
+	std::cout << "Name of path file: " << pathFile << std::endl;
+	std::cout << "Name of tree name: " << treeName << std::endl;
+	std::cout << "Name of Lb: " << mVar << std::endl;
+	std::cout << "Name of Lc: " << mDVar << std::endl;
+	std::cout << "Name of p: " << pVar << " in range ("<<P_down<<","<<P_up<<")"<<std::endl;
+	std::cout << "Name of pt: " << ptVar << " in range ("<<PT_down<<","<<PT_up<<")"<<std::endl;
+	std::cout << "Name of nTr: " << nTrVar <<" in range ("<<nTr_down<<","<<nTr_up<<")"<<std::endl;
+	std::cout << "Name of PIDK: " << pidVar <<" in range ("<<PID_down<<","<<PID_up<<")"<<std::endl;
+	
+      }
+
+    RooWorkspace* work = NULL;
+    if (workspace == NULL){ work =  new RooWorkspace("workspace","workspace");}
+    else {work = workspace; }
+
+    Double_t Dmass_down = 2200;
+    Double_t Dmass_up = 2380;
+    Double_t Bmass_down = 5400;
+    Double_t Bmass_up = 5800;
+    RooRealVar* lab0_MM = new RooRealVar(mVar.Data(),mVar.Data(),Bmass_down, Bmass_up);
+    RooRealVar* lab2_MM = new RooRealVar(mDVar.Data(),mDVar.Data(),Dmass_down, Dmass_up);
+    RooRealVar* lab1_PIDK = new RooRealVar(pidVar.Data(), pidVar.Data(), PID_down, PID_up);
+    RooRealVar* lab1_P  = new RooRealVar(pVar.Data(),pVar.Data(),log(P_down),log(P_up));
+    RooRealVar* lab1_PT  = new RooRealVar(ptVar.Data(),ptVar.Data(),log(PT_down),log(PT_up));
+    RooRealVar* nTracks  = new RooRealVar(nTrVar.Data(),nTrVar.Data(),log(nTr_down),log(nTr_up));
+
+    TTree* treeSW = ReadTreeMC(pathFile.Data(),treeName.Data(), debug);
+
+    RooDataSet* data[2];
+
+    std::vector <TString> s;
+    s.push_back("down");
+    s.push_back("up");
+
+    TString namew = "sWeights";
+    RooRealVar* weights;
+    weights = new RooRealVar(namew.Data(), namew.Data(), -2.0, 2.0 );  // create weights //
+
+    
+    for(int i = 0; i <2; i++)
+      {
+	TString dataName = "ProtonsSample_"+s[i];
+	data[i] = NULL;
+	data[i] = new RooDataSet(   dataName.Data(), dataName.Data(),
+				    RooArgSet(*lab0_MM,*lab2_MM,*lab1_PT,*lab1_P,*nTracks,*lab1_PIDK,*weights),namew.Data());
+	
+	Double_t sw;
+	Double_t p, pt;
+	Double_t nTr;
+	Double_t PIDK;
+	Double_t massB;
+	Double_t massD; 
+
+	treeSW->SetBranchAddress(mVar.Data(), &massB);
+	treeSW->SetBranchAddress(mDVar.Data(), &massD);
+	treeSW->SetBranchAddress(pVar.Data(), &p);
+	treeSW->SetBranchAddress(nTrVar.Data(),&nTr);
+	treeSW->SetBranchAddress(pidVar.Data(),&PIDK);
+	treeSW->SetBranchAddress(ptVar.Data(), &pt);
+	
+	TString swname = "nSig_"+s[i]+"_Evts_sw";
+	treeSW->SetBranchAddress(swname.Data(), &sw);
+
+	for (Long64_t jentry=0; jentry<treeSW->GetEntries(); jentry++) {
+	  treeSW->GetEntry(jentry);
+	  lab0_MM->setVal(massB);
+	  lab1_P->setVal(log(p));
+	  lab1_PT->setVal(log(pt));
+	  lab1_PIDK->setVal(PIDK); 
+	  nTracks->setVal(log(nTr));
+	  lab2_MM->setVal(massD);
+	  weights->setVal(sw);
+	  data[i]->add(RooArgSet(*lab0_MM,*lab2_MM,*lab1_PT,*lab1_P,*nTracks,*lab1_PIDK,*weights),sw,0);
+	}
+	
+	if ( data[i] != NULL  ){
+	  std::cout<<"[INFO] ==> Create "<<data[i]->GetName()<<std::endl;
+	  std::cout<<" number of entries in data set: "<<data[i]->numEntries()<<" with sum: "<<data[i]->sumEntries()<<std::endl;
+	} else { std::cout<<"Error in create dataset"<<std::endl; }
+	
+	work->import(*data[i]);
+
+	TString dupa = "LbLcPi_TrMom";
+        SaveDataSet(data[i], lab1_PT , s[i], dupa, debug);
+        TString dupa2 = "LbLcPi_Tracks";
+        SaveDataSet(data[i], nTracks , s[i], dupa2, debug);
+	TString dupa3 = "LbLcPi_PIDK";
+        SaveDataSet(data[i], lab1_PIDK , s[i], dupa3, debug);
+        TString dupa4 = "LbLcPi_MassD";
+        SaveDataSet(data[i], lab2_MM , s[i], dupa4, debug);
+	TString dupa5 = "LbLcPi_Mom";
+	//SaveDataSet(data[i], lab1_P , s[i], dupa5, debug);
+	
+	
+      }
+
+    return work;
+  }
 
 } //end of namespace

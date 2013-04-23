@@ -1,0 +1,15 @@
+python fitSignal.py --mode BsDsPi --modeDs KKPi --reweight --debug --merge --BDTG BDTGA -s WS_MC_DsPi_KKPi_Ds_BDTGA.root --variable lab2_MM
+python fitSignal.py --mode BsDsPi --modeDs KKPi --reweight --debug --merge --BDTG BDTG1 -s WS_MC_DsPi_KKPi_Ds_BDTG1.root --variable lab2_MM
+python fitSignal.py --mode BsDsPi --modeDs KKPi --reweight --debug --merge --BDTG BDTG2 -s WS_MC_DsPi_KKPi_Ds_BDTG2.root --variable lab2_MM
+python fitSignal.py --mode BsDsPi --modeDs KKPi --reweight --debug --merge --BDTG BDTG3 -s WS_MC_DsPi_KKPi_Ds_BDTG3.root --variable lab2_MM
+python fitSignal.py --mode BsDsPi --modeDs KKPi --reweight --debug --merge --BDTG BDTGC -s WS_MC_DsPi_KKPi_Ds_BDTGC.root --variable lab2_MM
+python fitSignal.py --mode BsDsPi --modeDs KPiPi --reweight --debug --merge --BDTG BDTGA -s WS_MC_DsPi_KPiPi_Ds_BDTGA.root --variable lab2_MM
+python fitSignal.py --mode BsDsPi --modeDs KPiPi --reweight --debug --merge --BDTG BDTG1 -s WS_MC_DsPi_KPiPi_Ds_BDTG1.root --variable lab2_MM
+python fitSignal.py --mode BsDsPi --modeDs KPiPi --reweight --debug --merge --BDTG BDTG2 -s WS_MC_DsPi_KPiPi_Ds_BDTG2.root --variable lab2_MM 
+python fitSignal.py --mode BsDsPi --modeDs KPiPi --reweight --debug --merge --BDTG BDTG3 -s WS_MC_DsPi_KPiPi_Ds_BDTG3.root --variable lab2_MM
+python fitSignal.py --mode BsDsPi --modeDs KPiPi --reweight --debug --merge --BDTG BDTGC -s WS_MC_DsPi_KPiPi_Ds_BDTGC.root --variable lab2_MM
+python fitSignal.py --mode BsDsPi --modeDs PiPiPi --reweight --debug --merge --BDTG BDTGA -s WS_MC_DsPi_PiPiPi_Ds_BDTGA.root --variable lab2_MM
+python fitSignal.py --mode BsDsPi --modeDs PiPiPi --reweight --debug --merge --BDTG BDTG1 -s WS_MC_DsPi_PiPiPi_Ds_BDTG1.root --variable lab2_MM
+python fitSignal.py --mode BsDsPi --modeDs PiPiPi --reweight --debug --merge --BDTG BDTG2 -s WS_MC_DsPi_PiPiPi_Ds_BDTG2.root --variable lab2_MM
+python fitSignal.py --mode BsDsPi --modeDs PiPiPi --reweight --debug --merge --BDTG BDTG3 -s WS_MC_DsPi_PiPiPi_Ds_BDTG3.root --variable lab2_MM
+python fitSignal.py --mode BsDsPi --modeDs PiPiPi --reweight --debug --merge --BDTG BDTGC -s WS_MC_DsPi_PiPiPi_Ds_BDTGC.root --variable lab2_MM

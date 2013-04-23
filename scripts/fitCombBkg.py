@@ -1,0 +1,487 @@
+#!/usr/bin/env python
+# --------------------------------------------------------------------------- #
+#                                                                             #
+#   Python script to run a signal fit on MC for B->DPi, Bs->DsPi, Bs->DsK     #
+#   with the FitMeTool fitter                                                 #
+#                                                                             #
+#   Example usage:                                                            #
+#      python fitSignal.py --mode BDPi -s WS.root --debug --veto              #
+#                                                                             #
+#   Author: Eduardo Rodrigues                                                 #
+#   Date  : 08 / 06 / 2011                                                    #
+#   Author: Agnieszka Dziurda                                                 #
+#   Date  : 21 / 02 / 2012                                                    #
+#                                                                             #
+# --------------------------------------------------------------------------- #
+
+# -----------------------------------------------------------------------------
+# Load necessary libraries
+# -----------------------------------------------------------------------------
+from optparse import OptionParser
+from os.path  import join
+
+import GaudiPython
+
+GaudiPython.loaddict( 'B2DXFittersDict' )
+
+from ROOT import *
+
+GeneralUtils = GaudiPython.gbl.GeneralUtils
+MassFitUtils = GaudiPython.gbl.MassFitUtils
+Bs2Dsh2011TDAnaModels = GaudiPython.gbl.Bs2Dsh2011TDAnaModels
+
+# -----------------------------------------------------------------------------
+# Configuration settings
+# -----------------------------------------------------------------------------
+
+
+# INITIAL PARAMETERS
+mean  = 5367.51
+sigma1 = 10.00
+sigma2 = 15.00
+alpha1 = 2.0
+alpha2 = -2.0
+n1 = 0.01
+n2 = 5.0
+frac = 0.50
+                        
+Pcut_down = 0.0
+Pcut_up = 650000000.0
+Time_down = 0.0
+Time_up = 15.0
+PT_down  = 500.0
+PT_up = 45000.0
+nTr_down = 1.0
+nTr_up = 1000.0
+
+dataName      = '../data/config_fitCombBkg.txt'
+
+# DATA FILES
+# MISCELLANEOUS
+bName = 'B_{s}'
+
+
+#------------------------------------------------------------------------------
+def fitCombBkg( debug, var , mode, modeDs, merge, BDTG, configName) :
+
+    myconfigfilegrabber = __import__(configName,fromlist=['getconfig']).getconfig
+    myconfigfile = myconfigfilegrabber()
+    
+    print "=========================================================="
+    print "PREPARING WORKSPACE IS RUNNING WITH THE FOLLOWING CONFIGURATION OPTIONS"
+    for option in myconfigfile :
+        if option == "constParams" :
+            for param in myconfigfile[option] :
+                print param, "is constant in the fit"
+        else :
+            print option, " = ", myconfigfile[option]
+    print "=========================================================="
+                                                                
+    RooAbsData.setDefaultStorageType(RooAbsData.Tree)
+    
+    dataTS = TString(dataName)
+    mVarTS = TString("lab0_MassFitConsD_M")
+    mdVarTS = TString("lab2_MM")
+    tVarTS = TString("lab0_LifetimeFit_ctau")
+    tagVarTS = TString("lab0_BsTaggingTool_TAGDECISION_OS")
+    tagOmegaVarTS = TString("lab0_BsTaggingTool_TAGOMEGA_OS")
+    idVarTS = TString("lab1_ID")
+    modeTS = TString(mode)
+    mProbVarTS = TString("lab1_PIDK")
+
+    BDTGTS = TString(BDTG)
+    if  BDTGTS == "BDTGA":
+        BDTG_down = 0.3
+        BDTG_up = 1.0
+    elif BDTGTS == "BDTGC":
+        BDTG_down = 0.5
+        BDTG_up= 1.0
+    elif BDTGTS== "BDTG1":
+        BDTG_down = 0.3
+        BDTG_up= 0.7
+    elif BDTGTS== "BDTG2":
+        BDTG_down = 0.7
+        BDTG_up= 0.9
+    elif BDTGTS== "BDTG3":
+        BDTG_down = 0.9
+        BDTG_up= 1.0
+        
+    print "BDTG Range: (%f,%f)"%(BDTG_down,BDTG_up)
+                                                                                                    
+
+    if modeTS  == "BsDsK":
+        PIDcut = 5
+    else:
+        PIDcut = 0
+    obsTS = TString(var)    
+    if modeTS == "BDPi":
+        modeDsTS = TString("KPiPi")
+        tagVarTS = TString("lab0_BdTaggingTool_TAGDECISION_OS")
+        tagOmegaVarTS = TString("lab0_BdTaggingTool_TAGOMEGA_OS")
+        Dmass_down = 1830 #1930
+        Dmass_up = 1920 #2015
+        Bmass_down = 5800
+        Bmass_up = 7000
+    else:
+        modeDsTS=TString(modeDs)
+        Dmass_down = 1930
+        Dmass_up = 2015
+        Bmass_down = 5800
+        Bmass_up = 7000
+
+    if ( modeDsTS == "NonRes" or modeDsTS == "KstK" or modeDsTS == "PhiPi" or modeDsTS == "All"):
+        nameTS = TString("#")+modeTS+TString(" KKPi ")+modeDsTS
+        if modeDsTS == "NonRes" :
+            modeDsTS2 = "nonres"
+        elif modeDsTS == "KstK":
+            modeDsTS2 = "kstk"
+        elif modeDsTS == "PhiPi":
+            modeDsTS2 = "phipi"
+        else:
+            modeDsTS2 = "kkpi"
+        index =0                            
+    else:
+        nameTS = TString("#")+modeTS+TString(" ")+modeDsTS
+        if modeDsTS == "KPiPi" :
+            modeDsTS2 = "kpipi"
+            index = 1
+        elif modeDsTS == "PiPiPi":
+            modeDsTS2 = "pipipi"
+            index = 2
+        else:
+            modeDsTS2 = "kkpi"
+            index = 0
+            
+    print nameTS
+    print index
+    if modeTS == "BDPi":
+        index = 0
+        
+    sigma1Name = modeTS + TString("_") + BDTGTS + TString ("_sigma1")
+    sigma2Name = modeTS + TString("_") + BDTGTS + TString ("_sigma2")
+    n1Name = modeTS + TString("_") + BDTGTS + TString ("_n1")
+    n2Name = modeTS + TString("_") + BDTGTS + TString ("_n2")
+    alpha1Name = modeTS + TString("_") + BDTGTS + TString ("_alpha1")
+    alpha2Name = modeTS + TString("_") + BDTGTS + TString ("_alpha2")
+    fracName = modeTS + TString("_") + BDTGTS + TString ("_frac")
+    print sigma1Name
+    print sigma2Name
+    print n1Name
+    print n2Name
+    print alpha1Name
+    print alpha2Name
+    print fracName
+    
+    workspace = MassFitUtils.ObtainData(dataTS, nameTS,
+                                        PIDcut,
+                                        Pcut_down, Pcut_up,
+                                        BDTG_down, BDTG_up,
+                                        Dmass_down, Dmass_up,
+                                        Bmass_down, Bmass_up,
+                                        Time_down, Time_up,
+                                        mVarTS, mdVarTS, tVarTS, tagVarTS,
+                                        tagOmegaVarTS, idVarTS,
+                                        mProbVarTS,
+                                        modeTS, false, NULL, debug)
+    
+    workspace.Print("v")
+    mass = GeneralUtils.GetObservable(workspace,obsTS, debug)
+    observables = RooArgSet( mass )
+    
+    
+    data= []
+    nEntries = []
+    sample = [TString("up"),TString("down")]
+    if merge:
+        bound = 1
+    else:    
+        bound = 2
+        
+        
+    for i in range(0,2):
+        datasetTS = TString("dataSet")+modeTS+TString("_")+sample[i]+TString("_")+modeDsTS2
+        data.append(GeneralUtils.GetDataSet(workspace,datasetTS, debug))
+        nEntries.append(data[i].numEntries())
+        print "Data set: %s with number of events: %s"%(data[i].GetName(),nEntries[i])
+
+    if merge:
+        bound = 1
+        sample = [TString("both"),TString("both")]
+    else:
+        bound =2
+
+    sam = RooCategory("sample","sample")
+    for i in range(0, bound):
+        sam.defineType(sample[i].Data())
+        
+    if merge:
+        data[0].append(data[1])
+        nEntries[0] = nEntries[0] + nEntries[1]
+        combData = RooDataSet("combData","combined data",RooArgSet(observables),
+                              RooFit.Index(sam),
+                              RooFit.Import(sample[0].Data(),data[0]))
+        
+    else:
+        combData = RooDataSet("combData","combined data",RooArgSet(observables),
+                              RooFit.Index(sam),
+                              RooFit.Import(sample[0].Data(),data[0]),
+                              RooFit.Import(sample[1].Data(),data[1]))
+        
+        
+    if obsTS == "lab2_MM":
+        if (modeDsTS != "KPiPi" or modeTS == "BDPi")  and modeDsTS != "PiPiPi" and BDTGTS != "BDTG3":
+            if modeTS == "BDPi":
+                mean = 1869
+            else:
+                mean = 1969
+            c = -0.0001
+            sigma1Var =  RooRealVar( "sigma1", "sigma1", myconfigfile[sigma1Name.Data()][index]) #, 5.0, 20.0)
+            sigma2Var =  RooRealVar( "sigma2", "sigma2", myconfigfile[sigma2Name.Data()][index]) #, 10.0, 150.0)
+            n1Var =  RooRealVar( "n1", "n1", myconfigfile[n1Name.Data()][index])
+            n2Var =  RooRealVar( "n2", "n2", myconfigfile[n2Name.Data()][index])
+            alpha1Var =  RooRealVar( "alpha1", "alhpa1", myconfigfile[alpha1Name.Data()][index])
+            alpha2Var =  RooRealVar( "alpha2", "alpha2", myconfigfile[alpha2Name.Data()][index])
+            fracVar   =  RooRealVar( "frac",   "frac",    myconfigfile[fracName.Data()][index])
+            frac2Var   =  RooRealVar( "frac2",   "frac2",    0.5, 0.0, 1.0)
+            meanVar   =  [RooRealVar( "DblCBPDF_mean_up" ,  "mean",    mean,   mean-10, mean+10, "MeV/c^{2}"),
+                          RooRealVar( "DblCBPDF_mean_down" ,  "mean",    mean,    mean-10, mean+10, "MeV/c^{2}")]
+        else:
+            c = -0.0001
+    else:
+        c = -0.0001
+           
+    c1Var =  RooRealVar( "c1Var", "c1Var",  c,  -0.1,  0, "MeV/c^{2}")
+              
+    
+    nSigEvts = []
+    nSig = []
+    sigPDF1 = []
+    sigPDF2 = []
+    sigPDF = []
+    sigEPDF = []
+    
+    for i in range(0,bound):
+        nSigEvts.append(0.9*nEntries[i])
+        nameSig = TString("nCombBkgEvts_")+sample[i]
+        nSig.append(RooRealVar( nameSig.Data(), nameSig.Data(), nEntries[i], 0.8*nEntries[i], 1.2*nEntries[i]))
+        if obsTS == "lab2_MM" and (modeDsTS != "KPiPi" or modeTS == "BDPi") and BDTGTS != "BDTG3" and modeDsTS != "PiPiPi":
+            nameExp = TString("Exp")
+            nameGauss = TString("Gauss")
+            nameAdd = TString("Add")
+            sigPDF1.append(RooExponential(nameExp.Data(), nameExp.Data(), mass, c1Var))
+            sigPDF2.append(Bs2Dsh2011TDAnaModels.buildDoubleCBEPDF_sim(mass, meanVar[i], sigma1Var, alpha1Var, n1Var, sigma2Var,
+                                                                       alpha2Var, n2Var, fracVar, nSig[i], sample[i].Data(), bName, debug ))
+            sigPDF.append(RooAddPdf(nameAdd.Data(), nameAdd.Data(), sigPDF1[i], sigPDF2[i], frac2Var))
+        else:
+            nameExp = TString("Exp")
+            sigPDF.append(RooExponential(nameExp.Data(), nameExp.Data(), mass, c1Var))
+
+        nameEPDF = TString("CombBkgEPDF_")+sample[i]
+        sigEPDF.append(RooExtendPdf( nameEPDF.Data() , nameEPDF.Data(), sigPDF[i]  , nSig[i]  ))
+                
+                   
+
+       
+
+    totPDF = RooSimultaneous("simPdf","simultaneous pdf",sam)
+    for i in range(0,bound):
+        totPDF.addPdf(sigEPDF[i], sample[i].Data())
+               
+                    
+    # Instantiate and run the fitter
+    c = TString("no")
+    if( c == "yes"):
+        nll= RooNLLVar("nll","-log(sig)",totPDF,combData, RooFit.NumCPU(4));
+
+        pll  = RooProfileLL("pll",  "",  nll, RooArgSet(sigma1Var));
+        pll1 = RooProfileLL("pll1", "",  nll, RooArgSet(sigma2Var));
+        pll2 = RooProfileLL("pll2", "",  nll, RooArgSet(alpha1Var));
+        pll3 = RooProfileLL("pll3", "",  nll, RooArgSet(alpha2Var));
+        pll4 = RooProfileLL("pll4", "",  nll, RooArgSet(n1Var));
+        pll5 = RooProfileLL("pll5", "",  nll, RooArgSet(n2Var));
+    #pll6 = RooProfileLL("pll6", "",  nll, RooArgSet(*cbmean1));
+        pll7 = RooProfileLL("pll7", "",  nll, RooArgSet(fracVar));
+    
+
+        hsigma1 = pll.createHistogram("hsigma1",sigma1Var,RooFit.Binning(40));
+        hsigma1.SetLineColor(kBlue);
+        hsigma1.SetLineWidth(2);
+        hsigma1.SetTitle("Likelihood Function - Sigma1");
+
+        hsigma2 = pll1.createHistogram("hsigma2",sigma2Var,RooFit.Binning(40));
+        hsigma2.SetLineColor(kBlue);
+        hsigma2.SetLineWidth(2);
+        hsigma2.SetTitle("Likelihood Function - Sigma2");
+
+
+        halpha1 = pll2.createHistogram("halpha1",alpha1Var,RooFit.Binning(40));
+        halpha1.SetLineColor(kRed);
+        halpha1.SetLineWidth(2);
+        halpha1.SetTitle("Likelihood Function - Alpha1");
+    
+        halpha2 = pll3.createHistogram("halpha2",alpha2Var,RooFit.Binning(40));
+        halpha2.SetLineColor(kRed);
+        halpha2.SetLineWidth(2);
+        halpha2.SetTitle("Likelihood Function - Alpha2");
+
+
+        hn1 = pll4.createHistogram("hn1",n1Var,RooFit.Binning(40));
+        hn1.SetLineColor(kGreen);
+        hn1.SetLineWidth(2);
+        hn1.SetTitle("Likelihood Function - N1");
+
+        hn2 = pll5.createHistogram("hn2",n2Var,RooFit.Binning(40));
+        hn2.SetLineColor(kGreen);
+        hn2.SetLineWidth(2);
+        hn2.SetTitle("Likelihood Function - N2");
+        
+        hfrac = pll7.createHistogram("hfrac",fracVar,RooFit.Binning(40));
+        hfrac.SetLineColor(42);
+        hfrac.SetLineWidth(2);
+        hfrac.SetTitle("Likelihood Function - Fraction");
+    
+        m1 = RooMinuit(nll);
+        
+        m1.setVerbose(kFALSE);
+        m1.setLogFile("out.log");
+        
+        m1.setStrategy(2);
+        m1.simplex();
+        m1.migrad();
+    
+        m1.minos();
+        m1.hesse();
+        
+        result=m1.save("result","result");
+        result.Print();
+
+        like = TCanvas("like", "like", 1200, 800);
+        like.Divide(4,2)
+        like.cd(1)
+        hsigma1.Draw()
+        like.cd(5)
+        hsigma2.Draw()
+        like.cd(2)
+        halpha1.Draw()
+        like.cd(6)
+        halpha2.Draw()
+        like.cd(3)
+        hn1.Draw()
+        like.cd(7)
+        hn2.Draw()
+        like.cd(8)
+        hfrac.Draw()
+        like.Update()
+        n = TString("likelihood_BsDsPi.pdf")
+        like.SaveAs(n.Data())
+    
+
+    else:    
+   
+        fitter = FitMeTool( debug )
+        
+        fitter.setObservables( observables )
+        
+        fitter.setModelPDF( totPDF )
+        
+        fitter.setData(combData) 
+        
+        plot_init   = options.initvars         and ( options.wsname != None )
+        plot_fitted = ( not options.initvars ) and ( options.wsname != None )
+        
+        if plot_init :
+            fitter.saveModelPDF( options.wsname )
+            fitter.saveData ( options.wsname )
+    
+        fitter.fit(True, RooFit.Optimize(0), RooFit.Strategy(2),  RooFit.Verbose(True), RooFit.InitialHesse(True))
+            
+        if plot_fitted :
+            fitter.saveModelPDF( options.wsname )
+            fitter.saveData ( options.wsname )
+
+        gROOT.SetStyle( 'Plain' )
+    
+        gStyle.SetOptLogy(1)
+
+        result = fitter.getFitResult()
+        result.Print()
+        model = fitter.getModelPDF()
+        
+    
+        integral = model.createIntegral(observables,"all")
+        integralVal = integral.getVal()
+        print "Integral %f"%(integralVal)
+
+        del fitter
+
+#------------------------------------------------------------------------------
+_usage = '%prog [options]'
+
+parser = OptionParser( _usage )
+
+parser.add_option( '-d', '--debug',
+                   action = 'store_true',
+                   dest = 'debug',
+                   default = False,
+                   help = 'print debug information while processing'
+                   )
+parser.add_option( '-s', '--save',
+                   dest = 'wsname',
+                   metavar = 'WSNAME',
+                   help = 'save the model PDF and generated dataset to file "WS_WSNAME.root"'
+                   )
+parser.add_option( '-i', '--initial-vars',
+                   dest = 'initvars',
+                   action = 'store_true',
+                   default = False,
+                   help = 'save the model PDF parameters before the fit (default: after the fit)'
+                   )
+parser.add_option( '-v', '--variable',
+                   dest = 'var',
+                   default = 'lab0_MassFitConsD_M',
+                   help = 'set observable '
+                   )
+
+parser.add_option( '-m', '--mode',
+                   dest = 'mode',
+                   default = 'BsDsPi',
+                   help = 'set observable '
+                   )
+parser.add_option( '--modeDs',
+                   dest = 'modeDs',
+                   default = 'KKPi',
+                   help = 'set observable '
+                   )
+parser.add_option( '--merge',
+                   action = 'store_true',
+                   dest = 'merge',
+                   default = False,
+                   help = 'save the model PDF parameters before the fit (default: after the fit)'
+                   )
+
+parser.add_option( '--BDTG',
+                   dest = 'BDTG',
+                   default = 'BDTGA',
+                   help = 'Set BDTG range '
+                   )
+
+parser.add_option( '--configName',
+                   dest = 'configName',
+                   default = 'CombBkgConfigForNominalMassFit')
+
+# -----------------------------------------------------------------------------
+
+if __name__ == '__main__' :
+    ( options, args ) = parser.parse_args()
+
+    if len( args ) > 0 :
+        parser.print_help()
+        exit( -1 )
+
+    import sys
+    sys.path.append("../data/")
+      
+    fitCombBkg(options.debug, options.var, options.mode, options.modeDs,
+               options.merge, options.BDTG, options.configName)
+
+# -----------------------------------------------------------------------------

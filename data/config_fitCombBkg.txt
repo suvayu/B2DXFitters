@@ -1,0 +1,123 @@
+#BDPi KPiPi
+/afs/cern.ch/work/g/gligorov/public/Bs2DsKFitTuples/DV_v33r1/SmallTuples/
+DPi_KPiPi_MD_BDTG_MINI.root
+DPi_KPiPi_MU_BDTG_MINI.root
+DecayTree
+DecayTree
+###
+
+#BsDsPi KKPi All
+/afs/cern.ch/work/g/gligorov/public/Bs2DsKFitTuples/DV_v33r1/SmallTuples/
+DsPi_KKPi_MD_BDTG_MINI.root
+DsPi_KKPi_MU_BDTG_MINI.root
+DecayTree
+DecayTree
+###
+
+#BsDsPi KKPi NonRes
+/afs/cern.ch/work/g/gligorov/public/Bs2DsKFitTuples/DV_v33r1/SmallTuples/
+DsPi_KKPi_NonRes_MD_BDTG_MINI.root
+DsPi_KKPi_NonRes_MU_BDTG_MINI.root
+DecayTree
+DecayTree
+###
+
+#BsDsPi KKPi PhiPi
+/afs/cern.ch/work/g/gligorov/public/Bs2DsKFitTuples/DV_v33r1/SmallTuples/
+DsPi_KKPi_PhiPi_MD_BDTG_MINI.root
+DsPi_KKPi_PhiPi_MU_BDTG_MINI.root
+DecayTree
+DecayTree
+###
+
+#BsDsPi KKPi KstK
+/afs/cern.ch/work/g/gligorov/public/Bs2DsKFitTuples/DV_v33r1/SmallTuples/
+DsPi_KKPi_KstK_MD_BDTG_MINI.root
+DsPi_KKPi_KstK_MU_BDTG_MINI.root
+DecayTree
+DecayTree
+###
+
+
+#BsDsPi KPiPi
+/afs/cern.ch/work/g/gligorov/public/Bs2DsKFitTuples/DV_v33r1/SmallTuples/
+DsPi_KPiPi_MD_BDTG_MINI.root
+DsPi_KPiPi_MU_BDTG_MINI.root
+DecayTree
+DecayTree
+###
+
+#BsDsPi PiPiPi
+/afs/cern.ch/work/g/gligorov/public/Bs2DsKFitTuples/DV_v33r1/SmallTuples/
+DsPi_PiPiPi_MD_BDTG_MINI.root
+DsPi_PiPiPi_MU_BDTG_MINI.root
+DecayTree
+DecayTree
+###
+
+
+#BsDsK KKPi All
+/afs/cern.ch/work/g/gligorov/public/Bs2DsKFitTuples/DV_v33r1/SmallTuples/
+DsK_KKPi_MD_BDTG_MINI.root
+DsK_KKPi_MU_BDTG_MINI.root
+DecayTree
+DecayTree
+###
+
+#BsDsK KKPi NonRes
+/afs/cern.ch/work/g/gligorov/public/Bs2DsKFitTuples/DV_v33r1/SmallTuples/
+DsK_KKPi_NonRes_MD_BDTG_MINI.root
+DsK_KKPi_NonRes_MU_BDTG_MINI.root
+DecayTree
+DecayTree
+###
+
+#BsDsK KKPi PhiPi
+/afs/cern.ch/work/g/gligorov/public/Bs2DsKFitTuples/DV_v33r1/SmallTuples/
+DsK_KKPi_PhiPi_MD_BDTG_MINI.root
+DsK_KKPi_PhiPi_MU_BDTG_MINI.root
+DecayTree
+DecayTree
+###
+
+#BsDsK KKPi KstK
+/afs/cern.ch/work/g/gligorov/public/Bs2DsKFitTuples/DV_v33r1/SmallTuples/
+DsK_KKPi_KstK_MD_BDTG_MINI.root
+DsK_KKPi_KstK_MU_BDTG_MINI.root
+DecayTree
+DecayTree
+###
+
+#BsDsK KPiPi
+/afs/cern.ch/work/g/gligorov/public/Bs2DsKFitTuples/DV_v33r1/SmallTuples/
+DsK_KPiPi_MD_BDTG_MINI.root
+DsK_KPiPi_MU_BDTG_MINI.root
+DecayTree
+DecayTree
+###
+
+#BsDsK PiPiPi
+/afs/cern.ch/work/g/gligorov/public/Bs2DsKFitTuples/DV_v33r1/SmallTuples/
+DsK_PiPiPi_MD_BDTG_MINI.root
+DsK_PiPiPi_MU_BDTG_MINI.root
+DecayTree
+DecayTree
+###
+
+#PIDp
+/afs/cern.ch/user/l/lcarson/public/ForAgnieszka/
+EffHistos_Reco12_39Mom_Proton_MagDown_TightCuts.root
+EffHistos_Reco12_39Mom_Proton_MagDown_TightCuts.root
+###
+
+#PID
+/afs/cern.ch/user/l/lcarson/public/ForAgnieszka/
+EffHistos_Reco12_39Mom_MagDown_0123.root
+EffHistos_Reco12_39Mom_MagUp_012.root
+###
+
+#RatioDataMC2D
+/afs/cern.ch/work/a/adudziak/public/workspace/
+MomVsnTr_Comp_DPi_Down_hist.root
+MomVsnTr_Comp_DPi_Up_hist.root
+###

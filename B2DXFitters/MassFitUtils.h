@@ -55,11 +55,12 @@ namespace MassFitUtils {
   RooWorkspace* ObtainData(TString& fileDir, TString& sig,
 			   int PIDcut,
 			   double Pcut_down, double Pcut_up,
-			   double BDTGCut,
+			   double BDTG_down, double BDTG_up,
 			   double Dmass_down, double Dmass_up,
 			   double Bmass_down, double Bmass_up,
 			   double time_down, double time_up,
 			   TString& mVar, 
+			   TString& mDVar,
 			   TString& tVar,
 			   TString& tagVar,
 			   TString& tagOmegaVar,
@@ -90,10 +91,14 @@ namespace MassFitUtils {
   RooWorkspace* ObtainMissForBsDsK(TString& filesDir, TString& sig,
 				   int PIDmisscut,
 				   double Pcut_down, double Pcut_up,
-				   double BDTGCut,
+				   double BDTG_down, double BDTG_up,
 				   double Dmass_down, double Dmass_up,
 				   double Bmass_down, double Bmass_up,
-				   TString& mVar, TString& mProbVar,
+				   double PT_down, double PT_up,
+				   double nTr_down, double nTr_up,
+				   TString& mVar, 
+				   TString& mDVar,
+				   TString& mProbVar,
 				   TString& mode,
 				   RooWorkspace* workspace, Bool_t mistag,
 				   bool        debug = false);
@@ -115,10 +120,14 @@ namespace MassFitUtils {
   RooWorkspace* ObtainMissForBsDsPi(TString& filesDir, TString& sig,
 				    int PIDmisscut,
 				    double Pcut_down, double Pcut_up,
-				    double BDTGCut,
+				    double BDTG_down, double BDTG_up,
 				    double Dmass_down, double Dmass_up,
 				    double Bmass_down, double Bmass_up,
-				    TString& mVar, TString& mProbVar,
+				    double PT_down, double PT_up,
+                                    double nTr_down, double nTr_up,
+				    TString& mVar, 
+				    TString& mDVar,
+				    TString& mProbVar,
 				    TString& mode,
 				    RooWorkspace* workspace, Bool_t mistag,
 				    bool        debug = false);
@@ -142,10 +151,12 @@ namespace MassFitUtils {
 			       int PIDmisscut,
 			       int pPIDcut,
 			       double Pcut_down, double Pcut_up,
-			       double BDTGCut,
+			       double BDTG_down, double BDTG_up,
 			       double Dmass_down, double Dmass_up,
 			       double Bmass_down, double Bmass_up,
-			       TString& mVar, TString& mProbVar,
+			       TString& mVar, 
+			       TString& mDVar,
+			       TString& mProbVar,
 			       TString& hypo,
 			       RooWorkspace* workspace, 
 			       Bool_t save, Bool_t mistag,
@@ -206,17 +217,22 @@ namespace MassFitUtils {
   RooWorkspace* ObtainSignal(   TString& filesDir, TString& sig, 
 				int PIDcut2, 
 				double Pcut_down2, double Pcut_up2,
-				double BDTGCut2,
+				double BDTG_down, double BDTG_up,
 				double Dmass_down, double Dmass_up,
 				double Bmass_down, double Bmass_up,
 				double time_down,double time_up,
+				double PT_down, double PT_up,
+				double nTr_down, double nTr_up,
 				TString& mVar,
-				TString& tVar,
+				TString& mDVar,
+ 				TString& tVar,
 				TString& tagVar,
 				TString& tagOmegaVar,
 				TString& idVar,
 				TString &mProbVar,
 				TString& mode,
+				Bool_t reweight,
+				Bool_t veto,
 				RooWorkspace* work,
 				bool debug = false);
 
@@ -233,7 +249,9 @@ namespace MassFitUtils {
   RooWorkspace* CreatePdfSpecBackground(TString& filesDirMU, TString& sigMU,
 					TString& filesDirMD, TString& sigMD,
 					TString &mVar,
+					TString &mDVar,
 					double Bmass_down, double Bmass_up,
+					double Dmass_down, double Dmass_up,
 					RooWorkspace* workspace, 
 					Bool_t mistag,
 					bool debug); 
@@ -258,7 +276,7 @@ namespace MassFitUtils {
 		     TString& sigPID_lab4, TString& PIDcut_lab4,
 		     TString& sigPID_lab5, TString& PIDcut_lab5,
 		     double Pcut_down, double Pcut_up,
-		     double BDTGCut,
+		     double BDTG_down, double BDTG_up,
 		     double Dmass_down, double Dmass_up,
 		     TString &mVar, TString& mProbVar,
 		     TString& mode,TString &mode2
@@ -269,15 +287,28 @@ namespace MassFitUtils {
   // Note:Function is not used in TD CP Bs->DsK analysis
   //==========================================================================
 
-  RooWorkspace* Blabla(TString& filesDir, TString& sigBs,
-		       int PIDcut,
-		       double Pcut_down, double Pcut_up,
-		       double BDTGCut,
-		       double Dmass_down, double Dmass_up,
-		       TString &mVar, TString& mProbVar,
-		       TString& mode, Bool_t MC, TString& hypo
-		       );
+  RooWorkspace* ObtainBDPi(TString& filesDir, TString& sigBs,
+			   int PIDcut,
+			   double Pcut_down, double Pcut_up,
+			   double BDTG_down, double BDTG_up,
+			   double Bmass_down, double Bmass_up,
+			   double Dmass_down, double Dmass_up,
+			   TString &mVar, TString& mProbVar,
+			   TString& mode, Bool_t MC, TString& hypo
+			   );
 
+
+  RooWorkspace* ObtainLbLcPi( TString& filesDir, TString& sig,
+                              int PIDcut,
+			      double Pcut_down, double Pcut_up,
+			      double PT_down, double PT_up,
+			      double nTr_down, double nTr_up,
+			      TString &mVar,
+                              TString& mDVar,
+                              TString& mode,
+                              RooWorkspace* workspace,
+                              bool debug
+                              );
 
 
 } // end of namespace
