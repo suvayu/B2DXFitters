@@ -148,8 +148,8 @@ namespace Bs2Dsh2011TDAnaModels {
                               Double_t f2Var,
                               Double_t sigmaVar,
                               Double_t meanVar,
-			      TString& samplemode,
-			      TString& type);
+			      TString& samplemode
+			      );
 
 
 
@@ -159,7 +159,6 @@ namespace Bs2Dsh2011TDAnaModels {
 
   RooAbsPdf* buildBsDsPi_2D( RooAbsReal& mass,
                              RooAbsReal& massDs,
-			     //RooRealVar* PIDK,
 			     RooWorkspace* work,
 			     RooWorkspace* workID,
                              RooRealVar& nCombBkgEvts,
@@ -174,17 +173,14 @@ namespace Bs2Dsh2011TDAnaModels {
                              RooRealVar& nBd2DRhoEvts,
                              RooRealVar& nBd2DstPiEvts,
 			     RooRealVar& nBs2DsKEvts,
-                             RooRealVar& mean,
-                             RooRealVar& sigma1,
-                             RooRealVar& sigma2,
-			     RooRealVar& alpha1,
-                             RooRealVar& alpha2,
-                             RooRealVar& frac,
-                             TString &samplemode,
+                             RooAbsPdf* pdf_SignalDs,
+			     RooRealVar& cBVar,
+                             RooRealVar& cDVar,
+                             RooRealVar& fracComb,
+			     TString &samplemode,
 			     //bool merge,
 			     RooRealVar& lumRatio,
-                             bool toys,
-                             bool debug);
+			     bool debug);
 
   //===============================================================================
   // Background model for Bs->DsK mass fitter.
@@ -266,8 +262,7 @@ namespace Bs2Dsh2011TDAnaModels {
 
   RooAbsPdf* buildBsDsK_2D(RooAbsReal& mass,
 			   RooAbsReal& massDs,
-			   //RooRealVar* PIDK,
-                           RooWorkspace* work,
+			   RooWorkspace* work,
 			   RooWorkspace* workID,
 			   RooWorkspace* workID2,
                            RooAddPdf* pdf_Bd2DsK,
@@ -288,17 +283,14 @@ namespace Bs2Dsh2011TDAnaModels {
                            RooRealVar& g3_f1,
 			   RooRealVar& g4_f1,
 			   RooRealVar& g4_f2,
-                           RooRealVar& meanDs,
-                           RooRealVar& sigma1Ds,
-                           RooRealVar& sigma2Ds,
-			   RooRealVar& alpha1Ds,
-                           RooRealVar& alpha2Ds,
-                           RooRealVar& fracDs,
+                           RooAbsPdf* pdf_SignalDs,
+			   RooRealVar& cBVar,
+			   RooRealVar& cDVar,
+			   RooRealVar& fracComb,
 			   TString &samplemode,
 			   //bool merge,
 			   RooRealVar& lumRatio,
-			   bool toys,
-                           bool debug);
+			   bool debug);
 
   //===============================================================================
   // Load RooKeysPdf from workspace.

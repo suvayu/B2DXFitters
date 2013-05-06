@@ -48,8 +48,6 @@ PIDmisscut= 0
 pPIDcut = 5
 Pcut_down = 0.0
 Pcut_up = 100000000000.0
-BDTG_down = 0.30
-BDTG_up = 0.70
 
 Dmass_down =1930
 Dmass_up = 2015
@@ -66,58 +64,97 @@ bName = 'B_{s}'
 
 
 #------------------------------------------------------------------------------
-def runBsDsPiMassFitterOnData( debug, mVar, mProbVar, save ) :
+def runBsDsPiMassFitterOnData( debug, mVar, mProbVar, save, BDTG, mode ) :
 
     dataTS = TString(dataName)
     mVarTS = TString(mVar)
     mProbVarTS = TString(mProbVar)
-    
-#    number = MassFitUtils.ExpectedYield(dataTS, TString("#BdDPi BsHypo"), TString("#BdDPi BdHypo"),
-#                                        TString("#PID"), TString("MyKaonEff_0"),
-#                                        TString("#PID"), TString("MyPionMisID_10"),
-#                                        Pcut_down, Pcut_up,
-#                                        BDTGCut,
-#                                        Dmass_down, Dmass_up,
-#                                        mVarTS, mProbVarTS,
-#                                        TString("BdDPi"),TString("kkpi"))
+    modeTS = TString(mode)
 
-#    number = MassFitUtils.ExpectedYield(dataTS, TString("#BdDPi BsHypo"), TString("#BdDPi BdHypo"),
-#                                        TString("#PID"), TString("MyKaonMisID_5"),
-#                                        TString("#PID"), TString("MyPionMisID_10"),
-#                                        Pcut_down, Pcut_up,
-#                                        BDTGCut,
-#                                        Dmass_down, Dmass_up,
-#                                        mVarTS, mProbVarTS,
-#                                        TString("BdDPi"),TString("kpipi"))
+    BDTGTS = TString(BDTG)
+    if  BDTGTS == "BDTGA":
+        BDTG_down = 0.3
+        BDTG_up = 1.0
+    elif BDTGTS == "BDTGC":
+        BDTG_down = 0.5
+        BDTG_up= 1.0
+    elif BDTGTS== "BDTG1":
+        BDTG_down = 0.3
+        BDTG_up= 0.7
+    elif BDTGTS== "BDTG2":
+        BDTG_down = 0.7
+        BDTG_up= 0.9
+    elif BDTGTS== "BDTG3":
+        BDTG_down = 0.9
+        BDTG_up= 1.0
+                                                                                        
+    print "BDTG Range: (%f,%f)"%(BDTG_down,BDTG_up)
 
+    if modeTS == "BDPi":
+        number = MassFitUtils.ExpectedYield(dataTS, TString("#BdDPi BsHypo NonRes"), TString("#BdDPi BdHypo"),
+                                            TString("#PID"), TString("MyKaonEff_0"),
+                                            TString("#PID"), TString("MyPionMisID_10"),
+                                            Pcut_down, Pcut_up,
+                                            BDTG_down, BDTG_up,
+                                            Dmass_down, Dmass_up,
+                                            mVarTS, mProbVarTS,
+                                            TString("BdDPi"),TString("kkpi"))
+        
+        number = MassFitUtils.ExpectedYield(dataTS, TString("#BdDPi BsHypo KstK"), TString("#BdDPi BdHypo"),
+                                            TString("#PID"), TString("MyKaonEff_0"),
+                                            TString("#PID"), TString("MyPionMisID_10"),
+                                            Pcut_down, Pcut_up,
+                                            BDTG_down, BDTG_up,
+                                            Dmass_down, Dmass_up,
+                                            mVarTS, mProbVarTS,
+                                            TString("BdDPi"),TString("kkpi"))
+        
+        number = MassFitUtils.ExpectedYield(dataTS, TString("#BdDPi BsHypo PhiPi"), TString("#BdDPi BdHypo"),
+                                            TString("#PID"), TString("MyKaonEff_0"),
+                                            TString("#PID"), TString("MyPionMisID_10"),
+                                            Pcut_down, Pcut_up,
+                                            BDTG_down, BDTG_up,
+                                            Dmass_down, Dmass_up,
+                                            mVarTS, mProbVarTS,
+                                            TString("BdDPi"),TString("kkpi"))
+        
+        number = MassFitUtils.ExpectedYield(dataTS, TString("#BdDPi BsHypo KPiPi"), TString("#BdDPi BdHypo"),
+                                            TString("#PID"), TString("MyKaonMisID_5"),
+                                            TString("#PID"), TString("MyPionMisID_10"),
+                                            Pcut_down, Pcut_up,
+                                            BDTG_down, BDTG_up,
+                                            Dmass_down, Dmass_up,
+                                            mVarTS, mProbVarTS,
+                                            TString("BdDPi"),TString("kpipi"))
+        
 
-   
-    number = MassFitUtils.ExpectedYield(dataTS, TString("#LbLcPi"), TString("#LbLcPi"),
-                                        TString("#PID"), TString("MyKaonEff_0"),
-                                        TString("#PIDp"), TString("MyProtonMisID_pK5"),
-                                        Pcut_down, Pcut_up,
-                                        BDTG_down, BDTG_up,
-                                        Dmass_down, Dmass_up,
-                                        mVarTS, mProbVarTS,
-                                        TString("LbLcPi"),TString("kpipi"))
-
-  #  number = MassFitUtils.ExpectedYield(dataTS, TString("#LbLcPi"), TString("#LbLcPi"), TString("#PIDp"),
-  #                                      TString("MyProtonMisID_pK5"),
-  #                                      Pcut_down, Pcut_up,
-  #                                      BDTGCut,
-  #                                      Dmass_down, Dmass_up,
-  #                                      mVarTS, mProbVarTS,
-  #                                      TString("LbLcPi"),TString("pipipi"))
-
-   # number = MassFitUtils.ExpectedYield(dataTS, TString("#BsDsPi"), TString("#BsDsPi"),
-   #                                     TString("#PID"), TString("MyPionMisID_5"),
-   #                                     TString("#PID"), TString("MyPionMisID_5"),
-   #                                     Pcut_down, Pcut_up,
-   #                                     BDTG_down, BDTG_up,
-   #                                     Dmass_down, Dmass_up,
-   #                                     mVarTS, mProbVarTS,
-   #                                     TString("BsDsPi"),TString("kkpi"))
- # 
+    elif modeTS == "LbLcPi":
+        number = MassFitUtils.ExpectedYield(dataTS, TString("#LbLcPi"), TString("#LbLcPi"),
+                                            TString("#PID"), TString("MyKaonEff_0"),
+                                            TString("#PIDp"), TString("MyProtonMisID_pK5"),
+                                            Pcut_down, Pcut_up,
+                                            BDTG_down, BDTG_up,
+                                            Dmass_down, Dmass_up,
+                                            mVarTS, mProbVarTS,
+                                            TString("LbLcPi"),TString("kpipi"))
+        
+        number = MassFitUtils.ExpectedYield(dataTS, TString("#LbLcPi"), TString("#LbLcPi"), TString("#PIDp"),
+                                            TString("MyProtonMisID_pK5"),
+                                            Pcut_down, Pcut_up,
+                                            BDTG_down, BDTG_up,
+                                            Dmass_down, Dmass_up,
+                                            mVarTS, mProbVarTS,
+                                            TString("LbLcPi"),TString("pipipi"))
+    elif modeTS == "BsDsPi":
+        number = MassFitUtils.ExpectedYield(dataTS, TString("#BsDsPi"), TString("#BsDsPi"),
+                                            TString("#PID"), TString("MyPionMisID_5"),
+                                            TString("#PID"), TString("MyPionMisID_5"),
+                                            Pcut_down, Pcut_up,
+                                            BDTG_down, BDTG_up,
+                                            Dmass_down, Dmass_up,
+                                            mVarTS, mProbVarTS,
+                                            TString("BsDsPi"),TString("kkpi"))
+        
 
  #   number = MassFitUtils.ExpectedYield(dataTS, TString("#BsDsPi"), TString("#BsDsPi"),
  #                                       TString("#PID"), TString("MyPionMisID_10"),
@@ -128,25 +165,26 @@ def runBsDsPiMassFitterOnData( debug, mVar, mProbVar, save ) :
  #                                       mVarTS, mProbVarTS,
  #                                       TString("BsDsPi"),TString("kpipi"))
 
-#    number = MassFitUtils.ExpectedYield(dataTS, TString("#BDK"), TString("#BDK"),
-#                                        TString("#PID"), TString("MyPionMisID_0"),
-#                                        TString("#PID"), TString("MyPionMisID_0"),
-#                                        Pcut_down, Pcut_up,
-#                                        BDTGCut,
-#                                        DDmass_down, DDmass_up,
-#                                        mVarTS, mProbVarTS,
-#                                        TString("BDK"),TString("kpipi"))
-
- #   number = MassFitUtils.ExpectedYield(dataTS, TString("#BsDsK"), TString("#BsDsK"),
- #                                       TString("#PID"), TString("MyPionMisID_0"),
- #                                       TString("#PID"), TString("MyPionMisID_0"),
- #                                       Pcut_down, Pcut_up,
- #                                       BDTGCut,
- #                                       DDmass_down, DDmass_up,
- #                                       mVarTS, mProbVarTS,
- #                                       TString("BsDsK"),TString("kkpi"))
-    
-
+    elif modeTS == "BDK":
+        number = MassFitUtils.ExpectedYield(dataTS, TString("#BDK"), TString("#BDK"),
+                                            TString("#PID"), TString("MyKaonMisID_0"),
+                                            TString("#PID"), TString("MyKaonMisID_0"),
+                                            Pcut_down, Pcut_up,
+                                            BDTG_down, BDTG_up,
+                                            DDmass_down, DDmass_up,
+                                            mVarTS, mProbVarTS,
+                                            TString("BDK"),TString("kpipi"))
+    elif modeTS == "BsDsK":
+        number = MassFitUtils.ExpectedYield(dataTS, TString("#BsDsK"), TString("#BsDsK"),
+                                            TString("#PID"), TString("MyPionMisID_0"),
+                                            TString("#PID"), TString("MyPionMisID_0"),
+                                            Pcut_down, Pcut_up,
+                                            BDTG_down, BDTG_up,
+                                            DDmass_down, DDmass_up,
+                                            mVarTS, mProbVarTS,
+                                            TString("BsDsK"),TString("kkpi"))
+        
+        
 
   #  number = MassFitUtils.ExpectedYield(dataTS, TString("#BsDsPi"), TString("#BsDsPi"),
   #                                      TString("#PID"), TString("MyPionMisID_10"),
@@ -156,23 +194,23 @@ def runBsDsPiMassFitterOnData( debug, mVar, mProbVar, save ) :
   #                                      Dmass_down, Dmass_up,
   #                                      mVarTS, mProbVarTS,
   #                                      TString("BsDsPi"),TString("pipipi"))
-    
-#    number = MassFitUtils.ExpectedYield(dataTS, TString("#LbDsp"), TString("#LbDsp"),
-#                                        TString("#PIDp2"), TString("MyProtonEff_KPi10;1"),
-#                                        TString("#PID Dsp"),TString("MyProtonEff_p15_pK15"),
-#                                        Pcut_down, Pcut_up,
-#                                        BDTGCut,
-#                                        Dmass_down, Dmass_up,
-#                                        mVarTS, mProbVarTS,
-#                                        TString("LbDsp"),TString("dupa"))
-
- #   number = MassFitUtils.ExpectedYield(dataTS, TString("#LbDsstp"), TString("#LbDsstp"), TString("#PID Dsp"),
- #                                       TString("MyProtonEff_p15_pK15"),
- #                                       Pcut_down, Pcut_up,
- #                                       BDTGCut,
- #                                       Dmass_down, Dmass_up,
- #                                        mVarTS, mProbVarTS,
- #                                       TString("LbDsstp"),TString("dupa"))
+    elif modeTS == "LbDsp":
+        number = MassFitUtils.ExpectedYield(dataTS, TString("#LbDsp"), TString("#LbDsp"),
+                                            TString("#PIDp2"), TString("MyProtonEff_KPi10;1"),
+                                            TString("#PID Dsp"),TString("MyProtonEff_p15_pK15"),
+                                            Pcut_down, Pcut_up,
+                                            BDTG_down, BDTG_up,
+                                            Dmass_down, Dmass_up,
+                                            mVarTS, mProbVarTS,
+                                            TString("LbDsp"),TString("dupa"))
+    elif modeTS == "LbDsstp":
+        number = MassFitUtils.ExpectedYield(dataTS, TString("#LbDsstp"), TString("#LbDsstp"), TString("#PID Dsp"),
+                                            TString("MyProtonEff_p15_pK15"),
+                                            Pcut_down, Pcut_up,
+                                            BDTG_down, BDTG_up,
+                                            Dmass_down, Dmass_up,
+                                            mVarTS, mProbVarTS,
+                                            TString("LbDsstp"),TString("dupa"))
 
     
     
@@ -217,7 +255,16 @@ parser.add_option( '-c', '--cutvariable',
                    default = 'lab1_PIDK',
                    help = 'set observable '
                    )
-
+parser.add_option( '--BDTG',
+                   dest = 'BDTG',
+                   default = 'BDTGA',
+                   help = 'Set BDTG range '
+                   )
+parser.add_option( '--mode',
+                   dest = 'mode',
+                   default = 'BDPi',
+                   help = 'Set BDTG range '
+                   )
 
 # -----------------------------------------------------------------------------
 
@@ -228,6 +275,6 @@ if __name__ == '__main__' :
         parser.print_help()
         exit( -1 )
     
-    runBsDsPiMassFitterOnData( options.debug, options.var, options.ProbVar, options.save )
+    runBsDsPiMassFitterOnData( options.debug, options.var, options.ProbVar, options.save, options.BDTG, options.mode )
 
 # -----------------------------------------------------------------------------

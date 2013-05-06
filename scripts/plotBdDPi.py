@@ -43,7 +43,7 @@ Dmass_up = 1910
 Bmass_dw = 5000
 Bmass_up = 6000
 
-bin = 120
+bin = 200
 #------------------------------------------------------------------------------
 _usage = '%prog [options] <filename>'
 
@@ -240,7 +240,7 @@ def plotFitModel( model, frame, sam, var, merge) :
 
     model.plotOn( frame,
                   RooFit.Components(nameSig.Data()),
-                  RooFit.LineColor(kBlue),
+                  RooFit.LineColor(kRed-4),
                   RooFit.LineStyle(7),
                   RooFit.Normalization( 1., RooAbsReal.RelativeExpected )
                   )
@@ -423,7 +423,7 @@ if __name__ == '__main__' :
 
 
     l1 = TLine()
-    l1.SetLineColor(kBlue)
+    l1.SetLineColor(kRed-4)
     l1.SetLineWidth(4)
     l1.SetLineStyle(7)
     legend.AddEntry(l1, "Signal B^{0} #rightarrow D^{-}#pi^{+}", "L")
@@ -446,12 +446,23 @@ if __name__ == '__main__' :
     h4=TH1F("Lb2LcPi","Lb2LcPi",5,0,1)
     h4.SetFillColor(kRed)
     h4.SetFillStyle(1001)
-    legend.AddEntry(h4, "#Lambda_{b}#rightarrow #Lambda^_{c}#pi", "f")
+    legend.AddEntry(h4, "#Lambda_{b}#rightarrow #Lambda_{c}#pi", "f")
 
     h5=TH1F("BkgX","BkgX",5,0,1)
     h5.SetFillColor(kYellow-7)
     h5.SetFillStyle(1001)
 #    legend.AddEntry(h5, "BkgX", "f")
+
+    h6=TH1F("Bd2DRho","B2DRho",5,0,1)
+    h6.SetFillColor(kYellow-7)
+    h6.SetFillStyle(1001)
+    legend.AddEntry(h6, "B_{d}#rightarrow D#rho", "f")
+
+    h7=TH1F("Bd2DstPi","B2DstPi",5,0,1)
+    h7.SetFillColor(kBlue-3)
+    h7.SetFillStyle(1001)
+    legend.AddEntry(h7, "B_{d}#rightarrow D^{*}#pi", "f")
+                
     
     pad1.cd()
     frame_m.Draw()

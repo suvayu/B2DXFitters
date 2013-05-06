@@ -124,7 +124,7 @@ def fitB2DPi( debug, var,
     #GeneralUtils.SaveWorkspace(workspace,saveNameTS, debug)
     #exit(0)
                 
-
+    '''
     workspace = MassFitUtils.ObtainSpecBack(dataTS, TString("#MC FileName MD"), TString("#MC TreeName"),
                                             PIDcut, PIDchild, PIDproton,
                                             Pcut_down,Pcut_up,
@@ -159,7 +159,7 @@ def fitB2DPi( debug, var,
     saveNameTS = TString("work_dpi_")+BDTGTS+TString("_2.root")
     GeneralUtils.SaveWorkspace(workspace,saveNameTS, debug)
     exit(0)
-    
+    '''
     
     loadNameTS = TString("work_dpi_")+BDTGTS+TString("_2.root")
     workDK = GeneralUtils.LoadWorkspace(loadNameTS,TString("workspace"),debug)
@@ -200,65 +200,71 @@ def fitB2DPi( debug, var,
     meanD  = 1869
     meanB  = 5280
     index  = 0
-    sigma1DName = modeTS + TString("_D_") + BDTGTS + TString ("_sigma1")
-    sigma2DName = modeTS + TString("_D_") + BDTGTS + TString ("_sigma2")
-    n1DName = modeTS + TString("_D_") + BDTGTS + TString ("_n1")
-    n2DName = modeTS + TString("_D_") + BDTGTS + TString ("_n2")
-    alpha1DName = modeTS + TString("_D_") + BDTGTS + TString ("_alpha1")
-    alpha2DName = modeTS + TString("_D_") + BDTGTS + TString ("_alpha2")
-    fracDName = modeTS + TString("_D_") + BDTGTS + TString ("_frac")
-    print sigma1DName
-    print sigma2DName
-    print n1DName
-    print n2DName
-    print alpha1DName
-    print alpha2DName
-    print fracDName
+    sigma1DName = modeTS + TString("_D_") + BDTGTS + TString ("_sigma1_bc")
+    sigma2DName = modeTS + TString("_D_") + BDTGTS + TString ("_sigma2_bc")
+    n1DName = modeTS + TString("_D_") + BDTGTS + TString ("_n1_bc")
+    n2DName = modeTS + TString("_D_") + BDTGTS + TString ("_n2_bc")
+    alpha1DName = modeTS + TString("_D_") + BDTGTS + TString ("_alpha1_bc")
+    alpha2DName = modeTS + TString("_D_") + BDTGTS + TString ("_alpha2_bc")
+    fracDName = modeTS + TString("_D_") + BDTGTS + TString ("_frac_bc")
+    if debug:
+        print sigma1DName
+        print sigma2DName
+        print n1DName
+        print n2DName
+        print alpha1DName
+        print alpha2DName
+        print fracDName
 
-    sigma1BName = modeTS + TString("_B_") + BDTGTS + TString ("_sigma1")
-    sigma2BName = modeTS + TString("_B_") + BDTGTS + TString ("_sigma2")
-    n1BName = modeTS + TString("_B_") + BDTGTS + TString ("_n1")
-    n2BName = modeTS + TString("_B_") + BDTGTS + TString ("_n2")
-    alpha1BName = modeTS + TString("_B_") + BDTGTS + TString ("_alpha1")
-    alpha2BName = modeTS + TString("_B_") + BDTGTS + TString ("_alpha2")
-    fracBName = modeTS + TString("_B_") + BDTGTS + TString ("_frac")
-    print sigma1BName
-    print sigma2BName
-    print n1BName
-    print n2BName
-    print alpha1BName
-    print alpha2BName
-    print fracBName
+    sigma1BName = modeTS + TString("_B_") + BDTGTS + TString ("_sigma1_bc")
+    sigma2BName = modeTS + TString("_B_") + BDTGTS + TString ("_sigma2_bc")
+    n1BName = modeTS + TString("_B_") + BDTGTS + TString ("_n1_bc")
+    n2BName = modeTS + TString("_B_") + BDTGTS + TString ("_n2_bc")
+    alpha1BName = modeTS + TString("_B_") + BDTGTS + TString ("_alpha1_bc")
+    alpha2BName = modeTS + TString("_B_") + BDTGTS + TString ("_alpha2_bc")
+    fracBName = modeTS + TString("_B_") + BDTGTS + TString ("_frac_bc")
+    if debug:
+        print sigma1BName
+        print sigma2BName
+        print n1BName
+        print n2BName
+        print alpha1BName
+        print alpha2BName
+        print fracBName
                                                         
-    cBName = modeTS + TString("_B_") + BDTGTS + TString ("_slope")
+    cB1Name = modeTS + TString("_B_") + BDTGTS + TString ("_slope1")
+    cB2Name = modeTS + TString("_B_") + BDTGTS + TString ("_slope2")
+    fracCombBName = modeTS + TString("_B_") + BDTGTS + TString ("_fracComb")
     cDName = modeTS + TString("_D_") + BDTGTS + TString ("_slope")
     fracCombDName = modeTS + TString("_D_") + BDTGTS + TString ("_fracComb")
-    print cBName
-    print cDName
-    print fracCombDName
-    #exit(0)
-    
+    if debug:
+        print cB1Name
+        print cB2Name
+        print fracCombBName
+        print cDName
+        print fracCombDName
+       
     sigma1DVar =  RooRealVar( "sigma1D", "sigma1D", myconfigfile[sigma1DName.Data()][index], 1.0, 30.0)
     sigma2DVar =  RooRealVar( "sigma2D", "sigma2D", myconfigfile[sigma2DName.Data()][index], 1.0, 30.0)
     n1DVar     =  RooRealVar( "n1D", "n1D", myconfigfile[n1DName.Data()][index])
     n2DVar     =  RooRealVar( "n2D", "n2D", myconfigfile[n2DName.Data()][index])
-    alpha1DVar =  RooRealVar( "alpha1D", "alhpa1D", myconfigfile[alpha1DName.Data()][index]) #, 0.0, 5.0)
-    alpha2DVar =  RooRealVar( "alpha2D", "alpha2D", myconfigfile[alpha2DName.Data()][index]) #, -5.0, 0.0)
+    alpha1DVar =  RooRealVar( "alpha1D", "alhpa1D", myconfigfile[alpha1DName.Data()][index]) #, 0.0, 6.0)
+    alpha2DVar =  RooRealVar( "alpha2D", "alpha2D", myconfigfile[alpha2DName.Data()][index]) #, -6.0, 0.0)
     fracDVar   =  RooRealVar( "fracD",   "fracD",    myconfigfile[fracDName.Data()][index])
     
     sigma1BVar =  RooRealVar( "sigma1B", "sigma1B", myconfigfile[sigma1BName.Data()][index], 1.0, 30.0)
     sigma2BVar =  RooRealVar( "sigma2B", "sigma2B", myconfigfile[sigma2BName.Data()][index], 1.0, 30.0)
     n1BVar     =  RooRealVar( "n1B", "n1B", myconfigfile[n1BName.Data()][index])
     n2BVar     =  RooRealVar( "n2B", "n2B", myconfigfile[n2BName.Data()][index])
-    alpha1BVar =  RooRealVar( "alpha1B", "alhpa1B", myconfigfile[alpha1BName.Data()][index]) #, 0.0, 5.0)
-    alpha2BVar =  RooRealVar( "alpha2B", "alpha2B", myconfigfile[alpha2BName.Data()][index]) #, -5.0, 0.0)
+    alpha1BVar =  RooRealVar( "alpha1B", "alhpa1B", myconfigfile[alpha1BName.Data()][index]) #, 1.0, 6.0)
+    alpha2BVar =  RooRealVar( "alpha2B", "alpha2B", myconfigfile[alpha2BName.Data()][index]) #, -6.0, 1.0)
     fracBVar   =  RooRealVar( "fracB",   "fracB",    myconfigfile[fracBName.Data()][index])
     
-    meanDVar   =  RooRealVar( "meanD" ,  "mean",    meanD,    meanD-100, meanD+100, "MeV/c^{2}") #,
-                  # RooRealVar( "meanD_down" ,  "mean",    meanD,    meanD-100, meanD+100, "MeV/c^{2}")]
+    meanDVar   =  [RooRealVar( "meanD" ,  "mean",    meanD,    meanD-100, meanD+100, "MeV/c^{2}") ,
+                  RooRealVar( "meanD_down" ,  "mean",    meanD,    meanD-100, meanD+100, "MeV/c^{2}")]
                                                                                                                                   
-    meanBVar   =  RooRealVar( "meanB" ,  "mean",    meanB,    meanB-100, meanB+100, "MeV/c^{2}") #,
-                  # RooRealVar( "meanB_down" ,  "mean",    meanB,    meanB-100, meanB+100, "MeV/c^{2}")]
+    meanBVar   =  [RooRealVar( "meanB" ,  "mean",    meanB,    meanB-100, meanB+100, "MeV/c^{2}") ,
+                   RooRealVar( "meanB_down" ,  "mean",    meanB,    meanB-100, meanB+100, "MeV/c^{2}")]
 
     meanBkg = meanB+86.6
     sigmaBkg = 50.0
@@ -285,12 +291,12 @@ def fitB2DPi( debug, var,
             #sigDPDF.append(Bs2Dsh2011TDAnaModels.buildDoubleGEPDF_sim(massD, meanDVar[i], sigma1DVar, sigma2DVar,  fracDVar,
             #                                                          nSig[i], sample[i].Data(), bName, false, debug ))
 
-            sigDPDF.append(Bs2Dsh2011TDAnaModels.buildDoubleCBEPDF_sim(massD, meanDVar,
+            sigDPDF.append(Bs2Dsh2011TDAnaModels.buildDoubleCBEPDF_sim(massD, meanDVar[i],
                                                                        sigma1DVar, alpha1DVar, n1DVar,
                                                                        sigma2DVar, alpha2DVar, n2DVar,
                                                                        fracDVar, nSig[i], sample[i].Data(), dName, debug ))
                        
-            sigPDF.append(Bs2Dsh2011TDAnaModels.buildDoubleCBEPDF_sim(massB, meanBVar,
+            sigPDF.append(Bs2Dsh2011TDAnaModels.buildDoubleCBEPDF_sim(massB, meanBVar[i],
                                                                       sigma1BVar, alpha1BVar, n1BVar,
                                                                       sigma2BVar, alpha2BVar, n2BVar,
                                                                       fracBVar, nSig[i], sample[i].Data(), bName, debug ))
@@ -349,6 +355,7 @@ def fitB2DPi( debug, var,
     cB2 = []
     cD = []
     fracbkg = []
+    fracbkg2 = []
     
     totEPDF = []
     nBkgEvts = []
@@ -402,16 +409,24 @@ def fitB2DPi( debug, var,
                     
        
     predSignalName = TString("pred_Signal_")+BDTGTS
+    predBDKName = TString("pred_BDK_")+BDTGTS
+    
     for i in range(0,ran):
         if MD:
-            cB.append(RooRealVar("cB","coefficient #2", myconfigfile[cBName.Data()][index])) #, -0.01, 0.0)) 
-            bkgBPDF.append(RooExponential("expB", "expB" , massB, cB[i]))
-  
-            fracbkg.append(RooRealVar("fracComb","fracComb",myconfigfile[fracCombDName.Data()][index])) 
-            cD.append(RooRealVar("cD","coefficient #2", myconfigfile[cDName.Data()][index])) #, -0.01, 0.0))  
+            cB.append(RooRealVar("cB","coefficient #2", myconfigfile[cB1Name.Data()][index], -0.01, 0.0)) 
+            bkgBPDF1.append(RooExponential("expB", "expB" , massB, cB[i]))
+
+            cB2.append(RooRealVar("cB2","coefficient #2", 0.0)) #myconfigfile[cB2Name.Data()][index], -0.01, 0.0))
+            bkgBPDF2.append(RooExponential("expB2", "expB2" , massB, cB2[i]))
+
+            fracbkg2.append(RooRealVar("fracComb2","fracComb2", myconfigfile[fracCombBName.Data()][index], 0.0, 1.0))
+            bkgBPDF.append(RooAddPdf("bkgBAddPdf","bkgBAddPdf",bkgBPDF1[i], bkgBPDF2[i], fracbkg2[i]))                                    
+            
+            fracbkg.append(RooRealVar("fracComb","fracComb", myconfigfile[fracCombDName.Data()][index])) 
+            cD.append(RooRealVar("cD","coefficient #2", myconfigfile[cDName.Data()][index], -0.01, 0.0))  
             bkgDPDF1.append(RooExponential("expD", "expB" , massD, cD[i]))
             
-            bkgDPDF.append(RooAddPdf("bkgAddPdf","bkgAddPdf",bkgDPDF1[i], sigDPDF[i], fracbkg[i]))
+            bkgDPDF.append(RooAddPdf("bkgDAddPdf","bkgAddPdf",bkgDPDF1[i], sigDPDF[i], fracbkg[i]))
 
             namePROD = TString("bkgProdPDF")+t+sample[i]
             bkgPDF1.append(RooProdPdf(namePROD.Data(),namePROD.Data(),RooArgList(bkgBPDF[i],bkgDPDF[i])))
@@ -443,15 +458,15 @@ def fitB2DPi( debug, var,
             predSignal = myconfigfile[predSignalName.Data()][i]
             
         if (DK == true):
-            nBd2DK.append(RooRealVar(nameBd2DK.Data() , nameBd2DK.Data(),
-                                     predSignal*0.0735*0.64/2,
-                                     0.0, #predSignal*0.735*0.64*0.05,
-                                     predSignal*0.735*0.64*2))
+            nBd2DK.append(RooRealVar(nameBd2DK.Data() , nameBd2DK.Data(), myconfigfile[predBDKName.Data()]))
+                                     #predSignal*0.0735*0.64/2,
+                                     #0.0, #predSignal*0.735*0.64*0.05,
+                                     #predSignal*0.735*0.64*2))
         else:
             nBd2DK.append(RooRealVar(nameBd2DK.Data() , nameBd2DK.Data(),0))
         
         if (DsPi == true):
-            nBs2DsPi.append(RooRealVar(nameBs2DsPi.Data() , nameBs2DsPi.Data(), 50, 0, 1000 ))
+            nBs2DsPi.append(RooRealVar(nameBs2DsPi.Data() , nameBs2DsPi.Data(), 50, 0, 5000 ))
         else:
             nBs2DsPi.append(RooRealVar(nameBs2DsPi.Data() , nameBs2DsPi.Data(),0))
             
@@ -502,12 +517,12 @@ def fitB2DPi( debug, var,
             namePROD = TString("bkgProdLbLcPiPDF")+t+sample[i]
             bkgLbLcPi.append(RooProdPdf(namePROD.Data(),namePROD.Data(),RooArgList(bkgBLbLcPi[i],bkgDLbLcPi[i])))
 
-            shift = 5369.600-5279.400
-            meanBsDPi =  RooFormulaVar("BsDPi_mean" , "BsDPi_mean",'@0+86.6', RooArgList(meanBVar))
+            #shift = 5369.600-5279.400
+            #meanBsDPi =  RooFormulaVar("BsDPi_mean" , "BsDPi_mean",'@0+86.6', RooArgList(meanBVar))
                 
-            bkgBBkgX.append(RooGaussian("gaussX","gaussX",massB,meanBkgXVar,sigmaBkgXVar))
-            namePROD = TString("bkgProdBkgXPDF")+t+sample[i]
-            bkgBkgX.append(RooProdPdf(namePROD.Data(),namePROD.Data(),RooArgList(bkgBBkgX[i],sigDPDF[i])))
+            #bkgBBkgX.append(RooGaussian("gaussX","gaussX",massB,meanBkgXVar,sigmaBkgXVar))
+            #namePROD = TString("bkgProdBkgXPDF")+t+sample[i]
+            #bkgBkgX.append(RooProdPdf(namePROD.Data(),namePROD.Data(),RooArgList(bkgBBkgX[i],sigDPDF[i])))
                         
         else:
             if ( obsTS == "lab2_MM"):
@@ -529,8 +544,8 @@ def fitB2DPi( debug, var,
         nameEPDF = TString("BkgLbLcPiEPDF_")+sample[i]
         bkgLbLcPiEPDF.append(RooExtendPdf( nameEPDF.Data() , nameEPDF.Data(), bkgLbLcPi[i]  , nLb2LcPi[i]  ))
                 
-        nameEPDF = TString("BkgBkgXEPDF_")+sample[i]
-        bkgBkgXEPDF.append(RooExtendPdf( nameEPDF.Data() , nameEPDF.Data(), bkgBkgX[i]  , nBkgX[i]  ))
+        #nameEPDF = TString("BkgBkgXEPDF_")+sample[i]
+        #bkgBkgXEPDF.append(RooExtendPdf( nameEPDF.Data() , nameEPDF.Data(), bkgBkgX[i]  , nBkgX[i]  ))
 
         nameEPDF = TString("BkgBdDstPiEPDF_")+sample[i]
         bkgBdDstPiEPDF.append(RooExtendPdf( nameEPDF.Data() , nameEPDF.Data(), bkgBdDstPi[i]  , nBd2DstPi[i]  ))

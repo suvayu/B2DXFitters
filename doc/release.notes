@@ -4,6 +4,17 @@
 ! Purpose     : RooFit-based fitters for B -> D X
 !-----------------------------------------------------------------------------
 
+! 2013-05-06 - Agnieszka Dziurda
+ - Improvements for MDFitter
+   - switch to double Crystal Ball for Ds signal shape
+   - add config files for fitting BDPi and CombBkg
+   - change shape for combinatorial backgroun in Ds: signal + exponential    
+   - change parametrisation of signals
+   - change in expectedEvents.py file and in function from MassFitUtils
+   - fix small bug in obtain signal
+   - set new ratio Data/MC for signal shapes from BDPi fits in BDTG bins 
+   - add .csh scripts to run and plot BDTGC for DsK and DsPi 
+
 ! 2013-04-23 - Agnieszka Dziurda
  - Huge update for last half year of work
  - Add Multidimensional fitter (MDFitter) to Bs, Ds and PIDK variables,

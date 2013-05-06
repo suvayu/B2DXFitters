@@ -141,13 +141,14 @@ def fitSignal( debug, var , mode, modeDs,  reweight, veto, merge, BDTG) :
                                           NULL, debug)
     
                                              
-    #workspace = GeneralUtils.LoadWorkspace(TString("/afs/cern.ch/work/a/adudziak/public/workspace/work_pid_dspi.root"),TString("workspace"),debug)
-    
+       
     
     mass = GeneralUtils.GetObservable(workspace,obsTS, debug)
     observables = RooArgSet( mass )
     
-    
+             
+                                                                                           
+                                                                                                                    
     data= []
     nEntries = []
     if merge:
@@ -162,40 +163,40 @@ def fitSignal( debug, var , mode, modeDs,  reweight, veto, merge, BDTG) :
 
         
     if obsTS != "lab2_MM":
-        sigma1 = 8.00
-        sigma2 = 7.00
+        sigma1 = 10.00
+        sigma2 = 12.00
         alpha1 = 3.0
         alpha2 = -2.0
-        n1 = 0.1
-        n2 = 5.0
+        n1 = 12.0
+        n2 = 15.0
         frac = 0.50
-        alpha1Var =  RooRealVar( "DblCBPDF_alpha1", "alpha1",  alpha1,  0,     5)
-        alpha2Var =  RooRealVar( "DblCBPDF_alpha2", "alpha2",  alpha2,  -5,    0)
-        n1Var     =  RooRealVar( "DblCBPDF_n1",     "n1",      n1,      0.001,  15)
-        n2Var     =  RooRealVar( "DblCBPDF_n2",     "n2",      n2,      0.001,  15)
+        alpha1Var =  RooRealVar( "DblCBPDF_alpha1", "alpha1",  alpha1,  0,     6)
+        alpha2Var =  RooRealVar( "DblCBPDF_alpha2", "alpha2",  alpha2,  -6,    0)
+        n1Var     =  RooRealVar( "DblCBPDF_n1",     "n1",      n1,      0.001,  50)
+        n2Var     =  RooRealVar( "DblCBPDF_n2",     "n2",      n2,      0.001,  50)
         fracVar   =  RooRealVar( "DblCBPDF_frac",   "frac",    frac,    0,     1)
-        sigma1Var =  RooRealVar( "DblCBPDF_sigma1", "sigma1",  sigma1,  1,    20, "MeV/c^{2}")
-        sigma2Var =  RooRealVar( "DblCBPDF_sigma2", "sigma2",  sigma2,  1,    20, "MeV/c^{2}")
+        sigma1Var =  RooRealVar( "DblCBPDF_sigma1", "sigma1",  sigma1,  1.0,    30, "MeV/c^{2}")
+        sigma2Var =  RooRealVar( "DblCBPDF_sigma2", "sigma2",  sigma2,  1.0,    20, "MeV/c^{2}")
             
     else:
-        sigma1 = 7.00
-        sigma2 = 5.0
+        sigma1 = 8.00
+        sigma2 = 10.0
         sigma3 = 1.0
-        alpha1 = 3.4
-        alpha2 = -3.4
-        n1 = 50
-        n2 = 50 
+        alpha1 = 1.0
+        alpha2 = -5.0
+        n1 = 50.0
+        n2 = 40.0 
         frac = 0.50
         frac2 = 0.50
         alpha1Var =  RooRealVar( "DblCBPDF_alpha1", "alpha1",  alpha1,  0.0,  7.0)
         alpha2Var =  RooRealVar( "DblCBPDF_alpha2", "alpha2",  alpha2,  -7.0,  0.0)
-        n1Var     =  RooRealVar( "DblCBPDF_n1",     "n1",      n1,      0.0001,   50)
-        n2Var     =  RooRealVar( "DblCBPDF_n2",     "n2",      n2,      0.0001,   50)
+        n1Var     =  RooRealVar( "DblCBPDF_n1",     "n1",      n1,      0.01,   70)
+        n2Var     =  RooRealVar( "DblCBPDF_n2",     "n2",      n2,      0.01,   70)
                 
         fracVar   =  RooRealVar( "DblCBPDF_frac",   "frac",    frac,    0,     1)
         frac2Var   =  RooRealVar( "DblCBPDF_frac2",   "frac2",    frac2,    0,     1)
-        sigma1Var =  RooRealVar( "DblCBPDF_sigma1", "sigma1",  sigma1,  1,    40, "MeV/c^{2}")
-        sigma2Var =  RooRealVar( "DblCBPDF_sigma2", "sigma2",  sigma2,  1,    40, "MeV/c^{2}")
+        sigma1Var =  RooRealVar( "DblCBPDF_sigma1", "sigma1",  sigma1,  1,    20, "MeV/c^{2}")
+        sigma2Var =  RooRealVar( "DblCBPDF_sigma2", "sigma2",  sigma2,  1,    20, "MeV/c^{2}")
         sigma3Var =  RooRealVar( "DblCBPDF_sigma3", "sigma3",  sigma3,  0.0001,    20, "MeV/c^{2}")
         
     meanVar   =  [RooRealVar( "DblCBPDF_mean_up" ,  "mean",    mean,    mean-50, mean+50, "MeV/c^{2}"),

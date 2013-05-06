@@ -10,13 +10,12 @@
 //---------------------------------------------------------------------------//
 
 // STL includes
-#include <cmath> 
 #include <string>
 #include <vector>
 #include <fstream>
 #include <stdexcept>
 
-#include "B2DXFitters/icc_fpclass_workaround.h" 
+//#include "B2DXFitters/icc_fpclass_workaround.h"
 
 // ROOT and RooFit includes
 #include "TH1D.h"
@@ -561,7 +560,7 @@ namespace MassFitUtils {
       Double_t lab1_P3, lab2_P3, lab1_PX3, lab1_PY3, lab1_PZ3, lab2_PX3, lab2_PY3, lab2_PZ3;
       Double_t lab1_PT3;
       Int_t nTracks3;
-   
+
       Float_t masshypo;
       Double_t w, wE, wA;
       
@@ -594,7 +593,7 @@ namespace MassFitUtils {
 	treetmp[i]->GetEntry(jentry);
 	Int_t bin;
 	
-	masshypo = (Float_t)std::sqrt(pow(sqrt(pow(493.677,2) + std::pow(lab1_P3,2)) + std::sqrt( std::pow(lab2_MM3,2)+ std::pow(lab2_P3,2)),2)
+	masshypo = (Float_t)std::sqrt(std::pow(std::sqrt(std::pow(493.677,2)+std::pow(lab1_P3,2))+std::sqrt(std::pow(lab2_MM3,2)+std::pow(lab2_P3,2)),2)
 				      -std::pow(lab1_PX3+lab2_PX3,2)
 				      -std::pow(lab1_PY3+lab2_PY3,2)
 				      -std::pow(lab1_PZ3+lab2_PZ3,2)); // change hypo Pi->K
@@ -607,7 +606,6 @@ namespace MassFitUtils {
           wE = heff[i]->GetBinContent(bin);
 	  if( wE == 0 ) { wA = 0; } else { wA = w/wE;}
 	  weights[i]->setVal(wA);
-	  //if ( lab2_MM3 > 1960 && lab2_MM3 < 1975) std::cout<<w<<" "<<wE<<" "<<wA<<" "<<masshypo<<" "<<lab2_MM3<<std::endl;
 	  lab0_MM->setVal(masshypo);
 	  lab2_MM->setVal(lab2_MM3);
 	  lab1_P->setVal(log(lab1_P3));
@@ -615,7 +613,6 @@ namespace MassFitUtils {
 	  nTracks->setVal(log(nTracks3));
 	  lab1_PT->setVal(log(lab1_PT3));
 	  
-	  //	  dataSet[i]->add(RooArgSet(*lab0_MM,*lab2_MM,*weights[i]),w,0);  // add event to data set //
 	  if( mistag == true)
 	    {
 	      //std::cout<<"mistag: "<<lab0_TAGOMEGA2<<std::endl;
@@ -627,7 +624,6 @@ namespace MassFitUtils {
 		}
 	    }
 	  dataSet[i]->add(RooArgSet(*lab0_MM,*lab2_MM,*lab1_P,*lab1_PT,*nTracks,*lab1_PIDK,*weights[i]),wA,0);
-	  
 	}
       }
       
@@ -880,11 +876,11 @@ namespace MassFitUtils {
       Float_t lab1_PIDK2;
 
       treetmp[i]->SetBranchAddress("lab1_P",  &lab1_P2);
-      treetmp[i]->SetBranchAddress("lab1_PT",  &lab1_PT2);
+      treetmp[i]->SetBranchAddress("lab1_PT", &lab1_PT2);
       treetmp[i]->SetBranchAddress("lab1_PX", &lab1_PX2);
       treetmp[i]->SetBranchAddress("lab1_PY", &lab1_PY2);
       treetmp[i]->SetBranchAddress("lab1_PZ", &lab1_PZ2);
-      treetmp[i]->SetBranchAddress("lab1_M", &lab1_M2);
+      treetmp[i]->SetBranchAddress("lab1_M",  &lab1_M2);
       
       treetmp[i]->SetBranchAddress("lab3_PX", &lab3_PX2);
       treetmp[i]->SetBranchAddress("lab3_PY", &lab3_PY2);
@@ -929,16 +925,16 @@ namespace MassFitUtils {
 	for( int k=0; k<2; k++)
 	  {
 	    if(k == 0 ) {
-	      E3 = std::sqrt(v3.P()*v3.P()+493.677*493.677);
-	      E4 = std::sqrt(v4.P()*v4.P()+139.57*139.57);
-	      E5 = std::sqrt(v5.P()*v5.P()+493.677*493.677);
+	      E3 = sqrt(v3.P()*v3.P()+493.677*493.677);
+	      E4 = sqrt(v4.P()*v4.P()+139.57*139.57);
+	      E5 = sqrt(v5.P()*v5.P()+493.677*493.677);
 	      v3.SetE(E3); v4.SetE(E4); v5.SetE(E5);
 	      phypo = v3.P();
 	    }
 	    else if (k == 1){
-	      E3 = std::sqrt(v3.P()*v3.P()+139.57*139.57);
-	      E4 = std::sqrt(v4.P()*v4.P()+493.677*493.677);
-	      E5 = std::sqrt(v5.P()*v5.P()+493.677*493.677);
+	      E3 = sqrt(v3.P()*v3.P()+139.57*139.57);
+	      E4 = sqrt(v4.P()*v4.P()+493.677*493.677);
+	      E5 = sqrt(v5.P()*v5.P()+493.677*493.677);
 	      v3.SetE(E3); v4.SetE(E4); v5.SetE(E5);
 	      phypo = v4.P();
 	    }
@@ -951,10 +947,9 @@ namespace MassFitUtils {
 	    if (masshypod > Dmass_down && masshypod < Dmass_up)  //only events which fall into Ds mass window are acceptable
 	      {
 
-		masshypo = (Float_t) std::sqrt( pow(sqrt(pow(lab1_M2,2) + std::pow(lab1_P2,2))
-						    + std::sqrt(pow(vd.M(),2) + std::pow(vd.P(),2)),2)
-						- std::pow(lab1_PX2+vd.Px(),2)-std::pow(lab1_PY2+vd.Py(),2)-pow(lab1_PZ2+vd.Pz(),2)
-						);  // build Bs
+		masshypo = (Float_t) std::sqrt( std::pow(std::sqrt(std::pow(lab1_M2,2) + std::pow(lab1_P2,2))
+							 + std::sqrt(pow(vd.M(),2)+std::pow(vd.P(),2)),2)
+						- std::pow(lab1_PX2+vd.Px(),2)-std::pow(lab1_PY2+vd.Py(),2)-std::pow(lab1_PZ2+vd.Pz(),2));  // build Bs
 		
 		//std::cout<<"massb: "<<masshypo<<std::endl;
 		
@@ -1237,10 +1232,10 @@ namespace MassFitUtils {
 	//hrdm[i]  = Read3DHist(FileNameRDM,namehist,i);
 	smpRDM[i] = CheckPolarity(FileNameRDM[i+1], debug);
 
-	if (heff[i]) {}; // hush up compiler warning 
-	if (heffmiss[i]) {}; // hush up compiler warning
-	if (heffProton[i]) {}; // hush up compiler warning
-	if (hrdm[i]) {}; // hush up compiler warning
+	if (heff[i]) {}; // hush up compiler warning
+        if (heffmiss[i]) {}; // hush up compiler warning
+        if (heffProton[i]) {}; // hush up compiler warning
+        if (hrdm[i]) {}; // hush up compiler warning
       }
 
     // Read sample (means down or up)  from path //
@@ -1307,8 +1302,8 @@ namespace MassFitUtils {
 	if ( debug == true) std::cout<<"mode: "<<mode[i]<<std::endl;
 	if ( hypo.Contains("Bd"))
 	  {
-	    if ( ((mode[i].find("D") != std::string::npos) && (mode[i].find("Ds") == std::string::npos)) ||
-		 (mode[i].find("Dst") != std::string::npos)) 
+	    if ( ( (mode[i].find("D") != std::string::npos) && (mode[i].find("Ds") == std::string::npos) ) 
+		 || (mode[i].find("Dst") != std::string::npos)) 
 	      {
 	      MCCut1 = "lab2_BKGCAT < 30 && lab2_FDCHI2_ORIVX > 9";	 
 	      
@@ -1763,7 +1758,7 @@ namespace MassFitUtils {
       heffProton[i] = ReadPIDHist(FileNamePIDp, namehist, i, debug);
       
       smpProton[i] = CheckPolarity(FileNamePIDp[i+1], debug);
-
+    
       if (heff[i]) {}; // hush up compiler warning
       if (heffmiss[i]) {}; // hush up compiler warning
       if (heffProton[i]) {}; // hush up compiler warning
@@ -2482,8 +2477,7 @@ namespace MassFitUtils {
       BachHypo = "lab1_M > 200"; 
       if ( debug == true) std::cout<<"Mode with K"<<std::endl; 
     }
-    
-    
+          
     TCut P_cut = Form("lab1_P > %f && lab1_P < %f",Pcut_down,Pcut_up);
     TCut BDTG_cut = Form("BDTGResponse_1 > %f && BDTGResponse_1 < %f",BDTG_down, BDTG_up);
     TCut FDCHI2 = "";
@@ -2502,12 +2496,12 @@ namespace MassFitUtils {
 
     TCut DHypo = "";
     TCut MCBsIDCut = ""; 
-    TCut MCBsTRUEIDCut = ""; ;
+    TCut MCBsTRUEIDCut = ""; 
     TCut Charge = "(lab5_ID/abs(lab5_ID)) != (lab1_ID/abs(lab1_ID))";
-    TCut BkgCAT = "lab0_BKGCAT < 30 || lab0_BKGCAT == 50";
+    TCut BkgCAT = "(lab0_BKGCAT < 30 || lab0_BKGCAT == 50) && (lab2_BKGCAT<30 || lab2_BKGCAT == 50)";
 
     TCut TAU_cut = "lab2_TAU > 0";
-    TCut MCCut, MCCut1;
+    TCut MCCut;
     TCut MCD = Form("lab2_MM > %f && lab2_MM < %f",Dmass_down,Dmass_up);
     TCut MCB = Form("%s > %f && %s < %f",mVar.Data(),BMassRange[0],mVar.Data(),BMassRange[1]);
     
@@ -2522,11 +2516,7 @@ namespace MassFitUtils {
 	Veto = LambdaVeto1&&LambdaVeto2&&DVeto1&&DVeto2&&FDCHI2;
       }
 
-    if ( (mode.Contains("Bs") != -1) || ( (mode.Contains("Ds") != -1) && (mode.Contains("Dst") == -1))) {
-      MCCut1 = "(lab2_BKGCAT<30 || lab2_BKGCAT == 50)";
-    }
-    else { MCCut1 = "lab2_BKGCAT == 30"; }
-    
+        
     if ( debug == true) std::cout<<"mode: "<<mode<<std::endl;
     
     TTree* treetmp = NULL;
@@ -2540,11 +2530,12 @@ namespace MassFitUtils {
     Float_t c = 299792458.;
     Float_t factor = 1e9/c;
     Double_t wRW=0;
- 
-    for(int i = 0; i<2; i++)
+    
+    for(int i = 0; i<1; i++)
     { 
       int id_lab4(0), id_lab3(0), id_lab5(0);
-      if ( md[i].Contains("kkpi") == true ) 
+      if ( md[i].Contains("kkpi") == true || md[i].Contains("nonres") == true || 
+	   md[i].Contains("kstk") == true || md[0].Contains("phipi") == true) 
 	{ 
 	  id_lab3=211; id_lab4=321; id_lab5 = 321; 
 	  DHypo = "lab3_M < 200 && lab4_M > 200 && lab5_M > 200";
@@ -2566,7 +2557,7 @@ namespace MassFitUtils {
       MCBsIDCut = Form("abs(lab1_ID)==%d && abs(lab5_ID)==%d && abs(lab3_ID)==%d && abs(lab4_ID)==%d",id_lab1, id_lab5, id_lab3, id_lab4);
       MCBsTRUEIDCut = Form("abs(lab1_TRUEID)==%d && abs(lab5_TRUEID)==%d && abs(lab3_TRUEID)==%d && abs(lab4_TRUEID)==%d",id_lab1, id_lab5, id_lab3, id_lab4);
 
-      MCCut = MCBsIDCut&&MCTriggerCut&&MCD&&MCB&&P_cut&&BDTG_cut&&FDCHI2&&TAU_cut&&BachHypo&&DHypo&&Veto; //&&MCBsTRUEIDCut&&BkgCAT;;
+      MCCut = MCBsIDCut&&MCTriggerCut&&MCD&&MCB&&P_cut&&BDTG_cut&&FDCHI2&&TAU_cut&&BachHypo&&DHypo&&Veto&&MCBsTRUEIDCut&&BkgCAT;
 
       std::cout<<"------Cut-----"<<std::endl;
       std::cout<<MCCut<<std::endl;
@@ -2707,7 +2698,7 @@ namespace MassFitUtils {
     RooDataSet* databoth = NULL;
     databoth = new RooDataSet(nameboth.Data(),nameboth.Data(),*obs);
     databoth->append(*dataSetMC[0]);
-    databoth->append(*dataSetMC[1]);
+    //databoth->append(*dataSetMC[1]);
     if ( debug == true) std::cout<<" data: "<<databoth->numEntries()<<std::endl;
     work->import(*databoth);
     
@@ -2956,9 +2947,9 @@ namespace MassFitUtils {
   // mode - mode of decay
   //==========================================================================
 
-  void ExpectedYield(TString& filesDir, TString& sigBs, TString& sigBd,
-		     TString& sigPID_1, TString& PIDcut_1,
-		     TString& sigPID_2, TString& PIDcut_2,
+  void ExpectedYield(TString& filesDir, TString& sigHypo, TString& sigOwn,
+		     TString& sigPID_1, TString& PIDhist_1,
+		     TString& sigPID_2, TString& PIDhist_2,
 		     double Pcut_down, double Pcut_up,
 		     double BDTG_down, double BDTG_up,
 		     double Dmass_down, double Dmass_up,
@@ -2968,50 +2959,48 @@ namespace MassFitUtils {
     
     std::cout<<"[INFO] ==> GeneralUtils::ExpectedYield(...). Calculate expected yield misID backgrouds"<<std::endl;
     std::cout<<"name of config file: "<<filesDir<<std::endl;
-    std::cout<<"hist1: "<<PIDcut_1<<std::endl;
-    std::cout<<"hist2: "<<PIDcut_2<<std::endl;
+    std::cout<<"hist1: "<<PIDhist_1<<std::endl;
+    std::cout<<"hist2: "<<PIDhist_2<<std::endl;
           
-    std::cout<<"=====> Preparing signal from MC"<<std::endl;
-    
-       
-    std::vector <std::string> FileName;
-    ReadOneName(filesDir,FileName,sigBs, true);
+    //Read MC samples//       
+    std::vector <std::string> FileNameHypo;
+    ReadOneName(filesDir,FileNameHypo,sigHypo, true);
         
-    TTree* tree[2];
+    TTree* treeHypo[2];
 
     for( int i=0; i<2; i++)
       {
-	tree[i] = NULL;
-	tree[i] = ReadTreeData(FileName,i, true);
+	treeHypo[i] = NULL;
+	treeHypo[i] = ReadTreeData(FileNameHypo,i, true);
       }
     
-    std::vector <std::string> FileNameBd;
-    ReadOneName(filesDir,FileNameBd,sigBd, true);
+    std::vector <std::string> FileNameOwn;
+    ReadOneName(filesDir,FileNameOwn,sigOwn, true);
 
-    TTree* treeBd[2];
+    TTree* treeOwn[2];
 
     for( int i=0; i<2; i++)
       {
-        treeBd[i] = NULL;
-        treeBd[i] = ReadTreeData(FileNameBd,i, true);
+        treeOwn[i] = NULL;
+        treeOwn[i] = ReadTreeData(FileNameOwn,i, true);
       }
 
-           
-    TString smp[2], smpBd[2];
+    // Check polarity of MC samples //
+    TString smpHypo[2], smpOwn[2];
     for (int i=1; i<3; i++){
-      smp[i-1] = CheckPolarity(FileName[i], true);
-      smpBd[i-1] = CheckPolarity(FileNameBd[i], true);
+      smpHypo[i-1] = CheckPolarity(FileNameHypo[i], true);
+      smpOwn[i-1] = CheckPolarity(FileNameOwn[i], true);
     }
     
-    std::vector <std::string> FileNamePID_1;
-    std::vector <std::string> FileNamePID_2;
-    std::vector <std::string> FileNamePID2_1;
-    std::vector <std::string> FileNamePID2_2;
+    //Read names for PID histograms //
+    std::vector <std::string> FileNamePID_1;  //the first half of the first histogram PIDhist_1
+    std::vector <std::string> FileNamePID_2;  //the second half of the second histogram PIDhist_1
+    std::vector <std::string> FileNamePID2_1; //the first half of the second histogram PIDhist_2
+    std::vector <std::string> FileNamePID2_2; //the second half of the second histogram PIDhist_2
 
     ReadOneName(filesDir,FileNamePID_1,sigPID_1, true);
     ReadOneName(filesDir,FileNamePID_2,sigPID_2, true);
     
-
     if( sigPID_1 == "#PID") 
       { 
 	TString sigPID2_1="#PID2";
@@ -3041,44 +3030,45 @@ namespace MassFitUtils {
     histent2[0] = 9122416.0;
   
     TString namehist;
-    //TString smpmiss[2];
+    //Read first PID histogram: PIDhist_1 //
     for( int i = 0; i<2; i++ )
       {
 	std::cout<<FileNamePID_1[0]<<std::endl;
 	std::cout<<FileNamePID_1[i+1]<<std::endl;
 	h_11[i]=NULL;
 	h_12[i]=NULL;
-	h_11[i] = ReadPIDHist(FileNamePID_1,PIDcut_1,i, true);
+	h_11[i] = ReadPIDHist(FileNamePID_1,PIDhist_1,i, true); //load the first part
 	if ( sigPID_1 == "#PID" )
 	  {
 	    std::cout<<FileNamePID2_1[0]<<std::endl;
 	    std::cout<<FileNamePID2_1[i+1]<<std::endl;
 	    
-	    h_12[i] = ReadPIDHist(FileNamePID2_1,PIDcut_1,i, true);
+	    h_12[i] = ReadPIDHist(FileNamePID2_1,PIDhist_1,i, true); //load the second part
 	    h_1[i] = NULL;
-	    h_1[i]=AddHist(h_11[i],  histent1[i], h_12[i], histent2[i], true);
+	    h_1[i] = AddHist(h_11[i],  histent1[i], h_12[i], histent2[i], true); //add both parts
 	  }
 	else {
 	  h_1[i] = h_11[i];
 	}
 
       }
-    if( mode != "BsDsPi")
+    //Read second histogram PIDhist_2 (in case of lab4 and lab5) 
+    if( mode != "BsDsPi" && mode != "BDK")
       {
 	for( int i = 0; i<2; i++ )
 	  {
 	    std::cout<<FileNamePID_2[0]<<std::endl;
 	    std::cout<<FileNamePID_2[i+1]<<std::endl;
 	    h_21[i]=NULL;
-	    h_21[i] = ReadPIDHist(FileNamePID_2,PIDcut_2,i, true);
+	    h_21[i] = ReadPIDHist(FileNamePID_2,PIDhist_2,i, true); // load the first part
 	    if ( sigPID_2 == "#PID" )
 	      {
 		std::cout<<FileNamePID2_2[0]<<std::endl;
 		std::cout<<FileNamePID2_2[i+1]<<std::endl;
 		h_22[i]=NULL;
-		h_22[i] = ReadPIDHist(FileNamePID2_2,PIDcut_2,i, true);
+		h_22[i] = ReadPIDHist(FileNamePID2_2,PIDhist_2,i, true); // load the second part
 		h_2[i] = NULL;
-		h_2[i]=AddHist(h_21[i],  histent1[i], h_22[i], histent2[i], true);
+		h_2[i]=AddHist(h_21[i],  histent1[i], h_22[i], histent2[i], true); // add both parts
 	      }
 	    else
 	      {
@@ -3088,89 +3078,106 @@ namespace MassFitUtils {
       }
     else
       {
+	h_21[0] = NULL; h_21[1] = NULL;
+	h_22[0] = NULL; h_22[1] = NULL;
 	h_2[0]=NULL; h_2[1]=NULL;
       }
   
        
     TCut P_cut = Form("lab1_P > %f && lab1_P < %f",Pcut_down,Pcut_up);
     TCut BDTG_cut = Form("BDTGResponse_1 > %f && BDTGResponse_1 < %f",BDTG_down, BDTG_up);
-    TCut Bd_Cut="";
-    TCut Bs_Cut="";
+    TCut Own_Cut=""; //cut under its own hypo
+    TCut Hypo_Cut=""; //cut under different hypo
 
     TString nameMeson, nameHypo, nameDMeson, nameDHypo;
+    TString nameRes="";
     if(mode == "BdDPi" || mode == "Bd2DPi" || mode == "BDPi" || mode == "B2DPi")
       {
-	nameMeson = "Bs->DsPi"; 
-	nameHypo = "Bd->DPi";
+	nameMeson= "Bs->DsPi"; 
+	nameHypo  = "Bd->DPi";
 	nameDHypo = "D->KPiPi";
-	Bd_Cut = "lab4_M < 200 && lab1_M < 200 && lab3_M <200 && lab5_M > 200";
 	if ( mode2 =="kkpi" )
 	  {
 	    nameDMeson = "Ds->KKPi";
-	    Bs_Cut = Form("lab4_M > 200 && lab3_M <200 && lab5_M > 200 && lab1_M < 200 && lab2_M > %f && lab2_M <%f",Dmass_down,Dmass_up);
+	    if ( sigHypo.Contains("NonRes") == true ) { 
+		nameRes = "((!(abs(lab45_MM-1020)<20)) && (!(abs(lab34_MM-892.0) < 50.)))";
+	    }
+	    else if ( sigHypo.Contains("PhiPi") == true ) {
+	      nameRes = "(abs(lab45_MM-1020)<20)";
+	    }
+	    else if ( sigHypo.Contains("KstK") == true ) {
+	      nameRes = "((!(abs(lab45_MM-1020)<20 )) && ((abs(lab34_MM-892.0) < 50.)))";
+	    }
+	    Hypo_Cut = Form("lab4_M > 200 && lab3_M <200 && lab5_M > 200 && lab1_M < 200 && lab2_M > %f && lab2_M <%f && %s > 5300 && %s < 5600",
+			    Dmass_down,Dmass_up,mVar.Data(),mVar.Data());
+	    Own_Cut  = "lab4_M < 200 && lab1_M < 200 && lab3_M <200 && lab5_M > 200";
+	    Hypo_Cut = Hypo_Cut&&nameRes;
+	    Own_Cut  = Own_Cut&&nameRes;
 	  }
 	else if(mode2 == "kpipi")
 	  {
 	    nameDMeson = "Ds->KPiPi";
-	    Bs_Cut = Form("lab4_M < 200 && lab3_M <200 && lab5_M > 200 && lab1_M < 200 && lab2_M > %f && lab2_M <%f",Dmass_down,Dmass_up);
+	    Own_Cut = "lab4_M < 200 && lab1_M < 200 && lab3_M <200 && lab5_M > 200";
+	    Hypo_Cut = Form("lab4_M < 200 && lab3_M <200 && lab5_M > 200 && lab1_M < 200 && lab2_M > %f && lab2_M <%f && %s > 5300 && %s < 5600",
+			    Dmass_down,Dmass_up,mVar.Data(),mVar.Data());
 	  }
 
       }
     else if ( mode=="LbLcPi")
       {
-	Bd_Cut = "lab1_M < 200 && lab3_M <200 && lab5_M > 200";
+	Own_Cut = "lab1_M < 200 && lab3_M <200 && lab5_M > 200";
 	nameMeson = "Bs->DsPi";
         nameHypo = "Lb->LcPi";
         nameDHypo = "Lc->pKPi";
 	if ( mode2 =="kpipi" )
 	  {
 	    nameDMeson = "Ds->KPiPi";
-	    Bs_Cut = Form("lab3_M < 200 && lab4_M < 200 && lab5_M >200 && lab1_M < 200 && lab2_M > %f && lab2_M <%f",Dmass_down,Dmass_up);
+	    Hypo_Cut = Form("lab3_M < 200 && lab4_M < 200 && lab5_M >200 && lab1_M < 200 && lab2_M > %f && lab2_M <%f",Dmass_down,Dmass_up);
 	  }
 	else if(mode2 == "kkpi")
 	  {
 	    nameDMeson = "Ds->KKPi";
-	    Bs_Cut = Form("lab3_M < 200 && lab4_M > 200 && lab5_M >200 && lab1_M < 200 && lab2_M > %f && lab2_M <%f",Dmass_down,Dmass_up);
+	    Hypo_Cut = Form("lab3_M < 200 && lab4_M > 200 && lab5_M >200 && lab1_M < 200 && lab2_M > %f && lab2_M <%f",Dmass_down,Dmass_up);
 	  }
 	else if(mode2 == "pipipi")
 	  {
 	    nameDMeson = "Ds->PiPiPi";
-	    Bs_Cut = Form("lab3_M < 200 && lab4_M < 200 && lab5_M <200 && lab1_M < 200 && lab2_M > %f && lab2_M <%f",Dmass_down,Dmass_up);
+	    Hypo_Cut = Form("lab3_M < 200 && lab4_M < 200 && lab5_M <200 && lab1_M < 200 && lab2_M > %f && lab2_M <%f",Dmass_down,Dmass_up);
 	  }
       }
     else if ( mode.Contains("DsPi") )
       {
 	  nameMeson = "Bs->DsK";
           nameHypo = "Bs->DsPi";
-	  Bd_Cut = "lab1_M < 200";
-	  Bs_Cut = Form("lab1_M > 200 && %s > 5320 && %s < 5420 && lab2_MM > 1930 && lab2_MM < 2015",mVar.Data(),mVar.Data());
+	  Own_Cut = "lab1_M < 200";
+	  Hypo_Cut = Form("lab1_M > 200 && %s > 5320 && %s < 5420 && lab2_MM > 1930 && lab2_MM < 2015",mVar.Data(),mVar.Data());
 	  
       }
     else if (mode.Contains("DsK"))
       {
 	nameMeson = "Bs->DsPi";
 	nameHypo = "Bs->DsK";
-	Bd_Cut = "lab1_M > 200";
-	Bs_Cut = Form("lab1_M < 200 && %s > 5100 && %s < 5800",mVar.Data(),mVar.Data());
+	Own_Cut = "lab1_M > 200";
+	Hypo_Cut = Form("lab1_M < 200 && %s > 5100 && %s < 5800",mVar.Data(),mVar.Data());
       }
     else if ( mode == "BDK" )
       {
 	nameMeson = "Bd->DPi"; 
 	nameHypo = "Bd->DK"; 
-	Bd_Cut = "lab1_M > 200";
-	Bs_Cut = Form("lab1_M < 200 && %s > 5200 && %s < 5400",mVar.Data(),mVar.Data());
+	Own_Cut = "lab1_M > 200";
+	Hypo_Cut = Form("lab1_M < 200 && %s > 5000 && %s < 5600",mVar.Data(),mVar.Data());
       }
     else if ( mode == "LbDsp" || mode == "LbDsstp")
       {
-	Bd_Cut = "";
-	// Bs_Cut = Form("lab1_M > 200 && %s > 5320 && %s < 5420",mVar.Data(),mVar.Data());
-	Bs_Cut = "lab1_M > 200";
+	Own_Cut = "";
+	Hypo_Cut = Form("lab1_M > 200 && %s > 5300 && %s < 5600",mVar.Data(),mVar.Data());
+	//Hypo_Cut = "lab1_M > 200";
       } 
 
-    TCut All_Bd_cut = Bd_Cut&&BDTG_cut;
-    TCut All_cut = Bs_Cut&&BDTG_cut; //&&P_cut;
-    std::cout<<All_Bd_cut<<std::endl;
-    std::cout<<All_cut<<std::endl;
+    TCut All_Own_cut = Own_Cut&&BDTG_cut;
+    TCut All_Hypo_cut = Hypo_Cut&&BDTG_cut; //&&P_cut;
+    std::cout<<All_Own_cut<<std::endl;
+    std::cout<<All_Hypo_cut<<std::endl;
     
     Float_t ratio[2];
 
@@ -3181,35 +3188,35 @@ namespace MassFitUtils {
     Double_t cal_lab5[2];
     Double_t cal_lab1[2];
 
-    Long_t n_events[2];
-    Long_t n_events_Bd[2];
+    Long_t n_events_Hypo[2];
+    Long_t n_events_Own[2];
     
-    TString h_lab4_name;
-    TString h_lab5_name;
-    TString h_lab1_name;
+    TString h_lab4_name; //histogram from tree for lab4
+    TString h_lab5_name; //histogram from tree for lab5
+    TString h_lab1_name; //histogram from tree for lab1
     TString heff10_name;
     TString heff0_name;
 
     for(int i=0; i<2; i++)
       {
 	ttmp[i] = NULL;
-        ttmp[i] = TreeCut(treeBd[i],All_Bd_cut,smpBd[i],mode, true);
+        ttmp[i] = TreeCut(treeOwn[i],All_Own_cut,smpOwn[i],mode, true);
 	ttmp2[i] = NULL;
-	ttmp2[i] = TreeCut(tree[i],All_cut,smp[i],mode, true);
-	n_events_Bd[i] = ttmp[i]->GetEntries();
-	n_events[i] = ttmp2[i]->GetEntries();
-	ratio[i] = (Float_t)n_events[i]/n_events_Bd[i];
-	std::cout<<"initial_cut: "<<n_events_Bd[i]<<" cut: "<<n_events<<" ratio: "<<ratio[i]<<std::endl; 
+	ttmp2[i] = TreeCut(treeHypo[i],All_Hypo_cut,smpHypo[i],mode, true);
+	n_events_Own[i] = ttmp[i]->GetEntries();
+	n_events_Hypo[i] = ttmp2[i]->GetEntries();
+	ratio[i] = (Float_t)n_events_Hypo[i]/n_events_Own[i]; // ratio hypo/own events
+	std::cout<<"initial_cut: "<<n_events_Own[i]<<" cut: "<<n_events_Hypo[i]<<" ratio: "<<ratio[i]<<std::endl; 
 	
-	cal_lab4[i] = 0;
-	cal_lab5[i] = 0;
-	cal_lab1[i] = 0; 
+	cal_lab4[i] = 0; // number of events after weighting by PID histograms for lab4
+	cal_lab5[i] = 0; // number of events after weighting by PID histograms for lab5
+	cal_lab1[i] = 0; // number of events after weighting by PID histograms for lab1
 	
 	TAxis* axis=h_1[i]->GetXaxis();
 	Double_t max = axis->GetXmax();
 	//Double_t min = 0;
 	
-	Int_t nbins = h_1[i]->GetNbinsX();
+	Int_t nbins = h_1[i]->GetNbinsX(); // set the same binning
 	
 	TH1F* h_lab4 = new TH1F("h_lab4","h_lab4",nbins,0,max);
 	TH1F* h_lab5 = new TH1F("h_lab5","h_lab5",nbins,0,max);
@@ -3219,24 +3226,25 @@ namespace MassFitUtils {
 	//std::cout<<"nbins"<<nbins<<" min: "<<min<<" max: "<<max<<std::endl;
 	if (mode == "BdDPi" || mode == "LbLcPi")
 	  {
-	    ttmp2[i]->Draw("lab4_P>>h_lab4","", "goff");
-	    ttmp2[i]->Draw("lab5_P>>h_lab5","", "goff");
-	    ttmp2[i]->Draw("lab1_P>>h_lab1","", "goff");
+	    ttmp2[i]->Draw("lab4_P>>h_lab4","", "goff"); // take lab4_P as histogram 
+	    ttmp2[i]->Draw("lab5_P>>h_lab5","", "goff"); // take lab5_P as histogram
+	    ttmp2[i]->Draw("lab1_P>>h_lab1","", "goff"); // take lab1_P as histogram 
 	    if ( mode == "BdDPi" || mode2 == "kpipi")
 	      {
-		ttmp2[i]->Draw("lab4_P:lab5_P>>hist2D_1","", "goff");
+		ttmp2[i]->Draw("lab4_P:lab5_P>>hist2D_1","", "goff"); // in case of BDPi under BsDsPi, KPiPi take 2D histogram lab4_P vs lab5_P
 	      }
-
 	  }
 	else
 	  {
-	    ttmp2[i]->Draw("lab1_P>>h_lab1","", "goff");
+	    ttmp2[i]->Draw("lab1_P>>h_lab1","", "goff"); // take only lab1_P as histogram (for bachelor misID)
 	  }
 	h_lab4_name = h_lab4->GetName();
 	h_lab5_name = h_lab5->GetName();
 	h_lab1_name = h_lab1->GetName();
 		
 	std::cout<<"Numbers of bins:"<<nbins<<std::endl;
+	//Read MyKaonEff_5(10) and MyPionEff_0 for counting BDK and LcK under BsDsK 
+	
 	TH1F* heff0_1 = NULL;
 	TH1F* heff10_1 = NULL;
 	TH1F* heff0_2 = NULL;
@@ -3244,34 +3252,39 @@ namespace MassFitUtils {
 	TH1F* heff0 = NULL;
         TH1F* heff10 = NULL;
 
+	if ( heff0_1 ){}
+	if ( heff10_1 ) {}
+	if ( heff0_2 ) {}
+	if ( heff10_2 ) {}
+	if ( heff0  ) {}
+	if ( heff10 ) {}
+
 	if ( mode == "BdDPi" || mode == "LbLcPi" || mode == "BsDsPi")
 	  {
 	    std::vector <std::string> FileNamePID2;
 	    TString sig2 = "#PID";
-	    ReadOneName(filesDir,FileNamePID2,sig2, true);
+	    ReadOneName(filesDir,FileNamePID2,sig2, true); //read name of the first histogram
 
 	    std::vector <std::string> FileNamePID3;
 	    TString sig3 = "#PID2";
-            ReadOneName(filesDir,FileNamePID3,sig3, true);
+            ReadOneName(filesDir,FileNamePID3,sig3, true); //read name of the second histogram
 
 	    TString name = "MyPionEff_0";
-	    heff0_1 = ReadPIDHist(FileNamePID2,name,i, true);
-	    heff0_2 = ReadPIDHist(FileNamePID3,name,i, true);
+	    heff0_1 = ReadPIDHist(FileNamePID2,name,i, true); // read the first part of MyPionEff_0
+	    heff0_2 = ReadPIDHist(FileNamePID3,name,i, true); // read the second part of MyPionEff_0 
 	    heff0_name = heff0_1->GetName();
-	    name = "MyKaonEff_10";
-	    heff10_1 = ReadPIDHist(FileNamePID2,name,i, true);
-	    heff10_2 = ReadPIDHist(FileNamePID3,name,i, true);
+	    name = "MyKaonEff_5";
+	    heff10_1 = ReadPIDHist(FileNamePID2,name,i, true); // read the first part of MyKaonEff_5
+	    heff10_2 = ReadPIDHist(FileNamePID3,name,i, true); // read the seconf part of MyKaonEff_5
 	    heff10_name = heff10_1->GetName();
 
 	             
-	    heff0=AddHist(heff0_1,  histent1[i], heff10_2, histent2[i], true);
-	    heff10=AddHist(heff10_1,  histent1[i], heff10_2, histent2[i], true);
+	    heff0=AddHist(heff0_1,  histent1[i], heff10_2, histent2[i], true);   // add both MyPionEff_0 histograms
+	    heff10=AddHist(heff10_1,  histent1[i], heff10_2, histent2[i], true); // add both MyKaonEff_5 histograms 
 	  }
-		
-	if (heff0_2) {};
-	//TH2F *hist2D_1 = new TH2F("hist2D_1","hist2D_1", nbins, 0, max, nbins, 0, max);
-	TH2F *hist2D_2 = new TH2F("hist2D_2","hist2D_2", nbins, 0, max, nbins, 0, max);   
 	
+	// for BDPi under BsDsPi, KPiPi take 2D histogram of lab4_P vs lab5_P from MC tree 
+	TH2F *hist2D_2 = new TH2F("hist2D_2","hist2D_2", nbins, 0, max, nbins, 0, max);   
 	if ( mode == "BdDPi" && mode2 == "kpipi")
 	  {
 	    for (Int_t k=1;k<nbins;k++) 
@@ -3284,13 +3297,15 @@ namespace MassFitUtils {
 		    hist2D_2->SetBinContent(k,j,con);
 		  }
 	      }
+    	    
 	  }
 
         std::cout<<"[INFO] Everything is read"<<std::endl;
+	//Magical weighting using PID histograms, depends on mode
+
 	for(int j=1; j< nbins; j++)
 	  {
-	    //std::cout<<"lalala"<<std::endl;
-	    if(  mode == "BdDPi" || mode == "LbLcPi" )
+	    if(  mode == "BdDPi" || mode == "LbLcPi" ) // reweighting with change charm meson hypothesis 
 	      {
 		
 		Double_t con1 = h_lab4->GetBinContent(j);
@@ -3301,21 +3316,17 @@ namespace MassFitUtils {
 		Double_t y = con1*con2;
 		Double_t y2 = con3*con4;
 
-		if ( mode == "BdDPi" && mode2 == "kpipi")
+		if ( mode == "BdDPi" && mode2 == "kpipi") //special case BDPi under BsDsPi, KPiPi - 2D weighting 
 		  {
 		    for (int k = 1; k< nbins; k++)
 		      {
 			Double_t con5 = hist2D_1->GetBinContent(k,j);
 			Double_t con6 = hist2D_2->GetBinContent(k,j);
-			//Double_t con2 = h_1[i]->GetBinContent(k);
-			//Double_t con4 = h_2[i]->GetBinContent(j);
-
+			
 			Double_t y3 = con5*con6;
-			//Double_t y4 = con5*con4;
 			cal_lab4[i] = cal_lab4[i]+y3;
-			cal_lab5[i] = n_events[i];
+			cal_lab5[i] = n_events_Hypo[i];
 		      }
-
 		  }
 		else
 		  {
@@ -3326,27 +3337,17 @@ namespace MassFitUtils {
 		std::cout<<h_lab5->GetName()<<" "<<con3<<" "<<h_2[i]->GetName()<<" "<<con4<<std::endl;
 		std::cout<<"lab4: "<<cal_lab4[i]<<" lab_5: "<<cal_lab5[i]<<std::endl;
 	      }
-	    else if ( mode == "BDK" || mode == "BsDsK")
+	    else if ( mode == "BDK" || mode == "BsDsK" || mode == "LbDsp" || mode == "LbDsstp") // only bachelor weighting
 	      {
 		
 		Double_t con1 = h_lab1->GetBinContent(j);
 		Double_t con2 = h_1[i]->GetBinContent(j);
 		Double_t y = con1*con2;
 		cal_lab1[i] = cal_lab1[i]+y;
-		std::cout<<"j: "<<j<<" "<<h_lab1->GetName()<<" "<<con1<<" "<<h_1[i]->GetName()<<" "<<con2<<" "<<std::endl;
+		std::cout<<"j: "<<j<<" "<<h_lab1->GetName()<<" "<<con1<<" "<<h_1[i]->GetName()<<" "<<con2<<" "<<" "<<" cal_lab1: "<<cal_lab1[i]<<std::endl;
 
 	      }
-	    else if (mode == "LbDsp" || mode == "LbDsstp")
-	      {
-		Double_t con1 = h_lab1->GetBinContent(j);
-                Double_t con2 = h_1[i]->GetBinContent(j);
-		Double_t y = con1*con2; 
-                cal_lab1[i] = cal_lab1[i]+y;
-		std::cout<<"y :"<<y<<std::endl; 
-                std::cout<<"j: "<<j<<" "<<h_lab1->GetName()<<" "<<con1<<" "<<h_1[i]->GetName()<<" "<<con2<<" "<<" "<<" cal_lab1: "<<cal_lab1[i]<<std::endl;
-		
-	      }
-	    else if ( mode == "BsDsPi" )
+	    else if ( mode == "BsDsPi" ) //special case of bachelor weighting, due to fact applied PIDK < 0 for data
 	      {
 		Double_t con1 = h_lab1->GetBinContent(j);
                 Double_t con2 = h_1[i]->GetBinContent(j);
@@ -3357,43 +3358,46 @@ namespace MassFitUtils {
 	      }
 	  }
 	
+	//Plot results and obtain global misID//
 	Double_t all_misID = 0;
 	if( mode=="BdDPi" || mode =="LbLcPi" )
 	  {
-	    all_misID = cal_lab4[i]*ratio[i]/n_events[i]*cal_lab5[i]*ratio[i]/n_events[i];
+	    all_misID = cal_lab4[i]*ratio[i]/n_events_Hypo[i]*cal_lab5[i]*ratio[i]/n_events_Hypo[i];
 	    std::cout<<"----------------------------------------------------------------"<<std::endl;
-	    std::cout<<"For: "<<mode<<" "<<mode2<<" sample "<<smp[i]<<std::endl;
-	    std::cout<<"misIDP: "<<cal_lab4[i]<<" procent: "<<cal_lab4[i]*ratio[i]/n_events[i]*100<<"%"<<std::endl;
-	    std::cout<<"misIDK: "<<cal_lab5[i]<<" procent: "<<cal_lab5[i]*ratio[i]/n_events[i]*100<<"%"<<std::endl;
+	    std::cout<<"For: "<<mode<<" "<<mode2<<" sample "<<smpOwn[i]<<std::endl;
+	    std::cout<<"misIDP: "<<cal_lab4[i]<<" procent: "<<cal_lab4[i]*ratio[i]/n_events_Hypo[i]*100<<"%"<<std::endl;
+	    std::cout<<"misIDK: "<<cal_lab5[i]<<" procent: "<<cal_lab5[i]*ratio[i]/n_events_Hypo[i]*100<<"%"<<std::endl;
 	    if ( mode == "BdDPi" && mode2 == "kpipi")
 	      {
-	    		all_misID = cal_lab4[i]*ratio[i]/n_events[i];
-	    	std::cout<<"AllmisID: "<<cal_lab4[i]*ratio[i]/n_events[i]*100<<"%"<<std::endl;
+		all_misID = cal_lab4[i]*ratio[i]/n_events_Hypo[i];
+	    	std::cout<<"AllmisID: "<<cal_lab4[i]*ratio[i]/n_events_Hypo[i]*100<<"%"<<std::endl;
 	      }
 	    else
 	      {
-		std::cout<<"AllmisID: "<<cal_lab4[i]*ratio[i]/n_events[i]*cal_lab5[i]*ratio[i]/n_events[i]*100<<"%"<<std::endl;
-		      }
+		std::cout<<"AllmisID: "<<cal_lab4[i]*ratio[i]/n_events_Hypo[i]*cal_lab5[i]*ratio[i]/n_events_Hypo[i]*100<<"%"<<std::endl;
+	      }
 	    std::cout<<"----------------------------------------------------------------"<<std::endl;
 	  }
 	else if (mode == "BsDsPi" || mode == "BDK" || mode == "BsDsK" )
 	  {
-	    all_misID = cal_lab1[i]*ratio[i]/n_events[i];
+	    all_misID = cal_lab1[i]*ratio[i]/n_events_Hypo[i];
 	    std::cout<<"----------------------------------------------------------------"<<std::endl;
-	    std::cout<<"For: "<<mode<<" "<<mode2<<" sample"<<smp[i]<<std::endl;
-	    std::cout<<"misID: "<<cal_lab1[i]<<" procent: "<<cal_lab1[i]*ratio[i]/n_events[i]*100<<"%"<<std::endl;
+	    std::cout<<"For: "<<mode<<" "<<mode2<<" sample"<<smpOwn[i]<<std::endl;
+	    std::cout<<"misID: "<<cal_lab1[i]<<" procent: "<<cal_lab1[i]*ratio[i]/n_events_Hypo[i]*100<<"%"<<std::endl;
 	    std::cout<<"----------------------------------------------------------------"<<std::endl;
 	  }
 	else if (mode == "LbDsp" || mode == "LbDsstp")
 	  {
-	    all_misID = cal_lab1[i]*ratio[i]/n_events[i];
+	    all_misID = cal_lab1[i]*ratio[i]/n_events_Hypo[i];
             std::cout<<"----------------------------------------------------------------"<<std::endl;
-            std::cout<<"For: "<<mode<<" "<<mode2<<" sample"<<smp[i]<<std::endl;
-            std::cout<<"misID: "<<cal_lab1[i]<<" procent: "<<cal_lab1[i]*ratio[i]/n_events[i]*100<<"%"<<std::endl;
-	    std::cout<<"total: "<<cal_lab1[i]/0.271811<<" procent: "<<cal_lab1[i]*ratio[i]/n_events[i]*100/0.271811<<"%"<<std::endl;
+            std::cout<<"For: "<<mode<<" "<<mode2<<" sample"<<smpOwn[i]<<std::endl;
+            std::cout<<"misID: "<<cal_lab1[i]<<" procent: "<<cal_lab1[i]*ratio[i]/n_events_Hypo[i]*100<<"%"<<std::endl;
+	    std::cout<<"total: "<<cal_lab1[i]/0.271811<<" procent: "<<cal_lab1[i]*ratio[i]/n_events_Hypo[i]*100/0.271811<<"%"<<std::endl;
             std::cout<<"----------------------------------------------------------------"<<std::endl;
 	  }
 	
+	// Reweighting for DK and LcK under DsK by MyPionEff_0 and MyKaonEff_5 
+	// with plotting results
 
 	if ( mode == "BdDPi" || mode == "LbLcPi")
           {
@@ -3408,19 +3412,16 @@ namespace MassFitUtils {
 		std::cout<<heff10->GetName()<<" "<<con4<<std::endl;
 		
 	      }
-	    
 	    std::cout<<"----------------------------------------------------------------"<<std::endl;
-	    std::cout<<"For bachelor K "<<mode2<<" sample"<<smp[i]<<std::endl;
-	    std::cout<<"misID: "<<cal_lab1[i]<<" procent: "<<cal_lab1[i]/n_events[i]*100<<"%"<<std::endl;
-	    std::cout<<"All_misID: "<<all_misID*cal_lab1[i]/n_events[i]*100<<"%"<<std::endl;
+	    std::cout<<"For bachelor K "<<mode2<<" sample"<<smpOwn[i]<<std::endl;
+	    std::cout<<"misID: "<<cal_lab1[i]<<" procent: "<<cal_lab1[i]/n_events_Hypo[i]*100<<"%"<<std::endl;
+	    std::cout<<"All_misID: "<<all_misID*cal_lab1[i]/n_events_Hypo[i]*100<<"%"<<std::endl;
 	    std::cout<<"----------------------------------------------------------------"<<std::endl;
 	    
 	    }
-      
       }
-
     
-    //Constant variable//
+    //Constant variable: branching fractions//
     //B(Bs->DsPi)//
     Float_t B_Bs_DsPi   = 3.2e-3;
     Float_t B_Bs_DsPi_u = 0.4e-3;
@@ -3466,6 +3467,8 @@ namespace MassFitUtils {
     Float_t B_4=0;
     Float_t B_u_3=0;
     Float_t B_u_4=0;
+    
+    //set correct branching fration//
     if (mode == "BdDPi")
       {
 	B_1 = B_Bd_DPi; B_u_1 = B_Bd_DPi_u;
@@ -3502,59 +3505,60 @@ namespace MassFitUtils {
 	B_1 = B_Bd_DK; B_u_1 = B_Bd_DK_u;
         B_2 = B_Bd_DPi; B_u_2 = B_Bd_DPi_u;
       }
-    //ratio B mesons//
-    Float_t rB_B   = B_1/B_2;
-    Float_t rB_B_u   = rB_B*(B_u_1/B_1+B_u_2/B_2);
+
+
+    //ratio of branching fractions for B mesons//
+    Float_t rB_B     = B_1/B_2;  // branching fraction 1 / branching fraction 2 
+    Float_t rB_B_u   = rB_B*std::sqrt(std::pow(B_u_1/B_1,2)+std::pow(B_u_2/B_2,2)); //uncertainty of branching ratios
     Float_t rB_B2=0;
     Float_t rB_B2_u=0;
 
     if( mode == "LbLcPi")
       {
-	rB_B2 = B_1/B_Bd_DPi;
-	rB_B2_u   = rB_B2*(B_u_1/B_1+B_Bd_DPi_u/B_Bd_DPi);
+	rB_B2     = B_1/B_Bd_DPi; // branchig fraction LbLcPi with respoect to DPi 
+	rB_B2_u   = rB_B2*std::sqrt(std::pow(B_u_1/B_1,2) + std::pow(B_Bd_DPi_u/B_Bd_DPi,2)); // uncertainty
       }
 
-    //ratio D mesons//
+    //ratio of branching fractions for D mesons//
     Float_t rB_D=0; 
     Float_t rB_D_u=0;
-    if ( mode != "BsDsPi" && mode != "BDK")
+    if ( mode != "BsDsPi" && mode != "BDK" && mode != "BsDsK") // for charm meson misID 
       {
-	rB_D = B_3/B_4;
-	rB_D_u = rB_D*(B_u_3/B_3+B_u_4/B_4);
+	rB_D = B_3/B_4; 
+	rB_D_u = rB_D*std::sqrt(std::pow(B_u_3/B_3,2)+std::pow(B_u_4/B_4,2)); //uncertainty
       }
     Float_t rB_D2=0; 
     Float_t rB_D2_u=0;
-    if( mode == "LbLcPi")
+    if( mode == "LbLcPi") // branching fraction B(Lc->pKPi) with respect to B(D->KPiPi);   
       {
         rB_D2 = B_3/B_D_KPiPi;
-        rB_D2_u   = rB_D2*(B_u_3/B_3+B_D_KPiPi_u/B_D_KPiPi);
+        rB_D2_u   = rB_D2*std::sqrt( std::pow(B_u_3/B_3,2) + std::pow(B_D_KPiPi_u/B_D_KPiPi,2) ); // uncertainty 
       }
 
-    
-    //Ratio N events//
+    //Ratio N events : N(own)/N(hypo), applied fragmentation factor if necessary //
     Float_t rN=0;
     Float_t rN_u=0;
     Float_t rNBd=0;
     Float_t rNBd_u=0;
-    if ( mode == "BdDPi")
+    if ( mode == "BdDPi") // number of expected DPi/DsPi events  
       {
 	rN = rB_B*rB_D/fsfd;
-	rN_u = rN*(rB_B_u/rB_B+rB_D_u/rB_D+fsfd_u/fsfd);
+	rN_u = rN*std::sqrt(std::pow(rB_B_u/rB_B,2) + std::pow(rB_D_u/rB_D,2) + std::pow(fsfd_u/fsfd,2));  // uncertainty
       }
-    else if (mode == "LbLcPi")
+    else if (mode == "LbLcPi") // number of expected LcPi/DsPi and LcPi/DPi events 
       {
 	rN = rB_B*rB_D;
-        rN_u = rN*(rB_B_u/rB_B+rB_D_u/rB_D);
+        rN_u = rN*std::sqrt( std::pow(rB_B_u/rB_B,2) + std::pow(rB_D_u/rB_D,2)); // uncertainty
 	rNBd = rB_B2*rB_D2;
-        rNBd_u = rNBd*(rB_B2_u/rB_B2+rB_D2_u/rB_D2);
+        rNBd_u = rNBd*std::sqrt( std::pow(rB_B2_u/rB_B2,2) + std::pow(rB_D2_u/rB_D2,2) ); // uncertainty
       }
-    else if (mode == "BsDsPi" || mode == "BDK" || mode ==  "BsDsK")
+    else if (mode == "BsDsPi" || mode == "BDK" || mode ==  "BsDsK") // number of N(own)/N(hypo) for bachelor misID
       {
 	rN =rB_B; rN_u = rB_B_u;
       }
         
     
-    
+    //Some plotting, the most important information about branching ratios, applied cuts and so on // 
     std::cout<<"----------------------------------------------------------"<<std::endl;
     std::cout<<"Calculation for "<<nameHypo<<", "<<nameDHypo<<" under "<<nameMeson<<", "<<nameDMeson<<std::endl;
     std::cout<<"----------------------------------------------------------"<<std::endl;
@@ -3564,7 +3568,7 @@ namespace MassFitUtils {
     std::cout<<"B("<<nameMeson<<")=("<<B_2<<" +/- "<<B_u_2<<")"<<std::endl;
     
     std::cout<<"B("<<nameHypo<<")/B("<<nameMeson<<")=("<<rB_B<<" +/- "<<rB_B_u<<")"<<std::endl;
-    if ( mode != "BsDsPi")
+    if ( mode != "BsDsPi" && mode != "BDK")
       {
 	std::cout<<"------------ Branching fractions for charm mesons ------------"<<std::endl;
 	std::cout<<"B("<<nameDHypo<<")=("<<B_3<<" +/- "<<B_u_3<<")"<<std::endl;
@@ -3583,18 +3587,17 @@ namespace MassFitUtils {
 	std::cout<<"("<<rN<<" +/- "<<rN_u<<")"<<std::endl;
       }
     std::cout<<std::endl;
-    //std::cout<<"----------------------------------------------------------"<<std::endl;
     std::cout<<"==================== Selection ==========================="<<std::endl;
-    //std::cout<<"----------------------------------------------------------"<<std::endl;
-
-    std::cout<<"initial_cut: "<<Bd_Cut<<std::endl;
-    std::cout<<"Selected: DOWM: "<<n_events_Bd[0]<<" UP: "<<n_events_Bd[1]<<std::endl;
-    std::cout<<"cut: "<<Bs_Cut<<std::endl;
-    std::cout<<"Selected: DOWM: "<<n_events[0]<<" UP:"<<n_events[1]<<std::endl;
+    std::cout<<"initial_cut: "<<Own_Cut<<std::endl;
+    std::cout<<"Selected: DOWM: "<<n_events_Own[0]<<" UP: "<<n_events_Own[1]<<std::endl;
+    std::cout<<"cut: "<<Hypo_Cut<<std::endl;
+    std::cout<<"Selected: DOWM: "<<n_events_Hypo[0]<<" UP:"<<n_events_Hypo[1]<<std::endl;
     std::cout<<"ratio = NOE_cut/NOE_initial_cut"<<std::endl;
     std::cout<<"Obtained: DOWN: "<<ratio[0]<<" UP: "<<ratio[1]<<std::endl;
+    
 
-    if ( mode != "BsDsPi" && mode != "BDK" && mode != "BsDsK")
+    //Obtaining misID//
+    if ( mode != "BsDsPi" && mode != "BDK" && mode != "BsDsK") //obtain misID in case where change charm meson hypo 
       {
 	std::cout<<"---------------------- Histograms ------------------------"<<std::endl;
 	std::cout<<"The histogram: "<<h_lab4_name<<" is multiplied by "<<h_1[0]->GetName()<<std::endl;
@@ -3606,26 +3609,28 @@ namespace MassFitUtils {
 	std::cout<<"cal_lab4 = sum of "<<h_lab4_name<<"*"<<h_1[0]->GetName()<<std::endl;
 	std::cout<<"DOWN: "<<cal_lab4[0]<<" UP: "<<cal_lab4[1]<<std::endl;
 	std::cout<<"cal_lab4*ratio/NOE_cut ="<<std::endl;
+	
 	Float_t v_lab4_1, v_lab4_2;
-	v_lab4_1 = cal_lab4[0]*ratio[0]/n_events[0];
-	v_lab4_2 = cal_lab4[1]*ratio[1]/n_events[1];
+	v_lab4_1 = cal_lab4[0]*ratio[0]/n_events_Hypo[0];
+	v_lab4_2 = cal_lab4[1]*ratio[1]/n_events_Hypo[1];
+	
 	std::cout<<"DOWN: "<<v_lab4_1<<" UP: "<<v_lab4_2<<std::endl;
-    
-	std::cout<<std::endl;
+    	std::cout<<std::endl;
 	std::cout<<"===> calculations for lab5 "<<std::endl;
 	std::cout<<"cal_lab5 = sum of "<<h_lab5_name<<"*"<<h_2[0]->GetName()<<std::endl;
 	std::cout<<"DOWN: "<<cal_lab5[0]<<" UP: "<<cal_lab5[1]<<std::endl;
 	std::cout<<"cal_lab5*ratio/NOE_cut ="<<std::endl;
+	
 	Float_t v_lab5_1, v_lab5_2;
-	v_lab5_1 = cal_lab5[0]*ratio[0]/n_events[0];
-	v_lab5_2 = cal_lab5[1]*ratio[1]/n_events[1];
+	v_lab5_1 = cal_lab5[0]*ratio[0]/n_events_Hypo[0];
+	v_lab5_2 = cal_lab5[1]*ratio[1]/n_events_Hypo[1];
+	
 	std::cout<<"DOWN: "<<v_lab5_1<<" UP: "<<v_lab5_2<<std::endl;
-
 	std::cout<<std::endl;
 	std::cout<<"===> Final result for lab4 and lab5 "<<std::endl;
-	
 	std::cout<<"result = cal_lab4*ratio/NOE_cut*cal_lab5*ratio/NOE_cut"<<std::endl;
-	Float_t v_lab45_1, v_lab45_2;
+	
+	Float_t v_lab45_1, v_lab45_2; //misID
 	if ( mode == "BdDPi" && mode2 =="kpipi")
 	  {
 	    v_lab45_1 = v_lab4_1;
@@ -3638,16 +3643,15 @@ namespace MassFitUtils {
 	  }
 	Float_t v_lab45_av, v_lab45_u;
 	v_lab45_av = (v_lab45_1+v_lab45_2)/2;
-	v_lab45_u = std::pow((std::pow(v_lab45_1-v_lab45_av,2)+pow(v_lab45_2-v_lab45_av,2))/2,0.5)*1.414214;
+	v_lab45_u =  std::sqrt((std::pow(v_lab45_1-v_lab45_av,2)+std::pow(v_lab45_2-v_lab45_av,2))/2)*1.41; //uncertainty
 	
 	std::cout<<"DOWN: "<<v_lab45_1<<" UP: "<<v_lab45_2<<std::endl;
 	std::cout<<"= ("<<v_lab45_av*100<<" +/- "<<v_lab45_u*100<<")%"<<std::endl;
-
 	std::cout<<std::endl;
 	std::cout<<"===> Expected misID yield: "<<nameHypo<<","<<nameDHypo<<std::endl;
 	std::cout<<"First method: "<<std::endl;
 	
-	Float_t fitted_BdDPi_1, fitted_BdDPi_1_u,  fitted_BdDPi_2, fitted_BdDPi_2_u;
+	Float_t fitted_BdDPi_1(0.0), fitted_BdDPi_1_u(0.0),  fitted_BdDPi_2(0.0), fitted_BdDPi_2_u(0.0); //fitted BDPi under its own hypo
 	
 	// BDTG>0.3
 	//	fitted_BdDPi_1 = 8.7683e4;
@@ -3656,24 +3660,63 @@ namespace MassFitUtils {
 	//	fitted_BdDPi_2_u = 4.71e2;
 	
 	//BDTG > 0.5
-	fitted_BdDPi_1 = 8.3438e4;
-	fitted_BdDPi_1_u = 4.06e2;
-        fitted_BdDPi_2 = 5.9924e4;
-        fitted_BdDPi_2_u = 1.47e3;
-
+	//      fitted_BdDPi_1 = 8.3438e4;
+	//      fitted_BdDPi_1_u = 4.06e2;
+        //      fitted_BdDPi_2 = 5.9924e4;
+        //      fitted_BdDPi_2_u = 1.47e3;
+	
+	if ( BDTG_down == 0.3 )
+	  {
+	    if ( BDTG_up == 1.0)
+	      {
+		fitted_BdDPi_1   = 138330;
+		fitted_BdDPi_1_u = 427;
+		fitted_BdDPi_2   = 138330;
+		fitted_BdDPi_2_u = 427;
+	      }
+	    else
+	      {
+		fitted_BdDPi_1   = 23407;
+                fitted_BdDPi_1_u = 206;
+                fitted_BdDPi_2   = 23407;
+		fitted_BdDPi_2_u = 206;
+	      }
+	  }
+	else if( BDTG_down == 0.5  && BDTG_up == 1.0)
+	  {
+	    fitted_BdDPi_1   = 131290;
+	    fitted_BdDPi_1_u = 441;
+	    fitted_BdDPi_2   = 131290;
+	    fitted_BdDPi_2_u = 441;
+	  }
+	else if( BDTG_down == 0.7 && BDTG_up == 0.9)
+          {
+            fitted_BdDPi_1   = 51409;
+            fitted_BdDPi_1_u = 289;
+            fitted_BdDPi_2   = 51409;
+            fitted_BdDPi_2_u = 289;
+          }
+	else if( BDTG_down == 0.9 && BDTG_up == 1.0)
+          {
+            fitted_BdDPi_1   = 64008;
+            fitted_BdDPi_1_u = 274;
+            fitted_BdDPi_2   = 64008;
+            fitted_BdDPi_2_u = 274;
+          }
+	
 	std::cout<<"===> Fitted yield to real data Bd->DPi, D->KPiPi"<<std::endl;
 	std::cout<<"DOWN: ("<<fitted_BdDPi_1<<" +/- "<<fitted_BdDPi_1_u<<")"<<std::endl;
 	std::cout<<"UP: ("<<fitted_BdDPi_2<<" +/- "<<fitted_BdDPi_2_u<<")"<<std::endl;
 	
-	if(mode == "LbLcPi")
+	if(mode == "LbLcPi")  // LcPi under DsPi calculated from BDPi 
 	  {
 	    Float_t temp, temp_u;
 	    temp = fitted_BdDPi_1*rNBd;
-	    temp_u = temp*(fitted_BdDPi_1_u/fitted_BdDPi_1 + rNBd_u/rNBd);
+	    temp_u = temp*std::sqrt(std::pow(fitted_BdDPi_1_u/fitted_BdDPi_1,2) + std::pow(rNBd_u/rNBd,2)); //uncertainty
 	    fitted_BdDPi_1 = temp;
 	    fitted_BdDPi_1_u = temp_u;
 	    temp = fitted_BdDPi_2*rNBd;
-	    temp_u = temp*(fitted_BdDPi_2_u/fitted_BdDPi_2 + rNBd_u/rNBd);
+	    temp_u = temp*std::sqrt(std::pow(fitted_BdDPi_2_u/fitted_BdDPi_2,2)  + std::pow(rNBd_u/rNBd,2)); //uncertainty
 	    fitted_BdDPi_2 = temp;
 	    fitted_BdDPi_2_u = temp_u;
 	    std::cout<<"===> Fitted yield to real data Bd->DPi, D->KPiPi scaled by N(Lb->LcPi)/N(Bd->DPi)"<<std::endl;
@@ -3683,31 +3726,29 @@ namespace MassFitUtils {
 	    std::cout<<"UP: ("<<fitted_BdDPi_2<<" +/- "<<fitted_BdDPi_2_u<<")"<<std::endl;
 	  }
 
-
 	std::cout<<"===> Number of expected events = fitted yield multiplied by expected misID"<<std::endl;
     
-
-
 	Float_t N_ev_1=0;
 	Float_t N_ev_1_u=0; 
 	Float_t N_ev_2=0; 
 	Float_t N_ev_2_u=0;
-	N_ev_1 = fitted_BdDPi_1*v_lab45_av;
-	N_ev_1_u = N_ev_1*(v_lab45_u/v_lab45_av + fitted_BdDPi_1_u/fitted_BdDPi_1)+N_ev_1*0.1;
-	N_ev_2 = fitted_BdDPi_2*v_lab45_av;
-	N_ev_2_u = N_ev_2*(v_lab45_u/v_lab45_av + fitted_BdDPi_2_u/fitted_BdDPi_2)+N_ev_2*0.1;
+	N_ev_1 = fitted_BdDPi_1*v_lab45_av; // number of misID events 
+	N_ev_1_u = N_ev_1*std::sqrt(std::pow(v_lab45_u/v_lab45_av,2) + std::pow(fitted_BdDPi_1_u/fitted_BdDPi_1,2)); //uncertainty
+	N_ev_2 = fitted_BdDPi_2*v_lab45_av; // number of misID events
+	N_ev_2_u = N_ev_2*std::sqrt( std::pow(v_lab45_u/v_lab45_av,2) + std::pow(fitted_BdDPi_2_u/fitted_BdDPi_2,2)); //uncertainty
 	std::cout<<"----------------------------------------------------"<<std::endl;
 	std::cout<<"DOWN: ("<<N_ev_1<<" +/- "<<N_ev_1_u<<")"<<std::endl;
 	std::cout<<"UP: ("<<N_ev_2<<" +/- "<<N_ev_2_u<<")"<<std::endl;
 	std::cout<<"----------------------------------------------------"<<std::endl;
 
 	std::cout<<std::endl;
-	std::cout<<"Second method: "<<std::endl;
+	std::cout<<"Second method (using branching ratios): "<<std::endl;
 	std::cout<<"===> misID*N("<<nameHypo<<")/N("<<nameMeson<<") ="<<std::endl;
+	
 	Float_t N2_ev_1=0;
 	Float_t N2_ev_1_u=0;
-	N2_ev_1 = rN*v_lab45_av;
-	N2_ev_1_u = N2_ev_1*(v_lab45_u/v_lab45_av + rN_u/rN);
+	N2_ev_1 = rN*v_lab45_av; 
+	N2_ev_1_u = N2_ev_1*std::sqrt( std::pow(v_lab45_u/v_lab45_av,2) + std::pow(rN_u/rN,2));
 	std::cout<<"("<<N2_ev_1<<" +/- "<<N2_ev_1_u<<")"<<std::endl;
 
 	Float_t fitted_BsDsPi_1=0; 
@@ -3717,10 +3758,10 @@ namespace MassFitUtils {
 	if( mode2 == "kkpi")
 	  {
 	    // BDTG> 0.3
-	    //fitted_BsDsPi_1   = 1.3690e4;
-	    //fitted_BsDsPi_1_u = 1.33e2;
-	    //fitted_BsDsPi_2   = 9.6268e3;
-	    //fitted_BsDsPi_2_u = 1.10e2;
+	    //  fitted_BsDsPi_1   = 1.3690e4;
+	    //  fitted_BsDsPi_1_u = 1.33e2;
+	    //  fitted_BsDsPi_2   = 9.6268e3;
+	    //  fitted_BsDsPi_2_u = 1.10e2;
 	    fitted_BsDsPi_1   = 1.3002e4;
             fitted_BsDsPi_1_u = 1.29e2;
             fitted_BsDsPi_2   = 9.1756e3;
@@ -3745,10 +3786,10 @@ namespace MassFitUtils {
 	Float_t N3_ev_2_u=0;
 	
 	N3_ev_1 = fitted_BsDsPi_1*N2_ev_1;
-	N3_ev_1_u = N3_ev_1*(N2_ev_1_u/N2_ev_1 + fitted_BsDsPi_1_u/fitted_BsDsPi_1);
+	N3_ev_1_u = N3_ev_1*std::sqrt( std::pow(N2_ev_1_u/N2_ev_1,2) + std::pow(fitted_BsDsPi_1_u/fitted_BsDsPi_1,2)); //uncertainty
 	
 	N3_ev_2 = fitted_BsDsPi_2*N2_ev_1;
-	N3_ev_2_u = N3_ev_1*(N2_ev_1_u/N2_ev_1 + fitted_BsDsPi_2_u/fitted_BsDsPi_2);
+	N3_ev_2_u = N3_ev_1*std::sqrt( std::pow(N2_ev_1_u/N2_ev_1,2) + std::pow(fitted_BsDsPi_2_u/fitted_BsDsPi_2,2)); //uncertainty
 	std::cout<<"----------------------------------------------------"<<std::endl;
 	std::cout<<"DOWN: ("<<N3_ev_1<<" +/- "<<N3_ev_1_u<<")"<<std::endl;
 	std::cout<<"UP: ("<<N3_ev_2<<" +/- "<<N3_ev_2_u<<")"<<std::endl;
@@ -3760,21 +3801,27 @@ namespace MassFitUtils {
 	std::cout<<"cal_lab1 = sum of "<<h_lab1_name<<"*"<<heff10_name<<"/"<<heff0_name<<std::endl;
 	std::cout<<"DOWN: "<<cal_lab1[0]<<" UP: "<<cal_lab1[1]<<std::endl;
 	std::cout<<"cal_lab1/NOE_cut ="<<std::endl;
+
 	Float_t v_lab1_1, v_lab1_2;
-	v_lab1_1 = cal_lab1[0]/n_events[0];
-	v_lab1_2 = cal_lab1[1]/n_events[1];
+	v_lab1_1 = cal_lab1[0]/n_events_Hypo[0];
+	v_lab1_2 = cal_lab1[1]/n_events_Hypo[1];
+
 	std::cout<<"DOWN: "<<v_lab1_1<<" UP: "<<v_lab1_2<<std::endl;
+
 	Float_t v_lab1_av, v_lab1_u;
 	v_lab1_av = (v_lab1_1+v_lab1_2)/2;
-	v_lab1_u = std::pow((std::pow(v_lab1_1-v_lab1_av,2)+pow(v_lab1_2-v_lab1_av,2))/2,0.5)*1.414214;
+	v_lab1_u = std::sqrt((std::pow(v_lab1_1-v_lab1_av,2)+std::pow(v_lab1_2-v_lab1_av,2))/2)*1.414214;
+
 	std::cout<<"= ("<<v_lab1_av*100<<" +/- "<<v_lab1_u*100<<")%"<<std::endl;
 	
 	std::cout<<std::endl;
 	std::cout<<"===> misID for K mode"<<std::endl;
 	std::cout<<"result_K = result*cal_lab1/NOE_cut"<<std::endl;
+
 	Float_t v_lab1_all, v_lab1_all_u;
 	v_lab1_all = v_lab1_av*v_lab45_av;
-	v_lab1_all_u = v_lab1_all*(v_lab1_u/v_lab1_av +v_lab45_u/v_lab45_av);
+	v_lab1_all_u = v_lab1_all*std::sqrt( std::pow(v_lab1_u/v_lab1_av,2)  +  std::pow(v_lab45_u/v_lab45_av,2));
+
 	std::cout<<"= ("<<v_lab1_all*100<<" +/- "<<v_lab1_all_u*100<<")%"<<std::endl;
     
 	std::cout<<"===> Number of expected events for K mode"<<std::endl;
@@ -3783,9 +3830,10 @@ namespace MassFitUtils {
 
 	Float_t NK_ev_1, NK_ev_1_u, NK_ev_2, NK_ev_2_u;
 	NK_ev_1 = fitted_BdDPi_1*v_lab1_all/15;
-	NK_ev_1_u = NK_ev_1*(v_lab1_all_u/v_lab1_all + fitted_BdDPi_1_u/fitted_BdDPi_1)+NK_ev_1*0.1;
+	NK_ev_1_u = NK_ev_1*std::sqrt( std::pow(v_lab1_all_u/v_lab1_all,2) + std::pow(fitted_BdDPi_1_u/fitted_BdDPi_1,2));
 	NK_ev_2 = fitted_BdDPi_2*v_lab1_all/15;
-	NK_ev_2_u = NK_ev_2*(v_lab1_all_u/v_lab1_all + fitted_BdDPi_2_u/fitted_BdDPi_2)+NK_ev_2*0.1;
+	NK_ev_2_u = NK_ev_2*std::sqrt( std::pow(v_lab1_all_u/v_lab1_all,2) + std::pow(fitted_BdDPi_2_u/fitted_BdDPi_2,2));
+
 	std::cout<<"----------------------------------------------------"<<std::endl;
 	std::cout<<"DOWN: ("<<NK_ev_1<<" +/- "<<NK_ev_1_u<<")"<<std::endl;
 	std::cout<<"UP: ("<<NK_ev_2<<" +/- "<<NK_ev_2_u<<")"<<std::endl;
@@ -3794,77 +3842,137 @@ namespace MassFitUtils {
 	std::cout<<std::endl;
 	std::cout<<"Second method: "<<std::endl;
 	std::cout<<"===> result_K*N("<<nameHypo<<")/N("<<nameMeson<<")/15 ="<<std::endl;
+
 	Float_t NK2_ev_1, NK2_ev_1_u;
 	NK2_ev_1 = rN*v_lab1_all/15;
-	NK2_ev_1_u = NK2_ev_1*(v_lab1_all_u/v_lab1_all + rN_u/rN);
+	NK2_ev_1_u = NK2_ev_1*std::sqrt(std::pow(v_lab1_all_u/v_lab1_all,2) + std::pow(rN_u/rN,2));
 	std::cout<<"("<<NK2_ev_1<<" +/- "<<NK2_ev_1_u<<")"<<std::endl;
 	
 	std::cout<<"===> Number of expected events = fitted yield multiplied by expected misID(=result_K)"<<std::endl;
+
 	Float_t NK3_ev_1, NK3_ev_1_u, NK3_ev_2, NK3_ev_2_u;
 	NK3_ev_1 = fitted_BsDsPi_1*NK2_ev_1;
-	NK3_ev_1_u = NK3_ev_1*(NK2_ev_1_u/NK2_ev_1 + fitted_BsDsPi_1_u/fitted_BsDsPi_1);
+	NK3_ev_1_u = NK3_ev_1*std::sqrt(std::pow(NK2_ev_1_u/NK2_ev_1,2) + std::pow(fitted_BsDsPi_1_u/fitted_BsDsPi_1,2));
 
 	NK3_ev_2 = fitted_BsDsPi_2*NK2_ev_1;
-	NK3_ev_2_u = NK3_ev_1*(NK2_ev_1_u/NK2_ev_1 + fitted_BsDsPi_2_u/fitted_BsDsPi_2);
+	NK3_ev_2_u = NK3_ev_1*std::sqrt( std::pow(NK2_ev_1_u/NK2_ev_1,2) + std::pow(fitted_BsDsPi_2_u/fitted_BsDsPi_2,2));
+
 	std::cout<<"----------------------------------------------------"<<std::endl;
 	std::cout<<"DOWN: ("<<NK3_ev_1<<" +/- "<<NK3_ev_1_u<<")"<<std::endl;
 	std::cout<<"UP: ("<<NK3_ev_2<<" +/- "<<NK3_ev_2_u<<")"<<std::endl;
 	std::cout<<"----------------------------------------------------"<<std::endl;
+
       }
-    else
+    else // misID for bachelor
       {
 
-	
 	std::cout<<"===> misID ="<<std::endl;
-        Float_t v_lab1_av, v_lab1_u, v_lab1_1, v_lab1_2;
-	v_lab1_1 = cal_lab1[0]*ratio[0]/n_events[0];
-	v_lab1_2 = cal_lab1[1]*ratio[1]/n_events[1];
+
+        Float_t v_lab1_av, v_lab1_u, v_lab1_1, v_lab1_2; //misID
+	v_lab1_1 = cal_lab1[0]*ratio[0]/n_events_Hypo[0];
+	v_lab1_2 = cal_lab1[1]*ratio[1]/n_events_Hypo[1];
         v_lab1_av = (v_lab1_1+v_lab1_2)/2;
-        v_lab1_u = std::pow((std::pow(v_lab1_1-v_lab1_av,2)+pow(v_lab1_2-v_lab1_av,2))/2,0.5)*1.414214;
+        v_lab1_u = std::sqrt((std::pow(v_lab1_1-v_lab1_av,2) + std::pow(v_lab1_2-v_lab1_av,2))/2)*1.414214;
         std::cout<<"("<<v_lab1_av*100<<" +/- "<<v_lab1_u*100<<")%"<<std::endl;
 
-        Float_t fitted_BsDsPi_1=0; 
-	Float_t fitted_BsDsPi_1_u=0;  
-	Float_t fitted_BsDsPi_2=0; 
-	Float_t fitted_BsDsPi_2_u=0;
-        if( mode2 == "kkpi")
-          {
-	    fitted_BsDsPi_1   = 12749; //1.3002e4;
-            fitted_BsDsPi_1_u = 127; //1.29e2;
-            fitted_BsDsPi_2   = 8957; //9.1756e3;
-            fitted_BsDsPi_2_u = 103; //1.08e2;
-          }
-        else if (mode2 == "kpipi")
+        Float_t fitted_1=0; 
+	Float_t fitted_1_u=0;  
+	Float_t fitted_2=0; 
+	Float_t fitted_2_u=0;
+	if( mode == "BDK") // fitted BDPi
 	  {
-	    fitted_BsDsPi_1   = 1.0579e3;
-	    fitted_BsDsPi_1_u = 3.52e1;
-            fitted_BsDsPi_2   = 7.2634e2;
-            fitted_BsDsPi_2_u = 2.90e1;
+	    if ( BDTG_down == 0.3 )
+	      {
+		if ( BDTG_up == 1.0)
+		  {
+		    fitted_1   = 138330;
+		    fitted_1_u = 427;
+		    fitted_2   = 138330;
+		    fitted_2_u = 427;
+		  }
+		else
+		  {
+		    fitted_1   = 23407;
+		    fitted_1_u = 206;
+		    fitted_2   = 23407;
+		    fitted_2_u = 206;
+		  }
+	      }
+	    else if( BDTG_down == 0.5  && BDTG_up == 1.0)
+	      {
+		fitted_1   = 131290;
+		fitted_1_u = 441;
+		fitted_2   = 131290;
+		fitted_2_u = 441;
+	      }
+	    else if( BDTG_down == 0.7 && BDTG_up == 0.9)
+	      {
+		fitted_1   = 51409;
+		fitted_1_u = 289;
+		fitted_2   = 51409;
+		fitted_2_u = 289;
+	      }
+	    else if( BDTG_down == 0.9 && BDTG_up == 1.0)
+	      {
+		fitted_1   = 64008;
+		fitted_1_u = 274;
+		fitted_2   = 64008;
+		fitted_2_u = 274;
+	      }
+	    
 	  }
-	else if (mode2 == "pipipi")
+	else // fitted BsDsPi
 	  {
-	    fitted_BsDsPi_1   = 2.3101e3;
-            fitted_BsDsPi_1_u = 5.12e1;
-            fitted_BsDsPi_2   = 1.6758e3;
-            fitted_BsDsPi_2_u = 4.34e1;
+	    if( mode2 == "kkpi")
+	      {
+		fitted_1   = 12749; //1.3002e4;
+		fitted_1_u = 127; //1.29e2;
+		fitted_2   = 8957; //9.1756e3;
+		fitted_2_u = 103; //1.08e2;
+	      }
+	    else if (mode2 == "kpipi")
+	      {
+		fitted_1   = 1.0579e3;
+		fitted_1_u = 3.52e1;
+		fitted_2   = 7.2634e2;
+		fitted_2_u = 2.90e1;
+	      }
+	    else if (mode2 == "pipipi")
+	      {
+		fitted_1   = 2.3101e3;
+		fitted_1_u = 5.12e1;
+		fitted_2   = 1.6758e3;
+		fitted_2_u = 4.34e1;
+	      }
 	  }
-	
-	std::cout<<"===> Number of expected events = fitted yield multiplied by expected misID"<<std::endl;
 
+	std::cout<<"===> Fitted yield to real data "<<std::endl;
+	std::cout<<"DOWN: ("<<fitted_1<<" +/- "<<fitted_1_u<<")"<<std::endl;
+	std::cout<<"UP: ("<<fitted_2<<" +/- "<<fitted_2_u<<")"<<std::endl;
+
+
+	std::cout<<"===> Number of expected events = fitted yield multiplied by expected misID"<<std::endl;
         Float_t N_ev_1, N_ev_1_u, N_ev_2, N_ev_2_u;
-        N_ev_1 = fitted_BsDsPi_1*v_lab1_av;
-        N_ev_1_u = N_ev_1*(v_lab1_u/v_lab1_av + fitted_BsDsPi_1_u/fitted_BsDsPi_1);
-        N_ev_2 = fitted_BsDsPi_2*v_lab1_av;
-        N_ev_2_u = N_ev_2*(v_lab1_u/v_lab1_av + fitted_BsDsPi_2_u/fitted_BsDsPi_2);
-        std::cout<<"----------------------------------------------------"<<std::endl;
+	if (mode == "BDK")
+	  {
+	    N_ev_1 = fitted_1*v_lab1_av*rN;
+            N_ev_1_u = N_ev_1*std::sqrt(std::pow(v_lab1_u/v_lab1_av,2) + std::pow(fitted_1_u/fitted_1,2) + std::pow(rN_u/rN,2));
+            N_ev_2 = fitted_2*v_lab1_av*rN;
+            N_ev_2_u = N_ev_2*std::sqrt(std::pow(v_lab1_u/v_lab1_av,2) + std::pow(fitted_2_u/fitted_2,2) +  std::pow(rN_u/rN,2));
+	  }
+	else
+	  {
+	    N_ev_1 = fitted_1*v_lab1_av;
+	    N_ev_1_u = N_ev_1*std::sqrt(std::pow(v_lab1_u/v_lab1_av,2) + std::pow(fitted_1_u/fitted_1,2));
+	    N_ev_2 = fitted_2*v_lab1_av;
+	    N_ev_2_u = N_ev_2*std::sqrt(std::pow(v_lab1_u/v_lab1_av,2) + std::pow(fitted_2_u/fitted_2,2));
+	  }
+	std::cout<<"----------------------------------------------------"<<std::endl;
         std::cout<<"DOWN: ("<<N_ev_1<<" +/- "<<N_ev_1_u<<")"<<std::endl;
         std::cout<<"UP: ("<<N_ev_2<<" +/- "<<N_ev_2_u<<")"<<std::endl;
         std::cout<<"----------------------------------------------------"<<std::endl;
-
-
       }
-	
-          
+      
   }
 
  
@@ -3945,7 +4053,7 @@ namespace MassFitUtils {
     TCut All;
     if (MC == false ) 
       {
-	All = P_cut&&BDTG_cut&&PID_cut&&FDCHI2&&MCD&&MCB; //PID_child_cut&&MCD&&MCB&&Veto; //&&TAU_cut;
+	All = P_cut&&BDTG_cut&&PID_cut&&FDCHI2&&MCB&&MCD; //PID_child_cut&&MCD&&MCB&&Veto; //&&TAU_cut;
       }
     else
       {
@@ -4066,11 +4174,10 @@ namespace MassFitUtils {
 		/*
 		if (MC == true)
 		  {
-		  masshypo = (Float_t)std::sqrt(std::pow(sqrt(pow(493.677,2)+std::pow(lab1_P3,2))
-		  +std::sqrt(std::pow(lab2_MM3,2)+std::pow(lab2_P3,2)),2)
-		  -std::pow(lab1_PX3+lab2_PX3,2)
-		  -std::pow(lab1_PY3+lab2_PY3,2)
-		  -std::pow(lab1_PZ3+lab2_PZ3,2)); // change hypo Pi->K
+		    masshypo = (Float_t)sqrt(pow(sqrt(pow(493.677,2)+pow(lab1_P3,2))+sqrt(pow(lab2_MM3,2)+pow(lab2_P3,2)),2)
+					     -pow(lab1_PX3+lab2_PX3,2)
+					     -pow(lab1_PY3+lab2_PY3,2)
+					     -pow(lab1_PZ3+lab2_PZ3,2)); // change hypo Pi->K
 
 		    if (masshypo > BMassRange[0] && masshypo < BMassRange[1])
 		      {

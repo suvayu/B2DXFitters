@@ -32,11 +32,11 @@ MassFitUtils = GaudiPython.gbl.MassFitUtils
 Bs2Dsh2011TDAnaModels = GaudiPython.gbl.Bs2Dsh2011TDAnaModels
 
 # MISCELLANEOUS
-bName = 'B_{s}'
-
+bName = 'Bs'
+dName = 'Ds'
 #------------------------------------------------------------------------------
 def runBsDsKMassFitterOnData( debug, sample, mVar, mdVar, tVar, tagVar, tagOmegaVar, idVar, mode,
-                              sweight, fitSignal, fileNameAll, fileNameAllID, workName,configName, wide, merge ) :
+                              sweight,  fileNameAll, fileNameAllID, workName,configName, wide, merge ) :
 
 
     # Get the configuration file
@@ -89,144 +89,7 @@ def runBsDsKMassFitterOnData( debug, sample, mVar, mdVar, tVar, tagVar, tagOmega
     observables = RooArgSet( mass,massDs, PIDK, tvar,tagvar,tagomegavar,idvar )
     if toys :
         observables = RooArgSet( mass,tvar,tagvar,tagomegavar,idvar,trueidvar) 
-
-    sampleMC = [TString("up"),TString("down")]
-
-    if ( fitSignal == "yes" ):
-        dataMCBs= []
-        nEntriesMCBs = []
-        for i in range(0,2):
-            datasetMCBsTS = TString("dataSetMCBsDsK_")+sampleMC[i]
-            dataMCBs.append(GeneralUtils.GetDataSet(workspace[0],datasetMCBsTS, debug))
-            nEntriesMCBs.append(dataMCBs[i].numEntries())
-            if debug:
-                print "Data set: %s with number of events: %s"%(dataMCBs[i].GetName(),nEntriesMCBs[i])
-        
-        dataMCBd= []
-        nEntriesMCBd = []
-        for i in range(0,2):
-            datasetMCBdTS = TString("dataSetMCBdDsK_")+sampleMC[i]
-            dataMCBd.append(GeneralUtils.GetDataSet(workspace[0],datasetMCBdTS, debug))
-            nEntriesMCBd.append(dataMCBd[i].numEntries())
-            if debug:
-                print "Data set: %s with number of events: %s"%(dataMCBd[i].GetName(),nEntriesMCBd[i])
-                                            
-        meanVarBs   =  RooRealVar( "DblCBBsPDF_mean" ,  "mean",    5367.51,  5000.,  5600., "MeV/c^{2}")
-        sigma1VarBs =  RooRealVar( "DblCBBsPDF_sigma1", "sigma1",  10.0880 , 5,      25, "MeV/c^{2}")
-        sigma2VarBs =  RooRealVar( "DblCBBsPDF_sigma2", "sigma2",  15.708,   10,     50, "MeV/c^{2}")
-        alpha1VarBs =  RooRealVar( "DblCBBsPDF_alpha1", "alpha1",  1.8086,   0,      4)
-        alpha2VarBs =  RooRealVar( "DblCBBsPDF_alpha2", "alpha2",  -1.8169,  -4,      0)
-        n1VarBs     =  RooRealVar( "DblCBBsPDF_n1",     "n1",      1.3830,   0.0001, 5)
-        n2VarBs     =  RooRealVar( "DblCBBsPDF_n2",     "n2",      8.8559,   0.1,    12)
-        fracVarBs   =  RooRealVar( "DblCBBsPDF_frac",   "frac",    0.47348,  0,      1);
-
-        meanVarBd   =  RooRealVar( "DblCBBdPDF_mean" ,  "mean",    5367.51,  5000.,  5600., "MeV/c^{2}")
-        sigma1VarBd =  RooRealVar( "DblCBBdPDF_sigma1", "sigma1",  15,       5,      25, "MeV/c^{2}")
-        sigma2VarBd =  RooRealVar( "DblCBBdPDF_sigma2", "sigma2",  15,       10,     50, "MeV/c^{2}")
-        alpha1VarBd =  RooRealVar( "DblCBBdPDF_alpha1", "alpha1",  2,        0,      4)
-        alpha2VarBd =  RooRealVar( "DblCBBdPDF_alpha2", "alpha2",  -2,      -4,      0)
-        n1VarBd     =  RooRealVar( "DblCBBdPDF_n1",     "n1",      1.5,      0.0001, 5)
-        n2VarBd     =  RooRealVar( "DblCBBdPDF_n2",     "n2",      1.5,      0.1,    12)
-        fracVarBd   =  RooRealVar( "DblCBBdPDF_frac",   "frac",    0.5,      0,      1);
-        
-        nSigEvtsMCBs = []
-        nSigMCBs = []
-        sigPDFMCBs = []
-        for i in range(0,2):
-            nSigEvtsMCBs.append(0.9*nEntriesMCBs[i])
-            nameSigMCBs = TString("nSigEvtsBs_")+sampleMC[i]
-            nSigMCBs.append(RooRealVar( nameSigMCBs.Data(), nameSigMCBs.Data(), nSigEvtsMCBs[i], 0., nEntriesMCBs[i] ))
-            sigPDFMCBs.append(Bs2Dsh2011TDAnaModels.buildDoubleCBEPDF_sim(mass, meanVarBs, sigma1VarBs, alpha1VarBs, n1VarBs, sigma2VarBs, alpha2VarBs, n2VarBs, fracVarBs, nSigMCBs[i], sampleMC[i].Data(), bName, debug ))
-            
-        nSigEvtsMCBd = []
-        nSigMCBd = []
-        sigPDFMCBd = []
-        for i in range(0,2):
-            nSigEvtsMCBd.append(0.9*nEntriesMCBd[i])
-            nameSigMCBd = TString("nSigEvtsBd_")+sampleMC[i]
-            nSigMCBd.append(RooRealVar( nameSigMCBd.Data(), nameSigMCBd.Data(), nSigEvtsMCBd[i], 0., nEntriesMCBd[i] ))
-            sigPDFMCBd.append(Bs2Dsh2011TDAnaModels.buildDoubleCBEPDF_sim(mass, meanVarBd, sigma1VarBd, alpha1VarBd, n1VarBd, sigma2VarBd, alpha2VarBd, n2VarBd, fracVarBd, nSigMCBd[i], sampleMC[i].Data(), bName, debug ))
-            
-        
-        samMC = RooCategory("sample","sample")
-        for i in range(0,2):
-            samMC.defineType(sampleMC[i].Data())
-
-        combDataMCBs = RooDataSet("combDataMC","combined data",RooArgSet(observables),
-                                  RooFit.Index(samMC),
-                                  RooFit.Import(sampleMC[0].Data(),dataMCBs[0]),
-                                  RooFit.Import(sampleMC[1].Data(),dataMCBs[1]))
-        
-        totPDFMCBs = RooSimultaneous("simPdfMC","simultaneous pdfMC",samMC)
-        for i in range(0,2):
-            totPDFMCBs.addPdf(sigPDFMCBs[i], sampleMC[i].Data())
-         
-        fitterMCBs = FitMeTool( debug )
-        fitterMCBs.setObservables( observables )
-        fitterMCBs.setModelPDF( totPDFMCBs )
-        fitterMCBs.setData(combDataMCBs)
-        fitterMCBs.fit()
-        
-        resultMCBs = fitterMCBs.getFitResult()
-        resultMCBs.Print()
-        modelBs = fitterMCBs.getModelPDF()
-        
-                            
-        paramsBs = modelBs.getVariables() ;
-        paramsBs.Print("v");
-       
-        mean = paramsBs.getRealValue("DblCBBsPDF_mean")
-        sigma1  = paramsBs.getRealValue("DblCBBsPDF_sigma1")  
-        sigma2 = paramsBs.getRealValue("DblCBBsPDF_sigma2") 
-        alpha1 = paramsBs.getRealValue("DblCBBsPDF_alpha1")
-        alpha2 = paramsBs.getRealValue("DblCBBsPDF_alpha2")
-        n1 = paramsBs.getRealValue("DblCBBsPDF_n1")
-        n2 = paramsBs.getRealValue("DblCBBsPDF_n2")
-        frac = paramsBs.getRealValue("DblCBBsPDF_frac")
-
-
-        combDataMCBd = RooDataSet("combDataMC","combined data",RooArgSet(observables),
-                            RooFit.Index(samMC),
-                            RooFit.Import(sampleMC[0].Data(),dataMCBs[0]),
-                            RooFit.Import(sampleMC[1].Data(),dataMCBs[1]))
-
-        totPDFMCBd = RooSimultaneous("simPdfMC","simultaneous pdfMC",samMC)
-        for i in range(0,2):
-            totPDFMCBd.addPdf(sigPDFMCBd[i], sampleMC[i].Data())
-
-        fitterMCBd = FitMeTool( debug )
-        fitterMCBd.setObservables( observables )
-        fitterMCBd.setModelPDF( totPDFMCBd )
-        fitterMCBd.setData(combDataMCBd)
-        fitterMCBd.fit()
-
-        resultMCBd = fitterMCBd.getFitResult()
-        resultMCBd.Print()
-        modelBd = fitterMCBd.getModelPDF()
-        
-        paramsBd = modelBd.getVariables() 
-        paramsBd.Print("v")
-        
-        sigma1Bd = paramsBd.getRealValue("DblCBBdPDF_sigma1")
-        sigma2Bd = paramsBd.getRealValue("DblCBBdPDF_sigma2")
-        
-        ratio1 = sigma1Bd/sigma1
-        ratio2 = sigma2Bd/sigma2
-        
-        print "Ratio1: %s / %s = %s Ratio2 %s / %s = %s"%(sigma1,sigma1Bd,ratio1,sigma2,sigma2Bd,ratio2)  
-        
-    else:
-        mean   = myconfigfile["mean"]
-        sigma1 = myconfigfile["sigma1"]
-        sigma2 = myconfigfile["sigma2"]
-        alpha1 = myconfigfile["alpha1"]
-        alpha2 = myconfigfile["alpha2"]
-        n1     = myconfigfile["n1"]
-        n2     = myconfigfile["n2"]
-        frac   = myconfigfile["frac"]
-        ratio1 = myconfigfile["ratio1"]
-        ratio2 = myconfigfile["ratio2"]
-                                                
+                                                  
     
  ###------------------------------------------------------------------------------------------------------------------------------------###
     ###------------------------------------------------------------------------------------------------------------------------------###
@@ -487,6 +350,7 @@ def runBsDsKMassFitterOnData( debug, sample, mVar, mdVar, tVar, tagVar, tagOmega
     
     nSig = []
     sigPDF = []
+    sigDsPDF = []
     nSigEvts = []
     
     
@@ -522,13 +386,24 @@ def runBsDsKMassFitterOnData( debug, sample, mVar, mdVar, tVar, tagVar, tagOmega
         canvas.Update()
         canvas.SaveAs(name.Data())
         
-        
-            
-    s1 = RooRealVar( "Signal_sigma1", "Signal_sigma1", sigma1)  #, 5., 50 )
-    s2 = RooRealVar( "Signal_sigma2", "Signal_sigma2", sigma2)  #, 5., 50 )
+           
+    s1 = []
+    s2 = []
+    s1Ds = []
+    s2Ds = []
+    ratio1 = myconfigfile["ratio1"]
+    ratio2 = myconfigfile["ratio2"]
+    
     r1 = RooRealVar( "ratio1", "ratio1", ratio1 )
     r2 = RooRealVar( "ratio2", "ratio2", ratio2 )
-    mn = RooRealVar( "Signal_mean", "Signal_mean", mean, 5100, 5600, "MeV/c^{2}")    
+    mn = RooRealVar( "Signal_mean", "Signal_mean", myconfigfile["mean"][0],
+                     myconfigfile["mean"][0]-100,    myconfigfile["mean"][0] +100, "MeV/c^{2}")
+    mnDs = RooRealVar( "Signal_mean_Ds", "Signal_mean_Ds", myconfigfile["meanDs"][0],
+                       myconfigfile["meanDs"][0]-100,    myconfigfile["meanDs"][0] +100, "MeV/c^{2}")
+    
+    alpha1Var = []
+    alpha2Var = []
+    
 
     if merge:
         bound = ranmode
@@ -540,52 +415,100 @@ def runBsDsKMassFitterOnData( debug, sample, mVar, mdVar, tVar, tagVar, tagOmega
             nSigEvts.append(0.4*nEntries[i])
         else:
             nSigEvts.append(0.7*nEntries[i])
-        #if merge:
-        #    name = TString("nSig")+t+m[i]+t+TString("Evts")
-        #else:
+
+        name = TString("Signal_sigma1_")+sm[i]    
+        s1.append(RooRealVar( name.Data(), name.Data(), myconfigfile["sigma1"][i]*myconfigfile["sigma1Bsfrac"]))
+        name = TString("Signal_sigma2_")+sm[i]
+        s2.append(RooRealVar( name.Data(), name.Data(), myconfigfile["sigma2"][i]*myconfigfile["sigma2Bsfrac"]))
+        
         name = TString("nSig")+t+sm[i]+t+TString("Evts")
         nSig.append(RooRealVar( name.Data(), name.Data(), nSigEvts[i], 0., nEntries[i] ))
-        sigPDF.append(Bs2Dsh2011TDAnaModels.buildDoubleCBEPDF_fix(mass,mn,s1,alpha1,n1,s2,alpha2,n2,frac,nSig[i],sm[i].Data(),bName,debug))
+
+        al1 = myconfigfile["alpha1"][i]*myconfigfile["alpha1Bsfrac"]
+        al2 = myconfigfile["alpha2"][i]*myconfigfile["alpha2Bsfrac"]
+        n1 =  myconfigfile["n1"][i]
+        n2 =  myconfigfile["n2"][i]
+        frac =  myconfigfile["frac"][i]
+
+        if debug:
+            print al1
+            print al2
+            print n1
+            print n2
+            print frac
+            
+        sigPDF.append(Bs2Dsh2011TDAnaModels.buildDoubleCBEPDF_fix(mass,mn,
+                                                                  s1[i], al1, n1,
+                                                                  s2[i], al2, n2,
+                                                                  frac,
+                                                                  nSig[i],sm[i].Data(),bName,debug))
+        
+        name = TString("Signal_sigma1_Ds_")+sm[i]
+        s1Ds.append(RooRealVar( name.Data(), name.Data(), myconfigfile["sigma1Ds"][i]*myconfigfile["sigma1Dsfrac"])) #,
+        name = TString("Signal_sigma2_Ds_")+sm[i]
+        s2Ds.append(RooRealVar( name.Data(), name.Data(), myconfigfile["sigma2Ds"][i]*myconfigfile["sigma2Dsfrac"])) #,
+
+        al1Ds  = myconfigfile["alpha1Ds"][i]*myconfigfile["alpha1Dsfrac"]
+        al2Ds  = myconfigfile["alpha2Ds"][i]*myconfigfile["alpha2Dsfrac"]
+        n1Ds   =  myconfigfile["n1Ds"][i]
+        n2Ds   =  myconfigfile["n2Ds"][i]
+        fracDs =  myconfigfile["fracDs"][i]
+
+        if debug:
+            print al1Ds
+            print al2Ds
+            print n1Ds
+            print n2Ds
+            print fracDs
+        
+        sigDsPDF.append(Bs2Dsh2011TDAnaModels.buildDoubleCBEPDF_fix(massDs,mnDs,
+                                                                    s1Ds[i], al1Ds, n1Ds,
+                                                                    s2Ds[i], al2Ds, n2Ds,
+                                                                    fracDs,
+                                                                    nSig[i],sm[i].Data(),dName,debug))
+        
+        
+        
         
 
-    meanVarDs = []
-    sigma1VarDs = []
-    sigma2VarDs = []
-    alpha1VarDs = []
-    alpha2VarDs = []
-    fracVarDs = []
-    j=0
-    for i in range(0,bound):
-        #name = TString("DblGDsPDF_mean_")+m[j]
-        #print name
-        print j
-        print m[j]
-        name = TString("DCruijff_mean_")+m[j]
-        print name
-        meanVarDs.append(RooRealVar( name.Data() ,  name.Data(),    myconfigfile["meanDs"][j],
-                                     myconfigfile["meanDs"][j]-100,    myconfigfile["meanDs"][j] +100 ))
-        name = TString("DCruijff_sigma1_")+m[j]
-        print name
-        sigma1VarDs.append(RooRealVar( name.Data(), name.Data(),  myconfigfile["sigma1Ds"][j])) #25, 15, 35))
-        name = TString("DCruijff_sigma2_")+m[j]
-        print name
-        sigma2VarDs.append(RooRealVar( name.Data(), name.Data(),  myconfigfile["sigma2Ds"][j])) #3, 0 , 20  ))
-        
-        name = TString("DCruijff_alpha1_")+m[j]
-        print name
-        alpha1VarDs.append(RooRealVar( name.Data(), name.Data(),  myconfigfile["alpha1Ds"][j])) #25, 15, 35))
-        name = TString("DCruijff_alpha2_")+m[j]
-        print name
-        alpha2VarDs.append(RooRealVar( name.Data(), name.Data(),  myconfigfile["alpha2Ds"][j])) #3, 0 , 20  ))
-        
-        name = TString("DCruijff_frac_")+m[j]
-        print name
-        fracVarDs.append(RooRealVar( name.Data(),  name.Data(),    myconfigfile["fracDs"][j], 0.0, 1.0))
-        if merge:
-            j=j+1
-        else:
-            if i == 1 or i == 3:
-                j=j+1
+#    meanVarDs = []
+#    sigma1VarDs = []
+#    sigma2VarDs = []
+#    alpha1VarDs = []
+#    alpha2VarDs = []
+#    fracVarDs = []
+#    j=0
+#    for i in range(0,bound):
+#        #name = TString("DblGDsPDF_mean_")+m[j]
+#        #print name
+#        print j
+#        print m[j]
+#        name = TString("DCruijff_mean_")+m[j]
+#        print name
+#        meanVarDs.append(RooRealVar( name.Data() ,  name.Data(),    myconfigfile["meanDs"][j],
+#                                     myconfigfile["meanDs"][j]-100,    myconfigfile["meanDs"][j] +100 ))
+#        name = TString("DCruijff_sigma1_")+m[j]
+#        print name
+#        sigma1VarDs.append(RooRealVar( name.Data(), name.Data(),  myconfigfile["sigma1Ds"][j])) #25, 15, 35))
+#        name = TString("DCruijff_sigma2_")+m[j]
+#        print name
+#        sigma2VarDs.append(RooRealVar( name.Data(), name.Data(),  myconfigfile["sigma2Ds"][j])) #3, 0 , 20  ))
+#        
+#        name = TString("DCruijff_alpha1_")+m[j]
+#        print name
+#        alpha1VarDs.append(RooRealVar( name.Data(), name.Data(),  myconfigfile["alpha1Ds"][j])) #25, 15, 35))
+#        name = TString("DCruijff_alpha2_")+m[j]
+#        print name
+#        alpha2VarDs.append(RooRealVar( name.Data(), name.Data(),  myconfigfile["alpha2Ds"][j])) #3, 0 , 20  ))
+#        
+#        name = TString("DCruijff_frac_")+m[j]
+#        print name
+#        fracVarDs.append(RooRealVar( name.Data(),  name.Data(),    myconfigfile["fracDs"][j], 0.0, 1.0))
+#        if merge:
+#            j=j+1
+#        else:
+#            if i == 1 or i == 3:
+#                j=j+1
                                 
             
 
@@ -606,7 +529,6 @@ def runBsDsKMassFitterOnData( debug, sample, mVar, mdVar, tVar, tagVar, tagOmega
 
     #exit(0)
     nSigdG = []
-    sigDsPDF = []
     sigPIDKPDF = []
     sigPIDKPDF1 = []
     sigPIDKPDF2 = []
@@ -614,32 +536,22 @@ def runBsDsKMassFitterOnData( debug, sample, mVar, mdVar, tVar, tagVar, tagOmega
     sigEPDF = []
     lumRatio = RooRealVar("lumRatio","lumRatio", myconfigfile["lumRatio"])
     for i in range(0,bound):
-        #sigDsPDF.append(Bs2Dsh2011TDAnaModels.buildDoubleGEPDF_sim(massDs, meanVarDs[i], sigma1VarDs[i], sigma2VarDs[i], fracVarDs[i],
-        #                                                           nSig[i], sm[i].Data(),"Bs", false, debug ))
         name = TString("DCruijffPDF_")+sm[i]
         name2 = TString("SigProdPDF")+t+sm[i]
         name3 = TString("SigEPDF")+t+sm[i]
         if merge:
-            #name = TString("DCruijffPDF_")+sm[i]
-            #name2 = TString("SigProdPDF")+t+sm[i]
-            #name3 = TString("SigEPDF")+t+sm[i]
             sigPIDKPDF1.append(Bs2Dsh2011TDAnaModels.GetRooAddPdfFromWorkspace(workspaceID2,TString("PIDKShape_dCB_BsDsK_down"),debug))
             sigPIDKPDF2.append(Bs2Dsh2011TDAnaModels.GetRooAddPdfFromWorkspace(workspaceID2,TString("PIDKShape_dCB_BsDsK_up"),debug))
             name4 = TString("PIDKShape_dCB_BsDsK_both")
             sigPIDKPDF.append(RooAddPdf( name4.Data(), name4.Data(), RooArgList( sigPIDKPDF2[i], sigPIDKPDF1[i]),RooArgList(lumRatio)))
             print "Create %s"%(sigPIDKPDF[0].GetName())
         else:
-            #name = TString("DCruijffPDF_")+sm[i]
-            #name2 = TString("SigProdPDF")+t+sm[i]
-            #name3 = TString("SigEPDF")+t+sm[i]
             if(sm[i].Contains("down")):
                 sigPIDKPDF.append(Bs2Dsh2011TDAnaModels.GetRooAddPdfFromWorkspace(workspaceID2,TString("PIDKShape_dCB_BsDsK_down"),debug))
             else:
                 sigPIDKPDF.append(Bs2Dsh2011TDAnaModels.GetRooAddPdfFromWorkspace(workspaceID2,TString("PIDKShape_dCB_BsDsK_up"),debug))
-                        
-            
-        sigDsPDF.append(RooCruijff(name.Data(), name.Data(),massDs, meanVarDs[i], sigma1VarDs[i], sigma2VarDs[i],alpha1VarDs[i], alpha2VarDs[i]))
-        print sigDsPDF[i].GetName()
+        #sigDsPDF.append(RooCruijff(name.Data(), name.Data(),massDs, meanVarDs[i], sigma1VarDs[i], sigma2VarDs[i],alpha1VarDs[i], alpha2VarDs[i]))
+        #print sigDsPDF[i].GetName()
         sigProdPDF.append(RooProdPdf(name2.Data(),name2.Data(),RooArgList(sigPDF[i],sigDsPDF[i],sigPIDKPDF[i])))
         print sigProdPDF[i].GetName()
         sigEPDF.append(RooExtendPdf(name3.Data(),name3.Data(),sigProdPDF[i], nSig[i]))
@@ -662,13 +574,23 @@ def runBsDsKMassFitterOnData( debug, sample, mVar, mdVar, tVar, tagVar, tagOmega
     nLb2LcK = []
     
     bkgBdDsK = []
-    width1 = RooFormulaVar("BsDsX_sigma1" , "BsDsX_sigma1",'@0*@1', RooArgList(s1,r1))
-    width2 = RooFormulaVar("BsDsX_sigma2" , "BsDsX_sigma2",'@0*@1', RooArgList(s2,r2))
+    width1 = []
+    width2 = []
     shift = 5369.600-5279.400
     meanBdDsK =  RooFormulaVar("BsDsX_mean" , "BsDsX_mean",'@0-86.8', RooArgList(mn))
 
+    cBVar = []
+    cDVar = []
+    fracComb = []
+    j = 0
+
     for i in range(0,bound):
-        print i
+        name = TString("BdDsX_sigma1_") + sm[i]
+        width1.append(RooFormulaVar(name.Data(), name.Data(),'@0*@1', RooArgList(s1[i],r1)))
+        name = TString("BdDsX_sigma2_") + sm[i]
+        width2.append(RooFormulaVar(name.Data() , name.Data(),'@0*@1', RooArgList(s2[i],r2)))
+                        
+
         nameCombBkg = TString("nCombBkg_")+sm[i]+t+evts
         nameBs2DsDsstPiRho = TString("nBs2DsDsstPiRho_")+sm[i]+t+evts
         nameLb2LcK = TString("nLb2LcK_")+sm[i]+t+evts
@@ -719,9 +641,39 @@ def runBsDsKMassFitterOnData( debug, sample, mVar, mdVar, tVar, tagVar, tagOmega
             nBd2DK.append(RooRealVar( nameBd2DK.Data(), nameBd2DK.Data(), inBdDKEvts/2,
                                       0, inBdDKEvts))
                                       #inBdDKEvts/15, inBdDKEvts*2.0))
-            
-        bkgBdDsK.append(Bs2Dsh2011TDAnaModels.buildBdDsX(mass,meanBdDsK,width1,alpha1,n1,width2,alpha2,n2,frac,TString("Bd2DsK")))        
 
+                                      
+        al1 = myconfigfile["alpha1"][i] #*myconfigfile["alpha1Bsfrac"]
+        al2 = myconfigfile["alpha2"][i] #*myconfigfile["alpha2Bsfrac"]
+        n1 =  myconfigfile["n1"][i]
+        n2 =  myconfigfile["n2"][i]
+        frac =  myconfigfile["frac"][i]
+                                
+        bkgBdDsK.append(Bs2Dsh2011TDAnaModels.buildBdDsX(mass,meanBdDsK,
+                                                         width1[i],al1,n1,
+                                                         width2[i],al2,n2,
+                                                         frac,
+                                                         TString("Bd2DsK"), debug))
+
+        mul = 10.0
+        confTS = TString(configName)
+        if confTS.Contains("BDTG3"):
+            mul = 30.0
+        name = TString("CombBkg_slope_Bs_")+m[j]
+        cBVar.append(RooRealVar(name.Data(), name.Data(), myconfigfile["cB"][i],
+                                myconfigfile["cB"][i]+myconfigfile["cB"][i]*mul, 0))
+        name = TString("CombBkg_slope_Ds_")+m[j]
+        cDVar.append(RooRealVar(name.Data(), name.Data(), myconfigfile["cD"][i],
+                                myconfigfile["cD"][i]+myconfigfile["cD"][i]*mul, 0))
+        name = TString("CombBkg_fracComb_")+m[j]
+        fracComb.append(RooRealVar(name.Data(), name.Data(), myconfigfile["fracComb"][i]))
+        if merge:
+            j=j+1
+        else:
+            if i == 1 or i == 3:
+                j=j+1
+                
+                
         #---------------------------------------------------------------------------------------------------------------------------#                
 
     #shared variable:
@@ -772,15 +724,12 @@ def runBsDsKMassFitterOnData( debug, sample, mVar, mdVar, tVar, tagVar, tagOmega
                                                               g3_f1,
                                                               g4_f1,
                                                               g4_f2,
-                                                              meanVarDs[i],
-                                                              sigma1VarDs[i],
-                                                              sigma2VarDs[i],
-                                                              alpha1VarDs[i],
-                                                              alpha2VarDs[i],
-                                                              fracVarDs[i],
+                                                              sigDsPDF[i],
+                                                              cBVar[i],
+                                                              cDVar[i],
+                                                              fracComb[i],
                                                               sm[i],
                                                               lumRatio,
-                                                              toys,
                                                               debug ))
     else:
         if merge:
@@ -806,15 +755,12 @@ def runBsDsKMassFitterOnData( debug, sample, mVar, mdVar, tVar, tagVar, tagOmega
                                                                   g3_f1,
                                                                   g4_f1,
                                                                   g4_f2,
-                                                                  meanVarDs[i],
-                                                                  sigma1VarDs[i],
-                                                                  sigma2VarDs[i],
-                                                                  alpha1VarDs[i],
-                                                                  alpha2VarDs[i],
-                                                                  fracVarDs[i],
+                                                                  sigDsPDF[i],
+                                                                  cBVar[i],
+                                                                  cDVar[i],
+                                                                  fracComb[i],
                                                                   sm[i],
                                                                   lumRatio,
-                                                                  toys,
                                                                   debug ))
                 
         else:
@@ -825,7 +771,6 @@ def runBsDsKMassFitterOnData( debug, sample, mVar, mdVar, tVar, tagVar, tagOmega
                     print "sample: %s, sm: %s, name: %s"%(s[j],sm[i*2+j],nCombBkg[i*2+j])
                     bkgPDF.append(Bs2Dsh2011TDAnaModels.buildBsDsK_2D(mass,
                                                                       massDs,
-                                                                      PIDK,
                                                                       workspace[0],
                                                                       workspaceID,
                                                                       workspaceID2,
@@ -845,15 +790,12 @@ def runBsDsKMassFitterOnData( debug, sample, mVar, mdVar, tVar, tagVar, tagOmega
                                                                       g3_f1,
                                                                       g4_f1,
                                                                       g4_f2,
-                                                                      meanVarDs[i*2+j],
-                                                                      sigma1VarDs[i*2+j],
-                                                                      sigma2VarDs[i*2+j],
-                                                                      alpha1VarDs[i*2+j],
-                                                                      alpha2VarDs[i*2+j],
-                                                                      fracVarDs[i*2+j],
+                                                                      sigDsPDF[i*2+j],
+                                                                      cBVar[i*2+j],
+                                                                      cDVar[i*2+j],
+                                                                      fracComb[i*2+j],
                                                                       sm[i*2+j],
                                                                       lumRatio,
-                                                                      toys,
                                                                       debug ))
 
         
@@ -999,11 +941,11 @@ parser.add_option( '-w', '--sweight',
                    help = 'create and save sWeights, choose: yes or no'
                    )
 
-parser.add_option( '--fitsignal',
-                   dest = 'fitsig',
-                   default = 'no',
-                   help = 'fitsignal shape, yes or no'
-                   )
+#parser.add_option( '--fitsignal',
+#                   dest = 'fitsig',
+#                   default = 'no',
+#                   help = 'fitsignal shape, yes or no'
+#s                   )
 
 parser.add_option( '--fileName',
                    dest = 'fileNameAll',
@@ -1052,7 +994,7 @@ if __name__ == '__main__' :
     
     runBsDsKMassFitterOnData(   options.debug,  options.sample , options.mvar, options.mdvar, options.tvar, \
                                 options.tagvar, options.tagomegavar, options.idvar,\
-                                options.mode, options.sweight, options.fitsig, \
+                                options.mode, options.sweight, \
                                 options.fileNameAll, options.fileNameAllID,
                                 options.workName, options.configName, options.wide, options.merge)
 

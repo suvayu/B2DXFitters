@@ -47,30 +47,44 @@ def getconfig() :
 
     configdict["lumRatio"] =  0.44/(0.59+0.44)
 
-    configdict["mean"]    = 5367.51
-    configdict["sigma1"]  = 12.582*14.007/11.631 #12.635*14.007/11.631
-    configdict["sigma2"]  = 20.000*24.957/17.991
-    configdict["alpha1"]  = 2.0519*2.6338/1.8393 #2.0657*2.6338/1.8393
-    configdict["alpha2"]  = -2.1164*2.1473/2.0208 #-2.0950*2.1473/2.0208
-#    configdict["sigma1"]  = 11.769*14.337/11.967
-#    configdict["sigma2"]  = 12.925*16.326/12.755
-#    configdict["alpha1"]  = 0.15710
-#    configdict["alpha2"]  = 0.088142
+    # 1: NonRes, 2: PhiPi, 3: KstK, 4: KPiPi, 5: PiPiPi 
+    configdict["mean"]    = [5367.51, 5367.51, 5367.51, 5367.51, 5367.51]
+    configdict["sigma1"]  = [14.240,  18.107,  12.092,  11.88,   12.504 ] #*1.252
+    configdict["sigma2"]  = [9.0773,  11.925,  16.078,  18.539,  20.000 ] #*1.777
+    configdict["alpha1"]  = [1.8539,  1.6328,  1.7344,  1.9468,  1.8922 ] #*1.004 
+    configdict["alpha2"]  = [-1.3223, -2.3348, -1.9130, -2.1141, -2.1200] #*0.832
+    configdict["n1"]      = [1.2508,  1.4973,  1.2819,  1.0945,  1.2074 ] 
+    configdict["n2"]      = [1.7330,  1.8582,  4.0326,  2.8556,  2.6656 ]
+    configdict["frac"]    = [0.85102, 0.46495, 0.51567, 0.65731, 0.68870]
 
-    configdict["n1"]      = 1.1560 #1.1466
-    configdict["n2"]      = 4.4064 #4.6846
-    configdict["frac"]    = 0.75401 #0.75903
+    configdict["sigma1Bsfrac"] = 1.243 
+    configdict["sigma2Bsfrac"] = 1.189
+    configdict["alpha1Bsfrac"] = 1.0 
+    configdict["alpha2Bsfrac"] = 1.0 
+        
+    
+
     configdict["ratio1"]  = 1.00808721452
     configdict["ratio2"]  = 1.0386867331        
 
-    configdict["meanDs"]    = [1968.49, 1968.49, 1968.49, 1968.49, 1968.49]
-#    configdict["sigma1Ds"]  = 8.2726
-#    configdict["sigma2Ds"]  = 4.5723
-    configdict["fracDs"]    = [0.5, 0.5, 0.5, 0.5, 0.5]  #44465
-    configdict["sigma1Ds"]  = [4.8978*6.8765/5.7317, 4.8978*6.8765/5.7317, 4.8978*6.8765/5.7317, 6.1294*6.8765/5.7317, 7.4626*6.8765/5.7317]
-    configdict["sigma2Ds"]  = [5.3464*7.4714/6.4135, 5.3464*7.4714/6.4135, 5.3464*7.4714/6.4135, 5.6465*7.4714/6.4135, 7.7053*7.4714/6.4135] 
-    configdict["alpha1Ds"]    = [0.14109, 0.14109, 0.14109, 0.25788, 0.17674]
-    configdict["alpha2Ds"]    = [0.11095, 0.11095, 0.11095, 0.26196, 0.12480]
+    configdict["meanDs"]    = [1968.49, 1968.49, 1968.49, 1968.49, 1968.49 ]
+    configdict["sigma1Ds"]  = [4.8865,   5.0649,  5.4377,  5.8510,  5.5906 ] #*1.167
+    configdict["sigma2Ds"]  = [5.0645,   5.5344,  5.3877,  10.180,  10.073 ] #*1.096 
+    configdict["alpha1Ds"]  = [0.51973,  1.1934,  0.7734,  2.8195,  1.9343 ] #*1.140
+    configdict["alpha2Ds"]  = [-0.9908,  -1.1806, -1.1424, -2.2422,  -1.7027] #*1.022
+    configdict["n1Ds"]      = [50.000,   4.0702,  49.999,  0.0262,  0.2633 ]
+    configdict["n2Ds"]      = [50.000,   10.643,  50.000,  1.9293,  8.6233 ]
+    configdict["fracDs"]    = [0.25406,  0.48465, 0.32864, 0.59958, 0.27873]
+
+    configdict["sigma1Dsfrac"] = 1.062
+    configdict["sigma2Dsfrac"] = 1.183 
+    configdict["alpha1Dsfrac"] = 1.0 
+    configdict["alpha2Dsfrac"] = 1.0 
+        
+
+    configdict["cB"]        = [-1.2541e-03,  -6.8338e-04,  -1.3075e-03, -1.1672e-03, -1.0871e-03]
+    configdict["cD"]        = [-2.7520e-08,  -2.7273e-03,  -8.3967e-03, -1.9193e-03, -4.5455e-03] 
+    configdict["fracComb"]  = [0.88620,      0.37379,      0.59093,     1.0,         1.0]          
 
     configdict["BdDPiEvents"]  = [260, 363,
                                   260, 363,

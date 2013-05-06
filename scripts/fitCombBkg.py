@@ -62,7 +62,7 @@ bName = 'B_{s}'
 
 
 #------------------------------------------------------------------------------
-def fitCombBkg( debug, var , mode, modeDs, merge, BDTG, configName) :
+def fitCombBkg( debug, var , mode, modeDs, merge, BDTG, configName, WS) :
 
     myconfigfilegrabber = __import__(configName,fromlist=['getconfig']).getconfig
     myconfigfile = myconfigfilegrabber()
@@ -120,7 +120,7 @@ def fitCombBkg( debug, var , mode, modeDs, merge, BDTG, configName) :
         tagOmegaVarTS = TString("lab0_BdTaggingTool_TAGOMEGA_OS")
         Dmass_down = 1830 #1930
         Dmass_up = 1920 #2015
-        Bmass_down = 5800
+        Bmass_down = 5400
         Bmass_up = 7000
     else:
         modeDsTS=TString(modeDs)
@@ -130,27 +130,36 @@ def fitCombBkg( debug, var , mode, modeDs, merge, BDTG, configName) :
         Bmass_up = 7000
 
     if ( modeDsTS == "NonRes" or modeDsTS == "KstK" or modeDsTS == "PhiPi" or modeDsTS == "All"):
-        nameTS = TString("#")+modeTS+TString(" KKPi ")+modeDsTS
+        if WS:
+            nameTS = TString("#")+modeTS+TString(" KKPi ")+modeDsTS+ TString(" WS")
+        else:
+            nameTS = TString("#")+modeTS+TString(" KKPi ")+modeDsTS
         if modeDsTS == "NonRes" :
             modeDsTS2 = "nonres"
+            index = 0
         elif modeDsTS == "KstK":
             modeDsTS2 = "kstk"
+            index = 2
         elif modeDsTS == "PhiPi":
             modeDsTS2 = "phipi"
+            index = 1
         else:
             modeDsTS2 = "kkpi"
-        index =0                            
+            index = 1                            
     else:
-        nameTS = TString("#")+modeTS+TString(" ")+modeDsTS
+        if WS:
+            nameTS = TString("#")+modeTS+TString(" ")+modeDsTS+TString(" WS") 
+        else:
+            nameTS = TString("#")+modeTS+TString(" ")+modeDsTS
         if modeDsTS == "KPiPi" :
             modeDsTS2 = "kpipi"
-            index = 1
+            index = 3
         elif modeDsTS == "PiPiPi":
             modeDsTS2 = "pipipi"
-            index = 2
+            index = 4
         else:
             modeDsTS2 = "kkpi"
-            index = 0
+            index = 1
             
     print nameTS
     print index
@@ -235,6 +244,7 @@ def fitCombBkg( debug, var , mode, modeDs, merge, BDTG, configName) :
             else:
                 mean = 1969
             c = -0.0001
+            c2 = -0.011
             sigma1Var =  RooRealVar( "sigma1", "sigma1", myconfigfile[sigma1Name.Data()][index]) #, 5.0, 20.0)
             sigma2Var =  RooRealVar( "sigma2", "sigma2", myconfigfile[sigma2Name.Data()][index]) #, 10.0, 150.0)
             n1Var =  RooRealVar( "n1", "n1", myconfigfile[n1Name.Data()][index])
@@ -242,14 +252,17 @@ def fitCombBkg( debug, var , mode, modeDs, merge, BDTG, configName) :
             alpha1Var =  RooRealVar( "alpha1", "alhpa1", myconfigfile[alpha1Name.Data()][index])
             alpha2Var =  RooRealVar( "alpha2", "alpha2", myconfigfile[alpha2Name.Data()][index])
             fracVar   =  RooRealVar( "frac",   "frac",    myconfigfile[fracName.Data()][index])
-            frac2Var   =  RooRealVar( "frac2",   "frac2",    0.5, 0.0, 1.0)
             meanVar   =  [RooRealVar( "DblCBPDF_mean_up" ,  "mean",    mean,   mean-10, mean+10, "MeV/c^{2}"),
                           RooRealVar( "DblCBPDF_mean_down" ,  "mean",    mean,    mean-10, mean+10, "MeV/c^{2}")]
         else:
             c = -0.0001
+            c2= -0.011
     else:
         c = -0.0001
-           
+        c2 = -0.011
+        
+    c2Var =  RooRealVar( "c2Var", "c2Var",  c2,  -0.1,  0, "MeV/c^{2}")
+    frac2Var   =  RooRealVar( "frac2",   "frac2",    0.5, 0.0, 1.0)
     c1Var =  RooRealVar( "c1Var", "c1Var",  c,  -0.1,  0, "MeV/c^{2}")
               
     
@@ -273,9 +286,13 @@ def fitCombBkg( debug, var , mode, modeDs, merge, BDTG, configName) :
                                                                        alpha2Var, n2Var, fracVar, nSig[i], sample[i].Data(), bName, debug ))
             sigPDF.append(RooAddPdf(nameAdd.Data(), nameAdd.Data(), sigPDF1[i], sigPDF2[i], frac2Var))
         else:
-            nameExp = TString("Exp")
+            nameExp = TString("Exp1")
             sigPDF.append(RooExponential(nameExp.Data(), nameExp.Data(), mass, c1Var))
-
+            nameExp = TString("Exp2")
+            sigPDF2.append(RooExponential(nameExp.Data(), nameExp.Data(), mass, c2Var))
+            nameAdd = TString("Add")
+            #sigPDF.append(RooAddPdf(nameAdd.Data(), nameAdd.Data(), sigPDF1[i], sigPDF2[i], frac2Var))
+                        
         nameEPDF = TString("CombBkgEPDF_")+sample[i]
         sigEPDF.append(RooExtendPdf( nameEPDF.Data() , nameEPDF.Data(), sigPDF[i]  , nSig[i]  ))
                 
@@ -393,7 +410,7 @@ def fitCombBkg( debug, var , mode, modeDs, merge, BDTG, configName) :
             fitter.saveModelPDF( options.wsname )
             fitter.saveData ( options.wsname )
     
-        fitter.fit(True, RooFit.Optimize(0), RooFit.Strategy(2),  RooFit.Verbose(True), RooFit.InitialHesse(True))
+        fitter.fit(True, RooFit.Optimize(0), RooFit.Strategy(2),  RooFit.InitialHesse(True)) #RooFit.Verbose(True), RooFit.InitialHesse(True))
             
         if plot_fitted :
             fitter.saveModelPDF( options.wsname )
@@ -459,6 +476,13 @@ parser.add_option( '--merge',
                    help = 'save the model PDF parameters before the fit (default: after the fit)'
                    )
 
+parser.add_option( '--WS',
+                   action = 'store_true',
+                   dest = 'WS',
+                   default = False,
+                   help = 'save the model PDF parameters before the fit (default: after the fit)'
+                   )
+
 parser.add_option( '--BDTG',
                    dest = 'BDTG',
                    default = 'BDTGA',
@@ -482,6 +506,6 @@ if __name__ == '__main__' :
     sys.path.append("../data/")
       
     fitCombBkg(options.debug, options.var, options.mode, options.modeDs,
-               options.merge, options.BDTG, options.configName)
+               options.merge, options.BDTG, options.configName, options.WS)
 
 # -----------------------------------------------------------------------------
