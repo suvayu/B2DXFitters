@@ -46,7 +46,7 @@ PIDcut = 10
 histname = "MyPionMisID_10"
 PIDmisscut= 0 
 pPIDcut = 5
-Pcut_down = 0.0
+Pcut_down = 2000.0
 Pcut_up = 100000000000.0
 
 Dmass_down =1930

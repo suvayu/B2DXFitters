@@ -41,6 +41,8 @@
 #include "RooHistPdf.h"
 #include "RooDataHist.h"
 #include "RooCategory.h"
+#include "RooBinning.h"
+
 // B2DXFitters includes
 #include "RooArgSet.h"
 #include "B2DXFitters/GeneralUtils.h"
@@ -1189,7 +1191,14 @@ namespace MassFitUtils {
     for( int i = 0; i<2; i++ )
       {
 	heff1[i]=NULL;
-	namehist = Form("MyPionMisID_%d;1",PIDcut);
+	if ( hypo.Contains("Bd"))
+	  {
+	    namehist = Form("MyKaonMisID_%d;1",PIDcut);
+	  }
+	else
+	  {
+	    namehist = Form("MyPionMisID_%d;1",PIDcut);
+	  }
 	if( PIDcut == -5) {namehist = "MyPionMisID_Minus5";}
 	if( PIDcut > 10 ) {namehist = "MyPionMisID_10";}
       
@@ -1202,7 +1211,14 @@ namespace MassFitUtils {
 	heff[i]=AddHist(heff1[i],  histent1[i], heff2[i], histent2[i],debug);
 
 	heffmiss1[i]=NULL;
-	namehist = Form("MyPionMisID_%d;1",PIDmisscut);
+	if ( hypo.Contains("Bd"))
+          {
+            namehist = Form("MyKaonMisID_%d;1",PIDmisscut);
+          }
+        else
+          {
+            namehist = Form("MyPionMisID_%d;1",PIDmisscut);
+          }
 	heffmiss1[i] = ReadPIDHist(FileNamePID,namehist,i,debug);
 
 	heffmiss2[i]=NULL;
@@ -3028,7 +3044,7 @@ namespace MassFitUtils {
     histent1[0] = 6883094.0;
     histent2[1] = 5866006.0;
     histent2[0] = 9122416.0;
-  
+    
     TString namehist;
     //Read first PID histogram: PIDhist_1 //
     for( int i = 0; i<2; i++ )
@@ -3038,6 +3054,7 @@ namespace MassFitUtils {
 	h_11[i]=NULL;
 	h_12[i]=NULL;
 	h_11[i] = ReadPIDHist(FileNamePID_1,PIDhist_1,i, true); //load the first part
+	h_11[i] ->SaveAs("Plot/hist11.root");
 	if ( sigPID_1 == "#PID" )
 	  {
 	    std::cout<<FileNamePID2_1[0]<<std::endl;
@@ -3050,7 +3067,6 @@ namespace MassFitUtils {
 	else {
 	  h_1[i] = h_11[i];
 	}
-
       }
     //Read second histogram PIDhist_2 (in case of lab4 and lab5) 
     if( mode != "BsDsPi" && mode != "BDK")
@@ -3082,7 +3098,22 @@ namespace MassFitUtils {
 	h_22[0] = NULL; h_22[1] = NULL;
 	h_2[0]=NULL; h_2[1]=NULL;
       }
-  
+    h_1[0] -> SaveAs("Plot/hist.root");
+    Int_t numbin = h_1[0] -> GetNbinsX();
+    TAxis* axis=h_1[0]->GetXaxis();
+    Double_t max = axis->GetXmax();
+    Double_t min = axis->GetXmin();;
+    std::cout<<"min: "<<min<<" max: "<<max<<std::endl;
+    RooBinning* Mom_Bin = new RooBinning(min,max,"P");
+    for (int k = 1; k < numbin; k++ )
+      {
+	Double_t cen = h_1[0] -> GetBinCenter(k);
+	Double_t width = h_1[0] -> GetBinWidth(k);
+	max = cen + width/2; 
+	//Mom_Bin->addUniform(1, min, max);
+	Mom_Bin->addBoundary(max);
+	std::cout<<"k: "<<k<<" min: "<<min<<" max: "<<max<<" cen: "<<cen<<" =? "<<max-width/2<<" w: "<<width<<std::endl;
+      }
        
     TCut P_cut = Form("lab1_P > %f && lab1_P < %f",Pcut_down,Pcut_up);
     TCut BDTG_cut = Form("BDTGResponse_1 > %f && BDTGResponse_1 < %f",BDTG_down, BDTG_up);
@@ -3217,10 +3248,19 @@ namespace MassFitUtils {
 	//Double_t min = 0;
 	
 	Int_t nbins = h_1[i]->GetNbinsX(); // set the same binning
-	
-	TH1F* h_lab4 = new TH1F("h_lab4","h_lab4",nbins,0,max);
-	TH1F* h_lab5 = new TH1F("h_lab5","h_lab5",nbins,0,max);
-	TH1F* h_lab1 = new TH1F("h_lab1","h_lab1",nbins,0,max);
+	//RooBinning* Mom_Bin = new RooBinning(2000,300000,"P");
+	/*
+	Mom_Bin->addUniform(1, 2000, 5000);
+	Mom_Bin->addUniform(20, 5000, 20000);
+	Mom_Bin->addUniform(8, 20000, 60000);
+	Mom_Bin->addUniform(4, 60000, 100000);
+	Mom_Bin->addUniform(3, 100000, 160000);
+	Mom_Bin->addBoundary(200000);
+	Mom_Bin->addBoundary(250000);
+	*/
+	TH1F* h_lab4 = new TH1F("h_lab4","h_lab4",Mom_Bin->numBins(), Mom_Bin->array());
+	TH1F* h_lab5 = new TH1F("h_lab5","h_lab5",Mom_Bin->numBins(), Mom_Bin->array());
+	TH1F* h_lab1 = new TH1F("h_lab1","h_lab1",Mom_Bin->numBins(), Mom_Bin->array());
 	TH2F *hist2D_1 = new TH2F("hist2D_1","hist2D_1", nbins, 0, max, nbins, 0, max);
 
 	//std::cout<<"nbins"<<nbins<<" min: "<<min<<" max: "<<max<<std::endl;
@@ -3335,16 +3375,22 @@ namespace MassFitUtils {
 		  }
 		std::cout<<"j: "<<j<<" "<<h_lab4->GetName()<<" "<<con1<<" "<<h_1[i]->GetName()<<" "<<con2<<" ";
 		std::cout<<h_lab5->GetName()<<" "<<con3<<" "<<h_2[i]->GetName()<<" "<<con4<<std::endl;
-		std::cout<<"lab4: "<<cal_lab4[i]<<" lab_5: "<<cal_lab5[i]<<std::endl;
+		std::cout<<" lab4: "<<cal_lab4[i]<<" lab_5: "<<cal_lab5[i]<<std::endl;
 	      }
 	    else if ( mode == "BDK" || mode == "BsDsK" || mode == "LbDsp" || mode == "LbDsstp") // only bachelor weighting
 	      {
 		
 		Double_t con1 = h_lab1->GetBinContent(j);
 		Double_t con2 = h_1[i]->GetBinContent(j);
+		Double_t center1 = h_lab1->GetBinCenter(j);
+		Double_t center2 = h_1[i]->GetBinCenter(j);
+		Double_t width1 = h_lab1 -> GetBinWidth(j);
+		Double_t width2 = h_1[i] -> GetBinWidth(j);
 		Double_t y = con1*con2;
 		cal_lab1[i] = cal_lab1[i]+y;
-		std::cout<<"j: "<<j<<" "<<h_lab1->GetName()<<" "<<con1<<" "<<h_1[i]->GetName()<<" "<<con2<<" "<<" "<<" cal_lab1: "<<cal_lab1[i]<<std::endl;
+		std::cout<<"j: "<<j<<" "<<h_lab1->GetName()<<" "<<con1<<" binc: "<<center1<<" width: "<<width1<<" "
+			 <<h_1[i]->GetName()<<" binc: "<<center2<<" width:"<<width2<<"n: "<<con2<<" "
+			 <<" cal_lab1: "<<cal_lab1[i]<<std::endl;
 
 	      }
 	    else if ( mode == "BsDsPi" ) //special case of bachelor weighting, due to fact applied PIDK < 0 for data
@@ -4106,6 +4152,7 @@ namespace MassFitUtils {
     
     TTree* tr[2];
     RooDataSet* dataSetMC[2];
+     
     //RooDataSet* dataSetMCDsK[2];
     //RooFitResult* result[2];
     Int_t n_ev[2];
@@ -4131,33 +4178,7 @@ namespace MassFitUtils {
 	dataSetMC[i] = NULL;
 	dataSetMC[i] = new RooDataSet(name.Data(),name.Data(),RooArgSet(*lab0_MM,*lab2_MM,*lab1_P,*lab0_P,*lab1_PT,*nTracks));
 	
-	/*
-	if ( MC == true )
-	  {
-	    TString name="dataSetMCDsK"+s;
-	    dataSetMCDsK[i] = NULL;
-	    dataSetMCDsK[i] = new RooDataSet(name.Data(),name.Data(),RooArgSet(*lab0_MMdsk));
-	  }
 	
-	Float_t lab1_P3, lab2_P3;
-	Float_t lab1_PX3, lab1_PY3, lab1_PZ3;
-	Float_t lab2_PX3, lab2_PY3, lab2_PZ3;
-	Float_t lab2_MM3;
-
-	Float_t masshypo;
-	Double_t w;
-	
-	tr[i]->SetBranchAddress("lab1_P",  &lab1_P3);
-	tr[i]->SetBranchAddress("lab1_PX", &lab1_PX3);
-	tr[i]->SetBranchAddress("lab1_PY", &lab1_PY3);
-	tr[i]->SetBranchAddress("lab1_PZ", &lab1_PZ3);
-	
-	tr[i]->SetBranchAddress("lab2_P",  &lab2_P3);
-	tr[i]->SetBranchAddress("lab2_PX", &lab2_PX3);
-	tr[i]->SetBranchAddress("lab2_PY", &lab2_PY3);
-	tr[i]->SetBranchAddress("lab2_PZ", &lab2_PZ3);
-	*/
-
 	for (Long64_t jentry=0; jentry<tr[i]->GetEntries(); jentry++)
 	  {
 	    tr[i]->GetEntry(jentry);
@@ -4171,32 +4192,15 @@ namespace MassFitUtils {
 		lab1_PT->setVal(lab1_PT2);
 		nTracks->setVal(nTracks2);
 		dataSetMC[i]->add(RooArgSet(*lab0_MM,*lab2_MM,*lab1_P,*lab0_P,*lab1_PT,*nTracks));
-		/*
-		if (MC == true)
-		  {
-		    masshypo = (Float_t)sqrt(pow(sqrt(pow(493.677,2)+pow(lab1_P3,2))+sqrt(pow(lab2_MM3,2)+pow(lab2_P3,2)),2)
-					     -pow(lab1_PX3+lab2_PX3,2)
-					     -pow(lab1_PY3+lab2_PY3,2)
-					     -pow(lab1_PZ3+lab2_PZ3,2)); // change hypo Pi->K
-
-		    if (masshypo > BMassRange[0] && masshypo < BMassRange[1])
-		      {
-			lab0_MMdsk->setVal(masshypo);
-			dataSetMCDsK[i]->add(RooArgSet(*lab0_MMdsk));
-		      }
-		      }*/
-
 	      }
 	  }
 	SaveDataSet(dataSetMC[i],lab0_MM, smp[i], mode, true);
 	std::cout<<"Number of entries: "<<dataSetMC[i]->numEntries()<<std::endl;
 	n_ev[i]=dataSetMC[i]->numEntries();
-	//n_evdsk[i]=dataSetMCDsK[i]->numEntries();
 	work->import(*dataSetMC[i]);
-    
       }
     
- 
+         
     if(MC == true)
       {
 	  Int_t n_gen = 0;
@@ -4219,6 +4223,8 @@ namespace MassFitUtils {
 	    std::cout<<"------------------------------------------------------"<<std::endl;
 	    
       }	
+
+
     return work;
   } 
 
