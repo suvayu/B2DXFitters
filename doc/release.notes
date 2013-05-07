@@ -4,7 +4,7 @@
 ! Purpose     : RooFit-based fitters for B -> D X
 !-----------------------------------------------------------------------------
 ! 2013-05-07 - Agnieszka Dziurda
- - Fix bugs (wrong binning) in expectedEvents.py and MassFitUtils.cxx
+ - Fix bugs (wrong binning) in expectedEvents.py, MassFitUtils.cxx, GeneralUtils.cxx
 
 ! 2013-05-06 - Agnieszka Dziurda
  - Improvements for MDFitter

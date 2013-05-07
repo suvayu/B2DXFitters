@@ -42,6 +42,7 @@
 #include "RooCategory.h"
 #include "TStyle.h"
 #include "TLatex.h"
+#include "RooBinning.h"
 // B2DXFitters includes
 #include "B2DXFitters/GeneralUtils.h"
 #include "B2DXFitters/KinHack.h"
@@ -295,31 +296,32 @@ namespace GeneralUtils {
     if ( debug == true) std::cout<<"[INFO] ==> GeneralUtils::AddHist(...)"<<std::endl;
     Double_t w = w1+w2;
     
-    Int_t bin1 = hist1->GetNbinsX();
-    Double_t min1 = hist1->GetXaxis()->GetXmin();
-    Double_t max1 = hist1->GetXaxis()->GetXmax();
-    
-    Double_t min2 = hist2->GetXaxis()->GetXmin();
-    Double_t max2 = hist2->GetXaxis()->GetXmax();
+    Int_t numbin = hist1 -> GetNbinsX();
+    TAxis* axis=hist1->GetXaxis();
+    Double_t max = axis->GetXmax();
+    Double_t min = axis->GetXmin();;
+    //std::cout<<"min: "<<min<<" max: "<<max<<std::endl;
+    RooBinning* Bin = new RooBinning(min,max,"P");
+    for (int k = 1; k < numbin; k++ )
+      {
+        Double_t cen = hist1 -> GetBinCenter(k);
+	Double_t width = hist1 -> GetBinWidth(k);
+        max = cen + width/2;
+	Bin->addBoundary(max);
+	//std::cout<<"k: "<<k<<" max: "<<max<<" cen: "<<cen<<" =? "<<max-width/2<<" w: "<<width<<std::endl;
+      }
 
-    Double_t bin;
-    Double_t min;
-    Double_t max;
-    
-    bin = bin1;
-    if ( min1 > min2 ) { min=min2; } else { min=min1; }
-    if ( max1 > max2 ) { max=max1; } else { max=max2; }
 
     //std::cout<<"hist1: bin: "<<bin1<<" in range=("<<min1<<","<<max1<<")"<<std::endl;
     //std::cout<<"hist2: bin: "<<bin2<<" in range=("<<min2<<","<<max2<<")"<<std::endl;
     //std::cout<<"hist0: bin: "<<bin<<" in range=("<<min<<","<<max<<")"<<std::endl;
 
-    hist1->SetBins(bin,min,max);
-    hist2->SetBins(bin,min,max);
+    //hist1->SetBins(bin,min,max);
+    hist2->SetBins(Bin->numBins(), Bin->array());
     
-    TH1F* hist = new TH1F(hist1->GetName(),hist1->GetTitle(),bin,min,max);
+    TH1F* hist = new TH1F(hist1->GetName(),hist1->GetTitle(), Bin->numBins(), Bin->array());
     
-    for(int i=0; i<bin; i++)
+    for(int i=0; i<numbin; i++)
       {
 	Double_t bin1 = hist1->GetBinContent(i);
 	Double_t bin2 = hist2->GetBinContent(i);
@@ -644,8 +646,8 @@ namespace GeneralUtils {
     frame = (RooPlot*)mass->frame();
     name="frame_data_"+name2;
     frame->SetName(name.Data());
-    
-    dataSet->plotOn(frame, RooFit::MarkerColor(kRed), RooFit::Binning(50),RooFit::DataError(RooAbsData::SumW2));
+    //gStyle->SetOptLogy(1);
+    dataSet->plotOn(frame, RooFit::MarkerColor(kRed), RooFit::Binning(200),RooFit::DataError(RooAbsData::SumW2));
     frame->Draw();
 
     TString name1;
