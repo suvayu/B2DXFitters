@@ -3,6 +3,10 @@
 ! Responsible : Eduardo Rodrigues
 ! Purpose     : RooFit-based fitters for B -> D X
 !-----------------------------------------------------------------------------
+
+! 2013-05-08 - Manuel Tobias Schiller
+ - add symlinks for Agnieszka's new classes to standalone directory
+
 ! 2013-05-07 - Agnieszka Dziurda
  - Fix bugs (wrong binning) in expectedEvents.py, MassFitUtils.cxx, GeneralUtils.cxx
 
