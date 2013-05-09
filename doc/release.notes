@@ -5,6 +5,9 @@
 !-----------------------------------------------------------------------------
 
 ! 2013-05-09 - Manuel Tobias Schiller
+ - standalone/setup.sh: set LD_LIBRARY_PATH as well
+
+! 2013-05-09 - Manuel Tobias Schiller
  - fix bug in RooBinned1DQuinticBase which prevented spline approximations to
    histograms which do not vanish at histogram boundaries from having nice
    flat derivatives (symptom was large under/overshoot of spline interpolation

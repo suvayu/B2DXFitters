@@ -64,4 +64,10 @@ if (echo "$PYTHONPATH" | grep -qv "$B2DXFITTERSROOT/standalone/python"); then
     export PYTHONPATH="$B2DXFITTERSROOT/standalone/python":"$PYTHONPATH"
 fi
 
+# append the package's standalone directory to LD_LIBRARY_PATH
+if (echo "$LD_LIBRARY_PATH" | grep -qv "$B2DXFITTERSROOT/standalone"); then
+    echo Adding "$B2DXFITTERSROOT/standalone" to LD_LIBRARY_PATH.
+    export LD_LIBRARY_PATH="$B2DXFITTERSROOT/standalone":"$LD_LIBRARY_PATH"
+fi
+
 echo Standalone environment for B2DXFitters package set up.
