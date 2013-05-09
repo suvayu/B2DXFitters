@@ -83,9 +83,10 @@ RooBinned1DQuinticBase<BASE>::RooBinned1DQuinticBase(
 	RooAbsReal& xvar, bool integral) :
     BASE(name, title),
     x("x", "x", this, xvar),
-    nBinsX(1 + h.GetNbinsX()), binSizeX(h.GetXaxis()->GetBinWidth(1)),
-    xmin(h.GetXaxis()->GetBinCenter(1) - binSizeX),
-    xmax(h.GetXaxis()->GetBinCenter(nBinsX - 1) + binSizeX),
+    nBinsX((integral ? 2 : 1) + h.GetNbinsX()),
+    binSizeX(h.GetXaxis()->GetBinWidth(1)),
+    xmin(h.GetXaxis()->GetBinCenter(1) - (integral ? 2. : 1.) * binSizeX),
+    xmax(h.GetXaxis()->GetBinCenter(nBinsX - (integral ? 2 : 1)) + binSizeX),
     isIntegral(integral), coeffs(CoeffRecLen * nBinsX)
 {
     TAxis *xaxis = h.GetXaxis();
@@ -97,8 +98,14 @@ RooBinned1DQuinticBase<BASE>::RooBinned1DQuinticBase(
     // if the histogram's contents are a function's integral over that bin, we
     // need to adjust things a bit - start by building a cumulative
     // distribution in *tmp
-    std::auto_ptr<TH1> tmp(isIntegral ? static_cast<TH1*>(h.Clone()) : 0);
+    std::auto_ptr<TH1> tmp(isIntegral ? static_cast<TH1*>(
+		new TH1D(h.GetName(), h.GetTitle(), 1 + h.GetNbinsX(),
+		    xaxis->GetBinLowEdge(1) - binSizeX,
+		    xaxis->GetBinUpEdge(h.GetNbinsX()))) : 0);
     if (isIntegral) {
+	for (int i = 1; i < tmp->GetNbinsX(); ++i)
+	    tmp->SetBinContent(1 + i, h.GetBinContent(i));
+	tmp->SetBinContent(1, h.GetBinContent(2));
 	for (int i = 1; i < tmp->GetNbinsX(); ++i) {
 	    tmp->SetBinContent(i + 1,
 		    tmp->GetBinContent(i + 1) + tmp->GetBinContent(i));

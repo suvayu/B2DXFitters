@@ -4,6 +4,12 @@
 ! Purpose     : RooFit-based fitters for B -> D X
 !-----------------------------------------------------------------------------
 
+! 2013-05-09 - Manuel Tobias Schiller
+ - fix bug in RooBinned1DQuinticBase which prevented spline approximations to
+   histograms which do not vanish at histogram boundaries from having nice
+   flat derivatives (symptom was large under/overshoot of spline interpolation
+   in first/last few bins) - thanks go to Agnieszka for spotting this one
+
 ! 2013-05-08 - Manuel Tobias Schiller
  - add symlinks for Agnieszka's new classes to standalone directory
 
