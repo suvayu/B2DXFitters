@@ -8,6 +8,7 @@
  - changes in MassFitUtils::ObtainSpecBack(...) (clean up, and fix small bugs)
  - updates in MassFitUtils::ExpectedEvents(...) 
  - updates in expectedEvents.py
+ - updates in data/B2DPiConfigForNominalMassFit.py
  
 ! 2013-05-09 - Manuel Tobias Schiller
  - standalone/setup.sh: set LD_LIBRARY_PATH as well

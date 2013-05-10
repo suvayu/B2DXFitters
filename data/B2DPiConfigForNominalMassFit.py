@@ -136,11 +136,11 @@ def getconfig() :
     configdict["pred_Signal_BDTG3"]  = [22784.0, 32338.0 ]
     configdict["pred_Signal_BDTGC"]  = [44781.0, 64314.0 ]
 
-    configdict["pred_BDK_BDTGA"]  = 137.0
-    configdict["pred_BDK_BDTGC"]  = 130.0
-    configdict["pred_BDK_BDTG1"]  = 24.0
-    configdict["pred_BDK_BDTG2"]  = 52.0
-    configdict["pred_BDK_BDTG3"]  = 63.0
+    configdict["pred_BDK_BDTGA"]  = 2282.0 #867.0 #137.0
+    configdict["pred_BDK_BDTGC"]  = 2147.0 #820.0 #130.0
+    configdict["pred_BDK_BDTG1"]  = 420.0 #153.0 #24.0
+    configdict["pred_BDK_BDTG2"]  = 867.0 #52.0
+    configdict["pred_BDK_BDTG3"]  = 1003.0 # 391.0 #63.0
                     
     ################################################
 
