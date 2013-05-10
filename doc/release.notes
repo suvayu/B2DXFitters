@@ -4,6 +4,11 @@
 ! Purpose     : RooFit-based fitters for B -> D X
 !-----------------------------------------------------------------------------
 
+! 2013-05-10 - Agnieszka Dziurda
+ - changes in MassFitUtils::ObtainSpecBack(...) (clean up, and fix small bugs)
+ - updates in MassFitUtils::ExpectedEvents(...) 
+ - updates in expectedEvents.py
+ 
 ! 2013-05-09 - Manuel Tobias Schiller
  - standalone/setup.sh: set LD_LIBRARY_PATH as well
 

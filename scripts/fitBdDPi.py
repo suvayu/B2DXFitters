@@ -481,12 +481,12 @@ def fitB2DPi( debug, var,
             nBkgX.append(RooRealVar(nameBkgX.Data() , nameBkgX.Data(),0))
                                         
         if ( DRho == true):
-            nBd2DRho.append(RooRealVar(nameBd2DRho.Data() , nameBd2DRho.Data(), nEntries[i]/6, 0, nEntries[i]/2 ))
+            nBd2DRho.append(RooRealVar(nameBd2DRho.Data() , nameBd2DRho.Data(), nEntries[i]/6, 0, nEntries[i] ))
         else:
             nBd2DRho.append(RooRealVar(nameBd2DRho.Data() , nameBd2DRho.Data(),0))
             
         if ( DRho == true):
-            nBd2DstPi.append(RooRealVar(nameBd2DstPi.Data() , nameBd2DstPi.Data(), nEntries[i]/4, 0, nEntries[i]/2 ))
+            nBd2DstPi.append(RooRealVar(nameBd2DstPi.Data() , nameBd2DstPi.Data(), nEntries[i]/4, 0, nEntries[i] ))
         else:
             nBd2DstPi.append(RooRealVar(nameBd2DstPi.Data() , nameBd2DstPi.Data(),0))
             
