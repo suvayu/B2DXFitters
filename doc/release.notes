@@ -5,6 +5,9 @@
 !-----------------------------------------------------------------------------
 
 ! 2013-05-15 - Manuel Tobias Schiller
+ - DecRateCoeff: do safe floating point compare in an assert statement
+
+! 2013-05-15 - Manuel Tobias Schiller
  - fix ROOT warning in RooBinned1DQuinticBase
 
 ! 2013-05-10 - Agnieszka Dziurda

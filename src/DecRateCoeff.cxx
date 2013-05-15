@@ -7,6 +7,7 @@
  * @date 2012-10-24
  */
 
+#include <cmath>
 #include <limits>
 #include <memory>
 #include <cstdio>
@@ -958,8 +959,12 @@ void DecRateCoeff::CacheElem::setupBinnedProductIntegral(
 	    m_etabins.push_back(xmax);
 	}
 	assert(m_etabins.size() >= 2);
-	assert(m_etabins.front() == rxmin);
-	assert(m_etabins.back() == rxmax);
+	assert(std::abs(m_etabins.front() - rxmin) <
+		16. * std::numeric_limits<double>::epsilon() *
+		std::max(std::abs(rxmin), 1.));
+	assert(std::abs(m_etabins.back() - rxmax) <
+		16. * std::numeric_limits<double>::epsilon() *
+		std::max(std::abs(rxmax), 1.));
     }
     // set up required binning
     m_workRange[idx].first = new RooRealVar(
