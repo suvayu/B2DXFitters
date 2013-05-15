@@ -99,10 +99,13 @@ RooBinned1DQuinticBase<BASE>::RooBinned1DQuinticBase(
     // need to adjust things a bit - start by building a cumulative
     // distribution in *tmp
     std::auto_ptr<TH1> tmp(isIntegral ? static_cast<TH1*>(
-		new TH1D(h.GetName(), h.GetTitle(), 1 + h.GetNbinsX(),
+		new TH1D(
+		    (std::string(name) + "_" + h.GetName() + "_dummy").c_str(),
+		    h.GetTitle(), 1 + h.GetNbinsX(),
 		    xaxis->GetBinLowEdge(1) - binSizeX,
 		    xaxis->GetBinUpEdge(h.GetNbinsX()))) : 0);
     if (isIntegral) {
+	tmp->SetDirectory(0);
 	for (int i = 1; i < tmp->GetNbinsX(); ++i)
 	    tmp->SetBinContent(1 + i, h.GetBinContent(i));
 	tmp->SetBinContent(1, h.GetBinContent(2));
