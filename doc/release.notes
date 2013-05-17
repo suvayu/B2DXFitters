@@ -4,6 +4,14 @@
 ! Purpose     : RooFit-based fitters for B -> D X
 !-----------------------------------------------------------------------------
 
+! 2013-05-17 - Manuel Tobias Schiller
+ - standalone builds: correctly handle the case where a standalone build is
+   used in a partially set up LHCb software environment (e.g. when compiling
+   against a patched version of ROOT); the following files were touched:
+   standalone/Rules.mk, scripts/runBs2DsKCPAsymmObsFitter-cFit.py and
+   scripts/runBs2DsPiTaggingCalibFitter.py - no changes to fitting code
+   whatsoever
+
 ! 2013-05-15 - Manuel Tobias Schiller
  - DecRateCoeff: do safe floating point compare in an assert statement
 

@@ -28,7 +28,27 @@
 # work in common use cases.
 
 # make sure the environment is set up properly
-if test -z "$CMTCONFIG"; then
+if test -n "$CMTCONFIG" \
+         -a -f $B2DXFITTERSROOT/$CMTCONFIG/libB2DXFittersDict.so \
+	 -a -f $B2DXFITTERSROOT/$CMTCONFIG/libB2DXFittersLib.so; then
+    # all ok, software environment set up correctly, so don't need to do 
+    # anything
+    true
+else
+    if test -n "$CMTCONFIG"; then
+	# clean up incomplete LHCb software environment so we can run
+	# standalone
+        echo Cleaning up incomplete LHCb software environment.
+        PYTHONPATH=`echo $PYTHONPATH | tr ':' '\n' | \
+            egrep -v "^($User_release_area|$MYSITEROOT/lhcb)" | \
+            tr '\n' ':' | sed -e 's/:$//'`
+        export PYTHONPATH
+        LD_LIBRARY_PATH=`echo $LD_LIBRARY_PATH | tr ':' '\n' | \
+            egrep -v "^($User_release_area|$MYSITEROOT/lhcb)" | \
+            tr '\n' ':' | sed -e 's/:$//'`
+        export LD_LIBRARY_PATH
+        exec env -u CMTCONFIG -u B2DXFITTERSROOT "$0" "$@"
+    fi
     # automatic set up in standalone build mode
     if test -z "$B2DXFITTERSROOT"; then
         cwd="$(pwd)"
@@ -58,23 +78,32 @@ for i in libjemalloc libtcmalloc; do
 	    fi
 	    echo adding $k to LD_PRELOAD
 	    if test -z "$LD_PRELOAD"; then
-	        LD_PRELOAD="$k"
+	        export LD_PRELOAD="$k"
 	        break 3
 	    else
-	        LD_PRELOAD="$LD_PRELOAD":"$k"
+	        export LD_PRELOAD="$LD_PRELOAD":"$k"
 	        break 3
 	    fi
 	done
     done
 done
 
+# set batch scheduling (if schedtool is available)
+schedtool="`which schedtool 2>/dev/zero`"
+if test -n "$schedtool" -a -x "$schedtool"; then
+    echo "enabling batch scheduling for this job (schedtool -B)"
+    schedtool="$schedtool -B -e"
+else
+    schedtool=""
+fi
+
 # set ulimit to protect against bugs which crash the machine: 2G vmem max,
 # no more then 8M stack
-ulimit -v $((7 * 1024 * 1024))
+ulimit -v $((2048 * 1024))
 ulimit -s $((   8 * 1024))
 
 # trampoline into python
-exec /usr/bin/time -v env python -O -- "$0" "$@"
+exec $schedtool /usr/bin/time -v env python -O -- "$0" "$@"
 """
 __doc__ = """ real docstring """
 # -----------------------------------------------------------------------------

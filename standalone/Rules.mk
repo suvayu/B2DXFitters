@@ -44,6 +44,9 @@
 # 	fix automatic dependency tracking in standalone build system
 # 	for Reflex dictionaries (make could miss occasions when the
 # 	dictionaries need to be remade)
+# v0.11	2013-05-17 Manuel Schiller <manuel.schiller@nikhef.nl
+# 	fix build when doing a standalone build in a partially set up LHCb
+# 	software environment
 #######################################################################
 
 #######################################################################
@@ -232,33 +235,35 @@
 # these can all be set from the command line, if needed, and overriding
 # on a per-target basis is also possible (see above)
 #######################################################################
+ifeq ($(TOOLCHAINSETUPDONE),)
+TOOLCHAINSETUPDONE = yes
 # use ROOT config to get reasonable defaults for current environment
 # (we use it to detect the toolchain used to build ROOT)
-ROOTCONFIG ?= root-config
+ROOTCONFIG = root-config
 
 # other tools used in the build process
-AWK ?= awk
-SED ?= sed
-ECHO ?= /bin/echo
-CP ?= cp
-MV ?= mv
-RM ?= rm
-MKDIR ?= mkdir
-RMDIR ?= rmdir
-TEST ?= test
-TRUE ?= true
-FALSE ?= false
-TOUCH ?= touch
-UNAME ?= uname
-HEAD ?= head
-TAIL ?= tail
-GREP ?= grep
+AWK = awk
+SED = sed
+ECHO = /bin/echo
+CP = cp
+MV = mv
+RM = rm
+MKDIR = mkdir
+RMDIR = rmdir
+TEST = test
+TRUE = true
+FALSE = false
+TOUCH = touch
+UNAME = uname
+HEAD = head
+TAIL = tail
+GREP = grep
 
 # get compiler version(s) used to compile ROOT
-CC ?= $(shell $(ROOTCONFIG) --cc | $(SED) -e 's/ -[-a-zA-Z0-9_=:,]\\+//g')
-CXX ?= $(shell $(ROOTCONFIG) --cxx | $(SED) -e 's/ -[-a-zA-Z0-9_=:,]\\+//g')
-LD ?= $(shell $(ROOTCONFIG) --ld)
-CPP ?= $(CC) -E
+CC = $(shell $(ROOTCONFIG) --cc | $(SED) -e 's/ -[-a-zA-Z0-9_=:,]\\+//g')
+CXX = $(shell $(ROOTCONFIG) --cxx | $(SED) -e 's/ -[-a-zA-Z0-9_=:,]\\+//g')
+LD = $(shell $(ROOTCONFIG) --ld)
+CPP = $(CC) -E
 ROOTCONFIG_HASF77 := \
     $(strip $(shell $(ROOTCONFIG) --help | tr ' ' '\n' | grep -- '--f77'))
 ifneq ($(ROOTCONFIG_HASF77),)
@@ -267,14 +272,14 @@ ifneq ($(FC),/usr/bin/f77)
 # just take whatever ROOT used, because f2c s*cks...
 FC = $(shell $(ROOTCONFIG) --f77 | $(SED) -e 's/ -[-a-zA-Z0-9_=:,]\\+//g')
 else
-FC ?= $(shell $(ROOTCONFIG) --f77 | $(SED) -e 's/ -[-a-zA-Z0-9_=:,]\\+//g')
+FC = $(shell $(ROOTCONFIG) --f77 | $(SED) -e 's/ -[-a-zA-Z0-9_=:,]\\+//g')
 endif
 endif
 # locate genreflex, rootcint, gccxml for dictionaries
-GENREFLEX ?= $(shell $(ROOTCONFIG) --bindir)/genreflex
-ROOTCINT ?= $(shell $(ROOTCONFIG) --bindir)/rootcint
-GCCXML ?= $(shell which gccxml)
-GCCXMLDIR ?= $(shell dirname $(GCCXML))
+GENREFLEX = $(shell $(ROOTCONFIG) --bindir)/genreflex
+ROOTCINT = $(shell $(ROOTCONFIG) --bindir)/rootcint
+GCCXML = $(shell which gccxml)
+GCCXMLDIR = $(shell dirname $(GCCXML))
 ifneq ($(GENREFLEX),)
 GENREFLEX = $(shell which genreflex)
 endif
@@ -282,10 +287,10 @@ ifneq ($(ROOTCINT),)
 ROOTCINT = $(shell which rootcint)
 endif
 # static libraries
-AR ?= ar
-RANLIB ?= ranlib
+AR = ar
+RANLIB = ranlib
 # to remove debugging symbols
-STRIP ?= strip
+STRIP = strip
 
 # in case this did not work, we fall back to cc, c++, ld, cpp, f77
 CC ?= cc
@@ -295,15 +300,18 @@ CPP ?= cpp
 FC ?= f77
 
 # assemble ROOT libraries
-ROOTLIBDIR ?= $(shell $(ROOTCONFIG) --libdir)
+ROOTLIBDIR = $(shell $(ROOTCONFIG) --libdir)
 # default set of ROOT libraries
-ROOTLIBS ?= $(shell $(ROOTCONFIG) --libs)
+ROOTLIBS = $(shell $(ROOTCONFIG) --libs)
 # default ROOT compiler flags
-ROOTINCLUDES ?= -I$(shell $(ROOTCONFIG) --incdir)
-ROOTCFLAGS ?= $(shell $(ROOTCONFIG) --auxcflags)
+ROOTINCLUDES = -I$(shell $(ROOTCONFIG) --incdir)
+ROOTCFLAGS = $(shell $(ROOTCONFIG) --auxcflags)
 # some versions of ROOT have libGenVector, others libMathCore
-LIBGENVECTOR ?= $(shell $(TEST) -e $(ROOTLIBDIR)/libGenVector.so && \
+LIBGENVECTOR = $(shell $(TEST) -e $(ROOTLIBDIR)/libGenVector.so && \
 		$(ECHO) '-lGenVector' || $(ECHO) '-lMathCore')
+else
+# nothing to do if toolchain is set up
+endif
 
 #######################################################################
 # freeze toolchain variables
@@ -321,6 +329,7 @@ LIBGENVECTOR ?= $(shell $(TEST) -e $(ROOTLIBDIR)/libGenVector.so && \
 # make up CFLAGS on a per target basis and have the CFLAGS used to
 # compile the target use our overrides
 #######################################################################
+TOOLCHAINSETUPDONE := $(TOOLCHAINSETUPDONE)
 ROOT_CONFIG := $(ROOTCONFIG)
 CPP := $(CPP)
 CC := $(CC)
@@ -569,7 +578,7 @@ endif
 # large portion of these variables
 #######################################################################
 # toolchain (compiler, linker)
-export CPP CC CXX FC LD AR RANLIB
+export TOOLCHAINSETUPDONE CPP CC CXX FC LD AR RANLIB
 export GCCXML GCCXMLDIR ROOTCINT GENREFLEX
 # compiler/linker flags - we do not export those to retain the ability to
 # override them on a per target basis
@@ -789,7 +798,7 @@ $(foreach objsuffix,$(OBJSUFFIXES),$(eval \
 # link executable(s)
 LINK = $(CC) $(LDFLAGS) $^ $(LOADLIBES) $(LDLIBS) -o $@
 LINK.c = $(CC) $(CFLAGS) $(CPPFLAGS) $(LDFLAGS) $^ $(LOADLIBES) $(LDLIBS) -o $@
-LINK.cxx = $(CXX) $(CXXFLAGS) $(CPPFLAGS) $(LDFLAGS) $^ $(LOADLIBES) $(LDLIBS) -o $@
+LINK.cc = $(CXX) $(CXXFLAGS) $(CPPFLAGS) $(LDFLAGS) $^ $(LOADLIBES) $(LDLIBS) -o $@
 LINK.f = $(FC) $(FFLAGS) $(CPPFLAGS) $(LDFLAGS) $^ $(LOADLIBES) $(LDLIBS) -o $@
 LINKMSG      = "\\x1b[35m[LINK]\\x1b[m\\t\\t$@"
 LINKSHLIBMSG = "\\x1b[35m[SHLIB]\\x1b[m\\t\\t$@"
@@ -807,7 +816,7 @@ $(foreach extension,$(EXTENSIONS_C),$(eval \
     $(call PATTERNRULE_TEMPLATE,%,%.$(extension),LINKMSG,LINK.c)))
 # compiling and linking from C++ sources
 $(foreach extension,$(EXTENSIONS_CXX),$(eval \
-    $(call PATTERNRULE_TEMPLATE,%,%.$(extension),LINKMSG,LINK.cxx)))
+    $(call PATTERNRULE_TEMPLATE,%,%.$(extension),LINKMSG,LINK.cc)))
 # compiling and linking from FORTRAN sources
 $(foreach extension,$(EXTENSIONS_F),$(eval \
     $(call PATTERNRULE_TEMPLATE,%,%.$(extension),LINKMSG,LINK.f)))
