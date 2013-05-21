@@ -4,6 +4,9 @@
 ! Purpose     : RooFit-based fitters for B -> D X
 !-----------------------------------------------------------------------------
 
+! 2013-05-21 - Manuel Tobias Schiller
+ - fix yet another bug in RooBinned1DQuinticBase
+
 ! 2013-05-17 - Manuel Tobias Schiller
  - standalone builds: correctly handle the case where a standalone build is
    used in a partially set up LHCb software environment (e.g. when compiling

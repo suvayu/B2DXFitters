@@ -8,6 +8,7 @@
 #include <memory>
 #include <limits>
 #include <iostream>
+#include <algorithm>
 
 #include <TH1.h>
 #include <RooArgSet.h>
@@ -61,9 +62,7 @@ inline double RooBinned1DQuinticBase<BASE>::histcont(
 	return (0 <= xbin && xbin < nBinsX - 1) ?
 	    h.GetBinContent(1 + xbin) : 0.;
     } else {
-	return (1 <= xbin && xbin <= nBinsX - 1) ?
-	    h.GetBinContent(xbin) : 
-	    ((0 < xbin) ? h.GetBinContent(nBinsX - 1) : 0.);
+	return h.GetBinContent(std::max(0, std::min(1 + xbin, nBinsX - 1)));
     }
 }
 
@@ -83,15 +82,16 @@ RooBinned1DQuinticBase<BASE>::RooBinned1DQuinticBase(
 	RooAbsReal& xvar, bool integral) :
     BASE(name, title),
     x("x", "x", this, xvar),
-    nBinsX((integral ? 2 : 1) + h.GetNbinsX()),
+    nBinsX((integral ? 3 : 1) + h.GetNbinsX()),
     binSizeX(h.GetXaxis()->GetBinWidth(1)),
     xmin(h.GetXaxis()->GetBinCenter(1) - (integral ? 2. : 1.) * binSizeX),
-    xmax(h.GetXaxis()->GetBinCenter(nBinsX - (integral ? 2 : 1)) + binSizeX),
+    xmax(h.GetXaxis()->GetBinCenter(h.GetNbinsX()) + (integral ? 2. : 1.) * binSizeX),
     isIntegral(integral), coeffs(CoeffRecLen * nBinsX)
 {
     TAxis *xaxis = h.GetXaxis();
+    const int nbins = h.GetNbinsX();
     // verify that all bins have same size
-    for (int i = 1; i < nBinsX; ++i) {
+    for (int i = 1; i <= nbins; ++i) {
 	if (std::abs(xaxis->GetBinWidth(i) / binSizeX - 1.) > 1e-9)
 	    throw BinSizeException();
     }
@@ -101,15 +101,19 @@ RooBinned1DQuinticBase<BASE>::RooBinned1DQuinticBase(
     std::auto_ptr<TH1> tmp(isIntegral ? static_cast<TH1*>(
 		new TH1D(
 		    (std::string(name) + "_" + h.GetName() + "_dummy").c_str(),
-		    h.GetTitle(), 1 + h.GetNbinsX(),
-		    xaxis->GetBinLowEdge(1) - binSizeX,
-		    xaxis->GetBinUpEdge(h.GetNbinsX()))) : 0);
+		    h.GetTitle(), nBinsX,
+		    xmin + .5 * binSizeX,
+		    xmax + .5 * binSizeX)) : 0);
     if (isIntegral) {
 	tmp->SetDirectory(0);
-	for (int i = 1; i < tmp->GetNbinsX(); ++i)
-	    tmp->SetBinContent(1 + i, h.GetBinContent(i));
-	tmp->SetBinContent(1, h.GetBinContent(2));
-	for (int i = 1; i < tmp->GetNbinsX(); ++i) {
+	// copy h's contents, extend by one bin to right and left, taking
+	// values from nearest valid bin in h
+	for (int i = 1; i <= nBinsX; ++i) {
+	    tmp->SetBinContent(i, h.GetBinContent(
+			std::max(1, std::min(i - 1, nbins))));
+	}
+	// build CDF of tmp
+	for (int i = 1; i < nBinsX - 1; ++i) {
 	    tmp->SetBinContent(i + 1,
 		    tmp->GetBinContent(i + 1) + tmp->GetBinContent(i));
 	}
@@ -171,11 +175,10 @@ Double_t RooBinned1DQuinticBase<BASE>::evaluate() const
 	// function values in the middle of a bin does not apply in the
 	// "integral" case, and we need to return the derivative instead of
 	// the parametrisation
-	if ((xmin + 0.5 * binSizeX) <= x && x < (xmax - 0.5 * binSizeX)) {
-	    return evalx(x + 0.5 * binSizeX);
-	} else {
-	    return 0.;
-	}
+	const double xx = std::min(
+		std::max(xmin + 1.5 * binSizeX, double(x)),
+		xmax - 1.5 * binSizeX);
+	return evalx(xx - 0.5 * binSizeX);
     }
 }
 
@@ -206,11 +209,12 @@ Double_t RooBinned1DQuinticBase<BASE>::analyticalIntegral(
 		// function values in the middle of a bin does not apply in
 		// the "integral" case, and we need to return the
 		// parametrisation itself, since it parametrises the integral
-		const double eps = std::numeric_limits<double>::epsilon();
-		const double x1 = std::max(xmin + binSizeX,
-			x.min(rangeName) + 0.5 * binSizeX);
-		const double x2 = std::min(xmax * (1. - eps),
-			x.max(rangeName) + 0.5 * binSizeX);
+		const double x1 = std::min(
+			std::max(xmin + 1.5 * binSizeX, x.min(rangeName)),
+			xmax - 1.5 * binSizeX) - 0.5 * binSizeX;
+		const double x2 = std::min(
+			std::max(xmin + 1.5 * binSizeX, x.max(rangeName)),
+			xmax - 1.5 * binSizeX) - 0.5 * binSizeX;
 		return eval(x2) - eval(x1);
 	    }
     };
@@ -317,7 +321,8 @@ std::list<Double_t>* RooBinned1DQuinticBase<BASE>::binBoundaries(
     if (dynamic_cast<RooAbsReal*>(&var) != &x.arg()) return 0;
     std::list<Double_t>* l = new std::list<Double_t>();
     assert(0 != l);
-    for (int binx = 0; binx < nBinsX - 1; ++binx) {
+    for (int binx = (isIntegral ? 1 : 0);
+	    binx < nBinsX - (isIntegral ? 2 : 1); ++binx) {
 	const double xhi = double(nBinsX - binx - 1) / double(nBinsX) * xmin +
 	    double(binx + 1) / double(nBinsX) * xmax + 0.5 * binSizeX;
 	if (xhi < lo) continue;
@@ -343,7 +348,8 @@ std::list<Double_t>* RooBinned1DQuinticBase<BASE>::plotSamplingHint(
     if (dynamic_cast<RooAbsReal*>(&var) != &x.arg()) return 0;
     std::list<Double_t>* l = new std::list<Double_t>();
     assert(0 != l);
-    for (int binx = 0; binx < nBinsX - 1; ++binx) {
+    for (int binx = (isIntegral ? 1 : 0);
+	    binx < nBinsX - (isIntegral ? 2 : 1); ++binx) {
 	const double xhi = double(nBinsX - binx - 1) / double(nBinsX) * xmin +
 	    double(binx + 1) / double(nBinsX) * xmax + 0.5 * binSizeX;
 	if (xhi < lo) continue;
