@@ -4,6 +4,10 @@
 ! Purpose     : RooFit-based fitters for B -> D X
 !-----------------------------------------------------------------------------
 
+! 2013-05-31 - Agnieszka Dziurda
+ - update MDFitter (more info later)
+ - update 1D DsPi fitter possible to use 
+
 ! 2013-05-21 - Manuel Tobias Schiller
  - fix yet another bug in RooBinned1DQuinticBase
 

@@ -39,7 +39,7 @@ DecayTree
 DecayTree
 ###
 
-#BsDsK KKPi NonRes
+#BsK kkpi nonres
 /afs/cern.ch/work/g/gligorov/public/Bs2DsKFitTuples/DV_v33r1/SmallTuples/
 DsK_KKPi_NonRes_MD_BDTG_MINI.root
 DsK_KKPi_NonRes_MU_BDTG_MINI.root
@@ -47,7 +47,7 @@ DecayTree
 DecayTree
 ###
 
-#BsDsK KKPi PhiPi
+#BsK kkpi phipi
 /afs/cern.ch/work/g/gligorov/public/Bs2DsKFitTuples/DV_v33r1/SmallTuples/
 DsK_KKPi_PhiPi_MD_BDTG_MINI.root
 DsK_KKPi_PhiPi_MU_BDTG_MINI.root
@@ -55,7 +55,7 @@ DecayTree
 DecayTree
 ###
 
-#BsDsK KKPi KstK
+#BsK kkpi kstk
 /afs/cern.ch/work/g/gligorov/public/Bs2DsKFitTuples/DV_v33r1/SmallTuples/
 DsK_KKPi_KstK_MD_BDTG_MINI.root
 DsK_KKPi_KstK_MU_BDTG_MINI.root
@@ -63,7 +63,7 @@ DecayTree
 DecayTree
 ###
 
-#BsDsK KPiPi
+#BsK kpipi
 /afs/cern.ch/work/g/gligorov/public/Bs2DsKFitTuples/DV_v33r1/SmallTuples/
 DsK_KPiPi_MD_BDTG_MINI.root
 DsK_KPiPi_MU_BDTG_MINI.root
@@ -71,7 +71,7 @@ DecayTree
 DecayTree
 ###
 
-#BsDsK PiPiPi
+#BsK pipipi
 /afs/cern.ch/work/g/gligorov/public/Bs2DsKFitTuples/DV_v33r1/SmallTuples/
 DsK_PiPiPi_MD_BDTG_MINI.root
 DsK_PiPiPi_MU_BDTG_MINI.root
@@ -112,7 +112,7 @@ DecayTree
 DecayTree
 ###
 
-#BsDsPi KKPi NonRes
+#BsPi kkpi nores
 /afs/cern.ch/work/g/gligorov/public/Bs2DsKFitTuples/DV_v33r1/SmallTuples/
 DsPi_KKPi_NonRes_MD_BDTG_MINI.root
 DsPi_KKPi_NonRes_MU_BDTG_MINI.root
@@ -120,7 +120,7 @@ DecayTree
 DecayTree
 ###
 
-#BsDsPi KKPi PhiPi
+#BsPi kkpi phipi
 /afs/cern.ch/work/g/gligorov/public/Bs2DsKFitTuples/DV_v33r1/SmallTuples/
 DsPi_KKPi_PhiPi_MD_BDTG_MINI.root
 DsPi_KKPi_PhiPi_MU_BDTG_MINI.root
@@ -128,7 +128,7 @@ DecayTree
 DecayTree
 ###
 
-#BsDsPi KKPi KstK
+#BsPi kkpi kstk
 /afs/cern.ch/work/g/gligorov/public/Bs2DsKFitTuples/DV_v33r1/SmallTuples/
 DsPi_KKPi_KstK_MD_BDTG_MINI.root
 DsPi_KKPi_KstK_MU_BDTG_MINI.root
@@ -136,7 +136,7 @@ DecayTree
 DecayTree
 ###
 
-#BsDsPi KPiPi
+#BsPi kpipi
 /afs/cern.ch/work/g/gligorov/public/Bs2DsKFitTuples/DV_v33r1/SmallTuples/
 DsPi_KPiPi_MD_BDTG_MINI.root
 DsPi_KPiPi_MU_BDTG_MINI.root
@@ -144,7 +144,7 @@ DecayTree
 DecayTree
 ###
 
-#BsDsPi PiPiPi
+#BsPi pipipi
 /afs/cern.ch/work/g/gligorov/public/Bs2DsKFitTuples/DV_v33r1/SmallTuples/
 DsPi_PiPiPi_MD_BDTG_MINI.root
 DsPi_PiPiPi_MU_BDTG_MINI.root
@@ -363,18 +363,62 @@ DecayTree;1
 DecayTree;1
 ###
 
-#Signal BsDsK
-/afs/cern.ch/work/a/adudziak/public/
-Merged_Bs2DsK_Ds2KKPi_MD_BsHypo_BDTG.root
-Merged_Bs2DsK_Ds2KKPi_MU_BsHypo_BDTG.root
+#Signal BsDsK KstK
+/afs/cern.ch/work/g/gligorov/public/Bs2DsKFitTuples/DV_v33r1/MC11a/AfterOfflineSel/
+Bs2DsK_Ds2KKPi_BsHypo_DsK_KKPi_KstK_OffSel_BDTG.root
+Bs2DsK_Ds2KKPi_BsHypo_DsK_KKPi_KstK_OffSel_BDTG.root
 DecayTree;1
 DecayTree;1
 ###
 
-#Signal BdDsK
-/afs/cern.ch/work/a/adudziak/public/
-Merged_Bd2DsK_Ds2KKPi_MD_BsHypo_BDTG.root
-Merged_Bd2DsK_Ds2KKPi_MU_BsHypo_BDTG.root
+#Signal BsDsK PhiPi
+/afs/cern.ch/work/g/gligorov/public/Bs2DsKFitTuples/DV_v33r1/MC11a/AfterOfflineSel/
+Bs2DsK_Ds2KKPi_BsHypo_DsK_KKPi_PhiPi_OffSel_BDTG.root
+Bs2DsK_Ds2KKPi_BsHypo_DsK_KKPi_PhiPi_OffSel_BDTG.root
 DecayTree;1
 DecayTree;1
 ###
+
+#Signal BsDsK NonRes
+/afs/cern.ch/work/g/gligorov/public/Bs2DsKFitTuples/DV_v33r1/MC11a/AfterOfflineSel/
+Bs2DsK_Ds2KKPi_BsHypo_DsK_KKPi_NonRes_OffSel_BDTG.root
+Bs2DsK_Ds2KKPi_BsHypo_DsK_KKPi_NonRes_OffSel_BDTG.root
+DecayTree;1
+DecayTree;1
+###
+
+
+#Signal BsDsK KPiPi
+/afs/cern.ch/work/g/gligorov/public/Bs2DsKFitTuples/DV_v33r1/MC11a/AfterOfflineSel/
+Bs2DsK_Ds2KPiPi_BsHypo_DsK_KPiPi_OffSel_BDTG.root
+Bs2DsK_Ds2KPiPi_BsHypo_DsK_KPiPi_OffSel_BDTG.root
+DecayTree;1
+DecayTree;1
+###
+
+#Signal BsDsK PiPiPi
+/afs/cern.ch/work/g/gligorov/public/Bs2DsKFitTuples/DV_v33r1/MC11a/AfterOfflineSel/
+Bs2DsK_Ds2PiPiPi_BsHypo_DsK_PiPiPi_OffSel_BDTG.root
+Bs2DsK_Ds2PiPiPi_BsHypo_DsK_PiPiPi_OffSel_BDTG.root
+DecayTree;1
+DecayTree;1
+###
+
+#PID2m2
+/afs/cern.ch/work/a/adudziak/public/hist/
+EffHistos_Reco12_39Mom_MagDown_2m2_0123.root
+EffHistos_Reco12_39Mom_MagUp_2m2_012.root
+###
+
+#PID2m22
+/afs/cern.ch/work/a/adudziak/public/hist/
+EffHistos_Reco12_39Mom_MagDown_2m2_45678.root
+EffHistos_Reco12_39Mom_MagUp_2m2_3456.root
+###
+
+#PIDp3
+/afs/cern.ch/work/a/adudziak/public/hist/
+EffHistos_Reco12_39Mom_MagDown_Proton_DLLKDLLpK.root
+EffHistos_Reco12_39Mom_MagUp_Proton_DLLKDLLpK.root
+###
+

@@ -388,9 +388,9 @@ def runBsDsKMassFitterOnData( debug, sample, mVar, mdVar, tVar, tagVar, tagOmega
     r1 = RooRealVar( "ratio1", "ratio1", ratio1 )
     r2 = RooRealVar( "ratio2", "ratio2", ratio2 )
     mn = RooRealVar( "Signal_mean", "Signal_mean", myconfigfile["mean"][0],
-                     myconfigfile["mean"][0]-100,    myconfigfile["mean"][0] +100, "MeV/c^{2}")    
+                     myconfigfile["mean"][0]-50,    myconfigfile["mean"][0] +50, "MeV/c^{2}")    
     mnDs = RooRealVar( "Signal_mean_Ds", "Signal_mean_Ds", myconfigfile["meanDs"][0],
-                       myconfigfile["meanDs"][0]-100,    myconfigfile["meanDs"][0] +100, "MeV/c^{2}")
+                       myconfigfile["meanDs"][0]-50,    myconfigfile["meanDs"][0] +50, "MeV/c^{2}")
     
     alpha1Var = []
     alpha2Var = []
@@ -400,14 +400,24 @@ def runBsDsKMassFitterOnData( debug, sample, mVar, mdVar, tVar, tagVar, tagOmega
         if wider:
             nSigEvts.append(0.35*nEntries[i])
         else:
-            nSigEvts.append(0.85*nEntries[i])
+            nSigEvts.append(0.6*nEntries[i])
+
+        sig1 =  myconfigfile["sigma1_bc"][i]
+        sig2 =  myconfigfile["sigma2_bc"][i]
+        if sig1>sig2:
+            sig1 = sig1*myconfigfile["sigma1Bsfrac"]
+            sig2 = sig2*myconfigfile["sigma2Bsfrac"]
+        else:
+            sig1 = sig1*myconfigfile["sigma2Bsfrac"]
+            sig2 = sig2*myconfigfile["sigma1Bsfrac"]
+            
         name = TString("Signal_sigma1_")+sm[i]    
-        s1.append(RooRealVar( name.Data(), name.Data(), myconfigfile["sigma1"][i]*myconfigfile["sigma1Bsfrac"])) #, #
+        s1.append(RooRealVar( name.Data(), name.Data(), sig1)) #, #
                               #myconfigfile["sigma1"][i]*0.8,
                               #myconfigfile["sigma1"][i]*1.2))
                               #*myconfigfile["sigma1Bsfrac"]))
         name = TString("Signal_sigma2_")+sm[i]
-        s2.append(RooRealVar( name.Data(), name.Data(), myconfigfile["sigma2"][i]*myconfigfile["sigma2Bsfrac"])) #,
+        s2.append(RooRealVar( name.Data(), name.Data(), sig2)) #,
                               #myconfigfile["sigma2"][i]*0.8,
                               #myconfigfile["sigma2"][i]*1.2))
                               #*myconfigfile["sigma2Bsfrac"]))
@@ -415,11 +425,12 @@ def runBsDsKMassFitterOnData( debug, sample, mVar, mdVar, tVar, tagVar, tagOmega
         name = TString("nSig")+t+sm[i]+t+TString("Evts")
         nSig.append(RooRealVar( name.Data(), name.Data(), nSigEvts[i], 0., nEntries[i] ))
 
-        al1 = myconfigfile["alpha1"][i]*myconfigfile["alpha1Bsfrac"]
-        al2 = myconfigfile["alpha2"][i]*myconfigfile["alpha2Bsfrac"]
-        n1 =  myconfigfile["n1"][i]
-        n2 =  myconfigfile["n2"][i]
-        frac =  myconfigfile["frac"][i]
+        al1 = myconfigfile["alpha1_bc"][i]*myconfigfile["alpha1Bsfrac"]
+        al2 = myconfigfile["alpha2_bc"][i]*myconfigfile["alpha2Bsfrac"]
+                    
+        n1 =  myconfigfile["n1_bc"][i]
+        n2 =  myconfigfile["n2_bc"][i]
+        frac =  myconfigfile["frac_bc"][i]
 
         if debug:
             print al1
@@ -434,23 +445,33 @@ def runBsDsKMassFitterOnData( debug, sample, mVar, mdVar, tVar, tagVar, tagOmega
                                                                   frac,
                                                                   nSig[i],sm[i].Data(),bName,debug))
 
+
+        sig1Ds = myconfigfile["sigma1Ds_bc"][i]
+        sig2Ds = myconfigfile["sigma2Ds_bc"][i]
+        if sig1Ds>sig2Ds:
+            sig1Ds = sig1Ds*myconfigfile["sigma1Dsfrac"]
+            sig2Ds = sig2Ds*myconfigfile["sigma2Dsfrac"]
+        else:
+            sig1Ds = sig1Ds*myconfigfile["sigma2Dsfrac"]
+            sig2Ds = sig2Ds*myconfigfile["sigma1Dsfrac"]
+                                                                
         name = TString("Signal_sigma1_Ds_")+sm[i]
-        s1Ds.append(RooRealVar( name.Data(), name.Data(), myconfigfile["sigma1Ds"][i]*myconfigfile["sigma1Dsfrac"])) #,
+        s1Ds.append(RooRealVar( name.Data(), name.Data(), sig1Ds)) #,
                                 #myconfigfile["sigma1Ds"][i]*0.8,
                                 #myconfigfile["sigma1Ds"][i]*1.2))
         
                                 #*myconfigfile["sigma1Dsfrac"]))
         name = TString("Signal_sigma2_Ds_")+sm[i]
-        s2Ds.append(RooRealVar( name.Data(), name.Data(), myconfigfile["sigma2Ds"][i]*myconfigfile["sigma2Dsfrac"])) #,
+        s2Ds.append(RooRealVar( name.Data(), name.Data(), sig2Ds)) #,
                                 #myconfigfile["sigma2Ds"][i]*0.8,
                                 #myconfigfile["sigma2Ds"][i]*1.2))
                                 #*myconfigfile["sigma2Dsfrac"]))
 
-        al1Ds  = myconfigfile["alpha1Ds"][i]*myconfigfile["alpha1Dsfrac"]
-        al2Ds  = myconfigfile["alpha2Ds"][i]*myconfigfile["alpha2Dsfrac"]
-        n1Ds   =  myconfigfile["n1Ds"][i]
-        n2Ds   =  myconfigfile["n2Ds"][i]
-        fracDs =  myconfigfile["fracDs"][i]
+        al1Ds  = myconfigfile["alpha1Ds_bc"][i]*myconfigfile["alpha1Dsfrac"]
+        al2Ds  = myconfigfile["alpha2Ds_bc"][i]*myconfigfile["alpha2Dsfrac"]
+        n1Ds   =  myconfigfile["n1Ds_bc"][i]
+        n2Ds   =  myconfigfile["n2Ds_bc"][i]
+        fracDs =  myconfigfile["fracDs_bc"][i]
 
         if debug:
             print al1Ds
@@ -465,40 +486,6 @@ def runBsDsKMassFitterOnData( debug, sample, mVar, mdVar, tVar, tagVar, tagOmega
                                                                     fracDs,
                                                                     nSig[i],sm[i].Data(),dName,debug))
         
-#    meanVarDs = []
-#    sigma1VarDs = []
-#    sigma2VarDs = []
-#    alpha1VarDs = []
-#    alpha2VarDs = []
-#    fracVarDs = []
-#    j=0
-
-#    for i in range(0,bound):
-#        name = TString("DCruijff_mean_")+m[j]
-#        print name
-#        meanVarDs.append(RooRealVar( name.Data() ,  name.Data(),    myconfigfile["meanDs"][i],
-#                                     myconfigfile["meanDs"][i]-100,    myconfigfile["meanDs"][i] +100 ))
-#        name = TString("DCruijff_sigma1_")+m[j]
-#        print name
-#        sigma1VarDs.append(RooRealVar( name.Data(), name.Data(),  myconfigfile["sigma1Ds"][i])) #25, 15, 35))
-#        name = TString("DCruijff_sigma2_")+m[j]
-#        print name
-#        sigma2VarDs.append(RooRealVar( name.Data(), name.Data(),  myconfigfile["sigma2Ds"][i])) #3, 0 , 20  ))
-#        
-#        name = TString("DCruijff_alpha1_")+m[j]
-#        print name
-#        alpha1VarDs.append(RooRealVar( name.Data(), name.Data(),  myconfigfile["alpha1Ds"][i])) #25, 15, 35))
-#        name = TString("DCruijff_alpha2_")+m[j]
-#        print name
-#        alpha2VarDs.append(RooRealVar( name.Data(), name.Data(),  myconfigfile["alpha2Ds"][i])) #3, 0 , 20  ))
-#        name = TString("DCruijff_frac_")+m[j]
-#        print name
-#        fracVarDs.append(RooRealVar( name.Data(),  name.Data(),    myconfigfile["fracDs"][i], 0.0, 1.0))
-#        if merge:
-#            j=j+1
-#        else:
-#            if i == 1 or i == 3:
-#                j=j+1
                                                 
     nSigdG = []
     sigProdPDF = []
@@ -508,30 +495,41 @@ def runBsDsKMassFitterOnData( debug, sample, mVar, mdVar, tVar, tagVar, tagOmega
     sigPIDKPDF2 = []
         
     lumRatio = RooRealVar("lumRatio","lumRatio", myconfigfile["lumRatio"])
+    j=0
     
     for i in range(0,bound):
         name = TString("DCruijffPDF_")+sm[i]
         name2 = TString("SigProdPDF")+t+sm[i]
         name3 = TString("SigEPDF")+t+sm[i]
         if merge:
-            sigPIDKPDF1.append(Bs2Dsh2011TDAnaModels.GetRooAddPdfFromWorkspace(workspaceID,TString("ShapePIDK_BsDsPi_down"),debug))
-            sigPIDKPDF2.append(Bs2Dsh2011TDAnaModels.GetRooAddPdfFromWorkspace(workspaceID,TString("ShapePIDK_BsDsPi_up"),debug))
+            namePIDK1 = TString("PIDshape_BsDsPi_both_")+m[j]+TString("_down")
+            sigPIDKPDF1.append(Bs2Dsh2011TDAnaModels.GetRooBinned1DFromWorkspace(workspaceID,namePIDK1, debug))
+            namePIDK2 = TString("PIDshape_BsDsPi_both_")+m[j]+TString("_up")
+            sigPIDKPDF2.append(Bs2Dsh2011TDAnaModels.GetRooBinned1DFromWorkspace(workspaceID,namePIDK2,debug))
             name4 = TString("ShapePIDK_BsDsPi_both")
             sigPIDKPDF.append(RooAddPdf( name4.Data(), name4.Data(), RooArgList( sigPIDKPDF2[i], sigPIDKPDF1[i]),RooArgList(lumRatio)))
             print "Create %s"%(sigPIDKPDF[0].GetName())
         else:
             if(sm[i].Contains("down")):
-                sigPIDKPDF.append(Bs2Dsh2011TDAnaModels.GetRooAddPdfFromWorkspace(workspaceID,TString("ShapePIDK_BsDsPi_down"),debug))
+                namePIDK1 = TString("PIDshape_BsDsPi_both_")+m[j]+TString("_down")
+                sigPIDKPDF.append(Bs2Dsh2011TDAnaModels.GetRooBinned1DFromWorkspace(workspaceID,namePIDK1,debug))
             else:
-                sigPIDKPDF.append(Bs2Dsh2011TDAnaModels.GetRooAddPdfFromWorkspace(workspaceID,TString("ShapePIDK_BsDsPi_up"),debug))
+                namePIDK2 = TString("PIDshape_BsDsPi_both_")+m[j]+TString("_up")
+                sigPIDKPDF.append(Bs2Dsh2011TDAnaModels.GetRooBinned1DFromWorkspace(workspaceID,namePIDK2,debug))
         #sigDsPDF.append(RooCruijff(name.Data(), name.Data(),massDs, meanVarDs[i], sigma1VarDs[i], sigma2VarDs[i],alpha1VarDs[i], alpha2VarDs[i]))
         #print sigDsPDF[i].GetName()
         sigProdPDF.append(RooProdPdf(name2.Data(),name2.Data(),RooArgList(sigPDF[i],sigDsPDF[i],sigPIDKPDF[i])))
         print sigProdPDF[i].GetName()
         sigEPDF.append(RooExtendPdf(name3.Data(),name3.Data(),sigProdPDF[i], nSig[i]))
         print sigEPDF[i].GetName()
+        if merge:
+            j=j+1
+        else:
+            if i == 1 or i == 3:
+                j=j+1
+            
                                                                                                                               
-                
+    #exit(0)            
     # Create the background PDF in mass
     
     nCombBkgEvts = []
@@ -546,8 +544,8 @@ def runBsDsKMassFitterOnData( debug, sample, mVar, mdVar, tVar, tagVar, tagOmega
             nLamEvts.append(0.01*nEntries[i])            # Lb->LcPi
             nDsKEvts.append(0.01*nEntries[i]) 
         else:
-            nCombBkgEvts.append(0.2*nEntries[i])         # combinatorial background events
-            nPiRhoEvts.append(0.01*nEntries[i])          # Bs->DsstPi, Bs->DsRho,
+            nCombBkgEvts.append(0.3*nEntries[i])         # combinatorial background events
+            nPiRhoEvts.append(0.1*nEntries[i])          # Bs->DsstPi, Bs->DsRho,
             nLamEvts.append(0.02*nEntries[i])            # Lb->LcPi
             nDsKEvts.append(0.01*nEntries[i]) 
             
@@ -574,8 +572,11 @@ def runBsDsKMassFitterOnData( debug, sample, mVar, mdVar, tVar, tagVar, tagOmega
     meanBdDsPi =  RooFormulaVar("BdDsX_mean" , "BdDsX_mean",'@0-86.6', RooArgList(mn))
 
     cBVar = []
+    cB2Var = []
     cDVar = []
-    fracComb = []
+    fracDsComb = []
+    fracBsComb = []
+    fracPIDKComb = []
     j = 0
     
     for i in range(0,bound):
@@ -595,7 +596,13 @@ def runBsDsKMassFitterOnData( debug, sample, mVar, mdVar, tVar, tagVar, tagOmega
         nameBs2DsK = TString("nBs2DsK_")+sm[i]+t+evts
 
         if merge:
-            inBd2DPi = myconfigfile["BdDPiEvents"][2*i]+myconfigfile["BdDPiEvents"][2*i+1]
+            inBd2DPi    = myconfigfile["BdDPiEvents"][i]
+            #inBd2DPiErr = myconfigfile["BdDPiEventsErr"][i]
+            inLbLcPi    = myconfigfile["LbLcPiEvents"][i]
+            #inLbLcPiErr = myconfigfile["LbLcPiEventsErr"][i]
+            inBs2DsK    = myconfigfile["BsDsKEvents"][i]
+            #inBs2DsKErr = myconfigfile["BsDsKEventsErr"][i]
+            #inBd2DPi = myconfigfile["BdDPiEvents"][2*i]+myconfigfile["BdDPiEvents"][2*i+1]
             assumedSig = myconfigfile["assumedSig"][i*2]+ myconfigfile["assumedSig"][i*2+1] 
         else:
             inBd2DPi = myconfigfile["BdDPiEvents"][i]
@@ -606,8 +613,8 @@ def runBsDsKMassFitterOnData( debug, sample, mVar, mdVar, tVar, tagVar, tagOmega
         if wider:
             nBs2DsDsstPiRho.append(RooRealVar( nameBs2DsDsstPiRho.Data(), nameBs2DsDsstPiRho.Data(), nPiRhoEvts[i], 0. , nEntries[i] ))
         else:
-            nBs2DsDsstPiRho.append(RooRealVar( nameBs2DsDsstPiRho.Data(), nameBs2DsDsstPiRho.Data(), nPiRhoEvts[i], 0. , nEntries[i]/10 ))
-            
+            nBs2DsDsstPiRho.append(RooRealVar( nameBs2DsDsstPiRho.Data(), nameBs2DsDsstPiRho.Data(), nPiRhoEvts[i], 0. , nEntries[i]/5 ))
+        '''    
         if (sm[i].Contains("kstk") == true or sm[i].Contains("nonres") == true or sm[i].Contains("phipi") == true ) :
             if (yieldBdDPi == "yes"):                
                 nBd2DPi.append(RooRealVar( nameBd2DPi.Data(), nameBd2DPi.Data(),
@@ -623,32 +630,39 @@ def runBsDsKMassFitterOnData( debug, sample, mVar, mdVar, tVar, tagVar, tagOmega
                                            nEntries[i]))
         elif ( sm[i].Contains("kpipi") == true ):
             nBd2DPi.append(RooRealVar( nameBd2DPi.Data(), nameBd2DPi.Data(),
-                                       inBd2DPi,
-                                       0.0,
-                                       nEntries[i]))
+                                       inBd2DPi)) #,
+                                       #0.0,
+                                       #nEntries[i]))
                  
         else:    
             nBd2DPi.append(RooRealVar( nameBd2DPi.Data(), nameBd2DPi.Data(),  0. ))
+        '''
+        nBd2DPi.append(RooRealVar( nameBd2DPi.Data(), nameBd2DPi.Data(), inBd2DPi)) #, inBd2DPi*0.25, inBd2DPi*1.75))
+        #nBd2DPi[i].setError(inBd2DPiErr)
+        nBs2DsK.append(RooRealVar( nameBs2DsK.Data(), nameBs2DsK.Data(), inBs2DsK)) #, inBs2DsK*0.25, inBs2DsK*1.75))    
+        #nBs2DsK[i].setError(inBs2DsKErr)
+        
+        #if (sm[i].Contains("kkpi") == true
+        #    or sm[i].Contains("nonres") == true
+        #    or sm[i].Contains("phipi") == true
+        #    or sm[i].Contains("kstk") == true
+        #    or sm[i].Contains("kpipi") == true
+        #    ) :
+        #    nLb2LcPi.append(RooRealVar( nameLb2LcPi.Data(), nameLb2LcPi.Data(), nLamEvts[i], 0. , nEntries[i]/3 ))
+        #else:
+        #    nLb2LcPi.append(RooRealVar( nameLb2LcPi.Data(), nameLb2LcPi.Data(), 0 ))
 
-        nBs2DsK.append(RooRealVar( nameBs2DsK.Data(), nameBs2DsK.Data(), nDsKEvts[i], 0. , nEntries[i]/10 ))    
-            
-        if (sm[i].Contains("kkpi") == true
-            or sm[i].Contains("nonres") == true
-            or sm[i].Contains("phipi") == true
-            or sm[i].Contains("kstk") == true
-            or sm[i].Contains("kpipi") == true
-            ) :
-            nLb2LcPi.append(RooRealVar( nameLb2LcPi.Data(), nameLb2LcPi.Data(), nLamEvts[i], 0. , nEntries[i]/3 ))
-        else:
-            nLb2LcPi.append(RooRealVar( nameLb2LcPi.Data(), nameLb2LcPi.Data(), 0 ))
-            
+        nLb2LcPi.append(RooRealVar( nameLb2LcPi.Data(), nameLb2LcPi.Data(), inLbLcPi)) #, 0.25*inLbLcPi, 1.75*inLbLcPi ))    
+        #nLb2LcPi[i].setError(inLbLcPiErr)
+        
         if wider:
             nBd2DsPi.append(RooRealVar(nameBd2DsPi.Data() , nameBd2DsPi.Data(),assumedSig*myconfigfile["nBd2DsPi"],
                             0, assumedSig*myconfigfile["nBd2DsPi"]*2))
 
         else:
-            nBd2DsPi.append(RooRealVar(nameBd2DsPi.Data() , nameBd2DsPi.Data(),assumedSig*myconfigfile["nBd2DsPi"]/2,
-                                       0,assumedSig*myconfigfile["nBd2DsPi"]))
+            nBd2DsPi.append(RooRealVar(nameBd2DsPi.Data() , nameBd2DsPi.Data(),nPiRhoEvts[i], 0. , nEntries[i]/10))
+                                       #assumedSig*myconfigfile["nBd2DsPi"]/2,
+                                       #0,assumedSig*myconfigfile["nBd2DsPi"]))
 
         if wider:
             nBd2DsstPi.append(RooRealVar(nameBd2DsstPi.Data() , nameBd2DsstPi.Data(),assumedSig*myconfigfile["nBd2DsstPi"]))
@@ -659,11 +673,11 @@ def runBsDsKMassFitterOnData( debug, sample, mVar, mdVar, tVar, tagVar, tagOmega
             nBd2DstPi.append(RooRealVar(nameBd2DstPi.Data() , nameBd2DstPi.Data(), 0.0))
             nBd2DRho.append(RooRealVar(nameBd2DRho.Data() , nameBd2DRho.Data(), 0.0))
 
-        al1 = myconfigfile["alpha1"][i] #*myconfigfile["alpha1Bsfrac"]
-        al2 = myconfigfile["alpha2"][i] #*myconfigfile["alpha2Bsfrac"]
-        n1 =  myconfigfile["n1"][i]
-        n2 =  myconfigfile["n2"][i]
-        frac =  myconfigfile["frac"][i]
+        al1 = myconfigfile["alpha1_bc"][i] #*myconfigfile["alpha1Bsfrac"]
+        al2 = myconfigfile["alpha2_bc"][i] #*myconfigfile["alpha2Bsfrac"]
+        n1 =  myconfigfile["n1_bc"][i]
+        n2 =  myconfigfile["n2_bc"][i]
+        frac =  myconfigfile["frac_bc"][i]
         
         bkgBdDsPi.append(Bs2Dsh2011TDAnaModels.buildBdDsX(mass,meanBdDsPi,
                                                           width1[i],al1,n1,
@@ -671,18 +685,39 @@ def runBsDsKMassFitterOnData( debug, sample, mVar, mdVar, tVar, tagVar, tagOmega
                                                           frac,
                                                           TString("Bd2DsPi"), debug))        
 
-        mul = 10.0
+        mul = 15.0
         confTS = TString(configName)
-        if confTS.Contains("BDTG3"):
+        if (confTS.Contains("BDTG3")  == true): 
             mul = 30.0
-        name = TString("CombBkg_slope_Bs_")+m[j] 
-        cBVar.append(RooRealVar(name.Data(), name.Data(), myconfigfile["cB"][i],
-                                myconfigfile["cB"][i]+myconfigfile["cB"][i]*mul, 0))
+        name = TString("CombBkg_slope_Bs1_")+m[j] 
+        cBVar.append(RooRealVar(name.Data(), name.Data(), myconfigfile["cB1"][i],
+                                myconfigfile["cB1"][i]+myconfigfile["cB1"][i]*mul, 0.0))
+        name = TString("CombBkg_slope_Bs2_")+m[j]
+        if confTS.Contains("BDTG3"):
+            cB2Var.append(RooRealVar(name.Data(), name.Data(), myconfigfile["cB2"][i])) 
+                                    # myconfigfile["cB2"][i]+myconfigfile["cB2"][i]*mul/100, 0.0))
+            name = TString("CombBkg_fracBsComb_")+m[j]
+            fracBsComb.append(RooRealVar(name.Data(), name.Data(), 1.0))
+                    
+        else:
+            cB2Var.append(RooRealVar(name.Data(), name.Data(), myconfigfile["cB2"][i])) #/100,
+                                     #myconfigfile["cB2"][i]+myconfigfile["cB2"][i]*mul/100, 0.0))
+            name = TString("CombBkg_fracBsComb_")+m[j]
+#            if (sm[i].Contains("kpipi") == true or sm[i].Contains("pipipi") == true):
+#                fracBsComb.append(RooRealVar(name.Data(), name.Data(), myconfigfile["fracBsComb"][i])) #, 0.0, 1.0))
+#            else:
+            fracBsComb.append(RooRealVar(name.Data(), name.Data(), myconfigfile["fracBsComb"][i], 0.0, 1.0))
+                
         name = TString("CombBkg_slope_Ds_")+m[j]
         cDVar.append(RooRealVar(name.Data(), name.Data(), myconfigfile["cD"][i],
-                                myconfigfile["cD"][i]+myconfigfile["cD"][i]*mul, 0))
-        name = TString("CombBkg_fracComb_")+m[j]
-        fracComb.append(RooRealVar(name.Data(), name.Data(), myconfigfile["fracComb"][i]))
+                                myconfigfile["cD"][i]+myconfigfile["cD"][i]*mul, 0.0))
+        name = TString("CombBkg_fracDsComb_")+m[j]
+        if ( sm[i].Contains("kpipi") == true or sm[i].Contains("pipipi") == true ):
+            fracDsComb.append(RooRealVar(name.Data(), name.Data(), myconfigfile["fracComb"][i]))
+        else:
+            fracDsComb.append(RooRealVar(name.Data(), name.Data(), myconfigfile["fracComb"][i], 0.0, 1.0))
+        name = TString("CombBkg_fracPIDKComb")    
+        fracPIDKComb.append(RooRealVar(name.Data(), name.Data(), 0.5, 0.0, 1.0))    
         if merge:
             j=j+1
         else:
@@ -696,9 +731,9 @@ def runBsDsKMassFitterOnData( debug, sample, mVar, mdVar, tVar, tagVar, tagOmega
     if wider:
         g1_f1              = RooRealVar( "g1_f1_frac","g1_f1_frac", 0.893, 0, 1)
     else:
-        g1_f1              = RooRealVar( "g1_f1_frac","g1_f1_frac", 1.0)
+        g1_f1              = RooRealVar( "g1_f1_frac","g1_f1_frac", 0.5, 0.0, 1.0)
         
-    g1_f2              = RooRealVar( "g1_f2_frac","g1_f2_frac", 0.093, 0, 1)
+    g1_f2              = RooRealVar( "g1_f2_frac","g1_f2_frac", 0.093, 0.0, 1.0)
                
     bkgPDF = []
 
@@ -722,8 +757,11 @@ def runBsDsKMassFitterOnData( debug, sample, mVar, mdVar, tVar, tagVar, tagOmega
                                                                nBs2DsK[i],
                                                                sigDsPDF[i],
                                                                cBVar[i],
+                                                               cB2Var[i],
+                                                               fracBsComb[i],
                                                                cDVar[i],
-                                                               fracComb[i],
+                                                               fracDsComb[i],
+                                                               fracPIDKComb[i],
                                                                sm[i],
                                                                lumRatio,
                                                                debug ))
@@ -749,8 +787,11 @@ def runBsDsKMassFitterOnData( debug, sample, mVar, mdVar, tVar, tagVar, tagOmega
                                                                    nBs2DsK[i],
                                                                    sigDsPDF[i],
                                                                    cBVar[i],
+                                                                   cB2Var[i],
+                                                                   fracBsComb[i],
                                                                    cDVar[i],
-                                                                   fracComb[i],
+                                                                   fracDsComb[i],
+                                                                   fracPIDKComb[i],
                                                                    sm[i],
                                                                    lumRatio,
                                                                    debug ))
@@ -776,8 +817,11 @@ def runBsDsKMassFitterOnData( debug, sample, mVar, mdVar, tVar, tagVar, tagOmega
                                                                        nBs2DsK[i*2+j],
                                                                        sigDsPDF[i*2+j],
                                                                        cBVar[i*2+j],
+                                                                       cB2Var[i*2+j],
+                                                                       fracBsComb[i*2+j],
                                                                        cDVar[i*2+j],
-                                                                       fracComb[i*2+j],
+                                                                       fracDsComb[i*2+j],
+                                                                       fracPIDComb[i*2+j],
                                                                        sm[i*2+j],
                                                                        lumRatio,
                                                                        debug ))
@@ -824,12 +868,13 @@ def runBsDsKMassFitterOnData( debug, sample, mVar, mdVar, tVar, tagVar, tagOmega
     #import sys
     #import random
     #sys.stdout = open(logoutputname, 'w')
-    fitter.fit(True, RooFit.Extended(), RooFit.SumW2Error(True))
+    fitter.fit(True, RooFit.Extended(), RooFit.SumW2Error(True), RooFit.Verbose(True)) #, RooFit.InitialHesse(True))
     result = fitter.getFitResult()
     result.Print("v")
 
     if (not toys ):
-        name = TString("./sWeights_BsDsPi_")+modeTS+TString("_")+sampleTS+TString(".root")
+        BDTGTS = GeneralUtils.CheckBDTGBin(confTS, debug)
+        name = TString("./sWeights_BsDsPi_")+modeTS+TString("_")+sampleTS+TString("_")+BDTGTS+TString(".root")
     else:
         name = options.sweightoutputname
         

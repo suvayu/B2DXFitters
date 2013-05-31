@@ -102,7 +102,7 @@ namespace GeneralUtils {
     RooPlot* frame = observable -> frame();
     frame -> SetName( Form( "frame_%s", identifier ) );
     
-    data  -> plotOn( frame, RooFit::MarkerColor(kRed), RooFit::Binning(50) );
+    data  -> plotOn( frame, RooFit::MarkerColor(kBlue+2), RooFit::Binning(50) );
     if ( pdf ) pdf -> plotOn( frame, RooFit::LineColor(kRed) );
     frame -> Draw();
     
@@ -571,7 +571,7 @@ namespace GeneralUtils {
     name="frame_"+name2;
     frame->SetName(name.Data());
                                                                                                          
-    dataSet->plotOn(frame, RooFit::MarkerColor(kRed), RooFit::Binning(50));
+    dataSet->plotOn(frame, RooFit::MarkerColor(kRed)); //, RooFit::Binning(200));
     pdf->plotOn(frame, RooFit::LineColor(kRed));
     frame->Draw();
 
@@ -711,7 +711,7 @@ namespace GeneralUtils {
       }
     else 
       {
-	pdfMC = new RooKeysPdf(name.Data(),name.Data(),*massMC,*dataSetMC,RooKeysPdf::MirrorBoth,3.0);
+	pdfMC = new RooKeysPdf(name.Data(),name.Data(),*massMC,*dataSetMC,RooKeysPdf::MirrorBoth,1.5);
       }
 //    else
 //      {
@@ -994,5 +994,37 @@ namespace GeneralUtils {
     
     return tex;
   }
+
+  TString CheckBDTGBin(TString& check, bool debug)
+  {
+    TString BDTGbin;
+    if (check.Contains("BDTG1") == true)
+      {
+	BDTGbin = "BDTG1";
+      }
+    else if ( check.Contains("BDTG2") == true)
+      {
+        BDTGbin = "BDTG2";
+      }
+    else if ( check.Contains("BDTG3") == true )
+      {
+        BDTGbin = "BDTG3";
+      }
+    else if ( check.Contains("BDTGA") == true )
+      {
+	BDTGbin= "BDTGA";
+      }
+    else if ( check.Contains("BDTGC") == true )
+      {
+	BDTGbin= "BDTGC";
+      }
+    else
+      {
+        BDTGbin = "";
+      }
+    if ( debug == true) std::cout<<"[INFO] BDTG bin: "<<BDTGbin<<std::endl;
+    return BDTGbin;
+  }
+
 
 } //end of namespace

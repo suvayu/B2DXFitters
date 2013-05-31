@@ -50,6 +50,7 @@
 #include "B2DXFitters/KinHack.h"
 #include "B2DXFitters/DecayTreeTupleSucksFitter.h"
 #include "B2DXFitters/RooCruijff.h"
+#include "B2DXFitters/RooBinned1DQuinticBase.h"
 
 #define DEBUG(COUNT, MSG)				   \
   std::cout << "SA-DEBUG: [" << COUNT << "] (" << __func__ << ") " \
@@ -836,14 +837,14 @@ namespace WeightingUtils {
     RooRealVar* c1 = NULL;
     RooRealVar* f1 = NULL;
     
-    Double_t c1Var  = 7.68778*pow(10,-2);
-    Double_t c2Var  = 4.92792*pow(10,-2);
+    Double_t c1Var  = -7.68778*pow(10,-2);
+    Double_t c2Var  = -4.92792*pow(10,-2);
     Double_t f1Var = 5.83968*pow(10,-1);
     
     TString nameVar = "cK1_"+samplemode;
-    c1 =  new RooRealVar(nameVar.Data(),"coefficient #2", c1Var, c1Var-1.0*c1Var,c1Var+5.0*c1Var);
+    c1 =  new RooRealVar(nameVar.Data(),"coefficient #2", c1Var, c1Var+5.0*c1Var,c1Var-1.0*c1Var);
     nameVar = "cK2_"+samplemode; //"_"+type;
-    c2 = new RooRealVar(nameVar.Data(),"coefficient #2", c2Var, c2Var-1.0*c2Var,c2Var+5.0*c2Var);
+    c2 = new RooRealVar(nameVar.Data(),"coefficient #2", c2Var, c2Var+5.0*c2Var,c2Var-1.0*c2Var);
     nameVar = "fK1_"+samplemode; //+"_"+type;
     f1 = new RooRealVar(nameVar.Data(),"signal fraction",f1Var, 0.0, 1.0);
     
@@ -1602,6 +1603,7 @@ namespace WeightingUtils {
     RooRealVar* Var1 = new RooRealVar(nameVar1.Data(),nameVar1.Data(),log(Var1_down), log(Var1_up));
     RooRealVar* Var2 = new RooRealVar(nameVar2.Data(),nameVar2.Data(),log(Var2_down), log(Var2_up)); 
     RooRealVar* lab1_PIDK = new RooRealVar(namePID.Data(), namePID.Data(), PID_down, PID_up);
+    RooRealVar* lab1_PIDK2 = new RooRealVar(namePID.Data(), namePID.Data(), -PID_up, -PID_down);
  
     TString label1, label2;
     if ( nameVar1 != nameVar2 )
@@ -1654,18 +1656,10 @@ namespace WeightingUtils {
 
     RooWorkspace* workC = NULL; 
     RooDataSet* dataC = NULL;     
-    //    if (type.Contains("Proton") != true )
-    //  {
-        workC = LoadWorkspace(fileCalib, workCalib, debug);
-	dataC = GetDataSet(workC, dataName, debug );
-	//  }
-	//else
-	//{
-	//TString s = CheckPolarity(fileCalib,debug);
-        //TString nameCalib = "ProtonsSample_"+s;
-        //dataC = GetDataSet(work,nameCalib,debug);
-	// }
 
+    workC = LoadWorkspace(fileCalib, workCalib, debug);
+    dataC = GetDataSet(workC, dataName, debug );
+    
     const TTree* treeConst = dataC->tree();
     TTree* treeC = new TTree("name","name"); 
     treeC = treeConst->GetTree();
@@ -1746,13 +1740,33 @@ namespace WeightingUtils {
 	    TString namew = "weights";
 	    RooRealVar* weights;
 	    weights = new RooRealVar(namew.Data(), namew.Data(), -50.0, 50.0 );
-	    RooDataSet* dataRW = new RooDataSet(nameCalib.Data(),nameCalib.Data(),RooArgSet(*lab1_PIDK,*Var1,*Var2,*weights), namew.Data());
-	    
+	    RooDataSet* dataRW = NULL;
+
+	    TH1* histPID = NULL;
+            TString namehist = "histPID_"+nm;
+	    if( type.Contains("MC") == true && type.Contains("BsDsPi")==true)
+	      {
+		histPID = new TH1D(namehist.Data(), namehist.Data(), 200, -PID_up, -PID_down);
+		dataRW = new RooDataSet(nameCalib.Data(),nameCalib.Data(),RooArgSet(*lab1_PIDK2,*Var1,*Var2,*weights), namew.Data());
+	      }
+	    else
+	      {
+		histPID = new TH1D(namehist.Data(), namehist.Data(), 50, PID_down, PID_up);
+		dataRW = new RooDataSet(nameCalib.Data(),nameCalib.Data(),RooArgSet(*lab1_PIDK,*Var1,*Var2,*weights), namew.Data());
+	      }
+
 	    //std::cout<<"tuuuu"<<std::endl;
 	    for (Long64_t jentry=0; jentry<treeC->GetEntries(); jentry++)
 	      {
 		treeC->GetEntry(jentry);
-		lab1_PIDK->setVal(PID3);
+		if( type.Contains("MC") == true && type.Contains("BsDsPi")==true)
+		  {
+		    lab1_PIDK2->setVal(-PID3);
+		  }
+		else
+		  {
+		    lab1_PIDK->setVal(PID3);
+		  }
 		Var1->setVal(Var13);
 		Var2->setVal(Var23);
 		//std::cout<<"Var13: "<<Var13<<" Var23: "<<Var23<<std::endl;
@@ -1761,7 +1775,17 @@ namespace WeightingUtils {
 		wA = nsig_sw3*wRW;
 		//std::cout<<" weight: "<<wA<<" nsigSW: "<<nsig_sw3<<" wRW "<<wRW<<" "<<nameVar1<<": "<<Var13<<" "<<nameVar2<<": "<<Var23<<std::endl;
 		weights->setVal(wA);
-		dataRW->add(RooArgSet(*lab1_PIDK,*Var1,*Var2,*weights),wA,0);
+		if ( PID3 > PID_down && PID3 < PID_up)
+                  {
+                    if ( (type.Contains("BsDsPi") == true && type.Contains("MC") == true))
+                      {
+                        dataRW->add(RooArgSet(*lab1_PIDK2,*Var1,*Var2,*weights),wA,0);
+                      }
+                    else
+                      {
+                        dataRW->add(RooArgSet(*lab1_PIDK,*Var1,*Var2,*weights),wA,0);
+                      }
+                  }
 	      }
 	    
 	    
@@ -1770,6 +1794,18 @@ namespace WeightingUtils {
 	    histRW = Get2DHist(dataRW, Var1, Var2, bin1, bin2, histName, debug);
 	    Save2DComparison(histMC, type, histCalib, l2, histRW, l3, ext);
 	    Int_t bin3 = 50;
+	    
+	    RooBinned1DQuinticBase<RooAbsPdf>* pdfPID2 = NULL;
+	    if ( (type.Contains("BsDsPi") == true && type.Contains("MC") == true) )
+              {
+                histPID = dataRW->createHistogram(namehist.Data(),*lab1_PIDK2, RooFit::Binning(200,-PID_up,-PID_down));
+              }
+            else
+              {
+		histPID = dataRW->createHistogram(namehist.Data(),*lab1_PIDK, RooFit::Binning(50,PID_down,PID_up));
+              }
+	    histPID->SetName(namehist.Data());
+	    histPID->SaveAs("hist_PID.root");
 	   	    	    
 	    pdfPID[i] = NULL;
 	    if( type.Contains("MC") == true && type.Contains("BsDsPi")==true) 
@@ -1779,11 +1815,18 @@ namespace WeightingUtils {
 						       type, l2, l3, dir, ext, work, debug);
 		if ( type.Contains("Pion") == true)
 		  {
-		    pdfPID[i] = FitPDFShapeForPIDBsDsPiPi(dataRW, lab1_PIDK, nm,  debug);
+		    //pdfPID[i] = FitPDFShapeForPIDBsDsPiPi(dataRW, lab1_PIDK, nm,  debug);
+		    //work->import(*pdfPID[i]);
+		    TString namepdf = "ShapePIDK_"+nm;
+                    pdfPID2= new RooBinned1DQuinticBase<RooAbsPdf>(namepdf.Data(), namepdf.Data(), *histPID, *lab1_PIDK2, true);
+                    RooAbsPdf* pdfSave = pdfPID2;
+                    saveDataTemplateToFile( dataRW, pdfSave, lab1_PIDK2,  nm.Data(), "pdf", nm.Data(), debug );
+                    work->import(*pdfPID2);
 		  }
 		else
 		  {
-		    pdfPID[i] = FitPDFShapeForPIDBsDsPiK(dataRW, lab1_PIDK, nm,  debug);
+		    pdfPID[i] = FitPDFShapeForPIDBsDsPiK(dataRW, lab1_PIDK2, nm,  debug);
+		    work->import(*pdfPID[i]);
 		  }
 	      }
 	    else if ( type.Contains("BsDsK") == true )
@@ -1794,18 +1837,25 @@ namespace WeightingUtils {
 		if ( type.Contains("Pion") == true)
 		  {
 		    pdfPID[i] = FitPDFShapeForPIDBsDsKPi(dataRW, lab1_PIDK, nm,  debug);
+		    work->import(*pdfPID[i]);
+
 		  }
 		else if ( type.Contains("Kaon") == true)
 		  {
-		    pdfPID[i] = FitPDFShapeForPIDBsDsKK(dataRW, lab1_PIDK, nm,  debug);
-
+		    //pdfPID[i] = FitPDFShapeForPIDBsDsKK(dataRW, lab1_PIDK, nm,  debug);
+		    TString namepdf = "PIDshape_"+nm;
+		    pdfPID2= new RooBinned1DQuinticBase<RooAbsPdf>(namepdf.Data(), namepdf.Data(), *histPID, *lab1_PIDK, true);
+		    RooAbsPdf* pdfSave = pdfPID2;
+		    saveDataTemplateToFile( dataRW, pdfSave, lab1_PIDK,  nm.Data(), "pdf", nm.Data(), debug );
+		    work->import(*pdfPID2);
 		  }
 		else
 		  {
 		    pdfPID[i] = FitPDFShapeForPIDBsDsKP(dataRW, lab1_PIDK, nm,  debug);
+		    work->import(*pdfPID[i]);
 		  }
 	      }
-		work->import(*pdfPID[i]);
+	    //work->import(*pdfPID[i]);
 	    
 	  }
 	
@@ -1840,6 +1890,7 @@ namespace WeightingUtils {
     RooRealVar* Var2 = new RooRealVar(nameVar2.Data(),nameVar2.Data(),log(Var2_down), log(Var2_up));
     RooRealVar* Var3 = new RooRealVar(nameVar3.Data(),nameVar3.Data(),log(Var3_down), log(Var3_up));
     RooRealVar* lab1_PIDK = new RooRealVar(namePID.Data(), namePID.Data(), PID_down, PID_up);
+    RooRealVar* lab1_PIDK2 = new RooRealVar(namePID.Data(), namePID.Data(), -PID_up, -PID_down);
 
     TString label1, label2, label3;
     if ( nameVar1 != nameVar2 )
@@ -1964,7 +2015,7 @@ namespace WeightingUtils {
             RooRealVar* weights;
             weights = new RooRealVar(namew.Data(), namew.Data(), -50.0, 50.0 );
             //TString nameCalib = "CalibSample_"+nm;
-            RooDataSet* dataRW = new RooDataSet(nameCalib.Data(),nameCalib.Data(),RooArgSet(*lab1_PIDK,*Var1,*Var2,*Var3,*weights), namew.Data());
+            RooDataSet* dataRW = NULL;
 	    
 	    histRW = NULL;
             histName = "hist2D_rw_"+nm;
@@ -1974,10 +2025,31 @@ namespace WeightingUtils {
 			      bin3,log(Var3_down),log(Var3_up));
 
             //std::cout<<"tuuuu"<<std::endl;
+
+	    TH1* histPID = NULL;
+	    TString namehist = "histPID_"+nm;
+	    if ( (type.Contains("BsDsPi") == true && type.Contains("MC") == true) )
+	      {
+		histPID = new TH1D(namehist.Data(), namehist.Data(), 50, PID_down, PID_up);
+		dataRW = new RooDataSet(nameCalib.Data(),nameCalib.Data(),RooArgSet(*lab1_PIDK,*Var1,*Var2,*Var3,*weights), namew.Data());
+	      }
+	    else
+	      {
+		histPID = new TH1D(namehist.Data(), namehist.Data(), 200, -PID_up, -PID_down);
+		dataRW = new RooDataSet(nameCalib.Data(),nameCalib.Data(),RooArgSet(*lab1_PIDK2,*Var1,*Var2,*Var3,*weights), namew.Data());
+	      }
+
 	    for (Long64_t jentry=0; jentry<treeC->GetEntries(); jentry++)
               {
                 treeC->GetEntry(jentry);
-                lab1_PIDK->setVal(PID3);
+		if ( (type.Contains("BsDsPi") == true && type.Contains("MC") == true) )
+		  {
+		    lab1_PIDK2->setVal(-PID3);
+		  }
+		else
+		  {
+		    lab1_PIDK->setVal(PID3);
+		  }
                 Var1->setVal(Var13);
                 Var2->setVal(Var23);
 		Var3->setVal(Var33);
@@ -1987,7 +2059,17 @@ namespace WeightingUtils {
                 wA = nsig_sw3*wRW;
                 //std::cout<<" weight: "<<wA<<" nsigSW: "<<nsig_sw3<<" wRW "<<wRW<<" "<<nameVar1<<": "<<Var13<<" "<<nameVar2<<": "<<Var23<<std::endl;
 		weights->setVal(wA);
-		dataRW->add(RooArgSet(*lab1_PIDK,*Var1,*Var2,*Var3,*weights),wA,0);
+		if ( PID3 > PID_down && PID3 < PID_up)
+		  {
+		    if ( (type.Contains("BsDsPi") == true && type.Contains("MC") == true))
+		      {
+			dataRW->add(RooArgSet(*lab1_PIDK2,*Var1,*Var2,*weights),wA,0);
+		      }
+		    else
+		      {
+			dataRW->add(RooArgSet(*lab1_PIDK,*Var1,*Var2,*weights),wA,0);
+		      }
+		  }
 		histRW->Fill(Var13,Var23,Var33,wA);
               }
 	    if ( dataRW != NULL  ){
@@ -2006,6 +2088,17 @@ namespace WeightingUtils {
 	    */
                
             Int_t binPIDK = 50;
+	    RooBinned1DQuinticBase<RooAbsPdf>* pdfPID2 = NULL;
+	    if ( (type.Contains("BsDsPi") == true && type.Contains("MC") == true) )
+	      {
+		histPID = dataRW->createHistogram(namehist.Data(),*lab1_PIDK2, RooFit::Binning(200,-PID_up,-PID_down));
+	      }
+	    else
+	      {
+		histPID = dataRW->createHistogram(namehist.Data(),*lab1_PIDK, RooFit::Binning(50,PID_down,PID_up));
+	      }
+	    histPID->SetName(namehist.Data());
+            histPID->SaveAs("hist_PID.root");
 
             pdfPID[i] = NULL;
             if( type.Contains("MC") == true && type.Contains("BsDsPi")==true)
@@ -2035,8 +2128,9 @@ namespace WeightingUtils {
                   }
                 else if ( type.Contains("Kaon") == true)
                   {
-                    pdfPID[i] = FitPDFShapeForPIDBsDsKK(dataRW, lab1_PIDK, nm,  debug);
-
+                    //pdfPID[i] = FitPDFShapeForPIDBsDsKK(dataRW, lab1_PIDK, nm,  debug);
+		    TString namepdf = "PIDshape_"+nm;
+		    pdfPID2= new RooBinned1DQuinticBase<RooAbsPdf>(namepdf.Data(), namepdf.Data(), *histPID, *lab1_PIDK, true);
                   }
                 else
                   {
@@ -2045,8 +2139,8 @@ namespace WeightingUtils {
               }
 	    work->import(*pdfPID[i]);
 
-          }
-
+	  }
+	
       }
     return work;
   }
@@ -2143,7 +2237,10 @@ namespace WeightingUtils {
       }
     else if( type.Contains("BsDsPi") == true && type.Contains("MC") == true )
       {
-	if ( type.Contains("Down") == true || type.Contains("down") == true) { nm = "BsDsPi_down"; } else {  nm = "BsDsPi_up"; }
+	//if ( type.Contains("Down") == true || type.Contains("down") == true) { nm = "BsDsPi_down"; } else {  nm = "BsDsPi_up"; }
+	TString mode = CheckDMode(type, debug);
+        if ( mode == "kkpi") { mode = CheckKKPiMode(type, debug); }
+        nm = "BsDsPi_both_"+mode;
 	name="dataSetMC_"+nm;
 	histName = "hist2D_"+nm;
 	histNameR = "hist2D_ratio_"+nm;
@@ -2151,8 +2248,11 @@ namespace WeightingUtils {
       }
     else if (type.Contains("BsDsK") == true && type.Contains("MC") == true )
       {
-        if ( type.Contains("Down") == true || type.Contains("down") == true) { nm = "BsDsK_down"; } else {  nm = "BsDsK_up"; }
-        name="dataSetMC_"+nm;
+        //if ( type.Contains("Down") == true || type.Contains("down") == true) { nm = "BsDsK_down"; } else {  nm = "BsDsK_up"; }
+        TString mode = CheckDMode(type, debug);
+        if ( mode == "kkpi") { mode = CheckKKPiMode(type, debug); }
+	nm = "BsDsK_both_"+mode;
+	name="dataSetMC_"+nm;
         histName = "hist2D_"+nm;
         histNameR = "hist2D_ratio_"+nm;
 
@@ -2318,16 +2418,22 @@ namespace WeightingUtils {
       }
     else if( type.Contains("BsDsPi") == true && type.Contains("MC") == true)
       {
-        if ( type.Contains("Down") == true || type.Contains("down") == true) { nm = "BsDsPi_down"; } else {  nm = "BsDsPi_up"; }
-        name="dataSetMC_"+nm;
+        //if ( type.Contains("Down") == true || type.Contains("down") == true) { nm = "BsDsPi_down"; } else {  nm = "BsDsPi_up"; }
+        TString mode = CheckDMode(type, debug);
+        if ( mode == "kkpi") { mode = CheckKKPiMode(type, debug); }
+        nm = "BsDsPi_both_"+mode;
+	name="dataSetMC_"+nm;
         histName = "hist2D_"+nm;
 	histNameR = "hist2D_ratio_"+nm;
 
       }
     else if (type.Contains("BsDsK") == true && type.Contains("MC") == true)
       {
-        if ( type.Contains("Down") == true || type.Contains("down") == true) { nm = "BsDsK_down"; } else {  nm = "BsDsK_up"; }
-        name="dataSetMC_"+nm;
+        //if ( type.Contains("Down") == true || type.Contains("down") == true) { nm = "BsDsK_down"; } else {  nm = "BsDsK_up"; }
+        TString mode = CheckDMode(type, debug);
+        if ( mode == "kkpi") { mode = CheckKKPiMode(type, debug); }
+	nm = "BsDsK_both_"+mode;
+	name="dataSetMC_"+nm;
         histName = "hist2D_"+nm;
         histNameR = "hist2D_ratio_"+nm;
 
@@ -2443,6 +2549,7 @@ namespace WeightingUtils {
     RooRealVar* Var1 = new RooRealVar(nameVar1.Data(),nameVar1.Data(),log(Var1_down), log(Var1_up));
     RooRealVar* Var2 = new RooRealVar(nameVar2.Data(),nameVar2.Data(),log(Var2_down), log(Var2_up));
     RooRealVar* lab1_PIDK = new RooRealVar(namePID.Data(), namePID.Data(), PID_down, PID_up);
+    RooRealVar* lab1_PIDK2 = new RooRealVar(namePID.Data(), namePID.Data(), -PID_up, -PID_down); //log(0.0001), log(-PID_down));
 
     TString label1, label2;
     if ( nameVar1 != nameVar2 )
@@ -2554,16 +2661,22 @@ namespace WeightingUtils {
       }
     else if( type.Contains("BsDsPi") == true && type.Contains("MC") == true)
       {
-	if ( type.Contains("Down") == true || type.Contains("down") == true) { nm = "BsDsPi_down"; } else {  nm = "BsDsPi_up"; }
-        name="dataSetMC_"+nm;
+	//if ( type.Contains("Down") == true || type.Contains("down") == true) { nm = "BsDsPi_down"; } else {  nm = "BsDsPi_up"; }
+        TString mode = CheckDMode(type, debug);
+        if ( mode == "kkpi") { mode = CheckKKPiMode(type, debug); }
+        nm = "BsDsPi_both_"+mode;
+	name="dataSetMC_"+nm;
         histName = "hist2D_"+nm;
 	histNameR = "hist2D_ratio_"+nm;
 	nameCalib = "CalibSample_"+nm;
       }
     else if (type.Contains("BsDsK") == true && type.Contains("MC") == true)
       {
-        if ( type.Contains("Down") == true || type.Contains("down") == true) { nm = "BsDsK_down"; } else {  nm = "BsDsK_up"; }
-        name="dataSetMC_"+nm;
+        //if ( type.Contains("Down") == true || type.Contains("down") == true) { nm = "BsDsK_down"; } else {  nm = "BsDsK_up"; }
+        TString mode = CheckDMode(type, debug);
+        if ( mode == "kkpi") { mode = CheckKKPiMode(type, debug); }
+	nm = "BsDsK_both_"+mode;
+	name="dataSetMC_"+nm;
         histName = "hist2D_"+nm;
         histNameR = "hist2D_ratio_"+nm;
 	nameCalib = "CalibSample_"+nm;
@@ -2586,19 +2699,45 @@ namespace WeightingUtils {
     if ( hist != NULL ) { std::cout<<" Read histogram: "<<hist->GetName()<<std::endl;}
     else {std::cout<<" Cannot read histogram: "<<histName.Data()<<std::endl;}
     histMC = (TH2F*)work->obj(histName.Data());
-
+    
+    TString nn;
+    if( type.Contains("Comb") == true) { nn = "Comb_"+nm; }
+    else if (type.Contains("DPi") == true) { nn = "DPi_"+nm;}
+    else if (type.Contains("BsDsPi") == true && type.Contains("MC") != true) { nn = "BsDsPi_"+nm; }
+    else {nn=nm;}
 
     TString namew = "weights";
     RooRealVar* weights;
     weights = new RooRealVar(namew.Data(), namew.Data(), -50.0, 50.0 );
     //TString nameCalib = "CalibSample_"+nm;
-    RooDataSet* dataRW = new RooDataSet(nameCalib.Data(),nameCalib.Data(),RooArgSet(*lab1_PIDK,*Var1,*Var2,*weights), namew.Data());
+    RooDataSet* dataRW = NULL;
+    TH1* histPID = NULL;
+    TString namehist = "histPID_"+nn;
 
+    if ( (type.Contains("BsDsPi") == true && type.Contains("MC") == true) || type.Contains("DPi") == true || type.Contains("CombPi") == true )
+      {
+	dataRW = new RooDataSet(nameCalib.Data(),nameCalib.Data(),RooArgSet(*lab1_PIDK2,*Var1,*Var2,*weights), namew.Data());
+	histPID = new TH1D(namehist.Data(), namehist.Data(), 200, -PID_up, -PID_down); //50, log(0.0001), log(-PID_down));
+      }
+    else
+      {
+	dataRW = new RooDataSet(nameCalib.Data(),nameCalib.Data(),RooArgSet(*lab1_PIDK,*Var1,*Var2,*weights), namew.Data());
+	histPID = new TH1D(namehist.Data(), namehist.Data(), 50, PID_down, PID_up);
+      }
+	
+    
     //std::cout<<"tuuuu"<<std::endl;
     for (Long64_t jentry=0; jentry<treeC->GetEntries(); jentry++)
       {
 	treeC->GetEntry(jentry);
-	lab1_PIDK->setVal(PID3);
+	if ( (type.Contains("BsDsPi") == true && type.Contains("MC") == true) || type.Contains("DPi") == true || type.Contains("CombPi") == true )
+	  {
+	    lab1_PIDK2->setVal(-PID3);
+	  }
+	else
+	  {
+	    lab1_PIDK->setVal(PID3);
+	  }
 	Var1->setVal(Var13);
 	Var2->setVal(Var23);
 	//std::cout<<"Var13: "<<Var13<<" Var23: "<<Var23<<std::endl;
@@ -2607,20 +2746,44 @@ namespace WeightingUtils {
 	wA = nsig_sw3*wRW;
 	//std::cout<<" weight: "<<wA<<" nsigSW: "<<nsig_sw3<<" wRW "<<wRW<<" "<<nameVar1<<": "<<Var13<<" "<<nameVar2<<": "<<Var23<<std::endl;
 	weights->setVal(wA);
-	dataRW->add(RooArgSet(*lab1_PIDK,*Var1,*Var2,*weights),wA,0);
+	if ( PID3 > PID_down && PID3 < PID_up)
+	  {
+	    if ( (type.Contains("BsDsPi") == true && type.Contains("MC") == true) || type.Contains("DPi") == true || type.Contains("CombPi") == true)
+	      {
+		dataRW->add(RooArgSet(*lab1_PIDK2,*Var1,*Var2,*weights),wA,0);
+	      }
+	    else
+	      {
+		dataRW->add(RooArgSet(*lab1_PIDK,*Var1,*Var2,*weights),wA,0);
+	      }
+	  }
       }
-
+  
+  
     histRW = NULL;
     histName = "hist2D_rw_"+nm;
     histRW = Get2DHist(dataRW, Var1, Var2, bin1, bin2, histName, debug);
     Save2DComparison(histMC, type, histCalib, l2, histRW, l3, ext);
     Int_t bin3 = 50;
-    TString nn;
-    if( type.Contains("Comb") == true) { nn = "Comb_"+nm; } 
-    else if (type.Contains("DPi") == true) { nn = "DPi_"+nm;} 
-    else if (type.Contains("BsDsPi") == true && type.Contains("MC") != true) { nn = "BsDsPi_"+nm; }
-    else {nn=nm;}
     
+    RooBinned1DQuinticBase<RooAbsPdf>* pdfPID2 = NULL;
+    if ( (type.Contains("BsDsPi") == true && type.Contains("MC") == true) || type.Contains("DPi") == true || type.Contains("CombPi") == true )
+      {
+	histPID = dataRW->createHistogram(namehist.Data(),*lab1_PIDK2, RooFit::Binning(250, -PID_up, -PID_down)); //45,log(0.0001),log(-PID_down)));
+      }
+    else
+      {
+	histPID = dataRW->createHistogram(namehist.Data(),*lab1_PIDK, RooFit::Binning(50,PID_down,PID_up));
+      }
+    histPID->SetName(namehist.Data());
+    histPID->SaveAs("hist_PID.root");
+    
+    TString sm ="";
+    if ( (type.Contains("MC") == true  && type.Contains("BsDsPi") == true ) || (type.Contains("MC") == true  && type.Contains("BsDsK") == true ))
+      { 
+	if (type.Contains("Down")==true ){ sm = "_down";} else { sm = "_up";}
+      }
+
     pdfPID = NULL;
     if( (type.Contains("MC") == true  && type.Contains("BsDsPi") == true ) || type.Contains("DPi") == true || type.Contains("CombPi") == true)
       {
@@ -2629,11 +2792,19 @@ namespace WeightingUtils {
 					       type, l2, l3, dir, ext, work, debug);
 	if ( type.Contains("Pion") == true)
 	  {
-	    pdfPID = FitPDFShapeForPIDBsDsPiPi(dataRW, lab1_PIDK, nn,  debug);
+	    //pdfPID = FitPDFShapeForPIDBsDsPiPi(dataRW, lab1_PIDK, nn,  debug);
+	    //work->import(*pdfPID);
+	    TString namepdf = "PIDshape_"+nn+sm;
+            pdfPID2= new RooBinned1DQuinticBase<RooAbsPdf>(namepdf.Data(), namepdf.Data(), *histPID, *lab1_PIDK, true);
+            RooAbsPdf* pdfSave = pdfPID2;
+            saveDataTemplateToFile( dataRW, pdfSave, lab1_PIDK2,  nn.Data(), "pdf", nn.Data(), debug );
+            work->import(*pdfPID2);
+
 	  }
 	else
 	  {
-	    pdfPID = FitPDFShapeForPIDBsDsPiK(dataRW, lab1_PIDK, nn,  debug);
+	    pdfPID = FitPDFShapeForPIDBsDsPiK(dataRW, lab1_PIDK2, nn,  debug);
+	    work->import(*pdfPID);
 	  }
       }
     else if ( (type.Contains("MC") == true && type.Contains("BsDsK") == true ) || 
@@ -2648,19 +2819,26 @@ namespace WeightingUtils {
 	  {
 	    if( type.Contains("CombK") == true ) { nn = "CombPi_"+nm; }
 	    pdfPID = FitPDFShapeForPIDBsDsKPi(dataRW, lab1_PIDK, nn,  debug);
+	    work->import(*pdfPID);
 	  }
 	else if ( type.Contains("Kaon") == true)
 	  {
 	    if( type.Contains("CombK") == true ) { nn = "CombK_"+nm; }
-	    pdfPID = FitPDFShapeForPIDBsDsKK(dataRW, lab1_PIDK, nn,  debug);
+	    //pdfPID = FitPDFShapeForPIDBsDsKK(dataRW, lab1_PIDK, nn,  debug);
+	    TString namepdf = "PIDshape_"+nn+sm;
+	    pdfPID2= new RooBinned1DQuinticBase<RooAbsPdf>(namepdf.Data(), namepdf.Data(), *histPID, *lab1_PIDK, true);
+	    RooAbsPdf* pdfSave = pdfPID2;
+	    saveDataTemplateToFile( dataRW, pdfSave, lab1_PIDK,  nn.Data(), "pdf", nn.Data(), debug );
+	    work->import(*pdfPID2);
 	  }
 	else
 	  {
 	    if( type.Contains("CombK") == true ) { nn = "CombP_"+nm; }
 	    pdfPID = FitPDFShapeForPIDBsDsKP(dataRW, lab1_PIDK, nn,  debug);
+	    work->import(*pdfPID);
 	  }
       }
-    work->import(*pdfPID);
+    //work->import(*pdfPID);
   
   return work;
 }
@@ -2788,16 +2966,22 @@ namespace WeightingUtils {
       }
     else if( type.Contains("BsDsPi") == true && type.Contains("MC") == true)
       {
-        if ( type.Contains("Down") == true || type.Contains("down") == true) { nm = "BsDsPi_down"; } else {  nm = "BsDsPi_up"; }
-        name="dataSetMC_"+nm;
+        //if ( type.Contains("Down") == true || type.Contains("down") == true) { nm = "BsDsPi_down"; } else {  nm = "BsDsPi_up"; }
+        TString mode = CheckDMode(type, debug);
+        if ( mode == "kkpi") { mode = CheckKKPiMode(type, debug); }
+        nm = "BsDsPi_both_"+mode;
+	name="dataSetMC_"+nm;
         histName = "hist2D_"+nm;
         histNameR = "hist2D_ratio_"+nm;
         nameCalib = "CalibSample_"+nm;
       }
     else if (type.Contains("BsDsK") == true && type.Contains("MC") == true)
       {
-        if ( type.Contains("Down") == true || type.Contains("down") == true) { nm = "BsDsK_down"; } else {  nm = "BsDsK_up"; }
-        name="dataSetMC_"+nm;
+        //if ( type.Contains("Down") == true || type.Contains("down") == true) { nm = "BsDsK_down"; } else {  nm = "BsDsK_up"; }
+        TString mode = CheckDMode(type, debug);
+        if ( mode == "kkpi") { mode = CheckKKPiMode(type, debug); }
+	nm = "BsDsK_both_"+mode;
+	name="dataSetMC_"+nm;
         histName = "hist2D_"+nm;
         histNameR = "hist2D_ratio_"+nm;
 	nameCalib = "CalibSample_"+nm;

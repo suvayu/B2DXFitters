@@ -233,7 +233,7 @@ namespace GeneralUtils {
   TString CheckKKPiMode(TString& check, bool debug);
 
   TString GetLabel(TString& mode, bool debug);
-
+  TString CheckBDTGBin(TString& check, bool debug);
 } // end of namespace
 
 //=============================================================================

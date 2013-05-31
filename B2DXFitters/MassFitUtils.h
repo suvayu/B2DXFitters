@@ -118,7 +118,7 @@ namespace MassFitUtils {
   // mistag - bool variable, ifset "yes" then create RooKeysPdf for TagOmega
   //==========================================================================
   RooWorkspace* ObtainMissForBsDsPi(TString& filesDir, TString& sig,
-				    int PIDmisscut,
+				    TString& namehypo, // int PIDmisscut,
 				    double Pcut_down, double Pcut_up,
 				    double BDTG_down, double BDTG_up,
 				    double Dmass_down, double Dmass_up,
@@ -274,7 +274,8 @@ namespace MassFitUtils {
   //==========================================================================
   void ExpectedYield(TString& filesDir, TString& sigBs, TString& sigBd, 
 		     TString& sigPID_lab4, TString& PIDcut_lab4,
-		     TString& sigPID_lab5, TString& PIDcut_lab5,
+		     TString& sigPID_lab51, TString& PIDcut_lab51,
+		     TString& sigPID_lab52, TString& PIDcut_lab52,
 		     double Pcut_down, double Pcut_up,
 		     double BDTG_down, double BDTG_up,
 		     double Dmass_down, double Dmass_up,

@@ -134,9 +134,12 @@ namespace Bs2Dsh2011TDAnaModels {
 			      RooRealVar& nBdDsstPi,
 			      RooRealVar& nBd2DsRhoEvts,
                               RooRealVar& nBd2DstPiEvts,
-                              //RooRealVar& N_Bkg_Tot,
-                              TString &sam,
+			      RooRealVar& nBs2DsKEvts,
+                              RooRealVar& cB1Var,
+                              RooRealVar& cB2Var,
+                              RooRealVar& fracComb,
 			      TString &samplemode,
+			      RooRealVar& lumRatio,
                               bool toys,
                               bool debug = false
                               );
@@ -175,8 +178,11 @@ namespace Bs2Dsh2011TDAnaModels {
 			     RooRealVar& nBs2DsKEvts,
                              RooAbsPdf* pdf_SignalDs,
 			     RooRealVar& cBVar,
-                             RooRealVar& cDVar,
-                             RooRealVar& fracComb,
+			     RooRealVar& cB2Var,
+			     RooRealVar& fracBsComb,
+			     RooRealVar& cDVar,
+			     RooRealVar& fracDsComb,
+			     RooRealVar& fracPIDComb,
 			     TString &samplemode,
 			     //bool merge,
 			     RooRealVar& lumRatio,
@@ -268,6 +274,7 @@ namespace Bs2Dsh2011TDAnaModels {
                            RooAddPdf* pdf_Bd2DsK,
                            RooRealVar& nCombBkgEvts,
                            RooRealVar& nBs2DsDsstPiRhoEvts,
+			   RooRealVar& nBs2DsPiEvts,
                            //RooFormulaVar& nBs2DsDsstPiRhoEvts,
                            RooRealVar& nBs2DsDssKKstEvts,
                            RooRealVar& nLb2DsDsstpEvts,
@@ -278,15 +285,15 @@ namespace Bs2Dsh2011TDAnaModels {
                            RooRealVar& g1_f2,
                            RooRealVar& g1_f3,
                            RooRealVar& g2_f1,
-                           RooRealVar& g2_f2,
-                           RooRealVar& g2_f3,
+                           //RooRealVar& g2_f2,
+                           //RooRealVar& g2_f3,
                            RooRealVar& g3_f1,
 			   RooRealVar& g4_f1,
 			   RooRealVar& g4_f2,
                            RooAbsPdf* pdf_SignalDs,
 			   RooRealVar& cBVar,
 			   RooRealVar& cDVar,
-			   RooRealVar& fracComb,
+			   RooRealVar& fracDsComb,
 			   TString &samplemode,
 			   //bool merge,
 			   RooRealVar& lumRatio,
@@ -299,6 +306,7 @@ namespace Bs2Dsh2011TDAnaModels {
   RooKeysPdf* GetRooKeysPdfFromWorkspace(RooWorkspace* work, TString& name, bool debug = false);
   RooHistPdf* GetRooHistPdfFromWorkspace(RooWorkspace* work, TString& name, bool debug = false);
   RooAddPdf* GetRooAddPdfFromWorkspace(RooWorkspace* work, TString& name, bool debug=false);
+  RooAbsPdf* GetRooBinned1DFromWorkspace(RooWorkspace* work, TString& name, bool  debug = false);
 }
 
 #endif
