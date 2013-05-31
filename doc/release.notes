@@ -5,7 +5,13 @@
 !-----------------------------------------------------------------------------
 
 ! 2013-05-31 - Agnieszka Dziurda
- - update MDFitter (more info later)
+ - update MDFitter:
+   . Final version of MD Fitter
+   . Signal shapes are with BKGCAT and TRUEID
+   . Combinatorial background for DPi and DsPi: double expo with one flat expo
+   . Mix yield from misID: LcK, DK, LcPi, DPi, DsPi, DK
+   . Move to RooBinned1DQuinticBase for signal PID shapes
+   . Small others improvements    
  - update 1D DsPi fitter possible to use 
 
 ! 2013-05-21 - Manuel Tobias Schiller

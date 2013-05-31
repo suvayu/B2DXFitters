@@ -129,7 +129,9 @@ def runBdGammaFitterOnData(debug, wsname, initvars, var, probvar, pereventmistag
         workspace = GeneralUtils.LoadWorkspace(TString(pathName),workNameTS, debug)
                                                                                             
     workspace.Print()
+    #workspace.writeToFile("Reweighted_Bs2DsPi.root")
     
+    #exit(0)
     zero = RooConstVar('zero', '0', 0.)
     one = RooConstVar('one', '1', 1.)
     minusone = RooConstVar('minusone', '-1', -1.)
@@ -179,16 +181,20 @@ def runBdGammaFitterOnData(debug, wsname, initvars, var, probvar, pereventmistag
     # Data set
     #-----------------------
     if toys :
-        data_pos = GeneralUtils.GetDataSet(workspace,"dataSet_time_Bs2DsPi_pos", debug)#[]
-        data_neg = GeneralUtils.GetDataSet(workspace,"dataSet_time_Bs2DsPi_neg", debug)
+        nameData1 = TString("dataSet_time_Bs2DsPi_pos")
+        data_pos = GeneralUtils.GetDataSet(workspace,nameData1, debug)#[]
+        nameData2 = TString("dataSet_time_Bs2DsPi_neg")
+        data_neg = GeneralUtils.GetDataSet(workspace,nameData2, debug)
         data = data_pos
         data.append(data_neg)
         nEntries = data.numEntries()#[]
     else :
         if signal:
-            data = GeneralUtils.GetDataSet(workspace,"dataSetMCBsDsPi_both", debug)
-        else:    
-            data = GeneralUtils.GetDataSet(workspace,"dataSet_time_Bs2DsPi", debug)
+            nameData = TString("dataSetMCBsDsPi_both") 
+            data = GeneralUtils.GetDataSet(workspace, nameData, debug)
+        else:
+            nameData = TString("dataSet_time_Bs2DsPi")
+            data = GeneralUtils.GetDataSet(workspace, nameData, debug)
         nEntries = data.numEntries()     
         frame = time.frame()
         data.plotOn(frame)
@@ -256,12 +262,12 @@ def runBdGammaFitterOnData(debug, wsname, initvars, var, probvar, pereventmistag
     else : 
         sigDilution = RooFormulaVar('sigDilution',"(1-2*@0)",RooArgList(mistag))
     mixState = RooFormulaVar('mixState','@0*@1',RooArgList(tag,id)) 
-    sigCosSin_i0 = RooProduct('sigCosSin_i0', 'sigCosSin_i0', RooArgSet(mixState, sigDilution, sigTagWeight))
+    sigCosSin_i0 = RooProduct('sigCosSin_i0', 'sigCosSin_i0', RooArgList(mixState, sigDilution, sigTagWeight))
 
-    sigCosh = RooProduct('sigCosh', 'cosh coefficient', RooArgSet(untaggedWeight, sigTagWeight))
-    sigSinh = RooProduct('sigSinh', 'sinh coefficient', RooArgSet(sigCosh, sigWeightedDs))
-    sigCos  = RooProduct('sigCos', 'cos coefficient', RooArgSet(sigCosSin_i0, sigC))
-    sigSin  = RooProduct('sigSin', 'sin coefficient', RooArgSet(sigCosSin_i0, sigWeightedSs))
+    sigCosh = RooProduct('sigCosh', 'cosh coefficient', RooArgList(untaggedWeight, sigTagWeight))
+    sigSinh = RooProduct('sigSinh', 'sinh coefficient', RooArgList(sigCosh, sigWeightedDs))
+    sigCos  = RooProduct('sigCos', 'cos coefficient', RooArgList(sigCosSin_i0, sigC))
+    sigSin  = RooProduct('sigSin', 'sin coefficient', RooArgList(sigCosSin_i0, sigWeightedSs))
    
     if not fitMeTool : 
 
@@ -274,12 +280,12 @@ def runBdGammaFitterOnData(debug, wsname, initvars, var, probvar, pereventmistag
             
         totPDF = sigTimePDF
  
-        if debug :
-            print 'DATASET NOW CONTAINS', nEntries, 'ENTRIES!!!!' 
-            data.Print("v")
-            for i in range(0,nEntries) : 
-                data.get(i).Print("v")
-                print data.weight()
+#        if debug :
+#            print 'DATASET NOW CONTAINS', nEntries, 'ENTRIES!!!!' 
+#            data.Print("v")
+#            for i in range(0,nEntries) : 
+#                data.get(i).Print("v")
+#                print data.weight()
 
         if scan:
             RooMsgService.instance().Print('v')

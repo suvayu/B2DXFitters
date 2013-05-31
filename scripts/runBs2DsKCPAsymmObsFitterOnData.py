@@ -59,11 +59,11 @@ def runBdGammaFitterOnData(debug, wsname, initvars, var, probvar,pereventmistag,
                            treeName,splitCharge,fitMeTool,configName,nokfactcorr,
                            smearaccept,accsmearfile,accsmearhist) :
 
-    if not Blinding and not toys :
-        print "RUNNING UNBLINDED!"
-        #really = input('Do you really want to unblind? ')
-        #if really != "yes" :
-        #    exit(-1)
+    #if not Blinding and not toys :
+    #    print "RUNNING UNBLINDED!"
+    #    really = input('Do you really want to unblind? ')
+    #    if really != "yes" :
+    #        exit(-1)
 
     #if toys :
     #    if int(pathToys.split('.')[1].split('_')[-1]) in bannedtoys :
@@ -144,7 +144,9 @@ def runBdGammaFitterOnData(debug, wsname, initvars, var, probvar,pereventmistag,
         
    
     workspace.Print()
-
+    workspace.writeToFile("Reweighted_BsDsK.root")
+    
+    #exit(0)
     zero = RooConstVar('zero', '0', 0.)
     one = RooConstVar('one', '1', 1.)
     minusone = RooConstVar('minusone', '-1', -1.)
@@ -202,7 +204,8 @@ def runBdGammaFitterOnData(debug, wsname, initvars, var, probvar,pereventmistag,
             data.append(data_neg)
             nEntries = data.numEntries()#[]
     else :
-        data = GeneralUtils.GetDataSet(workspace,"dataSet_time_Bs2DsK", debug)
+        nameData = TString("dataSet_time_Bs2DsK") 
+        data = GeneralUtils.GetDataSet(workspace, nameData , debug)
         nEntries = data.numEntries()    
 
     # Decay time resolution model
@@ -303,18 +306,18 @@ def runBdGammaFitterOnData(debug, wsname, initvars, var, probvar,pereventmistag,
         calibration_p0 = RooRealVar('calibration_p0','calibration_p0',myconfigfile["calibration_p0"])
         mistag_calibrated = MistagCalibration('mistag_calibrated','mistag_calibrated',mistag,calibration_p0,calibration_p1) 
         sigDilution = Dilution(  'sigDilution',  'sigDilution',      mistag_calibrated                                )
-    mixState        = RooProduct('mixState',     'mixState',         RooArgSet(bTagMap,fChargeMap   )      ) 
-    sigCosSin_i0    = RooProduct('sigCosSin_i0', 'sigCosSin_i0',     RooArgSet(mixState, sigDilution, sigTagWeight) )
+    mixState        = RooProduct('mixState',     'mixState',         RooArgList(bTagMap,fChargeMap   )      ) 
+    sigCosSin_i0    = RooProduct('sigCosSin_i0', 'sigCosSin_i0',     RooArgList(mixState, sigDilution, sigTagWeight) )
 
     # Set the signal handler and a 5-second alarm
     #signal.signal(signal.SIGALRM, handler)
     #signal.alarm(120)
  
     if not splitCharge and not fitMeTool:
-        sigCosh         = RooProduct('sigCosh',      'cosh coefficient', RooArgSet(untaggedWeight, sigTagWeight)        )
-        sigSinh         = RooProduct('sigSinh',      'sinh coefficient', RooArgSet(sigCosh, sigWeightedDs)              )
-        sigCos          = RooProduct('sigCos',       'cos coefficient',  RooArgSet(sigCosSin_i0, sigC)                  )
-        sigSin          = RooProduct('sigSin',       'sin coefficient',  RooArgSet(sigCosSin_i0, sigWeightedSs,minusone)         )
+        sigCosh         = RooProduct('sigCosh',      'cosh coefficient', RooArgList(untaggedWeight, sigTagWeight)        )
+        sigSinh         = RooProduct('sigSinh',      'sinh coefficient', RooArgList(sigCosh, sigWeightedDs)              )
+        sigCos          = RooProduct('sigCos',       'cos coefficient',  RooArgList(sigCosSin_i0, sigC)                  )
+        sigSin          = RooProduct('sigSin',       'sin coefficient',  RooArgList(sigCosSin_i0, sigWeightedSs,minusone)         )
     
         if debug :
             print 'DATASET NOW CONTAINS', nEntries, 'ENTRIES!!!!' 

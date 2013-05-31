@@ -518,6 +518,8 @@ namespace Bs2Dsh2011TDAnaModels {
     // -------------------------------- Create Combinatorial Background --------------------------------------------//
     if (debug == true) cout<<"---------------  Create combinatorial background PDF -----------------"<<endl;
 
+    if ( toys ) {}
+
     TString Sam;
     if (samplemode.Contains("down")) { Sam = "Down";} else { Sam = "Up"; }
     TString sam;
@@ -841,6 +843,9 @@ namespace Bs2Dsh2011TDAnaModels {
     }
     TString name="fake_"+samplemode;
     RooRealVar fake( name.Data(), name.Data(), 0);
+
+    RooRealVar fake_g1_f2 = g1_f2;
+    
 
     TString Sam;
     if (samplemode.Contains("down")) { Sam = "Down";} else { Sam = "Up"; }
@@ -1510,7 +1515,7 @@ namespace Bs2Dsh2011TDAnaModels {
 
 
     // --------------------------------- Create RooAddPdf -------------------------------------------------//
-    Bool_t rec=true;
+    //  Bool_t rec=true;
     
     RooAddPdf* pdf_Bs2DsDsstPiRho = NULL;
     name = "PhysBkgBs2DsDsstPiRhoPdf_m_"+samplemode;
@@ -2509,7 +2514,7 @@ namespace Bs2Dsh2011TDAnaModels {
 	    cout<<"Bs->DsK*"<<endl;
 	    cout<<"Bs->Ds*K*"<<endl;
 	  }
-	Bool_t rec=true; //recursive build
+	//Bool_t rec=true; //recursive build
 
 	RooAddPdf* pdf_Bs2DsDsstKKst = NULL;
 	name = "PhysBkgBs2DsDsstKKstPdf_m_"+samplemode;
@@ -2560,22 +2565,20 @@ namespace Bs2Dsh2011TDAnaModels {
 	    /*
               name = "PIDKShape_Bs2DsstK_down";
 	      pdf_Bs2DsstK_PIDK1 = GetRooBinned1DFromWorkspace(workID, name, debug);
-	      //(RooAddPdf*)workID->pdf(name.Data());
-              if( pdf_Bs2DsKst_PIDK1 != NULL ){ if (debug == true) cout<<"Read "<<pdf_Bs2DsKst_PIDK1->GetName()<<endl;}
+	      if( pdf_Bs2DsKst_PIDK1 != NULL ){ if (debug == true) cout<<"Read "<<pdf_Bs2DsKst_PIDK1->GetName()<<endl;}
 	            else { if (debug == true) cout<<"Cannot read PDF"<<endl;}
 
               name = "PIDKShape_Bs2DsstKst_down";
               pdf_Bs2DsstKst_PIDK1 = GetRooBinned1DFromWorkspace(workID, name, debug);
-	      //(RooAddPdf*)workID->pdf(name.Data());
-              if( pdf_Bs2DsstKst_PIDK1 != NULL ){ if (debug == true) cout<<"Read "<<pdf_Bs2DsstKst_PIDK1->GetName()<<endl;}
+	      if( pdf_Bs2DsstKst_PIDK1 != NULL ){ if (debug == true) cout<<"Read "<<pdf_Bs2DsstKst_PIDK1->GetName()<<endl;}
               else { if (debug == true) cout<<"Cannot read PDF"<<endl;}
 	    */
 
 	    name = "PIDshape_Bs2DsKst_up";
-            pdf_Bs2DsKst_PIDK2 = GetRooBinned1DFromWorkspace(workID, name, debug); //(RooAddPdf*)workID->pdf(name.Data());
-            /*
+            pdf_Bs2DsKst_PIDK2 = GetRooBinned1DFromWorkspace(workID, name, debug); 
+          /*
               name = "PIDKShape_Bs2DsstK_up";
-              pdf_Bs2DsstK_PIDK2 = GetRooBinned1DFromWorkspace(workID, name, debug); //(RooAddPdf*)workID->pdf(name.Data());
+              pdf_Bs2DsstK_PIDK2 = GetRooBinned1DFromWorkspace(workID, name, debug); 
               if( pdf_Bs2DsKst_PIDK2 != NULL ){ if (debug == true) cout<<"Read "<<pdf_Bs2DsKst_PIDK2->GetName()<<endl;}
 	                  else { if (debug == true) cout<<"Cannot read PDF"<<endl;}
 
@@ -2710,7 +2713,7 @@ namespace Bs2Dsh2011TDAnaModels {
 	name="PhysBkgBs2DsDsstPiRhoPdf_m_"+samplemode;
 	pdf_Bs2DsDsstPiRho = new RooAddPdf( name.Data(),
 					    name.Data(),
-					    RooArgList(*pdf_Bs2DsPi, *pdf_Bs2DsstPi,*pdf_Bs2DsRho), //*pdf_Bs2DsstRho),
+					    RooArgList(*pdf_Bs2DsPi, *pdf_Bs2DsstPi,*pdf_Bs2DsRho), // *pdf_Bs2DsstRho),
 					    RooArgList(g2_f1,g2_f2), rec); ///, g2_f3), rec);
 	*/
 	RooAddPdf* pdf_Bs2DsDsstPiRho = NULL;

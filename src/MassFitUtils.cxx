@@ -750,6 +750,7 @@ namespace MassFitUtils {
 	std::cout<<"Name D(s) of observable: "<<mDVar<<std::endl;
 	std::cout<<"Name of PID variable: "<<mProbVar<<std::endl;
 	std::cout<<"Mode: "<<mode<<std::endl;
+	std::cout<<"Hypo: "<<hypo<<std::endl; 
       }
     
     double BMassRange[2];
@@ -963,10 +964,11 @@ namespace MassFitUtils {
       Float_t lab4_PX2, lab4_PY2, lab4_PZ2;
       Float_t lab5_PX2, lab5_PY2, lab5_PZ2;
       Float_t lab1_M2;
-      Float_t masshypo(0.0), phypo(0.0), masshypod(0.0), phypolc(0.0), masshypolc(0.0), masshypolb(0.0), p2(0.0);
+      Float_t masshypo(0.0), phypo(0.0), masshypod(0.0), phypolc(0.0), masshypolb(0.0), p2(0.0);
       Float_t lab0_TAGOMEGA2,tag;
       Float_t nTr2;
       Float_t lab1_PIDK2;
+      
 
       treetmp[i]->SetBranchAddress("lab1_P",  &lab1_P2);
       treetmp[i]->SetBranchAddress("lab1_PT", &lab1_PT2);
@@ -1050,14 +1052,14 @@ namespace MassFitUtils {
 	      EL3 = sqrt(vL3.P()*vL3.P()+139.57*139.57);
               EL4 = sqrt(vL4.P()*vL4.P()+938.2*938.2);
               EL5 = sqrt(vL5.P()*vL5.P()+493.677*493.677);
-              vL3.SetE(E3); vL4.SetE(E4); vL5.SetE(E5);
+              vL3.SetE(EL3); vL4.SetE(EL4); vL5.SetE(EL5);
 	      phypolc = vL4.P();
 	    }
 
 	    TLorentzVector vd = v3+v4+v5; // build Ds
 	    TLorentzVector vL = vL3+vL4+vL5; // build Lc
 	    masshypod = vd.M(); 
-	    masshypolc = vL.M();
+	    
 	    //std::cout<<"massd: "<<masshypod<<std::endl;
 	    
 	    if (masshypod > Dmass_down && masshypod < Dmass_up)  //only events which fall into Ds mass window are acceptable
@@ -3519,7 +3521,7 @@ namespace MassFitUtils {
     TString heff10_name;
     TString heff0_name;
 
-    Double_t nE_F[2];
+    
     Double_t nE_RDM[2];
     
     for(int i=0; i<2; i++)
@@ -3537,7 +3539,6 @@ namespace MassFitUtils {
 	nE_lab45[i] = 0; // number of events after weighting by PID histograms for lab4
 	nE_lab1[i] = 0;
 	nE_RAW[i] = 0;
-	nE_F[i] = 0;
 	nE_RDM[i] = 0;
 
 	Double_t lab3_P2, lab4_P2, lab5_P2, lab1_P2, lab1_PT2; 
@@ -3700,7 +3701,6 @@ namespace MassFitUtils {
 		    w5 = h_2[i]->GetBinContent(bin5);
 		  }
 		Double_t w51 = 1.0; 
-		Double_t w52 = 1.0;
 		if ( mode == "LbLcPi") 
 		  {
 		    bin5 = hpeff1->FindBin(lab5_P2*wRW);
@@ -3713,16 +3713,9 @@ namespace MassFitUtils {
 		} 
 		else { 
 		  y = 0.0;  
-		  //nE_F[i] = nE_F[i]+1; std::cout<<"w51 is NULL nE_F: "<<nE_F[i]<<" p5: "<<lab5_P2*wRW<<std::endl;
 		}
 		
-		    //if ( jentry%10 == 0) { 
-		    //  std::cout<<"j: "<<jentry<<" nE_lab45[i]: "<<nE_lab45[i]<<" nE_RDM[i]: "<<nE_RDM[i]<<std::endl; 
-		    //  std::cout<<"w4: "<<w4<<" w5: "<<w5<<" w51: "<<w51<<" w52: "<<w52<<" r: "<<w52/w51<<std::endl;
-		    //}
-		    
-		    //nE_RDM[i] = nE_RDM[i]+wRW;
-		    nE_lab45[i] = nE_lab45[i]+y;
+		nE_lab45[i] = nE_lab45[i]+y;
 		    
 	      }
 	  }
@@ -3936,7 +3929,8 @@ namespace MassFitUtils {
 	rB_B2     = B_1/B_Bd_DPi*frag; // branchig fraction LbLcPi with respoect to DPi 
 	rB_B2_u   = rB_B2*std::sqrt(std::pow(B_u_1/B_1,2) + std::pow(B_Bd_DPi_u/B_Bd_DPi,2) + std::pow(frag_u/frag,2)); // uncertainty
       }
-
+    Double_t fake = rB_B2_u;
+    
     //ratio of branching fractions for D mesons//
     Float_t rB_D=0; 
     Float_t rB_D_u=0;
@@ -3952,6 +3946,8 @@ namespace MassFitUtils {
         rB_D2 = B_3/B_D_KPiPi;
         rB_D2_u   = rB_D2*std::sqrt( std::pow(B_u_3/B_3,2) + std::pow(B_D_KPiPi_u/B_D_KPiPi,2) ); // uncertainty 
       }
+    fake = rB_D2_u;
+    if ( fake > 2.0 ) {}
 
     //Ratio N events : N(own)/N(hypo), applied fragmentation factor if necessary //
     Float_t rN=0;
@@ -4031,13 +4027,13 @@ namespace MassFitUtils {
 	Float_t misID_1, misID_2; //misID
 	if ( mode != "LbLcPi" )
 	  {
-	    misID_1 = nE_lab45[0]*ratio[0]/n_events_Hypo[0]; //nE_RDM[0]; //(n_events_Hypo[0]-nE_F[0]);
-	    misID_2 = nE_lab45[1]*ratio[1]/n_events_Hypo[1]; //nE_RDM[1]; //(n_events_Hypo[1]-nE_F[1]);
+	    misID_1 = nE_lab45[0]*ratio[0]/n_events_Hypo[0]; 
+	    misID_2 = nE_lab45[1]*ratio[1]/n_events_Hypo[1]; 
 	  }
 	else
 	  {
-	    misID_1 = nE_lab45[0]/n_events_Hypo[0]; //(n_events_Hypo[0]-nE_F[0]);
-            misID_2 = nE_lab45[1]/n_events_Hypo[1]; //(n_events_Hypo[1]-nE_F[1]);
+	    misID_1 = nE_lab45[0]/n_events_Hypo[0]; 
+            misID_2 = nE_lab45[1]/n_events_Hypo[1]; 
 	  }
 	Float_t misID_av, misID_u;
 	misID_av = (misID_1+misID_2)/2;

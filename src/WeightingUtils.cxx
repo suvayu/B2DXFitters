@@ -2089,6 +2089,8 @@ namespace WeightingUtils {
                
             Int_t binPIDK = 50;
 	    RooBinned1DQuinticBase<RooAbsPdf>* pdfPID2 = NULL;
+	    if ( pdfPID2 ) {}
+
 	    if ( (type.Contains("BsDsPi") == true && type.Contains("MC") == true) )
 	      {
 		histPID = dataRW->createHistogram(namehist.Data(),*lab1_PIDK2, RooFit::Binning(200,-PID_up,-PID_down));
@@ -2109,12 +2111,17 @@ namespace WeightingUtils {
 		
 		if ( type.Contains("Pion") == true)
                   {
-                    pdfPID[i] = FitPDFShapeForPIDBsDsPiPi(dataRW, lab1_PIDK, nm, debug);
+                    TString namepdf = "ShapePIDK_"+nm;
+                    pdfPID2= new RooBinned1DQuinticBase<RooAbsPdf>(namepdf.Data(), namepdf.Data(), *histPID, *lab1_PIDK2, true);
+                    RooAbsPdf* pdfSave = pdfPID2;
+                    saveDataTemplateToFile( dataRW, pdfSave, lab1_PIDK2,  nm.Data(), "pdf", nm.Data(), debug );
+                    work->import(*pdfPID2);
                   }
                 else
                   {
                     pdfPID[i] = FitPDFShapeForPIDBsDsPiK(dataRW, lab1_PIDK, nm,  debug);
-                  }
+		    work->import(*pdfPID[i]);
+		  }
               }
             else if ( type.Contains("BsDsK") == true )
 	      {
@@ -2125,19 +2132,22 @@ namespace WeightingUtils {
                 if ( type.Contains("Pion") == true)
                   {
                     pdfPID[i] = FitPDFShapeForPIDBsDsKPi(dataRW, lab1_PIDK, nm,  debug);
-                  }
+		    work->import(*pdfPID[i]);
+		  }
                 else if ( type.Contains("Kaon") == true)
                   {
                     //pdfPID[i] = FitPDFShapeForPIDBsDsKK(dataRW, lab1_PIDK, nm,  debug);
 		    TString namepdf = "PIDshape_"+nm;
 		    pdfPID2= new RooBinned1DQuinticBase<RooAbsPdf>(namepdf.Data(), namepdf.Data(), *histPID, *lab1_PIDK, true);
-                  }
+		    work->import(*pdfPID2);
+		  }
                 else
                   {
                     pdfPID[i] = FitPDFShapeForPIDBsDsKP(dataRW, lab1_PIDK, nm,  debug);
+		    work->import(*pdfPID[i]);
                   }
               }
-	    work->import(*pdfPID[i]);
+	    //work->import(*pdfPID[i]);
 
 	  }
 	
