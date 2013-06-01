@@ -38,6 +38,13 @@ bName = 'B_{s}'
 
 massBs_dw  = 5300
 massBs_up  = 5800
+
+massDs_dw = 1930
+massDs_up = 2015 
+
+PIDK_dw = 0.0
+PIDK_up = 150.0
+bin = 100
 #------------------------------------------------------------------------------
 _usage = '%prog [options] <filename>'
 
@@ -91,48 +98,48 @@ parser.add_option( '--merge',
                    )
 
 #------------------------------------------------------------------------------
-def plotDataSet( dataset, frame, sample, mode, toy, merge ) :
+def plotDataSet( dataset, frame, sample, mode, toy, merge, Bin ) :
 
-    bin = 70
+    
     if sample == "both":
         if merge:
             if mode == "all":
                 dataset.plotOn( frame,
                                 RooFit.Cut("sample==sample::both_nonres || sample==sample::both_phipi || sample==sample::both_kstk || sample==sample::both_kpipi || sample==sample::both_pipipi"),
-                                RooFit.Binning( 70 ) )
+                                RooFit.Binning( Bin ) )
             elif mode =="3modeskkpi":
                 dataset.plotOn( frame,
                                 RooFit.Cut("sample==sample::both_nonres || sample==sample::both_phipi || sample==sample::both_kstk"),
-                                RooFit.Binning( 70 ) )
+                                RooFit.Binning( Bin ) )
             elif mode =="3modes":
                 dataset.plotOn( frame,
                                 RooFit.Cut("sample==sample::both_kkpi || sample==sample::both_kpipi || sample==sample::both_pipipi"),
-                                RooFit.Binning( 70 ) )
+                                RooFit.Binning( Bin ) )
             elif mode == "nonres":
                 dataset.plotOn( frame,
                                 RooFit.Cut("sample==sample::both_nonres"),
-                                RooFit.Binning( 70 ) )
+                                RooFit.Binning( Bin) )
             elif mode == "phipi":
                 dataset.plotOn( frame,
                                 RooFit.Cut("sample==sample::both_phipi"),
-                                RooFit.Binning( 70 ) )
+                                RooFit.Binning( Bin ) )
             elif mode == "kstk":
                 dataset.plotOn( frame,
                                 RooFit.Cut("sample==sample::both_kstk"),
-                                RooFit.Binning( 70 ) )
+                                RooFit.Binning( Bin ) )
                 
             elif mode == "kkpi":
                 dataset.plotOn( frame,
                                 RooFit.Cut("sample==sample::both_kkpi"),
-                                RooFit.Binning( bin ) )
+                                RooFit.Binning( Bin ) )
             elif mode == "kpipi":
                 dataset.plotOn( frame,
                                 RooFit.Cut("sample==sample::both_kpipi"),
-                                RooFit.Binning( bin ) )
+                                RooFit.Binning( Bin ) )
             elif mode == "pipipi":
                 dataset.plotOn( frame,
                                 RooFit.Cut("sample==sample::both_pipipi"),
-                                RooFit.Binning( bin ) )
+                                RooFit.Binning( Bin ) )
             else:
                 print "[ERROR] Sample: both, wrong mode!"
                 
@@ -455,20 +462,20 @@ def plotFitModel( model, frame, sam, var, mode, merge) :
     #p=TString(",")
     nameComDPi = nameCom+p+nameDPi
     nameComDPiLam = nameComDPi+p+nameLam #  nameBd+p+nameBdDsstPi+p+nameBdDsPi
-    nameComDPiRho = nameComDPiLam+p+nameBdDsPi+p+nameBd+p+nameBdDsstPi     #nameLam
-    nameAll = nameComDPiRho+p+nameRho
+    #nameComDPiRho = nameComDPiLam+p+nameBdDsPi+p+nameBd+p+nameBdDsstPi     #nameLam
+    nameAll = nameComDPiLam+p+nameRho
     nameAll2 = nameAll+p+nameDsK
 
                         
 
                 
-    model.plotOn( frame, RooFit.ProjectionRange("SR"),
+    model.plotOn( frame, #RooFit.ProjectionRange("SR"),
                   RooFit.Components(nameTot.Data()),
                   RooFit.LineColor(kBlue),
                  # RooFit.LineStyle(kDashed),
                   RooFit.Normalization( 1., RooAbsReal.RelativeExpected )
                   )
-    model.plotOn( frame, RooFit.ProjectionRange("SR"),
+    model.plotOn( frame, #RooFit.ProjectionRange("SR"),
                   RooFit.Components(nameAll2.Data()),
                   RooFit.DrawOption("F"),
                   RooFit.FillStyle(1001),
@@ -476,7 +483,7 @@ def plotFitModel( model, frame, sam, var, mode, merge) :
                   RooFit.Normalization( 1., RooAbsReal.RelativeExpected )
                   )
     
-    model.plotOn( frame, RooFit.ProjectionRange("SR"),
+    model.plotOn( frame, #RooFit.ProjectionRange("SR"),
                   RooFit.Components(nameAll.Data()),
                   RooFit.DrawOption("F"),
                   RooFit.FillStyle(1001),
@@ -492,29 +499,29 @@ def plotFitModel( model, frame, sam, var, mode, merge) :
     #              RooFit.Normalization( 1., RooAbsReal.RelativeExpected )
     #              )
     
-    model.plotOn( frame, RooFit.ProjectionRange("SR"),
-                  RooFit.Components(nameComDPiRho.Data()),
-                  RooFit.DrawOption("F"),
-                  RooFit.FillStyle(1001),
-                  RooFit.FillColor(kMagenta-2),
-                  RooFit.Normalization( 1., RooAbsReal.RelativeExpected )
-                  )
+    #model.plotOn( frame, #RooFit.ProjectionRange("SR"),
+    #              RooFit.Components(nameComDPiRho.Data()),
+    #              RooFit.DrawOption("F"),
+    #              RooFit.FillStyle(1001),
+    #              RooFit.FillColor(kMagenta-2),
+    #              RooFit.Normalization( 1., RooAbsReal.RelativeExpected )
+    #              )
                   
-    model.plotOn( frame, RooFit.ProjectionRange("SR"),
+    model.plotOn( frame, #RooFit.ProjectionRange("SR"),
                   RooFit.Components(nameComDPiLam.Data()),
                   RooFit.DrawOption("F"),
                   RooFit.FillStyle(1001),
                   RooFit.FillColor(kRed),
                   RooFit.Normalization( 1., RooAbsReal.RelativeExpected )
                   )
-    model.plotOn( frame, RooFit.ProjectionRange("SR"),
+    model.plotOn( frame, #RooFit.ProjectionRange("SR"),
                   RooFit.Components(nameComDPi.Data()),
                   RooFit.DrawOption("F"),
                   RooFit.FillStyle(1001),
                   RooFit.FillColor(kOrange),
                   RooFit.Normalization( 1., RooAbsReal.RelativeExpected )
                   )
-    model.plotOn( frame, RooFit.ProjectionRange("SR"),
+    model.plotOn( frame, #RooFit.ProjectionRange("SR"),
                   RooFit.Components(nameCom.Data()),
                   RooFit.DrawOption("F"),
                   RooFit.FillStyle(1001),
@@ -522,7 +529,7 @@ def plotFitModel( model, frame, sam, var, mode, merge) :
                   RooFit.Normalization( 1., RooAbsReal.RelativeExpected )
                   )
 
-    model.plotOn( frame, RooFit.ProjectionRange("SR"),
+    model.plotOn( frame, #RooFit.ProjectionRange("SR"),
                   RooFit.Components(nameSig.Data()),
                   RooFit.LineColor(kRed-7),
                   RooFit.LineStyle(kDashed),
@@ -551,7 +558,7 @@ if __name__ == '__main__' :
     
     from ROOT import TFile, TCanvas, gROOT, TLegend, TString, TLine, TH1F, TBox, TPad, TGraph, TMarker, TGraphErrors, TLatex
     from ROOT import kYellow, kMagenta, kOrange, kCyan, kGreen, kRed, kBlue, kDashed, kBlack, kGray, kViolet
-    from ROOT import RooFit, RooRealVar, RooAbsReal, RooCategory, RooArgSet, RooAddPdf, RooArgList
+    from ROOT import RooFit, RooRealVar, RooAbsReal, RooCategory, RooArgSet, RooAddPdf, RooArgList, RooBinning
     gROOT.SetStyle( 'Plain' )    
     #gROOT.SetBatch( False )
     
@@ -566,14 +573,32 @@ if __name__ == '__main__' :
     f.Close()
     mVarTS = TString(options.var)    
     mass = w.var(mVarTS.Data())
-    #mass.setRange("SR",5280,5420)
-    if mVarTS == "lab2_MM":
-        mass.setRange(1930.0,2015.0)
-    if mVarTS == "lab1_PIDK":
-        mass.setRange(-150.0,0.0) #(-5,6)
     mean  = 5366
     sam = TString(options.sample)
     mod = TString(options.mode)
+
+
+    if mVarTS == "lab1_PIDK":
+        range_dw = PIDK_dw
+        range_up = PIDK_up
+    elif mVarTS == "lab2_MM":
+        range_dw = massDs_dw
+        range_up = massDs_up
+    else:
+        range_dw = massBs_dw
+        range_up = massBs_up
+
+    if mVarTS == "lab1_PIDK":
+        Bin = RooBinning(range_dw,range_up,'P')
+        Bin.addUniform(bin, range_dw, range_up)
+       # Bin.addUniform(10, 0,  10 ) #range_dw, range_dw+range_up/15)
+       # Bin.addUniform(20, 10, 20) # range_dw+range_up/15, range_dw+range_up/10)
+       # Bin.addUniform(70, 20, 150) # range_dw+range_up/10, range_up)
+    else:
+        Bin = RooBinning(range_dw,range_up,'P')
+        Bin.addUniform(bin, range_dw, range_up)
+        
+        
     
     sufixTS = TString(options.sufix)
     if sufixTS != "":
@@ -648,33 +673,33 @@ if __name__ == '__main__' :
         if merge:
             if mod == "all":
                 print "Sample down, mode nonres with merge "
-                print "[WARNING] plot without Bd2DRho, nBd2DstPi, Bd2DsstPi"
-                w.factory("SUM:FullPdf(nBs2DsDsstPiRho_both_nonres_Evts*Bs2DsDsstPiRhoEPDF_m_both_nonres, nLb2LcPi_both_nonres_Evts*Lb2LcPiEPDF_m_both_nonres, nBd2DPi_both_nonres_Evts*Bd2DPiEPDF_m_both_nonres, nSig_both_nonres_Evts*SigEPDF_both_nonres, nCombBkg_both_nonres_Evts*CombBkgEPDF_m_both_nonres,nBd2DsPi_both_nonres_Evts*Bd2DsPiEPDF_m_both_nonres, nBs2DsK_both_nonres_Evts*Bs2DsKEPDF_m_both_nonres, nBs2DsDsstPiRho_both_phipi_Evts*Bs2DsDsstPiRhoEPDF_m_both_phipi, nLb2LcPi_both_phipi_Evts*Lb2LcPiEPDF_m_both_phipi, nBd2DPi_both_phipi_Evts*Bd2DPiEPDF_m_both_phipi, nSig_both_phipi_Evts*SigEPDF_both_phipi, nCombBkg_both_phipi_Evts*CombBkgEPDF_m_both_phipi,nBd2DsPi_both_phipi_Evts*Bd2DsPiEPDF_m_both_phipi, nBs2DsK_both_phipi_Evts*Bs2DsKEPDF_m_both_phipi, nBs2DsDsstPiRho_both_kstk_Evts*Bs2DsDsstPiRhoEPDF_m_both_kstk, nLb2LcPi_both_kstk_Evts*Lb2LcPiEPDF_m_both_kstk, nBd2DPi_both_kstk_Evts*Bd2DPiEPDF_m_both_kstk, nSig_both_kstk_Evts*SigEPDF_both_kstk, nCombBkg_both_kstk_Evts*CombBkgEPDF_m_both_kstk,nBd2DsPi_both_kstk_Evts*Bd2DsPiEPDF_m_both_kstk, nBs2DsK_both_kstk_Evts*Bs2DsKEPDF_m_both_kstk, nBs2DsDsstPiRho_both_kpipi_Evts*Bs2DsDsstPiRhoEPDF_m_both_kpipi, nLb2LcPi_both_kpipi_Evts*Lb2LcPiEPDF_m_both_kpipi, nBd2DPi_both_kpipi_Evts*Bd2DPiEPDF_m_both_kpipi, nSig_both_kpipi_Evts*SigEPDF_both_kpipi, nCombBkg_both_kpipi_Evts*CombBkgEPDF_m_both_kpipi,nBd2DsPi_both_kpipi_Evts*Bd2DsPiEPDF_m_both_kpipi,nBs2DsDsstPiRho_both_pipipi_Evts*Bs2DsDsstPiRhoEPDF_m_both_pipipi, nLb2LcPi_both_pipipi_Evts*Lb2LcPiEPDF_m_both_pipipi,nBd2DPi_both_pipipi_Evts*Bd2DPiEPDF_m_both_pipipi, nSig_both_pipipi_Evts*SigEPDF_both_pipipi, nCombBkg_both_pipipi_Evts*CombBkgEPDF_m_both_pipipi,nBd2DsPi_both_pipipi_Evts*Bd2DsPiEPDF_m_both_pipipi,nBs2DsK_both_pipipi_Evts*Bs2DsKEPDF_m_both_pipipi )")
+                print "[WARNING] plot without Bd2DRho, nBd2DstPi, Bd2DsstPi. Bd2DsPi should be included in BsDsDsstPiRho"
+                w.factory("SUM:FullPdf(nBs2DsDsstPiRho_both_nonres_Evts*Bs2DsDsstPiRhoEPDF_m_both_nonres, nLb2LcPi_both_nonres_Evts*Lb2LcPiEPDF_m_both_nonres, nBd2DPi_both_nonres_Evts*Bd2DPiEPDF_m_both_nonres, nSig_both_nonres_Evts*SigEPDF_both_nonres, nCombBkg_both_nonres_Evts*CombBkgEPDF_m_both_nonres,nBs2DsK_both_nonres_Evts*Bs2DsKEPDF_m_both_nonres, nBs2DsDsstPiRho_both_phipi_Evts*Bs2DsDsstPiRhoEPDF_m_both_phipi, nLb2LcPi_both_phipi_Evts*Lb2LcPiEPDF_m_both_phipi, nBd2DPi_both_phipi_Evts*Bd2DPiEPDF_m_both_phipi, nSig_both_phipi_Evts*SigEPDF_both_phipi, nCombBkg_both_phipi_Evts*CombBkgEPDF_m_both_phipi, nBs2DsK_both_phipi_Evts*Bs2DsKEPDF_m_both_phipi, nBs2DsDsstPiRho_both_kstk_Evts*Bs2DsDsstPiRhoEPDF_m_both_kstk, nLb2LcPi_both_kstk_Evts*Lb2LcPiEPDF_m_both_kstk, nBd2DPi_both_kstk_Evts*Bd2DPiEPDF_m_both_kstk, nSig_both_kstk_Evts*SigEPDF_both_kstk, nCombBkg_both_kstk_Evts*CombBkgEPDF_m_both_kstk,nBs2DsK_both_kstk_Evts*Bs2DsKEPDF_m_both_kstk, nBs2DsDsstPiRho_both_kpipi_Evts*Bs2DsDsstPiRhoEPDF_m_both_kpipi, nLb2LcPi_both_kpipi_Evts*Lb2LcPiEPDF_m_both_kpipi, nBd2DPi_both_kpipi_Evts*Bd2DPiEPDF_m_both_kpipi, nSig_both_kpipi_Evts*SigEPDF_both_kpipi, nCombBkg_both_kpipi_Evts*CombBkgEPDF_m_both_kpipi, nBs2DsK_both_kpipi_Evts*Bs2DsKEPDF_m_both_kpipi, nBs2DsDsstPiRho_both_pipipi_Evts*Bs2DsDsstPiRhoEPDF_m_both_pipipi, nLb2LcPi_both_pipipi_Evts*Lb2LcPiEPDF_m_both_pipipi,nBd2DPi_both_pipipi_Evts*Bd2DPiEPDF_m_both_pipipi, nSig_both_pipipi_Evts*SigEPDF_both_pipipi, nCombBkg_both_pipipi_Evts*CombBkgEPDF_m_both_pipipi, nBs2DsK_both_pipipi_Evts*Bs2DsKEPDF_m_both_pipipi )")
                 pullname2TS = TString("h_combData_Cut[sample==sample::both_nonres || sample==sample::both_phipi || sample==sample::both_kstk || sample==sample::both_kpipi || sample==sample::both_pipipi]")
                                  
             elif mod == "nonres":
-                print "Sample down, mode nonres"
-                w.factory("SUM:FullPdf(nBs2DsDsstPiRho_both_nonres_Evts*Bs2DsDsstPiRhoEPDF_m_both_nonres, nLb2LcPi_both_nonres_Evts*Lb2LcPiEPDF_m_both_nonres, nBd2DPi_both_nonres_Evts*Bd2DPiEPDF_m_both_nonres, nSig_both_nonres_Evts*SigEPDF_both_nonres, nCombBkg_both_nonres_Evts*CombBkgEPDF_m_both_nonres,nBd2DsPi_both_nonres_Evts*Bd2DsPiEPDF_m_both_nonres, nBd2DRho_both_nonres_Evts*Bd2DRhoEPDF_m_both_nonres, nBd2DstPi_both_nonres_Evts*Bd2DstPiEPDF_m_both_nonres,nBd2DsstPi_both_nonres_Evts*Bd2DsstPiEPDF_m_both_nonres, nBs2DsK_both_nonres_Evts*Bs2DsKEPDF_m_both_nonres)")
+                print "Sample down, mode nonres, Bd2DsPi should be included in BsDsDsstPiRho"
+                w.factory("SUM:FullPdf(nBs2DsDsstPiRho_both_nonres_Evts*Bs2DsDsstPiRhoEPDF_m_both_nonres, nLb2LcPi_both_nonres_Evts*Lb2LcPiEPDF_m_both_nonres, nBd2DPi_both_nonres_Evts*Bd2DPiEPDF_m_both_nonres, nSig_both_nonres_Evts*SigEPDF_both_nonres, nCombBkg_both_nonres_Evts*CombBkgEPDF_m_both_nonres, nBs2DsK_both_nonres_Evts*Bs2DsKEPDF_m_both_nonres)") #
                 pullname2TS = TString("h_combData_Cut[sample==sample::both_nonres]")
                                                 
             elif mod == "phipi":
-                print "Sample down, mode phipi"
-                w.factory("SUM:FullPdf(nBs2DsDsstPiRho_both_phipi_Evts*Bs2DsDsstPiRhoEPDF_m_both_phipi, nLb2LcPi_both_phipi_Evts*Lb2LcPiEPDF_m_both_phipi, nBd2DPi_both_phipi_Evts*Bd2DPiEPDF_m_both_phipi, nSig_both_phipi_Evts*SigEPDF_both_phipi, nCombBkg_both_phipi_Evts*CombBkgEPDF_m_both_phipi,nBd2DsPi_both_phipi_Evts*Bd2DsPiEPDF_m_both_phipi, nBd2DRho_both_phipi_Evts*Bd2DRhoEPDF_m_both_phipi, nBd2DstPi_both_phipi_Evts*Bd2DstPiEPDF_m_both_phipi,nBd2DsstPi_both_phipi_Evts*Bd2DsstPiEPDF_m_both_phipi, nBs2DsK_both_phipi_Evts*Bs2DsKEPDF_m_both_phipi)")
+                print "Sample down, mode phipi, Bd2DsPi should be included in BsDsDsstPiRho"
+                w.factory("SUM:FullPdf(nBs2DsDsstPiRho_both_phipi_Evts*Bs2DsDsstPiRhoEPDF_m_both_phipi, nLb2LcPi_both_phipi_Evts*Lb2LcPiEPDF_m_both_phipi, nBd2DPi_both_phipi_Evts*Bd2DPiEPDF_m_both_phipi, nSig_both_phipi_Evts*SigEPDF_both_phipi, nCombBkg_both_phipi_Evts*CombBkgEPDF_m_both_phipi, nBs2DsK_both_phipi_Evts*Bs2DsKEPDF_m_both_phipi)")
                 pullname2TS = TString("h_combData_Cut[sample==sample::both_phipi]")
                                                                 
             elif mod == "kstk":
-                print "Sample down, mode kstk"
-                w.factory("SUM:FullPdf(nBs2DsDsstPiRho_both_kstk_Evts*Bs2DsDsstPiRhoEPDF_m_both_kstk, nLb2LcPi_both_kstk_Evts*Lb2LcPiEPDF_m_both_kstk, nBd2DPi_both_kstk_Evts*Bd2DPiEPDF_m_both_kstk, nSig_both_kstk_Evts*SigEPDF_both_kstk, nCombBkg_both_kstk_Evts*CombBkgEPDF_m_both_kstk,nBd2DsPi_both_kstk_Evts*Bd2DsPiEPDF_m_both_kstk, nBd2DRho_both_kstk_Evts*Bd2DRhoEPDF_m_both_kstk, nBd2DstPi_both_kstk_Evts*Bd2DstPiEPDF_m_both_kstk,nBd2DsstPi_both_kstk_Evts*Bd2DsstPiEPDF_m_both_kstk, nBs2DsK_both_kstk_Evts*Bs2DsKEPDF_m_both_kstk)")
+                print "Sample down, mode kstk, Bd2DsPi should be included in BsDsDsstPiRho"
+                w.factory("SUM:FullPdf(nBs2DsDsstPiRho_both_kstk_Evts*Bs2DsDsstPiRhoEPDF_m_both_kstk, nLb2LcPi_both_kstk_Evts*Lb2LcPiEPDF_m_both_kstk, nBd2DPi_both_kstk_Evts*Bd2DPiEPDF_m_both_kstk, nSig_both_kstk_Evts*SigEPDF_both_kstk, nCombBkg_both_kstk_Evts*CombBkgEPDF_m_both_kstk,nBs2DsK_both_kstk_Evts*Bs2DsKEPDF_m_both_kstk)")
                 pullname2TS = TString("h_combData_Cut[sample==sample::both_kstk]")
                                                                 
             elif mod == "kpipi":
-                print "Sample down, mode kpipi"
-                w.factory("SUM:FullPdf(nBs2DsDsstPiRho_both_kpipi_Evts*Bs2DsDsstPiRhoEPDF_m_both_kpipi, nLb2LcPi_both_kpipi_Evts*Lb2LcPiEPDF_m_both_kpipi, nBd2DPi_both_kpipi_Evts*Bd2DPiEPDF_m_both_kpipi, nSig_both_kpipi_Evts*SigEPDF_both_kpipi, nCombBkg_both_kpipi_Evts*CombBkgEPDF_m_both_kpipi,nBd2DsPi_both_kpipi_Evts*Bd2DsPiEPDF_m_both_kpipi, nBd2DRho_both_kpipi_Evts*Bd2DRhoEPDF_m_both_kpipi, nBd2DstPi_both_kpipi_Evts*Bd2DstPiEPDF_m_both_kpipi,nBd2DsstPi_both_kpipi_Evts*Bd2DsstPiEPDF_m_both_kpipi,nBs2DsK_both_kpipi_Evts*Bs2DsKEPDF_m_both_kpipi )")
+                print "Sample down, mode kpipi, Bd2DsPi should be included in BsDsDsstPiRho"
+                w.factory("SUM:FullPdf(nBs2DsDsstPiRho_both_kpipi_Evts*Bs2DsDsstPiRhoEPDF_m_both_kpipi, nLb2LcPi_both_kpipi_Evts*Lb2LcPiEPDF_m_both_kpipi, nBd2DPi_both_kpipi_Evts*Bd2DPiEPDF_m_both_kpipi, nSig_both_kpipi_Evts*SigEPDF_both_kpipi, nCombBkg_both_kpipi_Evts*CombBkgEPDF_m_both_kpipi, nBs2DsK_both_kpipi_Evts*Bs2DsKEPDF_m_both_kpipi )")
                 pullname2TS = TString("h_combData_Cut[sample==sample::both_kpipi]")
                                                                 
             elif mod == "pipipi":
-                print "Sample down, mode pipipi"
-                w.factory("SUM:FullPdf(nBs2DsDsstPiRho_both_pipipi_Evts*Bs2DsDsstPiRhoEPDF_m_both_pipipi, nLb2LcPi_both_pipipi_Evts*Lb2LcPiEPDF_m_both_pipipi, nBd2DPi_both_pipipi_Evts*Bd2DPiEPDF_m_both_pipipi, nSig_both_pipipi_Evts*SigEPDF_both_pipipi, nCombBkg_both_pipipi_Evts*CombBkgEPDF_m_both_pipipi,nBd2DsPi_both_pipipi_Evts*Bd2DsPiEPDF_m_both_pipipi, nBd2DRho_both_pipipi_Evts*Bd2DRhoEPDF_m_both_pipipi, nBd2DstPi_both_pipipi_Evts*Bd2DstPiEPDF_m_both_pipipi,nBd2DsstPi_both_pipipi_Evts*Bd2DsstPiEPDF_m_both_pipipi,nBs2DsK_both_pipipi_Evts*Bs2DsKEPDF_m_both_pipipi)")
+                print "Sample down, mode pipipi, Bd2DsPi should be included in BsDsDsstPiRho"
+                w.factory("SUM:FullPdf(nBs2DsDsstPiRho_both_pipipi_Evts*Bs2DsDsstPiRhoEPDF_m_both_pipipi, nLb2LcPi_both_pipipi_Evts*Lb2LcPiEPDF_m_both_pipipi, nBd2DPi_both_pipipi_Evts*Bd2DPiEPDF_m_both_pipipi, nSig_both_pipipi_Evts*SigEPDF_both_pipipi, nCombBkg_both_pipipi_Evts*CombBkgEPDF_m_both_pipipi, nBs2DsK_both_pipipi_Evts*Bs2DsKEPDF_m_both_pipipi)")
                 pullname2TS = TString("h_combData_Cut[sample==sample::both_pipipi]")
                                                     
             
@@ -727,7 +752,6 @@ if __name__ == '__main__' :
         exit(0)
 
     dataName = TString("combData")
-#    dataName = TString("TotEPDF_mup_kkpiData")
     totName = TString("FullPdf")
     modelPDF = w.pdf( totName.Data() )
     dataset = w.data( dataName.Data() )
@@ -738,16 +762,11 @@ if __name__ == '__main__' :
         exit( 0 )
    # w.Print('v')
    # exit(0)
-#    canvas = TCanvas( 'MassCanvas', 'Mass canvas', 1200, 800 )
-#    canvas.SetTitle( 'Fit in mass' )
-#    canvas.cd()
-    
+ 
     frame_m = mass.frame() 
-    
     #frame_m.SetTitle( 'Fit in reconstructed %s mass' % bName )
     frame_m.SetTitle('')
-    #gStyle.SetOptLogy(1)
-    
+        
     frame_m.GetXaxis().SetLabelSize( 0.05 )
     frame_m.GetYaxis().SetLabelSize( 0.05 )
     frame_m.GetXaxis().SetLabelFont( 132 )
@@ -768,22 +787,24 @@ if __name__ == '__main__' :
     else:
         frame_m.GetXaxis().SetTitle('#font[12]{m(B_{s} #rightarrow D_{s}#pi) [MeV/c^{2}]}')
     frame_m.GetYaxis().SetTitle('#font[12]{Events/(10.0 [MeV/c^{2}])}')
-           
-    if plotModel : plotFitModel( modelPDF, frame_m, sam, mVarTS, mod, merge )
-    if plotData : plotDataSet( dataset, frame_m, sam, mod, ty, merge )
 
-                          
+    if plotData : plotDataSet( dataset, frame_m, sam, mod, ty, merge, Bin )
+    if plotModel : plotFitModel( modelPDF, frame_m, sam, mVarTS, mod, merge )
+    if plotData : plotDataSet( dataset, frame_m, sam, mod, ty, merge, Bin )
+
+    if ( mVarTS == "lab0_MassFitConsD_M"):
+        gStyle.SetOptLogy(1)
+                               
 
     canvas = TCanvas("canvas", "canvas", 1200, 1000)
     pad1 =  TPad("pad1","pad1",0.01,0.21,0.99,0.99)
     pad2 =  TPad("pad2","pad2",0.01,0.01,0.99,0.18)
-    #pad1.SetFillStyle(4000)
-    #pad2.SetFillStyle(4000)
     pad1.Draw()
     pad2.Draw()
 
     if mVarTS == "lab1_PIDK":
-        legend = TLegend( 0.16, 0.30, 0.35, 0.80 )
+        legend = TLegend( 0.56, 0.30, 0.85, 0.80 )
+        #legend = TLegend( 0.16, 0.30, 0.35, 0.80 )
                
     elif mVarTS == "lab2_MM":
         legend = TLegend( 0.60, 0.30, 0.85, 0.80 )
@@ -819,7 +840,8 @@ if __name__ == '__main__' :
     h1=TH1F("Bs2DsDsstPiRho","Bs2DsDsstPiRho",5,0,1)
     h1.SetFillColor(kBlue-10)
     h1.SetFillStyle(1001)
-    legend.AddEntry(h1, "B_{s}#rightarrow D_{s}^{(*)}(#pi,#rho)", "f")
+    #legend.AddEntry(h1, "B_{s}#rightarrow D_{s}^{(*)}(#pi,#rho)", "f")
+    legend.AddEntry(h1, "B_{(d,s)}#rightarrow D_{s}^{(*)}#pi", "f")
     
     h6=TH1F("Bs2DsK","Bs2DsK",5,0,1)
     h6.SetFillColor(kGreen+3)
@@ -839,8 +861,7 @@ if __name__ == '__main__' :
     h4=TH1F("B2DsDsstPiRho","B2DsDsstPiRho",5,0,1)
     h4.SetFillColor(kMagenta-2)
     h4.SetFillStyle(1001)
-    legend.AddEntry(h4, "B_{d}#rightarrow D_{(s)}^{(*)}(#pi,#rho)", "f")
-
+    #legend.AddEntry(h4, "B_{d}#rightarrow D_{(s)}^{(*)}(#pi,#rho)", "f")
                   
     h5=TH1F("Combinatorial","Combinatorial",5,0,1)
     h5.SetFillColor(kBlue-6)
@@ -853,28 +874,27 @@ if __name__ == '__main__' :
     frame_m.Draw()
     legend.Draw("same")
     pad1.Update()
+    
 
-#    Blabla = "CombBkgEPDF_m_up_kkpi,CombBkgEPDF_m_down_kkpi,CombBkgEPDF_m_up_kpipi,CombBkgEPDF_m_down_kpipi,CombBkgEPDF_m_up_pipipi,CombBkgEPDF_m_down_pipipi,Bd2DPiEPDF_m_up_kkpi,Bd2DPiEPDF_m_down_kkpi,Bd2DPiEPDF_m_up_kpipi,Bd2DPiEPDF_m_down_kpipi,Bd2DPiEPDF_m_up_pipipi,Bd2DPiEPDF_m_down_pipipi,Bd2DRhoEPDF_m_up_kkpi,Bd2DRhoEPDF_m_down_kkpi,Bd2DRhoEPDF_m_up_kpipi,Bd2DRhoEPDF_m_down_kpipi,Bd2DRhoEPDF_m_up_pipipi,Bd2DRhoEPDF_m_down_pipipi,Bd2DstPiEPDF_m_up_kkpi,Bd2DstPiEPDF_m_down_kkpi,Bd2DstPiEPDF_m_up_kpipi,Bd2DstPiEPDF_m_down_kpipi,Bd2DstPiEPDF_m_up_pipipi,Bd2DstPiEPDF_m_down_pipipi,Bd2DsstPiEPDF_m_up_kkpi,Bd2DsstPiEPDF_m_down_kkpi,Bd2DsstPiEPDF_m_up_kpipi,Bd2DsstPiEPDF_m_down_kpipi,Bd2DsstPiEPDF_m_up_pipipi,Bd2DsstPiEPDF_m_down_pipipi,Bd2DsPiEPDF_m_up_kkpi,Bd2DsPiEPDF_m_down_kkpi,Bd2DsPiEPDF_m_up_kpipi,Bd2DsPiEPDF_m_down_kpipi,Bd2DsPiEPDF_m_up_pipipi,Bd2DsPiEPDF_m_down_pipipi,Bs2DsDsstPiRhoEPDF_m_up_kkpi,Bs2DsDsstPiRhoEPDF_m_down_kkpi,Bs2DsDsstPiRhoEPDF_m_up_kpipi,Bs2DsDsstPiRhoEPDF_m_down_kpipi,Bs2DsDsstPiRhoEPDF_m_up_pipipi,Bs2DsDsstPiRhoEPDF_m_down_pipipi,SigEPDF_up_kkpi,SigEPDF_down_kkpi,SigEPDF_up_kpipi,SigEPDF_down_kpipi,SigEPDF_up_pipipi,SigEPDF_down_pipipi,Lb2LcPiEPDF_m_up_kkpi,Lb2LcPiEPDF_m_down_kkpi,Lb2LcPiEPDF_m_up_kpipi,Lb2LcPiEPDF_m_down_kpipi,Lb2LcPiEPDF_m_up_pipipi,Lb2LcPiEPDF_m_down_pipipi"
-    Blabla = "FullPdf"
-
-    #pullname2TS = TString("h_TotEPDF_mup_kkpiData")
-
+    pad2.SetLogy(0)
+    pad2.cd()
+    gStyle.SetOptLogy(0)
+            
     frame_m.Print("v")
     gStyle.SetOptLogy(0)
     
-    pullnameTS = TString("FullPdf_Norm[")+mVarTS+TString("]_Comp[")+Blabla+TString("]")
-    pullHist  = frame_m.pullHist(pullname2TS.Data(),pullnameTS.Data())
-#    pullHist  = frame_m.pullHist()
-#    pullHist.SetMaximum(5800.00)
-#    pullHist.SetMinimum(5100.00)
-    axisX = pullHist.GetXaxis()
-    axisX.Set(100,massBs_dw,massBs_up)
-    if mVarTS == "lab2_MM":
-        axisX.Set(100,1930,2015)
+    frame_m.Print("v")
     if mVarTS == "lab1_PIDK":
-        axisX.Set(100,-150,0) 
-                
+        pullnameTS = TString("FullPdf_Int[lab0_MassFitConsD_M,lab2_MM]_Norm[lab0_MassFitConsD_M,lab1_PIDK,lab2_MM]_Comp[FullPdf]")
+    elif mVarTS == "lab2_MM":
+        pullnameTS = TString("FullPdf_Int[lab0_MassFitConsD_M,lab1_PIDK]_Norm[lab0_MassFitConsD_M,lab1_PIDK,lab2_MM]_Comp[FullPdf]")
+    else:
+        pullnameTS = TString("FullPdf_Int[lab1_PIDK,lab2_MM]_Norm[lab0_MassFitConsD_M,lab1_PIDK,lab2_MM]_Comp[FullPdf]")
         
+    pullHist  = frame_m.pullHist(pullname2TS.Data(),pullnameTS.Data())
+    axisX = pullHist.GetXaxis()
+    axisX.Set(Bin.numBins(), Bin.array()) #100,range_dw,range_up)
+         
     axisY = pullHist.GetYaxis()
     max = axisY.GetXmax()
     min = axisY.GetXmin()
@@ -886,68 +906,41 @@ if __name__ == '__main__' :
     range = max-min
     zero = max/range
     print "max: %s, min: %s, range: %s, zero:%s"%(max,min,range,zero)
-    #line = TLine(0.11,0.31,0.99,0.20)
+    
     graph = TGraph(2)
     graph.SetMaximum(max)
     graph.SetMinimum(min)
-    graph.SetPoint(1,massBs_dw,0)
-    graph.SetPoint(2,massBs_up,0)
-    if mVarTS == "lab2_MM":
-        graph.SetPoint(1,1930,0)
-        graph.SetPoint(2,2015,0)
-    if mVarTS == "lab1_PIDK":
-        graph.SetPoint(1,-150.0,0) 
-        graph.SetPoint(2,0.0,0) 
-                            
+    graph.SetPoint(1,range_dw,0)
+    graph.SetPoint(2,range_up,0)
+                               
     graph2 = TGraph(2)
     graph2.SetMaximum(max)
     graph2.SetMinimum(min)
-    graph2.SetPoint(1,massBs_dw,-3)
-    graph2.SetPoint(2,massBs_up,-3)
-    if mVarTS == "lab2_MM":
-        graph2.SetPoint(1,1930,-3)
-        graph2.SetPoint(2,2015,-3)
-    if mVarTS == "lab1_PIDK":
-        graph2.SetPoint(1,-150.0,-3) 
-        graph2.SetPoint(2,0.0,-3) 
+    graph2.SetPoint(1,range_dw,-3)
+    graph2.SetPoint(2,range_up,-3)
     graph2.SetLineColor(kRed)
+
     graph3 = TGraph(2)
     graph3.SetMaximum(max)
     graph3.SetMinimum(min)
-    graph3.SetPoint(1,massBs_dw,3)
-    graph3.SetPoint(2,massBs_up,3)
-    if mVarTS == "lab2_MM":
-        graph3.SetPoint(1,1930,3)
-        graph3.SetPoint(2,2015,3)
-    if mVarTS == "lab1_PIDK":
-        graph3.SetPoint(1,-150,3) 
-        graph3.SetPoint(2,0,3) 
-                
+    graph3.SetPoint(1,range_dw,3)
+    graph3.SetPoint(2,range_up,3)
     graph3.SetLineColor(kRed)
-
 
     pullHist.GetXaxis().SetLabelFont( 132 )
     pullHist.GetYaxis().SetLabelFont( 132 )
-        
     pullHist.SetTitle("")
-    #pullHist.GetXaxis().SetLabelSize( 0.12 )
-    #pullHist.GetXaxis().SetTitleSize( 0.06 )
-    #pullHist.GetXaxis().SetTitleOffset( 1.2 )
-    #pullHist.GetXaxis().SetTitle('#font[12]{m(B_{s} #rightarrow D_{s}#pi) [MeV/c^{2}]}')
-    #size = pullHist.GetXaxis().GetTitleSize()
-    #print size
+    
 
     #tex = TLatex()
     #tex.SetTextSize(0.12)
 
-    pad2.cd()
     pullHist.Draw("ap")
     graph.Draw("same")
     graph2.Draw("same")
     graph3.Draw("same")
     #tex.DrawLatex(0.50,0.30,"m(B_{s} #rightarrow D_{s}#pi) [MeV/c^{2}]")
          
-    #line.Draw()
     pad2.Update()
     canvas.Update()
                                                                                 

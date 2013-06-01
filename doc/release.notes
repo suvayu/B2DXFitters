@@ -4,6 +4,20 @@
 ! Purpose     : RooFit-based fitters for B -> D X
 !-----------------------------------------------------------------------------
 
+! 2013-06-01 - Agnieszka Dziurda
+ - update MDFitter to the files:
+   . fitSignal.py, plotSignal.py - minor changes
+   . fitCombBkg.py, plotCombBkg.py - minor changes
+   . plotBs2DsXMassModels5M.py - minor changes
+   . fitBdDPi.py - the last version of BDPi fitter
+   . fitLbLcPiDs.py, plotLbLcPiDs.py - add scripts which fit Lc under Ds.
+   . update config files:
+     . config_ExpectedEvents.txt
+     . config_LbLcPi.txt
+     . config_fitCombBkg.txt
+     . config_fitSignal.txt
+     . config_B2DPi.txt
+
 ! 2013-05-31 - Agnieszka Dziurda
  - update MDFitter:
    . Final version of MD Fitter
@@ -11,6 +25,8 @@
    . Combinatorial background for DPi and DsPi: double expo with one flat expo
    . Mix yield from misID: LcK, DK, LcPi, DPi, DsPi, DK
    . Move to RooBinned1DQuinticBase for signal PID shapes
+     . for DsPi change strategy: fit -PIDK
+   . final version of MassFitUtils::ExpectedEvents(...)
    . Small others improvements    
  - update 1D DsPi fitter possible to use 
 

@@ -15,9 +15,9 @@ DecayTree;1
 ###
 
 #Signal BDPi KPiPi
-/afs/cern.ch/work/a/adudziak/public/MCMarch2013/
-MergedTree_Bd2DPi_D2KPiPi_BdHypo_BDTG.root
-MergedTree_Bd2DPi_D2KPiPi_BdHypo_BDTG.root
+/afs/cern.ch/work/g/gligorov/public/Bs2DsKFitTuples/DV_v33r1/MC11a/AfterOfflineSel/
+Bd2DPi_D2KPiPi_BdHypo_DPi_OffSel_BDTG.root
+Bd2DPi_D2KPiPi_BdHypo_DPi_OffSel_BDTG.root
 DecayTree;1
 DecayTree;1
 ###
@@ -31,29 +31,47 @@ DecayTree;1
 DecayTree;1
 ###
 
-#Signal BsDsPi KKPi
-/afs/cern.ch/work/a/adudziak/public/MCMarch2013/
-MergedTree_Bs2DsPi_Ds2KKPi_BsHypo_BDTG.root
-MergedTree_Bs2DsPi_Ds2KKPi_BsHypo_BDTG.root
+#Signal BsDsPi KstK
+/afs/cern.ch/work/g/gligorov/public/Bs2DsKFitTuples/DV_v33r1/MC11a/AfterOfflineSel/
+Bs2DsPi_Ds2KKPi_BsHypo_DsPi_KKPi_KstK_OffSel_BDTG.root
+Bs2DsPi_Ds2KKPi_BsHypo_DsPi_KKPi_KstK_OffSel_BDTG.root
 DecayTree;1
 DecayTree;1
 ###
 
+#Signal BsDsPi PhiPi
+/afs/cern.ch/work/g/gligorov/public/Bs2DsKFitTuples/DV_v33r1/MC11a/AfterOfflineSel/
+Bs2DsPi_Ds2KKPi_BsHypo_DsPi_KKPi_PhiPi_OffSel_BDTG.root
+Bs2DsPi_Ds2KKPi_BsHypo_DsPi_KKPi_PhiPi_OffSel_BDTG.root
+DecayTree;1
+DecayTree;1
+###
+
+#Signal BsDsPi NonRes
+/afs/cern.ch/work/g/gligorov/public/Bs2DsKFitTuples/DV_v33r1/MC11a/AfterOfflineSel/
+Bs2DsPi_Ds2KKPi_BsHypo_DsPi_KKPi_NonRes_OffSel_BDTG.root
+Bs2DsPi_Ds2KKPi_BsHypo_DsPi_KKPi_NonRes_OffSel_BDTG.root
+DecayTree;1
+DecayTree;1
+###
+
+
 #Signal BsDsPi KPiPi
-/afs/cern.ch/work/a/adudziak/public/MCMarch2013/
-MergedTree_Bs2DsPi_Ds2KPiPi_BsHypo_BDTG.root
-MergedTree_Bs2DsPi_Ds2KPiPi_BsHypo_BDTG.root
+/afs/cern.ch/work/g/gligorov/public/Bs2DsKFitTuples/DV_v33r1/MC11a/AfterOfflineSel/
+Bs2DsPi_Ds2KPiPi_BsHypo_DsPi_KPiPi_OffSel_BDTG.root
+Bs2DsPi_Ds2KPiPi_BsHypo_DsPi_KPiPi_OffSel_BDTG.root
 DecayTree;1
 DecayTree;1
 ###
 
 #Signal BsDsPi PiPiPi
-/afs/cern.ch/work/a/adudziak/public/MCMarch2013/
-MergedTree_Bs2DsPi_Ds2PiPiPi_BsHypo_BDTG.root
-MergedTree_Bs2DsPi_Ds2PiPiPi_BsHypo_BDTG.root
+/afs/cern.ch/work/g/gligorov/public/Bs2DsKFitTuples/DV_v33r1/MC11a/AfterOfflineSel/
+Bs2DsPi_Ds2PiPiPi_BsHypo_DsPi_PiPiPi_OffSel_BDTG.root
+Bs2DsPi_Ds2PiPiPi_BsHypo_DsPi_PiPiPi_OffSel_BDTG.root
 DecayTree;1
 DecayTree;1
 ###
+
 
 #Signal BsDsstPi
 /afs/cern.ch/work/a/adudziak/public/
@@ -71,31 +89,50 @@ DecayTree;1
 DecayTree;1
 ###
 
-#Signal BsDsK KKPi
-/afs/cern.ch/work/a/adudziak/public/MCMarch2013/
-MergedTree_Bs2DsK_Ds2KKPi_BsHypo_BDTG.root
-MergedTree_Bs2DsK_Ds2KKPi_BsHypo_BDTG.root
+#Signal BsDsK KstK
+/afs/cern.ch/work/g/gligorov/public/Bs2DsKFitTuples/DV_v33r1/MC11a/AfterOfflineSel/
+Bs2DsK_Ds2KKPi_BsHypo_DsK_KKPi_KstK_OffSel_BDTG.root
+Bs2DsK_Ds2KKPi_BsHypo_DsK_KKPi_KstK_OffSel_BDTG.root
 DecayTree;1
 DecayTree;1
 ###
 
+#Signal BsDsK PhiPi
+/afs/cern.ch/work/g/gligorov/public/Bs2DsKFitTuples/DV_v33r1/MC11a/AfterOfflineSel/
+Bs2DsK_Ds2KKPi_BsHypo_DsK_KKPi_PhiPi_OffSel_BDTG.root
+Bs2DsK_Ds2KKPi_BsHypo_DsK_KKPi_PhiPi_OffSel_BDTG.root
+DecayTree;1
+DecayTree;1
+###
+
+#Signal BsDsK NonRes
+/afs/cern.ch/work/g/gligorov/public/Bs2DsKFitTuples/DV_v33r1/MC11a/AfterOfflineSel/
+Bs2DsK_Ds2KKPi_BsHypo_DsK_KKPi_NonRes_OffSel_BDTG.root
+Bs2DsK_Ds2KKPi_BsHypo_DsK_KKPi_NonRes_OffSel_BDTG.root
+DecayTree;1
+DecayTree;1
+###
+
+
 #Signal BsDsK KPiPi
-/afs/cern.ch/work/a/adudziak/public/MCMarch2013/
-MergedTree_Bs2DsK_Ds2KPiPi_BsHypo_BDTG.root
-MergedTree_Bs2DsK_Ds2KPiPi_BsHypo_BDTG.root
+/afs/cern.ch/work/g/gligorov/public/Bs2DsKFitTuples/DV_v33r1/MC11a/AfterOfflineSel/
+Bs2DsK_Ds2KPiPi_BsHypo_DsK_KPiPi_OffSel_BDTG.root
+Bs2DsK_Ds2KPiPi_BsHypo_DsK_KPiPi_OffSel_BDTG.root
 DecayTree;1
 DecayTree;1
 ###
 
 #Signal BsDsK PiPiPi
-/afs/cern.ch/work/a/adudziak/public/MCMarch2013/
-MergedTree_Bs2DsK_Ds2PiPiPi_BsHypo_BDTG.root
-MergedTree_Bs2DsK_Ds2PiPiPi_BsHypo_BDTG.root
+/afs/cern.ch/work/g/gligorov/public/Bs2DsKFitTuples/DV_v33r1/MC11a/AfterOfflineSel/
+Bs2DsK_Ds2PiPiPi_BsHypo_DsK_PiPiPi_OffSel_BDTG.root
+Bs2DsK_Ds2PiPiPi_BsHypo_DsK_PiPiPi_OffSel_BDTG.root
 DecayTree;1
 DecayTree;1
 ###
 
-#Signal BdDsK
+
+
+Signal BdDsK
 /afs/cern.ch/work/a/adudziak/public/
 Merged_Bd2DsK_Ds2KKPi_MD_BsHypo_BDTG.root
 Merged_Bd2DsK_Ds2KKPi_MU_BsHypo_BDTG.root

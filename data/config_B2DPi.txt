@@ -14,6 +14,15 @@ DecayTree
 DecayTree
 ###
 
+#BdPi NoVeto
+/afs/cern.ch/work/g/gligorov/public/Bs2DsKFitTuples/DV_v33r1/SmallTuples/
+DPi_KPiPi_MD_BDTG_NoVetos_MINI.root
+DPi_KPiPi_MU_BDTG_NoVetos_MINI.root
+DecayTree
+DecayTree
+###
+
+
 #BdPi WS
 /afs/cern.ch/work/g/gligorov/public/Bs2DsKFitTuples/DV_v33r1/SmallTuples/
 DPi_WS_MD_BDTG_MINI.root
@@ -88,7 +97,6 @@ DecayTree;1
 DecayTree;1
 ###
 
-
 #MC FileName MD
 /afs/cern.ch/work/a/adudziak/public/Merged_Bd2DK_D2KPiPi_MD_BdHypo_BDTG.root
 /afs/cern.ch/work/a/adudziak/public/Merged_Bs2DsPi_Ds2KKPi_MD_BdHypo_BDTG.root
@@ -106,6 +114,43 @@ DecayTree;1
 ###
 
 #MC TreeName
+DecayTree;1
+DecayTree;1
+DecayTree;1
+DecayTree;1
+DecayTree;1
+###
+
+
+#MC FileName MD old
+/afs/cern.ch/work/a/adudziak/public/Merged_Bd2DK_D2KPiPi_MD_BdHypo_BDTG.root
+/afs/cern.ch/work/a/adudziak/public/Merged_Bs2DsPi_Ds2KKPi_MD_BdHypo_BDTG.root
+/afs/cern.ch/work/a/adudziak/public/Merged_Lb2LcPi_Lc2pKPi_MD_BdHypo_BDTG.root
+/afs/cern.ch/work/a/adudziak/public/Merged_Bd2DRho_D2KPiPi_MD_BdHypo_BDTG.root
+/afs/cern.ch/work/a/adudziak/public/Merged_Bd2DstPi_Dst2D-Pi0_MD_BdHypo_BDTG.root
+/afs/cern.ch/work/a/adudziak/public/Merged_Bd2DKst_D2KPiPi_MD_BdHypo_BDTG.root
+/afs/cern.ch/work/a/adudziak/public/Merged_Bd2DstK_Dst2D-Pi0_MD_BdHypo_BDTG.root
+/afs/cern.ch/work/a/adudziak/public/Merged_Bs2DsRho_Ds2KKPi_MD_BdHypo_BDTG.root
+/afs/cern.ch/work/a/adudziak/public/Merged_Bs2DsstPi_Ds2KKPi_MD_BdHypo_BDTG.root
+###
+
+#MC FileName MU old
+/afs/cern.ch/work/a/adudziak/public/Merged_Bd2DK_D2KPiPi_MU_BdHypo_BDTG.root
+/afs/cern.ch/work/a/adudziak/public/Merged_Bs2DsPi_Ds2KKPi_MU_BdHypo_BDTG.root
+/afs/cern.ch/work/a/adudziak/public/Merged_Lb2LcPi_Lc2pKPi_MU_BdHypo_BDTG.root
+/afs/cern.ch/work/a/adudziak/public/Merged_Bd2DRho_D2KPiPi_MU_BdHypo_BDTG.root
+/afs/cern.ch/work/a/adudziak/public/Merged_Bd2DstPi_Dst2D-Pi0_MU_BdHypo_BDTG.root
+/afs/cern.ch/work/a/adudziak/public/Merged_Bd2DKst_D2KPiPi_MU_BdHypo_BDTG.root
+/afs/cern.ch/work/a/adudziak/public/Merged_Bd2DstK_Dst2D-Pi0_MU_BdHypo_BDTG.root
+/afs/cern.ch/work/a/adudziak/public/Merged_Bs2DsRho_Ds2KKPi_MU_BdHypo_BDTG.root
+/afs/cern.ch/work/a/adudziak/public/Merged_Bs2DsstPi_Ds2KKPi_MU_BdHypo_BDTG.root
+###
+
+#MC TreeName old
+DecayTree;1
+DecayTree;1
+DecayTree;1
+DecayTree;1
 DecayTree;1
 DecayTree;1
 DecayTree;1

@@ -55,7 +55,7 @@ parser.add_option( '-m', '--sample',
 
 parser.add_option( '-v', '--variable',
                    dest = 'var',
-                   default = 'lab0_MassFitConsD_M',
+                   default = 'lab0_MassHypo_LcPi_LambdaFav',
                    help = 'set observable '
                    )
 parser.add_option( '--mode',
@@ -118,9 +118,10 @@ def plotFitModel( model, frame, sam, var, merge) :
     nameTot = TString("FullPdf")
     if sam == "both":
         if merge == True:
-            nameSig1 = TString("CombBkgEPDF_both")
-            nameSig2 = TString("CombBkgEPDF_both")
-                            
+            nameComb1 = TString("CombBkgEPDF_both")
+            nameComb2 = TString("CombBkgEPDF_both")
+            nameSig1  = TString("SignalEPDF_both")
+            nameSig2  = TString("SignalEPDF_both") 
         else:
             nameSig1 = TString("CombBkgEPDF_down,CombBkgEPDF_up")
             nameSig2 = TString("CombBkgEPDF_down,CombBkgEPDF_up")
@@ -138,14 +139,34 @@ def plotFitModel( model, frame, sam, var, merge) :
         print "[ERROR] Wrong sample"
         exit(0)
                 
-    
-        
+
+
     model.plotOn( frame,
-                  RooFit.Components(nameSig1.Data()),
+                  RooFit.Components(nameTot.Data()),
                   RooFit.LineColor(kBlue+2),
                   RooFit.LineWidth(4),
                   RooFit.Normalization( 1., RooAbsReal.RelativeExpected )
                   )
+
+    
+    model.plotOn( frame,
+                  RooFit.Components(nameComb1.Data()),
+                  RooFit.DrawOption("F"),
+                  RooFit.FillStyle(1001),
+                  RooFit.FillColor(kOrange),
+                  RooFit.Normalization( 1., RooAbsReal.RelativeExpected )
+                  )
+    
+    model.plotOn( frame,
+                  RooFit.Components(nameSig1.Data()),
+                  RooFit.LineColor(kRed),
+                  RooFit.LineStyle(kDashed),
+                  RooFit.LineWidth(4),
+                  RooFit.Normalization( 1., RooAbsReal.RelativeExpected )
+                  )
+    
+    
+    
     ''' 
     model.plotOn( frame,
                   RooFit.Components(nameSig2.Data()),
@@ -206,16 +227,10 @@ if __name__ == '__main__' :
         sufixTS = TString("_")+sufixTS
                 
     
-    if mode == "BDPi":
-        Bmass_down = 5550
-        Bmass_up = 7000
-        Dmass_down = 1830 
-        Dmass_up = 1920         
-    else:
-        Bmass_down = 5600
-        Bmass_up = 7000
-        Dmass_down = 1930
-        Dmass_up = 2015
+    Bmass_down = 5500
+    Bmass_up = 6000
+    Dmass_down = 1830 
+    Dmass_up = 1920         
 
     if sam == "up":
         print "Sample up"
@@ -231,7 +246,7 @@ if __name__ == '__main__' :
         print merge
         if merge == True:
             print "Sample both with merge"
-            w.factory("SUM:FullPdf(nCombBkgEvts_both*CombBkgEPDF_both)")
+            w.factory("SUM:FullPdf(nCombBkg_both*CombBkgEPDF_both, nSignal_both*SignalEPDF_both)")
             pullname2TS = TString("h_combData_Cut[sample==sample::both]")
             pullname3TS = TString("CombBkgEPDF_both")
         else:
@@ -253,33 +268,20 @@ if __name__ == '__main__' :
         w.Print( 'v' )
         exit( 0 )
     
-    if ( mVarTS == "lab2_MM" ):
-        mass.setRange(Dmass_down,Dmass_up)
-    else:
-        mass.setRange(Bmass_down,Bmass_up)
+    mass.setRange(Bmass_down,Bmass_up)
     frame_m = mass.frame()
     
     frame_m.SetTitle('') 
     
     frame_m.GetXaxis().SetLabelSize( 0.03 )
     frame_m.GetYaxis().SetLabelSize( 0.03 )
-    if ( mVarTS == "lab2_MM" ):
-        if ( mode == "BDPi" ):
-            frame_m.GetXaxis().SetTitle("m(D) [MeV/c^{2}]")
-        else:
-            frame_m.GetXaxis().SetTitle("m(D_{s}) [MeV/c^{2}]")
-    else:    
-       if ( mode == "BDPi" ):
-           frame_m.GetXaxis().SetTitle("m(B_{d}) [MeV/c^{2}]")
-       else:
-           frame_m.GetXaxis().SetTitle("m(B_{s}) [MeV/c^{2}]")
+    frame_m.GetXaxis().SetTitle("m(#Lambda_{b}) [MeV/c^{2}]")
            
     frame_m.GetYaxis().SetTitleFont( 132 )
     frame_m.GetYaxis().SetLabelFont( 132 ) 
     frame_m.SetLabelFont(132)
     frame_m.SetTitleFont(132)
-
-    if plotData : plotDataSet( dataset, frame_m, sam, merge )       
+           
     if plotModel : plotFitModel( modelPDF, frame_m, sam, mVarTS, merge )
     if plotData : plotDataSet( dataset, frame_m, sam, merge )
 
@@ -290,11 +292,16 @@ if __name__ == '__main__' :
     legend.SetHeader("LHCb L_{int}=1fb^{-1}")
    
     l1 = TLine()
-    l1.SetLineColor(kBlue+2)
+    l1.SetLineColor(kRed)
     l1.SetLineWidth(4)
-    l1.SetLineStyle(kSolid)
-    legend.AddEntry(l1, "Combinatorial", "L")
-        
+    l1.SetLineStyle(kDashed)
+    legend.AddEntry(l1, "Signal", "L")
+
+    h1=TH1F("Combinatorial","Combinatorial",5,0,1)
+    h1.SetFillColor(kOrange)
+    h1.SetFillStyle(1001)
+    legend.AddEntry(h1, "Combinatorial", "f")
+    
     
     canvas = TCanvas("canvas", "canvas", 600, 700)
     pad1 =  TPad("pad1","pad1",0.01,0.21,0.99,0.99)
@@ -307,7 +314,8 @@ if __name__ == '__main__' :
     pad1.Update()
 
     frame_m.Print("v")
-    pullnameTS = TString("FullPdf_Norm[")+mVarTS+TString("]_Comp[")+pullname3TS+TString("]")
+    pullnameTS = TString("FullPdf_Norm[")+mVarTS+TString("]_Comp[FullPdf]")
+#TString("FullPdf_Norm[")+mVarTS+TString("]_Comp[")+pullname3TS+TString("]")
     pullHist  = frame_m.pullHist(pullname2TS.Data(),pullnameTS.Data())
     pullHist.SetTitle("")
     
@@ -318,11 +326,8 @@ if __name__ == '__main__' :
         gStyle.SetOptLogy(0)
             
     axisX = pullHist.GetXaxis()
-    if ( mVarTS == "lab0_MassFitConsD_M" ):
-        axisX.Set(100,Bmass_down,Bmass_up)
-    else:
-        axisX.Set(100,Dmass_down,Dmass_up)
-    
+    axisX.Set(100,Bmass_down,Bmass_up)
+        
     axisY = pullHist.GetYaxis()
     max = axisY.GetXmax()
     min = axisY.GetXmin()
@@ -330,34 +335,22 @@ if __name__ == '__main__' :
     graph = TGraph(2)
     graph.SetMaximum(max)
     graph.SetMinimum(min)
-    if ( mVarTS == "lab0_MassFitConsD_M" ):
-        graph.SetPoint(1,Bmass_down,0)
-        graph.SetPoint(2,Bmass_up,0)
-    else:    
-        graph.SetPoint(1,Dmass_down,0)
-        graph.SetPoint(2,Dmass_up,0)
-        
+    graph.SetPoint(1,Bmass_down,0)
+    graph.SetPoint(2,Bmass_up,0)
+            
     graph2 = TGraph(2)
     graph2.SetMaximum(max)
     graph2.SetMinimum(min)
-    if ( mVarTS == "lab0_MassFitConsD_M" ):
-        graph2.SetPoint(1,Bmass_down,-3)
-        graph2.SetPoint(2,Bmass_up,-3)
-    else:    
-        graph2.SetPoint(1,Dmass_down,-3)
-        graph2.SetPoint(2,Dmass_up,-3)
-        
+    graph2.SetPoint(1,Bmass_down,-3)
+    graph2.SetPoint(2,Bmass_up,-3)
+            
     graph2.SetLineColor(kRed)
     graph3 = TGraph(2)
     graph3.SetMaximum(max)
     graph3.SetMinimum(min)
-    if ( mVarTS == "lab0_MassFitConsD_M" ):
-        graph3.SetPoint(1,Bmass_down,3)
-        graph3.SetPoint(2,Bmass_up,3)
-    else:
-        graph3.SetPoint(1,Dmass_down,3)
-        graph3.SetPoint(2,Dmass_up,3)
-        
+    graph3.SetPoint(1,Bmass_down,3)
+    graph3.SetPoint(2,Bmass_up,3)
+            
     graph3.SetLineColor(kRed)
                                                                  
 
@@ -378,9 +371,9 @@ if __name__ == '__main__' :
     canvas.Update()
     t = TString("_")
 
-    canName = TString("mass_CombBkg_")+mode+t+mVarTS+t+sam+sufixTS+TString(".pdf")
-    canNameROOT = TString("mass_CombBkg_")+mode+t+mVarTS+t+sam+sufixTS+TString(".root")
-    canNamePng = TString("mass_CombBkg_")+mode+t+mVarTS+t+sam+sufixTS+TString(".png")
+    canName = TString("mass_LbLcPi")+sufixTS+TString(".pdf")
+    canNameROOT = TString("mass_LbLcPi")+sufixTS+TString(".root")
+    canNamePng = TString("mass_LbLcPi")+sufixTS+TString(".png")
     canvas.Print(canName.Data())
     canvas.Print(canNameROOT.Data())
     canvas.Print(canNamePng.Data())

@@ -222,7 +222,7 @@ if __name__ == '__main__' :
         Dmass_down = 1830 
         Dmass_up = 1920         
     else:
-        Bmass_down = 5100
+        Bmass_down = 5000
         Bmass_up = 5600
         Dmass_down = 1930
         Dmass_up = 2015

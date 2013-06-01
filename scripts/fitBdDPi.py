@@ -52,7 +52,7 @@ Pcut_up = 650000.0
 Dmass_down = 1830
 Dmass_up = 1910 #900
 Bmass_down = 5000
-Bmass_up = 6000
+Bmass_up = 5600
 tagOmega = false
 
 dataName      = '../data/config_B2DPi.txt'
@@ -123,8 +123,7 @@ def fitB2DPi( debug, var,
     #saveNameTS = TString("work_dpi_")+BDTGTS+TString(".root")
     #GeneralUtils.SaveWorkspace(workspace,saveNameTS, debug)
     #exit(0)
-                
-    '''
+    
     workspace = MassFitUtils.ObtainSpecBack(dataTS, TString("#MC FileName MD"), TString("#MC TreeName"),
                                             PIDcut, PIDchild, PIDproton,
                                             Pcut_down,Pcut_up,
@@ -156,12 +155,12 @@ def fitB2DPi( debug, var,
                                                      
                                                      
     workspace.Print()
-    saveNameTS = TString("work_dpi_")+BDTGTS+TString("_2.root")
+    saveNameTS = TString("work_dpi_")+BDTGTS+TString("_5600.root")
     GeneralUtils.SaveWorkspace(workspace,saveNameTS, debug)
-    exit(0)
-    '''
+    #exit(0)
     
-    loadNameTS = TString("work_dpi_")+BDTGTS+TString("_2.root")
+    
+    loadNameTS = TString("work_dpi_")+BDTGTS+TString("_5600.root")
     workDK = GeneralUtils.LoadWorkspace(loadNameTS,TString("workspace"),debug)
 
     obsTS = TString(var)
@@ -344,6 +343,9 @@ def fitB2DPi( debug, var,
                               RooFit.Import(sample[0].Data(),data[0]),
                               RooFit.Import(sample[1].Data(),data[1]))
 
+
+    ny = TString("combData")    
+    GeneralUtils.SaveDataSet(combData, mass, sample[0], ny, true)    
     totPDFsim = RooSimultaneous("simPdf","simultaneous pdf",sam)
     bkgPDF1 = []
     bkgPDF2 = []
@@ -413,17 +415,17 @@ def fitB2DPi( debug, var,
     
     for i in range(0,ran):
         if MD:
-            cB.append(RooRealVar("cB","coefficient #2", myconfigfile[cB1Name.Data()][index], -0.01, 0.0)) 
-            bkgBPDF1.append(RooExponential("expB", "expB" , massB, cB[i]))
+            cB.append(RooRealVar("cB","coefficient #2", 5*myconfigfile[cB1Name.Data()][index], -0.1, 0.0)) 
+            bkgBPDF.append(RooExponential("expB", "expB" , massB, cB[i]))
 
-            cB2.append(RooRealVar("cB2","coefficient #2", 0.0)) #myconfigfile[cB2Name.Data()][index], -0.01, 0.0))
+            cB2.append(RooRealVar("cB2","coefficient #2", myconfigfile[cB2Name.Data()][index], -0.01, 0.0))
             bkgBPDF2.append(RooExponential("expB2", "expB2" , massB, cB2[i]))
 
             fracbkg2.append(RooRealVar("fracComb2","fracComb2", myconfigfile[fracCombBName.Data()][index], 0.0, 1.0))
-            bkgBPDF.append(RooAddPdf("bkgBAddPdf","bkgBAddPdf",bkgBPDF1[i], bkgBPDF2[i], fracbkg2[i]))                                    
+            #bkgBPDF.append(RooAddPdf("bkgBAddPdf","bkgBAddPdf",bkgBPDF1[i], bkgBPDF2[i], fracbkg2[i]))                                    
             
             fracbkg.append(RooRealVar("fracComb","fracComb", myconfigfile[fracCombDName.Data()][index])) 
-            cD.append(RooRealVar("cD","coefficient #2", myconfigfile[cDName.Data()][index], -0.01, 0.0))  
+            cD.append(RooRealVar("cD","coefficient #2", myconfigfile[cDName.Data()][index])) #, -0.01, 0.0))  
             bkgDPDF1.append(RooExponential("expD", "expB" , massD, cD[i]))
             
             bkgDPDF.append(RooAddPdf("bkgDAddPdf","bkgAddPdf",bkgDPDF1[i], sigDPDF[i], fracbkg[i]))
@@ -481,12 +483,12 @@ def fitB2DPi( debug, var,
             nBkgX.append(RooRealVar(nameBkgX.Data() , nameBkgX.Data(),0))
                                         
         if ( DRho == true):
-            nBd2DRho.append(RooRealVar(nameBd2DRho.Data() , nameBd2DRho.Data(), nEntries[i]/6, 0, nEntries[i] ))
+            nBd2DRho.append(RooRealVar(nameBd2DRho.Data() , nameBd2DRho.Data(), nEntries[i]/6, 0, nEntries[i]))
         else:
             nBd2DRho.append(RooRealVar(nameBd2DRho.Data() , nameBd2DRho.Data(),0))
             
         if ( DRho == true):
-            nBd2DstPi.append(RooRealVar(nameBd2DstPi.Data() , nameBd2DstPi.Data(), nEntries[i]/4, 0, nEntries[i] ))
+            nBd2DstPi.append(RooRealVar(nameBd2DstPi.Data() , nameBd2DstPi.Data(), nEntries[i]/4, 0, nEntries[i]))
         else:
             nBd2DstPi.append(RooRealVar(nameBd2DstPi.Data() , nameBd2DstPi.Data(),0))
             

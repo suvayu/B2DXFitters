@@ -120,13 +120,13 @@ def fitCombBkg( debug, var , mode, modeDs, merge, BDTG, configName, WS) :
         tagOmegaVarTS = TString("lab0_BdTaggingTool_TAGOMEGA_OS")
         Dmass_down = 1830 #1930
         Dmass_up = 1920 #2015
-        Bmass_down = 5400
+        Bmass_down = 5550
         Bmass_up = 7000
     else:
         modeDsTS=TString(modeDs)
         Dmass_down = 1930
         Dmass_up = 2015
-        Bmass_down = 5800
+        Bmass_down = 5600
         Bmass_up = 7000
 
     if ( modeDsTS == "NonRes" or modeDsTS == "KstK" or modeDsTS == "PhiPi" or modeDsTS == "All"):
@@ -263,7 +263,7 @@ def fitCombBkg( debug, var , mode, modeDs, merge, BDTG, configName, WS) :
         
     c2Var =  RooRealVar( "c2Var", "c2Var",  c2,  -0.1,  0, "MeV/c^{2}")
     frac2Var   =  RooRealVar( "frac2",   "frac2",    0.5, 0.0, 1.0)
-    c1Var =  RooRealVar( "c1Var", "c1Var",  c,  -0.1,  0, "MeV/c^{2}")
+    c1Var =  RooRealVar( "c1Var", "c1Var", 0.0) #-0.1,  0, "MeV/c^{2}")
               
     
     nSigEvts = []
@@ -287,11 +287,11 @@ def fitCombBkg( debug, var , mode, modeDs, merge, BDTG, configName, WS) :
             sigPDF.append(RooAddPdf(nameAdd.Data(), nameAdd.Data(), sigPDF1[i], sigPDF2[i], frac2Var))
         else:
             nameExp = TString("Exp1")
-            sigPDF.append(RooExponential(nameExp.Data(), nameExp.Data(), mass, c1Var))
+            sigPDF1.append(RooExponential(nameExp.Data(), nameExp.Data(), mass, c1Var))
             nameExp = TString("Exp2")
             sigPDF2.append(RooExponential(nameExp.Data(), nameExp.Data(), mass, c2Var))
             nameAdd = TString("Add")
-            #sigPDF.append(RooAddPdf(nameAdd.Data(), nameAdd.Data(), sigPDF1[i], sigPDF2[i], frac2Var))
+            sigPDF.append(RooAddPdf(nameAdd.Data(), nameAdd.Data(), sigPDF1[i], sigPDF2[i], frac2Var))
                         
         nameEPDF = TString("CombBkgEPDF_")+sample[i]
         sigEPDF.append(RooExtendPdf( nameEPDF.Data() , nameEPDF.Data(), sigPDF[i]  , nSig[i]  ))

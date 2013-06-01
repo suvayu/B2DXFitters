@@ -1,0 +1,32 @@
+#LbLcPi KKPi NonRes
+/afs/cern.ch/work/g/gligorov/public/Bs2DsKFitTuples/DV_v33r1/SmallTuples/
+DsPi_KKPi_NonRes_LcHypo_MD_BDTG_MINI.root
+DsPi_KKPi_NonRes_LcHypo_MU_BDTG_MINI.root
+DecayTree
+DecayTree
+###
+
+#LbLcPi KKPi PhiPi
+/afs/cern.ch/work/g/gligorov/public/Bs2DsKFitTuples/DV_v33r1/SmallTuples/
+DsPi_KKPi_PhiPi_LcHypo_MD_BDTG_MINI.root
+DsPi_KKPi_PhiPi_LcHypo_MU_BDTG_MINI.root
+DecayTree
+DecayTree
+###
+
+#LbLcPi KKPi KstK
+/afs/cern.ch/work/g/gligorov/public/Bs2DsKFitTuples/DV_v33r1/SmallTuples/
+DsPi_KKPi_KstK_LcHypo_MD_BDTG_MINI.root
+DsPi_KKPi_KstK_LcHypo_MU_BDTG_MINI.root
+DecayTree
+DecayTree
+###
+
+
+#LbLcPi KPiPi
+/afs/cern.ch/work/g/gligorov/public/Bs2DsKFitTuples/DV_v33r1/SmallTuples/
+DsPi_KPiPi_LcHypo_MD_BDTG_MINI.root
+DsPi_KPiPi_LcHypo_MU_BDTG_MINI.root
+DecayTree
+DecayTree
+###

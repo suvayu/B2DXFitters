@@ -97,27 +97,27 @@ def getconfig() :
     
     ################################################
 
-    configdict["BDPi_B_BDTGA_slope1"]  = [-9.9277e-04]
-    configdict["BDPi_B_BDTGC_slope1"]  = [-1.0000e-03]
-    configdict["BDPi_B_BDTG1_slope1"]  = [-8.0558e-03]
-    configdict["BDPi_B_BDTG2_slope1"]  = [-1.0209e-03]
-    configdict["BDPi_B_BDTG3_slope1"]  = [-7.0689e-04]
+    configdict["BDPi_B_BDTGA_slope1"]  = [-9.4861e-04] #[-9.9277e-04]
+    configdict["BDPi_B_BDTGC_slope1"]  = [-3.0000e-03] #[-9.4644e-04] #[-1.0000e-03]
+    configdict["BDPi_B_BDTG1_slope1"]  = [-1.6111e-02] #[-8.0558e-03]
+    configdict["BDPi_B_BDTG2_slope1"]  = [-2.9979e-03] #[-1.0209e-03]
+    configdict["BDPi_B_BDTG3_slope1"]  = [-4.6422e-03] #[-7.0689e-04]
 
     ################################################
 
-    configdict["BDPi_B_BDTGA_slope2"]  = [-8.7344e-03]
-    configdict["BDPi_B_BDTGC_slope2"]  = [-9.0343e-03]
-    configdict["BDPi_B_BDTG1_slope2"]  = [-9.8204e-04]
-    configdict["BDPi_B_BDTG2_slope2"]  = [-8.1089e-03]
-    configdict["BDPi_B_BDTG3_slope2"]  = [-1.4318e-02]
+    configdict["BDPi_B_BDTGA_slope2"]  = [-4.6334e-03] #[-8.7344e-03]
+    configdict["BDPi_B_BDTGC_slope2"]  = [-4.4580e-10] #[-5.1571e-03] #[-9.0343e-03]
+    configdict["BDPi_B_BDTG1_slope2"]  = [-1.2051e-03] #[-9.8204e-04]
+    configdict["BDPi_B_BDTG2_slope2"]  = [-1.6648e-03] #[-8.1089e-03]
+    configdict["BDPi_B_BDTG3_slope2"]  = [-2.3211e-03] #[-1.4318e-02]
 
      ################################################
 
-    configdict["BDPi_B_BDTGA_fracComb"]  = [8.7293e-01]
-    configdict["BDPi_B_BDTGC_fracComb"]  = [8.0879e-01]
-    configdict["BDPi_B_BDTG1_fracComb"]  = [9.6999e-02]
-    configdict["BDPi_B_BDTG2_fracComb"]  = [7.3716e-01]
-    configdict["BDPi_B_BDTG3_fracComb"]  = [2.7055e-01]
+    configdict["BDPi_B_BDTGA_fracComb"]  = [7.1416e-01] #[8.7293e-01]
+    configdict["BDPi_B_BDTGC_fracComb"]  = [8.0431e-01] #[5.9937e-01] #[8.0879e-01]
+    configdict["BDPi_B_BDTG1_fracComb"]  = [1.5500e-06] #[9.6999e-02]
+    configdict["BDPi_B_BDTG2_fracComb"]  = [1.5055e-02] #[7.3716e-01]
+    configdict["BDPi_B_BDTG3_fracComb"]  = [1.0] #[2.7055e-01]
                         
     
     ################################################
@@ -128,20 +128,7 @@ def getconfig() :
     configdict["BDPi_D_BDTG2_fracComb"]  = [8.7215e-01]
     configdict["BDPi_D_BDTG3_fracComb"]  = [8.7215e-01]
                         
-    ################################################
-
-    configdict["pred_Signal_BDTGA"]  = [50759.1, 72612.0 ]
-    configdict["pred_Signal_BDTG1"]  = [7535.40, 11114.0 ]
-    configdict["pred_Signal_BDTG2"]  = [16994.0, 24484.0 ]
-    configdict["pred_Signal_BDTG3"]  = [22784.0, 32338.0 ]
-    configdict["pred_Signal_BDTGC"]  = [44781.0, 64314.0 ]
-
-    configdict["pred_BDK_BDTGA"]  = 2282.0 #867.0 #137.0
-    configdict["pred_BDK_BDTGC"]  = 2147.0 #820.0 #130.0
-    configdict["pred_BDK_BDTG1"]  = 420.0 #153.0 #24.0
-    configdict["pred_BDK_BDTG2"]  = 867.0 #52.0
-    configdict["pred_BDK_BDTG3"]  = 1003.0 # 391.0 #63.0
-                    
+                     
     ################################################
 
     configdict["BDPi_D_BDTGA_sigma1_bc"]  = [12.818]
@@ -226,7 +213,49 @@ def getconfig() :
     configdict["BDPi_B_BDTG3_alpha2_bc"]  = [-2.1288]
     configdict["BDPi_B_BDTG3_frac_bc"]    = [0.72201]
     
-                                                        
+    ################################################
+
+    configdict["pred_Signal_BDTGA"]  = [7.6424e+04] #50759.1, 72612.0 ]
+    configdict["pred_Signal_BDTG1"]  = [1.5058e+04] #7535.40, 11114.0 ]
+    configdict["pred_Signal_BDTG2"]  = [2.9567e+04] #16994.0, 24484.0 ]
+    configdict["pred_Signal_BDTG3"]  = [3.2828e+04]  #22784.0, 32338.0 ]
+    configdict["pred_Signal_BDTGC"]  = [7.2251e+04] #[7.1847e+04]  #44781.0, 64314.0 ]
+    
+    configdict["pred_BDK_BDTGA"]  = 1825 #8.9742e+03  #2282.0 #867.0 #137.0
+    configdict["pred_BDK_BDTGC"]  = 1723 #2147.0*0.65 #1.1117e+04 #8.3639e+03   #2147.0 #820.0 #130.0
+    configdict["pred_BDK_BDTG1"]  = 322  #420.0*0.65 #2.2098e+03   #420.0 #153.0 #24.0
+    configdict["pred_BDK_BDTG2"]  = 686  #867.0*0.65 #3.8441e+03   #867.0 #52.0
+    configdict["pred_BDK_BDTG3"]  = 824  #391.0*0.65 #3.3455e+03   #1003.0 # 391.0 #63.0
+    
+    configdict["pred_BsDsPi_BDTG1"]  = [2.4826e+02]
+    configdict["pred_BsDsPi_BDTG2"]  = [1.9868e+03]
+    configdict["pred_BsDsPi_BDTG3"]  = [1.2095e+03]
+    configdict["pred_BsDsPi_BDTGA"]  = [4.2436e+03]
+    configdict["pred_BsDsPi_BDTGC"]  = [6.5538e+03] #[3.9347e+03]
+    
+    configdict["pred_LbLcPi_BDTG1"]  = [1.0806e+03]
+    configdict["pred_LbLcPi_BDTG2"]  = [1.8438e+03]
+    configdict["pred_LbLcPi_BDTG3"]  = [1.7210e+03]
+    configdict["pred_LbLcPi_BDTGA"]  = [4.4624e+03]
+    configdict["pred_LbLcPi_BDTGC"]  = [6.5283e+03] # [4.1374e+03]
+
+    configdict["pred_BDRho_BDTG1"]  = [7.6560e+03]
+    configdict["pred_BDRho_BDTG2"]  = [1.6675e+04]
+    configdict["pred_BDRho_BDTG3"]  = [1.2957e+04]
+    configdict["pred_BDRho_BDTGA"]  = [4.2518e+04]
+    configdict["pred_BDRho_BDTGC"]  = [4.5996e+04] #[3.9052e+04]
+    
+    configdict["pred_BDstPi_BDTG1"]  = [6.7107e+03]
+    configdict["pred_BDstPi_BDTG2"]  = [1.0622e+04]
+    configdict["pred_BDstPi_BDTG3"]  = [8.8481e+03]
+    configdict["pred_BDstPi_BDTGA"]  = [1.9336e+04]
+    configdict["pred_BDstPi_BDTGC"]  = [1.5920e+04] #[1.8307e+04]
+
+    configdict["pred_Comb_BDTG1"]  = [1.5058e+04]
+    configdict["pred_Comb_BDTG2"]  = [2.9243e+03]
+    configdict["pred_Comb_BDTG3"]  = [4.8894e+02]
+    configdict["pred_Comb_BDTGA"]  = [2.0933e+04]
+    configdict["pred_Comb_BDTGC"]  = [2.0566e+04] #[1.1412e+04]
     
     
     return configdict
