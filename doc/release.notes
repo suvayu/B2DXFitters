@@ -4,6 +4,14 @@
 ! Purpose     : RooFit-based fitters for B -> D X
 !-----------------------------------------------------------------------------
 
+! 2013-06-04 - Manuel Tobias Schiller
+ - make Agnieszka's fitter run in the standalone environment
+ - fits must start at 0.2 ps in time where the trigger cuts, or the binned
+   acceptance will have a bad problem in the first (empty, i.e. no data
+   inside) bin(s)
+ - mistag pdf template must not have one of its bins drop below 1e-37 (minimum
+   non-zero float), or RooFit dies horribly
+
 ! 2013-06-04 - Agnieszka Dziurda
   - apply first Manuel's improvements to DsPi sfitter
 

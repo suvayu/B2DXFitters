@@ -35,7 +35,7 @@ def getconfig() :
     configdict["MistagInterpolation"]     =   False,
 
 
-    configdict["TimeDown"]     = 0.0
+    configdict["TimeDown"]     = 0.2
     configdict["TimeUp"]   = 15.0
 
     configdict["nBinsMistag"]   = 64
