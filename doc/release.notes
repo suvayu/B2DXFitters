@@ -4,6 +4,9 @@
 ! Purpose     : RooFit-based fitters for B -> D X
 !-----------------------------------------------------------------------------
 
+! 2013-06-04 - Agnieszka Dziurda
+  - apply first Manuel's improvements to DsPi sfitter
+
 ! 2013-06-01 - Agnieszka Dziurda
  - update MDFitter to the files:
    . fitSignal.py, plotSignal.py - minor changes

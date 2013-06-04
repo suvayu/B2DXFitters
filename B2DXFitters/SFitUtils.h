@@ -43,16 +43,20 @@ namespace SFitUtils {
   //===========================================================================
 
   RooWorkspace* ReadDataFromSWeights(TString& part, 
-				     TString& pathFile,
-				     TString& treeName,
-				     double time_down, double time_up,
-				     TString& tVar,
-				     TString& tagVar,
-				     TString& tagOmegaVar,
-				     TString& idVar,
-				     bool        debug = false
-				      );
-
+				   TString& pathFile,
+				   TString& treeName,
+				   double time_down, double time_up,
+				     //RooRealVar* lab0_TAU, // TString& tVar,
+				     //RooCategory* qt, //TString& tagVar,
+				     //RooRealVar* lab0_TAGOMEGA, //TString& tagOmegaVar,
+				     //RooCategory* qf, // TString& idVar,
+				   TString& tVar,
+				   TString& tagName,
+				   TString& tagOmegaVar,
+				   TString& idVar,
+				   bool        debug = false
+				   );
+  
   //===========================================================================
   // Read observables tVar, tagVar, tagOmegaVar, idVar from sWeights file for toys
   // Name of file is read from pathFile, name of tree: treName
@@ -102,7 +106,7 @@ namespace SFitUtils {
 				       bool        debug = false
 				       );
   
-
+  
 } // end of namespace
 
 //=============================================================================

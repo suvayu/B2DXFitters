@@ -34,6 +34,7 @@
 #include "RooNLLVar.h"
 #include "RooMinuit.h"
 #include "RooFitResult.h"
+#include "RooCategory.h"
 #include "TH2F.h"
 #include "TH3F.h"
 #include "TRandom3.h"
@@ -733,9 +734,42 @@ namespace GeneralUtils {
 
     RooRealVar* obser = NULL;
     obser = (RooRealVar*)work->var(obs.Data());
+    obser->Print("v"); 
     if( obser != NULL ){ if ( debug == true) std::cout<<"Read observable: "<<obser->GetName()<<std::endl; return obser; }
     else{ if ( debug == true) std::cout<<"Cannot read observable"<<std::endl; return NULL;}
   }
+
+  //===========================================================================
+  // Get observable ( obs ) from workspace (work)
+  //==========================================================================
+
+  RooArgSet* GetRooArgSet(RooWorkspace* work, TString &obs, bool debug)
+  {
+    if ( debug == true) std::cout<<"[INFO] ==> GeneralUtils::GetObservable("<<work->GetName()<<","<<obs<<")"<<std::endl;
+
+    RooArgSet* obser = NULL;
+    obser = (RooArgSet*)work->obj(obs.Data());
+    //obser->Print("v");
+    if( obser != NULL ){ if ( debug == true) std::cout<<"Read observable: "<<obser->GetName()<<std::endl; return obser; }
+    else{ if ( debug == true) std::cout<<"Cannot read observable"<<std::endl; return NULL;}
+  }
+
+  //===========================================================================
+  // Get observable ( obs ) from workspace (work)
+  //==========================================================================
+
+  RooCategory* GetCategory(RooWorkspace* work,
+			  TString &obs, bool debug)
+  {
+    if ( debug == true) std::cout<<"[INFO] ==> GeneralUtils::GetCategory("<<work->GetName()<<","<<obs<<")"<<std::endl;
+
+    RooCategory* obser = NULL;
+    obser = (RooCategory*)work->obj(obs.Data());
+    obser->Print("v");
+    if( obser != NULL ){ if ( debug == true) std::cout<<"Read observable: "<<obser->GetName()<<std::endl; return obser; }
+    else{ if ( debug == true) std::cout<<"Cannot read observable"<<std::endl; return NULL;}
+  }
+
 
   //===========================================================================
   // Get data set ( dat ) from workspace (work)

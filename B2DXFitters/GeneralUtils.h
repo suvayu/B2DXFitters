@@ -33,6 +33,7 @@
 #include "RooDataSet.h"
 #include "RooHistPdf.h"
 #include "RooDataHist.h"
+#include "RooCategory.h"
 
 namespace GeneralUtils {
 
@@ -196,6 +197,17 @@ namespace GeneralUtils {
   // Get observable ( obs ) from workspace (work)
   //==========================================================================
   RooRealVar* GetObservable(RooWorkspace* work, TString &obs, bool        debug = false);
+
+  //===========================================================================
+  // Get observable ( obs ) from workspace (work)
+  //==========================================================================
+  RooArgSet* GetRooArgSet(RooWorkspace* work, TString &obs, bool        debug = false);
+
+  //===========================================================================
+  // Get category observable ( obs ) from workspace (work)
+  //==========================================================================
+  RooCategory* GetCategory(RooWorkspace* work, TString &obs, bool        debug = false);
+
 
   //===========================================================================
   // Get data set ( dat ) from workspace (work)
