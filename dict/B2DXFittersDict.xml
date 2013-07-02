@@ -75,5 +75,6 @@
 	<class name="FinalStateChargePdf" />
 	<class name="TaggingCat" />
         <class name="RooCruijff" />
+        
     </selection>
 </lcgdict>

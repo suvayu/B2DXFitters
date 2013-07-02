@@ -23,9 +23,11 @@ from os.path  import join
 import GaudiPython
 from B2DXFitters import taggingutils, cpobservables
 GaudiPython.loaddict( 'B2DXFittersDict' )
+
 GeneralUtils = GaudiPython.gbl.GeneralUtils
 SFitUtils = GaudiPython.gbl.SFitUtils
 Bs2Dsh2011TDAnaModels = GaudiPython.gbl.Bs2Dsh2011TDAnaModels
+
 
 RooRandom.randomGenerator().SetSeed(4613508);
 RooAbsData.setDefaultStorageType(RooAbsData.Tree)
@@ -71,6 +73,9 @@ def runBsDsPiGenerator( debug, single, configName, numberOfToys, numberOfEvents 
     minusone = RooConstVar('minusone', '-1', -1.)
     two      = RooConstVar('two', '2', 2.) 
 
+    sam = TString("both")
+    mode = TString("phipi")
+    lumRatio = RooRealVar("lumRatio","lumRatio", myconfigfile["lumRatio"])
      
     if single :
         ntoys = 1
@@ -80,11 +85,13 @@ def runBsDsPiGenerator( debug, single, configName, numberOfToys, numberOfEvents 
     gendata = []
     data = []
 
-    fileName = "/afs/cern.ch/work/a/adudziak/public/workspace/work_dspi.root"
+    fileName = "work_dspi_pid_53005800_PIDK0_5M_BDTGA_2.root" #"/afs/cern.ch/work/a/adudziak/public/workspace/work_dspi.root"
     fileName2 = "/afs/cern.ch/work/a/adudziak/public/workspace/work_toys_dspi.root"
     workName = 'workspace'
     
     mVar     = 'lab0_MassFitConsD_M'
+    mdVar    = 'lab2_MM'
+    PIDKVar  = 'lab1_PIDK'
     tVar     = 'lab0_LifetimeFit_ctau'
     trueID   = 'lab0_TRUEID'
     charge   = 'lab1_ID'
@@ -104,6 +111,8 @@ def runBsDsPiGenerator( debug, single, configName, numberOfToys, numberOfEvents 
         workspace_mistag.Print("v")
             
         massVar_B   = GeneralUtils.GetObservable(workspace,TString(mVar), debug)
+        massVar_D   = GeneralUtils.GetObservable(workspace,TString(mdVar), debug)
+        PIDKVar_B   = GeneralUtils.GetObservable(workspace,TString(PIDKVar), debug)
         timeVar_B   = RooRealVar(tVar,tVar,0,15)
         trueIDVar_B = RooRealVar(trueID,trueID,0,100) 
         mistagVar_B = GeneralUtils.GetObservable(workspace_mistag,TString(tagomega), debug)
@@ -121,7 +130,7 @@ def runBsDsPiGenerator( debug, single, configName, numberOfToys, numberOfEvents 
         
     #------------------------------------------------- Signal -----------------------------------------------------#
     
-        #The signal - mass
+        #The signal - mass Bs
     
         meanVarBs   =  RooRealVar( "DblCBBsPDF_mean" ,  "mean",    myconfigfile["mean"]    )
         sigma1VarBs =  RooRealVar( "DblCBBsPDF_sigma1", "sigma1",  myconfigfile["sigma1"]  ) 
@@ -134,8 +143,35 @@ def runBsDsPiGenerator( debug, single, configName, numberOfToys, numberOfEvents 
 
         num_signal  = RooRealVar("num_signal","num_signal", myconfigfile["num_signal"])
         
-        edoubleCB_signal = Bs2Dsh2011TDAnaModels.buildDoubleCBEPDF_sim(massVar_B, meanVarBs, sigma1VarBs, alpha1VarBs, n1VarBs, sigma2VarBs, alpha2VarBs,n2VarBs, fracVarBs, num_signal, "all", "Bs", debug )
-    
+        massB_signal = Bs2Dsh2011TDAnaModels.buildDoubleCBEPDF_sim(massVar_B, meanVarBs,
+                                                                   sigma1VarBs, alpha1VarBs, n1VarBs,
+                                                                   sigma2VarBs, alpha2VarBs, n2VarBs, fracVarBs,
+                                                                   num_signal, "all", "Bs", debug )
+
+        #The signal - mass Ds
+        
+        meanVarDs   =  RooRealVar( "DblCBDsPDF_mean" ,  "mean",    myconfigfile["meanDs"]    )
+        sigma1VarDs =  RooRealVar( "DblCBDsPDF_sigma1", "sigma1",  myconfigfile["sigma1Ds"]  )
+        sigma2VarDs =  RooRealVar( "DblCBDsPDF_sigma2", "sigma2",  myconfigfile["sigma2Ds"]  )
+        alpha1VarDs =  RooRealVar( "DblCBDsPDF_alpha1", "alpha1",  myconfigfile["alpha1Ds"]  )
+        alpha2VarDs =  RooRealVar( "DblCBDsPDF_alpha2", "alpha2",  myconfigfile["alpha2Ds"]  )
+        n1VarDs     =  RooRealVar( "DblCBDsPDF_n1",     "n1",      myconfigfile["n1Ds"]      )
+        n2VarDs     =  RooRealVar( "DblCBDsPDF_n2",     "n2",      myconfigfile["n2Ds"]      )
+        fracVarDs   =  RooRealVar( "DblCBDsPDF_frac",   "frac",    myconfigfile["fracDs"]    )
+
+        massD_signal = Bs2Dsh2011TDAnaModels.buildDoubleCBEPDF_sim(massVar_D, meanVarDs,
+                                                                   sigma1VarDs, alpha1VarDs, n1VarDs,
+                                                                   sigma2VarDs, alpha2VarDs, n2VarDs, fracVarBs,
+                                                                   num_signal, "all", "Ds", debug )
+
+        # The signal - PIDK
+        
+        m = TString("Bs2DsPi_")+mode
+        PIDK_signal = Bs2Dsh2011TDAnaModels.ObtainPIDKShape(workspace, m, sam, lumRatio, true, debug)
+
+        # The signal - MDFitter
+        MDFitter_signal = RooProdPdf("MDFitter_signal","MDFitter_signal",RooArgList(massB_signal, massD_signal, PIDK_signal))
+
         #The signal - acceptance
         tacc_slope_signal   = RooRealVar('tacc_slope_signal' , 'BdPTAcceptance_slope_signal' , myconfigfile["tacc_slope_signal"]  )
         tacc_offset_signal  = RooRealVar('tacc_offset_signal', 'BdPTAcceptance_offset_signal', myconfigfile["tacc_offset_signal"] )
@@ -158,9 +194,9 @@ def runBsDsPiGenerator( debug, single, configName, numberOfToys, numberOfEvents 
         mixState_signal         = RooFormulaVar('mixState_signal','@0*@1',RooArgList(bTagMap,fChargeMap)) 
         
         Cos_signal              = RooProduct('sigCosSin_i0_signal', 'sigCosSin_i0 signal', 
-                                             RooArgSet(mixState_signal, Dilution_signal, tagWeight_signal))
+                                             RooArgList(mixState_signal, Dilution_signal, tagWeight_signal))
         Cosh_signal             = RooProduct('sigCosh_signal', 'cosh coefficient signal', 
-                                             RooArgSet(untaggedWeight_signal, tagWeight_signal))
+                                             RooArgList(untaggedWeight_signal, tagWeight_signal))
     
         time_signal_noacc       = RooBDecay('time_signal_noacc','time_signal_noacc', timeVar_B, Gammas, DeltaGammas, 
                                             Cosh_signal, D_signal, Cos_signal, S_signal,
@@ -179,12 +215,17 @@ def runBsDsPiGenerator( debug, single, configName, numberOfToys, numberOfEvents 
                                        RooFit.Conditional(RooArgSet(time_signal),
                                                           RooArgSet(timeVar_B,bTagMap,fChargeMap)))
   
-        timeandmass_signal = RooProdPdf("timeandmass_signal","timeandmass_signal",RooArgList(timemistag_signal,edoubleCB_signal,trueid_signal))
+        timeandmass_signal = RooProdPdf("timeandmass_signal","timeandmass_signal",RooArgList(timemistag_signal,MDFitter_signal,trueid_signal))
+
+        etimeandmass_signal = RooExtendPdf("epdf_signal","epdf_signal",timeandmass_signal, num_signal) 
  
     #------------------------------------------------- Bd -> DPi -----------------------------------------------------#
      
         #The Bd->DPi - mass
-        mass_dpi = Bs2Dsh2011TDAnaModels.GetRooKeysPdfFromWorkspace(workspace,TString("PhysBkgBd2DPiPdf_m_down_kpipi"), debug)
+        #mass_dpi = Bs2Dsh2011TDAnaModels.GetRooKeysPdfFromWorkspace(workspace,TString("PhysBkgBd2DPiPdf_m_down_kpipi"), debug)
+
+        m = TString("Bd2DPi");
+        MDFitter_dpi = Bs2Dsh2011TDAnaModels.ObtainRooProdPdfForMDFitter(workspace, m, sam, lumRatio, NULL, debug); 
         num_dpi = RooRealVar("num_dpi","num_dpi",myconfigfile["num_dpi"])
         
         #The Bd->DPi - acceptance
@@ -217,12 +258,12 @@ def runBsDsPiGenerator( debug, single, configName, numberOfToys, numberOfEvents 
         weightedDs_dpi       = IfThreeWayCat('weightedDs_dpi', 'weightedDs_dpi',fChargeMap, D_dpi, zero, Dbar_dpi)
         weightedSs_dpi       = IfThreeWayCat('weightedSs_dpi', 'weightedSs_dpi',fChargeMap, Sbar_dpi, zero, S_dpi)    
         
-        CosSin_i0_dpi        = RooProduct('CosSin_i0_dpi', 'CosSin_i0_dpi', RooArgSet(mixState_dpi, Dilution_dpi, tagWeight_dpi))
+        CosSin_i0_dpi        = RooProduct('CosSin_i0_dpi', 'CosSin_i0_dpi', RooArgList(mixState_dpi, Dilution_dpi, tagWeight_dpi))
         
-        Cos_dpi              = RooProduct('Cos_dpi', 'Cos dpi', RooArgSet(C_dpi,CosSin_i0_dpi))
-        Cosh_dpi             = RooProduct('Cosh_dpi', 'cosh coefficient dpi', RooArgSet(untaggedWeight_dpi, tagWeight_dpi))
-        Sin_dpi              = RooProduct('Sin_dpi', 'Sin dpi', RooArgSet(CosSin_i0_dpi,weightedSs_dpi))
-        Sinh_dpi             = RooProduct('Sinh_dpi','Sinh_dpi',RooArgSet(Cosh_dpi,weightedDs_dpi))    
+        Cos_dpi              = RooProduct('Cos_dpi', 'Cos dpi', RooArgList(C_dpi,CosSin_i0_dpi))
+        Cosh_dpi             = RooProduct('Cosh_dpi', 'cosh coefficient dpi', RooArgList(untaggedWeight_dpi, tagWeight_dpi))
+        Sin_dpi              = RooProduct('Sin_dpi', 'Sin dpi', RooArgList(CosSin_i0_dpi,weightedSs_dpi))
+        Sinh_dpi             = RooProduct('Sinh_dpi','Sinh_dpi',RooArgList(Cosh_dpi,weightedDs_dpi))    
         
         time_dpi_noacc       = RooBDecay('time_dpi_noacc','time_dpi_noacc', timeVar_B, Gammad, DeltaGammad, 
                                          Cosh_dpi, Sinh_dpi, Cos_dpi, Sin_dpi,
@@ -241,7 +282,7 @@ def runBsDsPiGenerator( debug, single, configName, numberOfToys, numberOfEvents 
                                      RooFit.Conditional(RooArgSet(time_dpi),
                                                         RooArgSet(timeVar_B,bTagMap,fChargeMap)))   
 
-        timeandmass_dpi = RooProdPdf("timeandmass_dpi","timeandmass_dpi",RooArgList(mass_dpi,trueid_dpi,timemistag_dpi))
+        timeandmass_dpi = RooProdPdf("timeandmass_dpi","timeandmass_dpi",RooArgList(MDFitter_dpi,trueid_dpi,timemistag_dpi))
 
     #------------------------------------------------- Bd -> DsPi ----------------------------------------------------#
 
@@ -251,9 +292,17 @@ def runBsDsPiGenerator( debug, single, configName, numberOfToys, numberOfEvents 
         sigma2VarBd =  RooRealVar( "DblCBBdPDF_sigma2", "sigma2",  myconfigfile["sigma2"]*myconfigfile["ratio2"] )
         
         num_bddspi = RooRealVar("num_dspi","num_dspi",myconfigfile["num_dspi"])
-        mass_bddspi= Bs2Dsh2011TDAnaModels.buildDoubleCBEPDF_sim(massVar_B, meanVarBd, sigma1VarBd, alpha1VarBs, n1VarBs, sigma2VarBd, alpha2VarBs,
+        massB_bddspi= Bs2Dsh2011TDAnaModels.buildDoubleCBEPDF_sim(massVar_B, meanVarBd, sigma1VarBd, alpha1VarBs, n1VarBs, sigma2VarBd, alpha2VarBs,
                                                                  n2VarBs, fracVarBs, num_bddspi, "bddspi", "Bd", debug )
 
+        # The signal - MDFitter
+        massD_bddspi = massD_signal
+        massD_bddspi.SetName("massD_bddspi")
+        PIDK_bddspi = PIDK_signal
+        PIDK_bddspi.SetName("PIDK_bddspi")
+        
+        MDFitter_bddspi = RooProdPdf("MDFitter_bddspi","MDFitter_bddspi",RooArgList(massB_bddspi, massD_bddspi, PIDK_bddspi))
+                
         #The Bd->DsPi - acceptance
         tacc_slope_bddspi   = RooRealVar('tacc_slope_bddspi' , 'BdPTAcceptance_slope_bddspi' , myconfigfile["tacc_slope_dspi"]  )
         tacc_offset_bddspi  = RooRealVar('tacc_offset_bddspi', 'BdPTAcceptance_offset_bddspi', myconfigfile["tacc_offset_dspi"] )
@@ -277,9 +326,9 @@ def runBsDsPiGenerator( debug, single, configName, numberOfToys, numberOfEvents 
         mixState_bddspi         = RooFormulaVar('mixState_bddspi','@0*@1',RooArgList(bTagMap,fChargeMap))
         
         Cos_bddspi              = RooProduct('sigCosSin_i0_bddspi', 'sigCosSin_i0 bddspi',
-                                             RooArgSet(mixState_bddspi, Dilution_bddspi, tagWeight_bddspi))
+                                             RooArgList(mixState_bddspi, Dilution_bddspi, tagWeight_bddspi))
         Cosh_bddspi             = RooProduct('sigCosh_bddspi', 'cosh coefficient bddspi',
-                                             RooArgSet(untaggedWeight_bddspi, tagWeight_bddspi))
+                                             RooArgList(untaggedWeight_bddspi, tagWeight_bddspi))
         
         time_bddspi_noacc       = RooBDecay('time_bddspi_noacc','time_bddspi_noacc', timeVar_B, Gammad, DeltaGammad,
                                             Cosh_bddspi, D_bddspi, Cos_bddspi, S_bddspi,
@@ -299,12 +348,15 @@ def runBsDsPiGenerator( debug, single, configName, numberOfToys, numberOfEvents 
                                         RooFit.Conditional(RooArgSet(time_bddspi),
                                                            RooArgSet(timeVar_B,bTagMap,fChargeMap)))
     
-        timeandmass_bddspi = RooProdPdf("timeandmass_bddspi","timeandmass_bddspi",RooArgList(mass_bddspi,trueid_bddspi,timemistag_bddspi))
+        timeandmass_bddspi = RooProdPdf("timeandmass_bddspi","timeandmass_bddspi",RooArgList(MDFitter_bddspi,trueid_bddspi,timemistag_bddspi))
 
     #------------------------------------------------- Lb -> LcPi -----------------------------------------------------#
     
         #The Lb->LcPi - mass
-        mass_lcpi =  Bs2Dsh2011TDAnaModels.GetRooKeysPdfFromWorkspace(workspace,TString("PhysBkgLb2LcPiPdf_m_both"), debug)
+        #mass_lcpi =  Bs2Dsh2011TDAnaModels.GetRooKeysPdfFromWorkspace(workspace,TString("PhysBkgLb2LcPiPdf_m_both"), debug)
+        m = TString("Lb2LcPi");
+        MDFitter_lcpi = Bs2Dsh2011TDAnaModels.ObtainRooProdPdfForMDFitter(workspace, m, sam, lumRatio, NULL, debug);
+
         num_lcpi = RooRealVar("num_lcpi","num_lcpi", myconfigfile["num_lcpi"])
         
         #The Lb->LcPi - acceptance
@@ -329,9 +381,9 @@ def runBsDsPiGenerator( debug, single, configName, numberOfToys, numberOfEvents 
         mixState_lcpi         = RooFormulaVar('mixState_lcpi','@0*@1',RooArgList(bTagMap,fChargeMap))
         
         Cos_lcpi              = RooProduct('sigCosSin_i0_lcpi', 'sigCosSin_i0 lcpi',
-                                           RooArgSet(mixState_lcpi, Dilution_lcpi, tagWeight_lcpi))
+                                           RooArgList(mixState_lcpi, Dilution_lcpi, tagWeight_lcpi))
         Cosh_lcpi             = RooProduct('sigCosh_lcpi', 'cosh coefficient lcpi',
-                                           RooArgSet(untaggedWeight_lcpi, tagWeight_lcpi))
+                                           RooArgList(untaggedWeight_lcpi, tagWeight_lcpi))
         
         time_lcpi_noacc       = RooBDecay('time_lcpi_noacc','time_lcpi_noacc', timeVar_B, GammaLb, zero,
                                           Cosh_lcpi, D_lcpi, Cos_lcpi, S_lcpi,
@@ -351,14 +403,37 @@ def runBsDsPiGenerator( debug, single, configName, numberOfToys, numberOfEvents 
                                       RooFit.Conditional(RooArgSet(time_lcpi),
                                                          RooArgSet(timeVar_B,bTagMap,fChargeMap)))
         
-        timeandmass_lcpi = RooProdPdf("timeandmass_lcpi","timeandmass_lcpi",RooArgList(mass_lcpi,trueid_lcpi,timemistag_lcpi))
+        timeandmass_lcpi = RooProdPdf("timeandmass_lcpi","timeandmass_lcpi",RooArgList(MDFitter_lcpi,trueid_lcpi,timemistag_lcpi))
  
     #------------------------------------------------- Combinatorial -----------------------------------------------------#
 
         #The combinatorics - mass
-        exposlope_combo = RooRealVar("exposlope_combo","exposlope_combo", myconfigfile["exposlope_combo"])
-        mass_combo = RooExponential("mass_combo","mass_combo",massVar_B,exposlope_combo)
+        #exposlope_combo = RooRealVar("exposlope_combo","exposlope_combo", myconfigfile["exposlope_combo"])
+        #mass_combo = RooExponential("mass_combo","mass_combo",massVar_B,exposlope_combo)
         num_combo = RooRealVar("num_combo","num_combo", myconfigfile["num_combo"])
+
+        #The combinatorics - mass B
+        cB1Var = RooRealVar("CombBkg_slope_Bs1","CombBkg_slope_Bs1", myconfigfile["cB1"])
+        cB2Var = RooRealVar("CombBkg_slope_Bs2","CombBkg_slope_Bs2", myconfigfile["cB2"])
+        fracBsComb = RooRealVar("CombBkg_fracBsComb", "CombBkg_fracBsComb",  myconfigfile["fracBsComb"])
+        massB_combo = Bs2Dsh2011TDAnaModels.ObtainComboBs(massVar_B, cB1Var, cB2Var, fracBsComb, mode, debug)
+        
+        #The combinatorics - mass D
+        cDVar = RooRealVar("CombBkg_slope_Ds","CombBkg_slope_Ds", myconfigfile["cD"])
+        fracDsComb = RooRealVar("CombBkg_fracDsComb", "CombBkg_fracDsComb",  myconfigfile["fracDsComb"])
+        massD_combo = Bs2Dsh2011TDAnaModels.ObtainComboDs(massVar_D, cDVar, fracDsComb, massD_signal, mode, debug)
+
+        #The combinatorics - PIDK
+        fracPIDKComb = RooRealVar("CombBkg_fracPIDKComb", "CombBkg_fracPIDKComb",  myconfigfile["fracPIDKComb"])
+        m = TString("Comb")
+        PIDK1_combo = Bs2Dsh2011TDAnaModels.ObtainPIDKShape(workspace, m, sam, lumRatio, false, debug)
+        m = TString("CombK")
+        PIDK2_combo = Bs2Dsh2011TDAnaModels.ObtainPIDKShape(workspace, m, sam, lumRatio, false, debug)
+        name = "ShapePIDKAll_Comb";
+        PIDK_combo = RooAddPdf("ShapePIDKAll_combo","ShapePIDKAll_combo", PIDK1_combo, PIDK2_combo, fracPIDKComb)
+
+        #The combinatorics - MDFitter
+        MDFitter_combo = RooProdPdf("MDFitter_combo","MDFitter_combo",RooArgList(massB_combo, massD_combo, PIDK_combo))
         
         #The combinatorics - acceptance
         tacc_slope_combo   = RooRealVar('tacc_slope_combo' , 'BdPTAcceptance_slope_combo' , myconfigfile["tacc_slope_combo"])
@@ -382,9 +457,9 @@ def runBsDsPiGenerator( debug, single, configName, numberOfToys, numberOfEvents 
         mixState_combo         = RooFormulaVar('mixState_combo','@0*@1',RooArgList(bTagMap,fChargeMap))
         
         Cos_combo              = RooProduct('sigCosSin_i0_combo', 'sigCosSin_i0 combo',
-                                            RooArgSet(mixState_combo, Dilution_combo, tagWeight_combo))
+                                            RooArgList(mixState_combo, Dilution_combo, tagWeight_combo))
         Cosh_combo             = RooProduct('sigCosh_combo', 'cosh coefficient combo',
-                                            RooArgSet(untaggedWeight_combo, tagWeight_combo))
+                                            RooArgList(untaggedWeight_combo, tagWeight_combo))
 
         time_combo_noacc       = RooBDecay('time_combo_noacc','time_combo_noacc', timeVar_B, GammaCombo, zero,
                                            Cosh_combo, D_combo, Cos_combo, S_combo,
@@ -403,21 +478,30 @@ def runBsDsPiGenerator( debug, single, configName, numberOfToys, numberOfEvents 
                                        RooFit.Conditional(RooArgSet(time_combo),
                                                           RooArgSet(timeVar_B,bTagMap,fChargeMap)))
         
-        timeandmass_combo = RooProdPdf("timeandmass_combo","timeandmass_combo",RooArgList(mass_combo,trueid_combo,timemistag_combo))
+        timeandmass_combo = RooProdPdf("timeandmass_combo","timeandmass_combo",RooArgList(MDFitter_combo,trueid_combo,timemistag_combo))
 
     #------------------------------------------------- Low Mass Bs-------------------------------------------------------#
 
         #The low mass - mass
         num_lm1 = RooRealVar("num_lm1","num_lm1", myconfigfile["num_lm1"])
         
-        mass_dsstpi = Bs2Dsh2011TDAnaModels.GetRooKeysPdfFromWorkspace(workspace,TString("PhysBkgBs2DsstPiPdf_m_both"), debug)
-        mass_dsrho = Bs2Dsh2011TDAnaModels.GetRooKeysPdfFromWorkspace(workspace,TString("PhysBkgBs2DsRhoPdf_m_both"), debug)
-        mass_dsstrho = Bs2Dsh2011TDAnaModels.GetRooKeysPdfFromWorkspace(workspace,TString("PhysBkgBs2DsstRhoPdf_m_both"), debug)
+        #mass_dsstpi = Bs2Dsh2011TDAnaModels.GetRooKeysPdfFromWorkspace(workspace,TString("PhysBkgBs2DsstPiPdf_m_both"), debug)
+        #mass_dsrho = Bs2Dsh2011TDAnaModels.GetRooKeysPdfFromWorkspace(workspace,TString("PhysBkgBs2DsRhoPdf_m_both"), debug)
+        #mass_dsstrho = Bs2Dsh2011TDAnaModels.GetRooKeysPdfFromWorkspace(workspace,TString("PhysBkgBs2DsstRhoPdf_m_both"), debug)
+
+        m = TString("Bs2DsstPi");
+        massB_dsstpi = Bs2Dsh2011TDAnaModels.ObtainMassShape(workspace, m, false, lumRatio, debug);
+        massD_dsstpi = massD_signal
+        massD_dsstpi.SetName("massD_dsstpi")
+        PIDK_dsstpi = PIDK_signal
+        PIDK_dsstpi.SetName("PIDK_dsstpi")
+                        
+        MDFitter_dsstpi = RooProdPdf("MDFitter_dsstpi","MDFitter_dsstpi",RooArgList(massB_dsstpi, massD_dsstpi, PIDK_dsstpi))
+                       
         
-        frac_g1_1 = RooRealVar("frac_g1_1","frac_g1_1", myconfigfile["frac_g1_1"])
-        frac_g1_2 = RooRealVar("frac_g1_2","frac_g1_2", myconfigfile["frac_g1_2"])
-        
-        total_lm1 = RooAddPdf("total_lm1","total_lm1",RooArgList(mass_dsstpi,mass_dsrho,mass_dsstrho),RooArgList(frac_g1_1, frac_g1_2))
+        #frac_g1_1 = RooRealVar("frac_g1_1","frac_g1_1", myconfigfile["frac_g1_1"])
+        #frac_g1_2 = RooRealVar("frac_g1_2","frac_g1_2", myconfigfile["frac_g1_2"])
+        #total_lm1 = RooAddPdf("total_lm1","total_lm1",RooArgList(mass_dsstpi,mass_dsrho,mass_dsstrho),RooArgList(frac_g1_1, frac_g1_2))
     
         #The low mass - acceptance
         tacc_slope_lm1   = RooRealVar('tacc_slope_lm1' , 'BdPTAcceptance_slope_lm1' , myconfigfile["tacc_slope_lm1"])
@@ -441,9 +525,9 @@ def runBsDsPiGenerator( debug, single, configName, numberOfToys, numberOfEvents 
         mixState_lm1         = RooFormulaVar('mixState_lm1','@0*@1',RooArgList(bTagMap,fChargeMap))
         
         Cos_lm1              = RooProduct('sigCosSin_i0_lm1', 'sigCosSin_i0 lm1',
-                                          RooArgSet(mixState_lm1, Dilution_lm1, tagWeight_lm1))
+                                          RooArgList(mixState_lm1, Dilution_lm1, tagWeight_lm1))
         Cosh_lm1             = RooProduct('sigCosh_lm1', 'cosh coefficient lm1', 
-                                          RooArgSet(untaggedWeight_lm1, tagWeight_lm1))
+                                          RooArgList(untaggedWeight_lm1, tagWeight_lm1))
                                                 
         time_lm1_noacc       = RooBDecay('time_lm1_noacc','time_lm1_noacc', timeVar_B, Gammas, DeltaGammas,
                                          Cosh_lm1, D_lm1, Cos_lm1, S_lm1,
@@ -466,10 +550,10 @@ def runBsDsPiGenerator( debug, single, configName, numberOfToys, numberOfEvents 
                                      RooFit.Conditional(RooArgSet(time_lm1),
                                                         RooArgSet(timeVar_B,bTagMap,fChargeMap)))
         
-        timeandmass_lm1 = RooProdPdf("timeandmass_lm1","timeandmass_lm1",RooArgList(total_lm1,trueid_lm1,timemistag_lm1))
+        timeandmass_lm1 = RooProdPdf("timeandmass_lm1","timeandmass_lm1",RooArgList(MDFitter_dsstpi,trueid_lm1,timemistag_lm1))
 
     #------------------------------------------------- Low Mass Bd-------------------------------------------------------#
-
+        '''
         mass_bddrho = Bs2Dsh2011TDAnaModels.GetRooKeysPdfFromWorkspace(workspace,TString("PhysBkgBd2DRhoPdf_m_both"), debug)
         mass_bddstpi = Bs2Dsh2011TDAnaModels.GetRooKeysPdfFromWorkspace(workspace,TString("PhysBkgBd2DstPiPdf_m_both"), debug)
         mass_bddsstpi = Bs2Dsh2011TDAnaModels.GetRooKeysPdfFromWorkspace(workspace,TString("PhysBkgBd2DsstPiPdf_m_both"), debug)
@@ -510,19 +594,19 @@ def runBsDsPiGenerator( debug, single, configName, numberOfToys, numberOfEvents 
         weightedDs_lm2       = IfThreeWayCat('weightedDs_lm2', 'weightedDs_lm2',fChargeMap, D_lm2, zero, Dbar_lm2)
         weightedSs_lm2       = IfThreeWayCat('weightedSs_lm2', 'weightedSs_lm2',fChargeMap, Sbar_lm2, zero, S_lm2)
     
-        CosSin_i0_lm2        = RooProduct('CosSin_i0_lm2', 'CosSin_i0_lm2', RooArgSet(mixState_lm2, Dilution_lm2, tagWeight_lm2))
+        CosSin_i0_lm2        = RooProduct('CosSin_i0_lm2', 'CosSin_i0_lm2', RooArgList(mixState_lm2, Dilution_lm2, tagWeight_lm2))
         
-        Cos_lm2              = RooProduct('Cos_lm2', 'Cos lm2', RooArgSet(C_lm2,CosSin_i0_lm2))
+        Cos_lm2              = RooProduct('Cos_lm2', 'Cos lm2', RooArgList(C_lm2,CosSin_i0_lm2))
         Cosh_lm2             = RooProduct('Cosh_lm2', 'cosh coefficient lm2', RooArgSet(untaggedWeight_lm2, tagWeight_lm2))
-        Sin_lm2              = RooProduct('Sin_lm2', 'Sin lm2', RooArgSet(CosSin_i0_lm2,weightedSs_lm2))
-        Sinh_lm2             = RooProduct('Sinh_lm2','Sinh_lm2',RooArgSet(Cosh_lm2,weightedDs_lm2))
+        Sin_lm2              = RooProduct('Sin_lm2', 'Sin lm2', RooArgList(CosSin_i0_lm2,weightedSs_lm2))
+        Sinh_lm2             = RooProduct('Sinh_lm2','Sinh_lm2',RooArgList(Cosh_lm2,weightedDs_lm2))
         
         time_lm2_noacc       = RooBDecay('time_lm2_noacc','time_lm2_noacc', timeVar_B, Gammad, DeltaGammad,
                                          Cosh_lm2, Sinh_lm2, Cos_lm2, Sin_lm2,
                                          DeltaMd,trm_lm2, RooBDecay.SingleSided)
         
         time_lm2             = RooEffProd('time_lm2','time_lm2',time_lm2_noacc,tacc_lm2)
-    
+        
         #The low mass - mistag
         #mistag_bddrho =Bs2Dsh2011TDAnaModels.GetRooKeysPdfFromWorkspace(workspace_mistag,TString("PhysBkgBd2DRhoPdf_m_mistag"))
         #mistag_bddstpi =Bs2Dsh2011TDAnaModels.GetRooKeysPdfFromWorkspace(workspace_mistag,TString("PhysBkgBd2DstPiPdf_m_mistag"))
@@ -539,31 +623,39 @@ def runBsDsPiGenerator( debug, single, configName, numberOfToys, numberOfEvents 
                                                         RooArgSet(timeVar_B,bTagMap,fChargeMap)))
 
         timeandmass_lm2 = RooProdPdf("timeandmass_lm2","timeandmass_lm2",RooArgList(total_lm2,trueid_lm2,timemistag_lm2))       
- 
+        ''' 
     #------------------------------------------------- Total bkg -----------------------------------------------------#
 
         #Total background
+        #total_back_pdf = RooAddPdf("total_back_pdf","total_back_pdf",
+        #                           RooArgList(timeandmass_dpi,timeandmass_lcpi,timeandmass_combo, timeandmass_bddspi, timeandmass_lm1, timeandmass_lm2),
+        #                           RooArgList(num_dpi,num_lcpi,num_combo, num_bddspi, num_lm1, num_lm2))
+
         total_back_pdf = RooAddPdf("total_back_pdf","total_back_pdf",
-                                   RooArgList(timeandmass_dpi,timeandmass_lcpi,timeandmass_combo, timeandmass_bddspi, timeandmass_lm1, timeandmass_lm2),
-                                   RooArgList(num_dpi,num_lcpi,num_combo, num_bddspi, num_lm1, num_lm2))
+                                   RooArgList(timeandmass_dpi,timeandmass_lcpi,timeandmass_combo, timeandmass_bddspi, timeandmass_lm1),
+                                   RooArgList(num_dpi,num_lcpi,num_combo, num_bddspi, num_lm1))
+        
    
         #Total
-        total_pdf = RooAddPdf("total_pdf","total_pdf",RooArgList(timeandmass_signal,total_back_pdf))
+        total_pdf = RooAddPdf("total_pdf","total_pdf",RooArgList(etimeandmass_signal,total_back_pdf))
         getattr(workout,'import')(total_pdf)
         
 
         #Generate
-        gendata.append(total_pdf.generate(RooArgSet(massVar_B,timeVar_B,trueIDVar_B,bTagMap,fChargeMap,mistagVar_B),numberOfEvents))
+        gendata.append(total_pdf.generate(RooArgSet(massVar_B, massVar_D, PIDKVar_B, timeVar_B, trueIDVar_B, bTagMap, fChargeMap, mistagVar_B),
+                                          numberOfEvents))
         tree = gendata[i].store().tree()
         
         data.append(SFitUtils.CopyDataForToys(tree,
                                               TString(mVar),
+                                              TString(mdVar),
+                                              TString(PIDKVar),
                                               TString(tVar),
                                               TString(tagdec)+TString("_idx"),
                                               TString(tagomega),
                                               TString(charge)+TString("_idx"),
                                               TString(trueID),
-                                              TString("dataSetBsDsPi_down_kkpi"), debug))
+                                              TString("dataSetBsDsPi_down_phipi"), debug))
        
         getattr(workout,'import')(data[i])
     
@@ -576,21 +668,51 @@ def runBsDsPiGenerator( debug, single, configName, numberOfToys, numberOfEvents 
             frame_Bmass = massVar_B.frame()
             data[i].plotOn(frame_Bmass,RooFit.Binning(100))
             total_pdf.plotOn(frame_Bmass)
-            total_pdf.plotOn(frame_Bmass,RooFit.Components("SigEPDF_all"),RooFit.LineStyle(2))
-            total_pdf.plotOn(frame_Bmass,RooFit.Components("PhysBkgBd2DPiPdf_m_down_kpipi"),RooFit.LineStyle(2),RooFit.LineColor(2))
+            total_pdf.plotOn(frame_Bmass,RooFit.Components("DblCBPDFBsall"),RooFit.LineStyle(2))
+            total_pdf.plotOn(frame_Bmass,RooFit.Components("PhysBkgBd2DPiPdf_m_both_kpipi"),RooFit.LineStyle(2),RooFit.LineColor(2))
             total_pdf.plotOn(frame_Bmass,RooFit.Components("PhysBkgLb2LcPiPdf_m_both"),RooFit.LineStyle(1),RooFit.LineColor(3))
-            total_pdf.plotOn(frame_Bmass,RooFit.Components("total_lm1"),RooFit.LineStyle(1),RooFit.LineColor(6))
-            total_pdf.plotOn(frame_Bmass,RooFit.Components("total_lm2"),RooFit.LineStyle(1),RooFit.LineColor(7))
-            total_pdf.plotOn(frame_Bmass,RooFit.Components("SigEPDF_bddspi"),RooFit.LineStyle(1),RooFit.LineColor(7))
-            total_pdf.plotOn(frame_Bmass,RooFit.Components("mass_combo"),RooFit.LineStyle(1),RooFit.LineColor(1))
+            total_pdf.plotOn(frame_Bmass,RooFit.Components("PhysBkgBs2DsstPiPdf_m_both"),RooFit.LineStyle(1),RooFit.LineColor(6))
+            #total_pdf.plotOn(frame_Bmass,RooFit.Components("total_lm2"),RooFit.LineStyle(1),RooFit.LineColor(7))
+            total_pdf.plotOn(frame_Bmass,RooFit.Components("DblCBPDFBdbddspi"),RooFit.LineStyle(1),RooFit.LineColor(7))
+            total_pdf.plotOn(frame_Bmass,RooFit.Components("CombBkgPDF_phipi"),RooFit.LineStyle(1),RooFit.LineColor(1))
             frame_Bmass.Draw()
-            canv_Bmass.Print("Bmass_DsPi_Toys.pdf")
+            canv_Bmass.Print("DsPi_Toys_Bmass.pdf")
            
             canv_Btag = TCanvas("canv_Btag","canv_Btag")
             frame_Btag = mistagVar_B.frame()
             data[i].plotOn(frame_Btag,RooFit.Binning(100))
             frame_Btag.Draw()
-            canv_Btag.Print("Btagomega_DsPi_Toys.pdf")
+            canv_Btag.Print("DsPi_Toys_Btag.pdf")
+
+            canv_Dmass = TCanvas("canv_Dmass","canv_Dmass")
+            frame_Dmass = massVar_D.frame()
+            data[i].plotOn(frame_Dmass,RooFit.Binning(100))
+            total_pdf.plotOn(frame_Dmass)
+            total_pdf.plotOn(frame_Dmass,RooFit.Components("DblCBPDFDsall"),RooFit.LineStyle(2))
+            total_pdf.plotOn(frame_Dmass,RooFit.Components("PhysBkgBd2DPiPdf_m_both_kpipi_Ds"),RooFit.LineStyle(2),RooFit.LineColor(2))
+            total_pdf.plotOn(frame_Dmass,RooFit.Components("PhysBkgLb2LcPiPdf_m_both_Ds"),RooFit.LineStyle(1),RooFit.LineColor(3))
+            total_pdf.plotOn(frame_Dmass,RooFit.Components("MDFitter_dsstpi"),RooFit.LineStyle(1),RooFit.LineColor(6))
+            #total_pdf.plotOn(frame_Dmass,RooFit.Components("total_lm2"),RooFit.LineStyle(1),RooFit.LineColor(7))
+            total_pdf.plotOn(frame_Dmass,RooFit.Components("SigEPDF_bddspi"),RooFit.LineStyle(1),RooFit.LineColor(7))
+            total_pdf.plotOn(frame_Dmass,RooFit.Components("CombBkgPDF_phipi_Ds"),RooFit.LineStyle(1),RooFit.LineColor(1))
+            frame_Dmass.Draw()
+            canv_Dmass.Print("DsPi_Toys_Dmass.pdf")
+
+            canv_PIDK = TCanvas("canv_PIDK","canv_PIDK")
+            frame_PIDK = PIDKVar_B.frame()
+            data[i].plotOn(frame_PIDK,RooFit.Binning(100))
+            total_pdf.plotOn(frame_PIDK)
+            total_pdf.plotOn(frame_PIDK,RooFit.Components("epdf_signal"),RooFit.LineStyle(2))
+            total_pdf.plotOn(frame_PIDK,RooFit.Components("PhysBkgBd2DPiPdf_m_both_kpipi_Ds"),RooFit.LineStyle(2),RooFit.LineColor(2))
+            total_pdf.plotOn(frame_PIDK,RooFit.Components("PhysBkgLb2LcPiPdf_m_both_Ds"),RooFit.LineStyle(1),RooFit.LineColor(3))
+            total_pdf.plotOn(frame_PIDK,RooFit.Components("MDFitter_dsstpi"),RooFit.LineStyle(1),RooFit.LineColor(6))
+            #total_pdf.plotOn(frame_PIDK,RooFit.Components("total_lm2"),RooFit.LineStyle(1),RooFit.LineColor(7))
+            total_pdf.plotOn(frame_PIDK,RooFit.Components("SigEPDF_bddspi"),RooFit.LineStyle(1),RooFit.LineColor(7))
+            total_pdf.plotOn(frame_PIDK,RooFit.Components("massD_combo"),RooFit.LineStyle(1),RooFit.LineColor(1))
+            frame_PIDK.Draw()
+            canv_PIDK.Print("DsPi_Toys_PIDK.pdf")
+                                                                                                      
+                                                                                                                                                        
             
             gStyle.SetOptLogy(1)
             canv_Btime = TCanvas("canv_Btime","canv_Btime")
@@ -603,7 +725,7 @@ def runBsDsPiGenerator( debug, single, configName, numberOfToys, numberOfEvents 
             #        total_pdf.plotOn(frame_Btime,RooFit.Components("time_lm2"),RooFit.LineStyle(1),RooFit.LineColor(7))
             #        total_pdf.plotOn(frame_Btime,RooFit.Components("time_combo"),RooFit.LineStyle(1),RooFit.LineColor(1))
             frame_Btime.Draw()
-            canv_Btime.Print("Btime_DsPi_Toys.pdf")
+            canv_Btime.Print("DsPi_Toys_Time.pdf")
             
             
             if not single :

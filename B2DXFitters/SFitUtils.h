@@ -81,6 +81,7 @@ namespace SFitUtils {
   RooDataSet* CopyDataForToys(TTree* tree,
                               TString& mVar,
 			      TString& mDVar,
+			      TString& PIDKVar,
                               TString& tVar,
                               TString& tagVar,
                               TString& tagOmegaVar,

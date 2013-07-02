@@ -4,6 +4,8 @@ def getconfig() :
     
     from math import pi
 
+    configdict["lumRatio"] =  0.44/(0.59+0.44)
+
     # PHYSICAL PARAMETERS
     configdict["Gammas"]      =  1/0.657    # in ps^{-1}
     configdict["DeltaGammas"] = -0.104
@@ -41,25 +43,35 @@ def getconfig() :
 
     configdict["num_signal"]    = 25000.
     configdict["num_dpi"]       = 1000.
-    configdict["num_dspi"]      = 830.
+    configdict["num_dspi"]      = 200.
     configdict["num_lcpi"]      = 1000.
-    configdict["num_combo"]     = 15000.
-    configdict["num_lm1"]       = 33000.
+    configdict["num_combo"]     = 5000. #0.
+    configdict["num_lm1"]       = 330. #00.
     configdict["num_lm2"]       = 1070.
         
     #----------------------------Signal----------------------------#
 
     configdict["mean"]    = 5369
-    configdict["sigma1"]  = 12.691
-    configdict["sigma2"]  = 20.486
-    configdict["alpha1"]  = 2.1260
-    configdict["alpha2"]  = -2.0649
-    configdict["n1"]      = 1.1019
-    configdict["n2"]      = 5.8097
-    configdict["frac"]    = 0.78044
+    configdict["sigma1"]  = 17.396*1.145
+    configdict["sigma2"]  = 11.028*1.255
+    configdict["alpha1"]  = 1.8615
+    configdict["alpha2"]  = -2.6267
+    configdict["n1"]      = 1.3245
+    configdict["n2"]      = 2.1862
+    configdict["frac"]    = 0.55406
+    
     configdict["ratio1"]  = 1.00808721452
     configdict["ratio2"]  = 1.0386867331
-                                        
+
+    configdict["meanDs"]    = 1969
+    configdict["sigma1Ds"]  = 7.6215*1.074
+    configdict["sigma2Ds"]  = 4.4422*1.185
+    configdict["alpha1Ds"]  = 1.8802
+    configdict["alpha2Ds"]  = -2.2066
+    configdict["n1Ds"]      = 2.5713
+    configdict["n2Ds"]      = 1.8122
+    configdict["fracDs"]    = 0.44075
+                                            
     configdict["tacc_slope_signal"]   = 1.1
     configdict["tacc_offset_signal"]  = 0.186
     configdict["tacc_beta_signal"]    = 0.039
@@ -85,6 +97,15 @@ def getconfig() :
     #---------------------------Combo----------------------------#
 
     configdict["exposlope_combo"]   = -1.9977*pow(10,-3)
+    
+    configdict["cB1"] = -3.0873e-03 
+    configdict["cB2"] = 0.0
+    configdict["fracBsComb"] = 6.5400e-01
+
+    configdict["cD"] = -2.7273e-03
+    configdict["fracDsComb"] = 0.37379
+
+    configdict["fracPIDKComb"] = 9.0404e-01
     
     configdict["tacc_slope_combo"]   = 1.1
     configdict["tacc_offset_combo"]  = 0.186

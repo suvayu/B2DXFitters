@@ -657,7 +657,7 @@ namespace MassFitUtils {
 	    }
 	}
       // create RooKeysPdf for misID background //
-      name="PhysBkgBsDsPi_m_"+s;
+      name="PhysBkgBs2DsPiPdf_m_"+s;
       TString name2=name+"_Ds";
       /*
       TString namehistBs = "histBs_"+s;

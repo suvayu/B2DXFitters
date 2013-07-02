@@ -60,7 +60,7 @@ def runBsDsKMassFitterOnData( debug, sample, mVar, mdVar, tVar, tagVar, tagOmega
     workNameTS = TString(workName)
     workspace = []
     workspace.append(GeneralUtils.LoadWorkspace(TString(fileNameAll),workNameTS,debug))
-    workspaceID = GeneralUtils.LoadWorkspace(TString(fileNameAllID),workNameTS,debug)
+    #workspaceID = GeneralUtils.LoadWorkspace(TString(fileNameAllID),workNameTS,debug)
     
     obsTS = TString(mVar)
     mass        = GeneralUtils.GetObservable(workspace[0],obsTS, debug)
@@ -502,11 +502,13 @@ def runBsDsKMassFitterOnData( debug, sample, mVar, mdVar, tVar, tagVar, tagOmega
         name2 = TString("SigProdPDF")+t+sm[i]
         name3 = TString("SigEPDF")+t+sm[i]
         if merge:
-            namePIDK1 = TString("PIDshape_BsDsPi_both_")+m[j]+TString("_down")
-            sigPIDKPDF1.append(Bs2Dsh2011TDAnaModels.GetRooBinned1DFromWorkspace(workspaceID,namePIDK1, debug))
-            namePIDK2 = TString("PIDshape_BsDsPi_both_")+m[j]+TString("_up")
-            sigPIDKPDF2.append(Bs2Dsh2011TDAnaModels.GetRooBinned1DFromWorkspace(workspaceID,namePIDK2,debug))
-            name4 = TString("ShapePIDK_BsDsPi_both")
+            namePIDK1 = TString("PIDKShape_Bs2DsPi_up_")+m[j] #+TString("_down")
+            print namePIDK1
+            sigPIDKPDF1.append(Bs2Dsh2011TDAnaModels.GetRooBinned1DFromWorkspace(workspace[0],namePIDK1, debug))
+            namePIDK2 = TString("PIDKShape_Bs2DsPi_down_")+m[j] #m[j]+TString("_up")
+            print namePIDK2
+            sigPIDKPDF2.append(Bs2Dsh2011TDAnaModels.GetRooBinned1DFromWorkspace(workspace[0],namePIDK2,debug))
+            name4 = TString("PIDKShape_Bs2DsPi_both_")+m[j] #m[j]+TString("_both")
             sigPIDKPDF.append(RooAddPdf( name4.Data(), name4.Data(), RooArgList( sigPIDKPDF2[i], sigPIDKPDF1[i]),RooArgList(lumRatio)))
             print "Create %s"%(sigPIDKPDF[0].GetName())
         else:
@@ -712,11 +714,13 @@ def runBsDsKMassFitterOnData( debug, sample, mVar, mdVar, tVar, tagVar, tagOmega
         cDVar.append(RooRealVar(name.Data(), name.Data(), myconfigfile["cD"][i],
                                 myconfigfile["cD"][i]+myconfigfile["cD"][i]*mul, 0.0))
         name = TString("CombBkg_fracDsComb_")+m[j]
+        print name
         if ( sm[i].Contains("kpipi") == true or sm[i].Contains("pipipi") == true ):
             fracDsComb.append(RooRealVar(name.Data(), name.Data(), myconfigfile["fracComb"][i]))
         else:
             fracDsComb.append(RooRealVar(name.Data(), name.Data(), myconfigfile["fracComb"][i], 0.0, 1.0))
-        name = TString("CombBkg_fracPIDKComb")    
+        name = TString("CombBkg_fracPIDKComb_")+m[j]    
+        print name
         fracPIDKComb.append(RooRealVar(name.Data(), name.Data(), 0.5, 0.0, 1.0))    
         if merge:
             j=j+1
@@ -739,92 +743,92 @@ def runBsDsKMassFitterOnData( debug, sample, mVar, mdVar, tVar, tagVar, tagOmega
 
     if (mode == "all" and ( sample == "up" or sample == "down")):
         for i in range(0,5):
-            bkgPDF.append(Bs2Dsh2011TDAnaModels.buildBsDsPi_2D(mass,
-                                                               massDs,
-                                                               workspace[0],
-                                                               workspaceID,
-                                                               nCombBkg[i],
-                                                               nBd2DPi[i],
-                                                               nBs2DsDsstPiRho[i],
-                                                               g1_f1,
-                                                               g1_f2,
-                                                               nLb2LcPi[i],
-                                                               nBd2DsPi[i],
-                                                               bkgBdDsPi[i],
-                                                               nBd2DsstPi[i],
-                                                               nBd2DRho[i],
-                                                               nBd2DstPi[i],
-                                                               nBs2DsK[i],
-                                                               sigDsPDF[i],
-                                                               cBVar[i],
-                                                               cB2Var[i],
-                                                               fracBsComb[i],
-                                                               cDVar[i],
-                                                               fracDsComb[i],
-                                                               fracPIDKComb[i],
-                                                               sm[i],
-                                                               lumRatio,
-                                                               debug ))
+            bkgPDF.append(Bs2Dsh2011TDAnaModels.build_Bs2DsPi_BKG_MDFitter(mass,
+                                                                           massDs,
+                                                                           workspace[0],
+                                                                           #workspaceID,
+                                                                           nCombBkg[i],
+                                                                           nBd2DPi[i],
+                                                                           nBs2DsDsstPiRho[i],
+                                                                           g1_f1,
+                                                                           g1_f2,
+                                                                           nLb2LcPi[i],
+                                                                           nBd2DsPi[i],
+                                                                           bkgBdDsPi[i],
+                                                                           nBd2DsstPi[i],
+                                                                           nBd2DRho[i],
+                                                                           nBd2DstPi[i],
+                                                                           nBs2DsK[i],
+                                                                           sigDsPDF[i],
+                                                                           cBVar[i],
+                                                                           cB2Var[i],
+                                                                           fracBsComb[i],
+                                                                           cDVar[i],
+                                                                           fracDsComb[i],
+                                                                           fracPIDKComb[i],
+                                                                           sm[i],
+                                                                           lumRatio,
+                                                                           debug ))
             
     else:
         if merge:
             for i in range(0,bound):
-                bkgPDF.append(Bs2Dsh2011TDAnaModels.buildBsDsPi_2D(mass,
-                                                                   massDs,
-                                                                   workspace[0],
-                                                                   workspaceID,
-                                                                   nCombBkg[i],
-                                                                   nBd2DPi[i],
-                                                                   nBs2DsDsstPiRho[i],
-                                                                   g1_f1,
-                                                                   g1_f2,
-                                                                   nLb2LcPi[i],
-                                                                   nBd2DsPi[i],
-                                                                   bkgBdDsPi[i],
-                                                                   nBd2DsstPi[i],
-                                                                   nBd2DRho[i],
-                                                                   nBd2DstPi[i],
-                                                                   nBs2DsK[i],
-                                                                   sigDsPDF[i],
-                                                                   cBVar[i],
-                                                                   cB2Var[i],
-                                                                   fracBsComb[i],
-                                                                   cDVar[i],
-                                                                   fracDsComb[i],
-                                                                   fracPIDKComb[i],
-                                                                   sm[i],
-                                                                   lumRatio,
-                                                                   debug ))
+                bkgPDF.append(Bs2Dsh2011TDAnaModels.build_Bs2DsPi_BKG_MDFitter(mass,
+                                                                               massDs,
+                                                                               workspace[0],
+                                                                               #workspaceID,
+                                                                               nCombBkg[i],
+                                                                               nBd2DPi[i],
+                                                                               nBs2DsDsstPiRho[i],
+                                                                               g1_f1,
+                                                                               g1_f2,
+                                                                               nLb2LcPi[i],
+                                                                               nBd2DsPi[i],
+                                                                               bkgBdDsPi[i],
+                                                                               nBd2DsstPi[i],
+                                                                               nBd2DRho[i],
+                                                                               nBd2DstPi[i],
+                                                                               nBs2DsK[i],
+                                                                               sigDsPDF[i],
+                                                                               cBVar[i],
+                                                                               cB2Var[i],
+                                                                               fracBsComb[i],
+                                                                               cDVar[i],
+                                                                               fracDsComb[i],
+                                                                               fracPIDKComb[i],
+                                                                               sm[i],
+                                                                               lumRatio,
+                                                                               debug ))
                 
         else:
             for i in range(0,ranmode):
                 for j in range (0,ransample):
-                    bkgPDF.append(Bs2Dsh2011TDAnaModels.buildBsDsPi_2D(mass,
-                                                                       massDs,
-                                                                       workspace[0],
-                                                                       workspaceID,
-                                                                       nCombBkg[i*2+j],
-                                                                       nBd2DPi[i*2+j],
-                                                                       nBs2DsDsstPiRho[i*2+j],
-                                                                       g1_f1,
-                                                                       g1_f2,
-                                                                       nLb2LcPi[i*2+j],
-                                                                       nBd2DsPi[i*2+j],
-                                                                       bkgBdDsPi[i*2+j],
-                                                                       nBd2DsstPi[i*2+j],
-                                                                       nBd2DRho[i*2+j],
-                                                                       nBd2DstPi[i*2+j],
-                                                                       nBs2DsK[i*2+j],
-                                                                       sigDsPDF[i*2+j],
-                                                                       cBVar[i*2+j],
-                                                                       cB2Var[i*2+j],
-                                                                       fracBsComb[i*2+j],
-                                                                       cDVar[i*2+j],
-                                                                       fracDsComb[i*2+j],
-                                                                       fracPIDComb[i*2+j],
-                                                                       sm[i*2+j],
-                                                                       lumRatio,
-                                                                       debug ))
+                    bkgPDF.append(Bs2Dsh2011TDAnaModels.build_Bs2DsPi_BKG_MDFitter(mass,
+                                                                                   massDs,
+                                                                                   workspace[0],
+                                                                                   #workspaceID,
+                                                                                   nCombBkg[i*2+j],
+                                                                                   nBd2DPi[i*2+j],
+                                                                                   nBs2DsDsstPiRho[i*2+j],
+                                                                                   g1_f1,
+                                                                                   g1_f2,
+                                                                                   nLb2LcPi[i*2+j],
+                                                                                   nBd2DsPi[i*2+j],
+                                                                                   bkgBdDsPi[i*2+j],
+                                                                                   nBd2DsstPi[i*2+j],
+                                                                                   nBd2DRho[i*2+j],
+                                                                                   nBd2DstPi[i*2+j],
+                                                                                   nBs2DsK[i*2+j],
+                                                                                   sigDsPDF[i*2+j],
+                                                                                   cBVar[i*2+j],
+                                                                                   cB2Var[i*2+j],
+                                                                                   fracBsComb[i*2+j],
+                                                                                   cDVar[i*2+j],
+                                                                                   fracDsComb[i*2+j],
+                                                                                   fracPIDComb[i*2+j],
+                                                                                   sm[i*2+j],
+                                                                                   lumRatio,
+                                                                                   debug ))
                     
                                           
        

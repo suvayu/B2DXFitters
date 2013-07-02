@@ -1060,5 +1060,4 @@ namespace GeneralUtils {
     return BDTGbin;
   }
 
-
 } //end of namespace

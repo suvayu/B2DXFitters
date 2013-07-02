@@ -532,6 +532,7 @@ namespace SFitUtils {
   RooDataSet* CopyDataForToys(TTree* tree, 
 			      TString& mVar, 
 			      TString& mDVar,
+			      TString& PIDKVar,
 			      TString& tVar, 
 			      TString& tagVar, 
 			      TString& tagOmegaVar,
@@ -545,6 +546,7 @@ namespace SFitUtils {
 	std::cout<<"Name of tree: "<<tree->GetName()<<std::endl;
 	std::cout<<"Name of B(s) mass observable: "<<mVar<<std::endl;
 	std::cout<<"Name of D(s) mass observable: "<<mDVar<<std::endl;
+	std::cout<<"Name of PIDK observable: "<<PIDKVar<<std::endl;
 	std::cout<<"Name of time observable: "<<tVar<<std::endl;
 	std::cout<<"Name of tag observable: "<<tagVar<<std::endl;
 	std::cout<<"Name of mistag observable: "<<tagOmegaVar<<std::endl;
@@ -559,6 +561,11 @@ namespace SFitUtils {
     
     RooRealVar* lab0_MM = new RooRealVar(mVar.Data(),mVar.Data(),5100, 5800);
     RooRealVar* lab2_MM = new RooRealVar(mDVar.Data(),mDVar.Data(),1930, 2015);
+    RooRealVar* lab1_PIDK = NULL;
+    if ( dataName.Contains("Pi") == true )
+      {  lab1_PIDK= new RooRealVar(PIDKVar.Data(),PIDKVar.Data(),0,150);}
+    else
+      {  lab1_PIDK= new RooRealVar(PIDKVar.Data(),PIDKVar.Data(),log(5),log(150));}
     RooRealVar* lab0_TAU = new RooRealVar(tVar.Data(),tVar.Data(),0.,15.);
     RooRealVar* lab0_TAG = new RooRealVar(tagVar.Data(),tagVar.Data(),-2,2);
     RooRealVar* lab0_TAGOMEGA = new RooRealVar(tagOmegaVar.Data(),tagOmegaVar.Data(),0.,1.);
@@ -566,9 +573,9 @@ namespace SFitUtils {
     RooRealVar* lab0_TRUEID = new RooRealVar(trueIDVar.Data(),trueIDVar.Data(),0,100);
 
     dataout = new RooDataSet(dataName.Data(),dataName.Data(),
-			     RooArgSet(*lab0_MM,*lab0_TAU,*lab0_TAG,*lab0_TAGOMEGA,*lab1_ID,*lab0_TRUEID,*lab2_MM));
+			     RooArgSet(*lab0_MM,*lab0_TAU,*lab0_TAG,*lab0_TAGOMEGA,*lab1_ID,*lab0_TRUEID,*lab2_MM,*lab1_PIDK));
 
-    Double_t lab0_MM3,lab0_TAU3, lab2_MM3;
+    Double_t lab0_MM3,lab0_TAU3, lab2_MM3, lab1_PIDK3;
     Int_t  lab0_TAG3;
     Double_t lab0_TAGOMEGA3, lab0_TRUEID3;
     Int_t lab1_ID3;
@@ -576,6 +583,7 @@ namespace SFitUtils {
     
     tree->SetBranchAddress(mVar.Data(), &lab0_MM3);
     tree->SetBranchAddress(mDVar.Data(), &lab2_MM3);
+    tree->SetBranchAddress(PIDKVar.Data(), &lab1_PIDK3);
     tree->SetBranchAddress(tVar.Data(),&lab0_TAU3);
     tree->SetBranchAddress(tagVar.Data(),&lab0_TAG3);
     tree->SetBranchAddress(tagOmegaVar.Data(),&lab0_TAGOMEGA3);
@@ -588,13 +596,14 @@ namespace SFitUtils {
 
       lab0_MM->setVal(lab0_MM3);
       lab2_MM->setVal(lab2_MM3);
+      lab1_PIDK->setVal(lab1_PIDK3);
       lab0_TAU->setVal(lab0_TAU3);
       lab0_TAG->setVal(lab0_TAG3);
       lab0_TAGOMEGA->setVal(lab0_TAGOMEGA3);
       lab1_ID->setVal(lab1_ID3);
       lab0_TRUEID->setVal(lab0_TRUEID3);
 
-      dataout->add(RooArgSet(*lab0_MM,*lab0_TAU,*lab0_TAG,*lab0_TAGOMEGA,*lab1_ID,*lab0_TRUEID,*lab2_MM));
+      dataout->add(RooArgSet(*lab0_MM,*lab0_TAU,*lab0_TAG,*lab0_TAGOMEGA,*lab1_ID,*lab0_TRUEID,*lab2_MM,*lab1_PIDK));
     }
 
     if (debug == true) 

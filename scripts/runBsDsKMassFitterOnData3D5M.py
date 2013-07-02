@@ -69,8 +69,8 @@ def runBsDsKMassFitterOnData( debug, sample, mVar, mdVar, tVar, tagVar, tagOmega
     workNameTS = TString(workName)
     workspace = []
     workspace.append(GeneralUtils.LoadWorkspace(TString(fileNameAll),workNameTS, debug))
-    workspaceID = workspace[0]     
-    workspaceID2 = GeneralUtils.LoadWorkspace(TString(fileNameAllID),workNameTS, debug)
+    #workspaceID = workspace[0]     
+    #workspaceID2 = GeneralUtils.LoadWorkspace(TString(fileNameAllID),workNameTS, debug)
       
     obsTS = TString(mVar)
     mass        = GeneralUtils.GetObservable(workspace[0],obsTS, debug)
@@ -377,16 +377,7 @@ def runBsDsKMassFitterOnData( debug, sample, mVar, mdVar, tVar, tagVar, tagOmega
             ranmode = 1
             ransample = 1
 
-    canvas = TCanvas('frame','frame')
-    for i in range(0,ran):
-        frame = massDs.frame()
-        data[i].plotOn(frame)
-        frame.Draw()
-        name = TString("WTFBsK_")+sm[i]+TString(".pdf")
-        canvas.Update()
-        canvas.SaveAs(name.Data())
-        
-           
+              
     s1 = []
     s2 = []
     s1Ds = []
@@ -499,11 +490,13 @@ def runBsDsKMassFitterOnData( debug, sample, mVar, mdVar, tVar, tagVar, tagOmega
         name2 = TString("SigProdPDF")+t+sm[i]
         name3 = TString("SigEPDF")+t+sm[i]
         if merge:
-            namePIDK1 = TString("PIDshape_BsDsK_both_")+m[j]+TString("_down")
-            sigPIDKPDF1.append(Bs2Dsh2011TDAnaModels.GetRooBinned1DFromWorkspace(workspaceID2,namePIDK1, debug))
-            namePIDK2 = TString("PIDshape_BsDsK_both_")+m[j]+TString("_up")
-            sigPIDKPDF2.append(Bs2Dsh2011TDAnaModels.GetRooBinned1DFromWorkspace(workspaceID2,namePIDK2,debug))
-            name4 = TString("PIDKShape_BsDsK_both")
+            namePIDK1 = TString("PIDKShape_Bs2DsK_up_")+m[j] #+TString("_down")
+            print namePIDK1
+            sigPIDKPDF1.append(Bs2Dsh2011TDAnaModels.GetRooBinned1DFromWorkspace(workspace[0],namePIDK1, debug))
+            namePIDK2 = TString("PIDKShape_Bs2DsK_down_")+m[j] #m[j]+TString("_up")
+            print namePIDK2
+            sigPIDKPDF2.append(Bs2Dsh2011TDAnaModels.GetRooBinned1DFromWorkspace(workspace[0],namePIDK2,debug))
+            name4 = TString("PIDKShape_Bs2DsPi_both_")+m[j] #m[j]+TString("_both")
             sigPIDKPDF.append(RooAddPdf( name4.Data(), name4.Data(), RooArgList( sigPIDKPDF2[i], sigPIDKPDF1[i]),RooArgList(lumRatio)))
             print "Create %s"%(sigPIDKPDF[0].GetName())
         else:
@@ -669,67 +662,67 @@ def runBsDsKMassFitterOnData( debug, sample, mVar, mdVar, tVar, tagVar, tagOmega
 
     if (mode == "all" and ( sample == "up" or sample == "down")):
         for i in range(0,3):
-            bkgPDF.append(Bs2Dsh2011TDAnaModels.buildBsDsK_2D(mass,
-                                                              massDs,
-                                                              workspace[0],
-                                                              workspaceID,
-                                                              workspaceID2,
-                                                              bkgBdDsK[i],
-                                                              nCombBkg[i],
-                                                              nBs2DsDsstPiRho[i],
-                                                              nBs2DsPi[i],
-                                                              nBs2DsDssKKst[i],
-                                                              nLb2DsDsstp[i],
-                                                              nBd2DK[i],
-                                                              nLb2LcK[i],
-                                                              g1_f1,
-                                                              g1_f2,
-                                                              g1_f3,
-                                                              g2_f1,
-                                                              #g2_f2,
-                                                              #g2_f3,
-                                                              g3_f1,
-                                                              g4_f1,
-                                                              g4_f2,
-                                                              sigDsPDF[i],
-                                                              cBVar[i],
-                                                              cDVar[i],
-                                                              fracComb[i],
-                                                              sm[i],
-                                                              lumRatio,
-                                                              debug ))
+            bkgPDF.append(Bs2Dsh2011TDAnaModels.build_Bs2DsK_BKG_MDFitter(mass,
+                                                                          massDs,
+                                                                          workspace[0],
+                                                                          #workspaceID,
+                                                                          #workspaceID2,
+                                                                          bkgBdDsK[i],
+                                                                          nCombBkg[i],
+                                                                          nBs2DsDsstPiRho[i],
+                                                                          nBs2DsPi[i],
+                                                                          nBs2DsDssKKst[i],
+                                                                          nLb2DsDsstp[i],
+                                                                          nBd2DK[i],
+                                                                          nLb2LcK[i],
+                                                                          g1_f1,
+                                                                          g1_f2,
+                                                                          g1_f3,
+                                                                          g2_f1,
+                                                                          #g2_f2,
+                                                                          #g2_f3,
+                                                                          g3_f1,
+                                                                          g4_f1,
+                                                                          g4_f2,
+                                                                          sigDsPDF[i],
+                                                                          cBVar[i],
+                                                                          cDVar[i],
+                                                                          fracComb[i],
+                                                                          sm[i],
+                                                                          lumRatio,
+                                                                          debug ))
     else:
         if merge:
             for i in range(0,bound):
-                bkgPDF.append(Bs2Dsh2011TDAnaModels.buildBsDsK_2D(mass,
-                                                                  massDs,
-                                                                  workspace[0],
-                                                                  workspaceID,
-                                                                  workspaceID2,
-                                                                  bkgBdDsK[i],
-                                                                  nCombBkg[i],
-                                                                  nBs2DsDsstPiRho[i],
-                                                                  nBs2DsPi[i],
-                                                                  nBs2DsDssKKst[i],
-                                                                  nLb2DsDsstp[i],
-                                                                  nBd2DK[i],
-                                                                  nLb2LcK[i],
-                                                                  g1_f1,
-                                                                  g1_f2,
-                                                                  g1_f3,
-                                                                  g2_f1,
-                                                                  #g2_f2,
-                                                                  #g2_f3,
-                                                                  g3_f1,
-                                                                  g4_f1,
-                                                                  g4_f2,
-                                                                  sigDsPDF[i],
-                                                                  cBVar[i],
-                                                                  cDVar[i],
-                                                                  fracComb[i],
-                                                                  sm[i],
-                                                                  lumRatio,
-                                                                  debug ))
+                bkgPDF.append(Bs2Dsh2011TDAnaModels.build_Bs2DsK_BKG_MDFitter(mass,
+                                                                              massDs,
+                                                                              workspace[0],
+                                                                              #workspaceID,
+                                                                              #workspaceID2,
+                                                                              bkgBdDsK[i],
+                                                                              nCombBkg[i],
+                                                                              nBs2DsDsstPiRho[i],
+                                                                              nBs2DsPi[i],
+                                                                              nBs2DsDssKKst[i],
+                                                                              nLb2DsDsstp[i],
+                                                                              nBd2DK[i],
+                                                                              nLb2LcK[i],
+                                                                              g1_f1,
+                                                                              g1_f2,
+                                                                              g1_f3,
+                                                                              g2_f1,
+                                                                              #g2_f2,
+                                                                              #g2_f3,
+                                                                              g3_f1,
+                                                                              g4_f1,
+                                                                              g4_f2,
+                                                                              sigDsPDF[i],
+                                                                              cBVar[i],
+                                                                              cDVar[i],
+                                                                              fracComb[i],
+                                                                              sm[i],
+                                                                              lumRatio,
+                                                                              debug ))
                 
         else:
            
@@ -737,36 +730,36 @@ def runBsDsKMassFitterOnData( debug, sample, mVar, mdVar, tVar, tagVar, tagOmega
                 for j in range (0,ransample):
                     print "i %s, j %s"%(i,j)
                     print "sample: %s, sm: %s, name: %s"%(s[j],sm[i*2+j],nCombBkg[i*2+j])
-                    bkgPDF.append(Bs2Dsh2011TDAnaModels.buildBsDsK_2D(mass,
-                                                                      massDs,
-                                                                      workspace[0],
-                                                                      workspaceID,
-                                                                      workspaceID2,
-                                                                      bkgBdDsK[i*2+j],
-                                                                      nCombBkg[i*2+j],
-                                                                      nBs2DsDsstPiRho[i*2+j],
-                                                                      nBs2DsPi[i*2+j],
-                                                                      nBs2DsDssKKst[i*2+j],
-                                                                      nLb2DsDsstp[i*2+j],
-                                                                      nBd2DK[i*2+j],
-                                                                      nLb2LcK[i*2+j],
-                                                                      g1_f1,
-                                                                      g1_f2,
-                                                                      g1_f3,
-                                                                      g2_f1,
-                                                                      #g2_f2,
-                                                                      #g2_f3,
-                                                                      g3_f1,
-                                                                      g4_f1,
-                                                                      g4_f2,
-                                                                      sigDsPDF[i*2+j],
-                                                                      cBVar[i*2+j],
-                                                                      cDVar[i*2+j],
-                                                                      fracComb[i*2+j],
-                                                                      sm[i*2+j],
-                                                                      lumRatio,
-                                                                      debug ))
-
+                    bkgPDF.append(Bs2Dsh2011TDAnaModels.build_Bs2DsK_BKG_MDFitter(mass,
+                                                                                  massDs,
+                                                                                  workspace[0],
+                                                                                  #workspaceID,
+                                                                                  #workspaceID2,
+                                                                                  bkgBdDsK[i*2+j],
+                                                                                  nCombBkg[i*2+j],
+                                                                                  nBs2DsDsstPiRho[i*2+j],
+                                                                                  nBs2DsPi[i*2+j],
+                                                                                  nBs2DsDssKKst[i*2+j],
+                                                                                  nLb2DsDsstp[i*2+j],
+                                                                                  nBd2DK[i*2+j],
+                                                                                  nLb2LcK[i*2+j],
+                                                                                  g1_f1,
+                                                                                  g1_f2,
+                                                                                  g1_f3,
+                                                                                  g2_f1,
+                                                                                  #g2_f2,
+                                                                                  #g2_f3,
+                                                                                  g3_f1,
+                                                                                  g4_f1,
+                                                                                  g4_f2,
+                                                                                  sigDsPDF[i*2+j],
+                                                                                  cBVar[i*2+j],
+                                                                                  cDVar[i*2+j],
+                                                                                  fracComb[i*2+j],
+                                                                                  sm[i*2+j],
+                                                                                  lumRatio,
+                                                                                  debug ))
+                    
         
         
     # Create total the model PDF in mass
