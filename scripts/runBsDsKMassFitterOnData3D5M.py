@@ -480,32 +480,16 @@ def runBsDsKMassFitterOnData( debug, sample, mVar, mdVar, tVar, tagVar, tagOmega
     #exit(0)
     nSigdG = []
     sigPIDKPDF = []
-    sigPIDKPDF1 = []
-    sigPIDKPDF2 = []
     sigProdPDF = []
     sigEPDF = []
     lumRatio = RooRealVar("lumRatio","lumRatio", myconfigfile["lumRatio"])
+
     for i in range(0,bound):
-        name = TString("DCruijffPDF_")+sm[i]
         name2 = TString("SigProdPDF")+t+sm[i]
         name3 = TString("SigEPDF")+t+sm[i]
-        if merge:
-            namePIDK1 = TString("PIDKShape_Bs2DsK_up_")+m[j] #+TString("_down")
-            print namePIDK1
-            sigPIDKPDF1.append(Bs2Dsh2011TDAnaModels.GetRooBinned1DFromWorkspace(workspace[0],namePIDK1, debug))
-            namePIDK2 = TString("PIDKShape_Bs2DsK_down_")+m[j] #m[j]+TString("_up")
-            print namePIDK2
-            sigPIDKPDF2.append(Bs2Dsh2011TDAnaModels.GetRooBinned1DFromWorkspace(workspace[0],namePIDK2,debug))
-            name4 = TString("PIDKShape_Bs2DsPi_both_")+m[j] #m[j]+TString("_both")
-            sigPIDKPDF.append(RooAddPdf( name4.Data(), name4.Data(), RooArgList( sigPIDKPDF2[i], sigPIDKPDF1[i]),RooArgList(lumRatio)))
-            print "Create %s"%(sigPIDKPDF[0].GetName())
-        else:
-            if(sm[i].Contains("down")):
-                namePIDK1 = TString("PIDshape_BsDsK_both_")+m[j]+TString("_down")
-                sigPIDKPDF.append(Bs2Dsh2011TDAnaModels.GetRooBinned1DFromWorkspace(workspaceID,namePIDK1,debug))
-            else:
-                namePIDK2 = TString("PIDshape_BsDsPi_both_")+m[j]+TString("_up")
-                sigPIDKPDF.append(Bs2Dsh2011TDAnaModels.GetRooBinned1DFromWorkspace(workspaceID,namePIDK2,debug))
+        m = TString("Bs2DsK_")+sm[i]
+        k = bound%2
+        sigPIDKPDF.append(Bs2Dsh2011TDAnaModels.ObtainPIDKShape(workspace[0], m, s[k], lumRatio, true, debug))
         sigProdPDF.append(RooProdPdf(name2.Data(),name2.Data(),RooArgList(sigPDF[i],sigDsPDF[i],sigPIDKPDF[i])))
         print sigProdPDF[i].GetName()
         sigEPDF.append(RooExtendPdf(name3.Data(),name3.Data(),sigProdPDF[i], nSig[i]))

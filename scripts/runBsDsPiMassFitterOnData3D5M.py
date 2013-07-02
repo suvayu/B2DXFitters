@@ -412,16 +412,10 @@ def runBsDsKMassFitterOnData( debug, sample, mVar, mdVar, tVar, tagVar, tagOmega
             sig2 = sig2*myconfigfile["sigma1Bsfrac"]
             
         name = TString("Signal_sigma1_")+sm[i]    
-        s1.append(RooRealVar( name.Data(), name.Data(), sig1)) #, #
-                              #myconfigfile["sigma1"][i]*0.8,
-                              #myconfigfile["sigma1"][i]*1.2))
-                              #*myconfigfile["sigma1Bsfrac"]))
+        s1.append(RooRealVar( name.Data(), name.Data(), sig1)) 
         name = TString("Signal_sigma2_")+sm[i]
-        s2.append(RooRealVar( name.Data(), name.Data(), sig2)) #,
-                              #myconfigfile["sigma2"][i]*0.8,
-                              #myconfigfile["sigma2"][i]*1.2))
-                              #*myconfigfile["sigma2Bsfrac"]))
-            
+        s2.append(RooRealVar( name.Data(), name.Data(), sig2)) 
+                                          
         name = TString("nSig")+t+sm[i]+t+TString("Evts")
         nSig.append(RooRealVar( name.Data(), name.Data(), nSigEvts[i], 0., nEntries[i] ))
 
@@ -456,17 +450,10 @@ def runBsDsKMassFitterOnData( debug, sample, mVar, mdVar, tVar, tagVar, tagOmega
             sig2Ds = sig2Ds*myconfigfile["sigma1Dsfrac"]
                                                                 
         name = TString("Signal_sigma1_Ds_")+sm[i]
-        s1Ds.append(RooRealVar( name.Data(), name.Data(), sig1Ds)) #,
-                                #myconfigfile["sigma1Ds"][i]*0.8,
-                                #myconfigfile["sigma1Ds"][i]*1.2))
-        
-                                #*myconfigfile["sigma1Dsfrac"]))
+        s1Ds.append(RooRealVar( name.Data(), name.Data(), sig1Ds))
         name = TString("Signal_sigma2_Ds_")+sm[i]
-        s2Ds.append(RooRealVar( name.Data(), name.Data(), sig2Ds)) #,
-                                #myconfigfile["sigma2Ds"][i]*0.8,
-                                #myconfigfile["sigma2Ds"][i]*1.2))
-                                #*myconfigfile["sigma2Dsfrac"]))
-
+        s2Ds.append(RooRealVar( name.Data(), name.Data(), sig2Ds))
+                                
         al1Ds  = myconfigfile["alpha1Ds_bc"][i]*myconfigfile["alpha1Dsfrac"]
         al2Ds  = myconfigfile["alpha2Ds_bc"][i]*myconfigfile["alpha2Dsfrac"]
         n1Ds   =  myconfigfile["n1Ds_bc"][i]
@@ -491,45 +478,21 @@ def runBsDsKMassFitterOnData( debug, sample, mVar, mdVar, tVar, tagVar, tagOmega
     sigProdPDF = []
     sigEPDF = []
     sigPIDKPDF = []
-    sigPIDKPDF1 = []
-    sigPIDKPDF2 = []
-        
+           
     lumRatio = RooRealVar("lumRatio","lumRatio", myconfigfile["lumRatio"])
     j=0
     
     for i in range(0,bound):
-        name = TString("DCruijffPDF_")+sm[i]
         name2 = TString("SigProdPDF")+t+sm[i]
         name3 = TString("SigEPDF")+t+sm[i]
-        if merge:
-            namePIDK1 = TString("PIDKShape_Bs2DsPi_up_")+m[j] #+TString("_down")
-            print namePIDK1
-            sigPIDKPDF1.append(Bs2Dsh2011TDAnaModels.GetRooBinned1DFromWorkspace(workspace[0],namePIDK1, debug))
-            namePIDK2 = TString("PIDKShape_Bs2DsPi_down_")+m[j] #m[j]+TString("_up")
-            print namePIDK2
-            sigPIDKPDF2.append(Bs2Dsh2011TDAnaModels.GetRooBinned1DFromWorkspace(workspace[0],namePIDK2,debug))
-            name4 = TString("PIDKShape_Bs2DsPi_both_")+m[j] #m[j]+TString("_both")
-            sigPIDKPDF.append(RooAddPdf( name4.Data(), name4.Data(), RooArgList( sigPIDKPDF2[i], sigPIDKPDF1[i]),RooArgList(lumRatio)))
-            print "Create %s"%(sigPIDKPDF[0].GetName())
-        else:
-            if(sm[i].Contains("down")):
-                namePIDK1 = TString("PIDshape_BsDsPi_both_")+m[j]+TString("_down")
-                sigPIDKPDF.append(Bs2Dsh2011TDAnaModels.GetRooBinned1DFromWorkspace(workspaceID,namePIDK1,debug))
-            else:
-                namePIDK2 = TString("PIDshape_BsDsPi_both_")+m[j]+TString("_up")
-                sigPIDKPDF.append(Bs2Dsh2011TDAnaModels.GetRooBinned1DFromWorkspace(workspaceID,namePIDK2,debug))
-        #sigDsPDF.append(RooCruijff(name.Data(), name.Data(),massDs, meanVarDs[i], sigma1VarDs[i], sigma2VarDs[i],alpha1VarDs[i], alpha2VarDs[i]))
-        #print sigDsPDF[i].GetName()
+        m = TString("Bs2DsPi_")+sm[i]
+        k = bound%2
+        sigPIDKPDF.append(Bs2Dsh2011TDAnaModels.ObtainPIDKShape(workspace[0], m, s[k], lumRatio, true, debug))
         sigProdPDF.append(RooProdPdf(name2.Data(),name2.Data(),RooArgList(sigPDF[i],sigDsPDF[i],sigPIDKPDF[i])))
         print sigProdPDF[i].GetName()
         sigEPDF.append(RooExtendPdf(name3.Data(),name3.Data(),sigProdPDF[i], nSig[i]))
         print sigEPDF[i].GetName()
-        if merge:
-            j=j+1
-        else:
-            if i == 1 or i == 3:
-                j=j+1
-            
+                    
                                                                                                                               
     #exit(0)            
     # Create the background PDF in mass
