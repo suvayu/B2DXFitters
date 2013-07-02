@@ -4,21 +4,24 @@
 ! Purpose     : RooFit-based fitters for B -> D X
 !-----------------------------------------------------------------------------
 
+! 2013-07-02 - Manuel Tobias Schiller
+ - fix two small bugs in standalone/Rules.mk
+
 ! 2013-07-02 - Agnieszka Dziurda
  - new workspaces in /afs/cern.ch/work/a/adudziak/public/workspace/MDFitter/
  - new functions for Manuel's reading pdf in Bs2Dsh2011TDAnaModels.{h,cxx}
  - clean up Bs2Dsh2011TDAnaModels.{h,cxx}
  - update and clean up scripts:
    . runBsDsPiMassFitterOnData3D5M.py
-   . runBsDsKMassFitterOnData3D5M.py		
+   . runBsDsKMassFitterOnData3D5M.py      
  - update generator toys for DsPi: 
    . GenerateToySWeights_DsPi.py (work in progress)
    . data/Bs2DsPiConfigForGenerator.py - add avariable for MDFitter
    . SFitUtils.{h,cxx} - add variable for MDFitter
  - minor updates in WeightingUtils.cxx (change names of PIDK pdf)
  - minor changes in GeneralUtils.cxx and MassFitUtils.cxx
- - update scripts in scripts/Csh/ for preparing workspace and fitting       		
-	
+ - update scripts in scripts/Csh/ for preparing workspace and fitting            
+   
 ! 2013-06-04 - Manuel Tobias Schiller
  - make Agnieszka's fitter run in the standalone environment
  - fits must start at 0.2 ps in time where the trigger cuts, or the binned

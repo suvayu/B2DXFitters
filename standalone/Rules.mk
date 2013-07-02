@@ -47,6 +47,9 @@
 # v0.11	2013-05-17 Manuel Schiller <manuel.schiller@nikhef.nl
 # 	fix build when doing a standalone build in a partially set up LHCb
 # 	software environment
+# v0.12 2013-07-02 Manuel Schiller <manuel.schiller@nikhef.nl
+# 	fix by Paul Seyfert to correctly handle multiple subdirectories
+# 	fix automatic dependency tracking for Fortran files
 #######################################################################
 
 #######################################################################
@@ -638,10 +641,13 @@ ccsrc.cxx = $(filter %.cxx,$(ccsrc))
 ccsrc.c++ = $(filter %.c++,$(ccsrc))
 # Fortran sources (not all variations)
 f77src += $(wildcard *.[fF])
+f77fsrc += $(filter %.f,$(f77src))
+f77Fsrc += $(filter %.F,$(f77src))
 # dependency files (.deps/*.d and .deps/*.dd) for make
 alldeps += $(csrc:%.c=.deps/%.d) $(ccsrc.C:%.C=.deps/%.dd) \
     $(ccsrc.cc:%.cc=.deps/%.dd) $(ccsrc.cpp:%.cpp=.deps/%.dd) \
-    $(ccsrc.cxx:%.cxx=.deps/%.dd) $(ccsrc.c++:%.c++=.deps/%.dd)
+    $(ccsrc.cxx:%.cxx=.deps/%.dd) $(ccsrc.c++:%.c++=.deps/%.dd) \
+    $(f77fsrc:%.f=.deps/%.df) $(f77Fsrc:%.F=.deps/%.df)
 # source files without dictionaries
 allsrc += $(filter-out $(alldicts),$(sort $(csrc) $(ccsrc) $(f77src)))
 
@@ -716,8 +722,8 @@ endef
 # targets which work by descending into subdirectories
 SUBDIRRULES = all dep clean distclean strip
 # synthesize rules to descend into subdirectories for these targets
-$(foreach subdirrule,$(SUBDIRRULES),$(eval \
-    $(call SUBDIRRULE_TEMPLATE,$(subdirrule),$(SUBDIRS))))
+$(foreach subdirrule,$(SUBDIRRULES),$(foreach subdir,$(SUBDIRS),$(eval \
+    $(call SUBDIRRULE_TEMPLATE,$(subdirrule),$(subdir)))))
 else
 subdirs-all::
 subdirs-dep::
@@ -759,7 +765,7 @@ COMPILE.cxx = $(CXX) $(CXXFLAGS) $(CPPFLAGS) -c $< -o $@
 COMPILE.f   = $(FC) $(FFLAGS) $(CPPFLAGS) -c $< -o $@
 COMPILEMSG.c   = "\\x1b[32m[CC]\\x1b[m\\t\\t$@"
 COMPILEMSG.cxx = "\\x1b[32m[CXX]\\x1b[m\\t\\t$@"
-COMPILEMSG.f   = "\\x1b[32m[FC]\\x1b[m\\t\t$@"
+COMPILEMSG.f   = "\\x1b[32m[FC]\\x1b[m\\t\\t$@"
 # generate pattern rules to compile source files
 $(foreach extension,$(EXTENSIONS_C),$(foreach objsuffix,$(OBJSUFFIXES),\
     $(eval $(call PATTERNRULE_TEMPLATE,%.$(objsuffix),%.$(extension),COMPILEMSG.c,COMPILE.c))))
@@ -875,6 +881,7 @@ MKDEPENDMSG = "\\x1b[36m[MKDEPEND]\\x1b[m\\t$<"
 # make sure we use the "right" preprocessor
 .deps/%.d: CPP = $(CC) -E
 .deps/%.dd: CPP = $(CXX) -E
+.deps/%.df: CPP = $(FC)
 # include ROOT includes for C++ files by default
 %.dd: CPPFLAGS += $(ROOTINCLUDES)
 # synthesize rules
@@ -882,6 +889,8 @@ $(foreach extension,$(EXTENSIONS_C),\
     $(eval $(call PATTERNRULE_TEMPLATE,.deps/%.d,%.$(extension),MKDEPENDMSG,MKDEPEND)))
 $(foreach extension,$(EXTENSIONS_CXX),\
     $(eval $(call PATTERNRULE_TEMPLATE,.deps/%.dd,%.$(extension),MKDEPENDMSG,MKDEPEND)))
+$(foreach extension,$(EXTENSIONS_F),\
+    $(eval $(call PATTERNRULE_TEMPLATE,.deps/%.df,%.$(extension),MKDEPENDMSG,MKDEPEND)))
 
 # include the dependency information
 -include $(alldeps)
