@@ -95,6 +95,7 @@ namespace MassFitUtils {
 			   TString& mVar,
 			   TString& mDVar,
 			   TString& tVar,
+			   TString& terrVar,
 			   TString& tagVar,
 			   TString& tagOmegaVar,
 			   TString& idVar,
@@ -116,6 +117,7 @@ namespace MassFitUtils {
 	std::cout<<"Name of B(s) mass observable: "<<mVar<<std::endl;
 	std::cout<<"Name of D(s) mass observable: "<<mDVar<<std::endl;
 	std::cout<<"Name of time observable: "<<tVar<<std::endl;
+	std::cout<<"Name of time error observable: "<<terrVar<<std::endl;
 	std::cout<<"Name of tag observable: "<<tagVar<<std::endl;
 	std::cout<<"Name of mistag observable: "<<tagOmegaVar<<std::endl;
 	std::cout<<"Name of id observable: "<<idVar<<std::endl;
@@ -140,6 +142,7 @@ namespace MassFitUtils {
 
     RooRealVar* lab0_MM = new RooRealVar(mVar.Data(),mVar.Data(),BMassRange[0], BMassRange[1]);
     RooRealVar* lab0_TAU = new RooRealVar(tVar.Data(),tVar.Data(), time_down, time_up);
+    RooRealVar* lab0_TAUERR = new RooRealVar(terrVar.Data(),terrVar.Data(), 0.0, 0.10);
     RooRealVar* lab0_TAG = new RooRealVar(tagVar.Data(),tagVar.Data(),-2,2);
     RooRealVar* lab0_TAGOMEGA = new RooRealVar(tagOmegaVar.Data(),tagOmegaVar.Data(),0.,1.); 
     RooRealVar* lab1_ID = new RooRealVar(idVar.Data(),idVar.Data(),-1000,1000); 
@@ -191,6 +194,7 @@ namespace MassFitUtils {
 				   *lab2_MM,*lab1_P); 
     obs->add(*lab1_PIDp);
     obs->add(*lab1_PIDK); 
+    obs->add(*lab0_TAUERR);
     obs->add(*nTracks);
 
     std::vector <std::string> FileName;
@@ -266,13 +270,14 @@ namespace MassFitUtils {
 		TTree* treetmp=NULL;
 		treetmp = TreeCut(tree[i],All_cut,smp[i],mode, debug);
 	
-		//Float_t lab0_MM3,lab0_TAU3,lab0_TAG3,lab0_TAGOMEGA3,lab1_ID3, lab2_MM3, lab1_PIDK3, lab1_PIDp3, nTracks3;
-		Float_t lab0_MM3, lab0_TAU3;
+		//Float_t lab0_MM3,lab0_TAU3, lab0_TAUERR3, lab0_TAG3,lab0_TAGOMEGA3,lab1_ID3, lab2_MM3, lab1_PIDK3, lab1_PIDp3, nTracks3;
+		Float_t lab0_MM3, lab0_TAU3, lab0_TAUERR3;
 		Double_t lab2_MM3, lab1_PIDK3, lab1_PIDp3, lab0_TAGOMEGA3;
 		Int_t lab0_TAG3, lab1_ID3, nTracks3;
 
 		treetmp->SetBranchAddress(mVar.Data(), &lab0_MM3);
 		treetmp->SetBranchAddress(tVar.Data(),&lab0_TAU3);
+		treetmp->SetBranchAddress(terrVar.Data(),&lab0_TAUERR3);
 		treetmp->SetBranchAddress(tagVar.Data(),&lab0_TAG3);
 		treetmp->SetBranchAddress(tagOmegaVar.Data(),&lab0_TAGOMEGA3);
 		treetmp->SetBranchAddress(idVar.Data(),&lab1_ID3);
@@ -305,6 +310,7 @@ namespace MassFitUtils {
 		  //m = lab0_MM3;
 		  lab0_MM->setVal(lab0_MM3);
 		  lab0_TAU->setVal(lab0_TAU3);
+		  lab0_TAUERR->setVal(lab0_TAUERR3);
 		  lab0_TAG->setVal(lab0_TAG3);
 		  lab0_TAGOMEGA->setVal(lab0_TAGOMEGA3);
 		  lab1_ID->setVal(lab1_ID3);
@@ -2543,6 +2549,7 @@ namespace MassFitUtils {
 			      TString &mVar,
 			      TString& mDVar,
 			      TString& tVar,
+			      TString& terrVar,
                               TString& tagVar,
                               TString& tagOmegaVar,
                               TString& idVar,
@@ -2567,6 +2574,7 @@ namespace MassFitUtils {
 	std::cout<<"Name of B(s) mass observable: "<<mVar<<std::endl;
 	std::cout<<"Name of D(s) mass observable: "<<mDVar<<std::endl;
 	std::cout<<"Name of time observable: "<<tVar<<std::endl;
+	std::cout<<"Name of time error observable: "<<terrVar<<std::endl;
 	std::cout<<"Name of tag observable: "<<tagVar<<std::endl;
 	std::cout<<"Name of mistag observable: "<<tagOmegaVar<<std::endl;
 	std::cout<<"Name of id observable: "<<idVar<<std::endl;
@@ -2621,6 +2629,7 @@ namespace MassFitUtils {
     RooRealVar* lab0_MM = new RooRealVar(mVar.Data(),mVar.Data(),BMassRange[0], BMassRange[1]);
     RooRealVar* lab2_MM = new RooRealVar(mDVar.Data(),mDVar.Data(),Dmass_down, Dmass_up);
     RooRealVar* lab0_TAU = new RooRealVar(tVar.Data(),tVar.Data(),time_down,time_up);
+    RooRealVar* lab0_TAUERR = new RooRealVar(terrVar.Data(),terrVar.Data(),0.0,0.1);
     RooRealVar* lab0_TAG = new RooRealVar(tagVar.Data(),tagVar.Data(),-1.,1.);
     RooRealVar* lab0_TAGOMEGA = new RooRealVar(tagOmegaVar.Data(),tagOmegaVar.Data(),0.,1.);
     RooRealVar* lab1_ID = new RooRealVar(idVar.Data(),idVar.Data(),-1.,1.);
@@ -2645,6 +2654,7 @@ namespace MassFitUtils {
     obs->add(*nTracks);
     obs->add(*lab1_PIDK);
     obs->add(*lab0_P); 
+    obs->add(*lab0_TAUERR);
 
     // Read sample (down,up) from path//
     TString smp[2], md[2];
@@ -2674,6 +2684,7 @@ namespace MassFitUtils {
     }
           
     TCut P_cut = Form("lab1_P > %f && lab1_P < %f",Pcut_down,Pcut_up);
+    TCut Time_cut = Form("%s > %f && %s < %f",tVar.Data(), time_down, tVar.Data(), time_up);
     TCut BDTG_cut = Form("BDTGResponse_1 > %f && BDTGResponse_1 < %f",BDTG_down, BDTG_up);
     TCut FDCHI2 = "";
 
@@ -2752,7 +2763,8 @@ namespace MassFitUtils {
       MCBsIDCut = Form("abs(lab1_ID)==%d && abs(lab5_ID)==%d && abs(lab3_ID)==%d && abs(lab4_ID)==%d",id_lab1, id_lab5, id_lab3, id_lab4);
       MCBsTRUEIDCut = Form("abs(lab1_TRUEID)==%d && abs(lab5_TRUEID)==%d && abs(lab3_TRUEID)==%d && abs(lab4_TRUEID)==%d",id_lab1, id_lab5, id_lab3, id_lab4);
 
-      MCCut = MCBsIDCut&&MCTriggerCut&&MCD&&MCB&&P_cut&&BDTG_cut&&FDCHI2&&TAU_cut&&BachHypo&&DHypo&&MCBsTRUEIDCut&&BkgCAT;
+      MCCut = MCBsIDCut&&MCTriggerCut&&MCD&&MCB&&Time_cut&&P_cut&&BDTG_cut&&FDCHI2&&TAU_cut&&BachHypo&&DHypo&&MCBsTRUEIDCut&&BkgCAT;
+      //MCCut = MCTriggerCut&&MCD&&MCB&&Time_cut&&P_cut&&BDTG_cut&&FDCHI2&&TAU_cut&&BachHypo&&DHypo&&BkgCAT;
 
       std::cout<<"------Cut-----"<<std::endl;
       std::cout<<MCCut<<std::endl;
@@ -2761,12 +2773,13 @@ namespace MassFitUtils {
       treetmp = TreeCut(tree[i], MCCut, smp[i], mode, debug);  //obtain new tree with applied all cuts//
       Int_t nentriesMC = treetmp->GetEntries();
       
-      Float_t lab0_MM3;
-      Double_t lab0_TAU3[10],lab0_TAGOMEGA3, lab2_MM3, lab1_P3, lab1_PT3, lab1_PIDK3, lab0_P3;
+      Float_t lab0_MM3, lab0_TAU3[10], lab0_TAUERR3[10];
+      Double_t lab0_TAGOMEGA3, lab2_MM3, lab1_P3, lab1_PT3, lab1_PIDK3, lab0_P3;
       Int_t lab1_ID3, lab0_TAG3, nTr3;
       
       treetmp->SetBranchAddress(mVar.Data(), &lab0_MM3);
       treetmp->SetBranchAddress(tVar.Data(),&lab0_TAU3);
+      treetmp->SetBranchAddress(terrVar.Data(),&lab0_TAUERR3);
       treetmp->SetBranchAddress(tagVar.Data(),&lab0_TAG3);
       treetmp->SetBranchAddress(tagOmegaVar.Data(),&lab0_TAGOMEGA3);
       treetmp->SetBranchAddress(idVar.Data(),&lab1_ID3);
@@ -2810,14 +2823,18 @@ namespace MassFitUtils {
 
             if ( lab0_TAGOMEGA3 > 0.5) { lab0_TAGOMEGA3 = 0.5;}
 
-            if ( lab0_TAG3 > 0.5 ) { lab0_TAG3 = 1.0; }
-            else if (lab0_TAG3 < 0.5 ) {lab0_TAG3 = -1.0; }
+	    
+            if ( (double)lab0_TAG3 > 0.5 ) { lab0_TAG3 = 1.0; }
+            else if ((double)lab0_TAG3 < -0.5 ) {lab0_TAG3 = -1.0; }
             else { lab0_TAG3 = 0;}
 
 	    lab0_MM->setVal(lab0_MM3);
 	    lab2_MM->setVal(lab2_MM3);
 	    Float_t time = lab0_TAU3[0]*factor;
 	    lab0_TAU->setVal(time);
+	    Float_t timeerr = lab0_TAUERR3[0]*factor; 
+	    //std::cout<<"time: "<<time<<" time error "<<timeerr<<std::endl;
+	    lab0_TAUERR->setVal(timeerr);
             lab0_TAG->setVal(lab0_TAG3);
             lab0_TAGOMEGA->setVal(lab0_TAGOMEGA3);
             lab1_ID->setVal(id);
@@ -2846,8 +2863,11 @@ namespace MassFitUtils {
 	      }
 	    //wRW =1.0;
 	    w[i]->setVal(wRW);
-	    dataSetMC[i]->add(*obs,wRW,0);
-	    if( log(lab1_PIDK3) > log(PIDcut))
+	    //if (  lab0_TAG3  == 0.0 )
+	    //  {
+		dataSetMC[i]->add(*obs,wRW,0);
+		// }	    
+	    if( log(lab1_PIDK3) > log(PIDcut) )
 	      {
 		dataSetMCtmp[i]->add(*obs,wRW,0);
 	      }

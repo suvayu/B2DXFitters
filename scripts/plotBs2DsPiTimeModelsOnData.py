@@ -21,6 +21,12 @@ from os.path  import exists
 # Configuration settings
 # -----------------------------------------------------------------------------
 
+import GaudiPython
+GaudiPython.loaddict( 'B2DXFittersDict' )
+from ROOT import *
+from ROOT import RooCruijff
+
+
 # MODELS
 signalModelOnly = False
 
@@ -32,9 +38,12 @@ plotModel =  True
 debug = True
 bName = 'B_{s}'
 
+timeDown = 0.2
+timeUp = 15.0
 
-dataSetToPlot  = 'dataSet_time_Bs2DsK'
-fileToWriteOut = 'time_DsK.pdf' 
+dataSetToPlot  = 'dataSet_time_Bs2DsPi'
+pdfToPlot = 'sigTotPDF'
+fileToWriteOut = 'time_DsPi.pdf' 
 #------------------------------------------------------------------------------
 def plotDataSet(dataset, frame) :
     dataset.plotOn(frame,RooFit.Binning(74))
@@ -52,7 +61,7 @@ def plotFitModel(model, frame, wksp) :
 
     # plot model itself
     fr = model.plotOn(frame,
-                      RooFit.LineColor(kBlue)),
+                      RooFit.LineColor(kBlue+3)),
 
     #model.createProjection(RooArgSet(lab0_BsTaggingTool_TAGDECISION_OS,lab1_ID))    
 
@@ -118,14 +127,6 @@ parser.add_option('-w', '--workspace',
                    default = 'workspace',
                    help = 'RooWorkspace name as stored in ROOT file'
 )
-parser.add_option( '--pull',
-                   dest = 'pull',
-                   action = 'store_true',
-                   default = False,
-                   help = 'Plot pull: choose no or yes'
-                   )
-
-
 #------------------------------------------------------------------------------
 
 if __name__ == '__main__' :
@@ -149,14 +150,13 @@ if __name__ == '__main__' :
     from ROOT import RooCategory, RooMappedCategory, RooConstVar
     from ROOT import RooArgSet, RooArgList, RooGaussian, RooTruthModel, RooDecay
     from ROOT import RooAddPdf, RooProdPdf, RooExtendPdf, RooGenericPdf, RooAbsReal
-    from ROOT import RooFit, FitMeTool, TGraph, TPad
-
+    from ROOT import RooFit, FitMeTool, TGraph, TPad, gStyle
     from ROOT import CombBkgPTPdf
     from ROOT import BdPTAcceptance
     from ROOT import RooBlindTools
 
     gROOT.SetStyle('Plain')
-    gROOT.SetBatch(False)
+    #gROOT.SetBatch(False)
 
     
     f = TFile(FILENAME)
@@ -168,35 +168,37 @@ if __name__ == '__main__' :
 
     f.Close()
     time = w.var('lab0_LifetimeFit_ctau')
-    time.setRange(0.2,15.)   
+    #time.setRange(timeDown,timeUp)   
  
-    modelPDF = w.pdf('time_signal')
+    modelPDF = w.pdf(pdfToPlot) 
+    if modelPDF:
+        print modelPDF.GetName()
     dataset  = w.data(dataSetToPlot) 
-    if dataset: print dataset.GetName()
+    if dataset:
+        print dataset.GetName()
 
     if not (modelPDF and dataset) :
         w.Print('v')
         exit(1)
 
-    if ( not options.pull ):
-        canvas = TCanvas('TimeCanvas', 'Propertime canvas', 800, 600)
-        canvas.cd()
-    else:
-        canvas = TCanvas('TimeCanvas', 'Propertime canvas', 1000, 300)
     
+    canvas = TCanvas("canvas", "canvas", 1200, 1000)
+    canvas.cd()
+       
     frame_t = time.frame()
-   
     frame_t.SetTitle('')
  
-    frame_t.GetXaxis().SetLabelSize(0.06)
-    frame_t.GetYaxis().SetLabelSize(0.06)
-    frame_t.GetXaxis().SetTitle('#tau (B_{s} #rightarrow D_{s} K) [ps]')
-    frame_t.GetXaxis().SetTitleSize(0.06)
-    frame_t.GetYaxis().SetTitleSize(0.06)
+    frame_t.GetXaxis().SetLabelSize(0.05)
+    frame_t.GetYaxis().SetLabelSize(0.05)
+    frame_t.GetXaxis().SetTitle('#font[12]{#tau (B_{s} #rightarrow D_{s} #pi) [ps]}')
+    frame_t.GetXaxis().SetTitleSize(0.05)
+    frame_t.GetYaxis().SetTitleSize(0.05)
     frame_t.GetXaxis().SetTitleOffset(0.95)
-    frame_t.GetYaxis().SetTitleOffset(0.9)
+    frame_t.GetYaxis().SetTitleOffset(0.85)
+    frame_t.GetXaxis().SetLabelFont( 132 )
+    frame_t.GetYaxis().SetLabelFont( 132 )
+        
 
-    #if plotData :
     plotDataSet(dataset, frame_t)
     
     print '##### modelPDF is'
@@ -204,91 +206,109 @@ if __name__ == '__main__' :
     if plotModel :
         plotFitModel(modelPDF, frame_t, w)
 
-    #leg, curve = legends(modelPDF, frame_t)
-    #frame_t.addObject(leg)
+    frame_t.GetYaxis().SetRangeUser(0.001,5000)
 
-    padgraphics = TPad("padgraphics","",0.005,0.355,0.995,0.995)
-    padgraphics.Draw()
-    padgraphics.cd()
-    frame_t.Draw()
+    legend = TLegend( 0.12, 0.12, 0.3, 0.3 )
+    legend.SetTextSize(0.06)
+    legend.SetTextFont(12)
+    legend.SetFillColor(4000)
+    legend.SetShadowColor(0)
+    legend.SetBorderSize(0)
+    legend.SetTextFont(132)
+    legend.SetHeader("LHCb Preliminary") # L_{int}=1.0 fb^{-1}")
 
-    from ROOT import TLatex
+    gr = TGraphErrors(10);
+    gr.SetName("gr");
+    gr.SetLineColor(kBlack);
+    gr.SetLineWidth(2);
+    gr.SetMarkerStyle(20);
+    gr.SetMarkerSize(1.3);
+    gr.SetMarkerColor(kBlack);
+    gr.Draw("P");
+    legend.AddEntry("gr","Data","lep");
 
-    myLatex = TLatex()
-    myLatex.SetTextFont(132)
-    myLatex.SetTextColor(1)
-    myLatex.SetTextSize(0.04)
-    myLatex.SetTextAlign(12)
-    myLatex.SetNDC(1)
-    myLatex.SetTextSize(0.065)
-    myLatex.DrawLatex(0.65, 0.725, 
-                 "#splitline{#splitline{LHCb}{Preliminary 1 fb^{-1}}}{}")
-
-    if ( options.pull ):
-        canvas.cd()
-        padpull = TPad("padpull","",0.005,0.005,0.995,0.995)
-        padpull.Draw() 
-        padpull.cd()
-
-        pullHist = frame_t.pullHist()
-
-        #pullHist.GetXaxis().SetTitle('time [ps]')
-        #pullHist.GetXaxis().SetTitleSize(0.075)
-
-        pullHist.SetMaximum(4.00)
-        pullHist.SetMinimum(-4.00)
-        axisX = pullHist.GetXaxis()
-        axisX.Set(100,0,15)
-        axisX.SetTitle('#tau (B_{s} #rightarrow D_{s} K) [ps]')   
-        axisX.SetTitleSize(0.150)
-        axisX.SetTitleFont(132)
-        axisX.SetLabelSize(0.150)
-        axisX.SetLabelFont(132)
-        axisX.SetTitle        
+    l1 = TLine()
+    l1.SetLineColor(kBlue+3)
+    l1.SetLineWidth(4)
+    legend.AddEntry(l1, "Signal B_{s}#rightarrow D_{s}#pi", "L")
     
-        axisY = pullHist.GetYaxis()
-        max = axisY.GetXmax()
-        min = axisY.GetXmin()
-        axisY.SetLabelSize(0.150)
-        axisY.SetLabelFont(132)
-        axisY.SetNdivisions(5)        
-                      
-        axisX = pullHist.GetXaxis()
-        maxX = axisX.GetXmax()
-        minX = axisX.GetXmin()
-        axisX.SetLabelSize(0.150)
-        
-        range = max-min
-        zero = max/range
-        print "max: %s, min: %s, range: %s, zero:%s"%(max,min,range,zero)
-        print "maxX: %s, minX: %s"%(maxX,minX)
-
-        graph = TGraph(2)
-        graph.SetMaximum(max)
-        graph.SetMinimum(min)
-        graph.SetPoint(1,0,0)
-        graph.SetPoint(2,15,0)
-        graph2 = TGraph(2)
-        graph2.SetMaximum(max)
-        graph2.SetMinimum(min)
-        graph2.SetPoint(1,0,-3)
-        graph2.SetPoint(2,15,-3)
-        graph2.SetLineColor(kRed)
-        graph3 = TGraph(2)
-        graph3.SetMaximum(max)
-        graph3.SetMinimum(min)
-        graph3.SetPoint(1,0,3)
-        graph3.SetPoint(2,15,3)
-        graph3.SetLineColor(kRed)
-
-        pullHist.SetTitle("");
-
-        pullHist.Draw("AP")
-        graph.Draw("same")
-        graph2.Draw("same")
-        graph3.Draw("same")
+    
+    padgraphics =  TPad("pad1","pad1",0.01,0.21,0.99,0.99)
+    padpull =  TPad("pad2","pad2",0.01,0.01,0.99,0.21)
+    padgraphics.Draw()
+    padpull.Draw()
+                
+    
+    padgraphics.SetLogy(1)
+    padgraphics.cd()
+    #gStyle.SetOptLogy(1)
+            
+    frame_t.Draw()
+    legend.Draw("same")
+    
+    padgraphics.Update()
+    
+    padpull.SetLogy(0)
+    padpull.cd()
+    gStyle.SetOptLogy(0)
       
-
+    pullHist = frame_t.pullHist()
+    pullHist.SetMaximum(4.00)
+    pullHist.SetMinimum(-4.00)
+    axisX = pullHist.GetXaxis()
+    axisX.Set(100, timeDown, timeUp )
+    axisX.SetTitle('#font[12]{#tau (B_{s} #rightarrow D_{s} K) [ps]}')   
+    axisX.SetTitleSize(0.150)
+    axisX.SetTitleFont(132)
+    axisX.SetLabelSize(0.150)
+    axisX.SetLabelFont(132)
+    axisX.SetTitle        
+    
+    axisY = pullHist.GetYaxis()
+    max = axisY.GetXmax()
+    min = axisY.GetXmin()
+    axisY.SetLabelSize(0.100)
+    axisY.SetLabelFont(132)
+    axisY.SetNdivisions(5)        
+    
+    axisX = pullHist.GetXaxis()
+    maxX = axisX.GetXmax()
+    minX = axisX.GetXmin()
+    axisX.SetLabelSize(0.100)
+    
+    range = max-min
+    zero = max/range
+    print "max: %s, min: %s, range: %s, zero:%s"%(max,min,range,zero)
+    print "maxX: %s, minX: %s"%(maxX,minX)
+    
+    graph = TGraph(2)
+    graph.SetMaximum(max)
+    graph.SetMinimum(min)
+    graph.SetPoint(1,timeDown,0)
+    graph.SetPoint(2,timeUp,0)
+    graph2 = TGraph(2)
+    graph2.SetMaximum(max)
+    graph2.SetMinimum(min)
+    graph2.SetPoint(1,timeDown,-3)
+    graph2.SetPoint(2,timeUp,-3)
+    graph2.SetLineColor(kRed)
+    graph3 = TGraph(2)
+    graph3.SetMaximum(max)
+    graph3.SetMinimum(min)
+    graph3.SetPoint(1,timeDown,3)
+    graph3.SetPoint(2,timeUp,3)
+    graph3.SetLineColor(kRed)
+    
+    pullHist.SetTitle("");
+    
+    pullHist.Draw("AP")
+    graph.Draw("same")
+    graph2.Draw("same")
+    graph3.Draw("same")
+    
+    padpull.Update()
+    canvas.Update()
+    
     chi2 = frame_t.chiSquare() 
     chi22 = frame_t.chiSquare(1)
       

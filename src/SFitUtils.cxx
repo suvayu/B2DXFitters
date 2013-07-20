@@ -70,27 +70,25 @@ namespace SFitUtils {
 				     TString& pathFile,
 				     TString& treeName,
 				     double time_down, double time_up,
-				     //RooRealVar* lab0_TAU, // TString& tVar,
-                                     //RooCategory* qt, //TString& tagVar,
-                                     //RooRealVar* lab0_TAGOMEGA, //TString& tagOmegaVar,
-                                     //RooCategory* qf, // TString& idVar,
 				     TString& tVar,
+				     TString& terrVar,
 				     TString& tagName,
 				     TString& tagOmegaVar,
 				     TString& idVar,
 				     bool debug
-				      )
+				     )
   {
     if ( debug == true) 
       {
 	std::cout<<"[INFO] ==> GeneralUtils::ReadDataFromSWeights(...). Read data set from sWeights NTuple "<<std::endl;
 	std::cout<<"path of file: "<<pathFile<<std::endl;
 	std::cout<<"name of tree: "<<treeName<<std::endl;
-	//std::cout<<"B(s) time range: ("<<time_down<<","<<time_up<<")"<<std::endl;
-	//std::cout<<"Name of time observable: "<<tVar<<std::endl;
-	//std::cout<<"Name of tag observable: "<<tagName<<std::endl;
-	//std::cout<<"Name of mistag observable: "<<tagOmegaVar<<std::endl;
-	//std::cout<<"Name of id observable: "<<idVar<<std::endl;
+	std::cout<<"B(s) time range: ("<<time_down<<","<<time_up<<")"<<std::endl;
+	std::cout<<"Name of time observable: "<<tVar<<std::endl;
+	std::cout<<"Name of time error observable: "<<terrVar<<std::endl;
+	std::cout<<"Name of tag observable: "<<tagName<<std::endl;
+	std::cout<<"Name of mistag observable: "<<tagOmegaVar<<std::endl;
+	std::cout<<"Name of id observable: "<<idVar<<std::endl;
 	std::cout<<"Mode: "<<part<<std::endl;
       }
 
@@ -99,6 +97,7 @@ namespace SFitUtils {
     TTree* treeSW = ReadTreeMC(pathFile.Data(),treeName.Data(), debug);
      
     RooRealVar* lab0_TAU = new RooRealVar(tVar.Data(),tVar.Data(),1.,time_down,time_up);
+    RooRealVar* lab0_TAUERR = new RooRealVar(terrVar.Data(),terrVar.Data(), 0.0, 0.0, 0.1);
     //RooRealVar* lab0_MM = new RooRealVar("lab0_MassFitConsD_M","lab0_MassFitConsD_M",5100, 5800);
     RooRealVar* lab0_TAGOMEGA = new RooRealVar(tagOmegaVar.Data(),tagOmegaVar.Data(),0.,0.,0.5);
     
@@ -171,7 +170,12 @@ namespace SFitUtils {
     RooDataSet*  dataSet;
     RooRealVar*  weights;
 
-    RooArgSet* obs = new RooArgSet(*lab0_TAU,*lab0_TAGOMEGA,*qf,*qt); 
+    RooArgSet* obs = new RooArgSet(*lab0_TAU,
+				   *lab0_TAUERR,
+				   *lab0_TAGOMEGA,
+				   *qf,
+				   *qt);
+ 
     TString setOfObsName = "SetOfObservables";
     obs->setName(setOfObsName.Data());
     
@@ -179,10 +183,6 @@ namespace SFitUtils {
     weights = new RooRealVar(namew.Data(), namew.Data(), -2.0, 2.0 );  // create weights //
     obs->add(*weights);
 
-    // RooArgSet* obs = new RooArgSet(*lab0_TAU,
-    //                               *lab0_TAG,
-    //				   *lab0_TAGOMEGA, 
-    //				   *lab1_ID);
     //obs->add(*lab1_P);
     //obs->add(*lab1_PT);
     //obs->add(*lab1_PIDp);
@@ -190,26 +190,27 @@ namespace SFitUtils {
     //obs->add(*nTracks);
     //obs->add(*lab0_MM);
 
-    
-    
+        
     dataSet = new RooDataSet(   cat.Data(), cat.Data(),
                                 *obs,
                                 namew.Data());  // create data set //
     
     work->import(*obs);
     work->import(*dataSet);
-    work->import(*weights);
+    //work->import(*weights);
     
 
     dataSet = NULL;
     qt = NULL;
     qf = NULL;
     lab0_TAU = NULL;
+    lab0_TAUERR = NULL;
     lab0_TAGOMEGA = NULL;
     obs = NULL;
     weights = NULL;
 
     lab0_TAU = GetObservable(work,tVar, debug);
+    lab0_TAUERR = GetObservable(work,terrVar, debug);
     TString tagVar2 = "qt";
     qt  = GetCategory(work,tagVar2, debug);
     lab0_TAGOMEGA = GetObservable(work,tagOmegaVar, debug);
@@ -217,7 +218,12 @@ namespace SFitUtils {
     qf = GetCategory(work,idVar2, debug);
     weights = GetObservable(work, namew, debug);
     dataSet = GetDataSet(work, cat, debug);
-    obs = new RooArgSet(*lab0_TAU,*lab0_TAGOMEGA,*qf,*qt,*weights);
+    obs = new RooArgSet(*lab0_TAU,
+			*lab0_TAUERR,
+			*lab0_TAGOMEGA,
+			*qf,
+			*qt,
+			*weights);
 
     /*
     RooDataSet* dataSetContr[6];
@@ -241,6 +247,7 @@ namespace SFitUtils {
     
     //Double_t mass; 
     Double_t tau;
+    Double_t tauerr;
     Double_t tag, ID;
     Double_t tagweight;
     Double_t sw[bound];
@@ -249,6 +256,7 @@ namespace SFitUtils {
     //Double_t PIDK, PIDp;
     
     treeSW->SetBranchAddress(tVar.Data(), &tau);
+    treeSW->SetBranchAddress(terrVar.Data(), &tauerr);
     treeSW->SetBranchAddress(tagName.Data(), &tag);
     treeSW->SetBranchAddress(tagOmegaVar.Data(), &tagweight);
     treeSW->SetBranchAddress("lab1_ID", &ID);
@@ -271,8 +279,11 @@ namespace SFitUtils {
     for (Long64_t jentry=0; jentry<treeSW->GetEntries(); jentry++) {
       treeSW->GetEntry(jentry);
       const double m = tau*1e9/c;
+      const double merr = tauerr*1e9/c;
       if (m < 0.2) continue;  
       lab0_TAU->setVal(m);
+      lab0_TAUERR->setVal(merr);
+      
       if (tagweight > 0.5) tagweight = 0.5;
       //lab0_TAG->setVal(tag);
       lab0_TAGOMEGA->setVal(tagweight);
@@ -533,7 +544,8 @@ namespace SFitUtils {
 			      TString& mVar, 
 			      TString& mDVar,
 			      TString& PIDKVar,
-			      TString& tVar, 
+			      TString& tVar,
+			      TString& terrVar,
 			      TString& tagVar, 
 			      TString& tagOmegaVar,
 			      TString& idVar, 
@@ -548,6 +560,7 @@ namespace SFitUtils {
 	std::cout<<"Name of D(s) mass observable: "<<mDVar<<std::endl;
 	std::cout<<"Name of PIDK observable: "<<PIDKVar<<std::endl;
 	std::cout<<"Name of time observable: "<<tVar<<std::endl;
+	std::cout<<"Name of time error observable: "<<terrVar<<std::endl;
 	std::cout<<"Name of tag observable: "<<tagVar<<std::endl;
 	std::cout<<"Name of mistag observable: "<<tagOmegaVar<<std::endl;
 	std::cout<<"Name of id observable: "<<idVar<<std::endl;
@@ -567,15 +580,16 @@ namespace SFitUtils {
     else
       {  lab1_PIDK= new RooRealVar(PIDKVar.Data(),PIDKVar.Data(),log(5),log(150));}
     RooRealVar* lab0_TAU = new RooRealVar(tVar.Data(),tVar.Data(),0.,15.);
-    RooRealVar* lab0_TAG = new RooRealVar(tagVar.Data(),tagVar.Data(),-2,2);
+    RooRealVar* lab0_TERR = new RooRealVar(terrVar.Data(),terrVar.Data(),0.,0.1);
+    RooRealVar* lab0_TAG = new RooRealVar(tagVar.Data(),tagVar.Data(),-2.0,2.0);
     RooRealVar* lab0_TAGOMEGA = new RooRealVar(tagOmegaVar.Data(),tagOmegaVar.Data(),0.,1.);
     RooRealVar* lab1_ID = new RooRealVar(idVar.Data(),idVar.Data(),-1000,1000);
     RooRealVar* lab0_TRUEID = new RooRealVar(trueIDVar.Data(),trueIDVar.Data(),0,100);
 
     dataout = new RooDataSet(dataName.Data(),dataName.Data(),
-			     RooArgSet(*lab0_MM,*lab0_TAU,*lab0_TAG,*lab0_TAGOMEGA,*lab1_ID,*lab0_TRUEID,*lab2_MM,*lab1_PIDK));
+			     RooArgSet(*lab0_MM,*lab0_TAU, *lab0_TERR, *lab0_TAG,*lab0_TAGOMEGA,*lab1_ID,*lab0_TRUEID,*lab2_MM,*lab1_PIDK));
 
-    Double_t lab0_MM3,lab0_TAU3, lab2_MM3, lab1_PIDK3;
+    Double_t lab0_MM3,lab0_TAU3, lab0_TERR3, lab2_MM3, lab1_PIDK3;
     Int_t  lab0_TAG3;
     Double_t lab0_TAGOMEGA3, lab0_TRUEID3;
     Int_t lab1_ID3;
@@ -585,6 +599,7 @@ namespace SFitUtils {
     tree->SetBranchAddress(mDVar.Data(), &lab2_MM3);
     tree->SetBranchAddress(PIDKVar.Data(), &lab1_PIDK3);
     tree->SetBranchAddress(tVar.Data(),&lab0_TAU3);
+    tree->SetBranchAddress(terrVar.Data(),&lab0_TERR3);
     tree->SetBranchAddress(tagVar.Data(),&lab0_TAG3);
     tree->SetBranchAddress(tagOmegaVar.Data(),&lab0_TAGOMEGA3);
     tree->SetBranchAddress(idVar.Data(),&lab1_ID3);
@@ -598,12 +613,13 @@ namespace SFitUtils {
       lab2_MM->setVal(lab2_MM3);
       lab1_PIDK->setVal(lab1_PIDK3);
       lab0_TAU->setVal(lab0_TAU3);
+      lab0_TERR->setVal(lab0_TERR3);
       lab0_TAG->setVal(lab0_TAG3);
       lab0_TAGOMEGA->setVal(lab0_TAGOMEGA3);
       lab1_ID->setVal(lab1_ID3);
       lab0_TRUEID->setVal(lab0_TRUEID3);
 
-      dataout->add(RooArgSet(*lab0_MM,*lab0_TAU,*lab0_TAG,*lab0_TAGOMEGA,*lab1_ID,*lab0_TRUEID,*lab2_MM,*lab1_PIDK));
+      dataout->add(RooArgSet(*lab0_MM,*lab0_TAU,*lab0_TERR,*lab0_TAG,*lab0_TAGOMEGA,*lab1_ID,*lab0_TRUEID,*lab2_MM,*lab1_PIDK));
     }
 
     if (debug == true) 

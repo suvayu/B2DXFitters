@@ -69,6 +69,7 @@ def fitSignal( debug, var , mode, modeDs,  reweight, veto, merge, BDTG) :
     mVarTS = TString("lab0_MassFitConsD_M")
     mdVarTS = TString("lab2_MM")
     tVarTS = TString("lab0_LifetimeFit_ctau")
+    terrVarTS = TString("lab0_LifetimeFit_ctauErr")
     tagVarTS = TString("lab0_BsTaggingTool_TAGDECISION_OS")
     tagOmegaVarTS = TString("lab0_BsTaggingTool_TAGOMEGA_OS")
     idVarTS = TString("lab1_ID")
@@ -152,7 +153,7 @@ def fitSignal( debug, var , mode, modeDs,  reweight, veto, merge, BDTG) :
                                           Time_down, Time_up,
                                           PT_down, PT_up,
                                           nTr_down, nTr_up,
-                                          mVarTS, mdVarTS, tVarTS, tagVarTS,
+                                          mVarTS, mdVarTS, tVarTS, terrVarTS, tagVarTS,
                                           tagOmegaVarTS, idVarTS, mProbVarTS,
                                           modeTS,
                                           reweight, veto,

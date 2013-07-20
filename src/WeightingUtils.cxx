@@ -31,6 +31,7 @@
 #include "RooCBShape.h"
 #include "RooExponential.h"
 #include "RooArgSet.h"
+#include "RooAbsRealLValue.h"
 #include "RooPlot.h"
 #include "RooNLLVar.h"
 #include "RooMinuit.h"
@@ -1794,18 +1795,28 @@ namespace WeightingUtils {
 	    histRW = Get2DHist(dataRW, Var1, Var2, bin1, bin2, histName, debug);
 	    Save2DComparison(histMC, type, histCalib, l2, histRW, l3, ext);
 	    Int_t bin3 = 50;
-	    
+	    Int_t binHist = 1;
+
 	    RooBinned1DQuinticBase<RooAbsPdf>* pdfPID2 = NULL;
 	    if ( (type.Contains("BsDsPi") == true && type.Contains("MC") == true) )
               {
-                histPID = dataRW->createHistogram(namehist.Data(),*lab1_PIDK2, RooFit::Binning(200,-PID_up,-PID_down));
-              }
+                binHist = 200;
+		histPID = dataRW->createHistogram(namehist.Data(),*lab1_PIDK2, RooFit::Binning(200,-PID_up,-PID_down));
+	      }
             else
               {
+		binHist = 50;
 		histPID = dataRW->createHistogram(namehist.Data(),*lab1_PIDK, RooFit::Binning(50,PID_down,PID_up));
               }
 	    histPID->SetName(namehist.Data());
 	    histPID->SaveAs("hist_PID.root");
+	    Double_t zero = 1e-20;
+	    for(int k = 1; k<binHist; k++)
+	      {
+		Double_t cont = histPID->GetBinContent(k);
+		if( cont < 0 ) { histPID->SetBinContent(k,zero); }
+	      }
+	    
 	   	    	    
 	    pdfPID[i] = NULL;
 	    if( type.Contains("MC") == true && type.Contains("BsDsPi")==true) 
@@ -2088,19 +2099,29 @@ namespace WeightingUtils {
 	    */
                
             Int_t binPIDK = 50;
+	    Int_t binHist = 1;
 	    RooBinned1DQuinticBase<RooAbsPdf>* pdfPID2 = NULL;
 	    if ( pdfPID2 ) {}
 
 	    if ( (type.Contains("BsDsPi") == true && type.Contains("MC") == true) )
 	      {
 		histPID = dataRW->createHistogram(namehist.Data(),*lab1_PIDK2, RooFit::Binning(200,-PID_up,-PID_down));
+		binHist = 200;
 	      }
 	    else
 	      {
 		histPID = dataRW->createHistogram(namehist.Data(),*lab1_PIDK, RooFit::Binning(50,PID_down,PID_up));
+		binHist = 50;
 	      }
 	    histPID->SetName(namehist.Data());
             histPID->SaveAs("hist_PID.root");
+	    Double_t zero = 1e-20;
+	    for(int k = 1; k<binHist; k++)
+	      {
+		Double_t cont = histPID->GetBinContent(k);
+                if( cont < 0 ) { histPID->SetBinContent(k,zero); }
+              }
+
 
             pdfPID[i] = NULL;
             if( type.Contains("MC") == true && type.Contains("BsDsPi")==true)
@@ -2780,19 +2801,36 @@ namespace WeightingUtils {
     histRW = Get2DHist(dataRW, Var1, Var2, bin1, bin2, histName, debug);
     Save2DComparison(histMC, type, histCalib, l2, histRW, l3, ext);
     Int_t bin3 = 50;
-    
+    Int_t histBin = 1;
     RooBinned1DQuinticBase<RooAbsPdf>* pdfPID2 = NULL;
     if ( (type.Contains("BsDsPi") == true && type.Contains("MC") == true) || type.Contains("DPi") == true || type.Contains("CombPi") == true )
       {
-	histPID = dataRW->createHistogram(namehist.Data(),*lab1_PIDK2, RooFit::Binning(250, -PID_up, -PID_down)); //45,log(0.0001),log(-PID_down)));
+	histPID = dataRW->createHistogram(namehist.Data(),*lab1_PIDK2, RooFit::Binning(200, -PID_up, -PID_down)); //45,log(0.0001),log(-PID_down)));
+	histBin = 200;
       }
     else
       {
 	histPID = dataRW->createHistogram(namehist.Data(),*lab1_PIDK, RooFit::Binning(50,PID_down,PID_up));
+	histBin = 50;
       }
     histPID->SetName(namehist.Data());
     histPID->SaveAs("hist_PID.root");
-    
+    Double_t zero = 1e-20;
+    for(int k = 1; k<histBin; k++)
+      {
+	Double_t cont = histPID->GetBinContent(k);
+	if( cont < zero ) 
+	  { 
+	    histPID->SetBinContent(k,zero);
+	    std::cout<<"[WARNING] Histogram value lower than zero: "<<cont<<". Force Bin content to be: "<<zero<<std::endl; 
+	  }
+	else
+	  {
+	    std::cout<<"k: "<<k<<" cont: "<<cont<<std::endl;
+	  }
+      }
+
+
     pdfPID = NULL;
     if( (type.Contains("MC") == true  && type.Contains("BsDsPi") == true ) || type.Contains("DPi") == true || type.Contains("CombPi") == true)
       {

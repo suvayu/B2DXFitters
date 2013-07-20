@@ -37,7 +37,7 @@ bName = 'Bs'
 dName = 'Ds'
 
 #------------------------------------------------------------------------------
-def runBsDsKMassFitterOnData( debug, sample, mVar, mdVar, tVar, tagVar, tagOmegaVar, idVar, mode, sweight, yieldBdDPi, 
+def runBsDsKMassFitterOnData( debug, sample, mVar, mdVar, tVar, terrVar, tagVar, tagOmegaVar, idVar, mode, sweight, yieldBdDPi, 
                               fileNameAll, fileNameAllID, workName,logoutputname,tagTool, configName, wider, merge ) :
 
     # Get the configuration file
@@ -67,6 +67,7 @@ def runBsDsKMassFitterOnData( debug, sample, mVar, mdVar, tVar, tagVar, tagOmega
     massDs      = GeneralUtils.GetObservable(workspace[0],TString(mdVar), debug)
     PIDK        = GeneralUtils.GetObservable(workspace[0],TString("lab1_PIDK"), debug)
     tvar        = GeneralUtils.GetObservable(workspace[0],TString(tVar), debug)
+    terrvar     = GeneralUtils.GetObservable(workspace[0],TString(terrVar), debug)
     tagomegavar = GeneralUtils.GetObservable(workspace[0],TString(tagOmegaVar), debug)
 
     configNameTS = TString(configName)
@@ -92,7 +93,7 @@ def runBsDsKMassFitterOnData( debug, sample, mVar, mdVar, tVar, tagVar, tagOmega
         ptvar = GeneralUtils.GetObservable(workspace[0],TString("lab1_PT"), debug)
         
     if( tagTool == "no"):
-        observables = RooArgSet( mass, massDs, PIDK, tvar,tagvar,tagomegavar,idvar )
+        observables = RooArgSet( mass, massDs, PIDK, tvar, terrvar, tagvar,tagomegavar,idvar )
     else:
         observables =  RooArgSet( mass,tagsskaonvar,tagosmuonvar,tagoselectronvar,tagoskaonvar,tagvtxchargevar, pvar, ptvar)
         
@@ -485,9 +486,9 @@ def runBsDsKMassFitterOnData( debug, sample, mVar, mdVar, tVar, tagVar, tagOmega
     for i in range(0,bound):
         name2 = TString("SigProdPDF")+t+sm[i]
         name3 = TString("SigEPDF")+t+sm[i]
-        m = TString("Bs2DsPi_")+sm[i]
+        name4 = TString("Bs2DsPi_")+sm[i]
         k = bound%2
-        sigPIDKPDF.append(Bs2Dsh2011TDAnaModels.ObtainPIDKShape(workspace[0], m, s[k], lumRatio, true, debug))
+        sigPIDKPDF.append(Bs2Dsh2011TDAnaModels.ObtainPIDKShape(workspace[0], name4, s[k], lumRatio, true, debug))
         sigProdPDF.append(RooProdPdf(name2.Data(),name2.Data(),RooArgList(sigPDF[i],sigDsPDF[i],sigPIDKPDF[i])))
         print sigProdPDF[i].GetName()
         sigEPDF.append(RooExtendPdf(name3.Data(),name3.Data(),sigProdPDF[i], nSig[i]))
@@ -510,7 +511,7 @@ def runBsDsKMassFitterOnData( debug, sample, mVar, mdVar, tVar, tagVar, tagOmega
             nDsKEvts.append(0.01*nEntries[i]) 
         else:
             nCombBkgEvts.append(0.3*nEntries[i])         # combinatorial background events
-            nPiRhoEvts.append(0.1*nEntries[i])          # Bs->DsstPi, Bs->DsRho,
+            nPiRhoEvts.append(0.01*nEntries[i])          # Bs->DsstPi, Bs->DsRho,
             nLamEvts.append(0.02*nEntries[i])            # Lb->LcPi
             nDsKEvts.append(0.01*nEntries[i]) 
             
@@ -541,7 +542,7 @@ def runBsDsKMassFitterOnData( debug, sample, mVar, mdVar, tVar, tagVar, tagOmega
     cDVar = []
     fracDsComb = []
     fracBsComb = []
-    fracPIDKComb = []
+    #fracPIDKComb = []
     j = 0
     
     for i in range(0,bound):
@@ -648,8 +649,11 @@ def runBsDsKMassFitterOnData( debug, sample, mVar, mdVar, tVar, tagVar, tagOmega
                                                           width1[i],al1,n1,
                                                           width2[i],al2,n2,
                                                           frac,
+                                                          m[j],
                                                           TString("Bd2DsPi"), debug))        
 
+        print j
+        print m[j]
         mul = 15.0
         confTS = TString(configName)
         if (confTS.Contains("BDTG3")  == true): 
@@ -672,8 +676,9 @@ def runBsDsKMassFitterOnData( debug, sample, mVar, mdVar, tVar, tagVar, tagOmega
 #                fracBsComb.append(RooRealVar(name.Data(), name.Data(), myconfigfile["fracBsComb"][i])) #, 0.0, 1.0))
 #            else:
             fracBsComb.append(RooRealVar(name.Data(), name.Data(), myconfigfile["fracBsComb"][i], 0.0, 1.0))
-                
+        print name    
         name = TString("CombBkg_slope_Ds_")+m[j]
+        print name
         cDVar.append(RooRealVar(name.Data(), name.Data(), myconfigfile["cD"][i],
                                 myconfigfile["cD"][i]+myconfigfile["cD"][i]*mul, 0.0))
         name = TString("CombBkg_fracDsComb_")+m[j]
@@ -682,9 +687,9 @@ def runBsDsKMassFitterOnData( debug, sample, mVar, mdVar, tVar, tagVar, tagOmega
             fracDsComb.append(RooRealVar(name.Data(), name.Data(), myconfigfile["fracComb"][i]))
         else:
             fracDsComb.append(RooRealVar(name.Data(), name.Data(), myconfigfile["fracComb"][i], 0.0, 1.0))
-        name = TString("CombBkg_fracPIDKComb_")+m[j]    
-        print name
-        fracPIDKComb.append(RooRealVar(name.Data(), name.Data(), 0.5, 0.0, 1.0))    
+        #name = TString("CombBkg_fracPIDKComb") #+m[j]    
+        #print name
+        #fracPIDKComb.append(RooRealVar(name.Data(), name.Data(), 0.5, 0.0, 1.0))    
         if merge:
             j=j+1
         else:
@@ -701,7 +706,12 @@ def runBsDsKMassFitterOnData( debug, sample, mVar, mdVar, tVar, tagVar, tagOmega
         g1_f1              = RooRealVar( "g1_f1_frac","g1_f1_frac", 0.5, 0.0, 1.0)
         
     g1_f2              = RooRealVar( "g1_f2_frac","g1_f2_frac", 0.093, 0.0, 1.0)
-               
+
+    name = TString("CombBkg_fracPIDKComb") 
+    print name
+    fracPIDKComb = RooRealVar(name.Data(), name.Data(), 0.5, 0.0, 1.0)
+                    
+    
     bkgPDF = []
 
     if (mode == "all" and ( sample == "up" or sample == "down")):
@@ -728,7 +738,7 @@ def runBsDsKMassFitterOnData( debug, sample, mVar, mdVar, tVar, tagVar, tagOmega
                                                                            fracBsComb[i],
                                                                            cDVar[i],
                                                                            fracDsComb[i],
-                                                                           fracPIDKComb[i],
+                                                                           fracPIDKComb,
                                                                            sm[i],
                                                                            lumRatio,
                                                                            debug ))
@@ -758,7 +768,7 @@ def runBsDsKMassFitterOnData( debug, sample, mVar, mdVar, tVar, tagVar, tagOmega
                                                                                fracBsComb[i],
                                                                                cDVar[i],
                                                                                fracDsComb[i],
-                                                                               fracPIDKComb[i],
+                                                                               fracPIDKComb,
                                                                                sm[i],
                                                                                lumRatio,
                                                                                debug ))
@@ -788,7 +798,7 @@ def runBsDsKMassFitterOnData( debug, sample, mVar, mdVar, tVar, tagVar, tagOmega
                                                                                    fracBsComb[i*2+j],
                                                                                    cDVar[i*2+j],
                                                                                    fracDsComb[i*2+j],
-                                                                                   fracPIDComb[i*2+j],
+                                                                                   fracPIDComb,
                                                                                    sm[i*2+j],
                                                                                    lumRatio,
                                                                                    debug ))
@@ -852,7 +862,7 @@ def runBsDsKMassFitterOnData( debug, sample, mVar, mdVar, tVar, tagVar, tagOmega
         fitter.savesWeights(mVar, combData, name)
         RooMsgService.instance().reset()
         
-    fitter.printYieldsInRange( '*Evts', obsTS.Data() , 5340, 5400 )    
+    fitter.printYieldsInRange( '*Evts', obsTS.Data() , 5320, 5420 )    
     if plot_fitted :
         fitter.saveModelPDF( options.wsname )
         fitter.saveData ( options.wsname )
@@ -924,6 +934,13 @@ parser.add_option( '--tvar',
                    default = 'lab0_LifetimeFit_ctau',
                    help = 'set observable '
                    )
+parser.add_option( '--terrvar',
+                   dest = 'terrvar',
+                   default = 'lab0_LifetimeFit_ctauErr',
+                   help = 'set observable '
+                   )
+
+
 parser.add_option( '--tagvar',
                    dest = 'tagvar',       
                    default = 'lab0_BsTaggingTool_TAGDECISION_OS',
@@ -1008,7 +1025,7 @@ if __name__ == '__main__' :
     import sys
     sys.path.append("../data/")
         
-    runBsDsKMassFitterOnData( options.debug,  options.sample , options.mvar, options.mdvar,options.tvar, \
+    runBsDsKMassFitterOnData( options.debug,  options.sample , options.mvar, options.mdvar,options.tvar, options.terrvar, \
                               options.tagvar, options.tagomegavar, options.idvar,\
                               options.mode, options.sweight, options.yieldBdDPi, 
                               options.fileNameAll, options.fileNameAllID, options.workName,

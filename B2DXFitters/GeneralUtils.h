@@ -34,6 +34,7 @@
 #include "RooHistPdf.h"
 #include "RooDataHist.h"
 #include "RooCategory.h"
+#include "RooAbsRealLValue.h"
 
 namespace GeneralUtils {
 
@@ -192,6 +193,18 @@ namespace GeneralUtils {
 			  TString &mode,
 			  Bool_t mistag,
 			  bool        debug = false);
+  
+  RooHistPdf* CreateHistPDF(RooDataSet* dataSet,
+                            RooRealVar* obs,
+                            TString &name,
+                            Int_t bin,
+                            bool debug = false);
+
+  RooAbsPdf* CreateBinnedPDF(RooDataSet* dataSet,
+                             RooRealVar* obs,
+                             TString &name,
+                             Int_t bin,
+                             bool debug = false);
 
   //===========================================================================
   // Get observable ( obs ) from workspace (work)

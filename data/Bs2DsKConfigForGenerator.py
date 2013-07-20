@@ -31,6 +31,12 @@ def getconfig() :
     configdict["ArgLbarfbar_s"] = configdict["StrongPhase_s"] + configdict["WeakPhase"]
     configdict["ModLf_s"]       = 0.372
 
+    configdict["calibration_p1"] = 1.035 #1.035
+    configdict["calibration_p0"] = 0.392 #-0.013
+    configdict["TagOmegaSig"]   = 0.391
+
+    configdict["lumRatio"] =  0.44/(0.59+0.44)
+
     configdict["tagEff_signal"]    = 0.40
     configdict["tagEff_dk"]        = 0.40
     configdict["tagEff_dsk"]       = 0.40
@@ -41,63 +47,90 @@ def getconfig() :
     configdict["tagEff_lm1"]       = 0.40
     configdict["tagEff_lm2"]       = 0.40
 
-    configdict["prodasy_signal"]    = 0.03
-    configdict["prodasy_dk"]        = 0.03
-    configdict["prodasy_dsk"]       = 0.03
-    configdict["prodasy_dspi"]      = 0.03
-    configdict["prodasy_lck"]       = 0.03
-    configdict["prodasy_combo"]     = 0.03
-    configdict["prodasy_dsdsstp"]   = 0.03
-    configdict["prodasy_lm1"]       = 0.03
-    configdict["prodasy_lm2"]       = 0.03
+    configdict["aprod_signal"]    = 0.03
+    configdict["aprod_dk"]        = 0.03
+    configdict["aprod_dsk"]       = 0.03
+    configdict["aprod_dspi"]      = 0.03
+    configdict["aprod_lck"]       = 0.03
+    configdict["aprod_combo"]     = 0.03
+    configdict["aprod_dsdsstp"]   = 0.03
+    configdict["aprod_lm1"]       = 0.03
+    configdict["aprod_lm2"]       = 0.03
                                     
-    configdict["tageffasy_signal"]    = 0.01
-    configdict["tageffasy_dk"]        = 0.02
-    configdict["tageffasy_dsk"]       = 0.01
-    configdict["tageffasy_dspi"]      = 0.01
-    configdict["tageffasy_lck"]       = 0.03
-    configdict["tageffasy_combo"]     = 0.01
-    configdict["tageffasy_dsdsstp"]   = 0.03
-    configdict["tageffasy_lm1"]       = 0.01
-    configdict["tageffasy_lm2"]       = 0.01
+    configdict["atageff_signal"]    = 0.01
+    configdict["atageff_dk"]        = 0.02
+    configdict["atageff_dsk"]       = 0.01
+    configdict["atageff_dspi"]      = 0.01
+    configdict["atageff_lck"]       = 0.03
+    configdict["atageff_combo"]     = 0.01
+    configdict["atageff_dsdsstp"]   = 0.03
+    configdict["atageff_lm1"]       = 0.01
+    configdict["atageff_lm2"]       = 0.01
+
+    configdict["adet_signal"]    = 0.0
+    configdict["adet_dk"]        = 0.0
+    configdict["adet_dsk"]       = 0.0
+    configdict["adet_dspi"]      = 0.0
+    configdict["adet_lck"]       = 0.0
+    configdict["adet_combo"]     = 0.0
+    configdict["adet_dsdsstp"]   = 0.0
+    configdict["adet_lm1"]       = 0.0
+    configdict["adet_lm2"]       = 0.0
     
-    configdict["num_signal"]    = 1250.
-    configdict["num_dk"]        = 40.
-    configdict["num_dsk"]       = 500.
-    configdict["num_dspi"]      = 150.
-    configdict["num_lck"]       = 40.
-    configdict["num_combo"]     = 1500.
-    configdict["num_dsdsstp"]   = 240.
-    configdict["num_lm1"]       = 1700.
-    configdict["num_lm2"]       = 250.
+    configdict["num_signal"]    = 1800.
+    configdict["num_dk"]        = 20.
+    configdict["num_dsk"]       = 100.
+    configdict["num_dspi"]      = 715.
+    configdict["num_lck"]       = 25.
+    configdict["num_combo"]     = 3800.
+    configdict["num_dsdsstp"]   = 100.
+    configdict["num_lm1"]       = 50.
+    configdict["num_lm2"]       = 350.
         
     #----------------------------Signal----------------------------#
 
     configdict["mean"]    = 5369
-    configdict["sigma1"]  = 10.0880
-    configdict["sigma2"]  = 15.708
-    configdict["alpha1"]  = 1.8086
-    configdict["alpha2"]  = -1.8169
-    configdict["n1"]      = 1.3830
-    configdict["n2"]      = 8.8559
-    configdict["frac"]    = 0.47348
+    configdict["sigma1"]  = 10.627*1.145
+    configdict["sigma2"]  = 15.289*1.255
+    configdict["alpha1"]  = 1.6086
+    configdict["alpha2"]  = -1.9642
+    configdict["n1"]      = 1.5879
+    configdict["n2"]      = 5.1315
+    configdict["frac"]    = 0.43480
+
     configdict["ratio1"]  = 0.998944636665
     configdict["ratio2"]  = 1.00022181515
-                                        
-    configdict["tacc_exponent_pl"] = 1.849
-    configdict["tacc_offset_pl"]   = 0.0373
-    configdict["tacc_beta_pl"]     = 0.0363
-    configdict["tacc_turnon_pl"]   = 1.215
-    
-    configdict["exposlope_combo"]   = -0.001
 
+    configdict["meanDs"]    = 1969
+    configdict["sigma1Ds"]  = 8.7205*1.074
+    configdict["sigma2Ds"]  = 4.5795*1.185
+    configdict["alpha1Ds"]  = 1.9260
+    configdict["alpha2Ds"]  = -3.2773
+    configdict["n1Ds"]      = 1.4224
+    configdict["n2Ds"]      = 0.36197
+    configdict["fracDs"]    = 0.36627
+        
+                                        
+    configdict["tacc_exponent_pl"] = 1.8627e+00 #1.849
+    configdict["tacc_offset_pl"]   = 1.6710e-02 #0.0373
+    configdict["tacc_beta_pl"]     = 3.4938e-02 #0.0363
+    configdict["tacc_turnon_pl"]   = 1.3291e+00 #1.215
+    
+    configdict["cB"] = -9.2354e-04
+        
+    configdict["cD"] = -8.8642e-03
+    configdict["fracDsComb"] = 5.1911e-01
+
+    configdict["fracPIDKComb1"] = 6.3516e-01
+    configdict["fracPIDKComb2"] = 5.9685e-01
+    
     configdict["frac_dsdsstp"]   = 0.5
     
-    configdict["frac_g1_1lmk"]  = 0.14536
-    configdict["frac_g1_2lmk"]  = 0.169091
+    #configdict["frac_g1_1lmk"]  = 0.14536
+    #configdict["frac_g1_2lmk"]  = 0.169091
                 
-    configdict["frac_g2_1"]  = 0.31266
-    configdict["frac_g2_2"]  = 0.202776
+    configdict["frac_g2_1"]  = 5.6122e-08 #0.31266
+    #configdict["frac_g2_2"]  = 0.202776
     
        
     return configdict

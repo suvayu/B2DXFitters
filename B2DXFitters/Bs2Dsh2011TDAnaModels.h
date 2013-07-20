@@ -113,6 +113,7 @@ namespace Bs2Dsh2011TDAnaModels {
 			double alpha2,
 			double n2,
 			double frac,
+			TString& samplemode,
 			TString &name,
 			bool debug = false
 			);

@@ -15,12 +15,27 @@ def getconfig() :
     configdict["ArgLf"]       = configdict["StrongPhase"] - configdict["WeakPhase"]
     configdict["ArgLbarfbar"] = configdict["StrongPhase"] + configdict["WeakPhase"]
     configdict["ModLf"]       = 0.372
-    configdict["tacc_exponent"] = 1.8540e+00 #1.849
-    configdict["tacc_offset"]   = 1.9149e-02 #0.0373
-    configdict["tacc_beta"]     = 3.7524e-02 #0.0363
-    configdict["tacc_turnon"]   = 1.3339e+00 #1.215
-                
+    configdict["tacc_exponent"] = 1.8627e+00 #1.849
+    configdict["tacc_offset"]   = 1.6696e-02 #0.0373
+    configdict["tacc_beta"]     = 3.4936e-02 #0.0363
+    configdict["tacc_turnon"]   = 1.3291e+00 #1.215
 
+    configdict["calibration_p1"] = 1.035 #1.035
+    configdict["calibration_p0"] = 0.392 #-0.013
+    
+    configdict["TemplateFile"]      = "/afs/cern.ch/work/a/adudziak/public/workspace/MDFitter/templates_BsDsPi.root"
+    configdict["TemplateWorkspace"] = "workspace"
+    configdict["MistagTemplateName"]      = "MistagPdf_signal_BDTGA"
+    configdict["MistagVarName"]           = "lab0_BsTaggingTool_TAGOMEGA_OS"
+    configdict["MistagInterpolation"]     =   False,
+    
+    configdict["TimeErrorTemplateName"]   = "TimeErrorPdf_signal_BDTGA"
+
+    configdict["nBinsMistag"]   = 64
+    configdict["nBinsPerEventTimeErr"]   = 64
+    configdict["nBinsProperTimeErr"]   = 200
+    configdict["nBinsAcceptance"]   = 300
+    
     #configdict["tacc_exponent"] = 1.849
     #configdict["tacc_offset"]   = 0.0373
     #configdict["tacc_beta"]     = 0.0363

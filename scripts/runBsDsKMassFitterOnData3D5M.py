@@ -35,7 +35,7 @@ Bs2Dsh2011TDAnaModels = GaudiPython.gbl.Bs2Dsh2011TDAnaModels
 bName = 'Bs'
 dName = 'Ds'
 #------------------------------------------------------------------------------
-def runBsDsKMassFitterOnData( debug, sample, mVar, mdVar, tVar, tagVar, tagOmegaVar, idVar, mode,
+def runBsDsKMassFitterOnData( debug, sample, mVar, mdVar, tVar, terrVar, tagVar, tagOmegaVar, idVar, mode,
                               sweight,  fileNameAll, fileNameAllID, workName,configName, wide, merge ) :
 
 
@@ -77,6 +77,7 @@ def runBsDsKMassFitterOnData( debug, sample, mVar, mdVar, tVar, tagVar, tagOmega
     massDs      = GeneralUtils.GetObservable(workspace[0],TString(mdVar), debug)
     PIDK        = GeneralUtils.GetObservable(workspace[0],TString("lab1_PIDK"), debug)
     tvar        = GeneralUtils.GetObservable(workspace[0],TString(tVar), debug)
+    terrvar        = GeneralUtils.GetObservable(workspace[0],TString(terrVar), debug)
     tagomegavar = GeneralUtils.GetObservable(workspace[0],TString(tagOmegaVar), debug)
     if (not toys ):
         tagvar      = GeneralUtils.GetObservable(workspace[0],TString(tagVar), debug)
@@ -86,7 +87,7 @@ def runBsDsKMassFitterOnData( debug, sample, mVar, mdVar, tVar, tagVar, tagOmega
         idvar       = GeneralUtils.GetObservable(workspace[0],TString(idVar)+TString("_idx"), debug)
         trueidvar   = GeneralUtils.GetObservable(workspace[0],TString("lab0_TRUEID"), debug)
                 
-    observables = RooArgSet( mass,massDs, PIDK, tvar,tagvar,tagomegavar,idvar )
+    observables = RooArgSet( mass,massDs, PIDK, tvar, terrvar, tagvar,tagomegavar,idvar )
     if toys :
         observables = RooArgSet( mass,tvar,tagvar,tagomegavar,idvar,trueidvar) 
                                                   
@@ -487,9 +488,9 @@ def runBsDsKMassFitterOnData( debug, sample, mVar, mdVar, tVar, tagVar, tagOmega
     for i in range(0,bound):
         name2 = TString("SigProdPDF")+t+sm[i]
         name3 = TString("SigEPDF")+t+sm[i]
-        m = TString("Bs2DsK_")+sm[i]
+        namePID = TString("Bs2DsK_")+sm[i]
         k = bound%2
-        sigPIDKPDF.append(Bs2Dsh2011TDAnaModels.ObtainPIDKShape(workspace[0], m, s[k], lumRatio, true, debug))
+        sigPIDKPDF.append(Bs2Dsh2011TDAnaModels.ObtainPIDKShape(workspace[0], namePID, s[k], lumRatio, true, debug))
         sigProdPDF.append(RooProdPdf(name2.Data(),name2.Data(),RooArgList(sigPDF[i],sigDsPDF[i],sigPIDKPDF[i])))
         print sigProdPDF[i].GetName()
         sigEPDF.append(RooExtendPdf(name3.Data(),name3.Data(),sigProdPDF[i], nSig[i]))
@@ -592,6 +593,7 @@ def runBsDsKMassFitterOnData( debug, sample, mVar, mdVar, tVar, tagVar, tagOmega
                                                          width1[i],al1,n1,
                                                          width2[i],al2,n2,
                                                          frac,
+                                                         m[j],
                                                          TString("Bd2DsK"), debug))
 
         mul = 10.0
@@ -865,6 +867,11 @@ parser.add_option( '--tvar',
                    default = 'lab0_LifetimeFit_ctau',
                    help = 'set observable '
                    )
+parser.add_option( '--terrvar',
+                   dest = 'terrvar',
+                   default = 'lab0_LifetimeFit_ctauErr',
+                   help = 'set observable '
+                   )
 parser.add_option( '--tagvar',
                    dest = 'tagvar',       
                    default = 'lab0_BsTaggingTool_TAGDECISION_OS',
@@ -939,7 +946,7 @@ if __name__ == '__main__' :
     import sys
     sys.path.append("../data/")
     
-    runBsDsKMassFitterOnData(   options.debug,  options.sample , options.mvar, options.mdvar, options.tvar, \
+    runBsDsKMassFitterOnData(   options.debug,  options.sample , options.mvar, options.mdvar, options.tvar, options.terrvar, \
                                 options.tagvar, options.tagomegavar, options.idvar,\
                                 options.mode, options.sweight, \
                                 options.fileNameAll, options.fileNameAllID,

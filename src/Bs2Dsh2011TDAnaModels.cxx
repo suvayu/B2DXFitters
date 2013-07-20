@@ -376,6 +376,7 @@ namespace Bs2Dsh2011TDAnaModels {
 			 double alpha2,
 			 double n2, 
 			 double frac,
+			 TString& samplemode,
 			 TString& namemode,
 			 bool debug){
 
@@ -395,41 +396,48 @@ namespace Bs2Dsh2011TDAnaModels {
 	cout<<"Create RooRealVar: "<<meanVar.GetName()<<endl;
       }
     RooRealVar* alpha1Var = NULL;
-    alpha1Var = new RooRealVar( "BdDsX_alpha1", "BdDsX_alpha1", alpha1);
+    name = "BdDsX_alpha1_"+samplemode;
+    alpha1Var = new RooRealVar( name.Data(), name.Data(), alpha1);
     CheckVar( alpha1Var, debug);
 
     RooRealVar* alpha2Var = NULL;
-    alpha2Var = new RooRealVar( "BdDsX_alpha2","BdDsX_alpha2",alpha2);
+    name = "BdDsX_alpha2_"+samplemode;
+    alpha2Var = new RooRealVar( name.Data(), name.Data(),alpha2);
     CheckVar( alpha2Var, debug);
 
     RooRealVar* n1Var = NULL;
-    n1Var =  new RooRealVar( "BdDsX_n1","BdDsX_n1", n1);
+    name = "BdDsX_n1_"+samplemode;
+    n1Var =  new RooRealVar( name.Data(), name.Data(), n1);
     CheckVar( n1Var, debug);
 
     RooRealVar* n2Var = NULL;
-    n2Var = new RooRealVar( "BdDsX_n2","BdDsX_n2", n2);
+    name = "BdDsX_n2_"+samplemode;
+    n2Var = new RooRealVar( name.Data(), name.Data(), n2);
     CheckVar( n2Var, debug);
 
     RooRealVar* fracVar = NULL;
-    fracVar = new RooRealVar( "BdDsX_frac","BdDsX_frac", frac);
+    name = "BdDsX_frac_"+samplemode;
+    fracVar = new RooRealVar( name.Data(), name.Data(), frac);
     CheckVar( fracVar, debug);
 
     // ------------------------------------------ Create Single CB ----------------------------------------------------//                                  
     if (debug == true) cout<<endl;
     if (debug == true) cout<<"--------------- Create Signle CB ---------------"<<endl;
     RooCBShape* pdf1 = NULL;
-    pdf1 = new RooCBShape( "BdDsX_CB1","BdDsX_CB1", obs,meanVar, sigma1Var, *alpha1Var, *n1Var);
+    name = "BdDsX_CB1_"+samplemode;
+    pdf1 = new RooCBShape( name.Data(), name.Data(), obs,meanVar, sigma1Var, *alpha1Var, *n1Var);
     CheckPDF( pdf1, debug);
 
     RooCBShape* pdf2 = NULL;
-    pdf2 = new RooCBShape( "BdDsX_CB2","BdDsX_CB2",obs,meanVar, sigma2Var, *alpha2Var, *n2Var);
+    name = "BdDsX_CB2_"+samplemode;
+    pdf2 = new RooCBShape( name.Data() , name.Data() ,obs,meanVar, sigma2Var, *alpha2Var, *n2Var);
     CheckPDF( pdf2, debug);
 
     // ------------------------------------------ Create Double CB ----------------------------------------------------//                                  
     if (debug == true) cout<<endl;
     if (debug == true) cout<<"--------------- Create Double CB ---------------"<<endl;
     RooAddPdf* pdf = NULL;
-    TString n="PhysBkg"+namemode+"Pdf_m";
+    TString n="PhysBkg"+namemode+"Pdf_m_"+samplemode;
     pdf = new RooAddPdf( n.Data(),n.Data(),*pdf1, *pdf2, *fracVar);
     CheckPDF( pdf, debug);
  
@@ -1055,11 +1063,11 @@ namespace Bs2Dsh2011TDAnaModels {
     */
 
     RooAbsPdf* pdf_Bs2DsstPi = NULL;
-    RooAddPdf* pdf_Bs2DsstPi_PIDK = NULL;
+    RooAbsPdf* pdf_Bs2DsstPi_PIDK = NULL;
     m = "Bs2DsstPi";
     pdf_Bs2DsstPi = ObtainMassShape(work, m, false, lumRatio, debug);
     m = "Bs2DsPi_"+samplemode;
-    pdf_Bs2DsstPi_PIDK == ObtainPIDKShape(work, m, sam, lumRatio, true, debug);
+    pdf_Bs2DsstPi_PIDK = ObtainPIDKShape(work, m, sam, lumRatio, true, debug);
     
     RooAddPdf* pdf_Bs2DsDsstPiRho = NULL;
     name = "PhysBkgBs2DsDsstPiRhoPdf_m_"+samplemode;

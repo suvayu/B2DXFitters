@@ -35,6 +35,7 @@
 #include "RooMinuit.h"
 #include "RooFitResult.h"
 #include "RooCategory.h"
+#include "TH1.h"
 #include "TH2F.h"
 #include "TH3F.h"
 #include "TRandom3.h"
@@ -44,10 +45,13 @@
 #include "TStyle.h"
 #include "TLatex.h"
 #include "RooBinning.h"
+#include "RooAbsRealLValue.h"
+
 // B2DXFitters includes
 #include "B2DXFitters/GeneralUtils.h"
 #include "B2DXFitters/KinHack.h"
 #include "B2DXFitters/DecayTreeTupleSucksFitter.h"
+#include "B2DXFitters/RooBinned1DQuinticBase.h"
 
 #define DEBUG(COUNT, MSG)				   \
   std::cout << "SA-DEBUG: [" << COUNT << "] (" << __func__ << ") " \
@@ -722,6 +726,75 @@ namespace GeneralUtils {
     else { if ( debug == true) std::cout<<"Cannot create pdf"<<std::endl; return NULL;}
     
   }
+
+  //===========================================================================
+  // Create RooKeysPdf for dataSetMC with observable massMC.
+  // Sample and mode are used to create the name of RooKeysPdf.
+  //==========================================================================
+
+  RooHistPdf* CreateHistPDF(RooDataSet* dataSet,
+			    RooRealVar* obs,
+			    TString &name,
+			    Int_t bin,
+			    bool debug)
+  {
+    if ( debug == true) std::cout<<"[INFO] ==> GeneralUtils::CreateHistPDFMC(...). Create RooHistPdf"<<std::endl;
+    TString n = "";
+    RooHistPdf* pdfH = NULL;
+    
+    TH1* hist = NULL;
+    n = "hist_"+name;
+    hist = dataSet->createHistogram(n.Data(), *obs, RooFit::Binning(bin));
+    if( hist != NULL  && debug == true) { std::cout<<"[INFO] Create histogram "<<std::endl;}
+    if( hist ==NULL  && debug == true) { std::cout<<"[ERROR] Cannot create histogram "<<std::endl; }
+
+    RooDataHist* histData = NULL;
+    n = "histData_"+name;
+    histData = new RooDataHist(n.Data(), n.Data(), RooArgList(*obs), hist);
+    if( histData != NULL  && debug == true) { std::cout<<"[INFO] Create RooDataHist "<<histData->GetName()<<std::endl;}
+    if( histData ==NULL  && debug == true) { std::cout<<"[ERROR] Cannot create RooDataHist"<<std::endl;}
+
+    pdfH = new RooHistPdf(name.Data(), name.Data(), RooArgSet(*obs), *histData );
+    if( pdfH != NULL  && debug == true) { std::cout<<"[INFO] Create RooHistPdf "<<pdfH->GetName()<<std::endl;}
+    if( pdfH ==NULL  && debug == true) { std::cout<<"[ERROR] Cannot create RooHistPdf"<<std::endl;}
+
+    return pdfH;
+  }
+
+  RooAbsPdf* CreateBinnedPDF(RooDataSet* dataSet,
+			     RooRealVar* obs,
+			     TString &name,
+			     Int_t bin,
+			     bool debug)
+  {
+    if ( debug == true) std::cout<<"[INFO] ==> GeneralUtils::CreateBinnedPDFMC(...). Create RooAbsPdf"<<std::endl;
+    TString n = "";
+    
+    TH1* hist = NULL;
+    n = "hist_"+name;
+    hist = dataSet->createHistogram(n.Data(), *obs, RooFit::Binning(bin));
+    for (int i = 1; i< bin+1; i++) 
+      {
+	Double_t c = hist->GetBinContent(i);
+	if (c < 1e-37)
+	  {
+	    hist->SetBinContent(i, 1e-37);
+	  }
+      }
+	
+    if( hist != NULL  && debug == true) { std::cout<<"[INFO] Create histogram "<<std::endl;}
+    if( hist ==NULL  && debug == true) { std::cout<<"[ERROR] Cannot create histogram "<<std::endl; }
+
+    RooBinned1DQuinticBase<RooAbsPdf>* pdf = NULL;
+    pdf = new RooBinned1DQuinticBase<RooAbsPdf>(name.Data(), name.Data(), *hist, *obs, true);
+    if( pdf != NULL  && debug == true) { std::cout<<"[INFO] Create RooAbsPdf "<<pdf->GetName()<<std::endl;}
+    if( pdf ==NULL  && debug == true) { std::cout<<"[ERROR] Cannot create RooAbsPDf"<<std::endl;}
+
+    RooAbsPdf* pdfReturn = pdf;
+    return pdfReturn;
+
+  }
+  
 
   //===========================================================================
   // Get observable ( obs ) from workspace (work)
