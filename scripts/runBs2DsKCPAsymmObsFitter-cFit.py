@@ -306,6 +306,8 @@ defaultConfig = {
 	'MassInterpolation':		True,
 	# either one element or 6 (kkpi,kpipi,pipipi)x(up,down) in "sample" order
 	'NEvents':			[ 1731. ],
+	# target S/B: None means keep default
+	'S/B': None,
 	# mistag template
 	'MistagTemplateFile':		os.environ['B2DXFITTERSROOT']+'/data/workspace/work_toys_dsk.root',
 	'MistagTemplateWorkspace':	'workspace',
@@ -1083,6 +1085,30 @@ def getMassTemplates(
 		    sys.exit(1)
 		# make sure things stay constant
 		y.setConstant(True)
+    if None != config['S/B']:
+	# allow users to hand-tune S/B (if desired)
+	sigmode = config['Modes'][0]
+        nsig, nbg = 0., 0.
+        for pol in polarities:
+            for DsMode in DsModes:
+                for mode in config['Modes']:
+		    y = retVal[mode][pol][DsMode]['yield']
+    		    if sigmode == mode:
+    		        nsig += y.getVal()
+    		    else:
+    		        nbg += y.getVal()
+	sb = config['S/B']
+        for pol in polarities:
+            for DsMode in DsModes:
+                for mode in config['Modes']:
+		    y = retVal[mode][pol][DsMode]['yield']
+    		    if sigmode == mode:
+    		        y.setVal(sb / (1. + sb) * (nsig + nbg) * (
+			    y.getVal() / nsig))
+    		    else:
+    		        y.setVal(1. / (1. + sb) * (nsig + nbg) * (
+			    y.getVal() / nbg))
+
     return retVal
 
 # apply the acceptance to the time pdf (binned, i.e. apply to resolution model)

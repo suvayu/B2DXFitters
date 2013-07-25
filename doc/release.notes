@@ -4,6 +4,11 @@
 ! Purpose     : RooFit-based fitters for B -> D X
 !-----------------------------------------------------------------------------
 
+! 2013-07-25 - Manuel Tobias Schiller
+ - cFit: possibility to tune S/B for toys - this allows to specify S/B for
+   toys while keeping the total yield constant; the relative yields of the BG
+   do not change (i.e. the BG composition does not change when changing S/B)
+
 ! 2013-07-20 - Agnieszka Dziurda
  - update Bs2DsPi time sFitter - update for per-event time errors
  - update both toy generators: GenerateToySWeights_{DsK,DsPi}.py
