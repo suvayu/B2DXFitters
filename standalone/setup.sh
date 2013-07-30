@@ -13,14 +13,11 @@
 #
 # 2012-09-04 Manuel Schiller <manuel.schiller@nikhef.nl>
 #	initial release
+# 2013-07-30 Manuel Schiller <manuel.schiller@nikhef.nl>
+#	add support to set up in a clean LHCb environment at CERN with ROOT
+#	from AFS
 
 echo Setting up standalone environment for B2DXFitters package.
-# test if root-config is there, so we can build things
-test -f `which root-config 2>/dev/zero`
-if [ 0 -ne "$?" ]; then
-    echo 'Unable to locate ROOT (root-config), environment setup failed.'
-    exit 1
-fi
 # get directory from which the script is executed - might be relative path
 if test -n "$ZSH_VERSION"; then
     scriptdir=`dirname $0`
@@ -44,6 +41,17 @@ pkgdir=`pwd`
 cd "$pwd"
 
 export B2DXFITTERSROOT="$pkgdir"
+
+if hostname -f | grep -q "cern.ch"; then
+    echo "Looks like we're running at CERN, set up our own version of ROOT..."
+    source $B2DXFITTERSROOT/standalone/standalone-cern.sh
+fi
+# test if root-config is there, so we can build things
+test -f `which root-config 2>/dev/zero`
+if [ 0 -ne "$?" ]; then
+    echo 'Unable to locate ROOT (root-config), environment setup failed.'
+    exit 1
+fi
 
 echo B2DXFITTERSROOT="$B2DXFITTERSROOT"
 

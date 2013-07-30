@@ -4,6 +4,37 @@
 ! Purpose     : RooFit-based fitters for B -> D X
 !-----------------------------------------------------------------------------
 
+! 2013-07-30 - Manuel Tobias Schiller
+ - make it easier to run with a recent ROOT version at CERN in the standalone
+   environment; this is now very easy to use:
+
+   1) setting up the environment (you need a sh-like shell, no (t)csh!)
+
+      getpack PhysFit/B2DXFitters (if you haven't done so already)
+      source PhysFit/B2DXFitters/standalone/setup.sh
+
+   2) build the sources
+
+      cd $B2DXFITTERSROOT/standalone
+      make distclean; make
+
+   3) run your fits...
+
+      you may need the python/shell prologue from
+      runBs2DsKCPAsymmObsFitter-cFit.py, up to and including the bit that
+      reads:
+
+      if in_gdb():
+          # when running in a debugger, we want to make sure that we do not
+          # handle any signals, so the debugger can catch SIGSEGV and friends,
+          # and we can poke around
+          ROOT.SetSignalPolicy(ROOT.kSignalFast)
+          ROOT.gEnv.SetValue('Root.Stacktrace', '0')
+
+      it's a lot to cut and paste, but it'll allow you to run in the official
+      Urania environment, and standalone with pretty much any ROOT
+      installation you can think of...
+
 ! 2013-07-25 - Manuel Tobias Schiller
  - cFit: possibility to tune S/B for toys - this allows to specify S/B for
    toys while keeping the total yield constant; the relative yields of the BG
