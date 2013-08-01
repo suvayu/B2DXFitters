@@ -5,6 +5,10 @@
 !-----------------------------------------------------------------------------
 
 ! 2013-08-01 - Manuel Tobias Schiller
+ - implement RooBinnedPdf in a clean way so we don't play games with dirty
+   flags which might break RooFit's caching/optimisation
+
+! 2013-08-01 - Manuel Tobias Schiller
  - fix a few bugs in Rules.mk, stricter compiler warning flags
  - fix compiler warnings
 
