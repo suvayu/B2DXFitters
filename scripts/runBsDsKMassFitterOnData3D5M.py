@@ -666,7 +666,7 @@ def runBsDsKMassFitterOnData( debug, sample, mVar, mdVar, tVar, terrVar, tagVar,
 
     # Group 3: g3_f1*Lb->Dsp + (1-g3_f1)Lb->Ds*p
     if toys:
-        g3_f1              = RooRealVar( "g3_f1_frac","g3_f1_frac", 0.5)
+        g3_f1              = RooRealVar( "g3_f1_frac","g3_f1_frac", 0.9)
     else:
         g3_f1              = RooRealVar( "g3_f1_frac","g3_f1_frac", 0.5, 0.0, 1.0)
 

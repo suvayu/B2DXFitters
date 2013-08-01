@@ -4,6 +4,17 @@
 ! Purpose     : RooFit-based fitters for B -> D X
 !-----------------------------------------------------------------------------
 
+! 2013-08-01 - Agnieszka Dziurda
+  - minor changes in:
+	scripts/runBsDsKMassFitterOnData3D5M.py
+  - forgot to add public paths to sWeights in:
+   . scripts/Csh/run_fit_time_dsk_bdtg123_3m.csh
+   . scripts/Csh/run_fit_time_dsk_bdtg123_5m.csh
+   . scripts/Csh/run_fit_time_dsk_bdtga.csh
+   . scripts/Csh/run_fit_time_dspi_bdtg123.csh
+   . scripts/Csh/run_fit_time_dspi_bdtga.csh
+
+ 
 ! 2013-07-31 - Agnieszka Dziurda
  - minor changes in:
    . B2DXFitters/SFitUtils.h, src/SFitUtils.cxx
