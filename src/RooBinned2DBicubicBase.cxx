@@ -255,22 +255,23 @@ Double_t RooBinned2DBicubicBase<BASE>::analyticalIntegral(
 }
 
 template<class BASE>
-double RooBinned2DBicubicBase<BASE>::eval(double x, double y) const
+double RooBinned2DBicubicBase<BASE>::eval(double xx, double yy) const
 {
     // protect against NaN and out of range
-    if (x <= xmin || x >= xmax || y <= ymin || y >= ymax || x != x || y != y)
+    if (xx <= xmin || xx >= xmax || yy <= ymin || yy >= ymax ||
+	    xx != xx || yy != yy)
 	return 0.;
     // find the bin in question
-    const int binx = int(double(nBinsX) * (x - xmin) / (xmax - xmin));
-    const int biny = int(double(nBinsY) * (y - ymin) / (ymax - ymin));
+    const int binx = int(double(nBinsX) * (xx - xmin) / (xmax - xmin));
+    const int biny = int(double(nBinsY) * (yy - ymin) / (ymax - ymin));
     // get low edge of bin
     const double xlo = double(nBinsX - binx) / double(nBinsX) * xmin +
 	double(binx) / double(nBinsX) * xmax;
     const double ylo = double(nBinsY - biny) / double(nBinsY) * ymin +
 	double(biny) / double(nBinsY) * ymax;
     // normalise to coordinates in unit sqare
-    const double hx = (x - xlo) / binSizeX;
-    const double hy = (y - ylo) / binSizeY;
+    const double hx = (xx - xlo) / binSizeX;
+    const double hy = (yy - ylo) / binSizeY;
     // monomials
     const double hxton[4] = { hx * hx * hx, hx * hx, hx, 1. };
     const double hyton[4] = { hy * hy * hy, hy * hy, hy, 1. };
@@ -283,17 +284,17 @@ double RooBinned2DBicubicBase<BASE>::eval(double x, double y) const
 }
 
 template<class BASE>
-double RooBinned2DBicubicBase<BASE>::evalX(double x1, double x2, double y) const
+double RooBinned2DBicubicBase<BASE>::evalX(double x1, double x2, double yy) const
 {
     // protect against NaN
-    if (x1 != x1 || x2 != x2 || y != y) return 0.;
+    if (x1 != x1 || x2 != x2 || yy != yy) return 0.;
     // find the bin in question
-    const int biny = int(double(nBinsY) * (y - ymin) / (ymax - ymin));
+    const int biny = int(double(nBinsY) * (yy - ymin) / (ymax - ymin));
     // get low edge of bin
     const double ylo = double(nBinsY - biny) / double(nBinsY) * ymin +
 	double(biny) / double(nBinsY) * ymax;
     // normalise to coordinates in unit sqare
-    const double hy = (y - ylo) / binSizeY;
+    const double hy = (yy - ylo) / binSizeY;
     // monomials
     const double hyton[4] = { hy * hy * hy, hy * hy, hy, 1. };
     // integral
@@ -322,17 +323,17 @@ double RooBinned2DBicubicBase<BASE>::evalX(double x1, double x2, double y) const
 }
 
 template<class BASE>
-double RooBinned2DBicubicBase<BASE>::evalY(double x, double y1, double y2) const
+double RooBinned2DBicubicBase<BASE>::evalY(double xx, double y1, double y2) const
 {
     // protect against NaN
-    if (x != x || y1 != y1 || y2 != y2) return 0.;
+    if (xx != xx || y1 != y1 || y2 != y2) return 0.;
     // find the bin in question
-    const int binx = int(double(nBinsX) * (x - xmin) / (xmax - xmin));
+    const int binx = int(double(nBinsX) * (xx - xmin) / (xmax - xmin));
     // get low edge of bin
     const double xlo = double(nBinsX - binx) / double(nBinsX) * xmin +
 	double(binx) / double(nBinsX) * xmax;
     // normalise to coordinates in unit sqare
-    const double hx = (x - xlo) / binSizeX;
+    const double hx = (xx - xlo) / binSizeX;
     // monomials
     const double hxton[4] = { hx * hx * hx, hx * hx, hx, 1. };
     // integral

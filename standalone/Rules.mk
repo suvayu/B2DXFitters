@@ -47,9 +47,12 @@
 # v0.11	2013-05-17 Manuel Schiller <manuel.schiller@nikhef.nl
 # 	fix build when doing a standalone build in a partially set up LHCb
 # 	software environment
-# v0.12 2013-07-02 Manuel Schiller <manuel.schiller@nikhef.nl
+# v0.12 2013-07-02 Manuel Schiller <manuel.schiller@nikhef.nl>
 # 	fix by Paul Seyfert to correctly handle multiple subdirectories
 # 	fix automatic dependency tracking for Fortran files
+# v0.13 2013-07-02 Manuel Schiller <manuel.schiller@nikhef.nl>
+#	fix optimisation flags used for the GNU compilers on non x86(_64)
+#	platforms
 #######################################################################
 
 #######################################################################
@@ -430,11 +433,11 @@ PIPEFLAG.Intel ?= -pipe
 PIPEFLAG.Clang ?= -pipe
 PIPEFLAG.GNU ?= -pipe
 # turn on warnings
-WARNFLAGS.GNU ?= -Wall -Wextra -fmessage-length=78
+WARNFLAGS.GNU ?= -Wall -Wextra -Wshadow -fmessage-length=78
 WARNFLAGS.Clang ?= -Wall -Wextra -fmessage-length=78
-WARNFLAGS.Intel ?= -Wall -Wextra -fmessage-length=78
+WARNFLAGS.Intel ?= -Wall -Wextra -Wshadow -fmessage-length=78
 WARNFLAGS.Open64 ?= -Wall -Wextra -fmessage-length=78
-WARNFLAGS.PathScale ?= -Wall
+WARNFLAGS.PathScale ?= -Wall -Wshadow
 WARNFLAGS.SunPro ?= +w +w2
 WARNFLAGS.Unknown ?=
 # standard optimization flags
@@ -490,10 +493,11 @@ PICFLAGS.SunPro ?= -KPIC
 # we do ugly things such as not setting errno
 TUNEFLAGS.Unknown ?=
 TUNEFLAGS.GNU ?= -ffast-math -fno-math-errno \
-    $(shell $(CXX) --version 2>&1 | $(AWK) '// { for (i = 1; \
+    $(shell ($(UNAME) -m; $(CXX) --version) 2>&1 | \
+    $(AWK) '/^x86/ {ok = 1; } // { for (i = 1; \
     i <= NF; ++i) if ($$i ~ /[0-9]*\.[0-9]*\.[0-9]*$$/) { \
     if ($$i < "4.") tunefl = "-mtune=opteron"; else tunefl = \
-    "-mtune=native"; }; } END { print tunefl; }') \
+    "-mtune=native"; }; } END { if (ok) print tunefl; }') \
     $(shell $(ECHO) $(CPUFLAGS) | \
     $(SED) -e 's/ mmx / -mmmx /g' -e 's/ sse/ -msse/g' \
     -e 's/ ssse/ -mssse/g' -e 's/ avx/ -mavx/g' \

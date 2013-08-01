@@ -40,14 +40,14 @@ BdPTAcceptance::BdPTAcceptance(const BdPTAcceptance& other, const char* name) :
 Double_t BdPTAcceptance::evaluate() const 
 { 
   // ENTER EXPRESSION IN TERMS OF VARIABLE ARGUMENTS HERE
-  const double o = offset, b = beta, s = slope, t = this->t;
-  if ( t < o ) return 0.;
-  const double var = s * ( t - o );
+  const double o = offset, b = beta, s = slope, tt = t;
+  if ( tt < o ) return 0.;
+  const double var = s * ( tt - o );
   if ( var < 10. ) {
-    return ( 1. - std::exp( -var ) )*(1.-b*t);
+    return ( 1. - std::exp( -var ) )*(1.-b*tt);
   }
   else
-    return 1.*(1.-b*t);
+    return 1.*(1.-b*tt);
 }
 
 Int_t BdPTAcceptance::getAnalyticalIntegral(
@@ -57,11 +57,11 @@ Int_t BdPTAcceptance::getAnalyticalIntegral(
     return 0;
 }
 
-double BdPTAcceptance::ourIntegral(const double t) const
+double BdPTAcceptance::ourIntegral(const double tt) const
 {
     const double o = offset, b = beta, s = slope;
-    return -(b * s * t - s + b) / (s * s) * std::exp(-s * (t - o)) -
-	    0.5 * b * t * t + t;
+    return -(b * s * tt - s + b) / (s * s) * std::exp(-s * (tt - o)) -
+	    0.5 * b * tt * tt + tt;
 }
 
 Double_t BdPTAcceptance::analyticalIntegral(

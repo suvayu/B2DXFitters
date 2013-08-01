@@ -54,7 +54,7 @@ Int_t CombBkgPTPdf::getAnalyticalIntegral(
     return 0;
 }
 
-double CombBkgPTPdf::monoInt(double t, double a, double alpha) const
+double CombBkgPTPdf::monoInt(double t, double a, double alpha)
 {
     const double alphat = alpha * t;
     const double oneplusalphat = 1. + alphat;

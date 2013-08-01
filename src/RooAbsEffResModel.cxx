@@ -2,8 +2,8 @@
 #include "B2DXFitters/RooAbsEffResModel.h"
 
 //_____________________________________________________________________________
-RooAbsEffResModel::RooAbsEffResModel(const char *name, const char *title, RooRealVar& convVar) 
-   : RooResolutionModel(name, title, convVar)
+RooAbsEffResModel::RooAbsEffResModel(const char *name, const char *title, RooRealVar& __convVar) 
+   : RooResolutionModel(name, title, __convVar)
 { }
 
 //_____________________________________________________________________________

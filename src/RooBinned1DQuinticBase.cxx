@@ -224,17 +224,17 @@ Double_t RooBinned1DQuinticBase<BASE>::analyticalIntegral(
 }
 
 template<class BASE>
-double RooBinned1DQuinticBase<BASE>::eval(double x) const
+double RooBinned1DQuinticBase<BASE>::eval(double xx) const
 {
     // protect against NaN and out of range
-    if (x <= xmin || x >= xmax || x != x) return 0.;
+    if (xx <= xmin || xx >= xmax || xx != xx) return 0.;
     // find the bin in question
-    const int binx = int(double(nBinsX) * (x - xmin) / (xmax - xmin));
+    const int binx = int(double(nBinsX) * (xx - xmin) / (xmax - xmin));
     // get low edge of bin
     const double xlo = double(nBinsX - binx) / double(nBinsX) * xmin +
 	double(binx) / double(nBinsX) * xmax;
     // normalise to coordinates in unit sqare
-    const double hx = (x - xlo) / binSizeX;
+    const double hx = (xx - xlo) / binSizeX;
     // monomials
     const double hxton[6] = { hx * hx * hx * hx * hx, hx * hx * hx * hx,
 	hx * hx * hx, hx * hx, hx, 1. };
@@ -247,17 +247,17 @@ double RooBinned1DQuinticBase<BASE>::eval(double x) const
 }
 
 template<class BASE>
-double RooBinned1DQuinticBase<BASE>::evalx(double x) const
+double RooBinned1DQuinticBase<BASE>::evalx(double xx) const
 {
     // protect against NaN and out of range
-    if (x <= xmin || x >= xmax || x != x) return 0.;
+    if (xx <= xmin || xx >= xmax || xx != xx) return 0.;
     // find the bin in question
-    const int binx = int(double(nBinsX) * (x - xmin) / (xmax - xmin));
+    const int binx = int(double(nBinsX) * (xx - xmin) / (xmax - xmin));
     // get low edge of bin
     const double xlo = double(nBinsX - binx) / double(nBinsX) * xmin +
 	double(binx) / double(nBinsX) * xmax;
     // normalise to coordinates in unit sqare
-    const double hx = (x - xlo) / binSizeX;
+    const double hx = (xx - xlo) / binSizeX;
     // monomials
     const double hxton[5] = { 5. * hx * hx * hx * hx, 4. * hx * hx * hx,
 	3. * hx * hx, 2. * hx, 1. };

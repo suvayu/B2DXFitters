@@ -26,7 +26,7 @@ public:
   PowLawAcceptance();
   PowLawAcceptance(const char *name, const char *title,
 		   RooAbsReal& turnon, RooAbsReal& time,
-		   RooAbsReal& offset, RooAbsReal& exponent,
+		   RooAbsReal& __offset, RooAbsReal& exponent,
 		   RooAbsReal& beta, RooAbsReal* correction=0);
   PowLawAcceptance(const PowLawAcceptance& other, const char* name=0);
   PowLawAcceptance(const PowLawAcceptance& other, const char* name,

@@ -147,7 +147,7 @@ RooBinnedPdf::RooBinnedPdf(const char* name, const char* title,
 //_____________________________________________________________________________
 RooBinnedPdf::RooBinnedPdf(const char* name, const char* title,
     const RooArgList& baseCats, const TObjArray& coefLists,
-    Bool_t ignoreFirstBin) :
+    Bool_t __ignoreFirstBin) :
   RooAbsPdf(name, title),
   _baseCatsList(TString(name) + "_baseCatsList", 0, this),
   _baseVarsList(TString(name) + "_baseVarsList", 0, this),
@@ -157,7 +157,7 @@ RooBinnedPdf::RooBinnedPdf(const char* name, const char* title,
   _continuousBase(kFALSE),
   _forceUnitIntegral(kFALSE),
   _binIntegralCoefs(kTRUE),
-  _ignoreFirstBin(ignoreFirstBin)
+  _ignoreFirstBin(__ignoreFirstBin)
 {
   // constructor with an arbitrary number of binnings, which depend on the
   // values of an equal number of categories
@@ -201,7 +201,7 @@ RooBinnedPdf::RooBinnedPdf(const char* name, const char* title,
 //_____________________________________________________________________________
 RooBinnedPdf::RooBinnedPdf(const char* name, const char* title,
     RooAbsRealLValue& baseVar, const char* binningName,
-    const RooArgList& coefList, Bool_t binIntegralCoefs) :
+    const RooArgList& coefList, Bool_t __binIntegralCoefs) :
   RooAbsPdf(name, title),
   _baseCatsList(TString(name) + "_baseCatsList", 0, this),
   _baseVarsList(TString(name) + "_baseVarsList", 0, this),
@@ -210,7 +210,7 @@ RooBinnedPdf::RooBinnedPdf(const char* name, const char* title,
   _numCats(0),
   _continuousBase(kTRUE),
   _forceUnitIntegral(kFALSE),
-  _binIntegralCoefs(binIntegralCoefs),
+  _binIntegralCoefs(__binIntegralCoefs),
   _ignoreFirstBin(kFALSE)
 {
   // constructor with one binning, which depends on the value of a continuous
@@ -247,7 +247,7 @@ RooBinnedPdf::RooBinnedPdf(const char* name, const char* title,
 //_____________________________________________________________________________
 RooBinnedPdf::RooBinnedPdf(const char* name, const char* title,
     const RooArgList& baseVars, const TObjArray& binningNames,
-    const RooArgList& coefList, Bool_t binIntegralCoefs) :
+    const RooArgList& coefList, Bool_t __binIntegralCoefs) :
   RooAbsPdf(name, title),
   _baseCatsList(TString(name) + "_baseCatsList", 0, this),
   _baseVarsList(TString(name) + "_baseVarsList", 0, this),
@@ -256,7 +256,7 @@ RooBinnedPdf::RooBinnedPdf(const char* name, const char* title,
   _numCats(0),
   _continuousBase(kTRUE),
   _forceUnitIntegral(kFALSE),
-  _binIntegralCoefs(binIntegralCoefs),
+  _binIntegralCoefs(__binIntegralCoefs),
   _ignoreFirstBin(kFALSE)
 {
   // constructor with an arbitrary number of binnings, which depend on the
@@ -286,8 +286,8 @@ RooBinnedPdf::RooBinnedPdf(const char* name, const char* title,
 //_____________________________________________________________________________
 RooBinnedPdf::RooBinnedPdf(const char* name, const char* title,
     const RooArgList& baseVars, const TObjArray& binningNames,
-    const TObjArray& coefLists, Bool_t binIntegralCoefs,
-    Bool_t ignoreFirstBin) :
+    const TObjArray& coefLists, Bool_t __binIntegralCoefs,
+    Bool_t __ignoreFirstBin) :
   RooAbsPdf(name, title),
   _baseCatsList(TString(name) + "_baseCatsList", 0, this),
   _baseVarsList(TString(name) + "_baseVarsList", 0, this),
@@ -296,8 +296,8 @@ RooBinnedPdf::RooBinnedPdf(const char* name, const char* title,
   _numCats(0),
   _continuousBase(kTRUE),
   _forceUnitIntegral(kFALSE),
-  _binIntegralCoefs(binIntegralCoefs),
-  _ignoreFirstBin(ignoreFirstBin)
+  _binIntegralCoefs(__binIntegralCoefs),
+  _ignoreFirstBin(__ignoreFirstBin)
 {
   // constructor with an arbitrary number of binnings, which depend on the
   // values of continuous variables with binnings
@@ -325,12 +325,12 @@ RooBinnedPdf::RooBinnedPdf(const char* name, const char* title,
 //_____________________________________________________________________________
 RooBinnedPdf::RooBinnedPdf
 (const char* name, const char* title, RooAbsArg& baseVar,
-    const char* binning, RooAbsReal& function) :
+    const char* binning, RooAbsReal& __function) :
   RooAbsPdf(name, title),
   _baseCatsList(TString(name) + "_baseCatsList", 0, this),
   _baseVarsList(TString(name) + "_baseVarsList", 0, this),
   _coefLists(),
-  _function(TString(name) + "_func", TString(name) + "_func", this, function),
+  _function(TString(name) + "_func", TString(name) + "_func", this, __function),
   _numCats(0),
   _continuousBase(kTRUE),
   _forceUnitIntegral(kFALSE),
@@ -347,7 +347,7 @@ RooBinnedPdf::RooBinnedPdf
   //
   // The supplied function will be evaluated a bin centers to give the value.
 
-  std::auto_ptr<RooArgSet> vars(function.getVariables());
+  std::auto_ptr<RooArgSet> vars(__function.getVariables());
   assert(vars->contains(baseVar));
   _baseVarsList.add(baseVar);
   _binningNames.push_back(binning);
@@ -356,12 +356,12 @@ RooBinnedPdf::RooBinnedPdf
 //_____________________________________________________________________________
 RooBinnedPdf::RooBinnedPdf
 (const char* name, const char* title, const RooArgList& baseVars,
-    const TObjArray& binningNames, RooAbsReal& function)
+    const TObjArray& binningNames, RooAbsReal& __function)
    : RooAbsPdf(name, title),
      _baseCatsList(TString(name) + "_baseCatsList", 0, this),
      _baseVarsList(TString(name) + "_baseVarsList", 0, this),
      _coefLists(),
-     _function(TString(name) + "_func", TString(name) + "_func", this, function),
+     _function(TString(name) + "_func", TString(name) + "_func", this, __function),
      _numCats(0),
      _continuousBase(kTRUE),
      _forceUnitIntegral(kFALSE),
@@ -381,7 +381,7 @@ RooBinnedPdf::RooBinnedPdf
   // create base categories and initialize coefficients
   assert(baseVars.getSize() == binningNames.GetEntries());
 
-  std::auto_ptr<const RooArgSet> comps(function.getVariables());
+  std::auto_ptr<const RooArgSet> comps(__function.getVariables());
   RooFIter baseVarsIter = baseVars.fwdIterator();
   RooAbsArg* arg = 0;
   while ((arg = static_cast<RooAbsArg*>(baseVarsIter.next()))) {
@@ -669,9 +669,9 @@ list<Double_t>* RooBinnedPdf::plotSamplingHint(RooAbsRealLValue& obs,
    }
 
    // Check that observable is in dataset, if not no hint is generated
-   Int_t i = 0;
    RooAbsLValue* lvar = 0;
-   for (; i < _baseVarsList.getSize(); ++i) {
+   Int_t i;
+   for (i = 0; i < _baseVarsList.getSize(); ++i) {
       RooAbsArg* var = _baseVarsList.at(i);
       lvar = dynamic_cast<RooAbsLValue*>(var);
       if (lvar && var->GetName() == obs.GetName()) {
@@ -696,7 +696,7 @@ list<Double_t>* RooBinnedPdf::plotSamplingHint(RooAbsRealLValue& obs,
  
    // Construct array with pairs of points positioned epsilon to the left and
    // right of the bin boundaries
-   for (Int_t i = 0; i < binning->numBoundaries(); ++i) {
+   for (i = 0; i < binning->numBoundaries(); ++i) {
       if (boundaries[i] >= xlo && boundaries[i] <= xhi) {
          hint->push_back(boundaries[i] - delta);
          hint->push_back(boundaries[i] + delta);
@@ -720,8 +720,8 @@ std::list<Double_t>* RooBinnedPdf::binBoundaries(RooAbsRealLValue& obs,
    
    // Check that we have observable, if not no binning is returned
    RooAbsArg* arg = 0;
-   int i = 0;
-   for (; i < _baseVarsList.getSize(); ++i) {
+   Int_t i;
+   for (i = 0; i < _baseVarsList.getSize(); ++i) {
       arg = _baseVarsList.at(i);
       if (arg && arg->GetName() == obs.GetName()) break;
    }
@@ -738,7 +738,7 @@ std::list<Double_t>* RooBinnedPdf::binBoundaries(RooAbsRealLValue& obs,
    
    // Construct array with pairs of points positioned epsilon to the left and
    // right of the bin boundaries
-   for (Int_t i=0; i<binning->numBoundaries(); i++) {
+   for (i=0; i<binning->numBoundaries(); i++) {
       if (boundaries[i]>=xlo && boundaries[i]<=xhi) {
          bounds->push_back(boundaries[i]);
       }
@@ -898,7 +898,7 @@ Double_t RooBinnedPdf::evaluateMultipleCoefs() const
   if (!calcCoefZeros) return value;
 
   // loop over base categories again
-  for (Int_t catIter = 0; catIter < _numCats; ++catIter) {
+  for (catIter = 0; catIter < _numCats; ++catIter) {
     if (!_calcCoefZeros[catIter]) continue;
 
     // coefficient of bin 0 is not explicitely specified for this category

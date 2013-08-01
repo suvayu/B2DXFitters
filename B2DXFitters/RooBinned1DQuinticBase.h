@@ -154,11 +154,11 @@ class RooBinned1DQuinticBase : public BASE
 	{ return *reinterpret_cast<BASE*>(this); }
 
 	/// const access to coefficients
-	inline SharedArray<double>::RWProxy coeff(int binx, int coeff) const
-	{ return coeffs[coeff + CoeffRecLen * binx]; }
+	inline SharedArray<double>::RWProxy coeff(int binx, int ncoeff) const
+	{ return coeffs[ncoeff + CoeffRecLen * binx]; }
 	/// access to coefficients
-	inline SharedArray<double>::RWProxy coeff(int binx, int coeff)
-	{ return coeffs[coeff + CoeffRecLen * binx]; }
+	inline SharedArray<double>::RWProxy coeff(int binx, int ncoeff)
+	{ return coeffs[ncoeff + CoeffRecLen * binx]; }
 
 	/// evaluate parametrisation at given point
 	double eval(double x) const;

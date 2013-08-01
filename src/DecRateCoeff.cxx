@@ -808,30 +808,30 @@ UInt_t DecRateCoeff::hash(const RooArgSet& s) const
     UInt_t sz = s.getSize();
     if (0 == sz) return 0;
     // use FNV1a to hash things - fast and easy to implement
-    UInt_t hash = 2166136261u;
+    UInt_t uhash = 2166136261u;
     // hash size
     for (unsigned i = sizeof(sz); i--; sz >>= 8) {
-	hash ^= sz & 0xffu;
-	hash *= 16777619u;
+	uhash ^= sz & 0xffu;
+	uhash *= 16777619u;
     }
     // hash name, pointer of each member of the set
     for (RooFIter it = s.fwdIterator(); const RooAbsArg* arg = it.next(); ) {
 	std::ptrdiff_t ptr = reinterpret_cast<const char*>(arg) -
 	    reinterpret_cast<const char*>(0);
 	for (unsigned i = sizeof(ptr); i--; ptr >>= 8) {
-	    hash ^= ptr & 0xffu;
-	    hash *= 16777619u;
+	    uhash ^= ptr & 0xffu;
+	    uhash *= 16777619u;
 	}
-	for (const unsigned char* ptr =
+	for (const unsigned char* cptr =
 		reinterpret_cast<const unsigned char*>(arg->GetName());
-		*ptr; ++ptr) {
-	    hash ^= *ptr;
-	    hash *= 16777619u;
+		*cptr; ++cptr) {
+	    uhash ^= *cptr;
+	    uhash *= 16777619u;
 	}
     }
     // protect against zero hash - reserved for empty set
-    if (!hash) ++hash;
-    return hash;
+    if (!uhash) ++uhash;
+    return uhash;
 }
 
 DecRateCoeff::CacheElem::CacheElem(const DecRateCoeff& parent,

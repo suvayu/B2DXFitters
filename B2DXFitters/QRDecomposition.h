@@ -137,17 +137,17 @@ class QRDecomposition
     public:
     /// constructor from something that behaves like a C style array
     /**
-     * @param n dimension of the matrix
+     * @param nn dimension of the matrix
      * @param m matrix itself
      * @param eps consider element to be zero if below eps * max(abs(m[i][j]))
      */
     template <class M>
-	QRDecomposition(unsigned n, const M& m, FBASE eps = -1) :
-	    a(n, std::vector<F>(n)), c(n), d(n), p(n), nsing(0)
+	QRDecomposition(unsigned nn, const M& m, FBASE eps = -1) :
+	    a(nn, std::vector<F>(nn)), c(nn), d(nn), p(nn), nsing(0)
     {
 	// copy m to working area a
-	for (unsigned i = 0; i < n; ++i) {
-	    for (unsigned j = 0; j < n; ++j) {
+	for (unsigned i = 0; i < nn; ++i) {
+	    for (unsigned j = 0; j < nn; ++j) {
 		a[i][j] = m[i][j];
 	    }
 	}
@@ -166,11 +166,25 @@ class QRDecomposition
      * @param m matrix itself
      * @param eps consider element to be zero if below eps * max(abs(m[i][j]))
      */
-    template <unsigned n, class R>
-	QRDecomposition(const ROOT::Math::SMatrix<F, n, n, R>& m, FBASE eps = -1) :
-	    QRDecomposition(n, QRDecompositionTools::MatrixIndexingProxy<
-		    ROOT::Math::SMatrix<F,n,n,R> >(m))
-    { }
+    template <unsigned nn, class R>
+	QRDecomposition(const ROOT::Math::SMatrix<F, nn, nn, R>& m, FBASE eps = -1) :
+	    a(nn, std::vector<F>(nn)), c(nn), d(nn), p(nn), nsing(0)
+    {
+	// copy m to working area a
+	for (unsigned i = 0; i < nn; ++i) {
+	    for (unsigned j = 0; j < nn; ++j) {
+		a[i][j] = m(i, j);
+	    }
+	}
+	// make sure that eps has a reasonable size
+	// if the user specifies a positive value, we use it (the user usually
+	// knows best), otherwise, we just use eps() for our base floating
+	// point type
+	if (eps < FBASE(0))
+	    eps = QRDecompositionTools::eps(eps);
+	// decompose the beast
+	decompose(eps);
+    }
 
     /// destructor
     virtual ~QRDecomposition() { }
@@ -186,21 +200,21 @@ class QRDecomposition
 
     /// solve system of linear equations (e.g. M x = b)
     /**
-     * @param n dimension of b
+     * @param nn dimension of b
      * @param b right hand side vector in M x = b
      * @returns number of singularities encountered, solution x in b
      */
-    template<class V> inline unsigned solve(unsigned n, V& b) const
+    template<class V> inline unsigned solve(unsigned nn, V& b) const
     {
-	if (this->n() != n) throw;
+	if (n() != nn) throw;
 
 	// apply pivoting
-	std::vector<F> tmp(n);
-	for (unsigned i = n; i--; tmp[i] = b[p[i]]);
+	std::vector<F> tmp(nn);
+	for (unsigned i = nn; i--; tmp[i] = b[p[i]]);
 	// solve
-	doSolve(n, tmp);
+	doSolve(nn, tmp);
 	// copy back to user supplied vector
-	for (unsigned i = n; i--; b[i] = tmp[i]);
+	for (unsigned i = nn; i--; b[i] = tmp[i]);
 
 	return nSing();
     }
@@ -210,31 +224,31 @@ class QRDecomposition
      * @param b right hand side vector in M x = b
      * @returns number of singularities encountered, solution x in b
      */
-    template <unsigned n>
-    inline unsigned solve(ROOT::Math::SVector<F,n>& b) const
-    { return solve(n, QRDecompositionTools::VectorIndexingProxy<
-	    ROOT::Math::SVector<F,n>, false>(b)); }
+    template <unsigned nn>
+    inline unsigned solve(ROOT::Math::SVector<F,nn>& b) const
+    { return solve(nn, QRDecompositionTools::VectorIndexingProxy<
+	    ROOT::Math::SVector<F,nn>, false>(b)); }
 
     /// form inverse of matrix using calculated QR decomposition
     /**
-     * @param n size of matrix
+     * @param nn size of matrix
      * @param m destination of inverse
      * @returns number of singularities in original matrix
      */
-    template <class M> inline unsigned invert(unsigned n, M& m) const
+    template <class M> inline unsigned invert(unsigned nn, M& m) const
     {
-	if (this->n() != n) throw;
+	if (n() != nn) throw;
 
 	// zero output matrix
-	for (unsigned i = 0; i < n; ++i)
-	    for (unsigned j = 0; j < n; ++j) m[i][j] = 0;
+	for (unsigned i = 0; i < nn; ++i)
+	    for (unsigned j = 0; j < nn; ++j) m[i][j] = 0;
 
 	// ok, solve for each unit vector along one of the coordinate
 	// axes
-	for (unsigned i = 0; i < n; ++i) {
+	for (unsigned i = 0; i < nn; ++i) {
 	    m[i][i] = 1;
 	    QRDecompositionTools::TransposingProxy<M, F> proxy(m, i);
-	    solve(n, proxy);
+	    solve(nn, proxy);
 	}
 
 	return nSing();
@@ -245,10 +259,10 @@ class QRDecomposition
      * @param m destination of inverse
      * @returns number of singularities in original matrix
      */
-    template <unsigned n, class R> inline unsigned invert(
-	    ROOT::Math::SMatrix<F, n, n, R>& m) const
-    { return invert(n, QRDecompositionTools::MatrixIndexingProxy<
-	    ROOT::Math::SMatrix<F,n,n,R> >(m)); }
+    template <unsigned nn, class R> inline unsigned invert(
+	    ROOT::Math::SMatrix<F, nn, nn, R>& m) const
+    { return invert(nn, QRDecompositionTools::MatrixIndexingProxy<
+	    ROOT::Math::SMatrix<F,nn,nn,R> >(m)); }
 
     protected:
     /** A few words on the storage format of the decomposed matrix:
@@ -295,27 +309,27 @@ class QRDecomposition
     {
 	using std::sqrt;
 	using std::abs;
-	const unsigned n = this->n();
+	const unsigned nn = n();
 
 	// set up the identity row permutation for pivoting
-	for (unsigned i = n; i--; p[i] = i);
+	for (unsigned i = nn; i--; p[i] = i);
 	// find greatest absolute value of all elements in the matrix
 	// we need this to tell if a value is close to singular or not
 	// (1e-16 may be a large value if the maximum in the matrix is
 	// 1e-15, if the maximum is 3.1415 however, it's small, of course)
 	FBASE max = 0;
-	for (unsigned i = n; i--; ) {
-	    for (unsigned j = n; j--; )
+	for (unsigned i = nn; i--; ) {
+	    for (unsigned j = nn; j--; )
 		if (abs(a[i][j]) > max)
 		    max = abs(a[i][j]);
 	}
 	if (FBASE(0) == max) max = 1;
 
 	// ok, here comes the main decomposition loop
-	for (unsigned i = 0; i < (n - 1); ++i) {
+	for (unsigned i = 0; i < (nn - 1); ++i) {
 	    FBASE scale = 0;
 	    // determine scale
-	    for (unsigned j = i; j < n; ++j)
+	    for (unsigned j = i; j < nn; ++j)
 		if (abs(a[p[j]][i]) > scale)
 		    scale = abs(a[p[j]][i]);
 	    // we have to handle singularity - decomposition is attempted
@@ -332,7 +346,7 @@ class QRDecomposition
 	    // accumulate any more than they already have)
 	    FBASE best = std::numeric_limits<FBASE>::infinity();
 	    unsigned q = i;
-	    for (unsigned j = i; j < n; ++j) {
+	    for (unsigned j = i; j < nn; ++j) {
 		FBASE goodness = abs(a[p[j]][i]);
 		if (goodness >= best) continue;
 		// better than previous best pivot choice, save it
@@ -347,7 +361,7 @@ class QRDecomposition
 	    // scale the i-th column vector and calculate its length
 	    // scale still contains the scale factor we need (see above)
 	    FBASE tmp = 0;
-	    for (unsigned j = i; j < n; ++j) {
+	    for (unsigned j = i; j < nn; ++j) {
 		a[p[j]][i] /= scale;
 		tmp += norm(a[p[j]][i]);
 	    }
@@ -373,50 +387,50 @@ class QRDecomposition
 	    c[i] = sqrt(tmp) * abs(a[p[i]][i]); // 1/2 * |v|^2
 	    d[i] = -scale * sigma;
 	    // apply Q to rest of a
-	    for (unsigned j = i + 1; j < n; ++j) {
-		F tmp = 0;
-		for (unsigned k = i; k < n; ++k)
+	    for (unsigned j = i + 1; j < nn; ++j) {
+		tmp = 0;
+		for (unsigned k = i; k < nn; ++k)
 		    tmp += conj(a[p[k]][i]) * a[p[k]][j];
 		tmp /= c[i];
-		for (unsigned k = i; k < n; ++k)
+		for (unsigned k = i; k < nn; ++k)
 		    a[p[k]][j] -= tmp * a[p[k]][i];
 	    }
 	}
 	// write d entry for last column and check one last time for
 	// singularity
-	if (abs(d[n - 1] = a[p[n - 1]][n - 1]) <= eps * max) {
-	    d[n - 1] = c[n - 1] = 0;
+	if (abs(d[nn - 1] = a[p[nn - 1]][nn - 1]) <= eps * max) {
+	    d[nn - 1] = c[nn - 1] = 0;
 	    ++nsing;
 	}
     }
 
     /// helper routine to do the solving work
-    template<class V> inline void doSolve(const unsigned n, V& b) const
+    template<class V> inline void doSolve(const unsigned nn, V& b) const
     {
 	// we'll try hard to calculate around the singularities and still
 	// get a meaningful result for the rest - this may or may not be
 	// what you want
 
 	// calculate Q^T b
-	for (unsigned j = 0; j < (n - 1); ++j) {
+	for (unsigned j = 0; j < (nn - 1); ++j) {
 	    if (F(0) == c[j])
 		continue;
 	    F tmp = 0;
-	    for (unsigned i = j; i < n; ++i)
+	    for (unsigned i = j; i < nn; ++i)
 		tmp += conj(a[p[i]][j]) * b[i];
 	    tmp /= c[j];
-	    for (unsigned i = j; i < n; ++i)
+	    for (unsigned i = j; i < nn; ++i)
 		b[i] -= tmp * a[p[i]][j];
 	}
 
 	// ok, solve Rx = Q^T b
-	for (unsigned i = n; i--; ) {
+	for (unsigned i = nn; i--; ) {
 	    if (F(0) == d[i]) {
 		b[i] = 0;
 		continue;
 	    }
 	    F tmp = 0;
-	    for (unsigned j = i + 1; j < n; ++j)
+	    for (unsigned j = i + 1; j < nn; ++j)
 		tmp += a[p[i]][j] * b[j];
 	    b[i] = (b[i] - tmp) / d[i];
 	}

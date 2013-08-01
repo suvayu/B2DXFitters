@@ -81,25 +81,19 @@ public:
 
   RooArgList* baseVariables();
 
-  Bool_t continuousBase() {return _continuousBase;}
+  Bool_t continuousBase() const {return _continuousBase;}
 
   Bool_t forceUnitIntegral() {return _forceUnitIntegral;}
   void   setForceUnitIntegral(Bool_t force = kTRUE)
-  {
-    _forceUnitIntegral = force;
-  }
+  { _forceUnitIntegral = force; }
 
-  Bool_t binIntegralCoefs() {return _binIntegralCoefs;}
+  Bool_t binIntegralCoefs() const {return _binIntegralCoefs;}
   void   setBinIntegralCoefs(Bool_t integralCoefs = kTRUE)
-  {
-    _binIntegralCoefs = integralCoefs;
-  }
+  { _binIntegralCoefs = integralCoefs; }
 
-  Bool_t ignoreFirstBin() {return _ignoreFirstBin;}
-  void   setIgnoreFirstBin(Bool_t ignoreFirstBin = kTRUE)
-  {
-    _ignoreFirstBin = ignoreFirstBin;
-  }
+  Bool_t ignoreFirstBin() const {return _ignoreFirstBin;}
+  void   setIgnoreFirstBin(Bool_t ignFirstBin = kTRUE)
+  { _ignoreFirstBin = ignFirstBin; }
 
   virtual Int_t getAnalyticalIntegral(RooArgSet& allVars, RooArgSet& analVars,
       const char* rangeName = 0) const;

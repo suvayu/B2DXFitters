@@ -4,9 +4,13 @@
 ! Purpose     : RooFit-based fitters for B -> D X
 !-----------------------------------------------------------------------------
 
+! 2013-08-01 - Manuel Tobias Schiller
+ - fix a few bugs in Rules.mk, stricter compiler warning flags
+ - fix compiler warnings
+
 ! 2013-08-01 - Agnieszka Dziurda
   - minor changes in:
-	scripts/runBsDsKMassFitterOnData3D5M.py
+   scripts/runBsDsKMassFitterOnData3D5M.py
   - forgot to add public paths to sWeights in:
    . scripts/Csh/run_fit_time_dsk_bdtg123_3m.csh
    . scripts/Csh/run_fit_time_dsk_bdtg123_5m.csh

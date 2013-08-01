@@ -27,8 +27,8 @@ SharedArray<TYPE>& SharedArray<TYPE>::operator=(
 }
 
 template <class TYPE>
-SharedArrayImp<TYPE>::SharedArrayImp(unsigned size) :
-    refcount(1), arr(size)
+SharedArrayImp<TYPE>::SharedArrayImp(unsigned sz) :
+    refcount(1), arr(sz)
 { }
 
 template <class TYPE>

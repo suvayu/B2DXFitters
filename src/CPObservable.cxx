@@ -50,30 +50,30 @@ CPObservable::~CPObservable() { }
 
 Double_t CPObservable::evaluate() const 
 {
-    const double lambda = double(this->lambda);
-    const double denom = 1. / (1. + lambda * lambda);
+    const double l = double(lambda);
+    const double denom = 1. / (1. + l * l);
     switch(what) {
 	case C:
-	    return (1. + lambda) * (1. - lambda) * denom;
+	    return (1. + l) * (1. - l) * denom;
 	case D:
 	    {
 		const double phi = double(phi_strong) - double(phi_weak);
-		return 2. * lambda * std::cos(phi) * denom;
+		return 2. * l * std::cos(phi) * denom;
 	    }
 	case S:
 	    {
 		const double phi = double(phi_strong) - double(phi_weak);
-		return 2. * lambda * std::sin(phi) * denom;
+		return 2. * l * std::sin(phi) * denom;
 	    }
 	case Dbar:
 	    {
 		const double phi = double(phi_strong) + double(phi_weak);
-		return 2. * lambda * std::cos(phi) * denom;
+		return 2. * l * std::cos(phi) * denom;
 	    }
 	case Sbar:
 	    {
 		const double phi = double(phi_strong) + double(phi_weak);
-		return 2. * lambda * std::sin(phi) * denom;
+		return 2. * l * std::sin(phi) * denom;
 	    }
 	default:
 	    break;

@@ -49,16 +49,9 @@ RooCruijff::RooCruijff(const char *name, const char *title,
  Double_t RooCruijff::evaluate() const 
  {
    // build the functional form
-   double sigma = 0.0;
-   double alpha = 0.0;
-   double dx = (x - m0);
-   if(dx<0){
-     sigma = sigmaL;
-     alpha = alphaL;
-   } else {
-     sigma = sigmaR;
-     alpha = alphaR;
-   }
-   double f = 2*sigma*sigma + alpha*dx*dx ;
+   const double dx = (x - m0);
+   const double s = (dx < 0.) ? sigmaL : sigmaR;
+   const double a = (dx < 0.) ? alphaL : alphaR;
+   const double f = 2.*s*s + a*dx*dx ;
    return exp(-dx*dx/f) ;
  }

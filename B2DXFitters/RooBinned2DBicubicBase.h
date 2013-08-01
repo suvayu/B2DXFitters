@@ -123,11 +123,11 @@ class RooBinned2DBicubicBase : public BASE
 
 	/// const access to coefficients
 	inline SharedArray<double>::RWProxy coeff(
-		int binx, int biny, int coeff) const
-	{ return coeffs[coeff + CoeffRecLen * (binx + nBinsX * biny)]; }
+		int binx, int biny, int ncoeff) const
+	{ return coeffs[ncoeff + CoeffRecLen * (binx + nBinsX * biny)]; }
 	/// access to coefficients
-	inline SharedArray<double>::RWProxy coeff(int binx, int biny, int coeff)
-	{ return coeffs[coeff + CoeffRecLen * (binx + nBinsX * biny)]; }
+	inline SharedArray<double>::RWProxy coeff(int binx, int biny, int ncoeff)
+	{ return coeffs[ncoeff + CoeffRecLen * (binx + nBinsX * biny)]; }
 
 	/// evaluate at given point
 	double eval(double x, double y) const;

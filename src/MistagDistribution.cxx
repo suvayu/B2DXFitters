@@ -10,8 +10,8 @@
 
 #include "B2DXFitters/MistagDistribution.h"
 #include "RooAbsReal.h"
-#include <math.h>
-#include "TMath.h"
+
+#include <cmath>
 #include <cstdio>
 #include <cassert>
 #include <algorithm>
@@ -37,33 +37,33 @@ MistagDistribution::~MistagDistribution() { }
 
 double MistagDistribution::getWc() const
 {
-    const double w0 = this->w0;
-    const double wa = this->wa;
-    const double f = this->f;
+    const double _w0 = w0;
+    const double _wa = wa;
+    const double _f = f;
     // quickly validate input variables
-    if (w0 < 0.0 || w0 > 0.5 || wa <= 0.0 ||
-	    wa >= 0.5 || f < 0.0 || f > 1.0)
+    if (_w0 < 0.0 || _w0 > 0.5 || _wa <= 0.0 ||
+	    _wa >= 0.5 || _f < 0.0 || _f > 1.0)
 	return 0.0;
-    if (0. != lastwc && lastw0 == w0 && lastwa == wa && lastf == f) {
+    if (0. != lastwc && lastw0 == _w0 && lastwa == _wa && lastf == _f) {
 	return lastwc;
     } else {
-	// calculate effective wc
+	// calculate e_f_fective wc
 	const double i1 =
-	    (36. * f*f + 24. * f + 4.) * wa * wa +
-	    ((8. * f + 8.) * w0 - 36. * f*f - 28. * f - 8.) * wa -
-	    8. * f * w0*w0 + (4. * f - 4.) * w0 + 9. * f*f + 6. * f + 3.;
-	// expression under square root negative, no solution for wc
+	    (36. * _f*_f + 24. * _f + 4.) * _wa * _wa +
+	    ((8. * _f + 8.) * _w0 - 36. * _f*_f - 28. * _f - 8.) * _wa -
+	    8. * _f * _w0*_w0 + (4. * _f - 4.) * _w0 + 9. * _f*_f + 6. * _f + 3.;
+	// expression under square root negative, no solution _for wc
 	if (i1 < 0.0) return 0.;
-	const double i2 = (6. * f + 2.) * wa - 2. * w0 - f + 1.;
-	const double wc1 = 0.25 * (i2 + sqrt(i1)) / (f + 0.5);
-	const double wc2 = 0.25 * (i2 - sqrt(i1)) / (f + 0.5);
-	// check for wc solution in allowed range
+	const double i2 = (6. * _f + 2.) * _wa - 2. * _w0 - _f + 1.;
+	const double wc1 = 0.25 * (i2 + std::sqrt(i1)) / (_f + 0.5);
+	const double wc2 = 0.25 * (i2 - std::sqrt(i1)) / (_f + 0.5);
+	// check _for wc solution in allowed range
 	const double wc = (0.0 <= wc1 && wc1 <= 0.5) ? wc1 : wc2;
 	if (!(0.0 <= wc && wc <= 0.5)) return (lastwc = 0.0);
 	lastwc = wc;
-	lastw0 = w0;
-	lastwa = wa;
-	lastf = f;
+	lastw0 = _w0;
+	lastwa = _wa;
+	lastf = _f;
 	return wc;
     }
     return 0.;
@@ -71,25 +71,25 @@ double MistagDistribution::getWc() const
 
 Double_t MistagDistribution::evaluate() const
 {
-    const double w = this->w;
-    const double w0 = this->w0;
-    const double wa = this->wa;
-    const double f = this->f;
+    const double _w = w;
+    const double _w0 = w0;
+    const double _wa = wa;
+    const double _f = f;
     // quickly validate input variables
-    if (w < 0.0 || w > 0.5 || w0 < 0.0 || w0 > 0.5 || wa <= 0.0 ||
-	    wa >= 0.5 || f < 0.0 || f > 1.0)
+    if (_w < 0.0 || _w > 0.5 || _w0 < 0.0 || _w0 > 0.5 || _wa <= 0.0 ||
+	    _wa >= 0.5 || _f < 0.0 || _f > 1.0)
 	return 0.0;
     // we we're below the lower turnon, we're done as well
-    if (w < w0) return 0.0;
+    if (_w < _w0) return 0.0;
 
     const double wc = getWc();
     if (!(0.0 <= wc && wc <= 0.5)) return 0.0;
     // ok, evaluate pdf
-    if (w < wc) {
-	const double x = (w - w0) / (wc - w0);
+    if (_w < wc) {
+	const double x = (_w - _w0) / (wc - _w0);
 	return x * x;
     } else {
-	return 1. - (1. - f) * (w - wc) / (0.5 - wc);
+	return 1. - (1. - _f) * (_w - wc) / (0.5 - wc);
     }
     // should never arrive here...
     return 0.0;
@@ -109,12 +109,12 @@ Double_t MistagDistribution::analyticalIntegral(Int_t code, const char *rangeNam
 	    break;
 	case 1:
 	    {
-		const double w0 = this->w0;
-		const double wa = this->wa;
-		const double f = this->f;
+		const double _w0 = w0;
+		const double _wa = wa;
+		const double _f = f;
 		// quickly validate input variables
-		if (w0 < 0.0 || w0 > 0.5 || wa <= 0.0 ||
-			wa >= 0.5 || f < 0.0 || f > 1.0)
+		if (_w0 < 0.0 || _w0 > 0.5 || _wa <= 0.0 ||
+			_wa >= 0.5 || _f < 0.0 || _f > 1.0)
 		    return 0.0;
 		const double wc = getWc();
 		if (!(0.0 <= wc && wc <= 0.5)) return 0.0;
@@ -129,7 +129,7 @@ Double_t MistagDistribution::analyticalIntegral(Int_t code, const char *rangeNam
 		// clip integration range
 		//
 		// from -infinity to w0, pdf is zero
-		if (wmin < w0) wmin = w0;
+		if (wmin < _w0) wmin = _w0;
 		// from 0.5 to +infinity, pdf is zero
 		if (wmax > 0.5) wmax = 0.5;
 		// get integration "midpoint" - if wc is in the integration
@@ -137,14 +137,14 @@ Double_t MistagDistribution::analyticalIntegral(Int_t code, const char *rangeNam
 		// relevant end point of the integration
 		const double wmid = std::max(wmin, std::min(wc, wmax));
 		double sum = 0.;
-		if (wmin >= w0 && wmid > wmin) { 
-		    const double tmp = 1. / (wc - w0) / (wc - w0);
-		    sum += (wmid - wmin) * w0 * w0 * tmp;
-		    sum -= (wmid * wmid - wmin * wmin) * w0 * tmp;
+		if (wmin >= _w0 && wmid > wmin) { 
+		    const double tmp = 1. / (wc - _w0) / (wc - _w0);
+		    sum += (wmid - wmin) * _w0 * _w0 * tmp;
+		    sum -= (wmid * wmid - wmin * wmin) * _w0 * tmp;
 		    sum += (wmid * wmid * wmid - wmin * wmin * wmin) * tmp / 3.;
 		}
 		if (wmid >= wc && wmax > wmid) {
-		    const double tmp = (1. - f) / (0.5 - wc);
+		    const double tmp = (1. - _f) / (0.5 - wc);
 		    sum += (wmax - wmid) * (1. + wc * tmp);
 		    sum += -0.5 * tmp * (wmax * wmax - wmid * wmid);
 		}

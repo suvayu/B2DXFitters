@@ -160,15 +160,15 @@ Double_t RooEffResModel::CacheElem::getVal(const RooArgSet* nset) const
 
 //_____________________________________________________________________________
 RooEffResModel::RooEffResModel(const char *name, const char *title,
-	RooResolutionModel& model, RooAbsReal& eff) :
-    RooAbsEffResModel(name,title,model.convVar())
+	RooResolutionModel& __model, RooAbsReal& eff) :
+    RooAbsEffResModel(name,title,__model.convVar())
     , _observables("observables", "observables", this)
-    , _model("!model","Original resolution model",this,model)
+    , _model("!model","Original resolution model",this,__model)
     , _eff("!efficiency","efficiency of convvar", this,eff)
     , _cacheMgr(this, 10)
 {
     // FIXME: assert that efficiency is a function of convVar, and there are no overlaps...
-    _observables.add(model.convVar());
+    _observables.add(__model.convVar());
 }
 
 //_____________________________________________________________________________

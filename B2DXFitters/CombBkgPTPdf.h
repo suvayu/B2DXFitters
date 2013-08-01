@@ -42,7 +42,7 @@ protected:
   Double_t evaluate() const;
 
 private:
-  double monoInt(double t, double a, double alpha) const;
+  static double monoInt(double t, double a, double alpha);
 
   ClassDef(CombBkgPTPdf,1) // Your description goes here...
 };

@@ -35,12 +35,12 @@ PowLawAcceptance::PowLawAcceptance()
 
 PowLawAcceptance::PowLawAcceptance(const char *name, const char *title,
 				   RooAbsReal& turnon, RooAbsReal& time,
-				   RooAbsReal& offset, RooAbsReal& exponent,
+				   RooAbsReal& __offset, RooAbsReal& exponent,
 				   RooAbsReal& beta, RooAbsReal* correction) :
   RooAbsReal(name, title),
   _turnon("turnon", "turnon", this, turnon),
   _time("time", "time", this, time),
-  _offset("offset", "offset", this, offset),
+  _offset("offset", "offset", this, __offset),
   _exponent("exponent", "exponent", this, exponent),
   _beta("beta", "beta", this, beta),
   _correction("correction", "correction", this,
@@ -114,7 +114,7 @@ PowLawAcceptance& PowLawAcceptance::operator=(const PowLawAcceptance& other)
 Double_t PowLawAcceptance::evaluate() const
 {
   Double_t turnon((Double_t)_turnon), time((Double_t)_time),
-    offset((Double_t)_offset), exponent((Double_t)_exponent),
+    __offset((Double_t)_offset), exponent((Double_t)_exponent),
     beta((Double_t)_beta), ratio(1.0);
 
   // check if underlying data type is valid
@@ -123,7 +123,7 @@ Double_t PowLawAcceptance::evaluate() const
   if (time < 0.2) return 0.;
   if (beta < -0.0) return 0.0;
   if (beta*time > 1.0) return 0.0;
-  Double_t expnoff = std::pow(turnon*time, exponent) - offset;
+  Double_t expnoff = std::pow(turnon*time, exponent) - __offset;
 
   if (expnoff <= 0.0) {
     return 0.0;
