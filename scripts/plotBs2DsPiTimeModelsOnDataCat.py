@@ -43,15 +43,23 @@ bName = 'B_{s}'
 timeDown = 0.2
 timeUp = 15.0
 
-dataSetToPlot  = 'dataSet_time_Bs2DsK'
-pdfToPlot = 'signal_TimeTimeerrPdf'
+dataSetToPlot  = 'dataSet_time_Bs2DsPi'
+pdfToPlot = 'sigTotPDF'
 #fileToWriteOut = 'time_DsPi_BDTG123.pdf' 
 #------------------------------------------------------------------------------
-def plotDataSet(dataset, frame) :
-    dataset.plotOn(frame,RooFit.Binning(74))
+def plotDataSet(dataset, frame, BDTGbins) :
+    if BDTGbins:
+        dataset.plotOn(frame,
+                       RooFit.Cut("bdtgbin==bdtgbin::BDTG1 || bdtgbin==bdtgbin::BDTG2 || bdtgbin==bdtgbin::BDTG3"),
+                       RooFit.Binning(74))
+    else:
+        dataset.plotOn(frame,
+                       RooFit.Cut("bdtgbin==bdtgbin::BDTGA"),
+                       RooFit.Binning(74))
+        
 
 #------------------------------------------------------------------------------
-def plotFitModel(model, frame, wksp) :
+def plotFitModel(model, frame, wksp, combData) :
     if debug :
         model.Print('t')
         frame.Print('v')
@@ -59,11 +67,39 @@ def plotFitModel(model, frame, wksp) :
     lab0_BsTaggingTool_TAGDECISION_OS   = wksp.var('lab0_BsTaggingTool_TAGDECISION_OS')
     lab1_ID                             = wksp.var('lab1_ID')
     time                                = wksp.var('lab0_LifetimeFit_ctau')
-    dataset                             = w.data(dataSetToPlot)
+    terr                                = wksp.var('lab0_LifetimeFit_ctauErr')
+    dataset                             = wksp.data("combData") #dataSetToPlot)
+    obs = dataset.get()
+    obs.Print("v")
+    cat = obs.find('bdtgbin')
+    cat2 = obs.find('qf')
+    cat3 = obs.find('qt')
+    
+    #for i in range(0,dataset.numEntries()) :
+    #    obs = dataset.get(i)
+    #    obs.Print("v")
+    #exit(0)
 
     # plot model itself
-    fr = model.plotOn(frame,
-                      RooFit.LineColor(kBlue+3)),
+    frame.Print("v")
+    
+    model.plotOn(frame,
+                 RooFit.Slice(RooArgSet(cat)),
+                 #RooFit.ProjWData(RooArgSet(cat,terr), dataset),
+                 RooFit.ProjWData(RooArgSet(cat,cat2,cat3,terr),dataset),
+                 RooFit.LineColor(kBlue+3))
+    
+    #fr = model.plotOn(frame,
+    #                  RooFit.Slice(BdtgBin,"bdtg2"),
+    #                  RooFit.ProjWData(combData),
+    #                  RooFit.LineColor(kRed))
+
+    #fr = model.plotOn(frame,
+    #                  RooFit.Slice(BdtgBin,"bdtg3"),
+    #                  RooFit.ProjWData(combData),
+    #                  RooFit.LineColor(kMagenta+2))
+    
+     
 
     #model.createProjection(RooArgSet(lab0_BsTaggingTool_TAGDECISION_OS,lab1_ID))    
 
@@ -136,6 +172,12 @@ parser.add_option( '-s', '--sufix',
                    default = '',
                    help = 'Add sufix to output'
                    )
+parser.add_option( '--BDTGbins',
+                   dest = 'BDTGbins',
+                   default = False,
+                   action = 'store_true'
+                   )
+
 
 #------------------------------------------------------------------------------
 
@@ -164,6 +206,9 @@ if __name__ == '__main__' :
     from ROOT import CombBkgPTPdf
     from ROOT import BdPTAcceptance
     from ROOT import RooBlindTools
+    from ROOT import RooSimultaneous, RooBDecay, RooEffResModel, RooAddModel, RooGaussModel, RooBinnedPdf
+    from ROOT import PowLawAcceptance, Inverse, DecRateCoeff, RooHistPdf, RooUniform, MistagCalibration
+    from ROOT import RooBinnedPdf, PowLawAcceptance  
 
     gROOT.SetStyle('Plain')
     #gROOT.SetBatch(False)
@@ -177,13 +222,24 @@ if __name__ == '__main__' :
                       (options.wsname, FILENAME))
 
     f.Close()
+    BDTGbins = options.BDTGbins
+    
     time = w.var('lab0_LifetimeFit_ctau')
     #time.setRange(timeDown,timeUp)   
  
-    modelPDF = w.pdf(pdfToPlot) 
+    #modelPDF = w.pdf(pdfToPlot) 
+    #if modelPDF:
+    #    print modelPDF.GetName()
+    w.Print("v")
+    
+    totName = TString("simPdf")
+    #totName  = TString("FullPdf")
+    modelPDF = w.pdf( totName.Data() )
     if modelPDF:
         print modelPDF.GetName()
-    dataset  = w.data(dataSetToPlot) 
+            
+    dataset = w.data("combData")    
+    #dataset  = w.data(dataSetToPlot) 
     if dataset:
         print dataset.GetName()
 
@@ -200,7 +256,7 @@ if __name__ == '__main__' :
  
     frame_t.GetXaxis().SetLabelSize(0.05)
     frame_t.GetYaxis().SetLabelSize(0.05)
-    frame_t.GetXaxis().SetTitle('#font[12]{#tau (B_{s} #rightarrow D_{s} K) [ps]}')
+    frame_t.GetXaxis().SetTitle('#font[12]{#tau (B_{s} #rightarrow D_{s} #pi) [ps]}')
     frame_t.GetXaxis().SetTitleSize(0.05)
     frame_t.GetYaxis().SetTitleSize(0.05)
     frame_t.GetXaxis().SetTitleOffset(0.95)
@@ -209,12 +265,12 @@ if __name__ == '__main__' :
     frame_t.GetYaxis().SetLabelFont( 132 )
         
 
-    plotDataSet(dataset, frame_t)
+    plotDataSet(dataset, frame_t, BDTGbins)
     
     print '##### modelPDF is'
     print modelPDF
     if plotModel :
-        plotFitModel(modelPDF, frame_t, w)
+        plotFitModel(modelPDF, frame_t, w, dataset)
 
     frame_t.GetYaxis().SetRangeUser(0.001,5000)
 
@@ -240,7 +296,7 @@ if __name__ == '__main__' :
     l1 = TLine()
     l1.SetLineColor(kBlue+3)
     l1.SetLineWidth(4)
-    legend.AddEntry(l1, "Signal B_{s}#rightarrow D_{s}K", "L")
+    legend.AddEntry(l1, "Signal B_{s}#rightarrow D_{s}#pi", "L")
     
     
     padgraphics =  TPad("pad1","pad1",0.01,0.21,0.99,0.99)
@@ -267,7 +323,7 @@ if __name__ == '__main__' :
     pullHist.SetMinimum(-4.00)
     axisX = pullHist.GetXaxis()
     axisX.Set(100, timeDown, timeUp )
-    axisX.SetTitle('#font[12]{#tau (B_{s} #rightarrow D_{s} K) [ps]}')   
+    axisX.SetTitle('#font[12]{#tau (B_{s} #rightarrow D_{s} #pi) [ps]}')   
     axisX.SetTitleSize(0.150)
     axisX.SetTitleFont(132)
     axisX.SetLabelSize(0.150)
@@ -325,16 +381,16 @@ if __name__ == '__main__' :
     print "chi2: %f"%(chi2)
     print "chi22: %f"%(chi22)
     
-    frame_t.GetYaxis().SetRangeUser(0.001,150)
+    frame_t.GetYaxis().SetRangeUser(0.001,3000)
     padgraphics.SetLogy()
 
     sufixTS = TString(options.sufix)
     if sufixTS != "":
         sufixTS = TString("_")+sufixTS
 
-    nameCanPdf = TString("time_DsK")+sufixTS+TString(".pdf")
-    nameCanPng = TString("time_DsK")+sufixTS+TString(".png")
-    nameCanRoot = TString("time_DsK")+sufixTS+TString(".root")
+    nameCanPdf = TString("time_DsPi")+sufixTS+TString(".pdf")
+    nameCanPng = TString("time_DsPi")+sufixTS+TString(".png")
+    nameCanRoot = TString("time_DsPi")+sufixTS+TString(".root")
 
     canvas.Print(nameCanPdf.Data())
     canvas.Print(nameCanPng.Data())

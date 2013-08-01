@@ -47,25 +47,25 @@ def getconfig() :
     configdict["tagEff_lm1"]       = 0.40
     configdict["tagEff_lm2"]       = 0.40
 
-    configdict["aprod_signal"]    = 0.03
-    configdict["aprod_dk"]        = 0.03
-    configdict["aprod_dsk"]       = 0.03
-    configdict["aprod_dspi"]      = 0.03
-    configdict["aprod_lck"]       = 0.03
-    configdict["aprod_combo"]     = 0.03
-    configdict["aprod_dsdsstp"]   = 0.03
-    configdict["aprod_lm1"]       = 0.03
-    configdict["aprod_lm2"]       = 0.03
+    configdict["aprod_signal"]    = 0.0 #0.03
+    configdict["aprod_dk"]        = 0.0 #0.03
+    configdict["aprod_dsk"]       = 0.0 #3
+    configdict["aprod_dspi"]      = 0.0 # 3
+    configdict["aprod_lck"]       = 0.0 # 3
+    configdict["aprod_combo"]     = 0.0 #3
+    configdict["aprod_dsdsstp"]   = 0.0 #3
+    configdict["aprod_lm1"]       = 0.0 #3
+    configdict["aprod_lm2"]       = 0.0 #3
                                     
-    configdict["atageff_signal"]    = 0.01
-    configdict["atageff_dk"]        = 0.02
-    configdict["atageff_dsk"]       = 0.01
-    configdict["atageff_dspi"]      = 0.01
-    configdict["atageff_lck"]       = 0.03
-    configdict["atageff_combo"]     = 0.01
-    configdict["atageff_dsdsstp"]   = 0.03
-    configdict["atageff_lm1"]       = 0.01
-    configdict["atageff_lm2"]       = 0.01
+    configdict["atageff_signal"]    = 0.0 #1
+    configdict["atageff_dk"]        = 0.0 #2
+    configdict["atageff_dsk"]       = 0.0 #1
+    configdict["atageff_dspi"]      = 0.0 #1
+    configdict["atageff_lck"]       = 0.0 #3
+    configdict["atageff_combo"]     = 0.0 #1
+    configdict["atageff_dsdsstp"]   = 0.0 #3
+    configdict["atageff_lm1"]       = 0.0 #1
+    configdict["atageff_lm2"]       = 0.0 #1
 
     configdict["adet_signal"]    = 0.0
     configdict["adet_dk"]        = 0.0
@@ -83,7 +83,7 @@ def getconfig() :
     configdict["num_dspi"]      = 715.
     configdict["num_lck"]       = 25.
     configdict["num_combo"]     = 3800.
-    configdict["num_dsdsstp"]   = 100.
+    configdict["num_dsdsstp"]   = 120.
     configdict["num_lm1"]       = 50.
     configdict["num_lm2"]       = 350.
         
@@ -124,7 +124,7 @@ def getconfig() :
     configdict["fracPIDKComb1"] = 6.3516e-01
     configdict["fracPIDKComb2"] = 5.9685e-01
     
-    configdict["frac_dsdsstp"]   = 0.5
+    configdict["frac_dsdsstp"]   = 0.9
     
     #configdict["frac_g1_1lmk"]  = 0.14536
     #configdict["frac_g1_2lmk"]  = 0.169091

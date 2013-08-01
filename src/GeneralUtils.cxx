@@ -745,6 +745,18 @@ namespace GeneralUtils {
     TH1* hist = NULL;
     n = "hist_"+name;
     hist = dataSet->createHistogram(n.Data(), *obs, RooFit::Binning(bin));
+    for (int i = 1; i< bin+1; i++)
+      {
+	Double_t c = hist->GetBinContent(i);
+	//std::cout<<"content: "<<c<<std::endl;
+	if (c < 1e-37)
+          {
+            hist->SetBinContent(i, 1e-37);
+	    // std::cout<<"set content to: "<<1e-20<<std::endl;
+          }
+      }
+    
+    
     if( hist != NULL  && debug == true) { std::cout<<"[INFO] Create histogram "<<std::endl;}
     if( hist ==NULL  && debug == true) { std::cout<<"[ERROR] Cannot create histogram "<<std::endl; }
 
@@ -807,7 +819,7 @@ namespace GeneralUtils {
 
     RooRealVar* obser = NULL;
     obser = (RooRealVar*)work->var(obs.Data());
-    obser->Print("v"); 
+    //obser->Print("v"); 
     if( obser != NULL ){ if ( debug == true) std::cout<<"Read observable: "<<obser->GetName()<<std::endl; return obser; }
     else{ if ( debug == true) std::cout<<"Cannot read observable"<<std::endl; return NULL;}
   }
@@ -838,7 +850,7 @@ namespace GeneralUtils {
 
     RooCategory* obser = NULL;
     obser = (RooCategory*)work->obj(obs.Data());
-    obser->Print("v");
+    //obser->Print("v");
     if( obser != NULL ){ if ( debug == true) std::cout<<"Read observable: "<<obser->GetName()<<std::endl; return obser; }
     else{ if ( debug == true) std::cout<<"Cannot read observable"<<std::endl; return NULL;}
   }

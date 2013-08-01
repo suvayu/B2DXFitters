@@ -75,6 +75,7 @@ def runCreateTemplate( debug, file, nameTree, mode, modeDs, MC) :
     modeDsTS         = TString(modeDs) 
 
     workspace = []
+    workspaceNW = []
 
     nameBDTG = [TString("BDTGA"),TString("BDTGC"),TString("BDTG1"),TString("BDTG2"),TString("BDTG3")]
     BDTG_down = [ 0.3, 0.5, 0.3, 0.7, 0.9]
@@ -151,27 +152,37 @@ def runCreateTemplate( debug, file, nameTree, mode, modeDs, MC) :
         else:
             fileName = ["sWeights_"+mode+"_all_both_BDTGA.root",
                         "sWeights_"+mode+"_all_both_BDTGC.root",
-                        "sWeights_"+mode+"_3modeskkpi_both_BDTG1.root",
+                        #"sWeights_"+mode+"_3modeskkpi_both_BDTG1.root",
+                        "sWeights_"+mode+"_all_both_BDTG1.root",
                         "sWeights_"+mode+"_all_both_BDTG2.root",
                         "sWeights_"+mode+"_all_both_BDTG3.root"]
-            
-        workspace.append(SFitUtils.ReadDataFromSWeights(mode2,TString(fileName[i]), TString(nameTree),
-                                                        TimeDown, TimeUp,
-                                                        tVarTS, terrVarTS, tagVarTS, tagWeightVarTS, idVarTS,
-                                                        debug)
-                         )
 
+        for i in range(0,5):
+            workspace.append(SFitUtils.ReadDataFromSWeights(mode2,TString(fileName[i]), TString(nameTree),
+                                                            TimeDown, TimeUp,
+                                                            tVarTS, terrVarTS, tagVarTS, tagWeightVarTS, idVarTS,
+                                                            True, debug)
+                             )
+            
+            workspaceNW.append(SFitUtils.ReadDataFromSWeights(mode2,TString(fileName[i]), TString(nameTree),
+                                                              TimeDown, TimeUp,
+                                                              tVarTS, terrVarTS, tagVarTS, tagWeightVarTS, idVarTS,
+                                                              False, debug)
+                               )
         nameData = TString("dataSet_time_Bs2")+mode2
         modeDsTS = TString("All") 
         
     data = []
+    dataNW = []                       
     data2 = []
     data3 = []
     data4 = []
     data5 = []
     obs = []
+    obsNW = []
     mistag = []
     terr = []
+    sWeight = []
     
     for i in range(0,5):
         if MC == true and modeDsTS == "All":
@@ -199,8 +210,12 @@ def runCreateTemplate( debug, file, nameTree, mode, modeDs, MC) :
             obs.append( data[i].get())
             mistag.append( obs[i].find(tagWeightVarTS.Data()))
             terr.append( obs[i].find(terrVarTS.Data()))
-       
-
+            if MC == false:
+                dataNW.append( GeneralUtils.GetDataSet(workspaceNW[i], nameData, debug))
+                dataNW[i].Print("v")
+                obsNW.append( dataNW[i].get())
+                sWeight.append(obsNW[i].find("sWeights"))
+                        
     color = [kBlue+3, kRed, kOrange, kGreen+3, kMagenta+2]
     scale = []
 
@@ -214,7 +229,7 @@ def runCreateTemplate( debug, file, nameTree, mode, modeDs, MC) :
     legend.SetTextFont(132)
     legend.SetHeader("BDTG bins")
 
-    legendERR = TLegend( 0.65, 0.6, 0.90, 0.88 )
+    legendERR = TLegend( 0.7, 0.6, 0.88, 0.88 )
 
     legendERR.SetTextSize(0.04)
     legendERR.SetTextFont(12)
@@ -288,6 +303,68 @@ def runCreateTemplate( debug, file, nameTree, mode, modeDs, MC) :
     legendERR.Draw("same")
     name = TString("comparison_TERR_PDF") + typeTS + TString("_")+modeTS+ TString("_") + modeDsTS +TString(".pdf")
     canvPDFT.Print(name.Data())
+
+    
+    if MC == False:
+        pdfsW = []
+        for i in range(0,5):
+            name = TString("TimeErrorPdf_signal_")+nameBDTG[i]
+            pdfsW.append(GeneralUtils.CreateHistPDF(dataNW[i], sWeight[0], name, 60, debug))
+        data123 = dataNW[2]
+        data123.append(dataNW[3])
+        data123.append(dataNW[4])
+        pdfsW123 = GeneralUtils.CreateHistPDF(data123, sWeight[0], name, 60, debug)
+
+        canvPDFsW = TCanvas("canvPDFsW","canv")
+        framePDFsW = sWeight[0].frame()
+        for i in range(0,5):
+            pdfsW[i].plotOn(framePDFsW, RooFit.LineColor(color[i]))
+        framePDFsW.Draw()
+        legend.Draw("same")
+        name = TString("comparison_sW_PDF") + typeTS + TString("_")+modeTS+ TString("_") + modeDsTS +TString(".pdf")
+        canvPDFsW.Print(name.Data())
+
+        legendsW = TLegend( 0.12, 0.6, 0.3, 0.88 )
+        
+        legendsW.SetTextSize(0.04)
+        legendsW.SetTextFont(12)
+        legendsW.SetFillColor(4000)
+        legendsW.SetShadowColor(0)
+        legendsW.SetBorderSize(0)
+        legendsW.SetTextFont(132)
+        legendsW.SetHeader("BDTG bins")
+
+        grsW1 = TGraphErrors(10)
+        grsW1.SetName("grsW1")
+        grsW1.SetLineColor(kBlack);
+        grsW1.SetLineWidth(2);
+        grsW1.SetMarkerStyle(20);
+        grsW1.SetMarkerSize(1.3);
+        grsW1.SetMarkerColor(color[0]);
+        grsW1.Draw("P");
+        legendsW.AddEntry("grsW1","BDTGA","lep");
+
+        grsW2 = TGraphErrors(10)
+        grsW2.SetName("grsW2")
+        grsW2.SetLineColor(kBlack);
+        grsW2.SetLineWidth(2);
+        grsW2.SetMarkerStyle(20);
+        grsW2.SetMarkerSize(1.3);
+        grsW2.SetMarkerColor(color[1]);
+        grsW2.Draw("P");
+        legendsW.AddEntry("grsW2","BDTG123","lep");
+                
+        canvPDFsW2 = TCanvas("canvPDFsW2","canv")
+        framePDFsW2 = sWeight[0].frame()
+        pdfsW[0].plotOn(framePDFsW2, RooFit.LineColor(color[0]))
+        pdfsW123.plotOn(framePDFsW2, RooFit.LineColor(color[1]))
+        framePDFsW2.Draw()
+        legendsW.Draw("same")
+        name = TString("comparison2_sW_PDF") + typeTS + TString("_")+modeTS+ TString("_") + modeDsTS +TString(".pdf")
+        canvPDFsW2.Print(name.Data())
+                                                                                        
+                                        
+            
 
     workout = RooWorkspace("workspace","workspace")
     for i in range(0,5):

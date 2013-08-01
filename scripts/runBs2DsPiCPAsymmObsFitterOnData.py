@@ -161,7 +161,8 @@ def setConstantIfSoConfigured(var,myconfigfile) :
 
 #------------------------------------------------------------------------------
 def runBdGammaFitterOnData(debug, wsname, initvars, tvar, terrvar, probvar, pereventmistag,
-                           toys, pathName, treeName, configName, fitMeTool, scan, signal ) :
+                           toys, pathName, treeName, configName, fitMeTool, scan, signal,
+                           BDTGbins, pathName2, pathName3, Cat ) :
 
     # BLINDING
     Blinding =  False
@@ -212,9 +213,12 @@ def runBdGammaFitterOnData(debug, wsname, initvars, tvar, terrvar, probvar, pere
 
     RooAbsReal.defaultIntegratorConfig().setEpsAbs(1e-7)
     RooAbsReal.defaultIntegratorConfig().setEpsRel(1e-7)
-    #RooAbsReal.defaultIntegratorConfig().method1D().setLabel('RooAdaptiveGaussKronrodIntegrator1D')
-    #RooAbsReal.defaultIntegratorConfig().getConfigSection('RooAdaptiveGaussKronrodIntegrator1D').setCatLabel('method','20Points')
-    #RooAbsReal.defaultIntegratorConfig().getConfigSection('RooAdaptiveGaussKronrodIntegrator1D').setRealValue('maxSeg', 10000)
+    RooAbsReal.defaultIntegratorConfig().getConfigSection('RooIntegrator1D').setCatLabel('extrapolation','WynnEpsilon')
+    RooAbsReal.defaultIntegratorConfig().getConfigSection('RooIntegrator1D').setCatLabel('maxSteps','1000')
+    RooAbsReal.defaultIntegratorConfig().getConfigSection('RooIntegrator1D').setCatLabel('minSteps','0')
+    RooAbsReal.defaultIntegratorConfig().getConfigSection('RooAdaptiveGaussKronrodIntegrator1D').setCatLabel('method','21Points')
+    RooAbsReal.defaultIntegratorConfig().getConfigSection('RooAdaptiveGaussKronrodIntegrator1D').setRealValue('maxSeg', 1000)
+                            
 
     
     tVarTS         = TString(tvar)
@@ -226,11 +230,43 @@ def runBdGammaFitterOnData(debug, wsname, initvars, tvar, terrvar, probvar, pere
               
 
     if ( not toys ) and (not signal):
-        workspace = SFitUtils.ReadDataFromSWeights(TString("DsPi"),TString(pathName), TString(treeName),
-                                                   myconfigfile["TimeDown"], myconfigfile["TimeUp"],
-                                                   #time, tag, mistag, id,
-                                                   tVarTS, terrVarTS, tagVarTS, tagWeightVarTS, idVarTS, debug)
         
+        if BDTGbins:
+            workspace = SFitUtils.ReadDataFromSWeights(TString("DsPi"),TString(pathName), TString(treeName),
+                                                       myconfigfile["TimeDown"], myconfigfile["TimeUp"],
+                                                       #time, tag, mistag, id,
+                                                       tVarTS, terrVarTS, tagVarTS, tagWeightVarTS, idVarTS, False, debug)
+                        
+            workspace2 = SFitUtils.ReadDataFromSWeights(TString("DsPi"),TString(pathName2), TString(treeName),
+                                                        myconfigfile["TimeDown"], myconfigfile["TimeUp"],
+                                                        tVarTS, terrVarTS, tagVarTS, tagWeightVarTS, idVarTS, False, debug)
+
+            workspace3 = SFitUtils.ReadDataFromSWeights(TString("DsPi"),TString(pathName3), TString(treeName),
+                                                        myconfigfile["TimeDown"], myconfigfile["TimeUp"],
+                                                        tVarTS, terrVarTS, tagVarTS, tagWeightVarTS, idVarTS, False, debug)
+
+            workspaceW = SFitUtils.ReadDataFromSWeights(TString("DsPi"),TString(pathName), TString(treeName),
+                                                       myconfigfile["TimeDown"], myconfigfile["TimeUp"],
+                                                       #time, tag, mistag, id,
+                                                       tVarTS, terrVarTS, tagVarTS, tagWeightVarTS, idVarTS, True, debug)
+            
+            workspace2W = SFitUtils.ReadDataFromSWeights(TString("DsPi"),TString(pathName2), TString(treeName),
+                                                        myconfigfile["TimeDown"], myconfigfile["TimeUp"],
+                                                        tVarTS, terrVarTS, tagVarTS, tagWeightVarTS, idVarTS, True, debug)
+            
+            workspace3W = SFitUtils.ReadDataFromSWeights(TString("DsPi"),TString(pathName3), TString(treeName),
+                                                        myconfigfile["TimeDown"], myconfigfile["TimeUp"],
+                                                        tVarTS, terrVarTS, tagVarTS, tagWeightVarTS, idVarTS, True, debug)
+            
+        else:
+            workspace = SFitUtils.ReadDataFromSWeights(TString("DsPi"),TString(pathName), TString(treeName),
+                                                       myconfigfile["TimeDown"], myconfigfile["TimeUp"],
+                                                       tVarTS, terrVarTS, tagVarTS, tagWeightVarTS, idVarTS, False, debug)
+            workspaceW = SFitUtils.ReadDataFromSWeights(TString("DsPi"),TString(pathName), TString(treeName),
+                                                        myconfigfile["TimeDown"], myconfigfile["TimeUp"],
+                                                        tVarTS, terrVarTS, tagVarTS, tagWeightVarTS, idVarTS, True, debug)
+            
+            
     elif ( toys ) and (not signal):
         workspace = SFitUtils.ReadDataFromSWeightsToys(TString("DsPi"),TString(pathName), TString(treeName),
                                                        myconfigfile["TimeDown"], myconfigfile["TimeUp"],
@@ -272,9 +308,7 @@ def runBdGammaFitterOnData(debug, wsname, initvars, tvar, terrvar, probvar, pere
     '''
     
     mass = RooRealVar('mass', '%s mass' % bName, 5., 6.)
-    #timeerr = RooRealVar('timeerr', '%s decay time error' % bName, 0.04, 0.001, 0.1, 'ps')
-    timeerr = RooRealVar('timeerr', 'decay time error', 1e-6, 0.25, 'ps')
-    
+        
     gammas = RooRealVar('Gammas', '%s average lifetime' % bName, myconfigfile["Gammas"], 0., 5., 'ps^{-1}')
     setConstantIfSoConfigured(gammas,myconfigfile)
     deltaGammas = RooRealVar('deltaGammas', 'Lifetime difference', myconfigfile["DeltaGammas"], -1., 1., 'ps^{-1}')
@@ -286,20 +320,13 @@ def runBdGammaFitterOnData(debug, wsname, initvars, tvar, terrvar, probvar, pere
     if deltaMs.GetName() in myconfigfile["constParams"] :
         Blinding = False
 
-    # binning
-    nBinsMistag            = myconfigfile["nBinsMistag"]
-    nBinsPerEventTimeErr   = myconfigfile["nBinsPerEventTimeErr"]
-#    nBinsAcceptance        = myconfigfile["nBinsAcceptance"]
-            
-
     # tagging
     # -------
     tagEffSig = RooRealVar('tagEffSig', 'Signal tagging efficiency'    , myconfigfile["TagEffSig"], 0., 1.)
     setConstantIfSoConfigured(tagEffSig,myconfigfile)
     
-    tagOmegaSig = RooRealVar('tagOmegaSig', 'Signal mistag rate', myconfigfile["TagOmegaSig"], 0., 1.)
-                        
-    setConstantIfSoConfigured(tagOmegaSig,myconfigfile)
+    #tagOmegaSig = RooRealVar('tagOmegaSig', 'Signal mistag rate', myconfigfile["TagOmegaSig"], 0., 1.)
+    #setConstantIfSoConfigured(tagOmegaSig,myconfigfile)
 
     # Define the observables
     # ----------------------
@@ -326,17 +353,21 @@ def runBdGammaFitterOnData(debug, wsname, initvars, tvar, terrvar, probvar, pere
             data = GeneralUtils.GetDataSet(workspace, nameData, debug)
         else:
             nameData = TString("dataSet_time_Bs2DsPi")
-            data = GeneralUtils.GetDataSet(workspace, nameData, debug)
-        nEntries = data.numEntries()     
-        #frame = time.frame()
-        #data.plotOn(frame)
-        #canvas = TCanvas('frame','frame')
-        #frame.Draw()
-        #canvas.GetPad(0).SetLogx()
-        #canvas.SaveAs('WTF.pdf')
-        #return canvas
-
-    data.Print("v")
+            if BDTGbins:
+                data   = GeneralUtils.GetDataSet(workspace,   nameData, debug)
+                data2  = GeneralUtils.GetDataSet(workspace2,  nameData, debug)
+                data3  = GeneralUtils.GetDataSet(workspace3,  nameData, debug)
+                data1W = GeneralUtils.GetDataSet(workspaceW,  nameData, debug)
+                data2W = GeneralUtils.GetDataSet(workspace2W, nameData, debug)
+                data3W = GeneralUtils.GetDataSet(workspace3W, nameData, debug)
+                dataW  = GeneralUtils.GetDataSet(workspaceW,  nameData, debug) 
+                dataW.append(data2W)
+                dataW.append(data3W)
+            else:
+                data  = GeneralUtils.GetDataSet(workspace, nameData, debug)
+                dataW = GeneralUtils.GetDataSet(workspaceW, nameData, debug) 
+        
+    dataW.Print("v")
     obs = data.get()
     time = obs.find(tVarTS.Data())
     mistag = obs.find(tagWeightVarTS.Data())
@@ -344,9 +375,26 @@ def runBdGammaFitterOnData(debug, wsname, initvars, tvar, terrvar, probvar, pere
     tag = obs.find(tagVarTS.Data())
     terr = obs.find(terrVarTS.Data())
     observables = RooArgSet(time,tag,id)
-                
-    
-    templateWorkspace = GeneralUtils.LoadWorkspace(TString(myconfigfile["TemplateFile"]), TString(myconfigfile["TemplateWorkspace"]), debug)
+
+    if debug:
+        frame = time.frame()
+        data.plotOn(frame)
+        canvas = TCanvas("canvas", "canvas", 1200, 1000)
+        canvas.cd()
+        frame.Draw()
+        frame.GetYaxis().SetRangeUser(0.1,3000)
+        canvas.GetPad(0).SetLogy()
+        canvas.SaveAs('data_time_DsPi.pdf')
+
+    #workout = RooWorkspace("workspace","workspace")
+    #getattr(workout,'import')(data)
+    #saveNameTS = TString("data_time_dspi.root")
+    #workout.Print()
+    #GeneralUtils.SaveWorkspace(workout,saveNameTS, debug)
+         
+    #exit(0)
+                                                       
+    #templateWorkspace = GeneralUtils.LoadWorkspace(TString(myconfigfile["TemplateFile"]), TString(myconfigfile["TemplateWorkspace"]), debug)
     
     # Decay time resolution model
     # ---------------------------
@@ -358,36 +406,27 @@ def runBdGammaFitterOnData(debug, wsname, initvars, tvar, terrvar, probvar, pere
     else :
         # the decay time error is an extra observable !
         print 'GaussianWithGaussPEDTE'
-        
-        observables.add( terr )
-        trm_mean  = RooRealVar( 'trm_mean' , 'Gaussian resolution model mean', 0., 'ps' )
-        trm_scale = RooRealVar( 'trm_scale', 'Gaussian resolution model scale factor', 1.37 )
-        trm = RooGaussModel( 'GaussianWithGaussPEDTE', 'GaussianWithGaussPEDTE', time, trm_mean, terr, trm_scale)
-        if debug:
-            print '[INFO] %s created '%(trm.GetName())
-            trm.Print("v")
-                        
 
-        #pdf = Bs2Dsh2011TDAnaModels.GetRooHistPdfFromWorkspace(templateWorkspace, TString(myconfigfile["TimeErrorTemplateName"]),debug)
-        #hist = pdf.dataHist().createHistogram(terr.GetName())
-        #ax = hist.GetXaxis()
-        #nbins = hist.GetNbinsX()
-        #terr.setRange(max(terr.getMin(), ax.GetBinLowEdge(1)),
-        #              min(terr.getMax(), ax.GetBinUpEdge(nbins)))
-        ## make sure the PDF is sane (1e-37 is what a float can provide)
-        #for i in xrange(1, 1 + nbins):
-        #    c = hist.GetBinContent(i)
-        #    if c < 1e-37:
-        #        hist.SetBinContent(i, 1e-37)
-        #dh = RooDataHist('sigTimeErrorPdf_dhist', 'sigTimeErrorPdf_dhist', RooArgList(terr), hist)
-        ##terrpdf = RooHistPdf('sigTimeErrorPdf', 'sigTimeErrorPdf',RooArgSet(terr), dh)
-        ##GeneralUtils.SaveTemplateHist(dh,terrpdf,terr,TString("Terr"), TString("ag"), debug)
-        #from ROOT import RooBinned1DQuinticBase, RooAbsPdf
-        #RooBinned1DQuinticPdf = RooBinned1DQuinticBase(RooAbsPdf)
-        name = TString("sigTimeErrorPdf")
-        terrpdf = GeneralUtils.CreateBinnedPDF(data, terr, name, myconfigfile['nBinsProperTimeErr'], debug)
+        observables.add( terr )
+        trm_mean  = RooRealVar( 'trm_mean' , 'Gaussian resolution model mean', myconfigfile["resolutionMeanBias"], 'ps' )
+        trm_scale = RooRealVar( 'trm_scale', 'Gaussian resolution model scale factor', myconfigfile["resolutionScaleFactor"] )
+        trm = RooGaussModel( 'GaussianWithGaussPEDTE', 'GaussianWithGaussPEDTE', time, trm_mean, terr, trm_scale)
+
+        #if debug:
+        #    print '[INFO] %s created '%(trm.GetName())
+        #    trm.Print("v")
         
-     
+        if BDTGbins:
+            name = TString("sigTimeErrorPdf")
+            terrpdf = GeneralUtils.CreateHistPDF(data1W, terr, name, myconfigfile['nBinsProperTimeErr'], debug)
+            name2 = TString("sigTimeErrorPdf2")
+            terrpdf2 = GeneralUtils.CreateHistPDF(data2W, terr, name2, myconfigfile['nBinsProperTimeErr'], debug)
+            name3 = TString("sigTimeErrorPdf3")
+            terrpdf3 = GeneralUtils.CreateHistPDF(data3W, terr, name3, myconfigfile['nBinsProperTimeErr'], debug)
+        else:
+            name = TString("sigTimeErrorPdf")
+            terrpdf = GeneralUtils.CreateHistPDF(dataW, terr, name, myconfigfile['nBinsProperTimeErr'], debug)
+            
     # Decay time acceptance function
     # ------------------------------
     if AcceptanceFunction and not (AcceptanceFunction == None or AcceptanceFunction == 'None'):
@@ -414,14 +453,16 @@ def runBdGammaFitterOnData(debug, wsname, initvars, tvar, terrvar, probvar, pere
             
     else :
         tacc = None
-    if debug:
-        print '[INFO] %s created '%(tacc.GetName())
-        tacc.Print("v")
+    #if debug:
+    #    print '[INFO] %s created '%(tacc.GetName())
+    #    tacc.Print("v")
                         
         
     # Bin acceptance
     if myconfigfile["nBinsAcceptance"] > 0:
         # provide binning for acceptance
+        if debug:
+            print "[INFO] Set binning for time acceptance: %d"%(myconfigfile['nBinsAcceptance'])
         from ROOT import RooUniformBinning
         acceptanceBinning = RooUniformBinning(time.getMin(), time.getMax(), myconfigfile["nBinsAcceptance"],'acceptanceBinning')
         time.setBinning(acceptanceBinning, 'acceptanceBinning')
@@ -430,15 +471,15 @@ def runBdGammaFitterOnData(debug, wsname, initvars, tvar, terrvar, probvar, pere
         timeresmodel = RooEffResModel("%s_timeacc_%s"% (trm.GetName(), acceptance.GetName()),"trm plus acceptance", trm, acceptance)
                    
 
-    if None != terrpdf and 0 != myconfigfile['nBinsProperTimeErr']:
+    if 'PEDTE' in myconfigfile["DecayTimeResolutionModel"] and 0 != myconfigfile['nBinsProperTimeErr']:
         if debug:
-            print "Set binning for time error: %d"%(myconfigfile['nBinsProperTimeErr'])
+            print "[INFO] Set binning for time error: %d"%(myconfigfile['nBinsProperTimeErr'])
         terr.setBins(myconfigfile['nBinsProperTimeErr'], 'cache')
         timeresmodel.setParameterizeIntegral(RooArgSet(terr))
 
-    if debug:
-        print '[INFO] %s created '%(timeresmodel.GetName())
-        timeresmodel.Print("v")
+    #if debug:
+    #    print '[INFO] %s created '%(timeresmodel.GetName())
+    #    timeresmodel.Print("v")
                                 
     # Set per event mistag
 
@@ -451,23 +492,12 @@ def runBdGammaFitterOnData(debug, wsname, initvars, tvar, terrvar, probvar, pere
         mistagCalibrated = MistagCalibration('mistag_calibrated','mistag_calibrated',
                                              mistag, calibration_p0,calibration_p1,avmistag)
         observables.add( mistag )
-        # we need pdf
-        pdf    = Bs2Dsh2011TDAnaModels.GetRooHistPdfFromWorkspace(templateWorkspace, TString(myconfigfile["MistagTemplateName"]),debug) 
-        # and set the same range to pdf and obs 
-        hist = pdf.dataHist().createHistogram(mistag.GetName())
-        ax = hist.GetXaxis()
-        nbins = hist.GetNbinsX()
-        mistag.setRange(max(mistag.getMin(), ax.GetBinLowEdge(1)),
-		min(mistag.getMax(), ax.GetBinUpEdge(nbins)))
-	# make sure the PDF is sane (1e-37 is what a float can provide)
-	for i in xrange(1, 1 + nbins):
-	    c = hist.GetBinContent(i)
-	    if c < 1e-37:
-		hist.SetBinContent(i, 1e-37)
-        dh = RooDataHist('sigMistagPdf_dhist', 'sigMistagPdf_dhist', RooArgList(mistag), hist)
-        mistagPDF = RooHistPdf('sigMistagPdf', 'sigMistagPdf',RooArgSet(mistag), dh)
-        GeneralUtils.SaveTemplateHist(dh,mistagPDF,mistag,TString("Mist"), TString("ag"), debug)
-        #exit(0)
+        name = TString("sigMistagPdf")
+        if debug:
+            print "[INFO] Set binning for mistag: %d"%(myconfigfile['nBinsMistag'])
+        mistagPDF = GeneralUtils.CreateHistPDF(dataW, mistag, name, myconfigfile["nBinsMistag"], debug)
+        #mistagPDF = GeneralUtils.CreateBinnedPDF(dataW, mistag, name, myconfigfile["nBinsMistag"], debug)
+               
     else:
         mistagHistPdf = None 
         mistagCalibrated =  mistag 
@@ -499,15 +529,15 @@ def runBdGammaFitterOnData(debug, wsname, initvars, tvar, terrvar, probvar, pere
     cosh = DecRateCoeff('signal_cosh', 'signal_cosh', DecRateCoeff.CPEven, id, tag, one, one, *otherargs)
     sinh = DecRateCoeff('signal_sinh', 'signal_sinh', DecRateCoeff.CPEven, id, tag, D, Dbar, *otherargs)
     cos =  DecRateCoeff('signal_cos' , 'signal_cos' , DecRateCoeff.CPOdd, id, tag, C, C, *otherargs)
-    sin =  DecRateCoeff('signal_sin' , 'signal_sin' ,DecRateCoeff.CPOdd, id, tag, Sbar, S, *otherargs)
-    #sin =  DecRateCoeff('signal_sin' , 'signal_sin' , DecRateCoeff.CPOdd | DecRateCoeff.Minus, id, tag, S, Sbar, *otherargs)
-    if debug:
-        print "[INFO] sin, cos, sinh, cosh created"
-        cosh.Print("v")
-        sinh.Print("v")
-        cos.Print("v")
-        sin.Print("v")
-        #exit(0)
+    sin =  DecRateCoeff('signal_sin' , 'signal_sin' , DecRateCoeff.CPOdd, id, tag, S, Sbar, *otherargs)
+    
+    #if debug:
+    #    print "[INFO] sin, cos, sinh, cosh created"
+    #    cosh.Print("v")
+    #    sinh.Print("v")
+    #    cos.Print("v")
+    #    sin.Print("v")
+    #    exit(0)
    
     if not fitMeTool : 
 
@@ -516,23 +546,74 @@ def runBdGammaFitterOnData(debug, wsname, initvars, tvar, terrvar, probvar, pere
                                     cosh, sinh, cos, sin,
                                     deltaMs, timeresmodel, RooBDecay.SingleSided)
 
-        if debug:
-            print '[INFO] %s created '%(timePDF.GetName())
-            timePDF.Print("v")
+        #if debug:
+        #    print '[INFO] %s created '%(timePDF.GetName())
+        #    timePDF.Print("v")
                                     
-        if None != terrpdf:
+        if 'PEDTE' in myconfigfile["DecayTimeResolutionModel"]:
             noncondset = RooArgSet(time, id, tag)
-            if None != mistagPDF:
+            if pereventmistag:
                 noncondset.add(mistag)
-            totPDF = RooProdPdf('signal_TimeTimeerrPdf', 'signal_TimeTimerrPdf', #RooArgList(terrpdf, timePDF))
+            totPDF = RooProdPdf('signal_TimeTimeerrPdf', 'signal_TimeTimerrPdf', 
                                 RooArgSet(terrpdf), RooFit.Conditional(RooArgSet(timePDF), noncondset))
+            if BDTGbins:
+                totPDF2 = RooProdPdf('signal_TimeTimeerrPdf2', 'signal_TimeTimerrPdf2', 
+                                     RooArgSet(terrpdf2), RooFit.Conditional(RooArgSet(timePDF), noncondset))
+                totPDF3 = RooProdPdf('signal_TimeTimeerrPdf3', 'signal_TimeTimerrPdf3',
+                                     RooArgSet(terrpdf3), RooFit.Conditional(RooArgSet(timePDF), noncondset))
+                
         else:
-            totPDF = timePDF 
+            totPDF  = timePDF
+            #totPDF  = RooEffProd('time_signal','time_signal',timePDF,tacc)
+            
+            if BDTGbins:
+                totPDF2 = timePDF
+                totPDF3 = timePDF
+                
+        #totPDF.SetName("sigTotPDF")    
+        #if debug:
+        #    print '[INFO] %s created '%(totPDF.GetName())
+        #    totPDF.Print("v")
 
-        totPDF.SetName("sigTotPDF")    
-        if debug:
-            print '[INFO] %s created '%(totPDF.GetName())
-            totPDF.Print("v")
+            
+        if Cat:
+            if BDTGbins:
+                Bbin = [TString("BDTG1"), TString("BDTG2"), TString("BDTG3")]
+                BdtgBin = RooCategory("bdtgbin","bidtgbin")
+                for i in range(0,3):
+                    BdtgBin.defineType(Bbin[i].Data())
+                    
+                weight = obs.find("sWeights")
+                observables.add( weight )    
+                combData = RooDataSet("combData","combined data", RooArgSet(observables),
+                                      RooFit.Index(BdtgBin),
+                                      RooFit.Import(Bbin[0].Data(),data),
+                                      RooFit.Import(Bbin[1].Data(),data2),
+                                      RooFit.Import(Bbin[2].Data(),data3),
+                                      RooFit.WeightVar("sWeights")) #
+                                  #RooFit.SumW2Error(True))
+                                  
+                totPDFSim = RooSimultaneous("simPdf","simultaneous pdf",BdtgBin)
+                totPDFSim.addPdf(totPDF,  Bbin[0].Data())
+                totPDFSim.addPdf(totPDF2, Bbin[1].Data())
+                totPDFSim.addPdf(totPDF3, Bbin[2].Data())
+            else:
+                Bbin = [TString("BDTGA")]
+                BdtgBin = RooCategory("bdtgbin","bidtgbin")
+                BdtgBin.defineType(Bbin[0].Data())
+                
+                weight = obs.find("sWeights")
+                observables.add( weight )
+                
+                combData = RooDataSet("combData","combined data",RooArgSet(observables),
+                                      RooFit.Index(BdtgBin),
+                                      RooFit.Import(Bbin[0].Data(),data),
+                                      RooFit.WeightVar("sWeights")) #,
+                                  #RooFit.SumW2Error(True))
+            
+                totPDFSim = RooSimultaneous("simPdf","simultaneous pdf",BdtgBin)
+                totPDFSim.addPdf(totPDF,  Bbin[0].Data())
+            
             
         #sigTimePDF      = time # RooEffProd('time_signal','time_signal',time_noacc,tacc)
         #totPDF = time
@@ -573,21 +654,35 @@ def runBdGammaFitterOnData(debug, wsname, initvars, tvar, terrvar, probvar, pere
             exit(0)
              
         if toys or not Blinding: #Unblind yourself
-            myfitresult = totPDF.fitTo(data, RooFit.Save(1), RooFit.Optimize(2), RooFit.Strategy(2),
-                                       RooFit.Verbose(True), RooFit.SumW2Error(True), RooFit.Extended(False))
+            if Cat:
+                myfitresult = totPDFSim.fitTo(combData, RooFit.Save(1), RooFit.Optimize(2), RooFit.Strategy(2),
+                                              RooFit.Verbose(True), RooFit.SumW2Error(True), RooFit.Extended(False))
+            else:    
+                myfitresult = totPDF.fitTo(dataW, RooFit.Save(1), RooFit.Optimize(2), RooFit.Strategy(2),
+                                           RooFit.Verbose(True), RooFit.SumW2Error(True), RooFit.Extended(False))
+            
             myfitresult.Print("v")
             myfitresult.correlationMatrix().Print()
             myfitresult.covarianceMatrix().Print()
         else :    #Don't
-            myfitresult = totPDF.fitTo(data, RooLinkedList(RooFit.Save(1), RooFit.Optimize(0), RooFit.Strategy(2),
-                                                           RooFit.SumW2Error(True), RooFit.PrintLevel(-1)))
+            if Cat:
+                myfitresult = totPDFSim.fitTo(combData, RooFit.Save(1), RooFit.Optimize(2), RooFit.Strategy(2),
+                                              RooFit.Verbose(True), RooFit.SumW2Error(True), RooFit.Extended(False))
+            else:
+                myfitresult = totPDF.fitTo(dataW, RooLinkedList(RooFit.Save(1), RooFit.Optimize(2), RooFit.Strategy(2),
+                                                                RooFit.SumW2Error(True), RooFit.PrintLevel(-1)))
+
             print 'Matrix quality is',myfitresult.covQual()
             par = myfitresult.floatParsFinal() 
             par[0].Print("v") 
 
         workout = RooWorkspace("workspace","workspace")
-        getattr(workout,'import')(data)
-        getattr(workout,'import')(totPDF)
+        if Cat:
+            getattr(workout,'import')(combData)
+            getattr(workout,'import')(totPDFSim)
+        else:
+            getattr(workout,'import')(dataW)
+            getattr(workout,'import')(totPDF)
         getattr(workout,'import')(myfitresult)
         workout.writeToFile(wsname)
     else :
@@ -733,6 +828,18 @@ parser.add_option( '--pathName',
                    help = 'name of the inputfile'
                    )
 
+parser.add_option( '--pathName2',
+                   dest = 'pathName2',
+                   default = '/afs/cern.ch/work/a/adudziak/public/sWeights/sWeights_BsDsPi_all_both.root',
+                   help = 'name of the inputfile'
+                   )
+
+parser.add_option( '--pathName3',
+                   dest = 'pathName3',
+                   default = '/afs/cern.ch/work/a/adudziak/public/sWeights/sWeights_BsDsPi_all_both.root',
+                   help = 'name of the inputfile'
+                   )
+
 parser.add_option( '--treeName',
                    dest = 'treeName',
                    default = 'merged',
@@ -743,7 +850,19 @@ parser.add_option( '--scan',
                    default = False,
                    action = 'store_true'
                    )
-                   
+
+parser.add_option( '--BDTGbins',
+                   dest = 'BDTGbins',
+                   default = False,
+                   action = 'store_true'
+                   )
+parser.add_option( '--cat',
+                   dest = 'Cat',
+                   default = False,
+                   action = 'store_true'
+                   )
+
+
 parser.add_option( '--configName',
                     dest = 'configName',
                     default = 'Bs2DsPiConfigForNominalDMSFit')
@@ -783,6 +902,10 @@ if __name__ == '__main__' :
                             options.configName,
                             options.fitMeTool,
                             options.scan,
-                            options.signal)
+                            options.signal,
+                            options.BDTGbins,
+                            options.pathName2,
+                            options.pathName3,
+                            options.Cat)
 
 # -----------------------------------------------------------------------------

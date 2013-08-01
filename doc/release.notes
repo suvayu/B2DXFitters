@@ -4,6 +4,39 @@
 ! Purpose     : RooFit-based fitters for B -> D X
 !-----------------------------------------------------------------------------
 
+! 2013-07-31 - Agnieszka Dziurda
+ - minor changes in:
+   . B2DXFitters/SFitUtils.h, src/SFitUtils.cxx
+   . B2DXFitters/MassFitUtils.h, src/MassFitUtils.cxx
+   . B2DXFitters/GeneralUtils.h, src/GeneralUtils.cxx
+ - small upate generators scripts: GenerateToySWeights_Ds{K,Pi}.py:
+   . fix minor bug and make possible generate a lot of data sets
+ - change scripts/runBsDsKMassFitterOnData3D5M.py to run for toys
+ - update and fix plotting for time sFit: 
+   . scripts/plotBs2Ds{K,Pi}TimeModelsOnData.py
+ - add script for plotting with categories: 
+   .scripts/plotBs2Ds{K,Pi}TimeModelsOnDataCat.py
+ - make scripts/comparePDF.py more flexible
+ - allow scripts/createTemplates.py to run on MC and plotted sWeights
+ - confing files modification:
+   . data/Bs2DsKConfigForNominalGammaFit.py
+   . data/Bs2DsPiConfigForNominalDMSFitPowLawFloatAcc.py
+   . data/Bs2DsKConfigForGenerator.py
+   . data/Bs2DsKConfigForNominalMassFitToys.py
+ - add two new config files for BDTG splitting:
+   . data/Bs2DsKConfigForNominalGammaFitBDTG123.py
+   . data/Bs2DsPiConfigForNominalDMSFitPowLawFloatAccBDTG123.py 
+ - add csh files for running time sFit:
+   . scripts/Csh/run_fit_time_dsk_bdtg123_3m.csh
+   . scripts/Csh/run_fit_time_dsk_bdtg123_5m.csh
+   . scripts/Csh/run_fit_time_dsk_bdtga.csh
+   . scripts/Csh/run_fit_time_dspi_bdtg123.csh
+   . scripts/Csh/run_fit_time_dspi_bdtga.csh
+ - update time sFit:
+   . scripts/runBs2DsPiCPAsymmObsFitterOnData.py
+   . scripts/runBs2DsKCPAsymmObsFitterOnData.py 
+ 
+
 ! 2013-07-30 - Manuel Tobias Schiller
  - make it easier to run with a recent ROOT version at CERN in the standalone
    environment; this is now very easy to use:
@@ -52,7 +85,7 @@
    . SFitUtils.{h,cxx}
    . MassFitUtils.{h,cxx}
  . add new scripts:
-   . comparePDF.py for comparing pdf
+   . comparePDF.py for comparing pdfs
    . createTemplates.py create mistag and time errors templates
      from sWeighted data or MC
  . minor changes in: prepareBsDs{K,Pi}MassFitterOnData3D5M.py
@@ -68,15 +101,15 @@
 
 ! 2013-07-02 - Agnieszka Dziurda
  - new workspaces in /afs/cern.ch/work/a/adudziak/public/workspace/MDFitter/
- - new functions for Manuel's reading pdf in Bs2Dsh2011TDAnaModels.{h,cxx}
+ - new functions for Manuel's reading pdfs in Bs2Dsh2011TDAnaModels.{h,cxx}
  - clean up Bs2Dsh2011TDAnaModels.{h,cxx}
  - update and clean up scripts:
    . runBsDsPiMassFitterOnData3D5M.py
    . runBsDsKMassFitterOnData3D5M.py      
  - update generator toys for DsPi: 
    . GenerateToySWeights_DsPi.py (work in progress)
-   . data/Bs2DsPiConfigForGenerator.py - add avariable for MDFitter
-   . SFitUtils.{h,cxx} - add variable for MDFitter
+   . data/Bs2DsPiConfigForGenerator.py - add variables for MDFitter
+   . SFitUtils.{h,cxx} - add variables for MDFitter
  - minor updates in WeightingUtils.cxx (change names of PIDK pdf)
  - minor changes in GeneralUtils.cxx and MassFitUtils.cxx
  - update scripts in scripts/Csh/ for preparing workspace and fitting            

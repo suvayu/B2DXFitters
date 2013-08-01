@@ -2863,10 +2863,10 @@ namespace MassFitUtils {
 	      }
 	    //wRW =1.0;
 	    w[i]->setVal(wRW);
-	    //if (  lab0_TAG3  == 0.0 )
-	    //  {
+	    //if (  id  == 1.0 )
+	    //   {
 		dataSetMC[i]->add(*obs,wRW,0);
-		// }	    
+		//  }	    
 	    if( log(lab1_PIDK3) > log(PIDcut) )
 	      {
 		dataSetMCtmp[i]->add(*obs,wRW,0);

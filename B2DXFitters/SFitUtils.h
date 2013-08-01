@@ -51,6 +51,7 @@ namespace SFitUtils {
 				     TString& tagName,
 				     TString& tagOmegaVar,
 				     TString& idVar,
+				     bool weighted,
 				     bool        debug = false
 				     );
   

@@ -1,22 +1,23 @@
-set dir =  '/afs/cern.ch/work/g/gligorov/public/Bs2DsKToys/sWeightToys/DsKToys_Full_2ksample_140912/'
+set dirinput =  '/afs/cern.ch/work/a/adudziak/public/Bs2DsKToys/'
+set diroutput = '/afs/cern.ch/work/a/adudziak/public/Bs2DsKToys/'
 
-set outputprefix = 'DsK_Toys_Full_MassFitResult_2kSample_'
+set outputprefix = 'DsK_Toys_MassFitResult_'
 set outputsuffix = '.log'
 
-set inputprefix = 'DsK_Toys_Full_Work_2kSample_'
+set inputprefix = 'DsK_Toys_Work_'
 set inputsuffix = '.root'
 
-set sweightsprefix = 'DsK_Toys_Full_sWeights_ForTimeFit_2kSample_'
-set massplotprefix = 'DsK_Toys_Full_Work_ForMassPlot_2kSample_'
+set sweightsprefix = 'DsK_Toys_sWeights_ForTimeFit_'
+set massplotprefix = 'DsK_Toys_Work_ForMassPlot_'
 
 @ thissample = $1
 
 while ($thissample < $2) 
     set thissamplestr = `echo $thissample`
-    rm $dir$outputprefix$thissamplestr$outputsuffix
-    rm $dir$outputprefix$thissamplestr$outputsuffix.gz
-    python runBsDsKMassFitterOnData.py -w --toys --filename $dir$inputprefix$thissamplestr$inputsuffix --save $dir$massplotprefix$thissamplestr$inputsuffix  --sweightoutputname $dir$sweightsprefix$thissamplestr$inputsuffix >& $dir$outputprefix$thissamplestr$outputsuffix 
-    gzip $dir$outputprefix$thissamplestr$outputsuffix
+    rm $diroutput$outputprefix$thissamplestr$outputsuffix
+    rm $diroutput$outputprefix$thissamplestr$outputsuffix.gz
+    python runBsDsKMassFitterOnData3D5M.py --debug --merge -m both -o phipi --configName Bs2DsKConfigForNominalMassFitToys --fileName /afs/cern.ch/work/a/adudziak/public/workspace/MDFitter/work_dsk_pid_53005800_PIDK5_5M_BDTGA.root --fileNameToys $dirinput$inputprefix$thissamplestr$inputsuffix --sweightoutputname $diroutput$sweightsprefix$thissamplestr$inputsuffix -save $diroutput$massplotprefix$thissamplestr$inputsuffix --sweight >& $diroutput$outputprefix$thissamplestr$outputsuffix 
+    gzip $diroutput$outputprefix$thissamplestr$outputsuffix
     @ thissample++
     echo $thissample
 end

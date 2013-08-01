@@ -75,6 +75,7 @@ namespace SFitUtils {
 				     TString& tagName,
 				     TString& tagOmegaVar,
 				     TString& idVar,
+				     bool weighted,
 				     bool debug
 				     )
   {
@@ -97,7 +98,7 @@ namespace SFitUtils {
     TTree* treeSW = ReadTreeMC(pathFile.Data(),treeName.Data(), debug);
      
     RooRealVar* lab0_TAU = new RooRealVar(tVar.Data(),tVar.Data(),1.,time_down,time_up);
-    RooRealVar* lab0_TAUERR = new RooRealVar(terrVar.Data(),terrVar.Data(), 0.0, 0.0, 0.1);
+    RooRealVar* lab0_TAUERR = new RooRealVar(terrVar.Data(),terrVar.Data(), 0.01, 0.01, 0.1);
     //RooRealVar* lab0_MM = new RooRealVar("lab0_MassFitConsD_M","lab0_MassFitConsD_M",5100, 5800);
     RooRealVar* lab0_TAGOMEGA = new RooRealVar(tagOmegaVar.Data(),tagOmegaVar.Data(),0.,0.,0.5);
     
@@ -126,13 +127,20 @@ namespace SFitUtils {
     //s.push_back("up_kkpi");
     //s.push_back("up_kpipi");
     //s.push_back("up_pipipi");
-
-    s.push_back("both_nonres");
-    s.push_back("both_phipi");
-    s.push_back("both_kstk");
-    s.push_back("both_kpipi");
-    s.push_back("both_pipipi");
-    
+    if( pathFile.Contains("3modeskkpi") == true )
+      {
+	s.push_back("both_nonres");
+        s.push_back("both_phipi");
+        s.push_back("both_kstk");
+      }
+    else
+      {
+	s.push_back("both_nonres");
+	s.push_back("both_phipi");
+	s.push_back("both_kstk");
+	s.push_back("both_kpipi");
+	s.push_back("both_pipipi");
+      }
     Int_t bound = s.size();
     /*
     std::vector <TString> catcont;
@@ -180,7 +188,7 @@ namespace SFitUtils {
     obs->setName(setOfObsName.Data());
     
     TString namew = "sWeights";
-    weights = new RooRealVar(namew.Data(), namew.Data(), -2.0, 2.0 );  // create weights //
+    weights = new RooRealVar(namew.Data(), namew.Data(), -1.0, 2.0 );  // create weights //
     obs->add(*weights);
 
     //obs->add(*lab1_P);
@@ -190,15 +198,17 @@ namespace SFitUtils {
     //obs->add(*nTracks);
     //obs->add(*lab0_MM);
 
-        
-    dataSet = new RooDataSet(   cat.Data(), cat.Data(),
-                                *obs,
-                                namew.Data());  // create data set //
-    
+    if (weighted == true)
+      {
+	dataSet = new RooDataSet(   cat.Data(), cat.Data(), *obs, namew.Data());  // create data set //
+      }
+    else
+      {
+	dataSet = new RooDataSet(   cat.Data(), cat.Data(), *obs); 
+      }
     work->import(*obs);
     work->import(*dataSet);
-    //work->import(*weights);
-    
+        
 
     dataSet = NULL;
     qt = NULL;
@@ -274,7 +284,7 @@ namespace SFitUtils {
       }
 
     Float_t c = 299792458.;
-
+    Double_t sqSumsW = 0;
     
     for (Long64_t jentry=0; jentry<treeSW->GetEntries(); jentry++) {
       treeSW->GetEntry(jentry);
@@ -314,11 +324,20 @@ namespace SFitUtils {
 	}
 
       Double_t sum_sw=0;
-      for (int i = 0; i<6; i++) {
+      for (int i = 0; i<bound; i++) {
 	      sum_sw += sw[i];
 	  }
       weights->setVal(sum_sw);
-      dataSet->add(*obs,sum_sw,0);
+      sqSumsW += sum_sw*sum_sw;
+
+      if (weighted == true )
+	{
+	  dataSet->add(*obs,sum_sw,0);
+	}
+      else
+	{
+	  dataSet->add(*obs);
+	}
       /*
       if( tag == 0 )
         {
@@ -366,6 +385,7 @@ namespace SFitUtils {
 	if ( dataSet != NULL ){
 	    std::cout<<"[INFO] ==> Create "<<dataSet->GetName()<<std::endl;
 	    std::cout<<"Sample "<<cat<<" number of entries: "<<treeSW->GetEntries()<<" in data set: "<<dataSet->numEntries()<<std::endl;
+	    std::cout<<"sum of sWeights: "<<dataSet->sumEntries()<<" squared sum of sWeights: "<<sqSumsW<<std::endl; 
 	} else { std::cout<<"Error in create dataset"<<std::endl; }
     }
     TString mode ="";

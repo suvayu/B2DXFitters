@@ -1,13 +1,16 @@
+
 #!/usr/bin/env python
 # --------------------------------------------------------------------------- #
 #                                                                             #
 #   Python script to plot the Bd -> D pi time models                          #
 #                                                                             #
 #   Example usage:                                                            #
-#      python -i plotBdTimeModels.py                                          #
+#      python plotBs2DsPiTimeModelsOnData.py WS_Time_DsPi.root                #
 #                                                                             #
 #   Author: Eduardo Rodrigues                                                 #
 #   Date  : 01 / 06 / 2011                                                    #
+#   Author: Agnieszka Dziurda                                                 #
+#   Author: Vladimir Vava Gligorov                                            #
 #                                                                             #
 # --------------------------------------------------------------------------- #
 
@@ -42,8 +45,8 @@ timeDown = 0.2
 timeUp = 15.0
 
 dataSetToPlot  = 'dataSet_time_Bs2DsPi'
-pdfToPlot = 'sigTotPDF'
-fileToWriteOut = 'time_DsPi.pdf' 
+pdfToPlot = 'time_signal' #signal_TimeTimeerrPdf'
+#fileToWriteOut = 'time_DsPi_BDTG123.pdf' 
 #------------------------------------------------------------------------------
 def plotDataSet(dataset, frame) :
     dataset.plotOn(frame,RooFit.Binning(74))
@@ -57,11 +60,17 @@ def plotFitModel(model, frame, wksp) :
     lab0_BsTaggingTool_TAGDECISION_OS   = wksp.var('lab0_BsTaggingTool_TAGDECISION_OS')
     lab1_ID                             = wksp.var('lab1_ID')
     time                                = wksp.var('lab0_LifetimeFit_ctau')
+    terr                                = wksp.var('lab0_LifetimeFit_ctauErr')
     dataset                             = w.data(dataSetToPlot)
+    obs = dataset.get()
+    obs.Print("v")
+    cat2 = obs.find('qf')
+    cat3 = obs.find('qt')
+                
 
     # plot model itself
     fr = model.plotOn(frame,
-                      RooFit.LineColor(kBlue+3)),
+                      RooFit.LineColor(kBlue+3))
 
     #model.createProjection(RooArgSet(lab0_BsTaggingTool_TAGDECISION_OS,lab1_ID))    
 
@@ -127,6 +136,14 @@ parser.add_option('-w', '--workspace',
                    default = 'workspace',
                    help = 'RooWorkspace name as stored in ROOT file'
 )
+
+parser.add_option( '-s', '--sufix',
+                   dest = 'sufix',
+                   metavar = 'SUFIX',
+                   default = '',
+                   help = 'Add sufix to output'
+                   )
+
 #------------------------------------------------------------------------------
 
 if __name__ == '__main__' :
@@ -154,6 +171,10 @@ if __name__ == '__main__' :
     from ROOT import CombBkgPTPdf
     from ROOT import BdPTAcceptance
     from ROOT import RooBlindTools
+    from ROOT import RooSimultaneous, RooBDecay, RooEffResModel, RooAddModel, RooGaussModel, RooBinnedPdf
+    from ROOT import PowLawAcceptance, Inverse,DecRateCoeff, RooHistPdf, RooUniform, MistagCalibration
+    from ROOT import RooBinnedPdf, PowLawAcceptance
+        
 
     gROOT.SetStyle('Plain')
     #gROOT.SetBatch(False)
@@ -239,7 +260,7 @@ if __name__ == '__main__' :
     padpull.Draw()
                 
     
-    padgraphics.SetLogy(1)
+    #padgraphics.SetLogy(1)
     padgraphics.cd()
     #gStyle.SetOptLogy(1)
             
@@ -257,7 +278,7 @@ if __name__ == '__main__' :
     pullHist.SetMinimum(-4.00)
     axisX = pullHist.GetXaxis()
     axisX.Set(100, timeDown, timeUp )
-    axisX.SetTitle('#font[12]{#tau (B_{s} #rightarrow D_{s} K) [ps]}')   
+    axisX.SetTitle('#font[12]{#tau (B_{s} #rightarrow D_{s} #pi) [ps]}')   
     axisX.SetTitleSize(0.150)
     axisX.SetTitleFont(132)
     axisX.SetLabelSize(0.150)
@@ -315,8 +336,19 @@ if __name__ == '__main__' :
     print "chi2: %f"%(chi2)
     print "chi22: %f"%(chi22)
     
-    frame_t.GetYaxis().SetRangeUser(0.001,5000)
-    padgraphics.SetLogy()
-    canvas.Print(fileToWriteOut)
+    frame_t.GetYaxis().SetRangeUser(0.001,3000)
+    #padgraphics.SetLogy()
+
+    sufixTS = TString(options.sufix)
+    if sufixTS != "":
+        sufixTS = TString("_")+sufixTS
+
+    nameCanPdf = TString("time_DsPi")+sufixTS+TString(".pdf")
+    nameCanPng = TString("time_DsPi")+sufixTS+TString(".png")
+    nameCanRoot = TString("time_DsPi")+sufixTS+TString(".root")
+
+    canvas.Print(nameCanPdf.Data())
+    canvas.Print(nameCanPng.Data())
+    canvas.Print(nameCanRoot.Data())
 
 #------------------------------------------------------------------------------

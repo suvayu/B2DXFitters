@@ -1,0 +1,1 @@
+python runBs2DsPiCPAsymmObsFitterOnData.py --debug --pereventmistag --config Bs2DsPiConfigForNominalDMSFitPowLawFloatAccBDTG123 --pathName sWeights_BsDsPi_all_both_BDTG1.root --pathName2 sWeights_BsDsPi_all_both_BDTG2.root --pathName3 sWeights_BsDsPi_all_both_BDTG3.root --BDTGbin --cat --save WS_Time_DsPi_BDTG123.root
