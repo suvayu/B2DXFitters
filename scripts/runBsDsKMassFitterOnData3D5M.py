@@ -821,7 +821,7 @@ def runBsDsKMassFitterOnData( debug, sample, mVar, mdVar, tVar, terrVar, tagVar,
 
     if ( not toys):
         BDTGTS = GeneralUtils.CheckBDTGBin(confTS, debug)
-        name = TString("./sWeights_BsDsK_")+modeTS+TString("_")+sampleTS+TString("_")+BDTGTS+TString("3M.root")
+        name = TString("./sWeights_BsDsK_")+modeTS+TString("_")+sampleTS+TString("_")+BDTGTS+TString(".root")
     else:
         name = TString(options.sweightoutputname)
 

@@ -16,7 +16,7 @@ while ($thissample < $2)
     set thissamplestr = `echo $thissample`
     rm $diroutput$outputprefix$thissamplestr$outputsuffix
     rm $diroutput$outputprefix$thissamplestr$outputsuffix.gz
-    python runBsDsKMassFitterOnData3D5M.py --debug --merge -m both -o phipi --configName Bs2DsKConfigForNominalMassFitToys --fileName /afs/cern.ch/work/a/adudziak/public/workspace/MDFitter/work_dsk_pid_53005800_PIDK5_5M_BDTGA.root --fileNameToys $dirinput$inputprefix$thissamplestr$inputsuffix --sweightoutputname $diroutput$sweightsprefix$thissamplestr$inputsuffix -save $diroutput$massplotprefix$thissamplestr$inputsuffix --sweight >& $diroutput$outputprefix$thissamplestr$outputsuffix 
+    python runBsDsKMassFitterOnData3D5M.py --debug --merge -m both -o phipi --configName Bs2DsKConfigForNominalMassFitToys --fileName /afs/cern.ch/work/a/adudziak/public/workspace/MDFitter/work_dsk_pid_53005800_PIDK5_5M_BDTGA.root --fileNameToys $dirinput$inputprefix$thissamplestr$inputsuffix --sweightoutputname $diroutput$sweightsprefix$thissamplestr$inputsuffix --save $diroutput$massplotprefix$thissamplestr$inputsuffix --sweight >& $diroutput$outputprefix$thissamplestr$outputsuffix 
     gzip $diroutput$outputprefix$thissamplestr$outputsuffix
     @ thissample++
     echo $thissample

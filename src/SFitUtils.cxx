@@ -133,16 +133,22 @@ namespace SFitUtils {
         s.push_back("both_phipi");
         s.push_back("both_kstk");
       }
+    else if(pathFile.Contains("toys") == true || pathFile.Contains("Toys") == true || pathFile.Contains("TOYS") == true)  
+      {
+	s.push_back("both_phipi");
+      }
     else
       {
 	s.push_back("both_nonres");
-	s.push_back("both_phipi");
-	s.push_back("both_kstk");
+        s.push_back("both_phipi");
+        s.push_back("both_kstk");
 	s.push_back("both_kpipi");
-	s.push_back("both_pipipi");
+        s.push_back("both_pipipi");
       }
+	
     Int_t bound = s.size();
-    /*
+    
+/*
     std::vector <TString> catcont;
     if (part == "DsPi" ) {
         catcont.push_back("Bs2DsNPiP");
@@ -267,9 +273,19 @@ namespace SFitUtils {
     
     treeSW->SetBranchAddress(tVar.Data(), &tau);
     treeSW->SetBranchAddress(terrVar.Data(), &tauerr);
-    treeSW->SetBranchAddress(tagName.Data(), &tag);
     treeSW->SetBranchAddress(tagOmegaVar.Data(), &tagweight);
-    treeSW->SetBranchAddress("lab1_ID", &ID);
+
+    if(pathFile.Contains("toys") == true || pathFile.Contains("Toys") == true || pathFile.Contains("TOYS") == true)
+      {
+	TString name = tagName+"_idx";
+	treeSW->SetBranchAddress(name.Data(), &tag);
+        treeSW->SetBranchAddress("lab1_ID_idx", &ID);
+      }
+    else
+      {
+	treeSW->SetBranchAddress(tagName.Data(), &tag);
+	treeSW->SetBranchAddress("lab1_ID", &ID);
+      }    
     // treeSW->SetBranchAddress("lab0_MassFitConsD_M", &mass);
     //treeSW->SetBranchAddress("lab1_P", &p);
     //treeSW->SetBranchAddress("nTracks",&nTr);
@@ -288,8 +304,18 @@ namespace SFitUtils {
     
     for (Long64_t jentry=0; jentry<treeSW->GetEntries(); jentry++) {
       treeSW->GetEntry(jentry);
-      const double m = tau*1e9/c;
-      const double merr = tauerr*1e9/c;
+      double m = 0; 
+      double merr = 0;
+      if(pathFile.Contains("toys") == true || pathFile.Contains("Toys") == true || pathFile.Contains("TOYS") == true)
+	{
+	  m =tau;
+	  merr = tauerr;
+	}
+      else
+	{
+	  m =tau*1e9/c;   
+	  merr = tauerr*1e9/c;
+	}
       if (m < 0.2) continue;  
       lab0_TAU->setVal(m);
       lab0_TAUERR->setVal(merr);

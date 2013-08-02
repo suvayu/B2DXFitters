@@ -23,12 +23,31 @@ from os.path  import exists
 # -----------------------------------------------------------------------------
 # Configuration settings
 # -----------------------------------------------------------------------------
+def in_gdb():
+    import os
+    proclist = dict(
+        (l[0], l[1:]) for l in (lraw.replace('\n', '').replace('\r','').split()
+                                for lraw in os.popen('ps -o pid= -o ppid= -o comm=').readlines()
+                                )
+        )
+    pid = os.getpid()
+    while pid in proclist:
+        if 'gdb' in proclist[pid][1]: return True
+        pid = proclist[pid][0]
+        return False
+    
+    
+if in_gdb():
+    # when running in a debugger, we want to make sure that we do not
+    # handle any signals, so the debugger can catch SIGSEGV and friends,
+    # and we can poke around
+    ROOT.SetSignalPolicy(ROOT.kSignalFast)
+    ROOT.gEnv.SetValue('Root.Stacktrace', '0')
 
 import GaudiPython
 GaudiPython.loaddict( 'B2DXFittersDict' )
 from ROOT import *
 from ROOT import RooCruijff
-
 
 # MODELS
 signalModelOnly = False
@@ -70,6 +89,7 @@ def plotFitModel(model, frame, wksp) :
 
     # plot model itself
     fr = model.plotOn(frame,
+                      RooFit.ProjWData(RooArgSet(cat2,cat3),dataset),
                       RooFit.LineColor(kBlue+3))
 
     #model.createProjection(RooArgSet(lab0_BsTaggingTool_TAGDECISION_OS,lab1_ID))    
@@ -197,7 +217,9 @@ if __name__ == '__main__' :
     dataset  = w.data(dataSetToPlot) 
     if dataset:
         print dataset.GetName()
-
+        
+    print gROOT.GetVersion()
+    
     if not (modelPDF and dataset) :
         w.Print('v')
         exit(1)

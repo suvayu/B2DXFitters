@@ -22,8 +22,8 @@ def getconfig() :
     configdict["TauRes"]    =  0.05  
         
     configdict["StrongPhase_d"] = 20. / 180. * pi
-    configdict["StrongPhase_s"] = 20. / 180. * pi
-    configdict["WeakPhase"]   = 70. / 180. * pi
+    configdict["StrongPhase_s"] = 30. / 180. * pi
+    configdict["WeakPhase"]     = 140./180*pi #70. / 180. * pi
 
     configdict["ArgLf_d"]       = configdict["StrongPhase_d"] - configdict["WeakPhase"]
     configdict["ArgLbarfbar_d"] = configdict["StrongPhase_d"] + configdict["WeakPhase"]

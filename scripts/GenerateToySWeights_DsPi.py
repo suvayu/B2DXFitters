@@ -242,26 +242,7 @@ def runBsDsPiGenerator( debug, single, configName, numberOfToys, numberOfEvents 
     time_signal             = RooEffProd('time_signal','time_signal',time_signal_noacc,tacc_signal)
     
     
-    '''
-    S_signal    = RooRealVar('S_signal', 'S coeff. signal', 0.) 
-    D_signal    = RooRealVar('D_signal', 'D coeff. signal', 0.) 
-    
-    untaggedWeight_signal   = IfThreeWayCat('untaggedWeight_signal', 'untaggedWeight_signal', bTagMap, one, two, one)
-    Dilution_signal         = RooFormulaVar('Dilution_signal',"1-2*@0",RooArgList(mistagVar_B))
-    mixState_signal         = RooFormulaVar('mixState_signal','@0*@1',RooArgList(bTagMap,fChargeMap)) 
-    
-    Cos_signal              = RooProduct('sigCosSin_i0_signal', 'sigCosSin_i0 signal', 
-    RooArgList(mixState_signal, Dilution_signal, tagWeight_signal))
-    Cosh_signal             = RooProduct('sigCosh_signal', 'cosh coefficient signal', 
-    RooArgList(untaggedWeight_signal, tagWeight_signal))
-    
-    time_signal_noacc       = RooBDecay('time_signal_noacc','time_signal_noacc', timeVar_B, Gammas, DeltaGammas, 
-    Cosh_signal, D_signal, Cos_signal, S_signal,
-    DeltaMs,trm_signal, RooBDecay.SingleSided)
-    
-    time_signal             = RooEffProd('time_signal','time_signal',time_signal_noacc,tacc_signal)
-    '''
-    
+        
     noncondset = RooArgSet(timeVar_B, fChargeMap, bTagMap, mistagVar_B )
     timeerr_signal = RooProdPdf('signal_timeerr', 'signal_timeerr',  RooArgSet(terr_signal),
                                 RooFit.Conditional(RooArgSet(time_signal),
@@ -271,10 +252,7 @@ def runBsDsPiGenerator( debug, single, configName, numberOfToys, numberOfEvents 
     #The signal - true ID
     trueid_signal = RooGenericPdf("trueid_signal","exp(-100.*abs(@0-1))",RooArgList(trueIDVar_B))
     
-    #The signal - time error
-    #terr_signal = Bs2Dsh2011TDAnaModels.GetRooHistPdfFromWorkspace(workspace_mistag,TString("TimeErrorPdf_signal_BDTGA"), debug)
-    #terr_signal.SetName("terr_signal")
-    
+      
     #The signal - total
     #timemistag_signal = RooProdPdf("timemistag_signal","timemistag_signal",RooArgSet(mistag_signal),
     #                               RooFit.Conditional(RooArgSet(time_signal),
@@ -1151,8 +1129,7 @@ def runBsDsPiGenerator( debug, single, configName, numberOfToys, numberOfEvents 
                                               TString("dataSetBsDsPi_toys"), debug))
        
         getattr(workout,'import')(data[i])
-    
-                                                                                
+                                                                            
 
         #exit(0)
         #Plot what we just did

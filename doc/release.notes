@@ -4,6 +4,32 @@
 ! Purpose     : RooFit-based fitters for B -> D X
 !-----------------------------------------------------------------------------
 
+! 2013-08-02 - Agnieszka Dziurda
+ - fix bug in obtain data set: src/MassFitUtils.cxx
+ - allow to fit toys: src/SFitUtils.cxx
+ - fix generate toys for DsPi: scripts/GenerateToySWeights_DsPi.py
+ - update scripts for fitting toys:
+   . scripts/Csh/runBsDsK_sFit_Toys_Time.csh
+   . scripts/Csh/runBsDsK_sFit_Toys_Mass.csh
+ - update other csh scripts:
+   . scripts/Csh/run_plot_dsk_bdtg1.csh
+ - add csh scripts:
+   . scripts/Csh/run_plot_dsk_bdtg1_5m.csh
+   . scripts/Csh/run_fit_dsk_bdtg1_3m.csh
+   . scripts/Csh/run_fit_dsk_toys.csh
+ - allow to fit toys and to have different acceptance for BDTG123 in each bin:
+   .  scripts/runBs2DsKCPAsymmObsFitterOnData.py
+ - minor changes: scripts/plotBs2DsPiTimeModelsOnData.py
+ - allow to have different acceptance for BDTG123 in each bin: 
+   . scripts/runBs2DsPiCPAsymmObsFitterOnData.py 
+ - minor changes in config files:
+   . data/Bs2DsKConfigForNominalGammaFitBDTG123.py
+   . data/Bs2DsPiConfigForNominalDMSFitPowLawFloatAccBDTG123.py
+   . data/Bs2DsPiConfigForGenerator.py
+   . data/Bs2DsPiConfigForNominalDMSFitPowLawFloatAcc.py
+   . data/Bs2DsKConfigForGenerator.py
+
+
 ! 2013-08-01 - Manuel Tobias Schiller
  - implement RooBinnedPdf in a clean way so we don't play games with dirty
    flags which might break RooFit's caching/optimisation

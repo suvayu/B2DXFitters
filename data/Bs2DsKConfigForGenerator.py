@@ -77,15 +77,15 @@ def getconfig() :
     configdict["adet_lm1"]       = 0.0
     configdict["adet_lm2"]       = 0.0
     
-    configdict["num_signal"]    = 1800.
+    configdict["num_signal"]    = 1850.
     configdict["num_dk"]        = 20.
     configdict["num_dsk"]       = 100.
     configdict["num_dspi"]      = 715.
     configdict["num_lck"]       = 25.
-    configdict["num_combo"]     = 3800.
-    configdict["num_dsdsstp"]   = 120.
+    configdict["num_combo"]     = 4040.
+    configdict["num_dsdsstp"]   = 180.
     configdict["num_lm1"]       = 50.
-    configdict["num_lm2"]       = 350.
+    configdict["num_lm2"]       = 430.
         
     #----------------------------Signal----------------------------#
 

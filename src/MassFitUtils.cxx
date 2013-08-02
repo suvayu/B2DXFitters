@@ -226,7 +226,7 @@ namespace MassFitUtils {
     else { if ( debug == true) std::cout<<"[ERROR] Wrong mode"; return work; }
 
     //Set other cuts//
-    TCut P_cut = Form("lab1_P > %f && lab1_P < %f && lab1_PIDmu < 2",Pcut_down,Pcut_up);
+    TCut P_cut = Form("lab1_P > %f && lab1_P < %f",Pcut_down,Pcut_up);
     TCut BDTG_cut = Form("BDTGResponse_1 > %f && BDTGResponse_1 < %f",BDTG_down, BDTG_up);
     TCut mass_cut = Form("%s > %f && %s < %f",mVar.Data(),BMassRange[0],mVar.Data(),BMassRange[1]);
     TCut massD_cut = Form("%s > %f && %s < %f",mDVar.Data(), Dmass_down,mDVar.Data(),Dmass_up);
