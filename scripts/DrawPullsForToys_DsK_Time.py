@@ -1,12 +1,16 @@
 from ROOT import *
 import ROOT
 
+import sys 
+sys.path.append("../data/")
+
+# Get the configuration file
+myconfigfilegrabber = __import__("Bs2DsKConfigForGenerator",fromlist=['getconfig']).getconfig
+myconfigfile = myconfigfilegrabber()
+
 splitCharge = False
-
 largeToys = False
-
 saveplots = True
-
 tbtd = False
 
 nbinspull = 50
@@ -21,23 +25,28 @@ useavgmistag = False
 avgmistagsuffix = "AvgMistag_"
 
 ntoys               = 1000
-toysdir             = '/afs/cern.ch/work/g/gligorov/public/Bs2DsKToys/sWeightToys/DsKToys_Full_2ksample_140912/'
-toysresultprefix    = 'DsK_Toys_Full_TimeFitResult_2kSample_'
+toysdir             = '/afs/cern.ch/work/a/adudziak/public/Bs2DsKToys/'
+toysresultprefix    = 'DsK_Toys_TimeFitResult_'
 if useavgmistag : toysresultprefix += avgmistagsuffix
 if largeToys    : toysresultprefix = 'DsK_Toys_FullLarge_TimeFitResult_'
 toysresultsuffix    = '.log'    
+outputdir = '/afs/cern.ch/work/g/gligorov/public/Bs2DsKToys/sWeightToys/DsKToysAgnieszka_010813/'
 
 additionalsuffix = ""#FixParSyst_p1_"
 
-dmsgenera = {"C" : ntoys*[(0.757,0.)]}
+from B2DXFitters import taggingutils, cpobservables
+theseobservables = cpobservables.AsymmetryObservables(myconfigfile["ArgLf_s"],myconfigfile["ArgLbarfbar_s"],myconfigfile["ModLf_s"])
+print theseobservables.Cf(),theseobservables.Sf(),theseobservables.Sfbar(),theseobservables.Df(),theseobservables.Dfbar()
+
+dmsgenera = {"C" : ntoys*[(theseobservables.Cf(),0.)]}
 dmsfitted = {"C" : ntoys*[(0,0)]}
-dmsgenera["S"]    = ntoys*[(-0.614,0.)]#ntoys*[(-.501,0.)]
+dmsgenera["S"]    = ntoys*[(theseobservables.Sf(),0.)]#ntoys*[(-.501,0.)]
 dmsfitted["S"]    = ntoys*[(0,0)]
-dmsgenera["Sbar"] = ntoys*[(0.113,0.)]#ntoys*[(0.654,0.)]
+dmsgenera["Sbar"] = ntoys*[(theseobservables.Sfbar(),0.)]#ntoys*[(0.654,0.)]
 dmsfitted["Sbar"] = ntoys*[(0,0)]
-dmsgenera["D"]    = ntoys*[(-0.224,0.)]#ntoys*[(0.420,0.)]
+dmsgenera["D"]    = ntoys*[(theseobservables.Df(),0.)]#ntoys*[(0.420,0.)]
 dmsfitted["D"]    = ntoys*[(0,0)]
-dmsgenera["Dbar"] = ntoys*[(-0.644,0.)]#ntoys*[(0.0,0.)]
+dmsgenera["Dbar"] = ntoys*[(theseobservables.Dfbar(),0.)]#ntoys*[(0.0,0.)]
 dmsfitted["Dbar"] = ntoys*[(0,0)]
 
 nfailed = []
@@ -156,12 +165,10 @@ for thistoy in range(0,ntoys) :
     f.close()
 
 print nfailed.__len__(),'toys failed to converge properly'
-
 print nfailed
 
 if tbtd : additionalsuffix += "TBTD_"
-
-additionalsuffix += "14092012_"
+additionalsuffix += ""
 
 fitted_C = TH1F("fitted_C","fitted_C",100,-3.,3.0) 
 fitted_C.GetXaxis().SetTitle("Fitted C events")
@@ -190,11 +197,11 @@ pull_C.Fit("gaus")
 pull_C.Draw("PE")
 
 if not useavgmistag and not largeToys and saveplots:
-    pullcanvasC.Print("/afs/cern.ch/work/g/gligorov//public/Bs2DsKToys/sWeightToys/PullPlot_2kSample_"+additionalsuffix+"DsK_Time_C.pdf")
+    pullcanvasC.Print(outputdir+"PullPlot_2kSample_"+additionalsuffix+"DsK_Time_C.pdf")
 elif not largeToys and saveplots:
-    pullcanvasC.Print("/afs/cern.ch/work/g/gligorov//public/Bs2DsKToys/sWeightToys/PullPlot_DsK_Time_"+avgmistagsuffix+"C.pdf")
+    pullcanvasC.Print(outputdir+"PullPlot_DsK_Time_"+avgmistagsuffix+"C.pdf")
 elif saveplots :
-    pullcanvasC.Print("/afs/cern.ch/work/g/gligorov//public/Bs2DsKToys/sWeightToys/PullPlot_DsK_Time_Large_C.pdf")
+    pullcanvasC.Print(outputdir+"PullPlot_DsK_Time_Large_C.pdf")
 
 fitted_S = TH1F("fitted_S","fitted_S",100,-3.,3.0)     
 fitted_S.GetXaxis().SetTitle("Fitted S events")
@@ -223,11 +230,11 @@ pull_S.Fit("gaus")
 pull_S.Draw("PE")
 
 if not useavgmistag and not largeToys and saveplots:
-    pullcanvasS.Print("/afs/cern.ch/work/g/gligorov//public/Bs2DsKToys/sWeightToys/PullPlot_2kSample_"+additionalsuffix+"DsK_Time_S.pdf")
+    pullcanvasS.Print(outputdir+"PullPlot_2kSample_"+additionalsuffix+"DsK_Time_S.pdf")
 elif not largeToys and saveplots:
-    pullcanvasS.Print("/afs/cern.ch/work/g/gligorov//public/Bs2DsKToys/sWeightToys/PullPlot_DsK_Time_"+avgmistagsuffix+"S.pdf")
+    pullcanvasS.Print(outputdir+"PullPlot_DsK_Time_"+avgmistagsuffix+"S.pdf")
 elif saveplots :
-    pullcanvasS.Print("/afs/cern.ch/work/g/gligorov//public/Bs2DsKToys/sWeightToys/PullPlot_DsK_Time_Large_S.pdf")
+    pullcanvasS.Print(outputdir+"PullPlot_DsK_Time_Large_S.pdf")
 
 fitted_Sbar = TH1F("fitted_Sbar","fitted_Sbar",100,-3.,3.0)     
 fitted_Sbar.GetXaxis().SetTitle("Fitted Sbar events")
@@ -256,11 +263,11 @@ pull_Sbar.Fit("gaus")
 pull_Sbar.Draw("PE")
 
 if not useavgmistag and not largeToys and saveplots:
-    pullcanvasSbar.Print("/afs/cern.ch/work/g/gligorov//public/Bs2DsKToys/sWeightToys/PullPlot_2kSample_"+additionalsuffix+"DsK_Time_Sbar.pdf")
+    pullcanvasSbar.Print(outputdir+"PullPlot_2kSample_"+additionalsuffix+"DsK_Time_Sbar.pdf")
 elif not largeToys and saveplots:
-    pullcanvasSbar.Print("/afs/cern.ch/work/g/gligorov//public/Bs2DsKToys/sWeightToys/PullPlot_DsK_Time_"+avgmistagsuffix+"Sbar.pdf")
+    pullcanvasSbar.Print(outputdir+"PullPlot_DsK_Time_"+avgmistagsuffix+"Sbar.pdf")
 elif saveplots :
-    pullcanvasSbar.Print("/afs/cern.ch/work/g/gligorov//public/Bs2DsKToys/sWeightToys/PullPlot_DsK_Time_Large_Sbar.pdf")
+    pullcanvasSbar.Print(outputdir+"PullPlot_DsK_Time_Large_Sbar.pdf")
 
 fitted_D = TH1F("fitted_D","fitted_D",100,-3.,3.0)     
 fitted_D.GetXaxis().SetTitle("Fitted D events")
@@ -289,11 +296,11 @@ pull_D.Fit("gaus")
 pull_D.Draw("PE")
 
 if not useavgmistag and not largeToys  and saveplots:
-    pullcanvasD.Print("/afs/cern.ch/work/g/gligorov//public/Bs2DsKToys/sWeightToys/PullPlot_2kSample_"+additionalsuffix+"DsK_Time_D.pdf")
+    pullcanvasD.Print(outputdir+"PullPlot_2kSample_"+additionalsuffix+"DsK_Time_D.pdf")
 elif not largeToys and saveplots:
-    pullcanvasD.Print("/afs/cern.ch/work/g/gligorov//public/Bs2DsKToys/sWeightToys/PullPlot_DsK_Time_"+avgmistagsuffix+"D.pdf")
+    pullcanvasD.Print(outputdir+"PullPlot_DsK_Time_"+avgmistagsuffix+"D.pdf")
 elif saveplots :
-    pullcanvasD.Print("/afs/cern.ch/work/g/gligorov//public/Bs2DsKToys/sWeightToys/PullPlot_DsK_Time_Large_D.pdf")
+    pullcanvasD.Print(outputdir+"PullPlot_DsK_Time_Large_D.pdf")
 
 fitted_Dbar = TH1F("fitted_Dbar","fitted_Dbar",100,-3.,3.0)     
 fitted_Dbar.GetXaxis().SetTitle("Fitted Dbar events")
@@ -322,8 +329,8 @@ pull_Dbar.Fit("gaus")
 pull_Dbar.Draw("PE")
 
 if not useavgmistag and not largeToys and saveplots:
-    pullcanvasDbar.Print("/afs/cern.ch/work/g/gligorov//public/Bs2DsKToys/sWeightToys/PullPlot_2kSample_"+additionalsuffix+"DsK_Time_Dbar.pdf")
+    pullcanvasDbar.Print(outputdir+"PullPlot_2kSample_"+additionalsuffix+"DsK_Time_Dbar.pdf")
 elif not largeToys and saveplots:
-    pullcanvasDbar.Print("/afs/cern.ch/work/g/gligorov//public/Bs2DsKToys/sWeightToys/PullPlot_DsK_Time_"+avgmistagsuffix+"Dbar.pdf")
+    pullcanvasDbar.Print(outputdir+"PullPlot_DsK_Time_"+avgmistagsuffix+"Dbar.pdf")
 elif saveplots :
-    pullcanvasDbar.Print("/afs/cern.ch/work/g/gligorov//public/Bs2DsKToys/sWeightToys/PullPlot_DsK_Time_Large_Dbar.pdf")
+    pullcanvasDbar.Print(outputdir+"PullPlot_DsK_Time_Large_Dbar.pdf")
