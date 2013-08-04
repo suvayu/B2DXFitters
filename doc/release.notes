@@ -4,6 +4,9 @@
 ! Purpose     : RooFit-based fitters for B -> D X
 !-----------------------------------------------------------------------------
 
+! 2013-08-04 - V. Gligorov
+ - Update pull plotting scripts for toys to work with the new toy generator  
+
 ! 2013-08-02 - Agnieszka Dziurda
  - fix bug in obtain data set: src/MassFitUtils.cxx
  - allow to fit toys: src/SFitUtils.cxx
