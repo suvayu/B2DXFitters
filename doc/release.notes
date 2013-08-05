@@ -4,6 +4,11 @@
 ! Purpose     : RooFit-based fitters for B -> D X
 !-----------------------------------------------------------------------------
 
+! 2013-08-05 - Manuel Tobias Schiller
+ - refactor cFit code to become mostly independent of sample categories
+   (last step before putting in MDFitter compatible code, so we can keep both
+   versions of the cFit running side by side, allowing comparisons and the like)
+
 ! 2013-08-04 - V. Gligorov
  - Update pull plotting scripts for toys to work with the new toy generator  
 
