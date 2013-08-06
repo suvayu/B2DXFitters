@@ -5,6 +5,10 @@
 !-----------------------------------------------------------------------------
 
 ! 2013-08-06 - Manuel Tobias Schiller
+ - cFit: add MDFitter mass templates to cFit, get DsK cFit to work in new
+   configuration
+
+! 2013-08-06 - Manuel Tobias Schiller
  - add workspaces with Agnieszka's BDTGA mass fit results
 
 ! 2013-08-06 - Manuel Tobias Schiller

@@ -107,7 +107,7 @@ __doc__ = """ real docstring """
 # Load necessary libraries
 # -----------------------------------------------------------------------------
 from optparse import OptionParser
-from math     import pi
+from math     import pi, log
 import os, sys, gc
 
 if 'CMTCONFIG' in os.environ:
@@ -375,6 +375,22 @@ defaultConfig = {
 
 # config patches for the 2011Paper personality
 defaultConfig2011Paper = {
+        'Modes': [
+            'Bs2DsK',
+            'Bs2DsKst',
+            'Bs2DsPi', 'Bs2DsstPi', 'Bs2DsRho',
+            'Bd2DK', 'Bd2DsK',
+            'Lb2LcK', 'Lb2Dsp', 'Lb2Dsstp',
+            'CombBkg'
+            ],
+        'SampleCategories': [
+            'nonres', 'phipi', 'kstk', 'kpipi', 'pipipi'
+            ],
+        'CombineModesForEffCPObs': [ ],
+        'NEvents':			[ 3518. ],
+        'MassTemplateFile':             os.environ['B2DXFITTERSROOT']+'/data/workspace/MDFitter/WS_Mass_DsK_5M_BDTGA.root',
+        'MassTemplateWorkspace':	'FitMeToolWS',
+        'MassInterpolation':		False,
         'MistagTemplateFile':           os.environ['B2DXFITTERSROOT']+'/data/workspace/MDFitter/templates_BsDsPi.root',
         'MistagTemplateWorkspace':	'workspace',
         'MistagTemplateName':	        'MistagPdf_signal_BDTGA',
@@ -383,6 +399,15 @@ defaultConfig2011Paper = {
         'DecayTimeErrorTemplateWorkspace':  'workspace',
         'DecayTimeErrorTemplateName':       'TimeErrorPdf_signal_BDTGA',
         'DecayTimeErrorVarName':            'lab0_LifetimeFit_ctauErr',
+        'constParams': [
+            'Gammas', 'deltaGammas', 'deltaMs',
+            'Gammad', 'deltaGammad', 'deltaMd',
+            'tagOmegaSig', 'timeerr_bias', 'timeerr_scalefactor',
+            'MistagCalibB_p0', 'MistagCalibB_p1', 'MistagCalibB_avgmistag',
+            'MistagCalibBbar_p0', 'MistagCalibBbar_p1', 'MistagCalibBbar_avgmistag',
+            'Bs2DsKst_TagEff', 'Bs2DsKst_delta', 'Bs2DsKst_lambda', 'Bs2DsKst_phi_w',
+            ],
+
         }
 # list of fitter personalitites
 personalities = {
@@ -849,18 +874,20 @@ def getKFactorTemplates(
     del dslist
     return allpdfs
 
-# obtain mass template from mass fitter
+# obtain mass template from mass fitter (2011 CONF note version)
 #
 # we use the very useful workspace dump produced by the mass fitter to obtain
 # the pdf and yields
 #
 # returns a dictionary with a pair { 'pdf': pdf, 'yield': yield }
-def getMassTemplateOneMode(
-    config,		# configuration dictionary
-    ws,		    # workspace into which to import templates
-    mass,		# mass variable
-    mode,		# decay mode to load
-    sname       # sample name
+def getMassTemplateOneMode2011Conf(
+    config,	        # configuration dictionary
+    ws,                 # workspace into which to import templates
+    mass,	        # mass variable
+    mode,	        # decay mode to load
+    sname,              # sample name
+    dsmass = None,      # ds mass variable
+    pidk = None	        # pidk variable
     ):
     fromfile = config['MassTemplateFile']
     fromwsname = config['MassTemplateWorkspace']
@@ -1037,8 +1064,8 @@ def getMassTemplateOneMode(
                         y * yieldrangescaling)
     # ok, we should have all we need for now
     if None == pdf or None == nYield:
-        print '@@@@ - ERROR: NO PDF FOR MODE %s POLARITY %s DSMODE %s' % (
-                mode, polarity, DsMode)
+        print '@@@@ - ERROR: NO PDF FOR MODE %s SAMPLE CATEGORY %s' % (
+                mode, sname)
         return None
     # import mass pdf and corresponding yield into our workspace
     # in the way, we rename whatever mass variable was used to the one supplied
@@ -1103,24 +1130,257 @@ def getMassTemplateOneMode(
         nYield.setConstant(True)
     return { 'pdf': WS(ws, pdf), 'yield': WS(ws, nYield) }
 
+# obtain mass template from mass fitter (2011 PAPER version)
+#
+# we use the very useful workspace dump produced by the mass fitter to obtain
+# the pdf and yields
+#
+# returns a dictionary with a pair { 'pdf': pdf, 'yield': yield }
+def getMassTemplateOneMode2011Paper(
+    config,	        # configuration dictionary
+    ws,                 # workspace into which to import templates
+    mass,	        # mass variable
+    mode,	        # decay mode to load
+    sname,              # sample name
+    dsmass = None,      # ds mass variable
+    pidk = None	        # pidk variable
+    ):
+    fromfile = config['MassTemplateFile']
+    fromwsname = config['MassTemplateWorkspace']
+    from ROOT import ( TFile, RooWorkspace, RooAbsPdf, RooAbsCategory,
+        RooRealVar, RooArgSet, RooDataHist, RooHistPdf, RooArgList )
+    import re
+
+    # validate input (and break caller if invalid)
+    if sname not in config['SampleCategories']: return None
+
+    # open file and read in workspace
+    fromfile = TFile(fromfile, 'READ')
+    if fromfile.IsZombie():
+        return None
+    fromws = fromfile.Get(fromwsname)
+    if None == fromws:
+        return None
+    ROOT.SetOwnership(fromws, True)
+
+    # ok, depending on mode, we try to load a suitable pdf
+    pdf, nYield = None, None
+    if mode == 'Bs2DsK':
+        pdf = fromws.pdf('SigProdPDF_both_%s' % sname)
+        nYield = fromws.var('nSig_both_%s_Evts' % sname)
+        if None != nYield: nYield = nYield.getVal()
+    elif mode == 'CombBkg':
+        pdf = fromws.pdf('CombBkgPDF_m_both_%s_Tot' % sname)
+        nYield = fromws.var('nCombBkg_both_%s_Evts' % sname)
+        if None != nYield: nYield = nYield.getVal()
+    else:
+        # any other mode may or may not have separate samples for
+        # magnet polarity, Ds decay mode, ...
+        #
+        # we therefore constuct a list of successively less specialised name
+        # suffices so we can get the most specific pdf from the workspace
+        modemap = {
+                'Bs2DsKst': 'Bs2DsDsstKKst',
+                'Bd2DsK': 'Bs2DsDsstKKst',
+                'Bs2DsstPi': 'Bs2DsDsstPiRho',
+                'Bs2DsRho': 'Bs2DsDsstPiRho',
+                'Bs2DsstRho': 'Bs2DsDsstPiRho',
+                'Lb2Dsp': 'Lb2DsDsstP',
+                'Lb2Dsstp': 'Lb2DsDsstP',
+                'Bs2DsPi': 'Bs2DsPi',
+                'Lb2LcK': 'Lb2DsK',
+                'Bd2DK': 'Bd2DK'
+                }
+        trysfx = [
+            '%sPdf_m_both_%s_Tot' % (mode, sname),
+            '%sPdf_m_both_%s_Tot' % (modemap[mode], sname),
+            '%sPdf_m_both_Tot' % mode,
+            '%sPdf_m_both_Tot' % modemap[mode]
+            ]
+        for sfx in trysfx:
+            pdf = fromws.pdf('PhysBkg%s' % sfx)
+            if None != pdf:
+                break
+        tryyieldsfx = [
+            'n%s_both_%s_Evts' % (mode, sname),
+            'n%s_both_%s_Evts' % (mode.replace('Dsst', 'Dss'), sname),
+            'n%s_both_%s_Evts' % (mode.replace('DsstP', 'Dsstp'), sname),
+            'n%s_both_%s_Evts' % (modemap[mode], sname),
+            'n%s_both_%s_Evts' % (modemap[mode].replace('Dsst', 'Dss'), sname),
+            'n%s_both_%s_Evts' % (modemap[mode].replace('DsstP', 'Dsstp'), sname)
+            ]
+        for sfx in tryyieldsfx:
+            nYield = fromws.var(sfx)
+            if None != nYield:
+                nYield = nYield.getVal()
+                break
+        if tryyieldsfx[0] != sfx and tryyieldsfx[1] != sfx:
+            # ok, we're in one of the modes which have a shared yield and a
+            # fraction, so get the fraction, and fix up the yield 
+            if 'Bs2DsDsstKKst' in sfx or 'Bs2DsDssKKst' in sfx:
+                f = fromws.var('g1_f1_frac')
+                if 'Bd2DsK' == mode:
+                    f = f.getVal()
+                elif 'Bs2DsKst' == mode:
+                    f = 1. - f.getVal()
+                else:
+                    f = None
+            elif 'Lb2DsDsstP' in sfx or 'Lb2DsDsstp' in sfx: 
+                f = fromws.var('g3_f1_frac')
+                if 'Lb2Dsp' == mode:
+                    f = f.getVal()
+                elif 'Lb2Dsstp' == mode:
+                    f = 1. - f.getVal()
+                else:
+                    f = None
+            elif 'Bs2DsDsstPiRho' in sfx or 'Bs2DsDssPiRho' in sfx: 
+                f = fromws.var('g2_f1_frac')
+                if 'Bs2DsstPi' == mode:
+                    f = f.getVal()
+                elif 'Bs2DsRho' == mode:
+                    f = 1. - f.getVal()
+                else:
+                    f = None
+            else:
+                print 'ERROR: Don\'t know how to fix mode %s/%s' % (sfx, mode)
+                return None
+            # ok, fix the yield with the right fraction
+            nYield = nYield * f
+    # figure out name of mass variable - should start with 'lab0' and end in
+    # '_M'; while we're at it, figure out how we need to scale yields due to
+    # potentially different mass ranges
+    massname, dsmassname, pidkname = None, None, None
+    yieldrangescaling = 1.
+    if None != pdf:
+        pdfvars = []
+        varset = pdf.getVariables()
+        ROOT.SetOwnership(varset, True)
+        it = varset.createIterator()
+        ROOT.SetOwnership(it, True)
+        while True:
+            obj = it.Next()
+            if None == obj: break
+            pdfvars.append(obj)
+            pdfvarnames = [ v.GetName() for v in pdfvars ]
+            regex = re.compile('^lab0.*_M$')
+            regex1 = re.compile('^lab2.*_M*$')
+            regex2 = re.compile('^lab1.*_PIDK$')
+            for n in pdfvarnames:
+                if regex.match(n):
+                    oldmass = varset.find(n)
+                    massname = n
+                if regex1.match(n):
+                    olddsmass = varset.find(n)
+                    dsmassname = n
+                if regex2.match(n):
+                    oldpidk = varset.find(n)
+                    pidkname = n
+            else:
+                # set anything else constant
+                varset.find(n).setConstant(True)
+        # mass integration factorises, so we can afford to be a little sloppier
+        # when doing numerical integrations
+        components = pdf.getComponents()
+        ROOT.SetOwnership(components, True)
+        components.add(pdf)
+        it = components.createIterator()
+        ROOT.SetOwnership(it, True)
+        while True:
+            obj = it.Next()
+            if None == obj: break
+            obj.specialIntegratorConfig(True).setEpsAbs(1e-9)
+            obj.specialIntegratorConfig().setEpsRel(1e-9)
+            obj.specialIntegratorConfig().getConfigSection('RooIntegrator1D').setCatLabel('sumRule', 'Trapezoid')
+            obj.specialIntegratorConfig().getConfigSection('RooIntegrator1D').setCatLabel('extrapolation', 'Wynn-Epsilon')
+            obj.specialIntegratorConfig().getConfigSection('RooIntegrator1D').setRealValue('minSteps', 3)
+            obj.specialIntegratorConfig().getConfigSection('RooIntegrator1D').setRealValue('maxSteps', 16)
+            obj.specialIntegratorConfig().method1D().setLabel('RooIntegrator1D')
+            # FIXME: force numerical integration as long as the shapes are
+            # fucked up, once they are corrected, we can go back...
+            if obj.InheritsFrom('RooBinned1DQuinticBase<RooAbsPdf>'):
+                obj.forceNumInt()
+        del obj
+        del it
+        del components
+        # figure out yield scaling due to mass ranges
+        integral = pdf.createIntegral(RooArgSet(oldmass, olddsmass, oldpidk))
+        ROOT.SetOwnership(integral, True)
+        oldint = integral.getVal()
+        oldmass.setRange(mass.getMin(), mass.getMax())
+        newint = integral.getVal()
+        yieldrangescaling = newint / oldint
+        # ok, figure out yield
+        nYield = RooRealVar('n%s_%s_Evts' % (mode, sname),
+                'n%s_%s_Evts' % (mode, sname), nYield * yieldrangescaling)
+    # ok, we should have all we need for now
+    if None == pdf or None == nYield:
+        print '@@@@ - ERROR: NO PDF FOR MODE %s SAMPLE CATEGORY %s' % (
+                mode, sname)
+        return None
+    # import mass pdf and corresponding yield into our workspace
+    # in the way, we rename whatever mass variable was used to the one supplied
+    # by our caller
+    nYield = WS(ws, nYield, [
+        RooFit.RenameConflictNodes('_%s_%s' % (mode, sname)),
+        RooFit.Silence()])
+
+    if None != ws.pdf(pdf.GetName()):
+        # reuse pdf if it is already in the workspace - that's fine as long
+        # as all parameters are fixed and the yields are not reused
+        pdf = ws.pdf(pdf.GetName())
+        # see if there is a binned version, if so prefer it
+        if None != ws.pdf('%s_dhist_pdf' % pdf.GetName()):
+            pdf = ws.pdf('%s_dhist_pdf' % pdf.GetName())
+    else:
+        # ok, pdf not in workspace, so swallow it
+        if None != massname:
+            pdf = WS(ws, pdf, [
+                RooFit.RenameVariable(massname, mass.GetName()),
+                RooFit.RenameVariable(dsmassname, dsmass.GetName()),
+                RooFit.RenameVariable(pidkname, pidk.GetName()),
+                RooFit.RenameConflictNodes('_%s_%s' % (mode, sname)),
+                RooFit.Silence()])
+        else:
+            pdf = WS(ws, pdf, [
+                RooFit.RenameConflictNodes('_%s_%s' % (mode, sname)),
+                RooFit.Silence()])
+        if config['NBinsMass'] > 0 and not config['MassInterpolation']:
+            print 'WARNING: binned mass requested for %s/%s ' \
+                'mass/dsmass/pidk shape - not implemented yet' % (mode, sname)
+    # ok, all done, return
+    if config['MassInterpolation']:
+        print 'WARNING: interpolation requested for %s/%s mass/dsmass/pidk ' \
+                'shape - not implemented yet' % (mode, sname)
+    if None != nYield:
+        nYield.setConstant(True)
+    pdf = WS(ws, pdf)
+    nYield = WS(ws, nYield)
+    return { 'pdf': pdf, 'yield': nYield }
+
 # read mass templates for specified modes
 #
 # returns dictionary d['mode']['polarity']['kkpi/kpipi/pipipi'] which contains
 # a dictionary of pairs { 'pdf': pdf, 'yield': yield }
 def getMassTemplates(
-    config,		    # configuration dictionary
-    ws,				# wksp into which to import templates
-    mass,			# mass variable
-    snames = None   # sample names to read
+    config,		# configuration dictionary
+    ws,			# wksp into which to import templates
+    mass,		# mass variable
+    dsmass = None,      # ds mass variable
+    pidk = None,        # pidk variable
+    snames = None       # sample names to read
     ):
+    personalisedGetMassTemplateOneMode = {
+            '2011Conf': getMassTemplateOneMode2011Conf,
+            '2011Paper': getMassTemplateOneMode2011Paper
+            }
     import sys
     if None == snames:
         snames = config['SampleCategories']
     retVal = {}
     for mode in config['Modes']:
         for sname in snames:
-            tmp = getMassTemplateOneMode(
-                    config, ws, mass, mode, sname)
+            tmp = personalisedGetMassTemplateOneMode[ config['Personality'] ](
+                    config, ws, mass, mode, sname, dsmass, pidk)
             if None == tmp:
                 # break caller in case of error
                 return None
@@ -1651,6 +1911,11 @@ def getMasterPDF(config, name, debug = False):
     if config['NBinsMass'] > 0:
         mass.setBinning(RooUniformBinning(
             mass.getMin(), mass.getMax(), config['NBinsMass']), 'massbins')
+    if '2011Paper' == config['Personality']:
+        dsmass = WS(ws, RooRealVar('dsmass', 'dsmass', 1930., 2015.))
+        pidk = WS(ws, RooRealVar('pidk', 'pidk', log(5.), log(150.)))
+    else:
+        dsmass, pidk = None, None
     
     gammas = WS(ws, RooRealVar('Gammas', 'B_{s} average lifetime',
         config['Gammas'], 'ps^{-1}'))
@@ -1694,6 +1959,8 @@ def getMasterPDF(config, name, debug = False):
     # Define the observables
     # ----------------------
     observables = [ mass, time, qt, qf, sample ]
+    if '2011Paper' == config['Personality']:
+        observables = [ pidk, dsmass ] + observables
     condobservables = [ ]
 
     if config['PerEventMistag']:
@@ -1742,7 +2009,7 @@ def getMasterPDF(config, name, debug = False):
         ktemplates = getKFactorTemplates(config, ws, k)
     else:
         ktemplates = None
-    masstemplates = getMassTemplates(config, ws, mass)
+    masstemplates = getMassTemplates(config, ws, mass, dsmass, pidk)
 
     # ok, since the mistagtemplate often is a RooHistPdf, we can fine-tune
     # ranges and binning to match the histogram
@@ -2237,25 +2504,21 @@ def getMasterPDF(config, name, debug = False):
         timepdf = timepdfs[mode]
         masspdf = WS(ws, RooSimultaneous(
             '%s_MassEPDF' % mode, '%s_MassEPDF' % mode, sample))
+        components = [ ]
         for sname in config['SampleCategories']:
             mpdf = masstemplates[mode][sname]
             # only bother if there's yield in that component
             if (0. == abs(mpdf['yield'].getVal()) and
                 mpdf['yield'].isConstant()):
                 continue
-            # mass integration factorises, so we can afford to be a little sloppier
-            # when doing numerical integrations
-            mpdf['pdf'].specialIntegratorConfig(True).setEpsAbs(1e-9)
-            mpdf['pdf'].specialIntegratorConfig().setEpsRel(1e-9)
-            mpdf['pdf'].specialIntegratorConfig().getConfigSection('RooIntegrator1D').setCatLabel('sumRule', 'Trapezoid')
-            mpdf['pdf'].specialIntegratorConfig().getConfigSection('RooIntegrator1D').setCatLabel('extrapolation', 'Wynn-Epsilon')
-            mpdf['pdf'].specialIntegratorConfig().getConfigSection('RooIntegrator1D').setRealValue('minSteps', 3)
-            mpdf['pdf'].specialIntegratorConfig().getConfigSection('RooIntegrator1D').setRealValue('maxSteps', 16)
-            mpdf['pdf'].specialIntegratorConfig().method1D().setLabel('RooIntegrator1D')
             masspdf.addPdf(WS(ws, RooExtendPdf(
                 '%s_%s_MassEPDF' % (mode, sname),
                 '%s_%s_MassEPDF' % (mode, sname),
                 mpdf['pdf'], mpdf['yield'])), sname)
+            components.append(sname)
+        print 'INFO: Mode %s components %s' % (mode, str(components))
+        # skip components which do not contribute
+        if 0 == len(components): continue
         # multiply mass and time pdfs and add to list of pdf to be added up
         pdfs.add(WS(ws, RooProdPdf('%s_EPDF' % mode, '%s_EPDF' % mode,
             RooArgList(timepdf, masspdf))))
@@ -2541,6 +2804,7 @@ if __name__ == '__main__' :
         parser.error('The toy number is meant to be an integer ;-)!')
     # apply personality
     try:
+        updateConfigDict(defaultConfig, {'Personality': options.personality})
         updateConfigDict(defaultConfig, personalities[options.personality])
     except:
             parser.error('Unknown personality \'%s\'' %
