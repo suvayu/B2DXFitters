@@ -5,6 +5,10 @@
 !-----------------------------------------------------------------------------
 
 ! 2013-08-06 - Manuel Tobias Schiller
+ - RooBinned1DQuinticBase: put in a couple of temporary stop-gap fixes until
+   the upstream templates get fixed
+
+! 2013-08-06 - Manuel Tobias Schiller
  - add files with Agnieszka's templates
  - add personality to the cFit, so I can switch between different default sets
    of settings with a command line flag

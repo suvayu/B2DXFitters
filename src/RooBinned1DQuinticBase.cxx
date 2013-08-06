@@ -108,9 +108,13 @@ RooBinned1DQuinticBase<BASE>::RooBinned1DQuinticBase(
 	tmp->SetDirectory(0);
 	// copy h's contents, extend by one bin to right and left, taking
 	// values from nearest valid bin in h
+	
+	// FIXME: fix PDFs with badly preprocessed input histograms
+	const bool isPdf = 0 != dynamic_cast<RooAbsPdf*>(this);
 	for (int i = 1; i <= nBinsX; ++i) {
-	    tmp->SetBinContent(i, h.GetBinContent(
-			std::max(1, std::min(i - 1, nbins))));
+	    const double binc = h.GetBinContent(
+		    std::max(1, std::min(i - 1, nbins)));
+	    tmp->SetBinContent(i, isPdf ? std::max(0., binc) : binc);
 	}
 	// build CDF of tmp
 	for (int i = 1; i < nBinsX - 1; ++i) {
@@ -179,6 +183,28 @@ Double_t RooBinned1DQuinticBase<BASE>::evaluate() const
 		std::max(xmin + 1.5 * binSizeX, double(x)),
 		xmax - 1.5 * binSizeX);
 	return evalx(xx - 0.5 * binSizeX);
+    }
+}
+
+template<>
+Double_t RooBinned1DQuinticBase<RooAbsPdf>::evaluate() const
+{
+    if (!isIntegral) {
+	// FIXME: Ugly hack for incorrectly preprocessed input shapes
+	const double retVal = eval(x);
+	return (0. < retVal) ? retVal : 0.;
+    } else {
+	// we need some gymnastics and shifting since the default
+	// interpretation from the case where the histogram represents
+	// function values in the middle of a bin does not apply in the
+	// "integral" case, and we need to return the derivative instead of
+	// the parametrisation
+	const double xx = std::min(
+		std::max(xmin + 1.5 * binSizeX, double(x)),
+		xmax - 1.5 * binSizeX);
+	// FIXME: Ugly hack for incorrectly preprocessed input shapes
+	const double retVal = evalx(xx - 0.5 * binSizeX);
+	return (0. < retVal) ? retVal : 0.;
     }
 }
 
