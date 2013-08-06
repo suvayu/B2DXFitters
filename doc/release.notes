@@ -5,6 +5,9 @@
 !-----------------------------------------------------------------------------
 
 ! 2013-08-06 - Manuel Tobias Schiller
+ - add workspaces with Agnieszka's BDTGA mass fit results
+
+! 2013-08-06 - Manuel Tobias Schiller
  - RooBinned1DQuinticBase: put in a couple of temporary stop-gap fixes until
    the upstream templates get fixed
 
