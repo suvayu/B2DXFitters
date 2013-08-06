@@ -167,105 +167,106 @@ if in_gdb():
 # must evaluate to a dictionary)
 # -----------------------------------------------------------------------------
 defaultConfig = {
-    # modes to fit for
-    'Modes': [
-        'Bs2DsK',
+        # personality of the fit
+        'Personality': '2011Conf',
+        # modes to fit for
+        'Modes': [
+            'Bs2DsK',
             'Bs2DsstK', 'Bs2DsKst', 'Bs2DsstKst',
-        'Bs2DsPi', 'Bs2DsstPi', 'Bs2DsRho', 'Bs2DsstRho',
-        'Bd2DK', 'Bd2DsK',
-        'Lb2LcK', 'Lb2Dsp', 'Lb2Dsstp',
-        'CombBkg'
-        ],
-    # declare sample categories we'll use
-    'SampleCategories': [
-        'up_kkpi', 'up_kpipi', 'up_pipipi',
-        'down_kkpi', 'down_kpipi', 'down_pipipi'
-        ],
-    # combine CP observables for these modes into effective CP obs.
-    'CombineModesForEffCPObs': [
-        # you may want to combine these during fitting
-        'Bs2DsstK', 'Bs2DsKst', 'Bs2DsstKst'
-        ],
-    # fit DsK CP observables in which mode:
-    # 'CDS' 		- C, D, Dbar, S, Sbar
-    # 'CDSConstrained'	- same as CDS, but constrain C^2+D^2+S^2 = 1
-    #			  (same for bar)
-    # 'CADDADS'		- C, <D>, Delta D, <S>, Delta S
-    #			  (<D>=(D+Dbar)/2, Delta D=(D-Dbar)/2 etc.)
-    # 'LambdaPhases'	- |lambda|, strong and weak phase
-    'Bs2DsKCPObs': 			'CDS',
-    'SqSumCDSConstraintWidth':	0.01,
+            'Bs2DsPi', 'Bs2DsstPi', 'Bs2DsRho', 'Bs2DsstRho',
+            'Bd2DK', 'Bd2DsK',
+            'Lb2LcK', 'Lb2Dsp', 'Lb2Dsstp',
+            'CombBkg'
+            ],
+        # declare sample categories we'll use
+        'SampleCategories': [
+            'up_kkpi', 'up_kpipi', 'up_pipipi',
+            'down_kkpi', 'down_kpipi', 'down_pipipi'
+            ],
+        # combine CP observables for these modes into effective CP obs.
+        'CombineModesForEffCPObs': [
+            # you may want to combine these during fitting
+            'Bs2DsstK', 'Bs2DsKst', 'Bs2DsstKst'
+            ],
+        # fit DsK CP observables in which mode:
+        # 'CDS' 		- C, D, Dbar, S, Sbar
+        # 'CDSConstrained'	- same as CDS, but constrain C^2+D^2+S^2 = 1
+        #			  (same for bar)
+        # 'CADDADS'		- C, <D>, Delta D, <S>, Delta S
+        #			  (<D>=(D+Dbar)/2, Delta D=(D-Dbar)/2 etc.)
+        # 'LambdaPhases'	- |lambda|, strong and weak phase
+        'Bs2DsKCPObs': 			'CDS',
+        'SqSumCDSConstraintWidth':	0.01,
 
-    # BLINDING
-    'Blinding':			True,
+        # BLINDING
+        'Blinding':			True,
 
-    # PHYSICAL PARAMETERS
-    'Gammad':			0.656, # in ps^{-1}
-    'Gammas':			0.661, # in ps^{-1}
-    'DeltaGammad':			0.,    # in ps^{-1}
-    'DGsOverGs':			-0.105/0.661, # DeltaGammas / Gammas
-    'DeltaMd':			0.507, # in ps^{-1}
-    'DeltaMs':			17.719, # in ps^{-1}
-    'GammaLb':			0.719, # in ps^{-1}
-    'GammaCombBkg':			0.800, # in ps^{-1}
-    # CP observables
-    'StrongPhase': {
-        'Bs2DsK':		20. / 180. * pi,
-        'Bs2DsstK': 	-160. / 180. * pi,
-        'Bs2DsKst': 	-160. / 180. * pi,
-        'Bs2DsstKst': 	20. / 180. * pi
-        },
-    'WeakPhase': {
-        'Bs2DsK':		50. / 180. * pi,
-        'Bs2DsstK':		50. / 180. * pi,
-        'Bs2DsKst':		50. / 180. * pi,
-        'Bs2DsstKst':	50. / 180. * pi
-        },
-    'ModLf': {
-        'Bs2DsK': 		0.372,
-        'Bs2DsstK': 	0.470,
-        'Bs2DsKst': 	0.372,
-        'Bs2DsstKst': 	0.470
-        },
-    # asymmetries
+        # PHYSICAL PARAMETERS
+        'Gammad':			0.656, # in ps^{-1}
+        'Gammas':			0.661, # in ps^{-1}
+        'DeltaGammad':			0.,    # in ps^{-1}
+        'DGsOverGs':			-0.105/0.661, # DeltaGammas / Gammas
+        'DeltaMd':			0.507, # in ps^{-1}
+        'DeltaMs':			17.719, # in ps^{-1}
+        'GammaLb':			0.719, # in ps^{-1}
+        'GammaCombBkg':			0.800, # in ps^{-1}
+        # CP observables
+        'StrongPhase': {
+            'Bs2DsK':		20. / 180. * pi,
+            'Bs2DsstK': 	-160. / 180. * pi,
+            'Bs2DsKst': 	-160. / 180. * pi,
+            'Bs2DsstKst': 	20. / 180. * pi
+            },
+        'WeakPhase': {
+                'Bs2DsK':	50. / 180. * pi,
+                'Bs2DsstK':	50. / 180. * pi,
+                'Bs2DsKst':	50. / 180. * pi,
+                'Bs2DsstKst':	50. / 180. * pi
+                },
+        'ModLf': {
+                'Bs2DsK': 	0.372,
+                'Bs2DsstK': 	0.470,
+                'Bs2DsKst': 	0.372,
+                'Bs2DsstKst': 	0.470
+                },
+        # asymmetries
     'Asymmetries' : {
-        'Prod': {
-            #'Bs': 0., 'Bd': 0.
+            'Prod': {
+                #'Bs': 0., 'Bd': 0.
+                },
+            'Det': {
+                #'Bs2DsK': 0.,
+                #'Bs2DsstK': 0.,
+                #'Bs2DsPi': 0.,
+                #'Bd2DK': 0.,
+                #'Lb': 0.,
+                #'CombBkg': 0.
+                },
+            'TagEff': {
+                #'Bs': 0., 'Bd': 0.
+                },
+            'Mistag': {
+                },
+            'TagEff_f': {
+                },
+            'TagEff_t': {
+                'Lb': 0.0, 'CombBkg': -0.04
+                },
             },
-        'Det': {
-            #'Bs2DsK': 0.,
-            #'Bs2DsstK': 0.,
-            #'Bs2DsPi': 0.,
-            #'Bd2DK': 0.,
-            #'Lb': 0.,
-            #'CombBkg': 0.
-            },
-        'TagEff': {
-            #'Bs': 0., 'Bd': 0.
-            },
-        'Mistag': {
-            },
-        'TagEff_f': {
-            },
-        'TagEff_t': {
-            'Lb': 0.0, 'CombBkg': -0.04
-            },
-        },
     # Tagging
     'TagEffSig':			0.403,
     'TagOmegaSig':			0.396,
     'TagEffBkg':			0.403,
     # first entry is for true B (and true Bbar, if no second entry exists)
     'MistagCalibrationParams':	[
-        [ 0.392, 1.035, 0.391 ], # true B
-        #[ 0.392, 1.035, 0.391 ]  # true Bbar
-        ], 
+            [ 0.392, 1.035, 0.391 ], # true B
+            #[ 0.392, 1.035, 0.391 ]  # true Bbar
+            ], 
 
     # truth/Gaussian/DoubleGaussian/GaussianWithPEDTE/GaussianWithLandauPEDTE/GaussianWithScaleAndPEDTE
     'DecayTimeResolutionModel':	'TripleGaussian',
     'DecayTimeResolutionBias':	0.,
     'DecayTimeResolutionScaleFactor': 1.15,
-    'DecayTimeErrInterpolation':	True,
     # None/BdPTAcceptance/DTAcceptanceLHCbNote2007041,PowLawAcceptance
     'AcceptanceFunction':		'PowLawAcceptance',
     'AcceptanceCorrectionFile':	os.environ['B2DXFITTERSROOT']+'/data/acceptance-ratio-hists.root',
@@ -275,9 +276,9 @@ defaultConfig = {
     'StaticAcceptance':		False,
     'AcceptanceInterpolation':	False,
     # acceptance parameters BdPTAcceptance
-    'BdPTAcceptance_slope':		1.09,
+    'BdPTAcceptance_slope':	1.09,
     'BdPTAcceptance_offset':	0.187,
-    'BdPTAcceptance_beta':		0.039,
+    'BdPTAcceptance_beta':	0.039,
     # acceptance parameters PowLawAcceptance
     'PowLawAcceptance_turnon':	1.215,
     'PowLawAcceptance_offset':	0.0373,
@@ -292,18 +293,18 @@ defaultConfig = {
     'Optimize':			2,
     'Strategy':			2,
     'Offset':			True,
-    'Minimizer':			[ 'Minuit', 'migrad' ],
+    'Minimizer':		[ 'Minuit', 'migrad' ],
     'NumCPU':			1,
     'Debug':			False,
 
     # list of constant parameters
     'constParams': [
-        'Gammas', 'deltaGammas', 'deltaMs',
-        'Gammad', 'deltaGammad', 'deltaMd',
-        'tagOmegaSig', 'timeerr_bias', 'timeerr_scalefactor',
-        'MistagCalibB_p0', 'MistagCalibB_p1', 'MistagCalibB_avgmistag',
-        'MistagCalibBbar_p0', 'MistagCalibBbar_p1', 'MistagCalibBbar_avgmistag',
-        ],
+            'Gammas', 'deltaGammas', 'deltaMs',
+            'Gammad', 'deltaGammad', 'deltaMd',
+            'tagOmegaSig', 'timeerr_bias', 'timeerr_scalefactor',
+            'MistagCalibB_p0', 'MistagCalibB_p1', 'MistagCalibB_avgmistag',
+            'MistagCalibBbar_p0', 'MistagCalibBbar_p1', 'MistagCalibBbar_avgmistag',
+            ],
 
     # mass templates
     'MassTemplateFile':		os.environ['B2DXFITTERSROOT']+'/data/workspace/WS_Mass_DsK.root',
@@ -314,11 +315,17 @@ defaultConfig = {
     # target S/B: None means keep default
     'S/B': None,
     # mistag template
-    'MistagTemplateFile':		os.environ['B2DXFITTERSROOT']+'/data/workspace/work_toys_dsk.root',
+    'MistagTemplateFile':	os.environ['B2DXFITTERSROOT']+'/data/workspace/work_toys_dsk.root',
     'MistagTemplateWorkspace':	'workspace',
-    'MistagTemplateName':		'PhysBkgBsDsPiPdf_m_down_kkpi_mistag',
+    'MistagTemplateName':	'PhysBkgBsDsPiPdf_m_down_kkpi_mistag',
     'MistagVarName':		'lab0_BsTaggingTool_TAGOMEGA_OS',
-    'MistagInterpolation':		False,
+    'MistagInterpolation':	False,
+    # decay time error template
+    'DecayTimeErrorTemplateFile':       None,
+    'DecayTimeErrorTemplateWorkspace':  None,
+    'DecayTimeErrorTemplateName':       None,
+    'DecayTimeErrorVarName':            None,
+    'DecayTimeErrInterpolation':	True,
 
     # k-factor templates
     # ROOT file to read
@@ -336,9 +343,9 @@ defaultConfig = {
     # fitter on speed: binned PDFs
     'NBinsAcceptance':		300, # if >0, bin acceptance
     'NBinsTimeKFactor':		50,  # if >0, use binned cache for k-factor integ.
-    'NBinsMistag':			50,  # if >0, parametrize Mistag integral
-    'NBinsProperTimeErr':		200, # if >0, parametrize proper time int.
-    'NBinsMass':			200, # if >0, bin mass templates
+    'NBinsMistag':		50,  # if >0, parametrize Mistag integral
+    'NBinsProperTimeErr':	200, # if >0, parametrize proper time int.
+    'NBinsMass':		200, # if >0, bin mass templates
 
     # Data file settings
     'IsToy':			True,
@@ -354,17 +361,34 @@ defaultConfig = {
             },
     # bug-for-bug compatibility flags
     'BugFlags': [
-        # 'PdfSSbarSwapMinusOne',
-        # 	swap and multiply S and Sbar in the pdf, state of
-        # 	affairs before discovery of bug on 2012-09-13 
-        # 'OutputCompatSSbarSwapMinusOne',
-        #	with the bug from PdfSSbarSwapMinusOne fixed, the
-        #	output of the fit parameters is no longer comparable to
-        #	old fits - fix in the final output routine by applying
-        #	that transformation during the output stage (MINUIT log
-        #	output and fit results will be "wrong", though)
-        ],
+            # 'PdfSSbarSwapMinusOne',
+            # 	swap and multiply S and Sbar in the pdf, state of
+            # 	affairs before discovery of bug on 2012-09-13 
+            # 'OutputCompatSSbarSwapMinusOne',
+            #	with the bug from PdfSSbarSwapMinusOne fixed, the
+            #	output of the fit parameters is no longer comparable to
+            #	old fits - fix in the final output routine by applying
+            #	that transformation during the output stage (MINUIT log
+            #	output and fit results will be "wrong", though)
+            ],
     }
+
+# config patches for the 2011Paper personality
+defaultConfig2011Paper = {
+        'MistagTemplateFile':           os.environ['B2DXFITTERSROOT']+'/data/workspace/MDFitter/templates_BsDsPi.root',
+        'MistagTemplateWorkspace':	'workspace',
+        'MistagTemplateName':	        'MistagPdf_signal_BDTGA',
+        'DecayTimeResolutionModel':	'GaussianWithPEDTE',
+        'DecayTimeErrorTemplateFile':       os.environ['B2DXFITTERSROOT']+'/data/workspace/MDFitter/templates_BsDsK.root',
+        'DecayTimeErrorTemplateWorkspace':  'workspace',
+        'DecayTimeErrorTemplateName':       'TimeErrorPdf_signal_BDTGA',
+        'DecayTimeErrorVarName':            'lab0_LifetimeFit_ctauErr',
+        }
+# list of fitter personalitites
+personalities = {
+        '2011Conf' : {},
+        '2011Paper': defaultConfig2011Paper
+        }
 
 # pretty-print fit results, optionally blinding all parameters
 def printResult(config, result, blind = False):
@@ -684,6 +708,7 @@ def getMistagTemplate(
     # we need to jump through a few hoops to rename the dataset and variables
     # get underlying histogram
     hist = pdf.dataHist().createHistogram(var.GetName())
+    mistag.setBins(hist.GetNbinsX())
     ROOT.SetOwnership(hist, True)
     hist.SetNameTitle('sigMistagPdf_hist', 'sigMistagPdf_hist')
     hist.SetDirectory(None)
@@ -699,6 +724,44 @@ def getMistagTemplate(
     # and finally use dh to create our pdf
     pdf = WS(ws, RooHistPdf('sigMistagPdf', 'sigMistagPdf',
         RooArgSet(mistag), dh))
+    del dh
+    return pdf
+
+# read decay time error distribution from file
+def getDecayTimeErrorTemplate(
+    config,	# configuration dictionary
+    ws, 	# workspace to import into
+    timeerr	# timeerr variable
+    ):
+    from ROOT import ( TFile, RooWorkspace, RooKeysPdf, RooHistPdf,
+        RooArgList, RooDataHist, RooArgSet )
+    fromfile = config['DecayTimeErrorTemplateFile']
+    fromws = config['DecayTimeErrorTemplateWorkspace']
+    fromvarname = config['DecayTimeErrorVarName']
+    fromfile = TFile(fromfile, 'READ')
+    workspace = fromfile.Get(fromws)
+    ROOT.SetOwnership(workspace, True)
+    var = workspace.var(fromvarname)
+    pdf = workspace.pdf(config['DecayTimeErrorTemplateName'])
+    # we need to jump through a few hoops to rename the dataset and variables
+    # get underlying histogram
+    hist = pdf.dataHist().createHistogram(var.GetName())
+    timeerr.setBins(hist.GetNbinsX())
+    ROOT.SetOwnership(hist, True)
+    hist.SetNameTitle('sigTimeErrPdf_hist', 'sigTimeErrPdf_hist')
+    hist.SetDirectory(None)
+    # recreate datahist
+    dh = RooDataHist('sigTimeErrPdf_dhist', 'sigTimeErrPdf_dhist',
+            RooArgList(timeerr), hist)
+    del hist
+    del pdf
+    del var
+    del workspace
+    fromfile.Close()
+    del fromfile
+    # and finally use dh to create our pdf
+    pdf = WS(ws, RooHistPdf('sigTimeErrPdf', 'sigTimeErrPdf',
+        RooArgSet(timeerr), dh))
     del dh
     return pdf
 
@@ -1852,15 +1915,22 @@ def getMasterPDF(config, name, debug = False):
     # Decay time error distribution
     # -----------------------------
     if 'PEDTE' in config['DecayTimeResolutionModel']:
-        # resolution in ps: 7*terrpdf_shape
-        terrpdf_shape = WS(ws, RooConstVar('terrpdf_shape', 'terrpdf_shape',
-            .0352 / 7.))
-        terrpdf_truth = WS(ws, RooTruthModel('terrpdf_truth', 'terrpdf_truth', timeerr))
-        terrpdf_i0 = WS(ws, RooDecay('terrpdf_i0', 'terrpdf_i0', timeerr, terrpdf_shape,
-            terrpdf_truth, RooDecay.SingleSided))
-        terrpdf_i1 = WS(ws, RooPolynomial('terrpdf_i1','terrpdf_i1',
-            timeerr, RooArgList(zero, zero, zero, zero, zero, zero, one), 0))
-        terrpdf = WS(ws, RooProdPdf('terrpdf', 'terrpdf', terrpdf_i0, terrpdf_i1))
+        if (None != config['DecayTimeErrorTemplateFile'] and
+                None != config['DecayTimeErrorTemplateWorkspace'] and
+                None != config['DecayTimeErrorTemplateName'] and
+                None != config['DecayTimeErrorVarName']):
+            terrpdf = getDecayTimeErrorTemplate(config, ws, timeerr)
+        else:
+            print "WARNING: Using trivial decay time error PDF"
+            # resolution in ps: 7*terrpdf_shape
+            terrpdf_shape = WS(ws, RooConstVar('terrpdf_shape', 'terrpdf_shape',
+                .0352 / 7.))
+            terrpdf_truth = WS(ws, RooTruthModel('terrpdf_truth', 'terrpdf_truth', timeerr))
+            terrpdf_i0 = WS(ws, RooDecay('terrpdf_i0', 'terrpdf_i0', timeerr, terrpdf_shape,
+                terrpdf_truth, RooDecay.SingleSided))
+            terrpdf_i1 = WS(ws, RooPolynomial('terrpdf_i1','terrpdf_i1',
+                timeerr, RooArgList(zero, zero, zero, zero, zero, zero, one), 0))
+            terrpdf = WS(ws, RooProdPdf('terrpdf', 'terrpdf', terrpdf_i0, terrpdf_i1))
         if config['DecayTimeErrInterpolation']:
             from ROOT import RooBinned1DQuinticBase, RooAbsPdf
             RooBinned1DQuinticPdf = RooBinned1DQuinticBase(RooAbsPdf)
@@ -1870,6 +1940,10 @@ def getMasterPDF(config, name, debug = False):
                 print 'ERROR: requested binned interpolation of timeerr %s %d %s' % (
                         'histograms with ', nbins, ' bins - increasing to 100 bins')
                 nbins = 100
+            if terrpdf.isBinnedDistribution(RooArgSet(timeerr)):
+                if (nbins != obins):
+                    print 'WARNING: changing binned interpolation of ' \
+                            'timeerr to %u bins' % obins
             timeerr.setBins(nbins)
             hist = terrpdf.createHistogram('%s_hist' % terrpdf.GetName(), timeerr)
             hist.Scale(1. / hist.Integral())
@@ -2439,13 +2513,18 @@ parser.add_option('-g', '--gen-config-file',
         action = 'store',
         help = 'name of file with generator configuration changes (dictionary)'
         )
+parser.add_option('-p', '--personality',
+        dest = 'personality',
+        default = '2011Conf',
+        type = 'string',
+        action = 'store',
+        help = 'fitter personality (e.g. \'2011Conf\')'
+        )
 
 # -----------------------------------------------------------------------------
 
 if __name__ == '__main__' :
     import copy
-    generatorConfig = copy.deepcopy(defaultConfig)
-    fitConfig = copy.deepcopy(defaultConfig)
     #
     # example: change Gammas in fitting:
     # fitConfig.update({'Gammas': 0.700})
@@ -2460,6 +2539,14 @@ if __name__ == '__main__' :
         TOY_NUMBER = int(args[ 0 ])
     except ValueError:
         parser.error('The toy number is meant to be an integer ;-)!')
+    # apply personality
+    try:
+        updateConfigDict(defaultConfig, personalities[options.personality])
+    except:
+            parser.error('Unknown personality \'%s\'' %
+                    options.personality)
+    generatorConfig = copy.deepcopy(defaultConfig)
+    fitConfig = copy.deepcopy(defaultConfig)
     # parse fit/generator configuration options
     if None != options.fitConfigFile:
         try:

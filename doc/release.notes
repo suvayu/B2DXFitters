@@ -4,6 +4,11 @@
 ! Purpose     : RooFit-based fitters for B -> D X
 !-----------------------------------------------------------------------------
 
+! 2013-08-06 - Manuel Tobias Schiller
+ - add files with Agnieszka's templates
+ - add personality to the cFit, so I can switch between different default sets
+   of settings with a command line flag
+
 ! 2013-08-05 - Manuel Tobias Schiller
  - refactor cFit code to become mostly independent of sample categories
    (last step before putting in MDFitter compatible code, so we can keep both
