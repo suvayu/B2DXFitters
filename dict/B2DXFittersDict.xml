@@ -23,7 +23,12 @@
 	<class name = "CPObservable" />
 	<class name = "MistagCalibration" />
 
-	<class name = "RooBinnedPdf" />
+	<class name = "RooBinnedPdf" >
+	    <field name = "m_cacheMgr" transient = "true" />
+	    <field name = "m_nset" transient = "true" />
+	    <field name = "m_nsethash" transient = "true" />
+	    <field name = "m_nsets" transient = "true" />
+	</class>
 	<class name = "RooAbsEffResModel"/>
 	<class name = "RooEffConvGenContext"/>
 	<class name = "RooEffResModel">
