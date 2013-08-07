@@ -21,7 +21,7 @@ apply_tag skip_genconfuser
 end_private
 
 use   GaudiPolicy     v*
-use   GaudiSys        v*
+#use   GaudiSys        v*
 use   ROOT            v*    LCG_Interfaces
 use   Reflex          v*    LCG_Interfaces
 use   RELAX           *     LCG_Interfaces -no_auto_imports
