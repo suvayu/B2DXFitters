@@ -4,6 +4,10 @@
 ! Purpose     : RooFit-based fitters for B -> D X
 !-----------------------------------------------------------------------------
 
+! 2013-08-07 - Manuel Tobias Schiller
+ - make_histos.py: prepend shell header so it runs in LHCb environments with
+   custom ROOT version
+
 ! 2013-08-06 - Manuel Tobias Schiller
  - cFit: add MDFitter mass templates to cFit, get DsK cFit to work in new
    configuration
