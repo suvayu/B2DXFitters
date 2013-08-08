@@ -1,5 +1,5 @@
-set dirinput =  '/afs/cern.ch/work/a/adudziak/public/Bs2DsKToys/'
-set diroutput = '/afs/cern.ch/work/a/adudziak/public/Bs2DsKToys/'
+set dirinput =  '/afs/cern.ch/work/a/adudziak/public/Bs2DsKToys/Gamma70/'
+set diroutput = '/afs/cern.ch/work/a/adudziak/public/Bs2DsKToys/Gamma70/'
 
 
 set outputprefix = 'DsK_Toys_TimeFitResult_'

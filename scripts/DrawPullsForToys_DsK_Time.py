@@ -1,3 +1,18 @@
+from optparse import OptionParser
+from os.path  import join
+
+import GaudiPython
+
+GaudiPython.loaddict( 'B2DXFittersDict' )
+
+from ROOT import *
+
+GeneralUtils = GaudiPython.gbl.GeneralUtils
+MassFitUtils = GaudiPython.gbl.MassFitUtils
+Bs2Dsh2011TDAnaModels = GaudiPython.gbl.Bs2Dsh2011TDAnaModels
+SFitUtils = GaudiPython.gbl.SFitUtils
+
+
 from ROOT import *
 import ROOT
 
@@ -25,12 +40,13 @@ useavgmistag = False
 avgmistagsuffix = "AvgMistag_"
 
 ntoys               = 1000
-toysdir             = '/afs/cern.ch/work/a/adudziak/public/Bs2DsKToys/'
+toysdir             = '/afs/cern.ch/work/a/adudziak/public/Bs2DsKToys/Gamma70/'
 toysresultprefix    = 'DsK_Toys_TimeFitResult_'
 if useavgmistag : toysresultprefix += avgmistagsuffix
 if largeToys    : toysresultprefix = 'DsK_Toys_FullLarge_TimeFitResult_'
 toysresultsuffix    = '.log'    
-outputdir = '/afs/cern.ch/work/g/gligorov/public/Bs2DsKToys/sWeightToys/DsKToysAgnieszka_010813/'
+#outputdir = '/afs/cern.ch/work/g/gligorov/public/Bs2DsKToys/sWeightToys/DsKToysAgnieszka_010813/'
+outputdir = '/afs/cern.ch/work/a/adudziak/public/Bs2DsKToys/Gamma70/'
 
 additionalsuffix = ""#FixParSyst_p1_"
 

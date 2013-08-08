@@ -113,8 +113,8 @@ def runComparePDF( debug, name1, file1, work1, text1, name2, file2, work2, text2
 
     frame.Draw()
     legend.Draw("same")
-    #frame.GetYaxis().SetRangeUser(0.1,300)
-    #canv.GetPad(0).SetLogy()
+    frame.GetYaxis().SetRangeUser(0.1,250.)
+    canv.GetPad(0).SetLogy()
     canv.Print("comparePDF.pdf")
                                                                                     
 

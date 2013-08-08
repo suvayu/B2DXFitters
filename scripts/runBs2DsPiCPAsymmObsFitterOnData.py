@@ -379,7 +379,7 @@ def runBdGammaFitterOnData(debug, wsname, initvars, tvar, terrvar, probvar, pere
 
     if debug:
         frame = time.frame()
-        data.plotOn(frame)
+        dataW.plotOn(frame)
         canvas = TCanvas("canvas", "canvas", 1200, 1000)
         canvas.cd()
         frame.Draw()
@@ -388,8 +388,8 @@ def runBdGammaFitterOnData(debug, wsname, initvars, tvar, terrvar, probvar, pere
         canvas.SaveAs('data_time_DsPi.pdf')
 
     #workout = RooWorkspace("workspace","workspace")
-    #getattr(workout,'import')(data)
-    #saveNameTS = TString("data_time_dspi.root")
+    #getattr(workout,'import')(dataW)
+    #saveNameTS = TString("data_time_dspi_bdtg123.root")
     #workout.Print()
     #GeneralUtils.SaveWorkspace(workout,saveNameTS, debug)
          
@@ -631,7 +631,7 @@ def runBdGammaFitterOnData(debug, wsname, initvars, tvar, terrvar, probvar, pere
             else:
                 totPDF  = timePDF
             
-                
+                                           
         #totPDF.SetName("sigTotPDF")    
         #if debug:
         #    print '[INFO] %s created '%(totPDF.GetName())
@@ -716,7 +716,7 @@ def runBdGammaFitterOnData(debug, wsname, initvars, tvar, terrvar, probvar, pere
         if toys or not Blinding: #Unblind yourself
             if Cat:
                 myfitresult = totPDFSim.fitTo(combData, RooFit.Save(1), RooFit.Optimize(2), RooFit.Strategy(2),
-                                              RooFit.Verbose(True), RooFit.SumW2Error(True), RooFit.Extended(False))
+                                              RooFit.Verbose(False), RooFit.SumW2Error(True), RooFit.Extended(False))
             else:    
                 myfitresult = totPDF.fitTo(dataW, RooFit.Save(1), RooFit.Optimize(2), RooFit.Strategy(2),
                                            RooFit.Verbose(True), RooFit.SumW2Error(True), RooFit.Extended(False))
@@ -727,7 +727,7 @@ def runBdGammaFitterOnData(debug, wsname, initvars, tvar, terrvar, probvar, pere
         else :    #Don't
             if Cat:
                 myfitresult = totPDFSim.fitTo(combData, RooFit.Save(1), RooFit.Optimize(2), RooFit.Strategy(2),
-                                              RooFit.Verbose(True), RooFit.SumW2Error(True), RooFit.Extended(False))
+                                              RooFit.Verbose(False), RooFit.SumW2Error(True), RooFit.Extended(False))
             else:
                 myfitresult = totPDF.fitTo(dataW, RooLinkedList(RooFit.Save(1), RooFit.Optimize(2), RooFit.Strategy(2),
                                                                 RooFit.SumW2Error(True), RooFit.PrintLevel(-1)))

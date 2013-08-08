@@ -22,7 +22,7 @@ def getconfig() :
     
     configdict["resolutionScaleFactor"] = 1.15 
     configdict["resolutionMeanBias"]    = 0.
-    configdict["DecayTimeResolutionModel"] = "PEDTETripleGaussian"
+    configdict["DecayTimeResolutionModel"] = "TripleGaussian"
     #configdict["calibration_p1"] = 1.035
     #configdict["calibration_p0"] = -0.013
     configdict["calibration_p1"] = 1.035 #1.035

@@ -232,7 +232,8 @@ def runBsDsKGenerator( debug, single, configName, numberOfToys, numberOfEvents )
     mistag_signal = mistag #Bs2Dsh2011TDAnaModels.GetRooKeysPdfFromWorkspace(workspace_mistag,TString("MistagPdf_signal_BDTGA"), debug)
     mistag_signal.SetName("mistag_signal")
     
-    flag_signal = DecRateCoeff.AvgDelta
+    #flag_signal = DecRateCoeff.AvgDelta
+    flag_signal = 0
     flag = 0
     
     otherargs_signal = [ mistagVar_B, mistag_signal, tagEff_signal ]
@@ -1055,7 +1056,7 @@ def runBsDsKGenerator( debug, single, configName, numberOfToys, numberOfEvents )
     otherargs_lm1.append(aDet_lm1)
     otherargs_lm1.append(aTagEff_lm1)
     
-    flag_lm1 = DecRateCoeff.AvgDelta
+    flag_lm1 = 0 #DecRateCoeff.AvgDelta
     
     cosh_lm1 = DecRateCoeff('lm1_cosh', 'lm1_cosh', DecRateCoeff.CPEven,
                             fChargeMap, bTagMap,  one,      one,      *otherargs_lm1)
@@ -1276,7 +1277,7 @@ def runBsDsKGenerator( debug, single, configName, numberOfToys, numberOfEvents )
         gendata.append(total_pdf.generate(RooArgSet(massVar_B, massVar_D, PIDKVar_B,
                                                     timeVar_B, terrVar_B,
                                                     trueIDVar_B,bTagMap,fChargeMap,mistagVar_B),
-                                          int(numberOfEvents))
+                                          int(numberOfEvents+30))
                        )
         
         tree = gendata[-1].store().tree()
@@ -1468,7 +1469,7 @@ def runBsDsKGenerator( debug, single, configName, numberOfToys, numberOfEvents )
             canv_Btime.Print("DsK_Toys_Btime.pdf")
         if not single :
             #workout.writeToFile("/afs/cern.ch/work/g/gligorov/public/Bs2DsKToys/sWeightToys/DsKToys_Full_2ksample_140912/DsK_Toys_Full_Work_2kSample_"+str(i)+".root")
-            workout.writeToFile("/afs/cern.ch/work/a/adudziak/public/Bs2DsKToys/DsK_Toys_Work_"+str(i+501)+".root")
+            workout.writeToFile("/afs/cern.ch/work/a/adudziak/public/Bs2DsKToys/Gamma140/DsK_Toys_Work_"+str(i)+".root")
             #outfile  = TFile("/afs/cern.ch/work/g/gligorov/public/Bs2DsKToys/sWeightToys/DsKToys_Full_2ksample_140912/DsK_Toys_Full_Tree_2kSample_"+str(i)+".root","RECREATE")
         else :
             workout.writeToFile("Data_Toys_Single_Work_DsK.root")
@@ -1496,11 +1497,11 @@ parser.add_option( '-s', '--single',
                                       )
 parser.add_option( '--numberOfToys',
                    dest = 'numberOfToys',
-                   default = 200)
+                   default = 500)
 
 parser.add_option( '--numberOfEvents',
                    dest = 'numberOfEvents',
-                   default = 6980)
+                   default = 7372)
 
 
 parser.add_option( '--configName',

@@ -23,7 +23,7 @@ def getconfig() :
         
     configdict["StrongPhase_d"] = 20. / 180. * pi
     configdict["StrongPhase_s"] = 30. / 180. * pi
-    configdict["WeakPhase"]     = 140./180*pi #70. / 180. * pi
+    configdict["WeakPhase"]     = 70. / 180. * pi #70. / 180. * pi
 
     configdict["ArgLf_d"]       = configdict["StrongPhase_d"] - configdict["WeakPhase"]
     configdict["ArgLbarfbar_d"] = configdict["StrongPhase_d"] + configdict["WeakPhase"]
@@ -74,14 +74,14 @@ def getconfig() :
     configdict["atageff_lm2"]        = 0.00
     configdict["atageff_dsk"]        = 0.00
     
-    configdict["num_signal"]    = 30000.
-    configdict["num_dpi"]       = 500.
-    configdict["num_dspi"]      = 200.
+    configdict["num_signal"]    = 29266.
+    configdict["num_dpi"]       = 444.
+    configdict["num_dspi"]      = 88.
     configdict["num_lcpi"]      = 400.
-    configdict["num_combo"]     = 13500. #0.
-    configdict["num_lm1"]       = 300. #00.
-    configdict["num_lm2"]       = 1070.
-    configdict["num_dsk"]       = 150.
+    configdict["num_combo"]     = 12905 #13500. #0.
+    configdict["num_lm1"]       = 200. #00.
+    #configdict["num_lm2"]       = 1070.
+    configdict["num_dsk"]       = 163.
         
     #----------------------------Signal----------------------------#
 
@@ -136,14 +136,14 @@ def getconfig() :
 
     configdict["exposlope_combo"]   = -1.9977*pow(10,-3)
     
-    configdict["cB1"] = -3.0873e-03 
+    configdict["cB1"] = -9.9005e-03 
     configdict["cB2"] = 0.0
-    configdict["fracBsComb"] = 6.5400e-01
+    configdict["fracBsComb"] = 6.6631e-01
 
-    configdict["cD"] = -2.7273e-03
-    configdict["fracDsComb"] = 0.37379
+    configdict["cD"] = -3.4761e-03
+    configdict["fracDsComb"] = 0.59760
 
-    configdict["fracPIDKComb"] = 9.0404e-01
+    configdict["fracPIDKComb"] = 9.0101e-01
     
     configdict["tacc_exponent_combo"] = 1.8627e+00
     configdict["tacc_offset_combo"]   = 1.6710e-02
@@ -152,8 +152,8 @@ def getconfig() :
                 
     #--------------------------Low Mass 1--------------------------#
 
-    configdict["frac_g1_1"]  = 0.89361
-    configdict["frac_g1_2"]  = 0.092997
+    #configdict["frac_g1_1"]  = 0.89361
+    #configdict["frac_g1_2"]  = 0.092997
                 
     configdict["tacc_exponent_lm1"] = 1.8627e+00
     configdict["tacc_offset_lm1"]   = 1.6710e-02
@@ -162,8 +162,8 @@ def getconfig() :
                 
     #--------------------------Low Mass 1--------------------------#
 
-    configdict["frac_g2_1"]  = 0.775701
-    configdict["frac_g2_2"]  = 0.149533
+    #configdict["frac_g2_1"]  = 0.693333
+    #configdict["frac_g2_2"]  = 0.149533
     
     configdict["tacc_exponent_lm2"] = 1.8627e+00
     configdict["tacc_offset_lm2"]   = 1.6710e-02

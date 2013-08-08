@@ -82,15 +82,15 @@ def getconfig() :
     configdict["alpha1Dsfrac"] = 1.0
     configdict["alpha2Dsfrac"] = 1.0
     
-    configdict["cB"] = [-9.2354e-04]
-    configdict["cD"] = [-8.8642e-03]
-    configdict["fracComb"] = [5.1911e-01]
+    configdict["cB"] = [-1.9385e-03]
+    configdict["cD"] = [-1.9408e-03]
+    configdict["fracComb"] = [5.1218e-01]
 
-    configdict["nBs2DsDsstPiRhoEvts"]  = [350.0/2.0, 350.0/2.0]
+    configdict["nBs2DsDsstPiRhoEvts"]  = [500.0/2.0, 500.0/2.0]
     configdict["nBs2DsPiEvts"]         = [715.0/2.0, 715.0/2.0]
-    configdict["nLbDspEvts"]           = [200.0/2.0, 200.0/2.0]
-    configdict["nLbLcKEvts"]           = [25.0/2.0,   25.0/2.0]
-    configdict["nBdDKEvts"]            = [20.0/2.0,   20.0/2.0]
+    configdict["nLbDspEvts"]           = [153.0/2.0, 153.0/2.0]
+    configdict["nLbLcKEvts"]           = [21.0/2.0,   21.0/2.0]
+    configdict["nBdDKEvts"]            = [19.0/2.0,   19.0/2.0]
     
     
     

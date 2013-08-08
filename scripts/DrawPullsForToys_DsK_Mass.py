@@ -1,5 +1,19 @@
+from optparse import OptionParser
+from os.path  import join
+
+import GaudiPython
+
+GaudiPython.loaddict( 'B2DXFittersDict' )
+
 from ROOT import *
-import ROOT
+
+#GeneralUtils = GaudiPython.gbl.GeneralUtils
+#MassFitUtils = GaudiPython.gbl.MassFitUtils
+#Bs2Dsh2011TDAnaModels = GaudiPython.gbl.Bs2Dsh2011TDAnaModels
+#SFitUtils = GaudiPython.gbl.SFitUtils
+
+#from ROOT import *
+#import ROOT
 
 import sys
 sys.path.append("../data/")
@@ -9,7 +23,7 @@ largeToys = False
 drawGeneratedYields = False
 
 ntoys               = 1000
-toysdir             = '/afs/cern.ch/work/a/adudziak/public/Bs2DsKToys/'
+toysdir             = '/afs/cern.ch/work/a/adudziak/public/Bs2DsKToys/Gamma70/'
 toystupleprefix     = 'DsK_Toys_sWeights_ForTimeFit_'
 if largeToys : toystupleprefix     = 'DsK_Toys_FullLarge_Tree_'
 toystuplesuffix     = '.root'
@@ -17,11 +31,12 @@ toysresultprefix    = 'DsK_Toys_MassFitResult_'
 if largeToys : toysresultprefix    = 'DsK_Toys_FullLarge_MassFitResult_'
 toysresultsuffix    = '.log'    
 
-outputdir = '/afs/cern.ch/work/g/gligorov/public/Bs2DsKToys/sWeightToys/DsKToysAgnieszka_010813/'
+#outputdir = '/afs/cern.ch/work/g/gligorov/public/Bs2DsKToys/sWeightToys/DsKToysAgnieszka_010813/'
+outputdir = '/afs/cern.ch/work/a/adudziak/public/Bs2DsKToys/Gamma70/'
 
 eventtypes = {"Signal" : 1.0, 
               "DK"     : 2.0,
-              "Bd2DK"  : 3.0,
+              "Bd2DsK" : 3.0,
               "DsPi"   : 4.0,
               "LcK"    : 5.0,
               "Dsp"    : 6.0,
@@ -33,14 +48,16 @@ eventtypes = {"Signal" : 1.0,
 myconfigfilegrabber = __import__("Bs2DsKConfigForGenerator",fromlist=['getconfig']).getconfig
 myconfigfile = myconfigfilegrabber()
 
-numgenevt = {"Signal" : ntoys*[1794]}
+numgenevt = {"Signal" : ntoys*[1858]}
 numfitted = {"Signal" : ntoys*[(0,0)]}
-numgenevt["Combo"] = ntoys*[3796]
+numgenevt["Combo"] = ntoys*[4055]
 numfitted["Combo"] = ntoys*[(0,0)]
-numgenevt["LMK"] = ntoys*[150]
+numgenevt["LMK"] = ntoys*[144.8]
 numfitted["LMK"] = ntoys*[(0,0)]
-numgenevt["LMPi"] = ntoys*[357]
+numgenevt["LMPi"] = ntoys*[431]
 numfitted["LMPi"] = ntoys*[(0,0)]
+numgenevt["Dsp"] = ntoys*[153.2]
+numfitted["Dsp"] = ntoys*[(0,0)]
 
 numevents       = {}
 numeventshistos = {}
@@ -68,10 +85,10 @@ if drawGeneratedYields :
                     numevents[eventtype][thistoy] += 1
         for eventtype in eventtypes :
             if eventtype == "LMK" :
-                numeventshistos[eventtype].Fill(numevents["LMK"][thistoy]+numevents["Bd2DK"][thistoy])
+                numeventshistos[eventtype].Fill(numevents["LMK"][thistoy]+numevents["Bd2DsK"][thistoy])
             else :
                 numeventshistos[eventtype].Fill(numevents[eventtype][thistoy])
-        numevents["LMK"][thistoy] += numevents["Bd2DK"][thistoy]
+        numevents["LMK"][thistoy] += numevents["Bd2DsK"][thistoy]
     
     if debug : print numevents
     
@@ -112,16 +129,19 @@ for thistoy in range(0,ntoys) :
                 break
             #print line
             counterstop = counter
-        if counter == counterstop + 11 :
-            result = line.split()
-            numfitted["LMK"][thistoy] =  (float(result[2]), float(result[4])) 
         if counter == counterstop + 12 :
             result = line.split()
-            numfitted["LMPi"][thistoy] =  (float(result[2]), float(result[4]))
+            numfitted["LMK"][thistoy] =  (float(result[2]), float(result[4])) 
         if counter == counterstop + 13 :
+            result = line.split()
+            numfitted["LMPi"][thistoy] =  (float(result[2]), float(result[4]))
+        if counter == counterstop + 14 :
             result = line.split()
             numfitted["Combo"][thistoy] =  (float(result[2]), float(result[4]))
         if counter == counterstop + 15 :
+            result = line.split()
+            numfitted["Dsp"][thistoy] =  (float(result[2]), float(result[4]))
+        if counter == counterstop + 16:
             result = line.split()
             numfitted["Signal"][thistoy] =  (float(result[2]), float(result[4]))
             break
@@ -149,6 +169,8 @@ for thistoy in range(0,ntoys) :
     gen_signal.Fill(numevents["Signal"][thistoy])
     fitted_signal.Fill(numfitted["Signal"][thistoy][0])
     errf_signal.Fill(numfitted["Signal"][thistoy][1])
+    print "%d %d %d %f"%(thistoy, numgenevt["Signal"][thistoy], numfitted["Signal"][thistoy][0],
+                         numgenevt["Signal"][thistoy]-numfitted["Signal"][thistoy][0])
     pull_signal.Fill((numgenevt["Signal"][thistoy]-numfitted["Signal"][thistoy][0])/numfitted["Signal"][thistoy][1])
 pullcanvassignal = TCanvas("pullcanvassignal","pullcanvassignal",800,800)
 pullcanvassignal.Divide(2,2)
@@ -265,3 +287,37 @@ if largeToys:
     pullcanvaslmpi.Print(outputdir+"PullPlot_DsK_Mass_Large_LMPi.pdf")
 else :
     pullcanvaslmpi.Print(outputdir+"PullPlot_DsK_Mass_LMPi.pdf")
+
+gen_dsp    = TH1F("gen_dsp","gen_dsp",100,0,700)
+gen_dsp.GetXaxis().SetTitle("Generated Dsp events")
+fitted_dsp = TH1F("fitted_dsp","fitted_dsp",100,0,700)
+fitted_dsp.GetXaxis().SetTitle("Fitted dsp events")
+errf_dsp   = TH1F("errf_dsp","errf_dsp",100,0,500)
+errf_dsp.GetXaxis().SetTitle("Fitted error")
+pull_dsp   = TH1F("pull_dsp","pull_dsp",50,-5,5)
+pull_dsp.GetXaxis().SetTitle("Fitted Pull")
+
+for thistoy in range(0,ntoys) :
+    if thistoy in nfailed : continue
+    gen_dsp.Fill(numevents["Dsp"][thistoy])
+    fitted_dsp.Fill(numfitted["Dsp"][thistoy][0])
+    errf_dsp.Fill(numfitted["Dsp"][thistoy][1])
+    pull_dsp.Fill((numgenevt["Dsp"][thistoy]-numfitted["Dsp"][thistoy][0])/numfitted["Dsp"][thistoy][1])
+    
+    pullcanvasdsp = TCanvas("pullcanvasdsp","pullcanvasdsp",800,800)
+    pullcanvasdsp.Divide(2,2)
+    pullcanvasdsp.cd(1)
+    gen_dsp.Draw("PE")
+    pullcanvasdsp.cd(2)
+    fitted_dsp.Draw("PE")
+    pullcanvasdsp.cd(3)
+    errf_dsp.Draw("PE")
+    pullcanvasdsp.cd(4)
+    pull_dsp.Fit("gaus")
+    pull_dsp.Draw("PE")
+    
+if largeToys:
+    pullcanvasdsp.Print(outputdir+"PullPlot_DsK_Mass_Large_Dsp.pdf")
+else :
+    pullcanvasdsp.Print(outputdir+"PullPlot_DsK_Mass_Dsp.pdf")
+                                    

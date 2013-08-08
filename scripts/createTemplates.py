@@ -152,8 +152,8 @@ def runCreateTemplate( debug, file, nameTree, mode, modeDs, MC) :
         else:
             fileName = ["sWeights_"+mode+"_all_both_BDTGA.root",
                         "sWeights_"+mode+"_all_both_BDTGC.root",
-                        #"sWeights_"+mode+"_3modeskkpi_both_BDTG1.root",
-                        "sWeights_"+mode+"_all_both_BDTG1.root",
+                        "sWeights_"+mode+"_3modeskkpi_both_BDTG1.root",
+                        #"sWeights_"+mode+"_all_both_BDTG1.root",
                         "sWeights_"+mode+"_all_both_BDTG2.root",
                         "sWeights_"+mode+"_all_both_BDTG3.root"]
 

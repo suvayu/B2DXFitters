@@ -1012,14 +1012,12 @@ def runBsDsPiGenerator( debug, single, configName, numberOfToys, numberOfEvents 
     
     
     otherargs_dsk = [ mistagVar_B, mistag_dsk, tagEff_dsk ]       
-    #otherargs_dsk = [ tagEff_dsk ]
-    #otherargs_dsk.append(mistagVar_B)
     otherargs_dsk.append(mistagCalibrated)
     otherargs_dsk.append(aProd_dsk)
     otherargs_dsk.append(aDet_dsk)
     otherargs_dsk.append(aTagEff_dsk)
     
-    flag_dsk = DecRateCoeff.AvgDelta
+    flag_dsk = 0 #DecRateCoeff.AvgDelta
     
     cosh_dsk = DecRateCoeff('dsk_cosh', 'dsk_cosh', DecRateCoeff.CPEven,
                             fChargeMap, bTagMap,  one,      one,      *otherargs_dsk)
@@ -1112,7 +1110,7 @@ def runBsDsPiGenerator( debug, single, configName, numberOfToys, numberOfEvents 
         gendata.append(total_pdf.generate(RooArgSet(massVar_B, massVar_D, PIDKVar_B,
                                                     timeVar_B, terrVar_B,
                                                     trueIDVar_B, bTagMap, fChargeMap, mistagVar_B),
-                                          int(numberOfEvents)))
+                                          int(numberOfEvents+100)))
         print gendata[i].numEntries()
         tree = gendata[i].store().tree()
         
@@ -1340,7 +1338,7 @@ def runBsDsPiGenerator( debug, single, configName, numberOfToys, numberOfEvents 
         if not single :
             #workout.writeToFile("/afs/cern.ch/work/g/gligorov//public/Bs2DsKToys/sWeightToys/DsPi_Toys_Full_Work_"+str(i)+".root")
             #outfile  = TFile("/afs/cern.ch/work/g/gligorov//public/Bs2DsKToys/sWeightToys/DsPi_Toys_Full_Tree_"+str(i)+".root","RECREATE")
-            workout.writeToFile("/afs/cern.ch/work/a/adudziak/public/Bs2DsPiToys/DsPi_Toys_Work_"+str(i)+".root")
+            workout.writeToFile("/afs/cern.ch/work/a/adudziak/public/Bs2DsPiToys/DsPi_Toys_Work_"+str(i+500)+".root")
             #outfile  = TFile("/afs/cern.ch/work/a/adudziak/public/DsPiToys/DsPi_Toys_Tree_"+str(i)+".root","RECREATE")
             
         else :
@@ -1371,11 +1369,11 @@ parser.add_option( '-s', '--single',
 
 parser.add_option( '--numberOfToys',
                    dest = 'numberOfToys',
-                   default = 200)
+                   default = 500)
 
 parser.add_option( '--numberOfEvents',
                    dest = 'numberOfEvents',
-                   default = 45050)
+                   default = 43466)
 
 parser.add_option( '--configName',
                    dest = 'configName',

@@ -122,10 +122,54 @@ def runBsDsKMassFitterOnData( debug, sample, mVar, mdVar, tVar, terrVar, tagVar,
         sm.append(s[0]+t+m[0])
         data.append(GeneralUtils.GetDataSet(workspaceToys,datasetTS+TString("toys"),debug))
         nEntries.append(data[0].numEntries())
-        
+
+        countSig = 0
+        countCombo = 0
+        countBDK = 0
+        countBDsK = 0
+        countDsPi = 0
+        countLcK = 0
+        countKstK = 0
+        countRhoPi = 0
+        countDsp = 0
         if debug:
             print "nEntries: %s"%(nEntries[0])
-
+            obs = data[0].get()
+            trueid = obs.find("lab0_TRUEID")
+            for i in range(0,nEntries[0]):
+                obs2 = data[0].get(i)
+                #print trueid.getValV(obs2)
+                if abs(trueid.getValV(obs2)-1.0) < 0.5 :
+                    countSig += 1
+                if abs(trueid.getValV(obs2)-2.0) < 0.5 :
+                    countBDK += 1
+                if abs(trueid.getValV(obs2)-3.0) < 0.5 :
+                    countBDsK += 1
+                if abs(trueid.getValV(obs2)-4.0) < 0.5 :
+                    countDsPi += 1
+                if abs(trueid.getValV(obs2)-5.0) < 0.5 :
+                    countLcK += 1
+                if abs(trueid.getValV(obs2)-6.0) < 0.5 :
+                    countDsp += 1
+                if abs(trueid.getValV(obs2)-10.0) < 0.5 :
+                    countCombo += 1
+                if abs(trueid.getValV(obs2)-7.0) < 0.5 :
+                    countKstK += 1
+                if abs(trueid.getValV(obs2)-8.0) < 0.5 :
+                    countRhoPi += 1
+                                        
+                                        
+        print "Number of generated signal events: %d"%(countSig)
+        print "Number of generated B->DK events: %d"%(countBDK)
+        print "Number of generated Bd->DsK events: %d"%(countBDsK)
+        print "Number of generated Bs->DsPi events: %d"%(countDsPi)
+        print "Number of generated Lb->LcK events: %d"%(countLcK)
+        print "Number of generated Lb->Dsp,Dsstp events: %d"%(countDsp)
+        print "Number of generated Bs->DsK* events: %d"%(countKstK)
+        print "Number of generated Bs->DsstPi, DsRho events: %d"%(countRhoPi)
+        print "Number of generated Combinatorial events: %d"%(countCombo)
+        #exit(0)
+        
         sam.defineType(sm[0].Data())
         combData = RooDataSet("combData","combined data",RooArgSet(observables),
                               RooFit.Index(sam),
@@ -564,13 +608,19 @@ def runBsDsKMassFitterOnData( debug, sample, mVar, mdVar, tVar, terrVar, tagVar,
         nameBs2DsDssKKst = TString("nBs2DsDssKKst_")+sm[i]+t+evts
         nameLb2DsDsstp = TString("nLb2DsDsstp_")+sm[i]+t+evts
         nameBd2DK = TString("nBd2DK_")+sm[i]+t+evts
-        if merge:
+        if merge: # and not toys:
             inBs2DsPiEvts = myconfigfile["nBs2DsPiEvts"][i*2]+myconfigfile["nBs2DsPiEvts"][i*2+1]
             inBs2DsDsstPiRhoEvts = myconfigfile["nBs2DsDsstPiRhoEvts"][i*2]+myconfigfile["nBs2DsDsstPiRhoEvts"][i*2+1]
             inLbLcKEvts = myconfigfile["nLbLcKEvts"][i*2] + myconfigfile["nLbLcKEvts"][i*2+1]
             inLbDspEvts = myconfigfile["nLbDspEvts"][i*2] + myconfigfile["nLbDspEvts"][i*2+1]
             inBdDKEvts = myconfigfile["nBdDKEvts"][i*2]+myconfigfile["nBdDKEvts"][i*2+1]
-        else:
+        #elif toys:
+        #    inBs2DsPiEvts = countDsPi
+        #    inBs2DsDsstPiRhoEvts = countRhoPi 
+        #    inLbLcKEvts = countLcK
+        #    inLbDspEvts = countDsp
+        #    inBdDKEvts = countBDK            
+        else    :
             inBs2DsDsstPiRhoEvts = myconfigfile["nBs2DsDsstPiRhoEvts"][i]
             inBs2DsPiEvts = myconfigfile["nBs2DsPiEvts"][i]
             inLbLcKEvts = myconfigfile["nLbLcKEvts"][i]
@@ -587,7 +637,7 @@ def runBsDsKMassFitterOnData( debug, sample, mVar, mdVar, tVar, terrVar, tagVar,
         else:
             nBs2DsDsstPiRho.append(RooRealVar( nameBs2DsDsstPiRho.Data(), nameBs2DsDsstPiRho.Data(),  inBs2DsDsstPiRhoEvts/2, 0.0, inBs2DsDsstPiRhoEvts*3.0 ))
 
-        nBs2DsPi.append(RooRealVar( nameBs2DsPi.Data(), nameBs2DsPi.Data(),  inBs2DsPiEvts))     
+        nBs2DsPi.append(RooRealVar( nameBs2DsPi.Data(), nameBs2DsPi.Data(),  inBs2DsPiEvts)) #, inBs2DsPiEvts*0.5, inBs2DsPiEvts*2.0))     
         nLb2LcK.append(RooRealVar( nameLb2LcK.Data(), nameLb2LcK.Data(), inLbLcKEvts)) #/2, 0, inLbLcKEvts*2.0))    
 
         if wide:
@@ -643,7 +693,11 @@ def runBsDsKMassFitterOnData( debug, sample, mVar, mdVar, tVar, terrVar, tagVar,
         else:
             if i == 1 or i == 3:
                 j=j+1
-                
+
+        #if toys:
+        #    cDVar[i].setConstant()
+        #    cBVar[i].setConstant()
+        #    fracComb[i].setConstant()
                 
         #---------------------------------------------------------------------------------------------------------------------------#                
 
@@ -659,19 +713,20 @@ def runBsDsKMassFitterOnData( debug, sample, mVar, mdVar, tVar, terrVar, tagVar,
     g2_f2              = RooRealVar( "g2_f2_frac","g2_f2_frac", 0.5, 0, 1) #myconfigfile["g2_f2"],0,1)
     g2_f3              = RooRealVar( "g2_f3_frac","g2_f3_frac", 0.5, 0, 1) #myconfigfile["g2_f3"],0,1)
         
-    #if toys :   
-    #    g2_f1              = RooRealVar( "g2_f1_frac","g2_f1_frac", 0.374)
-    #    g2_f2              = RooRealVar( "g2_f2_frac","g2_f2_frac", 0.196)
-    #    g2_f3              = RooRealVar( "g2_f3_frac","g2_f3_frac", 0.127)
-
     # Group 3: g3_f1*Lb->Dsp + (1-g3_f1)Lb->Ds*p
-    if toys:
-        g3_f1              = RooRealVar( "g3_f1_frac","g3_f1_frac", 0.9)
-    else:
-        g3_f1              = RooRealVar( "g3_f1_frac","g3_f1_frac", 0.5, 0.0, 1.0)
+    g3_f1              = RooRealVar( "g3_f1_frac","g3_f1_frac", 0.5, 0.0, 1.0)
 
-    g4_f1              = RooRealVar( "g4_f1_frac","g4_f1_frac", 0.6, 0.5, 1.0)
-    g4_f2              = RooRealVar( "g4_f2_frac","g4_f2_frac", 0.6, 0.0, 1.0)
+    # PIDcomponets
+    g4_f1              = RooRealVar( "PID1_frac","PID1_frac", 0.6, 0.0, 1.0)
+    g4_f2              = RooRealVar( "PID2_frac","PID2_frac", 0.6, 0.0, 1.0)
+
+    #if toys :
+    #    g1_f1              = RooRealVar( "g1_f1_frac","g1_f1_frac", 1.00000)
+    #    g2_f1              = RooRealVar( "g2_f1_frac","g2_f1_frac", 0.31054)
+    #    g3_f1              = RooRealVar( "g3_f1_frac","g3_f1_frac", 0.99998)
+    #    g4_f1              = RooRealVar( "PID1_frac", "PID1_frac",  0.61381)
+    #    g4_f2              = RooRealVar( "PID2_frac", "PID2_frac",  0.60271)
+            
     
     bkgPDF = []
 
@@ -814,7 +869,7 @@ def runBsDsKMassFitterOnData( debug, sample, mVar, mdVar, tVar, terrVar, tagVar,
     #    fitter.saveModelPDF( options.wsname )
     #    fitter.saveData ( options.wsname )
     
-    fitter.fit(True, RooFit.Extended(), RooFit.SumW2Error(True), RooFit.Verbose(True))
+    fitter.fit(True, RooFit.Extended(), RooFit.SumW2Error(True), RooFit.Verbose(False))
     result = fitter.getFitResult()
     result.Print("v")
     #fitter.printYieldsInRange( '*Evts', obsTS.Data() , 5320, 5420 )    
@@ -832,7 +887,19 @@ def runBsDsKMassFitterOnData( debug, sample, mVar, mdVar, tVar, terrVar, tagVar,
         fitter.savesWeights(mVar, combData, name)
         RooMsgService.instance().reset() 
 
+                                                
     fitter.printYieldsInRange( '*Evts', obsTS.Data() , 5320, 5420 )
+    if toys:
+        print "Number of generated signal events: %d"%(countSig)
+        print "Number of generated B->DK events: %d"%(countBDK)
+        print "Number of generated Bd->DsK events: %d"%(countBDsK)
+        print "Number of generated Bs->DsPi events: %d"%(countDsPi)
+        print "Number of generated Lb->LcK events: %d"%(countLcK)
+        print "Number of generated Lb->Dsp,Dsstp events: %d"%(countDsp)
+        print "Number of generated Bs->DsK* events: %d"%(countKstK)
+        print "Number of generated Bs->DsstPi, DsRho events: %d"%(countRhoPi)
+        print "Number of generated Combinatorial events: %d"%(countCombo)
+                                                
 
     if plot_fitted :
         fitter.saveModelPDF( options.wsname )

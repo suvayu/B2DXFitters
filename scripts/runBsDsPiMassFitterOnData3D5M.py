@@ -38,7 +38,7 @@ dName = 'Ds'
 
 #------------------------------------------------------------------------------
 def runBsDsKMassFitterOnData( debug, sample, mVar, mdVar, tVar, terrVar, tagVar, tagOmegaVar, idVar, mode, sweight, yieldBdDPi, 
-                              fileNameAll, fileNameAllID, workName,logoutputname,tagTool, configName, wider, merge ) :
+                              fileNameAll, fileNameToys, workName,logoutputname,tagTool, configName, wider, merge ) :
 
     # Get the configuration file
     myconfigfilegrabber = __import__(configName,fromlist=['getconfig']).getconfig
@@ -63,26 +63,37 @@ def runBsDsKMassFitterOnData( debug, sample, mVar, mdVar, tVar, terrVar, tagVar,
     #workspaceID = GeneralUtils.LoadWorkspace(TString(fileNameAllID),workNameTS,debug)
     
     obsTS = TString(mVar)
-    mass        = GeneralUtils.GetObservable(workspace[0],obsTS, debug)
-    massDs      = GeneralUtils.GetObservable(workspace[0],TString(mdVar), debug)
-    PIDK        = GeneralUtils.GetObservable(workspace[0],TString("lab1_PIDK"), debug)
-    tvar        = GeneralUtils.GetObservable(workspace[0],TString(tVar), debug)
-    terrvar     = GeneralUtils.GetObservable(workspace[0],TString(terrVar), debug)
-    tagomegavar = GeneralUtils.GetObservable(workspace[0],TString(tagOmegaVar), debug)
-
+    
     configNameTS = TString(configName)
     if configNameTS.Contains("Toys") == false:
         toys = false
     else:
         toys = true
+        workspaceToys = (GeneralUtils.LoadWorkspace(TString(fileNameToys),workNameTS, debug))
+        workspaceToys.Print("v")
+        
         
     if (not toys):
         tagvar      = GeneralUtils.GetObservable(workspace[0],TString(tagVar), debug)
         idvar       = GeneralUtils.GetObservable(workspace[0],TString(idVar), debug)
+        mass        = GeneralUtils.GetObservable(workspace[0],obsTS, debug)
+        massDs      = GeneralUtils.GetObservable(workspace[0],TString(mdVar), debug)
+        PIDK        = GeneralUtils.GetObservable(workspace[0],TString("lab1_PIDK"), debug)
+        tvar        = GeneralUtils.GetObservable(workspace[0],TString(tVar), debug)
+        terrvar     = GeneralUtils.GetObservable(workspace[0],TString(terrVar), debug)
+        tagomegavar = GeneralUtils.GetObservable(workspace[0],TString(tagOmegaVar), debug)
+                            
     else:
-        tagvar      = GeneralUtils.GetObservable(workspace[0],TString(tagVar)+TString("_idx"), debug)
-        idvar       = GeneralUtils.GetObservable(workspace[0],TString(idVar)+TString("_idx"), debug)
-
+        mass        = GeneralUtils.GetObservable(workspaceToys,obsTS, debug)
+        massDs      = GeneralUtils.GetObservable(workspaceToys,TString(mdVar), debug)
+        PIDK        = GeneralUtils.GetObservable(workspaceToys,TString("lab1_PIDK"), debug)
+        tvar        = GeneralUtils.GetObservable(workspaceToys,TString(tVar), debug)
+        terrvar     = GeneralUtils.GetObservable(workspaceToys,TString(terrVar), debug)
+        tagomegavar = GeneralUtils.GetObservable(workspaceToys,TString(tagOmegaVar), debug)
+        tagvar      = GeneralUtils.GetObservable(workspaceToys,TString(tagVar)+TString("_idx"), debug)
+        idvar       = GeneralUtils.GetObservable(workspaceToys,TString(idVar)+TString("_idx"), debug)
+        trueidvar   = GeneralUtils.GetObservable(workspaceToys,TString("lab0_TRUEID"), debug)
+                                                                        
     if( tagTool == "yes"):
         tagsskaonvar = GeneralUtils.GetObservable(workspace[0],TString("lab0_BsTaggingTool_SS_Kaon_PROB"), debug)
         tagosmuonvar = GeneralUtils.GetObservable(workspace[0],TString("lab0_BsTaggingTool_OS_Muon_PROB"), debug)
@@ -94,6 +105,8 @@ def runBsDsKMassFitterOnData( debug, sample, mVar, mdVar, tVar, terrVar, tagVar,
         
     if( tagTool == "no"):
         observables = RooArgSet( mass, massDs, PIDK, tvar, terrvar, tagvar,tagomegavar,idvar )
+        if toys:
+            observables.add(trueidvar)
     else:
         observables =  RooArgSet( mass,tagsskaonvar,tagosmuonvar,tagoselectronvar,tagoskaonvar,tagvtxchargevar, pvar, ptvar)
         
@@ -116,232 +129,244 @@ def runBsDsKMassFitterOnData( debug, sample, mVar, mdVar, tVar, terrVar, tagVar,
         datasetTS = TString("dataSetTagToolBsDsPi_")
         
     sam = RooCategory("sample","sample")
+    t = TString('_')
 
     sm = []
     data = []
     nEntries = []
 
     ### Obtain data set ###
-    
-    if sample == "both":
-        if mode == "all":
-            if debug:
-                print "[INFO] Sample both. Mode all."
+    if toys:
+        s = [sampleTS, sampleTS]
+        m = [modeTS]
+        sm.append(s[0]+t+m[0])
+        data.append(GeneralUtils.GetDataSet(workspaceToys,datasetTS+TString("toys"),debug))
+        nEntries.append(data[0].numEntries())
+        sam.defineType(sm[0].Data())
+        combData = RooDataSet("combData","combined data",RooArgSet(observables),
+                              RooFit.Index(sam),
+                              RooFit.Import(sm[0].Data(),data[0]))
+        
+    else:
+        if sample == "both":
+            if mode == "all":
+                if debug:
+                    print "[INFO] Sample both. Mode all."
                 
-            s = [TString('up'),TString('down')]
-            m = [TString('nonres'),TString('phipi'),TString('kstk'),TString('kpipi'),TString('pipipi')]
-            t = TString('_')
-            
-            for i in range(0,5):
-                for j in range(0,2):
-                    sm.append(s[j]+t+m[i])
-                    #sam.defineType(sm[i*2+j].Data())
-                    data.append(GeneralUtils.GetDataSet(workspace[0],datasetTS+sm[2*i+j], debug))
-                    nEntries.append(data[i*2+j].numEntries())
-                    
-            if debug:
+                s = [TString('up'),TString('down')]
+                m = [TString('nonres'),TString('phipi'),TString('kstk'),TString('kpipi'),TString('pipipi')]
+                t = TString('_')
+                
                 for i in range(0,5):
                     for j in range(0,2):
-                        print "%s : %s : %f"%(sm[i*2+j],data[i*2+j].GetName(),nEntries[i*2+j])
-            nEntries_up = nEntries[0]+nEntries[2]+nEntries[4]+nEntries[6]+nEntries[8]
-            if debug:
-                print "nEntries_dw: %s + %s + %s + %s +%s= %s"%(nEntries[0],nEntries[2],nEntries[4],nEntries[6],nEntries[8],nEntries_up)
-                nEntries_dw = nEntries[1]+nEntries[3]+nEntries[5]+nEntries[7]+nEntries[9]
-            if debug:
-                print "nEntries_up: %s + %s + %s +%s +%s= %s"%(nEntries[1],nEntries[3],nEntries[5],nEntries[7],nEntries[9],nEntries_dw)
-                print "nEntries: %s + %s = %s"%(nEntries_up, nEntries_dw,nEntries)
-
-
-            if merge:
-                data[0].append(data[1])
-                data[2].append(data[3])
-                data[4].append(data[5])
-                data[6].append(data[7])
-                data[8].append(data[9])
-                nEntries[0] = nEntries[0]+nEntries[1]
-                nEntries[1] = nEntries[2]+nEntries[3]
-                nEntries[2] = nEntries[4]+nEntries[5]
-                nEntries[3] = nEntries[6]+nEntries[7]
-                nEntries[4] = nEntries[8]+nEntries[9]
-                s = [TString('both'),TString('both')]
-                for i in range(0,5):
-                    sm[i] =s[0]+t+m[i]
-                    sam.defineType(sm[i].Data())
-                    
-                combData = RooDataSet("combData","combined data",RooArgSet(observables),
-                                      RooFit.Index(sam),
-                                      RooFit.Import(sm[0].Data(),data[0]),
-                                      RooFit.Import(sm[1].Data(),data[2]),
-                                      RooFit.Import(sm[2].Data(),data[4]),
-                                      RooFit.Import(sm[3].Data(),data[6]),
-                                      RooFit.Import(sm[4].Data(),data[8]))
-            else:
-                for i in range(0,5):
-                    for j in range(0,2):
-                        sam.defineType(sm[i*2+j].Data())
+                        sm.append(s[j]+t+m[i])
+                        #sam.defineType(sm[i*2+j].Data())
+                        data.append(GeneralUtils.GetDataSet(workspace[0],datasetTS+sm[2*i+j], debug))
+                        nEntries.append(data[i*2+j].numEntries())
                         
-                        combData = RooDataSet("combData","combined data",RooArgSet(observables),
-                                              RooFit.Index(sam),
-                                              RooFit.Import(sm[0].Data(),data[0]),
-                                              RooFit.Import(sm[1].Data(),data[1]),
-                                              RooFit.Import(sm[2].Data(),data[2]),
-                                              RooFit.Import(sm[3].Data(),data[3]),
-                                              RooFit.Import(sm[4].Data(),data[4]),
-                                              RooFit.Import(sm[5].Data(),data[5]),
-                                              RooFit.Import(sm[6].Data(),data[6]),
-                                              RooFit.Import(sm[7].Data(),data[7]),
-                                              RooFit.Import(sm[8].Data(),data[8]),
-                                              RooFit.Import(sm[9].Data(),data[9])
-                                              )
-                                                                            
-                
-        elif mode == "3modes" or mode == "3modeskkpi" :
-            if debug:
-                print "[INFO] Sample both. Mode all."
-            
-            s = [TString('up'),TString('down')]
-            if mode == "3modeskkpi":
-                m = [TString('nonres'),TString('phipi'),TString('kstk')]
-            else:
-                m = [TString('kkpi'),TString('kpipi'),TString('pipipi')]
-                                                    
-            t = TString('_')
+                if debug:
+                    for i in range(0,5):
+                        for j in range(0,2):
+                            print "%s : %s : %f"%(sm[i*2+j],data[i*2+j].GetName(),nEntries[i*2+j])
+                nEntries_up = nEntries[0]+nEntries[2]+nEntries[4]+nEntries[6]+nEntries[8]
+                if debug:
+                    print "nEntries_dw: %s + %s + %s + %s +%s= %s"%(nEntries[0],nEntries[2],nEntries[4],nEntries[6],nEntries[8],nEntries_up)
+                    nEntries_dw = nEntries[1]+nEntries[3]+nEntries[5]+nEntries[7]+nEntries[9]
+                if debug:
+                    print "nEntries_up: %s + %s + %s +%s +%s= %s"%(nEntries[1],nEntries[3],nEntries[5],nEntries[7],nEntries[9],nEntries_dw)
+                    print "nEntries: %s + %s = %s"%(nEntries_up, nEntries_dw,nEntries)
 
-            for i in range(0,3):
-                for j in range(0,2):
-                    sm.append(s[j]+t+m[i])
-                    data.append(GeneralUtils.GetDataSet(workspace[0],datasetTS+sm[i*2+j], debug))
-                    nEntries.append(data[i*2+j].numEntries())           
-            if debug:
+
+                if merge:
+                    data[0].append(data[1])
+                    data[2].append(data[3])
+                    data[4].append(data[5])
+                    data[6].append(data[7])
+                    data[8].append(data[9])
+                    nEntries[0] = nEntries[0]+nEntries[1]
+                    nEntries[1] = nEntries[2]+nEntries[3]
+                    nEntries[2] = nEntries[4]+nEntries[5]
+                    nEntries[3] = nEntries[6]+nEntries[7]
+                    nEntries[4] = nEntries[8]+nEntries[9]
+                    s = [TString('both'),TString('both')]
+                    for i in range(0,5):
+                        sm[i] =s[0]+t+m[i]
+                        sam.defineType(sm[i].Data())
+                    
+                    combData = RooDataSet("combData","combined data",RooArgSet(observables),
+                                          RooFit.Index(sam),
+                                          RooFit.Import(sm[0].Data(),data[0]),
+                                          RooFit.Import(sm[1].Data(),data[2]),
+                                          RooFit.Import(sm[2].Data(),data[4]),
+                                          RooFit.Import(sm[3].Data(),data[6]),
+                                          RooFit.Import(sm[4].Data(),data[8]))
+                else:
+                    for i in range(0,5):
+                        for j in range(0,2):
+                            sam.defineType(sm[i*2+j].Data())
+                            
+                            combData = RooDataSet("combData","combined data",RooArgSet(observables),
+                                                  RooFit.Index(sam),
+                                                  RooFit.Import(sm[0].Data(),data[0]),
+                                                  RooFit.Import(sm[1].Data(),data[1]),
+                                                  RooFit.Import(sm[2].Data(),data[2]),
+                                                  RooFit.Import(sm[3].Data(),data[3]),
+                                                  RooFit.Import(sm[4].Data(),data[4]),
+                                                  RooFit.Import(sm[5].Data(),data[5]),
+                                                  RooFit.Import(sm[6].Data(),data[6]),
+                                                  RooFit.Import(sm[7].Data(),data[7]),
+                                                  RooFit.Import(sm[8].Data(),data[8]),
+                                                  RooFit.Import(sm[9].Data(),data[9])
+                                                  )
+                            
+                
+            elif mode == "3modes" or mode == "3modeskkpi" :
+                if debug:
+                    print "[INFO] Sample both. Mode all."
+                    
+                s = [TString('up'),TString('down')]
+                if mode == "3modeskkpi":
+                    m = [TString('nonres'),TString('phipi'),TString('kstk')]
+                else:
+                    m = [TString('kkpi'),TString('kpipi'),TString('pipipi')]
+                    
+                t = TString('_')
+                
                 for i in range(0,3):
                     for j in range(0,2):
-                        print "%s : %s : %f"%(sm[i*2+j],data[i*2+j].GetName(),nEntries[i*2+j])
+                        sm.append(s[j]+t+m[i])
+                        data.append(GeneralUtils.GetDataSet(workspace[0],datasetTS+sm[i*2+j], debug))
+                        nEntries.append(data[i*2+j].numEntries())           
+                if debug:
+                    for i in range(0,3):
+                        for j in range(0,2):
+                            print "%s : %s : %f"%(sm[i*2+j],data[i*2+j].GetName(),nEntries[i*2+j])
+                            
+                nEntries_up = nEntries[0]+nEntries[2]+nEntries[4]
+                if debug:
+                    print "nEntries_dw: %s + %s + %s = %s"%(nEntries[0],nEntries[2],nEntries[4], nEntries_up)
+                    nEntries_dw = nEntries[1]+nEntries[3]+nEntries[5]
+                if debug:
+                    print "nEntries_up: %s + %s + %s = %s"%(nEntries[1],nEntries[3],nEntries[5],nEntries_dw)
+                    print "nEntries: %s + %s = %s"%(nEntries_up, nEntries_dw,nEntries) 
                     
-            nEntries_up = nEntries[0]+nEntries[2]+nEntries[4]
-            if debug:
-                print "nEntries_dw: %s + %s + %s = %s"%(nEntries[0],nEntries[2],nEntries[4], nEntries_up)
-            nEntries_dw = nEntries[1]+nEntries[3]+nEntries[5]
-            if debug:
-                print "nEntries_up: %s + %s + %s = %s"%(nEntries[1],nEntries[3],nEntries[5],nEntries_dw)
-                print "nEntries: %s + %s = %s"%(nEntries_up, nEntries_dw,nEntries) 
-                                                        
-            if merge:
-                data[0].append(data[1])
-                data[2].append(data[3])
-                data[4].append(data[5])
-                nEntries[0] = nEntries[0]+nEntries[1]
-                nEntries[1] = nEntries[2]+nEntries[3]
-                nEntries[2] = nEntries[4]+nEntries[5]
-                s = [TString('both'),TString('both')]
-                for i in range(0,3):
-                    sm[i] =s[0]+t+m[i]
+                if merge:
+                    data[0].append(data[1])
+                    data[2].append(data[3])
+                    data[4].append(data[5])
+                    nEntries[0] = nEntries[0]+nEntries[1]
+                    nEntries[1] = nEntries[2]+nEntries[3]
+                    nEntries[2] = nEntries[4]+nEntries[5]
+                    s = [TString('both'),TString('both')]
+                    for i in range(0,3):
+                        sm[i] =s[0]+t+m[i]
+                        sam.defineType(sm[i].Data())
+                        
+                    combData = RooDataSet("combData","combined data",RooArgSet(observables),
+                                          RooFit.Index(sam),
+                                          RooFit.Import(sm[0].Data(),data[0]),
+                                          RooFit.Import(sm[1].Data(),data[2]),
+                                          RooFit.Import(sm[2].Data(),data[4]))
+                else:
+                    for i in range(0,3):
+                        for j in range(0,2):
+                            sam.defineType(sm[i*2+j].Data())
+                            
+                    combData = RooDataSet("combData","combined data",RooArgSet(observables),
+                                          RooFit.Index(sam),
+                                          RooFit.Import(sm[0].Data(),data[0]),
+                                          RooFit.Import(sm[1].Data(),data[1]),
+                                          RooFit.Import(sm[2].Data(),data[2]),
+                                          RooFit.Import(sm[3].Data(),data[3]),
+                                          RooFit.Import(sm[4].Data(),data[4]),
+                                          RooFit.Import(sm[5].Data(),data[5]))
+                    
+                    if debug:
+                        print "CombData: %s number of entries %f"%(combData.GetName(),combData.numEntries())
+                        
+            elif mode == "kkpi" or mode == "kpipi" or mode == "pipipi":
+                if debug:
+                    print "Sample both. Mode %s."%(mode)
+            
+                s = [TString('up'),TString('down')]
+                t = TString('_')
+                
+                for i in range(0,2):
+                    sm.append(s[i]+t+modeTS)
+                    print "%s"%(sm)
                     sam.defineType(sm[i].Data())
+                    data.append(GeneralUtils.GetDataSet(workspace[0],datasetTS+sm[i], debug))
+                    nEntries.append(data[i].numEntries())
                     
-                combData = RooDataSet("combData","combined data",RooArgSet(observables),
-                                      RooFit.Index(sam),
-                                      RooFit.Import(sm[0].Data(),data[0]),
-                                      RooFit.Import(sm[1].Data(),data[2]),
-                                      RooFit.Import(sm[2].Data(),data[4]))
+                if debug:
+                    print "nEntries: %s + %s = %s"%(nEntries[0], nEntries[1],nEntries[0]+nEntries[1])
+                    combData = RooDataSet("combData","combined data",RooArgSet(observables),
+                                          RooFit.Index(sam),
+                                          RooFit.Import(sm[0].Data(),data[0]),
+                                          RooFit.Import(sm[1].Data(),data[1]))
+            
+                if debug:
+                    print "CombData: %s number of entries %f"%(combData.GetName(),combData.numEntries())
             else:
+                if debug:
+                    print "[ERROR] Sample both. Wrong mode. Possibilities: all, kkpi, kpipi, pipipi" 
+                    
+        elif sample == "up" or sample == "down":
+            
+            if mode == "3modes":
+                if debug:
+                    print "Sample %s. Mode all"%(sample)
+                    
+                s = [sampleTS]
+                m = [TString('kkpi'),TString('kpipi'),TString('pipipi')]
+                t = TString('_')
+                
                 for i in range(0,3):
-                    for j in range(0,2):
-                        sam.defineType(sm[i*2+j].Data())
-                                                
+                    sm.append(sampleTS+t+m[i])
+                    print "%s"%(sm)
+                    sam.defineType(sm[i].Data())
+                    data.append(GeneralUtils.GetDataSet(workspace[0],datasetTS+sm[i], debug))
+                    nEntries.append(data[i].numEntries())
+                    
+                if debug:
+                    print "nEntries: %s + %s + %s= %s"%(nEntries[0], nEntries[1], nEntries[2], nEntries[0]+nEntries[1]+nEntries[2])
+                    combData = RooDataSet("combData","combined data",RooArgSet(observables),
+                                          RooFit.Index(sam),
+                                          RooFit.Import(sm[0].Data(),data[0]),
+                                          RooFit.Import(sm[1].Data(),data[1]),
+                                          RooFit.Import(sm[2].Data(),data[2])
+                                          )
+                                                                                                                        
+                if debug:
+                    print "CombData: %s number of entries %f"%(combData.GetName(),combData.numEntries())
+            
+            elif mode == "kkpi" or mode == "kpipi" or mode == "pipipi":
+                s = [sampleTS]
+                t = TString('_')
+                sm.append(sampleTS+t+modeTS)
+                sam.defineType(sm[0].Data())
+                data.append(GeneralUtils.GetDataSet(workspace[0],datasetTS+sm[0], debug))
+                nEntries.append(data[0].numEntries())
+                
+                if debug:
+                    print "nEntries: %s"%(nEntries[0])
                 combData = RooDataSet("combData","combined data",RooArgSet(observables),
                                       RooFit.Index(sam),
-                                      RooFit.Import(sm[0].Data(),data[0]),
-                                      RooFit.Import(sm[1].Data(),data[1]),
-                                      RooFit.Import(sm[2].Data(),data[2]),
-                                      RooFit.Import(sm[3].Data(),data[3]),
-                                      RooFit.Import(sm[4].Data(),data[4]),
-                                      RooFit.Import(sm[5].Data(),data[5]))
-            
-            if debug:
-                print "CombData: %s number of entries %f"%(combData.GetName(),combData.numEntries())
-        
-        elif mode == "kkpi" or mode == "kpipi" or mode == "pipipi":
-            if debug:
-                print "Sample both. Mode %s."%(mode)
-            
-            s = [TString('up'),TString('down')]
-            t = TString('_')
-
-            for i in range(0,2):
-                sm.append(s[i]+t+modeTS)
-                print "%s"%(sm)
-                sam.defineType(sm[i].Data())
-                data.append(GeneralUtils.GetDataSet(workspace[0],datasetTS+sm[i], debug))
-                nEntries.append(data[i].numEntries())
-
-            if debug:
-                print "nEntries: %s + %s = %s"%(nEntries[0], nEntries[1],nEntries[0]+nEntries[1])
-            combData = RooDataSet("combData","combined data",RooArgSet(observables),
-                                  RooFit.Index(sam),
-                                  RooFit.Import(sm[0].Data(),data[0]),
-                                  RooFit.Import(sm[1].Data(),data[1]))
-            
-            if debug:
-                print "CombData: %s number of entries %f"%(combData.GetName(),combData.numEntries())
-        else:
-            if debug:
-                print "[ERROR] Sample both. Wrong mode. Possibilities: all, kkpi, kpipi, pipipi" 
-            
-    elif sample == "up" or sample == "down":
-        
-        if mode == "3modes":
-            if debug:
-                print "Sample %s. Mode all"%(sample)
-
-            s = [sampleTS]
-            m = [TString('kkpi'),TString('kpipi'),TString('pipipi')]
-            t = TString('_')
-
-            for i in range(0,3):
-                sm.append(sampleTS+t+m[i])
-                print "%s"%(sm)
-                sam.defineType(sm[i].Data())
-                data.append(GeneralUtils.GetDataSet(workspace[0],datasetTS+sm[i], debug))
-                nEntries.append(data[i].numEntries())
+                                      RooFit.Import(sm[0].Data(),data[0])
+                                      )
                 
-            if debug:
-                print "nEntries: %s + %s + %s= %s"%(nEntries[0], nEntries[1], nEntries[2], nEntries[0]+nEntries[1]+nEntries[2])
-            combData = RooDataSet("combData","combined data",RooArgSet(observables),
-                                  RooFit.Index(sam),
-                                  RooFit.Import(sm[0].Data(),data[0]),
-                                  RooFit.Import(sm[1].Data(),data[1]),
-                                  RooFit.Import(sm[2].Data(),data[2])
-                                  )
-                                                                                                                        
-            if debug:
-                print "CombData: %s number of entries %f"%(combData.GetName(),combData.numEntries())
-            
-        elif mode == "kkpi" or mode == "kpipi" or mode == "pipipi":
-            s = [sampleTS]
-            t = TString('_')
-            sm.append(sampleTS+t+modeTS)
-            sam.defineType(sm[0].Data())
-            data.append(GeneralUtils.GetDataSet(workspace[0],datasetTS+sm[0], debug))
-            nEntries.append(data[0].numEntries())
-
-            if debug:
-                print "nEntries: %s"%(nEntries[0])
-            combData = RooDataSet("combData","combined data",RooArgSet(observables),
-                                  RooFit.Index(sam),
-                                  RooFit.Import(sm[0].Data(),data[0])
-                                  )
-            
-            if debug:
-                print "CombData: %s number of entries %f"%(combData.GetName(),combData.numEntries())
+                if debug:
+                    print "CombData: %s number of entries %f"%(combData.GetName(),combData.numEntries())
             
                 
-        else:
+            else:
+                if debug:
+                    print "[ERROR] Sample %s. Wrong mode. Possibilities: all, kkpi, kpipi, pipipi"%(sample) 
+                    
+        else:    
             if debug:
-                print "[ERROR] Sample %s. Wrong mode. Possibilities: all, kkpi, kpipi, pipipi"%(sample) 
-
-    else:    
-        if debug:
-            print "[ERROR] Wrong sample. Possibilities: both, up, down "
-        exit(0)
+                print "[ERROR] Wrong sample. Possibilities: both, up, down "
+                exit(0)
                   
 
     # Create the background PDF in mass
@@ -350,30 +375,35 @@ def runBsDsKMassFitterOnData( debug, sample, mVar, mdVar, tVar, terrVar, tagVar,
     sigPDF = []
     sigDsPDF = []
     nSigEvts = []
-    
-    if sample == "both":
-        if mode == "all":
-            ran = 10
-            ranmode = 5
-            ransample = 2
-        elif mode == "3modes" or mode == "3modeskkpi":
-            ran = 6
-            ranmode = 3
-            ransample = 2
-        elif mode == "kkpi" or mode == "kpipi" or mode == "pipipi":
-            ran = 2
-            ransample = 2
-            ranmode = 1
-    elif sample == "up" or sample == "down":
-        if mode == "all":
-            ran = 3
-            ranmode = 3
-            ransample = 1
-        elif mode == "kkpi" or mode == "kpipi" or mode == "pipipi":
-            ran = 1
-            ranmode = 1
-            ransample = 1
 
+    if toys:
+        ran = 1
+        ranmode = 1
+        ransample = 1
+    else:
+        if sample == "both":
+            if mode == "all":
+                ran = 10
+                ranmode = 5
+                ransample = 2
+            elif mode == "3modes" or mode == "3modeskkpi":
+                ran = 6
+                ranmode = 3
+                ransample = 2
+            elif mode == "kkpi" or mode == "kpipi" or mode == "pipipi":
+                ran = 2
+                ransample = 2
+                ranmode = 1
+        elif sample == "up" or sample == "down":
+            if mode == "all":
+                ran = 3
+                ranmode = 3
+                ransample = 1
+            elif mode == "kkpi" or mode == "kpipi" or mode == "pipipi":
+                ran = 1
+                ranmode = 1
+                ransample = 1
+                
     if merge:
         bound = ranmode
     else:
@@ -845,7 +875,7 @@ def runBsDsKMassFitterOnData( debug, sample, mVar, mdVar, tVar, terrVar, tagVar,
     #import sys
     #import random
     #sys.stdout = open(logoutputname, 'w')
-    fitter.fit(True, RooFit.Extended(), RooFit.SumW2Error(True), RooFit.Verbose(True)) #, RooFit.InitialHesse(True))
+    fitter.fit(True, RooFit.Extended(), RooFit.SumW2Error(True), RooFit.Verbose(False)) #, RooFit.InitialHesse(True))
     result = fitter.getFitResult()
     result.Print("v")
 
@@ -853,7 +883,7 @@ def runBsDsKMassFitterOnData( debug, sample, mVar, mdVar, tVar, terrVar, tagVar,
         BDTGTS = GeneralUtils.CheckBDTGBin(confTS, debug)
         name = TString("./sWeights_BsDsPi_")+modeTS+TString("_")+sampleTS+TString("_")+BDTGTS+TString(".root")
     else:
-        name = options.sweightoutputname
+        name = TString(options.sweightoutputname)
         
     #Now includes setting things constant
     if sweight:
@@ -985,8 +1015,8 @@ parser.add_option( '--fileName',
                    help = 'name of the inputfile'
                    )
 
-parser.add_option( '--fileNameID',
-                   dest = 'fileNameAllID',
+parser.add_option( '--fileNameToys',
+                   dest = 'fileNameToys',
                    default = '../data/workspace/work_dsk.root',
                    help = 'name of the inputfile'
                    )
@@ -1028,7 +1058,7 @@ if __name__ == '__main__' :
     runBsDsKMassFitterOnData( options.debug,  options.sample , options.mvar, options.mdvar,options.tvar, options.terrvar, \
                               options.tagvar, options.tagomegavar, options.idvar,\
                               options.mode, options.sweight, options.yieldBdDPi, 
-                              options.fileNameAll, options.fileNameAllID, options.workName,
+                              options.fileNameAll, options.fileNameToys, options.workName,
                               options.logoutputname,options.tagTool, options.configName, options.wider, options.merge)
 
 # -----------------------------------------------------------------------------

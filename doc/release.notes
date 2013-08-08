@@ -4,6 +4,36 @@
 ! Purpose     : RooFit-based fitters for B -> D X
 !-----------------------------------------------------------------------------
 
+! 2013-08-08 - Agnieszka Dziurda
+ - update in:
+  . scripts/GenerateToySWeights_DsK.py - set flag = 0
+  . scripts/runBsDsKMassFitterOnData3D5M.py - nothing important
+  . scripts/GenerateToySWeights_DsPi.py - set flag = 0
+  . scripts/DrawPullsForToys_DsK_Time.py - draw my toys
+  . scripts/Csh/runBsDsK_sFit_Toys_Time.csh - update for new toys
+  . scripts/Csh/runBsDsK_sFit_Toys_Mass.csh - update for new toys
+  . scripts/Csh/run_fit_dsk_toys.csh  - update for new toys
+  . scripts/Csh/runBsDsPi_sFit_Toys_Time.csh - update for new toys
+  . scripts/Csh/runBsDsPi_sFit_Toys_Mass.csh - update for new toys
+  . scripts/DrawPullsForToys_DsK_Mass.py - allow to draw Dsp
+  . scripts/runBs2DsKCPAsymmObsFitterOnData.py 
+    - allow to fit different acceptance for each BDTG bin
+  . scripts/runBsDsPiMassFitterOnData3D5M.py - allow to run toys
+  . scripts/runBs2DsPiCPAsymmObsFitterOnData.py - 
+    - allow to fit different acceptance for each BDTG bin
+  . scripts/DrawPullsForToys_DsPi_Mass.py - update for new toys 
+  . scripts/comparePDF.py  - nothing important
+  . scripts/createTemplates.py - nothing important
+ - update in config files:
+  . data/Bs2DsKConfigForNominalGammaFit.py
+  . data/Bs2DsPiConfigForNominalMassFitToys.py
+  . data/Bs2DsPiConfigForGenerator.py
+  . data/Bs2DsPiConfigForNominalDMSFitPowLawFloatAcc.py
+  . data/Bs2DsKConfigForGenerator.py
+  . data/Bs2DsKConfigForNominalMassFitToys.py
+ - add config file:
+  . data/Bs2DsPiConfigForNominalDMSFitToys.py
+
 ! 2013-08-07 - Manuel Tobias Schiller
  - fix oversight of transient members in RooBinnedPdf in dictionary generation
 

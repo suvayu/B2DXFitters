@@ -61,11 +61,11 @@ def runBdGammaFitterOnData(debug, wsname, initvars, var, terrvar, probvar,pereve
                            smearaccept, accsmearfile, accsmearhist,
                            BDTGbins, pathName2, pathName3, Cat) :
 
-    if not Blinding and not toys :
-        print "RUNNING UNBLINDED!"
-        really = input('Do you really want to unblind? ')
-        if really != "yes" :
-            exit(-1)
+    #if not Blinding and not toys :
+    #    print "RUNNING UNBLINDED!"
+    #    really = input('Do you really want to unblind? ')
+    #    if really != "yes" :
+    #        exit(-1)
 
     #if toys :
     #    if int(pathToys.split('.')[1].split('_')[-1]) in bannedtoys :
@@ -273,7 +273,7 @@ def runBdGammaFitterOnData(debug, wsname, initvars, var, terrvar, probvar,pereve
 
     if debug:
         frame = time.frame()
-        data.plotOn(frame)
+        dataW.plotOn(frame)
         canvas = TCanvas("canvas", "canvas", 1200, 1000)
         canvas.cd()
         frame.Draw()
@@ -283,13 +283,13 @@ def runBdGammaFitterOnData(debug, wsname, initvars, var, terrvar, probvar,pereve
 
     #workout = RooWorkspace("workspace","workspace")
     #getattr(workout,'import')(dataW)
-    #saveNameTS = TString("data_time_dsk_bdtg123All.root")
+    #saveNameTS = TString("data_time_dsk_bdtg123M.root")
     #workout.Print()
     #GeneralUtils.SaveWorkspace(workout,saveNameTS, debug)
           
     #exit(0)
                                     
-    templateWorkspace = GeneralUtils.LoadWorkspace(TString(myconfigfile["TemplateFile"]), TString(myconfigfile["TemplateWorkspace"]), debug)
+    #templateWorkspace = GeneralUtils.LoadWorkspace(TString(myconfigfile["TemplateFile"]), TString(myconfigfile["TemplateWorkspace"]), debug)
 
     if BDTGbins:
         Bin = [TString("BDTG1"), TString("BDTG2"), TString("BDTG3")]
@@ -490,43 +490,20 @@ def runBdGammaFitterOnData(debug, wsname, initvars, var, terrvar, probvar,pereve
     otherargs.append(aDet)
     otherargs.append(aTagEff)
 
-    flag = DecRateCoeff.AvgDelta
+    flag = 0 #DecRateCoeff.AvgDelta
     
     cosh = DecRateCoeff('signal_cosh', 'signal_cosh', DecRateCoeff.CPEven, fChargeMap, bTagMap, one, one, *otherargs)
     sinh = DecRateCoeff('signal_sinh', 'signal_sinh', flag | DecRateCoeff.CPEven, fChargeMap, bTagMap, sigD, sigDbar, *otherargs)
-    cos  =  DecRateCoeff('signal_cos' , 'signal_cos' , DecRateCoeff.CPOdd, fChargeMap, bTagMap, sigC, sigC, *otherargs)
-    #sin =  DecRateCoeff('signal_sin' , 'signal_sin' ,DecRateCoeff.CPOdd, fChargeMap , bTagMap, sigSbar, sigS, *otherargs)
-    sin  =  DecRateCoeff('signal_sin' , 'signal_sin' , flag | DecRateCoeff.CPOdd | DecRateCoeff.Minus, fChargeMap, bTagMap, sigS, sigSbar,
-                         *otherargs)
+    cos  = DecRateCoeff('signal_cos' , 'signal_cos' , DecRateCoeff.CPOdd, fChargeMap, bTagMap, sigC, sigC, *otherargs)
+    sin  = DecRateCoeff('signal_sin' , 'signal_sin' , flag | DecRateCoeff.CPOdd | DecRateCoeff.Minus, fChargeMap, bTagMap, sigS, sigSbar, *otherargs)
     
-    '''
-    sigWeightedDs  = IfThreeWayCat('sigWeightedDs', 'sigWeightedDs',  fChargeMap, sigD, zero, sigDbar)
-    # the following includes the minus sign in front of the sin term
-    sigWeightedSs  = IfThreeWayCat('sigWeightedSs', 'sigWeightedSs',  fChargeMap, sigS, zero, sigSbar)
-
-    untaggedWeight = IfThreeWayCat('untaggedWeight','untaggedWeight', bTagMap, one, two, one                  )
-    if not pereventmistag : 
-        #sigDilution = RooFormulaVar('sigDilution','1-2*@0',RooArgList(tagOmegaSig))
-        sigDilution = Dilution(  'sigDilution',  'signal (DsPi) Dilution', tagOmegaSig                              )
-    else : 
-        #sigDilution = RooFormulaVar('sigDilution','1-2*@0',RooArgList(mistag))
-        calibration_p1 = RooRealVar('calibration_p1','calibration_p1',myconfigfile["calibration_p1"])
-        calibration_p0 = RooRealVar('calibration_p0','calibration_p0',myconfigfile["calibration_p0"])
-        mistag_calibrated = MistagCalibration('mistag_calibrated','mistag_calibrated',mistag,calibration_p0,calibration_p1) 
-        sigDilution = Dilution(  'sigDilution',  'sigDilution',      mistag_calibrated                                )
-    mixState        = RooProduct('mixState',     'mixState',         RooArgList(bTagMap,fChargeMap   )      ) 
-    sigCosSin_i0    = RooProduct('sigCosSin_i0', 'sigCosSin_i0',     RooArgList(mixState, sigDilution, sigTagWeight) )
-    '''
+    
     # Set the signal handler and a 5-second alarm
     #signal.signal(signal.SIGALRM, handler)
     #signal.alarm(120)
     
     if not splitCharge and not fitMeTool:
-        #sigCosh         = RooProduct('sigCosh',      'cosh coefficient', RooArgList(untaggedWeight, sigTagWeight)        )
-        #sigSinh         = RooProduct('sigSinh',      'sinh coefficient', RooArgList(sigCosh, sigWeightedDs)              )
-        #sigCos          = RooProduct('sigCos',       'cos coefficient',  RooArgList(sigCosSin_i0, sigC)                  )
-        #sigSin          = RooProduct('sigSin',       'sin coefficient',  RooArgList(sigCosSin_i0, sigWeightedSs,minusone)         )
-    
+          
         #if debug :
         #    print 'DATASET NOW CONTAINS', nEntries, 'ENTRIES!!!!' 
         #    data.Print("v")
@@ -545,7 +522,6 @@ def runBdGammaFitterOnData(debug, wsname, initvars, var, terrvar, probvar,pereve
         mistag.setBins(6,'cache')
         time_noacc.setParameterizeIntegral(RooArgSet(mistag))
         '''   
-
         #sigTimePDF      = RooEffProd('time_signal','time_signal',time_noacc,tacc)
 
         if BDTGbins:
@@ -568,15 +544,14 @@ def runBdGammaFitterOnData(debug, wsname, initvars, var, terrvar, probvar,pereve
             if pereventmistag:
                 noncondset.add(mistag)
             if BDTGbins:
-                if BDTGbins:
-                    totPDF = []
-                    for i in range(0,3):
-                        name_timeterr = TString("signal_TimeTimeerrPdf_")+Bin[i]
-                        totPDF.append(RooProdPdf(name_timeterr.Data(), name_timeterr.Data(),
-                                                 RooArgSet(terrpdf[i]), RooFit.Conditional(RooArgSet(timePDF[i]), noncondset)))
-                                                                                                        
+                totPDF = []
+                for i in range(0,3):
+                    name_timeterr = TString("signal_TimeTimeerrPdf_")+Bin[i]
+                    totPDF.append(RooProdPdf(name_timeterr.Data(), name_timeterr.Data(),
+                                             RooArgSet(terrpdf[i]), RooFit.Conditional(RooArgSet(timePDF[i]), noncondset)))
+                    
             else:
-                totPDF = RooProdPdf('signal_TimeTimeerrPdf', 'signal_TimeTimerrPdf', #RooArgList(terrpdf, timePDF))
+                totPDF = RooProdPdf('signal_TimeTimeerrPdf', 'signal_TimeTimerrPdf', 
                                     RooArgSet(terrpdf), RooFit.Conditional(RooArgSet(timePDF), noncondset))
                 
         else:
@@ -626,7 +601,7 @@ def runBdGammaFitterOnData(debug, wsname, initvars, var, terrvar, probvar,pereve
                            
                 
         if toys or not Blinding: #Unblind yourself
-            if Cat:
+            if BDTGbins or Cat:
                 myfitresult = totPDFSim.fitTo(combData, RooFit.Save(1), RooFit.Optimize(2), RooFit.Strategy(2),\
                                               RooFit.Verbose(True), RooFit.SumW2Error(True))
                 
@@ -638,14 +613,14 @@ def runBdGammaFitterOnData(debug, wsname, initvars, var, terrvar, probvar,pereve
             myfitresult.correlationMatrix().Print()
             myfitresult.covarianceMatrix().Print()
         else :    #Don't
-            if Cat:
+            if BDTGbins or Cat:
                 myfitresult = totPDFSim.fitTo(combData, RooFit.Save(1), RooFit.Optimize(2), RooFit.Strategy(2),\
                                               RooFit.SumW2Error(True), RooFit.PrintLevel(-1))
-                    
+                
             else:
                 myfitresult = totPDF.fitTo(dataW, RooFit.Save(1), RooFit.Optimize(2), RooFit.Strategy(2),\
                                            RooFit.SumW2Error(True), RooFit.PrintLevel(-1))
-                
+                    
             print 'Matrix quality is',myfitresult.covQual()
             par = myfitresult.floatParsFinal() 
             par[0].Print("v") 
@@ -667,15 +642,20 @@ def runBdGammaFitterOnData(debug, wsname, initvars, var, terrvar, probvar,pereve
                 print "Dbar IS CLOSE TO THE FIT LIMITS!!!!"     
 
         workout = RooWorkspace("workspace","workspace")
-        if Cat:
+        
+        if Cat or BDTGbins:
             getattr(workout,'import')(combData)
             getattr(workout,'import')(totPDFSim)
         else:
             getattr(workout,'import')(data)
             getattr(workout,'import')(totPDF)
         getattr(workout,'import')(myfitresult)
-        workout.writeToFile(wsname)
-                        
+        #workout.writeToFile(wsname)
+        saveNameTS = TString(wsname)
+        workout.Print()
+        GeneralUtils.SaveWorkspace(workout,saveNameTS, debug)
+        workout.Print()
+                
     elif not splitCharge :   
         sigCosh         = RooProduct('sigCosh',      'cosh coefficient', RooArgSet(untaggedWeight, sigTagWeight)        )   
         sigSinh         = RooProduct('sigSinh',      'sinh coefficient', RooArgSet(sigCosh, sigWeightedDs)              )   

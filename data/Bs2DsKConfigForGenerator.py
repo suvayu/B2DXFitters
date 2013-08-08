@@ -78,14 +78,14 @@ def getconfig() :
     configdict["adet_lm2"]       = 0.0
     
     configdict["num_signal"]    = 1850.
-    configdict["num_dk"]        = 20.
-    configdict["num_dsk"]       = 100.
+    configdict["num_dk"]        = 19.
+    configdict["num_dsk"]       = 143.
     configdict["num_dspi"]      = 715.
-    configdict["num_lck"]       = 25.
+    configdict["num_lck"]       = 21.
     configdict["num_combo"]     = 4040.
-    configdict["num_dsdsstp"]   = 180.
-    configdict["num_lm1"]       = 50.
-    configdict["num_lm2"]       = 430.
+    configdict["num_dsdsstp"]   = 153.
+    configdict["num_lm1"]       = 0.
+    configdict["num_lm2"]       = 431.
         
     #----------------------------Signal----------------------------#
 
@@ -116,20 +116,20 @@ def getconfig() :
     configdict["tacc_beta_pl"]     = 3.4938e-02 #0.0363
     configdict["tacc_turnon_pl"]   = 1.3291e+00 #1.215
     
-    configdict["cB"] = -9.2354e-04
+    configdict["cB"] = -1.9385e-03
         
-    configdict["cD"] = -8.8642e-03
-    configdict["fracDsComb"] = 5.1911e-01
+    configdict["cD"] = -1.9408e-03
+    configdict["fracDsComb"] = 5.1218e-01
 
-    configdict["fracPIDKComb1"] = 6.3516e-01
-    configdict["fracPIDKComb2"] = 5.9685e-01
+    configdict["fracPIDKComb1"] = 6.1381e-01
+    configdict["fracPIDKComb2"] = 6.0271e-01
     
-    configdict["frac_dsdsstp"]   = 0.9
+    configdict["frac_dsdsstp"]   = 0.999
     
     #configdict["frac_g1_1lmk"]  = 0.14536
     #configdict["frac_g1_2lmk"]  = 0.169091
                 
-    configdict["frac_g2_1"]  = 5.6122e-08 #0.31266
+    configdict["frac_g2_1"]  = 0.31054 #0.31266
     #configdict["frac_g2_2"]  = 0.202776
     
        
