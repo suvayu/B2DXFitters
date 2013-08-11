@@ -94,9 +94,9 @@ else
     schedtool=""
 fi
 
-# set ulimit to protect against bugs which crash the machine: 2G vmem max,
+# set ulimit to protect against bugs which crash the machine: 5G vmem max,
 # no more then 8M stack
-ulimit -v $((2048 * 1024))
+ulimit -v $((5 * 1024 * 1024))
 ulimit -s $((   8 * 1024))
 
 # trampoline into python
@@ -158,6 +158,10 @@ if in_gdb():
 # Configuration settings
 #
 # defaultConfig contains default settings
+#
+# the defaultConfig dictionary is updated with dictionary entries according to
+# a "personality" which is loaded from a file
+#
 # generatorConfig contains settings to use during generation
 # fitConfig contains settings to use during fit
 #
@@ -372,48 +376,6 @@ defaultConfig = {
             #	output and fit results will be "wrong", though)
             ],
     }
-
-# config patches for the 2011Paper personality
-defaultConfig2011Paper = {
-        'Modes': [
-            'Bs2DsK',
-            'Bs2DsKst',
-            'Bs2DsPi', 'Bs2DsstPi', 'Bs2DsRho',
-            'Bd2DK', 'Bd2DsK',
-            'Lb2LcK', 'Lb2Dsp', 'Lb2Dsstp',
-            'CombBkg'
-            ],
-        'SampleCategories': [
-            'nonres', 'phipi', 'kstk', 'kpipi', 'pipipi'
-            ],
-        'CombineModesForEffCPObs': [ ],
-        'NEvents':			[ 3518. ],
-        'MassTemplateFile':             os.environ['B2DXFITTERSROOT']+'/data/workspace/MDFitter/WS_Mass_DsK_5M_BDTGA.root',
-        'MassTemplateWorkspace':	'FitMeToolWS',
-        'MassInterpolation':		False,
-        'MistagTemplateFile':           os.environ['B2DXFITTERSROOT']+'/data/workspace/MDFitter/templates_BsDsPi.root',
-        'MistagTemplateWorkspace':	'workspace',
-        'MistagTemplateName':	        'MistagPdf_signal_BDTGA',
-        'DecayTimeResolutionModel':	'GaussianWithPEDTE',
-        'DecayTimeErrorTemplateFile':       os.environ['B2DXFITTERSROOT']+'/data/workspace/MDFitter/templates_BsDsK.root',
-        'DecayTimeErrorTemplateWorkspace':  'workspace',
-        'DecayTimeErrorTemplateName':       'TimeErrorPdf_signal_BDTGA',
-        'DecayTimeErrorVarName':            'lab0_LifetimeFit_ctauErr',
-        'constParams': [
-            'Gammas', 'deltaGammas', 'deltaMs',
-            'Gammad', 'deltaGammad', 'deltaMd',
-            'tagOmegaSig', 'timeerr_bias', 'timeerr_scalefactor',
-            'MistagCalibB_p0', 'MistagCalibB_p1', 'MistagCalibB_avgmistag',
-            'MistagCalibBbar_p0', 'MistagCalibBbar_p1', 'MistagCalibBbar_avgmistag',
-            'Bs2DsKst_TagEff', 'Bs2DsKst_delta', 'Bs2DsKst_lambda', 'Bs2DsKst_phi_w',
-            ],
-
-        }
-# list of fitter personalitites
-personalities = {
-        '2011Conf' : {},
-        '2011Paper': defaultConfig2011Paper
-        }
 
 # pretty-print fit results, optionally blinding all parameters
 def printResult(config, result, blind = False):
@@ -1165,7 +1127,7 @@ def getMassTemplateOneMode2011Paper(
 
     # ok, depending on mode, we try to load a suitable pdf
     pdf, nYield = None, None
-    if mode == 'Bs2DsK':
+    if mode == config['Modes'][0]:
         pdf = fromws.pdf('SigProdPDF_both_%s' % sname)
         nYield = fromws.var('nSig_both_%s_Evts' % sname)
         if None != nYield: nYield = nYield.getVal()
@@ -1182,19 +1144,24 @@ def getMassTemplateOneMode2011Paper(
         modemap = {
                 'Bs2DsKst': 'Bs2DsDsstKKst',
                 'Bd2DsK': 'Bs2DsDsstKKst',
-                'Bs2DsstPi': 'Bs2DsDsstPiRho',
+                'Bs2DsstPi': 'Bs2DsDsstPiRho' if \
+                        'Bs2DsK' == config['Modes'][0] else 'Bs2DsDsstPi',
                 'Bs2DsRho': 'Bs2DsDsstPiRho',
                 'Bs2DsstRho': 'Bs2DsDsstPiRho',
                 'Lb2Dsp': 'Lb2DsDsstP',
                 'Lb2Dsstp': 'Lb2DsDsstP',
                 'Bs2DsPi': 'Bs2DsPi',
                 'Lb2LcK': 'Lb2DsK',
-                'Bd2DK': 'Bd2DK'
+                'Lb2LcPi': 'Lb2DsPi',
+                'Bd2DK': 'Bd2DK',
+                'Bd2DPi': 'Bd2DPi',
+                'Bd2DsPi': 'Bs2DsDsstPi',
+                'Bs2DsK': 'Bs2DsK'
                 }
         trysfx = [
             '%sPdf_m_both_%s_Tot' % (mode, sname),
-            '%sPdf_m_both_%s_Tot' % (modemap[mode], sname),
             '%sPdf_m_both_Tot' % mode,
+            '%sPdf_m_both_%s_Tot' % (modemap[mode], sname),
             '%sPdf_m_both_Tot' % modemap[mode]
             ]
         for sfx in trysfx:
@@ -1205,9 +1172,11 @@ def getMassTemplateOneMode2011Paper(
             'n%s_both_%s_Evts' % (mode, sname),
             'n%s_both_%s_Evts' % (mode.replace('Dsst', 'Dss'), sname),
             'n%s_both_%s_Evts' % (mode.replace('DsstP', 'Dsstp'), sname),
+            'n%s_both_%s_Evts' % (mode.replace('DsstPi', 'DsstPiRho'), sname),
             'n%s_both_%s_Evts' % (modemap[mode], sname),
             'n%s_both_%s_Evts' % (modemap[mode].replace('Dsst', 'Dss'), sname),
-            'n%s_both_%s_Evts' % (modemap[mode].replace('DsstP', 'Dsstp'), sname)
+            'n%s_both_%s_Evts' % (modemap[mode].replace('DsstP', 'Dsstp'), sname),
+            'n%s_both_%s_Evts' % (modemap[mode].replace('DsstPi', 'DsstPiRho'), sname),
             ]
         for sfx in tryyieldsfx:
             nYield = fromws.var(sfx)
@@ -1233,11 +1202,19 @@ def getMassTemplateOneMode2011Paper(
                     f = 1. - f.getVal()
                 else:
                     f = None
-            elif 'Bs2DsDsstPiRho' in sfx or 'Bs2DsDssPiRho' in sfx: 
+            elif 'Bs2DsDsstPiRho' in sfx and 'Bs2DsK' == config['Modes'][0]:
                 f = fromws.var('g2_f1_frac')
                 if 'Bs2DsstPi' == mode:
                     f = f.getVal()
                 elif 'Bs2DsRho' == mode:
+                    f = 1. - f.getVal()
+                else:
+                    f = None
+            elif 'Bs2DsDsstPiRho' in sfx and 'Bs2DsPi' == config['Modes'][0]:
+                f = fromws.var('g1_f1_frac')
+                if 'Bs2DsstPi' == mode:
+                    f = f.getVal()
+                elif 'Bd2DsPi' == mode:
                     f = 1. - f.getVal()
                 else:
                     f = None
@@ -1371,7 +1348,8 @@ def getMassTemplates(
     ):
     personalisedGetMassTemplateOneMode = {
             '2011Conf': getMassTemplateOneMode2011Conf,
-            '2011Paper': getMassTemplateOneMode2011Paper
+            '2011PaperDsK': getMassTemplateOneMode2011Paper,
+            '2011PaperDsPi': getMassTemplateOneMode2011Paper,
             }
     import sys
     if None == snames:
@@ -1911,7 +1889,7 @@ def getMasterPDF(config, name, debug = False):
     if config['NBinsMass'] > 0:
         mass.setBinning(RooUniformBinning(
             mass.getMin(), mass.getMax(), config['NBinsMass']), 'massbins')
-    if '2011Paper' == config['Personality']:
+    if '2011Paper' in config['Personality']:
         dsmass = WS(ws, RooRealVar('dsmass', 'dsmass', 1930., 2015.))
         pidk = WS(ws, RooRealVar('pidk', 'pidk', log(5.), log(150.)))
     else:
@@ -1959,7 +1937,7 @@ def getMasterPDF(config, name, debug = False):
     # Define the observables
     # ----------------------
     observables = [ mass, time, qt, qf, sample ]
-    if '2011Paper' == config['Personality']:
+    if '2011Paper' in config['Personality']:
         observables = [ pidk, dsmass ] + observables
     condobservables = [ ]
 
@@ -2420,7 +2398,7 @@ def getMasterPDF(config, name, debug = False):
     # Bs -> Ds Pi like modes
     ########################################################################
     for mode in ( 'Bs2DsPi', 'Bs2DsstPi', 'Bs2DsRho', 'Bs2DsstRho',
-            'Bd2DsK', 'Bd2DK' ):
+            'Bd2DsK', 'Bd2DK', 'Bd2DPi', 'Bd2DsPi' ):
         if mode not in config['Modes']:
             continue
         if mode.startswith('Bs'):
@@ -2461,7 +2439,7 @@ def getMasterPDF(config, name, debug = False):
     # non-osciallating modes
     ########################################################################
     # Lb->X modes first, then CombBkg
-    for mode in ('Lb2Dsp', 'Lb2Dsstp', 'Lb2LcK', 'CombBkg'):
+    for mode in ('Lb2Dsp', 'Lb2Dsstp', 'Lb2LcK', 'Lb2LcPi', 'CombBkg'):
         if mode not in config['Modes']:
             continue
         if config['UseKFactor'] and mode != 'CombBkg':
@@ -2787,7 +2765,7 @@ parser.add_option('-p', '--personality',
 # -----------------------------------------------------------------------------
 
 if __name__ == '__main__' :
-    import copy
+    import copy, os
     #
     # example: change Gammas in fitting:
     # fitConfig.update({'Gammas': 0.700})
@@ -2802,13 +2780,26 @@ if __name__ == '__main__' :
         TOY_NUMBER = int(args[ 0 ])
     except ValueError:
         parser.error('The toy number is meant to be an integer ;-)!')
+    
     # apply personality
+    personalityfile = '%s/data/cFit/personality/%s.py' % (
+            os.environ['B2DXFITTERSROOT'], options.personality)
+    try:
+        lines = file(personalityfile, 'r').readlines()
+    except:
+        parser.error('Unable to read personality %s from %s' %
+               (options.personality, personalityfile))
     try:
         updateConfigDict(defaultConfig, {'Personality': options.personality})
-        updateConfigDict(defaultConfig, personalities[options.personality])
+        d = eval(compile(''.join(lines), personalityfile, 'eval'))
+        updateConfigDict(defaultConfig, d)
+        del d
     except:
             parser.error('Unknown personality \'%s\'' %
                     options.personality)
+    del lines
+    del personalityfile
+
     generatorConfig = copy.deepcopy(defaultConfig)
     fitConfig = copy.deepcopy(defaultConfig)
     # parse fit/generator configuration options
