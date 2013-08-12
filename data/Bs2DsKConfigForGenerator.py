@@ -5,23 +5,21 @@ def getconfig() :
     from math import pi
 
     # PHYSICAL PARAMETERS
-    configdict["Gammas"]      =  1/0.657   # in ps^{-1}
+    configdict["Gammas"]      =  0.661   # in ps^{-1}
     configdict["DeltaGammas"] = -0.105
 
-    configdict["Gammad"]      =  1./0.656   # in ps^{-1}
+    configdict["Gammad"]      =  0.656   # in ps^{-1}
     configdict["DeltaGammad"] =  0.
 
-    configdict["DeltaMs"]     =  17.719    # in ps^{-1}
+    configdict["DeltaMs"]     =  17.768    # in ps^{-1}
     configdict["DeltaMd"]     =  0.507   # in ps^{-1}
 
-    configdict["GammaLb"]    =  1./0.702    # in ps^{-1}
-    configdict["GammaCombo"] =  1./0.800
+    configdict["GammaLb"]    =  0.702    # in ps^{-1}
+    configdict["GammaCombo"] =  0.800
        
-    configdict["TauRes"]    =  0.05  
-        
     configdict["StrongPhase_d"] = 20. / 180. * pi
     configdict["StrongPhase_s"] = 30. / 180. * pi
-    configdict["WeakPhase"]     = 140. / 180. * pi
+    configdict["WeakPhase"]     = 70. / 180. * pi
 
     configdict["ArgLf_d"]       = configdict["StrongPhase_d"] - configdict["WeakPhase"]
     configdict["ArgLbarfbar_d"] = configdict["StrongPhase_d"] + configdict["WeakPhase"]
@@ -35,17 +33,24 @@ def getconfig() :
     configdict["calibration_p0"] = 0.392 #-0.013
     configdict["TagOmegaSig"]   = 0.391
 
+    configdict["resolutionScaleFactor"] = 1.37
+    configdict["resolutionMeanBias"]    = 0.0
+    
+    configdict["nBinsMistag"]   = 50
+    configdict["nBinsProperTimeErr"]   = 50
+    configdict["nBinsAcceptance"]   = 740
+    
     configdict["lumRatio"] =  0.44/(0.59+0.44)
 
-    configdict["tagEff_signal"]    = 0.40
-    configdict["tagEff_dk"]        = 0.40
-    configdict["tagEff_dsk"]       = 0.40
-    configdict["tagEff_dspi"]      = 0.40
-    configdict["tagEff_lck"]       = 0.40
-    configdict["tagEff_combo"]     = 0.40
-    configdict["tagEff_dsdsstp"]   = 0.40
-    configdict["tagEff_lm1"]       = 0.40
-    configdict["tagEff_lm2"]       = 0.40
+    configdict["tagEff_signal"]    = 0.403
+    configdict["tagEff_dk"]        = 0.403
+    configdict["tagEff_dsk"]       = 0.403
+    configdict["tagEff_dspi"]      = 0.403
+    configdict["tagEff_lck"]       = 0.403
+    configdict["tagEff_combo"]     = 0.403
+    configdict["tagEff_dsdsstp"]   = 0.403
+    configdict["tagEff_lm1"]       = 0.403
+    configdict["tagEff_lm2"]       = 0.403
 
     configdict["aprod_signal"]    = 0.0 #0.03
     configdict["aprod_dk"]        = 0.0 #0.03
@@ -90,8 +95,8 @@ def getconfig() :
     #----------------------------Signal----------------------------#
 
     configdict["mean"]    = 5369
-    configdict["sigma1"]  = 10.627*1.145
-    configdict["sigma2"]  = 15.289*1.255
+    configdict["sigma1"]  = 10.627*1.255
+    configdict["sigma2"]  = 15.289*1.145
     configdict["alpha1"]  = 1.6086
     configdict["alpha2"]  = -1.9642
     configdict["n1"]      = 1.5879
@@ -117,7 +122,6 @@ def getconfig() :
     configdict["tacc_turnon_pl"]   = 1.3291e+00 #1.215
     
     configdict["cB"] = -1.9385e-03
-        
     configdict["cD"] = -1.9408e-03
     configdict["fracDsComb"] = 5.1218e-01
 

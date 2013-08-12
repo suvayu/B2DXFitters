@@ -7,20 +7,18 @@ def getconfig() :
     configdict["lumRatio"] =  0.44/(0.59+0.44)
 
     # PHYSICAL PARAMETERS
-    configdict["Gammas"]      =  1/0.657    # in ps^{-1}
-    configdict["DeltaGammas"] = -0.104
+    configdict["Gammas"]        =  0.661   # in ps^{-1}
+    configdict["DeltaGammas"]   =  -0.105
 
-    configdict["Gammad"]      =  1./0.656   # in ps^{-1}
+    configdict["Gammad"]      =  0.658   # in ps^{-1}
     configdict["DeltaGammad"] =  0.
 
-    configdict["DeltaMs"]     =  17.719     # in ps^{-1}
+    configdict["DeltaMs"]     =  17.768     # in ps^{-1}
     configdict["DeltaMd"]     =  0.507      # in ps^{-1}
 
-    configdict["GammaLb"]    =  1./0.702    # in ps^{-1}
-    configdict["GammaCombo"] =  1./0.800
+    configdict["GammaLb"]    =  0.702    # in ps^{-1}
+    configdict["GammaCombo"] =  0.800
 
-    configdict["TauRes"]    =  0.05  
-        
     configdict["StrongPhase_d"] = 20. / 180. * pi
     configdict["StrongPhase_s"] = 30. / 180. * pi
     configdict["WeakPhase"]     = 70. / 180. * pi #70. / 180. * pi
@@ -36,16 +34,23 @@ def getconfig() :
     configdict["calibration_p1"] = 1.035 #1.035
     configdict["calibration_p0"] = 0.392 #-0.013
     configdict["TagOmegaSig"]   = 0.391
-    
 
-    configdict["tagEff_signal"]    = 0.40
-    configdict["tagEff_dpi"]       = 0.40
-    configdict["tagEff_dspi"]      = 0.40
-    configdict["tagEff_lcpi"]      = 0.40
-    configdict["tagEff_combo"]     = 0.40
-    configdict["tagEff_lm1"]       = 0.40
-    configdict["tagEff_lm2"]       = 0.40
-    configdict["tagEff_dsk"]       = 0.40
+    configdict["resolutionScaleFactor"] = 1.37
+    configdict["resolutionMeanBias"]    = 0.0
+
+    configdict["nBinsMistag"]   = 50
+    configdict["nBinsProperTimeErr"]   = 50
+    configdict["nBinsAcceptance"]   = 740
+            
+
+    configdict["tagEff_signal"]    = 0.403
+    configdict["tagEff_dpi"]       = 0.403
+    configdict["tagEff_dspi"]      = 0.403
+    configdict["tagEff_lcpi"]      = 0.403
+    configdict["tagEff_combo"]     = 0.403
+    configdict["tagEff_lm1"]       = 0.403
+    configdict["tagEff_lm2"]       = 0.403
+    configdict["tagEff_dsk"]       = 0.403
 
     configdict["aprod_signal"]     = 0.00
     configdict["aprod_dpi"]        = 0.00
@@ -106,36 +111,13 @@ def getconfig() :
     configdict["n2Ds"]      = 1.8122
     configdict["fracDs"]    = 0.44075
                                             
-    configdict["tacc_exponent_signal"] = 1.8627e+00
-    configdict["tacc_offset_signal"]   = 1.6710e-02
-    configdict["tacc_beta_signal"]     = 3.4938e-02
-    configdict["tacc_turnon_signal"]   = 1.3291e+00
-                            
-    #----------------------------B->DPi----------------------------#
-
-    configdict["tacc_exponent_dpi"] = 1.8627e+00
-    configdict["tacc_offset_dpi"]   = 1.6710e-02
-    configdict["tacc_beta_dpi"]     = 3.4938e-02
-    configdict["tacc_turnon_dpi"]   = 1.3291e+00
-                
-    #---------------------------Bd->DsPi----------------------------#
-
-    configdict["tacc_exponent_dspi"] = 1.8627e+00
-    configdict["tacc_offset_dspi"]   = 1.6710e-02
-    configdict["tacc_beta_dspi"]     = 3.4938e-02
-    configdict["tacc_turnon_dspi"]   = 1.3291e+00
-              
-    #---------------------------Lb->LcPi----------------------------#
-
-    configdict["tacc_exponent_lcpi"] = 1.8627e+00
-    configdict["tacc_offset_lcpi"]   = 1.6710e-02
-    configdict["tacc_beta_lcpi"]     = 3.4938e-02
-    configdict["tacc_turnon_lcpi"]   = 1.3291e+00
+    configdict["tacc_exponent"] = 1.83165e+00
+    configdict["tacc_offset"]   = 1.94941e-02
+    configdict["tacc_beta"]     = 3.55134e-02
+    configdict["tacc_turnon"]   = 1.31231e+00
     
     #---------------------------Combo----------------------------#
-
-    configdict["exposlope_combo"]   = -1.9977*pow(10,-3)
-    
+      
     configdict["cB1"] = -9.9005e-03 
     configdict["cB2"] = 0.0
     configdict["fracBsComb"] = 6.6631e-01
@@ -144,41 +126,15 @@ def getconfig() :
     configdict["fracDsComb"] = 0.59760
 
     configdict["fracPIDKComb"] = 9.0101e-01
-    
-    configdict["tacc_exponent_combo"] = 1.8627e+00
-    configdict["tacc_offset_combo"]   = 1.6710e-02
-    configdict["tacc_beta_combo"]     = 3.4938e-02
-    configdict["tacc_turnon_combo"]   = 1.3291e+00
                 
     #--------------------------Low Mass 1--------------------------#
 
     #configdict["frac_g1_1"]  = 0.89361
     #configdict["frac_g1_2"]  = 0.092997
                 
-    configdict["tacc_exponent_lm1"] = 1.8627e+00
-    configdict["tacc_offset_lm1"]   = 1.6710e-02
-    configdict["tacc_beta_lm1"]     = 3.4938e-02
-    configdict["tacc_turnon_lm1"]   = 1.3291e+00
-                
     #--------------------------Low Mass 1--------------------------#
 
     #configdict["frac_g2_1"]  = 0.693333
     #configdict["frac_g2_2"]  = 0.149533
-    
-    configdict["tacc_exponent_lm2"] = 1.8627e+00
-    configdict["tacc_offset_lm2"]   = 1.6710e-02
-    configdict["tacc_beta_lm2"]     = 3.4938e-02
-    configdict["tacc_turnon_lm2"]   = 1.3291e+00
-                
-    #---------------------------Bs->DsK----------------------------#
-    
-    configdict["tacc_exponent_dsk"] = 1.8627e+00
-    configdict["tacc_offset_dsk"]   = 1.6710e-02
-    configdict["tacc_beta_dsk"]     = 3.4938e-02
-    configdict["tacc_turnon_dsk"]   = 1.3291e+00
-                
-    
-                          
-      
-    
+       
     return configdict

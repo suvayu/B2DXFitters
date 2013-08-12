@@ -7,36 +7,36 @@ def getconfig() :
     # PHYSICAL PARAMETERS
     configdict["Gammas"]        =  0.661   # in ps^{-1}
     configdict["DeltaGammas"]   =  -0.105
-    configdict["DeltaMs"]       = 17.768   # in ps^{-1}
+    configdict["DeltaMs"]       = 17.6   # in ps^{-1}
     configdict["TagEffSig"]     = 0.403
     configdict["TagOmegaSig"]   = 0.391
     configdict["StrongPhase"]   = 20. / 180. * pi
-    configdict["WeakPhase"]     = 50./180.*pi #70. / 180. * pi
+    configdict["WeakPhase"]     = 70./180.*pi
     configdict["ArgLf"]         = configdict["StrongPhase"] - configdict["WeakPhase"]
     configdict["ArgLbarfbar"]   = configdict["StrongPhase"] + configdict["WeakPhase"]
     configdict["ModLf"]         = 0.372
-    configdict["tacc_exponent"] = 1.8540e+00  #1.8518e+00 #1.75 
-    configdict["tacc_offset"]   = 1.9146e-02 #1.9557e-02 #0.02
-    configdict["tacc_beta"]     = 3.5104e-02 #3.5166e-02 #3.5e-02 
-    configdict["tacc_turnon"]   = 1.3324e+00 #1.3300e+00 #1.3       
+    configdict["tacc_exponent"] = 1.83165e+00 #1.75 
+    configdict["tacc_offset"]   = 1.94941e-02 #0.02
+    configdict["tacc_beta"]     = 3.55134e-02 #3.5e-02 
+    configdict["tacc_turnon"]   = 1.31231e+00 #1.3       
 
-    #configdict["tacc_exponent"] = 3.9134e+00
-    #configdict["tacc_offset"]   = 1.9146e-02
-    #configdict["tacc_beta"]     = 6.6705e-02
-    #configdict["tacc_turnon"]   = 5.0000e+00
+    #configdict["tacc_exponent"] = 3.99829e+00
+    #configdict["tacc_offset"]   = 1.94941e-02
+    #configdict["tacc_beta"]     = 6.66843e-02
+    #configdict["tacc_turnon"]   = 4.55085e+00
     
-    #configdict["tacc_exponent"] = 3.2592e+00
-    #configdict["tacc_offset"]   = 1.9146e-02
-    #configdict["tacc_beta"]     = 6.4844e-02
-    #configdict["tacc_turnon"]   = 2.1415e+00
+    #configdict["tacc_exponent"] = 3.38331e+00
+    #configdict["tacc_offset"]   = -1.06548e-02
+    #configdict["tacc_beta"]     = 6.66414e-02
+    #configdict["tacc_turnon"]   = 2.08435e+00
     
-    #configdict["tacc_exponent"] = 2.4785e+00
-    #configdict["tacc_offset"]   = 1.9146e-02
-    #configdict["tacc_beta"]     = 2.1540e-02
-    #configdict["tacc_turnon"]   = 6.9900e-01
+    #configdict["tacc_exponent"] = 1.5812e+00
+    #configdict["tacc_offset"]   = 7.3449e-02
+    #configdict["tacc_beta"]     = 5.5636e-02
+    #configdict["tacc_turnon"]   = 6.2060e-01
+    
 
-
-    configdict["resolutionScaleFactor"] = 1.15  
+    configdict["resolutionScaleFactor"] = 1.15 
     configdict["resolutionMeanBias"]    = 0.0
     configdict["DecayTimeResolutionModel"] = "TripleGaussian"
     configdict["DecayTimeErrInterpolation"] = True
@@ -64,10 +64,10 @@ def getconfig() :
     configdict["constParams"].append('Gammas')
     configdict["constParams"].append('deltaGammas')
     configdict["constParams"].append('tagEffSig')
-    #configdict["constParams"].append('tacc_exponent')
-    #configdict["constParams"].append('tacc_offset')
-    #configdict["constParams"].append('tacc_beta')
-    #configdict["constParams"].append('tacc_turnon')
+    configdict["constParams"].append('tacc_exponent')
+    configdict["constParams"].append('tacc_offset')
+    configdict["constParams"].append('tacc_beta')
+    configdict["constParams"].append('tacc_turnon')
     #configdict["constParams"].append('DeltaMs')
 
     return configdict

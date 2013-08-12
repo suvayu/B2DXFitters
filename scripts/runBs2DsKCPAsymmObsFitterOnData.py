@@ -33,7 +33,7 @@ bannedtoys = [1, 4, 9, 10, 12, 19, 27, 42, 44, 46, 50, 58, 59, 60, 65, 70, 72, 7
 AcceptanceFunction       =  'PowLawAcceptance'
 
 # BLINDING
-Blinding =  True
+Blinding =  False
 
 param_limits = {"lower" : -3., "upper" : 3.}
 
@@ -289,7 +289,7 @@ def runBdGammaFitterOnData(debug, wsname, initvars, var, terrvar, probvar,pereve
           
     #exit(0)
                                     
-    #templateWorkspace = GeneralUtils.LoadWorkspace(TString(myconfigfile["TemplateFile"]), TString(myconfigfile["TemplateWorkspace"]), debug)
+    templateWorkspace = GeneralUtils.LoadWorkspace(TString(myconfigfile["TemplateFile"]), TString(myconfigfile["TemplateWorkspace"]), debug)
 
     if BDTGbins:
         Bin = [TString("BDTG1"), TString("BDTG2"), TString("BDTG3")]
@@ -446,7 +446,8 @@ def runBdGammaFitterOnData(debug, wsname, initvars, var, terrvar, probvar,pereve
                                              mistag, calibration_p0,calibration_p1,avmistag)
         observables.add( mistag )
         name = TString("sigMistagPdf")
-        mistagPDF = GeneralUtils.CreateHistPDF(dataW, mistag, name, myconfigfile['nBinsMistag'], debug)
+        mistagPDF  = Bs2Dsh2011TDAnaModels.GetRooHistPdfFromWorkspace(templateWorkspace, TString(myconfigfile["MistagTemplateName"]), debug)
+        #mistagPDF = GeneralUtils.CreateHistPDF(dataW, mistag, name, myconfigfile['nBinsMistag'], debug)
 
     else:
         mistagHistPdf = None

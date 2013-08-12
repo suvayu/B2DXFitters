@@ -168,6 +168,7 @@ def runBsDsKMassFitterOnData( debug, sample, mVar, mdVar, tVar, terrVar, tagVar,
         print "Number of generated Bs->DsK* events: %d"%(countKstK)
         print "Number of generated Bs->DsstPi, DsRho events: %d"%(countRhoPi)
         print "Number of generated Combinatorial events: %d"%(countCombo)
+        print "numebr of entries: ", nEntries[0]
         #exit(0)
         
         sam.defineType(sm[0].Data())
@@ -475,7 +476,7 @@ def runBsDsKMassFitterOnData( debug, sample, mVar, mdVar, tVar, terrVar, tagVar,
         if wide:
             nSigEvts.append(0.4*nEntries[i])
         else:
-            nSigEvts.append(0.7*nEntries[i])
+            nSigEvts.append(0.4*nEntries[i])
 
         sig1 =  myconfigfile["sigma1_bc"][i]
         sig2 =  myconfigfile["sigma2_bc"][i]
@@ -571,7 +572,7 @@ def runBsDsKMassFitterOnData( debug, sample, mVar, mdVar, tVar, terrVar, tagVar,
     nCombBkgEvts = []
     nKEvts = []
     for i in range(0,bound):
-        nCombBkgEvts.append(0.2*nEntries[i])           # combinatorial background events
+        nCombBkgEvts.append(0.4*nEntries[i])           # combinatorial background events
         nKEvts.append(0.3*nEntries[i])                 # Bs->DsK, Bs->Ds*K, Bs->DsK*, Bs->Ds*K* together
                
     evts = TString("Evts")
@@ -635,7 +636,8 @@ def runBsDsKMassFitterOnData( debug, sample, mVar, mdVar, tVar, terrVar, tagVar,
                                                inBs2DsDsstPiRhoEvts-inBs2DsDsstPiRhoEvts*1.0,
                                                inBs2DsDsstPiRhoEvts+inBs2DsDsstPiRhoEvts*5.0 ))
         else:
-            nBs2DsDsstPiRho.append(RooRealVar( nameBs2DsDsstPiRho.Data(), nameBs2DsDsstPiRho.Data(),  inBs2DsDsstPiRhoEvts/2, 0.0, inBs2DsDsstPiRhoEvts*3.0 ))
+            nBs2DsDsstPiRho.append(RooRealVar( nameBs2DsDsstPiRho.Data(), nameBs2DsDsstPiRho.Data(),
+                                               inBs2DsDsstPiRhoEvts/2, 0.0, inBs2DsDsstPiRhoEvts))
 
         nBs2DsPi.append(RooRealVar( nameBs2DsPi.Data(), nameBs2DsPi.Data(),  inBs2DsPiEvts)) #, inBs2DsPiEvts*0.5, inBs2DsPiEvts*2.0))     
         nLb2LcK.append(RooRealVar( nameLb2LcK.Data(), nameLb2LcK.Data(), inLbLcKEvts)) #/2, 0, inLbLcKEvts*2.0))    
@@ -643,14 +645,14 @@ def runBsDsKMassFitterOnData( debug, sample, mVar, mdVar, tVar, terrVar, tagVar,
         if wide:
             nBs2DsDssKKst.append(RooRealVar( nameBs2DsDssKKst.Data(), nameBs2DsDssKKst.Data(), nKEvts[i] , 0. , nEntries[i]/2 ))
         else:
-            nBs2DsDssKKst.append(RooRealVar( nameBs2DsDssKKst.Data(), nameBs2DsDssKKst.Data(), nEntries[i]/15 , nEntries[i]/200, nEntries[i]/3 ))
+            nBs2DsDssKKst.append(RooRealVar( nameBs2DsDssKKst.Data(), nameBs2DsDssKKst.Data(), inBs2DsDsstPiRhoEvts/2, 0.0, inBs2DsDsstPiRhoEvts ))
 
         if wide:
             nLb2DsDsstp.append(RooRealVar( nameLb2DsDsstp.Data(), nameLb2DsDsstp.Data(), inLbDspEvts,
                                            0.0, inLbDspEvts*3))
         else:
             nLb2DsDsstp.append(RooRealVar( nameLb2DsDsstp.Data(), nameLb2DsDsstp.Data(), inLbDspEvts/2,
-                                           0, inLbDspEvts*4.0))
+                                           0, inBs2DsDsstPiRhoEvts)) #inLbDspEvts*3.0))
                                            #myconfigfile["nLbDspEvts"][i]/15, myconfigfile["nLbDspEvts"][i]*4.0))
             
         if wide:
@@ -714,11 +716,11 @@ def runBsDsKMassFitterOnData( debug, sample, mVar, mdVar, tVar, terrVar, tagVar,
     g2_f3              = RooRealVar( "g2_f3_frac","g2_f3_frac", 0.5, 0, 1) #myconfigfile["g2_f3"],0,1)
         
     # Group 3: g3_f1*Lb->Dsp + (1-g3_f1)Lb->Ds*p
-    g3_f1              = RooRealVar( "g3_f1_frac","g3_f1_frac", 0.5, 0.0, 1.0)
+    g3_f1              = RooRealVar( "g3_f1_frac","g3_f1_frac", 0.75, 0.5, 1.0)
 
     # PIDcomponets
-    g4_f1              = RooRealVar( "PID1_frac","PID1_frac", 0.6, 0.0, 1.0)
-    g4_f2              = RooRealVar( "PID2_frac","PID2_frac", 0.6, 0.0, 1.0)
+    g4_f1              = RooRealVar( "PID1_frac","PID1_frac", 0.6, 0.5, 1.0)
+    g4_f2              = RooRealVar( "PID2_frac","PID2_frac", 0.6, 0.5, 1.0)
 
     #if toys :
     #    g1_f1              = RooRealVar( "g1_f1_frac","g1_f1_frac", 1.00000)

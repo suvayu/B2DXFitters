@@ -6,6 +6,9 @@ from ROOT import *
 import sys
 sys.path.append("../data/")
 
+gStyle.SetOptStat(0)
+gStyle.SetOptFit(1011)
+
 drawGeneratedYields = False
 debug = True
 
@@ -35,11 +38,11 @@ eventtypes = {"Signal"  :1.0,
 myconfigfilegrabber = __import__("Bs2DsPiConfigForGenerator",fromlist=['getconfig']).getconfig
 myconfigfile = myconfigfilegrabber()
 
-numgenevt = {"Signal" : ntoys*[29340.]}
+numgenevt = {"Signal" : ntoys*[29330.]}
 numfitted = {"Signal" : ntoys*[(0,0)]}
 numgenevt["Combo"] = ntoys*[12930.]
 numfitted["Combo"] = ntoys*[(0,0)]
-numgenevt["LM"] = ntoys*[289.1]
+numgenevt["LM"] = ntoys*[288.2]
 numfitted["LM"] = ntoys*[(0,0)]
 
 numevents       = {}
@@ -154,6 +157,7 @@ for thistoy in range(0,ntoys) :
     f.close()
 
 print numfitted
+print "Number of failed toys: ", nfailed.__len__()
 
 gen_signal    = TH1F("gen_signal","gen_signal",100,28000,32000)
 gen_signal.GetXaxis().SetTitle("Generated signal events")
@@ -177,6 +181,7 @@ pullcanvassignal.cd(1)
 gen_signal.Draw("PE")
 pullcanvassignal.cd(2)
 fitted_signal.Draw("PE")
+fitted_signal.Fit("gaus")
 pullcanvassignal.cd(3)
 errf_signal.Draw("PE")
 pullcanvassignal.cd(4)
@@ -208,6 +213,7 @@ pullcanvaslb2lcpi.cd(1)
 gen_lb2lcpi.Draw("PE")
 pullcanvaslb2lcpi.cd(2)
 fitted_lb2lcpi.Draw("PE")
+fitted_lb2lcpi.Fit("gaus)
 pullcanvaslb2lcpi.cd(3)
 errf_lb2lcpi.Draw("PE")
 pullcanvaslb2lcpi.cd(4)
@@ -239,6 +245,7 @@ pullcanvascombo.cd(1)
 gen_combo.Draw("PE")
 pullcanvascombo.cd(2)
 fitted_combo.Draw("PE")
+fitted_combo.Fit("gaus")
 pullcanvascombo.cd(3)
 errf_combo.Draw("PE")
 pullcanvascombo.cd(4)
@@ -269,6 +276,7 @@ pullcanvaslm.cd(1)
 gen_lm.Draw("PE")
 pullcanvaslm.cd(2)
 fitted_lm.Draw("PE")
+fitted_lm.Fit("gaus")
 pullcanvaslm.cd(3)
 errf_lm.Draw("PE")
 pullcanvaslm.cd(4)

@@ -63,13 +63,18 @@ def runBsDsKGenerator( debug, single, configName, numberOfToys, numberOfEvents )
     Gammas       = RooRealVar('Gammas','Gammas', myconfigfile["Gammas"])                     # in ps^{-1}
     DeltaGammad  = RooRealVar('DeltaGammad','DeltaGammad', myconfigfile["DeltaGammad"])      # in ps^{-1}
     DeltaGammas  = RooRealVar('DeltaGammas','DeltaGammas', myconfigfile["DeltaGammas"])      # in ps^{-1}
+    TauInvGd     = Inverse( "TauInvGd","TauInvGd", Gammad)
+    TauInvGs     = Inverse( "TauInvGs","TauInvGs", Gammas)
+        
     DeltaMd      = RooRealVar('DeltaMd','DeltaMd', myconfigfile["DeltaMd"])                  # in ps^{-1}
     DeltaMs      = RooRealVar('DeltaMs','DeltaMs', myconfigfile["DeltaMs"])                  # in ps^{-1}
                         
     GammaLb      = RooRealVar('GammaLb','GammaLb',myconfigfile["GammaLb"])
     GammaCombo   = RooRealVar('GammaCombo','GammaCombo',myconfigfile["GammaCombo"])
+    TauInvLb     = Inverse( "TauInvLb","TauInvLb", GammaLb)
+    TauInvCombo  = Inverse( "TauInvCombo","TauInvCombo", GammaCombo)
         
-    TauRes       = RooRealVar('TauRes','TauRes',myconfigfile["TauRes"])
+    #TauRes       = RooRealVar('TauRes','TauRes',myconfigfile["TauRes"])
         
     zero     = RooConstVar('zero', '0', 0.)
     one      = RooConstVar('one', '1', 1.)
@@ -91,6 +96,7 @@ def runBsDsKGenerator( debug, single, configName, numberOfToys, numberOfEvents )
     data = []
     
     fileName  = "/afs/cern.ch/work/a/adudziak/public/workspace/MDFitter/work_dsk_pid_53005800_PIDK5_5M_BDTGA.root"
+    #fileName  = "work_dsk_pid_53005800_PIDK5_5M_BDTGA_2.root"
     fileName2 = "/afs/cern.ch/work/a/adudziak/public/workspace/MDFitter/templates_BsDsK.root"
     workName = 'workspace'
     
@@ -121,11 +127,12 @@ def runBsDsKGenerator( debug, single, configName, numberOfToys, numberOfEvents )
     mistagVar_B = GeneralUtils.GetObservable(workspace_mistag,TString(tagomega), debug)
     #mistagVar_B.setMax(1.0)
 
-    import GaudiPython
-    GaudiPython.loaddict('B2DXFittersDict')
-    #trm = PTResModels.getPTResolutionModel("TripleGaussian",timeVar_B, 'Bs', False,1.15)
-    trm = RooGaussModel('PTRMGaussian_signal','PTRMGaussian_signal',timeVar_B, zero, TauRes)
-
+    #Time resolution
+    trm_mean  = RooRealVar( 'trm_mean' , 'Gaussian resolution model mean', myconfigfile["resolutionMeanBias"], 'ps' )
+    trm_scale = RooRealVar( 'trm_scale', 'Gaussian resolution model scale factor', myconfigfile["resolutionScaleFactor"] )
+    trm = RooGaussModel( 'GaussianWithGaussPEDTE', 'GaussianWithGaussPEDTE', timeVar_B, trm_mean, terrVar_B, trm_scale)
+            
+    # Acceptance
     tacc_beta_pl        = RooRealVar('tacc_beta_pl'    , 'PowLawAcceptance_beta',      myconfigfile["tacc_beta_pl"]     )
     tacc_exponent_pl    = RooRealVar('tacc_exponent_pl', 'PowLawAcceptance_exponent',  myconfigfile["tacc_exponent_pl"] )
     tacc_offset_pl      = RooRealVar('tacc_offset_pl'  , 'PowLawAcceptance_offset',    myconfigfile["tacc_offset_pl"]   )
@@ -143,8 +150,7 @@ def runBsDsKGenerator( debug, single, configName, numberOfToys, numberOfEvents )
 
     terr = Bs2Dsh2011TDAnaModels.GetRooHistPdfFromWorkspace(workspace_mistag,TString("TimeErrorPdf_signal_BDTGA"), debug)
     mistag = Bs2Dsh2011TDAnaModels.GetRooKeysPdfFromWorkspace(workspace_mistag,TString("MistagPdf_signal_BDTGA"), debug)
-    
-    
+      
     #Create out workspace
     #workout = RooWorkspace("workspace","workspace")
     
@@ -222,7 +228,7 @@ def runBsDsKGenerator( debug, single, configName, numberOfToys, numberOfEvents )
     Dbar_signal  = RooRealVar('Dbar_signal','Dbar_signal',ACPobs_signal.Dfbar())
     
     tagEff_signal    = RooRealVar("tagEff_signal","tagEff_signal", myconfigfile["tagEff_signal"])
-    tagWeight_signal = TagEfficiencyWeight("tagWeight_signal","tagWeight_signal",bTagMap,tagEff_signal)
+    #tagWeight_signal = TagEfficiencyWeight("tagWeight_signal","tagWeight_signal",bTagMap,tagEff_signal)
     
     aProd_signal   = RooConstVar('aprod_signal',   'aprod_signal',   myconfigfile["aprod_signal"])        # production asymmetry
     aDet_signal    = RooConstVar('adet_signal',    'adet_signal',    myconfigfile["adet_signal"])         # detector asymmetry
@@ -253,37 +259,10 @@ def runBsDsKGenerator( debug, single, configName, numberOfToys, numberOfEvents )
     sin_signal  = DecRateCoeff('signal_sin',  'signal_sin',  flag_signal | DecRateCoeff.CPOdd | DecRateCoeff.Minus,
                                fChargeMap, bTagMap,  S_signal, Sbar_signal,    *otherargs_signal)
     
-    time_signal_noacc       = RooBDecay('time_signal_noacc','time_signal_noacc', timeVar_B, Gammas, DeltaGammas,
+    time_signal_noacc       = RooBDecay('time_signal_noacc','time_signal_noacc', timeVar_B, TauInvGs, DeltaGammas,
                                         cosh_signal, sinh_signal, cos_signal, sin_signal,
                                         DeltaMs,trm_signal, RooBDecay.SingleSided)
-    
-
-    '''
-    untaggedWeight_signal   = IfThreeWayCat('untaggedWeight_signal', 'untaggedWeight_signal', bTagMap, one, two, one)
-    Dilution_signal         = RooFormulaVar('Dilution_signal',"1-2*@0",RooArgList(mistagVar_B))
-    mixState_signal         = RooFormulaVar('mixState_signal','@0*@1',RooArgList(bTagMap,fChargeMap))
-    
-    weightedDs_signal       = IfThreeWayCat('weightedDs_signal', 'weightedDs_signal',fChargeMap, D_signal, zero, Dbar_signal)
-    weightedSs_signal       = IfThreeWayCat('weightedSs_signal', 'weightedSs_signal',fChargeMap, S_signal, zero, Sbar_signal)    
-    
-    CosSin_i0_signal        = RooProduct('CosSin_i0_signal', 'CosSin_i0_signal', RooArgSet(mixState_signal, Dilution_signal, tagWeight_signal))
-    
-    CE_signal               = RooRealVar("CE_signal","CE_signal",1 + myconfigfile["prodasy_signal"]*myconfigfile["tageffasy_signal"])
-    CO_signal               = RooRealVar("CO_signal","CO_signal", myconfigfile["prodasy_signal"] + myconfigfile["tageffasy_signal"])
-    
-    CPOddFact_signal        = RooFormulaVar("CPOddFact_signal","@2+@0*@1",RooArgList(CosSin_i0_signal,CE_signal,CO_signal))
-    CPEvenFact_signal       = RooFormulaVar("CPEvenFact_signal","@1+@0*@2",RooArgList(CosSin_i0_signal,CE_signal,CO_signal))
-    
-    Cos_signal              = RooProduct('Cos_signal', 'Cos signal', RooArgSet(CPOddFact_signal,C_signal))
-    Cosh_signal             = RooProduct('Cosh_signal', 'cosh coefficient signal', RooArgSet(untaggedWeight_signal, tagWeight_signal,CPEvenFact_signal))
-    Sin_signal              = RooProduct('Sin_signal', 'Sin signal', RooArgSet(CPOddFact_signal,weightedSs_signal,minusone))
-    Sinh_signal             = RooProduct('Sinh_signal','Sinh_signal',RooArgSet(Cosh_signal,weightedDs_signal))    
-    
-    time_signal_noacc       = RooBDecay('time_signal_noacc','time_signal_noacc', timeVar_B, Gammas, DeltaGammas, 
-    Cosh_signal, Sinh_signal, Cos_signal, Sin_signal,
-    DeltaMs,trm_signal, RooBDecay.SingleSided)
-    '''
-        
+          
     time_signal             = RooEffProd('time_signal','time_signal',time_signal_noacc,tacc_powlaw)
     
     #The signal - true ID
@@ -357,33 +336,10 @@ def runBsDsKGenerator( debug, single, configName, numberOfToys, numberOfEvents )
     sin_dk  = DecRateCoeff('dk_sin',  'dk_sin',  flag | DecRateCoeff.CPOdd,
                            fChargeMap, bTagMap,  Sbar_dk, S_dk,    *otherargs_dk)
     
-    time_dk_noacc       = RooBDecay('time_dk_noacc','time_dk_noacc', timeVar_B, Gammad, DeltaGammad,
+    time_dk_noacc       = RooBDecay('time_dk_noacc','time_dk_noacc', timeVar_B, TauInvGd, DeltaGammad,
                                     cosh_dk, sinh_dk, cos_dk, sin_dk,
                                     DeltaMd, trm_dk, RooBDecay.SingleSided)
-    
-    
-    '''
-    untaggedWeight_dk   = IfThreeWayCat('untaggedWeight_dk', 'untaggedWeight_dk', bTagMap, one, two, one)
-    Dilution_dk         = RooFormulaVar('Dilution_dk',"1-2*@0",RooArgList(mistagVar_B))
-    mixState_dk         = RooFormulaVar('mixState_dk','@0*@1',RooArgList(bTagMap,fChargeMap))
-    
-    CE_dk               = RooRealVar("CE_dk","CE_dk",1 + myconfigfile["prodasy_dk"]*myconfigfile["tageffasy_dk"])
-    CO_dk               = RooRealVar("CO_dk","CO_dk",myconfigfile["prodasy_signal"] + myconfigfile["tageffasy_signal"])
-    
-    CosSin_i0_dk        = RooProduct('sigCosSin_i0_dk', 'sigCosSin_i0 dk', RooArgSet(mixState_dk, Dilution_dk, tagWeight_dk))
-    
-    CPOddFact_dk        = RooFormulaVar("CPOddFact_dk","@2+@0*@1",RooArgList(CosSin_i0_dk,CE_dk,CO_dk))    
-    CPEvenFact_dk       = RooFormulaVar("CPEvenFact_dk","@1+@0*@2",RooArgList(CosSin_i0_dk,CE_dk,CO_dk))
-    
-    Cos_dk              = CPOddFact_dk
-    
-    Cosh_dk             = RooProduct('sigCosh_dk', 'cosh coefficient dk',
-    RooArgSet(CPEvenFact_dk,untaggedWeight_dk, tagWeight_dk))
-    
-    time_dk_noacc       = RooBDecay('time_dk_noacc','time_dk_noacc', timeVar_B, Gammad, DeltaGammad,
-    Cosh_dk, D_dk, Cos_dk, S_dk,
-    DeltaMd,trm_dk, RooBDecay.SingleSided)
-    '''
+         
     
     time_dk             = RooEffProd('time_dk','time_dk',time_dk_noacc,tacc_dk)
     
@@ -472,35 +428,10 @@ def runBsDsKGenerator( debug, single, configName, numberOfToys, numberOfEvents )
     sin_dsk  = DecRateCoeff('dsk_sin',  'dsk_sin',  flag | DecRateCoeff.CPOdd,
                             fChargeMap, bTagMap,  Sbar_dsk, S_dsk,    *otherargs_dsk)
     
-    time_dsk_noacc       = RooBDecay('time_dsk_noacc','time_dsk_noacc', timeVar_B, Gammad, DeltaGammad,
+    time_dsk_noacc       = RooBDecay('time_dsk_noacc','time_dsk_noacc', timeVar_B, TauInvGd, DeltaGammad,
                                      cosh_dsk, sinh_dsk, cos_dsk, sin_dsk,
                                      DeltaMd,trm_dsk, RooBDecay.SingleSided)
-    
-    
-    
-    '''
-    untaggedWeight_dsk   = IfThreeWayCat('untaggedWeight_dsk', 'untaggedWeight_dsk', bTagMap, one, two, one)
-    Dilution_dsk         = RooFormulaVar('Dilution_dsk',"1-2*@0",RooArgList(mistagVar_B))
-    mixState_dsk         = RooFormulaVar('mixState_dsk','@0*@1',RooArgList(bTagMap,fChargeMap))
-    
-    CosSin_i0_dsk        = RooProduct('sigCosSin_i0_dsk', 'sigCosSin_i0 dsk', RooArgSet(mixState_dsk, Dilution_dsk, tagWeight_dsk))
-    
-    CE_dsk               = RooRealVar("CE_dsk","CE_dsk",1 + myconfigfile["prodasy_dsk"]*myconfigfile["tageffasy_dsk"])
-    CO_dsk               = RooRealVar("CO_dsk","CO_dsk", myconfigfile["prodasy_dsk"] + myconfigfile["tageffasy_dsk"])
-    
-    CPOddFact_dsk        = RooFormulaVar("CPOddFact_dsk","@2+@0*@1",RooArgList(CosSin_i0_dsk,CE_dsk,CO_dsk))
-    CPEvenFact_dsk       = RooFormulaVar("CPEvenFact_dsk","@1+@0*@2",RooArgList(CosSin_i0_dsk,CE_dsk,CO_dsk))
-    
-    Cos_dsk              = CPOddFact_dsk
-    
-    Cosh_dsk             = RooProduct('sigCosh_dsk', 'cosh coefficient dsk',
-    RooArgSet(CPEvenFact_dsk,untaggedWeight_dsk, tagWeight_dsk))
-    
-    time_dsk_noacc       = RooBDecay('time_dsk_noacc','time_dsk_noacc', timeVar_B, Gammad, DeltaGammad,
-    Cosh_dsk, D_dsk, Cos_dsk, S_dsk,
-    DeltaMd,trm_dsk, RooBDecay.SingleSided)
-    '''
-    
+        
     time_dsk             = RooEffProd('time_dsk','time_dsk',time_dsk_noacc,tacc_dsk)
         
     #The Bd->DsK - true ID
@@ -586,34 +517,11 @@ def runBsDsKGenerator( debug, single, configName, numberOfToys, numberOfEvents )
     sin_dspi  = DecRateCoeff('dspi_sin' , 'dspi_sin' , DecRateCoeff.CPOdd,  fChargeMap, bTagMap,
                              Sbar_dspi, S_dspi,    *otherargs_dspi)
     
-    time_dspi_noacc       = RooBDecay('time_dspi_noacc','time_dspi_noacc', timeVar_B, Gammas, DeltaGammas,
+    time_dspi_noacc       = RooBDecay('time_dspi_noacc','time_dspi_noacc', timeVar_B, TauInvGs, DeltaGammas,
                                       cosh_dspi, sinh_dspi, cos_dspi, sin_dspi,
                                       DeltaMs, trm_dspi, RooBDecay.SingleSided)
     
-    
-    '''
-    untaggedWeight_dspi   = IfThreeWayCat('untaggedWeight_dspi', 'untaggedWeight_dspi', bTagMap, one, two, one)
-    Dilution_dspi         = RooFormulaVar('Dilution_dspi',"1-2*@0",RooArgList(mistagVar_B))
-    mixState_dspi         = RooFormulaVar('mixState_dspi','@0*@1',RooArgList(bTagMap,fChargeMap))
-    
-    CE_dspi               = RooRealVar("CE_dspi","CE_dspi",1 + myconfigfile["prodasy_dspi"]*myconfigfile["tageffasy_dspi"])
-    CO_dspi               = RooRealVar("CO_dspi","CO_dspi", myconfigfile["prodasy_dspi"] + myconfigfile["tageffasy_dspi"])
-    
-    CosSin_i0_dspi        = RooProduct('sigCosSin_i0_dspi', 'sigCosSin_i0 dspi', RooArgSet(mixState_dspi, Dilution_dspi, tagWeight_dspi))
-    
-    CPOddFact_dspi        = RooFormulaVar("CPOddFact_dspi","@2+@0*@1",RooArgList(CosSin_i0_dspi,CE_dspi,CO_dspi))
-    CPEvenFact_dspi       = RooFormulaVar("CPEvenFact_dspi","@1+@0*@2",RooArgList(CosSin_i0_dspi,CE_dspi,CO_dspi))
-    
-    Cos_dspi              = CPOddFact_dspi
-    
-    Cosh_dspi             = RooProduct('sigCosh_dspi', 'cosh coefficient dspi',
-    RooArgSet(CPEvenFact_dspi,untaggedWeight_dspi, tagWeight_dspi))   
-    
-    time_dspi_noacc       = RooBDecay('time_dspi_noacc','time_dspi_noacc', timeVar_B, Gammas, DeltaGammas,
-    Cosh_dspi, D_dspi, Cos_dspi, S_dspi,
-    DeltaMs,trm_dspi, RooBDecay.SingleSided)
-    '''
-        
+                
     time_dspi             = RooEffProd('time_dspi','time_dspi',time_dspi_noacc,tacc_dspi)
     
     #The Bs->DsPi - true ID
@@ -691,33 +599,11 @@ def runBsDsKGenerator( debug, single, configName, numberOfToys, numberOfEvents )
     sin_lck  = DecRateCoeff('lck_sin',  'lck_sin',  flag | DecRateCoeff.CPOdd,
                             fChargeMap, bTagMap,  Sbar_lck, S_lck,    *otherargs_lck)
     
-    time_lck_noacc       = RooBDecay('time_lck_noacc','time_lck_noacc', timeVar_B, GammaLb, zero,
+    time_lck_noacc       = RooBDecay('time_lck_noacc','time_lck_noacc', timeVar_B, TauInvLb, zero,
                                      cosh_lck, sinh_lck, cos_lck, sin_lck,
                                      zero,trm_lck, RooBDecay.SingleSided)
     
-    
-    '''
-    untaggedWeight_lck   = IfThreeWayCat('untaggedWeight_lck', 'untaggedWeight_lck', bTagMap, one, two, one)
-    Dilution_lck         = RooFormulaVar('Dilution_lck',"1-2*@0",RooArgList(mistagVar_B))
-    mixState_lck         = RooFormulaVar('mixState_lck','@0*@1',RooArgList(bTagMap,fChargeMap))
-    
-    CE_lck               = RooRealVar("CE_lck","CE_lck",1 + myconfigfile["prodasy_lck"]*myconfigfile["tageffasy_lck"])
-    CO_lck               = RooRealVar("CO_lck","CO_lck",myconfigfile["prodasy_lck"] + myconfigfile["tageffasy_lck"])
-    
-    CosSin_i0_lck        = RooProduct('sigCosSin_i0_lck', 'sigCosSin_i0 lck', RooArgSet(mixState_lck, Dilution_lck, tagWeight_lck))
-    
-    CPOddFact_lck        = RooFormulaVar("CPOddFact_lck","@2+@0*@1",RooArgList(CosSin_i0_lck,CE_lck,CO_lck))
-    CPEvenFact_lck       = RooFormulaVar("CPEvenFact_lck","@1+@0*@2",RooArgList(CosSin_i0_lck,CE_lck,CO_lck))
-    
-    Cos_lck              = CPOddFact_lck
-        
-    Cosh_lck             = RooProduct('sigCosh_lck', 'cosh coefficient lck',
-    RooArgSet(CPEvenFact_lck,untaggedWeight_lck, tagWeight_lck))   
-    
-    time_lck_noacc       = RooBDecay('time_lck_noacc','time_lck_noacc', timeVar_B, GammaLb, zero,
-    Cosh_lck, D_lck, Cos_lck, S_lck,
-    zero,trm_lck, RooBDecay.SingleSided)
-    '''
+       
     time_lck             = RooEffProd('time_lck','time_lck',time_lck_noacc,tacc_powlaw)
     
     #The Lb->LcK - true ID
@@ -814,34 +700,10 @@ def runBsDsKGenerator( debug, single, configName, numberOfToys, numberOfEvents )
     sin_dsdsstp  = DecRateCoeff('dsdsstp_sin',  'dsdsstp_sin',  flag | DecRateCoeff.CPOdd,
                                 fChargeMap, bTagMap,  Sbar_dsdsstp, S_dsdsstp,    *otherargs_dsdsstp)
     
-    time_dsdsstp_noacc       = RooBDecay('time_dsdsstp_noacc','time_dsdsstp_noacc', timeVar_B, GammaLb, zero,
+    time_dsdsstp_noacc       = RooBDecay('time_dsdsstp_noacc','time_dsdsstp_noacc', timeVar_B, TauInvLb, zero,
                                          cosh_dsdsstp, sinh_dsdsstp, cos_dsdsstp, sinh_dsdsstp,
                                          zero,trm_dsdsstp, RooBDecay.SingleSided)
-    
-    
-    '''
-    untaggedWeight_dsdsstp   = IfThreeWayCat('untaggedWeight_dsdsstp', 'untaggedWeight_dsdsstp', bTagMap, one, two, one)
-    Dilution_dsdsstp         = RooFormulaVar('Dilution_dsdsstp',"1-2*@0",RooArgList(mistagVar_B))
-    mixState_dsdsstp         = RooFormulaVar('mixState_dsdsstp','@0*@1',RooArgList(bTagMap,fChargeMap))
-    
-    CosSin_i0_dsdsstp        = RooProduct('sigCosSin_i0_dsdsstp', 'sigCosSin_i0 dsdsstp', 
-    RooArgSet(mixState_dsdsstp, Dilution_dsdsstp, tagWeight_dsdsstp))
-    
-    CE_dsdsstp               = RooRealVar("CE_dsdsstp","CE_dsdsstp",1 + myconfigfile["prodasy_dsdsstp"]*myconfigfile["tageffasy_dsdsstp"])
-    CO_dsdsstp               = RooRealVar("CO_dsdsstp","CO_dsdsstp",myconfigfile["prodasy_dsdsstp"] + myconfigfile["tageffasy_dsdsstp"])
-    
-    CPOddFact_dsdsstp        = RooFormulaVar("CPOddFact_dsdsstp","@2+@0*@1",RooArgList(CosSin_i0_dsdsstp,CE_dsdsstp,CO_dsdsstp))
-    CPEvenFact_dsdsstp       = RooFormulaVar("CPEvenFact_dsdsstp","@1+@0*@2",RooArgList(CosSin_i0_dsdsstp,CE_dsdsstp,CO_dsdsstp))
-    
-    Cos_dsdsstp              = CPOddFact_dsdsstp
-    
-    Cosh_dsdsstp             = RooProduct('sigCosh_dsdsstp', 'cosh coefficient dsdsstp',
-    RooArgSet(CPEvenFact_dsdsstp,untaggedWeight_dsdsstp, tagWeight_dsdsstp))   
-    
-    time_dsdsstp_noacc       = RooBDecay('time_dsdsstp_noacc','time_dsdsstp_noacc', timeVar_B, GammaLb, zero,
-    Cosh_dsdsstp, D_dsdsstp, Cos_dsdsstp, S_dsdsstp,
-    zero,trm_dsdsstp, RooBDecay.SingleSided)
-    '''
+           
     time_dsdsstp             = RooEffProd('time_dsdsstp','time_dsdsstp',time_dsdsstp_noacc,tacc_powlaw)
     
     #The Lb->Dsp - true ID
@@ -941,34 +803,10 @@ def runBsDsKGenerator( debug, single, configName, numberOfToys, numberOfEvents )
     sin_combo  = DecRateCoeff('combo_sin',  'combo_sin',  flag | DecRateCoeff.CPOdd,
                               fChargeMap, bTagMap,  Sbar_combo, S_combo,    *otherargs_combo)
     
-    time_combo_noacc       = RooBDecay('time_combo_noacc','time_combo_noacc', timeVar_B, GammaCombo, zero,
+    time_combo_noacc       = RooBDecay('time_combo_noacc','time_combo_noacc', timeVar_B, TauInvCombo, zero,
                                        cosh_combo, sinh_combo, cos_combo, sin_combo,
                                        zero,trm_combo, RooBDecay.SingleSided)
-    
-    
-    '''
-    untaggedWeight_combo   = IfThreeWayCat('untaggedWeight_combo', 'untaggedWeight_combo', bTagMap, one, two, one)
-    Dilution_combo         = RooFormulaVar('Dilution_combo',"1-2*@0",RooArgList(mistagVar_B))
-    mixState_combo         = RooFormulaVar('mixState_combo','@0*@1',RooArgList(bTagMap,fChargeMap))
-    
-    CosSin_i0_combo        = RooProduct('sigCosSin_i0_combo', 'sigCosSin_i0 combo', RooArgSet(mixState_combo, Dilution_combo, tagWeight_combo))
-    
-    CE_combo               = RooRealVar("CE_combo","CE_combo",1 + myconfigfile["prodasy_combo"]*myconfigfile["tageffasy_combo"])
-    CO_combo               = RooRealVar("CO_combo","CO_combo",myconfigfile["prodasy_combo"] + myconfigfile["tageffasy_combo"])
-    
-    CPOddFact_combo        = RooFormulaVar("CPOddFact_combo","@2+@0*@1",RooArgList(CosSin_i0_combo,CE_combo,CO_combo))
-    CPEvenFact_combo       = RooFormulaVar("CPEvenFact_combo","@1+@0*@2",RooArgList(CosSin_i0_combo,CE_combo,CO_combo))
-    
-    Cos_combo              = CPOddFact_combo
-    
-    Cosh_combo             = RooProduct('sigCosh_combo', 'cosh coefficient combo',
-                                            RooArgSet(CPEvenFact_combo,untaggedWeight_combo, tagWeight_combo))   
-                                            
-                                            time_combo_noacc       = RooBDecay('time_combo_noacc','time_combo_noacc', timeVar_B, GammaCombo, zero,
-                                            Cosh_combo, D_combo, Cos_combo, S_combo,
-                                            zero,trm_combo, RooBDecay.SingleSided)
-    '''
-    
+          
     time_combo             = RooEffProd('time_combo','time_combo',time_combo_noacc, tacc_combo)
     
     #The combinatorics - true ID
@@ -1067,36 +905,11 @@ def runBsDsKGenerator( debug, single, configName, numberOfToys, numberOfEvents )
     sin_lm1  = DecRateCoeff('lm1_sin',  'lm1_sin',  flag_lm1 | DecRateCoeff.CPOdd | DecRateCoeff.Minus,
                             fChargeMap, bTagMap,  S_lm1, Sbar_lm1,    *otherargs_lm1)
     
-    time_lm1_noacc       = RooBDecay('time_lm1_noacc','time_lm1_noacc', timeVar_B, Gammas, DeltaGammas,
+    time_lm1_noacc       = RooBDecay('time_lm1_noacc','time_lm1_noacc', timeVar_B, TauInvGs, DeltaGammas,
                                      cosh_lm1, sinh_lm1, cos_lm1, sin_lm1,
                                      DeltaMs,trm_lm1, RooBDecay.SingleSided)
     
-    
-    '''
-    untaggedWeight_lm1   = IfThreeWayCat('untaggedWeight_lm1', 'untaggedWeight_lm1', bTagMap, one, two, one)
-    Dilution_lm1         = RooFormulaVar('Dilution_lm1',"1-2*@0",RooArgList(mistagVar_B))
-    mixState_lm1         = RooFormulaVar('mixState_lm1','@0*@1',RooArgList(bTagMap,fChargeMap))
-    
-    weightedDs_lm1       = IfThreeWayCat('weightedDs_lm1', 'weightedDs_lm1',fChargeMap, D_lm1, zero, Dbar_lm1)
-    weightedSs_lm1       = IfThreeWayCat('weightedSs_lm1', 'weightedSs_lm1',fChargeMap, S_lm1, zero, Sbar_lm1)
-    CosSin_i0_lm1        = RooProduct('CosSin_i0_lm1', 'CosSin_i0_lm1', RooArgSet(mixState_lm1, Dilution_lm1, tagWeight_lm1))
-    
-    CE_lm1               = RooRealVar("CE_lm1","CE_lm1",1 + myconfigfile["prodasy_lm1"]*myconfigfile["tageffasy_lm1"])
-    CO_lm1               = RooRealVar("CO_lm1","CO_lm1",myconfigfile["prodasy_lm1"] + myconfigfile["tageffasy_lm1"])
-    
-    CPOddFact_lm1        = RooFormulaVar("CPOddFact_lm1","@2+@0*@1",RooArgList(CosSin_i0_lm1,CE_lm1,CO_lm1))
-    CPEvenFact_lm1       = RooFormulaVar("CPEvenFact_lm1","@1+@0*@2",RooArgList(CosSin_i0_lm1,CE_lm1,CO_lm1))
-    
-    Cos_lm1              = RooProduct('Cos_lm1', 'Cos lm1', RooArgSet(CPOddFact_lm1,C_lm1))
-    Cosh_lm1             = RooProduct('Cosh_lm1', 'cosh coefficient lm1', RooArgSet(untaggedWeight_lm1, tagWeight_lm1,CPEvenFact_lm1))
-    Sin_lm1              = RooProduct('Sin_lm1', 'Sin lm1', RooArgSet(CPOddFact_lm1,weightedSs_lm1,minusone))
-    Sinh_lm1             = RooProduct('Sinh_lm1','Sinh_lm1',RooArgSet(Cosh_lm1,weightedDs_lm1))
-    
-    time_lm1_noacc       = RooBDecay('time_lm1_noacc','time_lm1_noacc', timeVar_B, Gammas, DeltaGammas,
-    Cosh_lm1, Sinh_lm1, Cos_lm1, Sin_lm1,
-    DeltaMs,trm_lm1, RooBDecay.SingleSided)
-    '''
-    
+         
     time_lm1             = RooEffProd('time_lm1','time_lm1',time_lm1_noacc,tacc_lm1)
     
     #The low mass - true ID 
@@ -1194,35 +1007,11 @@ def runBsDsKGenerator( debug, single, configName, numberOfToys, numberOfEvents )
     sin_lm2  = DecRateCoeff('lm2_sin',  'lm2_sin',  flag | DecRateCoeff.CPOdd,
                             fChargeMap, bTagMap,  Sbar_lm2, S_lm2,    *otherargs_lm2)
     
-    time_lm2_noacc       = RooBDecay('time_lm2_noacc','time_lm2_noacc', timeVar_B, Gammas, DeltaGammas,
+    time_lm2_noacc       = RooBDecay('time_lm2_noacc','time_lm2_noacc', timeVar_B, TauInvGs, DeltaGammas,
                                      cosh_lm2, sinh_lm2, cos_lm2, sin_lm2,
                                      DeltaMs,trm_lm2, RooBDecay.SingleSided)
-    
-    
-    
-    '''
-    untaggedWeight_lm2   = IfThreeWayCat('untaggedWeight_lm2', 'untaggedWeight_lm2', bTagMap, one, two, one)
-    Dilution_lm2         = RooFormulaVar('Dilution_lm2',"1-2*@0",RooArgList(mistagVar_B))
-    mixState_lm2         = RooFormulaVar('mixState_lm2','@0*@1',RooArgList(bTagMap,fChargeMap))
-    
-    CosSin_i0_lm2        = RooProduct('sigCosSin_i0_lm2', 'sigCosSin_i0 lm2', RooArgSet(mixState_lm2, Dilution_lm2, tagWeight_lm2))
-    
-    CE_lm2               = RooRealVar("CE_lm2","CE_lm2",1 + myconfigfile["prodasy_lm2"]*myconfigfile["tageffasy_lm2"])
-    CO_lm2               = RooRealVar("CO_lm2","CO_lm2",myconfigfile["prodasy_lm2"] + myconfigfile["tageffasy_lm2"])
-    
-    CPOddFact_lm2        = RooFormulaVar("CPOddFact_lm2","@2+@0*@1",RooArgList(CosSin_i0_lm2,CE_lm2,CO_lm2))
-    CPEvenFact_lm2       = RooFormulaVar("CPEvenFact_lm2","@1+@0*@2",RooArgList(CosSin_i0_lm2,CE_lm2,CO_lm2))
-    
-    Cos_lm2              = CPOddFact_lm2
-    
-    Cosh_lm2             = RooProduct('sigCosh_lm2', 'cosh coefficient lm2',
-    RooArgSet(CPEvenFact_lm2,untaggedWeight_lm2, tagWeight_lm2))   
-    
-    time_lm2_noacc       = RooBDecay('time_lm2_noacc','time_lm2_noacc', timeVar_B, Gammas, DeltaGammas,
-    Cosh_lm2, D_lm2, Cos_lm2, S_lm2,
-    DeltaMs,trm_lm2, RooBDecay.SingleSided)
-    '''
-    
+     
+        
     time_lm2             = RooEffProd('time_lm2','time_lm2',time_lm2_noacc,tacc_lm2)
     
     #The low mass - true ID true
@@ -1266,7 +1055,7 @@ def runBsDsKGenerator( debug, single, configName, numberOfToys, numberOfEvents )
                           RooArgList(num_signal, num_dk,num_dsk,num_dspi,num_lck,num_dsdsstp,num_combo,num_lm1,num_lm2))
     #getattr(workout,'import')(total_pdf)
         
-        #Generate
+    #Generate
 
         
     for i in range(0,ntoys) :
@@ -1469,7 +1258,7 @@ def runBsDsKGenerator( debug, single, configName, numberOfToys, numberOfEvents )
             canv_Btime.Print("DsK_Toys_Btime.pdf")
         if not single :
             #workout.writeToFile("/afs/cern.ch/work/g/gligorov/public/Bs2DsKToys/sWeightToys/DsKToys_Full_2ksample_140912/DsK_Toys_Full_Work_2kSample_"+str(i)+".root")
-            workout.writeToFile("/afs/cern.ch/work/a/adudziak/public/Bs2DsKToys/Gamma140/DsK_Toys_Work_"+str(i)+".root")
+            workout.writeToFile("/afs/cern.ch/work/a/adudziak/public/Bs2DsKToys/Gamma70/DsK_Toys_Work_"+str(i+750)+".root")
             #outfile  = TFile("/afs/cern.ch/work/g/gligorov/public/Bs2DsKToys/sWeightToys/DsKToys_Full_2ksample_140912/DsK_Toys_Full_Tree_2kSample_"+str(i)+".root","RECREATE")
         else :
             workout.writeToFile("Data_Toys_Single_Work_DsK.root")
@@ -1497,7 +1286,7 @@ parser.add_option( '-s', '--single',
                                       )
 parser.add_option( '--numberOfToys',
                    dest = 'numberOfToys',
-                   default = 500)
+                   default = 250)
 
 parser.add_option( '--numberOfEvents',
                    dest = 'numberOfEvents',

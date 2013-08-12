@@ -49,7 +49,7 @@ def getconfig() :
     
     configdict["lumRatio"] =  0.44/(0.59+0.44)
 
-    configdict["mean"]    = [5367.51, 5367.51, 5367.51, 5367.51, 5367.51]
+    configdict["mean"]    = [5369]
 
     configdict["sigma1_bc"]  = [10.627]
     configdict["sigma2_bc"]  = [15.289]
@@ -82,23 +82,16 @@ def getconfig() :
     configdict["alpha1Dsfrac"] = 1.0
     configdict["alpha2Dsfrac"] = 1.0
     
-    configdict["cB"] = [-1.9385e-03]
-    configdict["cD"] = [-1.9408e-03]
-    configdict["fracComb"] = [5.1218e-01]
+    configdict["cB"] = [-9.2354e-04] #[-1.9385e-03]
+    configdict["cD"] = [-8.8642e-03] #[-1.9408e-03]
+    configdict["fracComb"] = [0.34206] #[5.1218e-01]
 
-    configdict["nBs2DsDsstPiRhoEvts"]  = [500.0/2.0, 500.0/2.0]
+    configdict["nBs2DsDsstPiRhoEvts"]  = [715.0/2.0, 715.0/2.0]
     configdict["nBs2DsPiEvts"]         = [715.0/2.0, 715.0/2.0]
     configdict["nLbDspEvts"]           = [153.0/2.0, 153.0/2.0]
     configdict["nLbLcKEvts"]           = [21.0/2.0,   21.0/2.0]
     configdict["nBdDKEvts"]            = [19.0/2.0,   19.0/2.0]
-    
-    
-    
-    #configdict["nBs2DsDsstPiRhoEvts"]  = 6*[423]
-    #configdict["nLbDspEvts"]           = 6*[254]
-    #configdict["nLbLcKEvts"]           = 6*[43]
-    #configdict["nBdDKEvts"]            = 6*[43]
-    
+         
     configdict["g2_f1"] = 0.374
     configdict["g2_f2"] = 0.196
     configdict["g2_f3"] = 0.127

@@ -7,13 +7,8 @@ GaudiPython.loaddict( 'B2DXFittersDict' )
 
 from ROOT import *
 
-#GeneralUtils = GaudiPython.gbl.GeneralUtils
-#MassFitUtils = GaudiPython.gbl.MassFitUtils
-#Bs2Dsh2011TDAnaModels = GaudiPython.gbl.Bs2Dsh2011TDAnaModels
-#SFitUtils = GaudiPython.gbl.SFitUtils
-
-#from ROOT import *
-#import ROOT
+gStyle.SetOptStat(0)
+gStyle.SetOptFit(1011)
 
 import sys
 sys.path.append("../data/")
@@ -23,7 +18,7 @@ largeToys = False
 drawGeneratedYields = False
 
 ntoys               = 1000
-toysdir             = '/afs/cern.ch/work/a/adudziak/public/Bs2DsKToys/Gamma70/'
+toysdir             = '/afs/cern.ch/work/a/adudziak/public/Bs2DsKToys/Gamma140/'
 toystupleprefix     = 'DsK_Toys_sWeights_ForTimeFit_'
 if largeToys : toystupleprefix     = 'DsK_Toys_FullLarge_Tree_'
 toystuplesuffix     = '.root'
@@ -32,7 +27,7 @@ if largeToys : toysresultprefix    = 'DsK_Toys_FullLarge_MassFitResult_'
 toysresultsuffix    = '.log'    
 
 #outputdir = '/afs/cern.ch/work/g/gligorov/public/Bs2DsKToys/sWeightToys/DsKToysAgnieszka_010813/'
-outputdir = '/afs/cern.ch/work/a/adudziak/public/Bs2DsKToys/Gamma70/'
+outputdir = '/afs/cern.ch/work/a/adudziak/public/Bs2DsKToys/Gamma140/'
 
 eventtypes = {"Signal" : 1.0, 
               "DK"     : 2.0,
@@ -48,15 +43,15 @@ eventtypes = {"Signal" : 1.0,
 myconfigfilegrabber = __import__("Bs2DsKConfigForGenerator",fromlist=['getconfig']).getconfig
 myconfigfile = myconfigfilegrabber()
 
-numgenevt = {"Signal" : ntoys*[1858]}
+numgenevt = {"Signal" : ntoys*[1863]}
 numfitted = {"Signal" : ntoys*[(0,0)]}
-numgenevt["Combo"] = ntoys*[4055]
+numgenevt["Combo"] = ntoys*[4057]
 numfitted["Combo"] = ntoys*[(0,0)]
-numgenevt["LMK"] = ntoys*[144.8]
+numgenevt["LMK"] = ntoys*[143.4]
 numfitted["LMK"] = ntoys*[(0,0)]
-numgenevt["LMPi"] = ntoys*[431]
+numgenevt["LMPi"] = ntoys*[432.8]
 numfitted["LMPi"] = ntoys*[(0,0)]
-numgenevt["Dsp"] = ntoys*[153.2]
+numgenevt["Dsp"] = ntoys*[152.1]
 numfitted["Dsp"] = ntoys*[(0,0)]
 
 numevents       = {}
@@ -65,7 +60,7 @@ numeventshistos = {}
 for eventtype in eventtypes :
     numevents[eventtype]    = ntoys*[0]
     maxevents = 5000
-    if eventtype in ["DK","LcK","Dsp","LMPi","LMK","Bd2DK"] :
+    if eventtype in ["DK","LcK","Dsp","LMPi","LMK","Bd2DsK"] :
         maxevents = 500
     if eventtype in ["Signal","DsPi"] :
         maxevents = 2500
@@ -76,6 +71,7 @@ for eventtype in eventtypes :
 
 if drawGeneratedYields :
     for thistoy in range(0,ntoys) :
+        print "Processing toy",thistoy
         thistoyfile = TFile(toysdir+toystupleprefix+str(thistoy)+toystuplesuffix)
         thistoytree = thistoyfile.Get('merged') 
         for thisentry in range(0,thistoytree.GetEntries()) :
@@ -154,6 +150,8 @@ if debug :
     print nfailed
     print '\n\n\n'
     print numfitted
+    print "Number of failed toys: ", nfailed.__len__()
+    
 
 gen_signal    = TH1F("gen_signal","gen_signal",100,1500,2500)
 gen_signal.GetXaxis().SetTitle("Generated signal events")
@@ -169,8 +167,8 @@ for thistoy in range(0,ntoys) :
     gen_signal.Fill(numevents["Signal"][thistoy])
     fitted_signal.Fill(numfitted["Signal"][thistoy][0])
     errf_signal.Fill(numfitted["Signal"][thistoy][1])
-    print "%d %d %d %f"%(thistoy, numgenevt["Signal"][thistoy], numfitted["Signal"][thistoy][0],
-                         numgenevt["Signal"][thistoy]-numfitted["Signal"][thistoy][0])
+    #print "%d %d %d %f"%(thistoy, numgenevt["Signal"][thistoy], numfitted["Signal"][thistoy][0],
+    #                     numgenevt["Signal"][thistoy]-numfitted["Signal"][thistoy][0])
     pull_signal.Fill((numgenevt["Signal"][thistoy]-numfitted["Signal"][thistoy][0])/numfitted["Signal"][thistoy][1])
 pullcanvassignal = TCanvas("pullcanvassignal","pullcanvassignal",800,800)
 pullcanvassignal.Divide(2,2)
@@ -178,6 +176,7 @@ pullcanvassignal.cd(1)
 gen_signal.Draw("PE")
 pullcanvassignal.cd(2)
 fitted_signal.Draw("PE")
+fitted_signal.Fit("gaus")
 pullcanvassignal.cd(3)
 errf_signal.Draw("PE")
 pullcanvassignal.cd(4)
@@ -211,6 +210,7 @@ pullcanvascombo.cd(1)
 gen_combo.Draw("PE")
 pullcanvascombo.cd(2)
 fitted_combo.Draw("PE")
+fitted_combo.Fit("gaus")
 pullcanvascombo.cd(3)
 errf_combo.Draw("PE")
 pullcanvascombo.cd(4)
@@ -244,6 +244,7 @@ pullcanvaslmk.cd(1)
 gen_lmk.Draw("PE")
 pullcanvaslmk.cd(2)
 fitted_lmk.Draw("PE")
+fitted_lmk.Fit("gaus")
 pullcanvaslmk.cd(3)
 errf_lmk.Draw("PE")
 pullcanvaslmk.cd(4)
@@ -277,6 +278,7 @@ pullcanvaslmpi.cd(1)
 gen_lmpi.Draw("PE")
 pullcanvaslmpi.cd(2)
 fitted_lmpi.Draw("PE")
+fitted_lmpi.Fit("gaus")
 pullcanvaslmpi.cd(3)
 errf_lmpi.Draw("PE")
 pullcanvaslmpi.cd(4)
@@ -304,18 +306,19 @@ for thistoy in range(0,ntoys) :
     errf_dsp.Fill(numfitted["Dsp"][thistoy][1])
     pull_dsp.Fill((numgenevt["Dsp"][thistoy]-numfitted["Dsp"][thistoy][0])/numfitted["Dsp"][thistoy][1])
     
-    pullcanvasdsp = TCanvas("pullcanvasdsp","pullcanvasdsp",800,800)
-    pullcanvasdsp.Divide(2,2)
-    pullcanvasdsp.cd(1)
-    gen_dsp.Draw("PE")
-    pullcanvasdsp.cd(2)
-    fitted_dsp.Draw("PE")
-    pullcanvasdsp.cd(3)
-    errf_dsp.Draw("PE")
-    pullcanvasdsp.cd(4)
-    pull_dsp.Fit("gaus")
-    pull_dsp.Draw("PE")
-    
+pullcanvasdsp = TCanvas("pullcanvasdsp","pullcanvasdsp",800,800)
+pullcanvasdsp.Divide(2,2)
+pullcanvasdsp.cd(1)
+gen_dsp.Draw("PE")
+pullcanvasdsp.cd(2)
+fitted_dsp.Draw("PE")
+fitted_dsp.Fit("gaus")
+pullcanvasdsp.cd(3)
+errf_dsp.Draw("PE")
+pullcanvasdsp.cd(4)
+pull_dsp.Fit("gaus")
+pull_dsp.Draw("PE")
+
 if largeToys:
     pullcanvasdsp.Print(outputdir+"PullPlot_DsK_Mass_Large_Dsp.pdf")
 else :

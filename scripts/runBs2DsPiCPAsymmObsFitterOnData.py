@@ -395,7 +395,7 @@ def runBdGammaFitterOnData(debug, wsname, initvars, tvar, terrvar, probvar, pere
          
     #exit(0)
                                                        
-    #templateWorkspace = GeneralUtils.LoadWorkspace(TString(myconfigfile["TemplateFile"]), TString(myconfigfile["TemplateWorkspace"]), debug)
+    templateWorkspace = GeneralUtils.LoadWorkspace(TString(myconfigfile["TemplateFile"]), TString(myconfigfile["TemplateWorkspace"]), debug)
 
     if BDTGbins:
         Bin = [TString("BDTG1"), TString("BDTG2"), TString("BDTG3")]
@@ -542,9 +542,9 @@ def runBdGammaFitterOnData(debug, wsname, initvars, tvar, terrvar, probvar, pere
         name = TString("sigMistagPdf")
         if debug:
             print "[INFO] Set binning for mistag: %d"%(myconfigfile['nBinsMistag'])
-        mistagPDF = GeneralUtils.CreateHistPDF(dataW, mistag, name, myconfigfile["nBinsMistag"], debug)
+        #mistagPDF = GeneralUtils.CreateHistPDF(dataW, mistag, name, myconfigfile["nBinsMistag"], debug)
         #mistagPDF = GeneralUtils.CreateBinnedPDF(dataW, mistag, name, myconfigfile["nBinsMistag"], debug)
-               
+        mistagPDF  = Bs2Dsh2011TDAnaModels.GetRooHistPdfFromWorkspace(templateWorkspace, TString(myconfigfile["MistagTemplateName"]), debug)
     else:
         mistagHistPdf = None 
         mistagCalibrated =  mistag 

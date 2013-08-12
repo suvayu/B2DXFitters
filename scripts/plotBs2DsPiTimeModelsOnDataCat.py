@@ -72,8 +72,8 @@ def plotFitModel(model, frame, wksp, combData) :
     obs = dataset.get()
     obs.Print("v")
     cat = obs.find('bdtgbin')
-    cat2 = obs.find('qf')
-    cat3 = obs.find('qt')
+    qf = obs.find('qf')
+    qt = obs.find('qt')
     
     #for i in range(0,dataset.numEntries()) :
     #    obs = dataset.get(i)
@@ -84,9 +84,9 @@ def plotFitModel(model, frame, wksp, combData) :
     frame.Print("v")
     
     model.plotOn(frame,
-                 RooFit.Slice(RooArgSet(cat)),
-                 #RooFit.ProjWData(RooArgSet(cat,terr), dataset),
-                 RooFit.ProjWData(RooArgSet(cat,cat2,cat3,terr),dataset),
+                 RooFit.Slice(RooArgSet(cat, qf, qt)),
+                 RooFit.ProjWData(RooArgSet(cat,qf,qt), dataset),
+                 #RooFit.ProjWData(RooArgSet(cat,qf,qt,terr),dataset),
                  RooFit.LineColor(kBlue+3))
     
     #fr = model.plotOn(frame,
@@ -101,11 +101,26 @@ def plotFitModel(model, frame, wksp, combData) :
     
      
 
-    #model.createProjection(RooArgSet(lab0_BsTaggingTool_TAGDECISION_OS,lab1_ID))    
+    #model.createProjection(RooArgSet(qf,qt))    
+    '''
+    sliceData_1 = dataset.reduce(RooArgSet(time,qf,qt,cat),"((qt == 1 && qf == -1) || ( qt == -1 && qf == 1))")
+    sliceData_1.plotOn(frame,RooFit.MarkerColor(kRed))
 
-    #sliceData = dataset.reduce(RooArgSet(time,lab0_BsTaggingTool_TAGDECISION_OS,lab1_ID),"lab0_BsTaggingTool_TAGDECISION_OS > 0")
+    model.plotOn(frame,
+                 RooFit.Slice(RooArgSet(cat,qf,qt)),
+                 RooFit.ProjWData(RooArgSet(cat,qf,qt), sliceData_1),
+                 #RooFit.ProjWData(RooArgSet(cat,qf,qt,terr),dataset),
+                 RooFit.LineColor(kRed))
+    
 
-    #sliceData.plotOn(frame,RooFit.Color(kRed))
+    sliceData_2 = dataset.reduce(RooArgSet(time,qf,qt,cat),"(qt == -1 && qf == -1) || ( qt == 1 && qf == 1)")
+    sliceData_2.plotOn(frame,RooFit.MarkerColor(kBlue))
+
+    sliceData_3 = dataset.reduce(RooArgSet(time,qf,qt,cat),"qt == 0")
+    sliceData_3.plotOn(frame,RooFit.MarkerColor(kGreen+3))
+    '''
+    
+    
 
 #------------------------------------------------------------------------------
 def legends(model, frame):

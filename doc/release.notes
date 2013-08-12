@@ -4,6 +4,10 @@
 ! Purpose     : RooFit-based fitters for B -> D X
 !-----------------------------------------------------------------------------
 
+! 2013-08-12 - Agnieszka Dziurda
+ - fix DsPi and DsK generators
+ - update toys tools   
+
 ! 2013-08-11 - Manuel Tobias Schiller
  - first version of the cFit which can run DsPi toys, too (still has some
    rough edges, to be improved later tonight)

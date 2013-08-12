@@ -16,7 +16,7 @@ while ($thissample < $2)
     set thissamplestr = `echo $thissample`
     rm $diroutput$outputprefix$thissamplestr$outputsuffix
     rm $diroutput$outputprefix$thissamplestr$outputsuffix.gz
-    python runBs2DsKCPAsymmObsFitterOnData.py --debug --pereventmistag --config Bs2DsKConfigForNominalGammaFitToys --pathName $dirinput$inputprefix$thissamplestr$inputsuffix --smearAccept --cat --save $diroutput$timeplotprefix$thissamplestr$inputsuffix >& $diroutput$outputprefix$thissamplestr$outputsuffix
+    python runBs2DsKCPAsymmObsFitterOnData.py --debug --pereventmistag --config Bs2DsKConfigForNominalGammaFitToys --pathName $dirinput$inputprefix$thissamplestr$inputsuffix --cat --save $diroutput$timeplotprefix$thissamplestr$inputsuffix >& $diroutput$outputprefix$thissamplestr$outputsuffix
     gzip $diroutput$outputprefix$thissamplestr$outputsuffix
     @ thissample++
     echo $thissample

@@ -16,6 +16,10 @@ SFitUtils = GaudiPython.gbl.SFitUtils
 from ROOT import *
 import ROOT
 
+gStyle.SetOptStat(0)
+gStyle.SetOptFit(1011)
+
+
 import sys 
 sys.path.append("../data/")
 
@@ -42,6 +46,8 @@ avgmistagsuffix = "AvgMistag_"
 ntoys               = 1000
 toysdir             = '/afs/cern.ch/work/a/adudziak/public/Bs2DsKToys/Gamma70/'
 toysresultprefix    = 'DsK_Toys_TimeFitResult_'
+toysresultprefixMD  = 'DsK_Toys_MassFitResult_'
+
 if useavgmistag : toysresultprefix += avgmistagsuffix
 if largeToys    : toysresultprefix = 'DsK_Toys_FullLarge_TimeFitResult_'
 toysresultsuffix    = '.log'    
@@ -66,6 +72,35 @@ dmsgenera["Dbar"] = ntoys*[(theseobservables.Dfbar(),0.)]#ntoys*[(0.0,0.)]
 dmsfitted["Dbar"] = ntoys*[(0,0)]
 
 nfailed = []
+
+for thistoy in range(0,ntoys) :
+    f = open(toysdir+toysresultprefixMD+str(thistoy)+toysresultsuffix)
+    counter = 0
+    counterstop = -100
+    badfit = False
+    print "Processing toy",thistoy
+    for line in f :
+        counter += 1
+        if line.find('MIGRAD=4') > -1 :
+            badfit = True
+            nfailed.append(thistoy)
+            break
+        if line.find('NOT POS-DEF') > -1 :
+            badfit = True
+        if line.find('ERROR MATRIX ACCURATE') > -1 :
+            badfit = False
+        if line.find('FinalValue') >  -1 :
+            if badfit :
+                nfailed.append(thistoy)
+                break
+            #print line
+            counterstop = counter
+            break                                                                                                                                        
+
+print nfailed.__len__(),'toys failed to converge properly'
+print nfailed
+
+#exit(0)
 
 for thistoy in range(0,ntoys) :
     if not tbtd : break
@@ -180,6 +215,7 @@ for thistoy in range(0,ntoys) :
         nfailed.append(thistoy)
     f.close()
 
+            
 print nfailed.__len__(),'toys failed to converge properly'
 print nfailed
 

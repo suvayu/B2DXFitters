@@ -20,23 +20,22 @@ def getconfig() :
     #configdict["tacc_beta"]     = 3.4305e-02 #3.4453e-02 #0.03 
     #configdict["tacc_turnon"]   = 1.3608e+00 #1.3622e+00 #1.3   
 
-    configdict["tacc_exponent_BDTG1"] = 3.9134e+00
-    configdict["tacc_offset_BDTG1"]   = 1.9146e-02
-    configdict["tacc_beta_BDTG1"]     = 6.6705e-02
-    configdict["tacc_turnon_BDTG1"]   = 5.0000e+00
+    configdict["tacc_exponent_BDTG1"] = 3.99829e+00
+    configdict["tacc_offset_BDTG1"]   = -8.55864e-02
+    configdict["tacc_beta_BDTG1"]     = 6.66843e-02
+    configdict["tacc_turnon_BDTG1"]   = 4.55085e+00
 
-    configdict["tacc_exponent_BDTG2"] = 3.2592e+00 
-    configdict["tacc_offset_BDTG2"]   = 1.9146e-02
-    configdict["tacc_beta_BDTG2"]     = 6.4844e-02
-    configdict["tacc_turnon_BDTG2"]   = 2.1415e+00
-
-    configdict["tacc_exponent_BDTG3"] = 2.4785e+00
-    configdict["tacc_offset_BDTG3"]   = 1.9146e-02
-    configdict["tacc_beta_BDTG3"]     = 2.1540e-02
-    configdict["tacc_turnon_BDTG3"]   = 6.9900e-01
+    configdict["tacc_exponent_BDTG2"] = 3.38331e+00  
+    configdict["tacc_offset_BDTG2"]   = -1.06548e-02
+    configdict["tacc_beta_BDTG2"]     = 6.66414e-02
+    configdict["tacc_turnon_BDTG2"]   = 2.08435e+00
     
+    configdict["tacc_exponent_BDTG3"] = 1.5812e+00
+    configdict["tacc_offset_BDTG3"]   = 7.3449e-02
+    configdict["tacc_beta_BDTG3"]     = 5.5636e-02
+    configdict["tacc_turnon_BDTG3"]   = 6.2060e-01
     
-                
+                   
 
     configdict["resolutionScaleFactor"] = 1.15  
     configdict["resolutionMeanBias"]    = 0.0
@@ -67,15 +66,15 @@ def getconfig() :
     #configdict["constParams"].append('tacc_beta')
     #configdict["constParams"].append('tacc_turnon')
 
-    #configdict["constParams"].append('tacc_exponent_BDTG1')
+    configdict["constParams"].append('tacc_exponent_BDTG1')
     configdict["constParams"].append('tacc_offset_BDTG1')
     configdict["constParams"].append('tacc_beta_BDTG1')
     configdict["constParams"].append('tacc_turnon_BDTG1')
-    #configdict["constParams"].append('tacc_exponent_BDTG2')
+    configdict["constParams"].append('tacc_exponent_BDTG2')
     configdict["constParams"].append('tacc_offset_BDTG2')
     configdict["constParams"].append('tacc_beta_BDTG2')
     configdict["constParams"].append('tacc_turnon_BDTG2')
-    #configdict["constParams"].append('tacc_exponent_BDTG3')
+    configdict["constParams"].append('tacc_exponent_BDTG3')
     configdict["constParams"].append('tacc_offset_BDTG3')
     configdict["constParams"].append('tacc_beta_BDTG3')
     configdict["constParams"].append('tacc_turnon_BDTG3')
