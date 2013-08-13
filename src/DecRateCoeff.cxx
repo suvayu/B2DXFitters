@@ -1098,8 +1098,8 @@ double DecRateCoeff::CacheElem::qtetapdf(const int qf, const int qt,
 	    }
 	case 0:
 	    return etaintpdfuntagged() * (
-		    (1. + ap) * (1 - eps * (1. + at)) * cp +
-		    (1. - ap) * (1 - eps * (1. - at)) * cm);
+		    (1. + ap) * (1. - eps * (1. + at)) * cp +
+		    (1. - ap) * (1. - eps * (1. - at)) * cm);
 	case +1:
 	    {
 		const double m(etaintpdftagged());

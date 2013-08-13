@@ -4,6 +4,9 @@
 ! Purpose     : RooFit-based fitters for B -> D X
 !-----------------------------------------------------------------------------
 
+! 2013-08-13 - Manuel Tobias Schiller
+ - add missing decimal points in DecRateCoeff.cxx
+
 ! 2013-08-12 - Agnieszka Dziurda
  - fix DsPi and DsK generators
  - update toys tools   
