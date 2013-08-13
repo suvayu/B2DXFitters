@@ -94,9 +94,9 @@ else
     schedtool=""
 fi
 
-# set ulimit to protect against bugs which crash the machine: 5G vmem max,
+# set ulimit to protect against bugs which crash the machine: 2G vmem max,
 # no more then 8M stack
-ulimit -v $((5 * 1024 * 1024))
+ulimit -v $((2048 * 1024))
 ulimit -s $((   8 * 1024))
 
 # trampoline into python
@@ -137,9 +137,9 @@ def in_gdb():
     import os
     proclist = dict(
         (l[0], l[1:]) for l in (
-        lraw.replace('\n', '').replace('\r','').split()
-        for lraw in os.popen('ps -o pid= -o ppid= -o comm=').readlines()
-        )
+            lraw.replace('\n', '').replace('\r','').split()
+            for lraw in os.popen('ps -o pid= -o ppid= -o comm=').readlines()
+            )
         )
     pid = os.getpid()
     while pid in proclist:
@@ -268,12 +268,12 @@ defaultConfig = {
             ], 
 
     # truth/Gaussian/DoubleGaussian/GaussianWithPEDTE/GaussianWithLandauPEDTE/GaussianWithScaleAndPEDTE
-    'DecayTimeResolutionModel':	'TripleGaussian',
-    'DecayTimeResolutionBias':	0.,
-    'DecayTimeResolutionScaleFactor': 1.15,
+    'DecayTimeResolutionModel':         'TripleGaussian',
+    'DecayTimeResolutionBias':          0.,
+    'DecayTimeResolutionScaleFactor':   1.15,
     # None/BdPTAcceptance/DTAcceptanceLHCbNote2007041,PowLawAcceptance
     'AcceptanceFunction':		'PowLawAcceptance',
-    'AcceptanceCorrectionFile':	os.environ['B2DXFITTERSROOT']+'/data/acceptance-ratio-hists.root',
+    'AcceptanceCorrectionFile':         os.environ['B2DXFITTERSROOT']+'/data/acceptance-ratio-hists.root',
     'AcceptanceCorrectionHistName':	'haccratio_cpowerlaw',
     'AcceptanceCorrectionInterpolation': False,
     # acceptance can really be made a histogram/spline interpolation
@@ -291,7 +291,7 @@ defaultConfig = {
 
     'PerEventMistag': 		True,
     'TrivialMistag':		False,
-    'UseKFactor':			False,
+    'UseKFactor':		False,
 
     # fitter settings
     'Optimize':			2,
@@ -313,7 +313,7 @@ defaultConfig = {
     # mass templates
     'MassTemplateFile':		os.environ['B2DXFITTERSROOT']+'/data/workspace/WS_Mass_DsK.root',
     'MassTemplateWorkspace':	'FitMeToolWS',
-    'MassInterpolation':		True,
+    'MassInterpolation':	True,
     # either one element or 6 (kkpi,kpipi,pipipi)x(up,down) in "sample" order
     'NEvents':			[ 1731. ],
     # target S/B: None means keep default
@@ -353,12 +353,12 @@ defaultConfig = {
 
     # Data file settings
     'IsToy':			True,
-    'DataFileName':			None,
-    'DataWorkSpaceName':		'workspace',
-    'DataSetNames':			{
-            'up_kkpi':      'dataSetBsDsK_up_kkpi',
-            'up_kpipi':     'dataSetBsDsK_up_kpipi',
-            'up_pipipi': 	'dataSetBsDsK_up_pipipi',
+    'DataFileName':		None,
+    'DataWorkSpaceName':	'workspace',
+    'DataSetNames':		{
+            'up_kkpi':          'dataSetBsDsK_up_kkpi',
+            'up_kpipi':         'dataSetBsDsK_up_kpipi',
+            'up_pipipi':        'dataSetBsDsK_up_pipipi',
             'down_kkpi':	'dataSetBsDsK_down_kkpi',
             'down_kpipi':	'dataSetBsDsK_down_kpipi',
             'down_pipipi':	'dataSetBsDsK_down_pipipi'
@@ -433,7 +433,7 @@ def printResult(config, result, blind = False):
     print 'FIT RESULT: FCN % 12.6g STATUS % 2d COV QUAL % 2d EDM %12.6g' % (
         result.minNll(), result.status(), result.covQual(), result.edm())
     print ''
-    print '%3s %-16s %12s %12s %12s' % (
+    print '%3s %-24s %12s %12s %12s' % (
         'PAR', 'NAME', 'INI. VALUE', 'FIT VALUE', 'ERROR' )
     print ''
     i = 0
@@ -441,10 +441,10 @@ def printResult(config, result, blind = False):
         cmt = ''
         if fbl[var] >= fv[var] or fbu[var] <= fv[var]:
             cmt = '*** AT LIMIT ***'
-        val = '% 12.3g' % fv[var]
+        val = '% 12.5g' % fv[var]
         if blind:
             val = 'XXXX.XXX'
-        print '% 3u %-16s % 12.3g %12s %12.3g %s' % (
+        print '% 3u %-24s % 12.5g %12s %12.5g %s' % (
             i, var, iv[var], val, fe[var], cmt )
         i = i + 1
     del i
@@ -579,7 +579,7 @@ def readDataSet(
             raise "Sample category '%s' unknown!" % sname
         dsname = config['DataSetNames'][sname]
         # set sample index
-        sample.setLabel('%s_%s' % (pol, dsmode))
+        sample.setLabel(sname)
         # handle absent names (samples) in input
         if None == dsname: continue
         if 0 == len(dsname): continue
@@ -609,9 +609,9 @@ def readDataSet(
                         dstvars[j].setIndex(srcvars[j].getIndex())
                     else:
                         v = srcvars[j].getVal()
-                        if v >= 1e-15:
+                        if v >= 0.5:
                             dstvars[j].setIndex(+1)
-                        elif v <= -1e-15:
+                        elif v <= -0.5:
                             dstvars[j].setIndex(-1)
                         else:
                             dstvars[j].setIndex(0)
@@ -620,7 +620,8 @@ def readDataSet(
                     if 0 == j:
                         v = v * timeConvFactor
                     elif 2 == j:
-                        if abs(srcvars[4].getVal()) < 1e-15:
+                        if 0.5 == v: v = v * (1. - sys.float_info.epsilon)
+                        if abs(srcvars[4].getVal()) < 0.5:
                             # fix the untagged oddities in the tuples
                             v = 0.5
                     dstvars[j].setVal(v)
@@ -1260,10 +1261,9 @@ def getMassTemplateOneMode2011Paper(
         components = pdf.getComponents()
         ROOT.SetOwnership(components, True)
         components.add(pdf)
-        it = components.createIterator()
-        ROOT.SetOwnership(it, True)
+        it = components.fwdIterator()
         while True:
-            obj = it.Next()
+            obj = it.next()
             if None == obj: break
             obj.specialIntegratorConfig(True).setEpsAbs(1e-9)
             obj.specialIntegratorConfig().setEpsRel(1e-9)
@@ -1272,10 +1272,6 @@ def getMassTemplateOneMode2011Paper(
             obj.specialIntegratorConfig().getConfigSection('RooIntegrator1D').setRealValue('minSteps', 3)
             obj.specialIntegratorConfig().getConfigSection('RooIntegrator1D').setRealValue('maxSteps', 16)
             obj.specialIntegratorConfig().method1D().setLabel('RooIntegrator1D')
-            # FIXME: force numerical integration as long as the shapes are
-            # fucked up, once they are corrected, we can go back...
-            if obj.InheritsFrom('RooBinned1DQuinticBase<RooAbsPdf>'):
-                obj.forceNumInt()
         del obj
         del it
         del components
@@ -1348,6 +1344,7 @@ def getMassTemplates(
     ):
     personalisedGetMassTemplateOneMode = {
             '2011Conf': getMassTemplateOneMode2011Conf,
+            '2011ConfDATA': getMassTemplateOneMode2011Conf,
             '2011PaperDsK': getMassTemplateOneMode2011Paper,
             '2011PaperDsPi': getMassTemplateOneMode2011Paper,
             }
@@ -1572,7 +1569,8 @@ def buildNonOscDecayTimePdf(
     # apply acceptance (if needed)
     timeresmodel = applyBinnedAcceptance(
         config, ws, time, timeresmodel, acceptance)
-    parameteriseResModelIntegrals(config, timeerrpdf, timeerr, timeresmodel)
+    # FIXME: understand why this breaks at Optimize > 2
+    # parameteriseResModelIntegrals(config, timeerrpdf, timeerr, timeresmodel)
 
     # perform the actual k-factor smearing integral (if needed)
     # if we have to perform k-factor smearing, we need "smeared" variants of
@@ -1706,7 +1704,8 @@ def buildBDecayTimePdf(
     # apply acceptance (if needed)
     timeresmodel = applyBinnedAcceptance(
             config, ws, time, timeresmodel, acceptance)
-    parameteriseResModelIntegrals(config, timeerrpdf, timeerr, timeresmodel)
+    # FIXME: understand why this breaks at Optimize > 2
+    # parameteriseResModelIntegrals(config, timeerrpdf, timeerr, timeresmodel)
 
     # if there is a per-event mistag distributions and we need to do things
     # correctly
@@ -1827,7 +1826,6 @@ def combineCPObservables(config, modes, yields):
 #------------------------------------------------------------------------------
 def getMasterPDF(config, name, debug = False):
     from B2DXFitters import taggingutils, cpobservables
-
     GeneralModels = ROOT.GeneralModels
     PTResModels   = ROOT.PTResModels
 
@@ -2477,43 +2475,45 @@ def getMasterPDF(config, name, debug = False):
     # ---------------------
     #
     # gather the bits and pieces
-    pdfs = RooArgList()
-    for mode in config['Modes']:
-        timepdf = timepdfs[mode]
-        masspdf = WS(ws, RooSimultaneous(
-            '%s_MassEPDF' % mode, '%s_MassEPDF' % mode, sample))
-        components = [ ]
-        for sname in config['SampleCategories']:
+    components = { }
+    totEPDF = WS(ws, RooSimultaneous('TotEPDF', 'TotEPDF', sample))
+    for sname in config['SampleCategories']:
+        pdfs = RooArgList()
+        yields = RooArgList()
+        for mode in config['Modes']:
+            if not mode in components:
+                components[mode] = [ ]
+            tpdf = timepdfs[mode]
             mpdf = masstemplates[mode][sname]
-            # only bother if there's yield in that component
+            # skip zero yield components
             if (0. == abs(mpdf['yield'].getVal()) and
-                mpdf['yield'].isConstant()):
+                    mpdf['yield'].isConstant()):
                 continue
-            masspdf.addPdf(WS(ws, RooExtendPdf(
-                '%s_%s_MassEPDF' % (mode, sname),
-                '%s_%s_MassEPDF' % (mode, sname),
-                mpdf['pdf'], mpdf['yield'])), sname)
-            components.append(sname)
-        print 'INFO: Mode %s components %s' % (mode, str(components))
-        # skip components which do not contribute
-        if 0 == len(components): continue
-        # multiply mass and time pdfs and add to list of pdf to be added up
-        pdfs.add(WS(ws, RooProdPdf('%s_EPDF' % mode, '%s_EPDF' % mode,
-            RooArgList(timepdf, masspdf))))
-    totEPDF = WS(ws, RooAddPdf('TotEPDF', 'TotEPDF', pdfs))
+            mtpdf = WS(ws, RooProdPdf('%s_%s_PDF' % (mode, sname),
+                '%s_%s_PDF' % (mode, sname), mpdf['pdf'], tpdf.clone('%s_%s' %
+                    (tpdf.GetName(), sname))))
+            pdfs.add(mtpdf)
+            yields.add(mpdf['yield'])
+            components[mode] += [ sname ]
+        # add all pdfs contributing yield in this sample category
+        totEPDF.addPdf(WS(ws, RooAddPdf(
+            '%s_PDF' % sname, '%s_PDF' % sname, pdfs, yields)), sname)
+    # report which modes got selected
+    for mode in config['Modes']:
+        print 'INFO: Mode %s components %s' % (mode, str(components[mode]))
 
     # set variables constant if they are supposed to be constant
     setConstantIfSoConfigured(config, totEPDF)
 
     obs = RooArgSet('observables')
     for o in observables:
-        obs.add(o)
+        obs.add(WS(ws, o))
     condobs = RooArgSet('condobservables')
     for o in condobservables:
-        condobs.add(o)
+        condobs.add(WS(ws, o))
     constr = RooArgSet('constraints')
     for c in constraints:
-        constr.add(c)
+        constr.add(WS(ws, c))
     
     print 72 * '#'
     print 'Configured master pdf %s' % totEPDF.GetName()
@@ -2642,7 +2642,6 @@ def runBsGammaFittercFit(generatorConfig, fitConfig, toy_num, debug, wsname, ini
 
     pdf = getMasterPDF(fitConfig, 'FIT', debug)
 
-    dataset = dataset.reduce(RooFit.SelectVars(pdf['observables']))
     ROOT.SetOwnership(dataset, True)
     dataset = WS(pdf['ws'], dataset, [])
     gc.collect()

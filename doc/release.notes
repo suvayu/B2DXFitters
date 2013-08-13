@@ -5,6 +5,14 @@
 !-----------------------------------------------------------------------------
 
 ! 2013-08-13 - Manuel Tobias Schiller
+ - revive old cFit CONF settings for data as personality (mostly for testing,
+   some values changed wrt. CONF)
+ - fix bug in cFit which caused generated workspaces to crash when printed
+   (required major PDF surgery, and it'll be quite some time until this is
+   completely healed)
+ - put MDFitter toy personalities to new default values
+
+! 2013-08-13 - Manuel Tobias Schiller
  - add missing decimal points in DecRateCoeff.cxx
 
 ! 2013-08-12 - Agnieszka Dziurda
