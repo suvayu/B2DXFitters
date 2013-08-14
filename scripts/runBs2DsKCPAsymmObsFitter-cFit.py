@@ -363,6 +363,18 @@ defaultConfig = {
             'down_kpipi':	'dataSetBsDsK_down_kpipi',
             'down_pipipi':	'dataSetBsDsK_down_pipipi'
             },
+    # variable name mapping: our name -> name in dataset
+    'DataSetVarNameMapping': {
+            'sample':   'sample',
+            'mass':     'lab0_MassFitConsD_M',
+            'pidk':     'lab1_PIDK',
+            'dsmass':   'lab2_MM',
+            'time':     'lab0_LifetimeFit_ctau',
+            'timeerr':  'lab0_LifetimeFit_ctauErr',
+            'tagOmegaSig': 'lab0_BsTaggingTool_TAGOMEGA_OS',
+            'qf':       'lab1_ID',
+            'qt':       'lab0_BsTaggingTool_TAGDECISION_OS'
+            },
     # bug-for-bug compatibility flags
     'BugFlags': [
             # 'PdfSSbarSwapMinusOne',
@@ -513,7 +525,7 @@ def WS(ws, obj, opts = [RooFit.RecycleConflictNodes(), RooFit.Silence()]):
     return wsobj
 
 # read dataset from workspace
-def readDataSet(
+def readDataSetOld(
     config,		# configuration dictionary
     ws,		# workspace to which to add data set
     time,		# variable to use for time
@@ -645,6 +657,143 @@ def readDataSet(
         data.table(sample).Print('v')
     # all done, return Data to the bridge
     return data
+
+# read dataset from workspace
+def readDataSet(
+    config,             # configuration dictionary
+    ws,                 # workspace to which to add data set
+    observables,        # observables
+    rangeName = None	# name of range to clip dataset to
+    ):
+    from ROOT import ( TFile, RooWorkspace, RooRealVar, RooCategory,
+        RooBinningCategory, RooUniformBinning, RooMappedCategory,
+        RooDataSet, RooArgSet, RooArgList )
+    # tweak variable names for use in toys - means that we cannot accidentally
+    # read data in toy configuration and vice-versa
+    #
+    # additional complication: toys save decay time in ps, data is in nm
+    import sys, math
+    # local little helper routine
+    def round_to_even(x):
+        xfl = int(math.floor(x))
+        rem = x - xfl
+        if rem < 0.5: return xfl
+        elif rem > 0.5: return xfl + 1
+        else:
+            if xfl % 2: return xfl + 1
+            else: return xfl
+    # figure out which names from the mapping we need - look at the observables
+    names = ()
+    for n in config['DataSetVarNameMapping'].keys():
+        if None != observables.find(n):
+            names += (n,)
+    # build RooArgSets and maps with source and destination variables
+    dmap = { k: observables.find(k) for k in names }
+    if None in dmap.values(): raise NameError('Some variables not found')
+    dset = RooArgSet(*dmap.values())
+    ddata = RooDataSet('agglomeration', 'of positronic circuits', dset)
+    # open file with data sets
+    f = TFile(config['DataFileName'], 'READ')
+    # get workspace
+    fws = f.Get(config['DataWorkSpaceName'])
+    ROOT.SetOwnership(fws, True)
+    # local data conversion routine
+    def doIt(config, rangeName, dsname, sname, names, dmap, dset, ddata, fws):
+        # figure out which time conversion factor to use
+        timeConvFactor = 1e9 / 2.99792458e8
+        if config['IsToy']:
+            timeConvFactor = 1.
+        smap = { k: fws.obj(config['DataSetVarNameMapping'][k]) for k in names }
+        if 'sample' in smap.keys() and None == smap['sample'] and None != sname:
+            smap.pop('sample')
+            dmap['sample'].setLabel(sname)
+        if None in smap.values(): raise NameError('Some variables not found')
+        sset = RooArgSet(*smap.values())
+        sdata = fws.obj(dsname)
+        if None == sdata: return 0
+        sdata.attachBuffers(sset)
+        # loop over all entries of data set
+        ninwindow = 0
+        if None != sname:
+            sys.stdout.write('Dataset conversion and fixup: %s: progress: ' % sname)
+        else:
+            sys.stdout.write('Dataset conversion and fixup: progress: ')
+        for i in xrange(0, sdata.numEntries()):
+            sdata.get(i)
+            if 0 == i % 128:
+                sys.stdout.write('*')
+            vals = { vname: smap[vname].getVal() if
+                    smap[vname].InheritsFrom('RooAbsReal') else
+                    smap[vname].getIndex() for vname in smap.keys() }
+            # first fixup: apply time/timeerr conversion factor
+            if 'time' in dmap.keys():
+                vals['time'] *= timeConvFactor
+            if 'timeerr' in dmap.keys():
+                vals['timeerr'] *= timeConvFactor
+            # apply cuts
+            inrange = True
+            for vname in dmap.keys():
+                if 'tagOmegaSig' == vname: continue
+                if not dmap[vname].InheritsFrom('RooAbsReal'): continue
+                if None != rangeName:
+                    if (dmap[vname].getMin(rangeName) > vals[vname] or
+                            vals[vname] > dmap[vname].getMax(rangeName)):
+                        inrange = False
+                        break
+                else:
+                    if (dmap[vname].getMin() > vals[vname] or
+                            vals[vname] > dmap[vname].getMax()):
+                        inrange = False
+                        break
+            if not inrange: continue
+            # second fixup: only sign of qf is important
+            if 'qf' in smap.keys():
+                vals['qf'] = 1 if vals['qf'] > 0 else -1
+            # copy values over, doing real-category conversions as needed
+            for vname in smap.keys():
+                dvar, svar = dmap[vname], vals[vname]
+                if dvar.InheritsFrom('RooAbsRealLValue'):
+                    if float == type(svar): dvar.setVal(svar)
+                    elif int == type(svar): dvar.setVal(svar)
+                elif dvar.InheritsFrom('RooAbsCategoryLValue'):
+                    if int == type(svar): dvar.setIndex(svar)
+                    elif float == type(svar):
+                        dvar.setIndex(round_to_even(svar))
+            # apply usual tweaks: untagged events are forced to 0.5 mistag
+            if 'qt' in dmap.keys() and 'tagOmegaSig' in dmap.keys() and 0 == dmap['qt']:
+                dmap['tagOmegaSig'].setVal(0.5)
+            ddata.add(dset)
+            ninwindow = ninwindow + 1
+        del sdata
+        sys.stdout.write(', done - %d events\n' % ninwindow)
+        return ninwindow
+    ninwindow = 0
+    if type(config['DataSetNames']) == str:
+        ninwindow += doIt(config, rangeName, config['DataSetNames'],
+                None, names, dmap, dset, ddata, fws)
+    else:
+        for sname in config['DataSetNames'].keys():
+            ninwindow += doIt(config, rangeName, config['DataSetNames'][sname],
+                    sname, names, dmap, dset, ddata, fws)
+    # free workspace and close file
+    del fws
+    f.Close()
+    del f
+    # put the new dataset into our proper workspace
+    ddata = WS(ws, ddata, [])
+    # for debugging
+    if config['Debug']:
+        ddata.Print('v')
+        if 'qt' in dmap.keys():
+            data.table(dmap['qt']).Print('v')
+        if 'qf' in dmap.keys():
+            data.table(dmap['qf']).Print('v')
+        if 'qf' in dmap.keys() and 'qt' in dmap.keys():
+            data.table(RooArgSet(dmap['qt'], dmap['qf'])).Print('v')
+        if 'sample' in dmap.keys():
+            data.table(dmap['sample']).Print('v')
+    # all done, return Data to the bridge
+    return ddata
 
 def readAcceptanceCorrection(
     config,	# config dictionary
@@ -2583,12 +2732,7 @@ def runBsGammaFittercFit(generatorConfig, fitConfig, toy_num, debug, wsname, ini
         # read event from external file
         dataset = readDataSet(
                 generatorConfig, pdf['ws'],
-                pdf['ws'].var('time'),
-                pdf['ws'].var('mass'),
-                pdf['ws'].var('tagOmegaSig'),
-                pdf['ws'].obj('qf'),
-                pdf['ws'].obj('qt'),
-                pdf['ws'].obj('sample'))
+                pdf['observables'])
         # fix fitter config yields
         fitConfig['NEvents'] = []
         sample = pdf['ws'].obj('sample')

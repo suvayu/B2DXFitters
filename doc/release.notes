@@ -4,6 +4,9 @@
 ! Purpose     : RooFit-based fitters for B -> D X
 !-----------------------------------------------------------------------------
 
+! 2013-08-14 - Manuel Tobias Schiller
+ - cFit: reimplement data set reader to be more flexible
+
 ! 2013-08-13 - Manuel Tobias Schiller
  - revive old cFit CONF settings for data as personality (mostly for testing,
    some values changed wrt. CONF)
