@@ -95,7 +95,7 @@ __doc__ = """ real docstring """
 # Load necessary libraries
 # -----------------------------------------------------------------------------
 from optparse import OptionParser
-from math     import pi, log, sqrt
+from math     import pi, log, sqrt, fmod
 import os, sys, gc
 
 if 'CMTCONFIG' in os.environ:
@@ -251,6 +251,8 @@ def get_vars_names(res):
 # ----------------------------------------------------------------------------
 def isphase(name):
     # look for something that looks like a phase
+    for n in ('deltaMs', 'deltaMd'):
+	if n in name: return False
     for n in ( 'gamma', 'delta', 'phi_w' ):
 	if n in name: return True
     return False

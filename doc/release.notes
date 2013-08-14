@@ -5,6 +5,9 @@
 !-----------------------------------------------------------------------------
 
 ! 2013-08-14 - Manuel Tobias Schiller
+ - fix bug in make_histos.py - deltaMs was treated as a phase
+
+! 2013-08-14 - Manuel Tobias Schiller
  - cFit: reimplement data set reader to be more flexible
 
 ! 2013-08-13 - Manuel Tobias Schiller
