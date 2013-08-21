@@ -43,7 +43,7 @@
         'PowLawAcceptance_offset':	1.6710e-02,
         'PowLawAcceptance_expo':	1.8627e+00,
         'PowLawAcceptance_beta':	3.4938e-02,
-        'NBinsAcceptance':              300,
+        'NBinsAcceptance':              600,
         'constParams': [
             'Gammas', 'deltaGammas', 'deltaMs',
             'Gammad', 'deltaGammad', 'deltaMd',

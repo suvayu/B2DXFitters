@@ -1,5 +1,9 @@
 # personality for 2011 Paper - mode DsPi
 {
+        'IsToy':                False,
+        'DataFileName':         os.environ['B2DXFITTERSROOT']+'/data/workspace/MDFitter/WS_Mass_DsPi_5M_BDTGA.root',
+        'DataWorkSpaceName':    'FitMeToolWS',
+        'DataSetNames':         'combData',
         'Modes': [
             'Bs2DsPi',
             'Bd2DPi', 'Bs2DsstPi',

@@ -1,11 +1,15 @@
-# personality for 2011 Paper - mode DsPi
+# personality for 2011 Paper - mode DsK for DATA
 {
+        'IsToy':                False,
+        'DataFileName':         os.environ['B2DXFITTERSROOT']+'/data/workspace/MDFitter/WS_Mass_DsK_5M_BDTGA.root',
+        'DataWorkSpaceName':    'FitMeToolWS',
+        'DataSetNames':         'combData',
         'Modes': [
-            'Bs2DsPi',
-            'Bd2DPi', 'Bs2DsstPi',
-            'Bd2DsPi',
             'Bs2DsK',
-            'Lb2LcPi',
+            'Bs2DsKst',
+            'Bs2DsPi', 'Bs2DsstPi', 'Bs2DsRho',
+            'Bd2DK', 'Bd2DsK',
+            'Lb2LcK', 'Lb2Dsp', 'Lb2Dsstp',
             'CombBkg'
             ],
         'SampleCategories': [
@@ -26,9 +30,8 @@
             'Bs2DsstKst':       30. / 180. * pi                                                                                                                                                                   
             },   
         'CombineModesForEffCPObs': [ ],
-        'Bs2DsKCPObs':                  'LambdaPhases',
-        'NEvents':			[ 34056. ],
-        'MassTemplateFile':             os.environ['B2DXFITTERSROOT']+'/data/workspace/MDFitter/WS_Mass_DsPi_5M_BDTGA.root',
+        'NEvents':			[ 3518. ],
+        'MassTemplateFile':             os.environ['B2DXFITTERSROOT']+'/data/workspace/MDFitter/WS_Mass_DsK_5M_BDTGA.root',
         'MassTemplateWorkspace':	'FitMeToolWS',
         'MassInterpolation':		False,
         'MistagTemplateFile':           os.environ['B2DXFITTERSROOT']+'/data/workspace/MDFitter/templates_BsDsPi.root',
@@ -36,19 +39,17 @@
         'MistagTemplateName':	        'MistagPdf_signal_BDTGA',
         'DecayTimeResolutionModel':	'GaussianWithPEDTE',
         'DecayTimeResolutionScaleFactor': 1.37,
-        'DecayTimeErrorTemplateFile':       os.environ['B2DXFITTERSROOT']+'/data/workspace/MDFitter/templates_BsDsPi.root',
+        'DecayTimeErrorTemplateFile':   os.environ['B2DXFITTERSROOT']+'/data/workspace/MDFitter/templates_BsDsK.root',
         'DecayTimeErrorTemplateWorkspace':  'workspace',
-        'DecayTimeErrorTemplateName':       'TimeErrorPdf_signal_BDTGA',
-        'DecayTimeErrorVarName':            'lab0_LifetimeFit_ctauErr',
+        'DecayTimeErrorTemplateName':   'TimeErrorPdf_signal_BDTGA',
+        'DecayTimeErrorVarName':        'lab0_LifetimeFit_ctauErr',
         'PowLawAcceptance_turnon':	1.3291e+00,
         'PowLawAcceptance_offset':	1.6710e-02,
         'PowLawAcceptance_expo':	1.8627e+00,
         'PowLawAcceptance_beta':	3.4938e-02,
-        'AcceptanceCorrectionFile':     None, 
-        'AcceptanceCorrectionHistName': None,
         'NBinsAcceptance':              600,
         'constParams': [
-            'Gammas', 'deltaGammas',
+            'Gammas', 'deltaGammas', 'deltaMs',
             'Gammad', 'deltaGammad', 'deltaMd',
             'tagOmegaSig', 'timeerr_bias', 'timeerr_scalefactor',
             'MistagCalibB_p0', 'MistagCalibB_p1', 'MistagCalibB_avgmistag',
