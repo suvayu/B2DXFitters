@@ -106,53 +106,12 @@ __doc__ = """ real docstring """
 # -----------------------------------------------------------------------------
 # Load necessary libraries
 # -----------------------------------------------------------------------------
+import B2DXFitters
+import ROOT
+from ROOT import RooFit
 from optparse import OptionParser
 from math     import pi, log
 import os, sys, gc
-
-if 'CMTCONFIG' in os.environ:
-    import GaudiPython
-import ROOT
-# avoid memory leaks - will have to explicitly relinquish and acquire ownership
-# if required, but PyROOT does not do what it thinks best without our knowing
-# what it does
-ROOT.SetMemoryPolicy(ROOT.kMemoryStrict)
-if not 'CMTCONFIG' in os.environ:
-    # enable ROOT to understand Reflex dictionaries
-    ROOT.gSystem.Load('libCintex')
-    ROOT.Cintex.Enable()
-# load RooFit
-ROOT.gSystem.Load('libRooFit')
-from ROOT import RooFit
-# load our own B2DXFitters library
-if 'CMTCONFIG' in os.environ:
-    GaudiPython.loaddict('B2DXFittersDict')
-else:
-    # running in standalone mode, we have to load things ourselves
-    ROOT.gSystem.Load(os.environ['B2DXFITTERSROOT'] +
-        '/standalone/libB2DXFitters')
-
-# figure out if we're running from inside gdb
-def in_gdb():
-    import os
-    proclist = dict(
-        (l[0], l[1:]) for l in (
-            lraw.replace('\n', '').replace('\r','').split()
-            for lraw in os.popen('ps -o pid= -o ppid= -o comm=').readlines()
-            )
-        )
-    pid = os.getpid()
-    while pid in proclist:
-        if 'gdb' in proclist[pid][1]: return True
-        pid = proclist[pid][0]
-    return False
-
-if in_gdb():
-    # when running in a debugger, we want to make sure that we do not handle
-    # any signals, so the debugger can catch SIGSEGV and friends, and we can
-    # poke around
-    ROOT.SetSignalPolicy(ROOT.kSignalFast)
-    ROOT.gEnv.SetValue('Root.Stacktrace', '0')
 
 # -----------------------------------------------------------------------------
 # Configuration settings
@@ -299,6 +258,7 @@ defaultConfig = {
     'Offset':			True,
     'Minimizer':		[ 'Minuit', 'migrad' ],
     'NumCPU':			1,
+    'ParameteriseIntegral':     True,
     'Debug':			False,
 
     # list of constant parameters
@@ -348,7 +308,7 @@ defaultConfig = {
     'NBinsAcceptance':		300, # if >0, bin acceptance
     'NBinsTimeKFactor':		50,  # if >0, use binned cache for k-factor integ.
     'NBinsMistag':		50,  # if >0, parametrize Mistag integral
-    'NBinsProperTimeErr':	200, # if >0, parametrize proper time int.
+    'NBinsProperTimeErr':	100, # if >0, parametrize proper time int.
     'NBinsMass':		200, # if >0, bin mass templates
 
     # Data file settings
@@ -386,6 +346,10 @@ defaultConfig = {
             #	old fits - fix in the final output routine by applying
             #	that transformation during the output stage (MINUIT log
             #	output and fit results will be "wrong", though)
+            'RooFitTopSimultaneousWorkaround',
+            # this will work around a problem in present RooFit versions which
+            # produce different LH values if the top-level PDF is a
+            # RooSimultaneous
             ],
     }
 
@@ -454,7 +418,7 @@ def printResult(config, result, blind = False):
         if fbl[var] >= fv[var] or fbu[var] <= fv[var]:
             cmt = '*** AT LIMIT ***'
         val = '% 12.5g' % fv[var]
-        if blind:
+        if blind and 'Bs2DsK' in var:
             val = 'XXXX.XXX'
         print '% 3u %-24s % 12.5g %12s %12.5g %s' % (
             i, var, iv[var], val, fe[var], cmt )
@@ -525,140 +489,6 @@ def WS(ws, obj, opts = [RooFit.RecycleConflictNodes(), RooFit.Silence()]):
     return wsobj
 
 # read dataset from workspace
-def readDataSetOld(
-    config,		# configuration dictionary
-    ws,		# workspace to which to add data set
-    time,		# variable to use for time
-    mass,		# variable to use for mass
-    mistag,		# variable to use for mistag
-    qf,		# variable to use for final state tag
-    qt,		# variable to use for tagging decision
-    sample,		# variable to use as sample identifier (mag. pol., Ds decay ch.)
-    rangeName = 0	# name of range to clip dataset to
-    ):
-    from ROOT import ( TFile, RooWorkspace, RooRealVar, RooCategory,
-        RooBinningCategory, RooUniformBinning, RooMappedCategory,
-        RooDataSet, RooArgSet, RooArgList )
-    import sys
-    names = [
-        'lab0_LifetimeFit_ctau',
-        'lab0_MassFitConsD_M',
-        'lab0_BsTaggingTool_TAGOMEGA_OS',
-        'lab1_ID',
-        'lab0_BsTaggingTool_TAGDECISION_OS'
-        ]
-    # tweak variable names for use in toys - means that we cannot accidentally
-    # read data in toy configuration and vice-versa
-    #
-    # additional complication: toys save decay time in ps, data is in nm
-    timeConvFactor = 1e9 / 2.99792458e8
-    if config['IsToy']:
-        names[3] = '%s_idx' % names[3]
-        names[4] = '%s_idx' % names[4]
-        timeConvFactor = 1.
-    # open file with data sets
-    f = TFile(config['DataFileName'], 'READ')
-    # get workspace
-    fws = f.Get(config['DataWorkSpaceName'])
-    ROOT.SetOwnership(fws, True)
-    # get source variables from workspace in file
-    srcvars = [ fws.obj(vname) for vname in names ]
-    if None in srcvars:
-        print 'Unable to read all required variables from workspace'
-        for v in srcvars:
-            v.Print()
-        sys.exit(1)
-    # set up what we need for the copying later
-    srcset = RooArgSet(*srcvars)
-    dstvars = [ time, mass, mistag, qf, qt ]
-    dstset = RooArgSet(sample, *dstvars)
-    dstvarranges = []
-    for v in dstvars:
-        if v.InheritsFrom('RooAbsCategory'):
-            dstvarranges.append(None)
-            continue
-        if None == rangeName or 0 == rangeName:
-            dstvarranges.append(v.getBinning())
-        else:
-            dstvarranges.append(v.getBinning(rangeName))
-    data = RooDataSet('agglomeration', 'of positronic circuits', dstset)
-    # loop over list of data set names, assigning them consecutive values of
-    # sample
-    ninwindow = 0
-    ntotal = 0
-    for sname in config['DataSetNames'].keys():
-        if sname not in config['SampleCategories']:
-            raise "Sample category '%s' unknown!" % sname
-        dsname = config['DataSetNames'][sname]
-        # set sample index
-        sample.setLabel(sname)
-        # handle absent names (samples) in input
-        if None == dsname: continue
-        if 0 == len(dsname): continue
-        # get dataset from workspace
-        ds = fws.obj(dsname)
-        if None == ds: continue
-        sys.stdout.write('Dataset conversion and fixup: %s: progress: ' % dsname)
-        # wire the dataset into the source variables
-        ds.attachBuffers(srcset)
-        for i in xrange(0, ds.numEntries()):
-            ntotal = ntotal + 1
-            ov = ds.get(i)
-            if 0 == i % 128:
-                sys.stdout.write('*')
-            if mass.getMin() > srcvars[1].getVal() or \
-                    srcvars[1].getVal() > mass.getMax():
-                        continue
-            if time.getMin() > srcvars[0].getVal() * timeConvFactor or \
-                    srcvars[0].getVal() * timeConvFactor > time.getMax():
-                        continue
-            # copy source to destination variables, adjusting continuous
-            # variables to categories on the fly
-            for j in xrange(0, len(srcvars)):
-                if dstvars[j].InheritsFrom('RooAbsCategory'):
-                    if srcvars[j].InheritsFrom('RooAbsCategory'):
-                        print 'cat dump %d' % srcvars[j].getIndex()
-                        dstvars[j].setIndex(srcvars[j].getIndex())
-                    else:
-                        v = srcvars[j].getVal()
-                        if v >= 0.5:
-                            dstvars[j].setIndex(+1)
-                        elif v <= -0.5:
-                            dstvars[j].setIndex(-1)
-                        else:
-                            dstvars[j].setIndex(0)
-                else:
-                    v = srcvars[j].getVal()
-                    if 0 == j:
-                        v = v * timeConvFactor
-                    elif 2 == j:
-                        if 0.5 == v: v = v * (1. - sys.float_info.epsilon)
-                        if abs(srcvars[4].getVal()) < 0.5:
-                            # fix the untagged oddities in the tuples
-                            v = 0.5
-                    dstvars[j].setVal(v)
-            # fill destination dataset
-            data.add(dstset)
-            ninwindow = ninwindow + 1
-        del ds
-        sys.stdout.write(', done\n')
-    # free workspace and close file
-    del fws
-    f.Close()
-    del f
-    # put the new dataset into our proper workspace
-    data = WS(ws, data, [])
-    # for debugging
-    if config['Debug']:
-        data.Print('v')
-        data.table(qt).Print('v')
-        data.table(qf).Print('v')
-        data.table(RooArgSet(qt, qf)).Print('v')
-        data.table(sample).Print('v')
-    # all done, return Data to the bridge
-    return data
-
-# read dataset from workspace
 def readDataSet(
     config,             # configuration dictionary
     ws,                 # workspace to which to add data set
@@ -668,10 +498,6 @@ def readDataSet(
     from ROOT import ( TFile, RooWorkspace, RooRealVar, RooCategory,
         RooBinningCategory, RooUniformBinning, RooMappedCategory,
         RooDataSet, RooArgSet, RooArgList )
-    # tweak variable names for use in toys - means that we cannot accidentally
-    # read data in toy configuration and vice-versa
-    #
-    # additional complication: toys save decay time in ps, data is in nm
     import sys, math
     # local little helper routine
     def round_to_even(x):
@@ -689,7 +515,8 @@ def readDataSet(
             names += (n,)
     # build RooArgSets and maps with source and destination variables
     dmap = { k: observables.find(k) for k in names }
-    if None in dmap.values(): raise NameError('Some variables not found')
+    if None in dmap.values():
+        raise NameError('Some variables not found in destination: %s' % str(dmap))
     dset = RooArgSet(*dmap.values())
     ddata = RooDataSet('agglomeration', 'of positronic circuits', dset)
     # open file with data sets
@@ -699,6 +526,7 @@ def readDataSet(
     ROOT.SetOwnership(fws, True)
     # local data conversion routine
     def doIt(config, rangeName, dsname, sname, names, dmap, dset, ddata, fws):
+        # additional complication: toys save decay time in ps, data is in nm
         # figure out which time conversion factor to use
         timeConvFactor = 1e9 / 2.99792458e8
         if config['IsToy']:
@@ -707,7 +535,8 @@ def readDataSet(
         if 'sample' in smap.keys() and None == smap['sample'] and None != sname:
             smap.pop('sample')
             dmap['sample'].setLabel(sname)
-        if None in smap.values(): raise NameError('Some variables not found')
+        if None in smap.values():
+            raise NameError('Some variables not found in source: %s' % str(smap))
         sset = RooArgSet(*smap.values())
         sdata = fws.obj(dsname)
         if None == sdata: return 0
@@ -730,25 +559,32 @@ def readDataSet(
                 vals['time'] *= timeConvFactor
             if 'timeerr' in dmap.keys():
                 vals['timeerr'] *= timeConvFactor
+            # second fixup: only sign of qf is important
+            if 'qf' in dmap.keys():
+                vals['qf'] = 1 if vals['qf'] > 0.5 else (-1 if vals['qf'] <
+                        -0.5 else 0.)
+            # third fixup: untagged events are forced to 0.5 mistag
+            if ('qt' in dmap.keys() and 'tagOmegaSig' in dmap.keys() and 0 ==
+                    vals['qt']):
+                vals['tagOmegaSig'] = 0.5
             # apply cuts
             inrange = True
             for vname in dmap.keys():
-                if 'tagOmegaSig' == vname: continue
                 if not dmap[vname].InheritsFrom('RooAbsReal'): continue
-                if None != rangeName:
+                # no need to cut on untagged events
+                if 'tagOmegaSig' == vname and 0 == vals['qt']: continue
+                if None != rangeName and dmap[vname].hasRange(rangeName):
                     if (dmap[vname].getMin(rangeName) > vals[vname] or
-                            vals[vname] > dmap[vname].getMax(rangeName)):
+                            vals[vname] >= dmap[vname].getMax(rangeName)):
                         inrange = False
                         break
                 else:
                     if (dmap[vname].getMin() > vals[vname] or
-                            vals[vname] > dmap[vname].getMax()):
+                            vals[vname] >= dmap[vname].getMax()):
                         inrange = False
                         break
+            # skip cuts which are not within the allowed range
             if not inrange: continue
-            # second fixup: only sign of qf is important
-            if 'qf' in smap.keys():
-                vals['qf'] = 1 if vals['qf'] > 0 else -1
             # copy values over, doing real-category conversions as needed
             for vname in smap.keys():
                 dvar, svar = dmap[vname], vals[vname]
@@ -759,9 +595,6 @@ def readDataSet(
                     if int == type(svar): dvar.setIndex(svar)
                     elif float == type(svar):
                         dvar.setIndex(round_to_even(svar))
-            # apply usual tweaks: untagged events are forced to 0.5 mistag
-            if 'qt' in dmap.keys() and 'tagOmegaSig' in dmap.keys() and 0 == dmap['qt']:
-                dmap['tagOmegaSig'].setVal(0.5)
             ddata.add(dset)
             ninwindow = ninwindow + 1
         del sdata
@@ -1496,6 +1329,8 @@ def getMassTemplates(
             '2011ConfDATA': getMassTemplateOneMode2011Conf,
             '2011PaperDsK': getMassTemplateOneMode2011Paper,
             '2011PaperDsPi': getMassTemplateOneMode2011Paper,
+            '2011PaperDsKDATA': getMassTemplateOneMode2011Paper,
+            '2011PaperDsPiDATA': getMassTemplateOneMode2011Paper,
             }
     import sys
     if None == snames:
@@ -1719,7 +1554,8 @@ def buildNonOscDecayTimePdf(
     timeresmodel = applyBinnedAcceptance(
         config, ws, time, timeresmodel, acceptance)
     # FIXME: understand why this breaks at Optimize > 2
-    # parameteriseResModelIntegrals(config, timeerrpdf, timeerr, timeresmodel)
+    if config['ParameteriseIntegral']:
+        parameteriseResModelIntegrals(config, timeerrpdf, timeerr, timeresmodel)
 
     # perform the actual k-factor smearing integral (if needed)
     # if we have to perform k-factor smearing, we need "smeared" variants of
@@ -1853,8 +1689,8 @@ def buildBDecayTimePdf(
     # apply acceptance (if needed)
     timeresmodel = applyBinnedAcceptance(
             config, ws, time, timeresmodel, acceptance)
-    # FIXME: understand why this breaks at Optimize > 2
-    # parameteriseResModelIntegrals(config, timeerrpdf, timeerr, timeresmodel)
+    if config['ParameteriseIntegral']:
+        parameteriseResModelIntegrals(config, timeerrpdf, timeerr, timeresmodel)
 
     # if there is a per-event mistag distributions and we need to do things
     # correctly
@@ -1974,9 +1810,7 @@ def combineCPObservables(config, modes, yields):
 
 #------------------------------------------------------------------------------
 def getMasterPDF(config, name, debug = False):
-    from B2DXFitters import taggingutils, cpobservables
-    GeneralModels = ROOT.GeneralModels
-    PTResModels   = ROOT.PTResModels
+    from B2DXFitters import cpobservables
 
     import sys
     from ROOT import (RooRealVar, RooStringVar, RooFormulaVar, RooProduct,
@@ -1986,7 +1820,8 @@ def getMasterPDF(config, name, debug = False):
         RooAddPdf, RooProdPdf, RooExtendPdf, RooGenericPdf, RooExponential,
         RooPolynomial, RooUniform, RooFit, RooUniformBinning,
         BdPTAcceptance, RooSimultaneous, RangeAcceptance, RooEffProd,
-        SquaredSum, CPObservable, PowLawAcceptance, MistagCalibration)
+        RooAddition, RooProduct, Inverse, SquaredSum, CPObservable,
+        PowLawAcceptance, MistagCalibration)
     # fix context
     config = dict(config)
     config['Context'] = name
@@ -2005,6 +1840,7 @@ def getMasterPDF(config, name, debug = False):
         config['DecayTimeErrInterpolation'] = False
         config['AcceptanceCorrectionInterpolation'] = False
         config['CombineModesForEffCPObs'] = [ ]
+        config['ParameteriseIntegral'] = False
     print '########################################################################'
     print '%s config:' % name
     print
@@ -2019,9 +1855,8 @@ def getMasterPDF(config, name, debug = False):
     # figure out lower bound of fit range
     timelo = 0.2
     if config['AcceptanceFunction'] == 'BdPTAcceptance':
-        timelo = config['BdPTAcceptance_offset']
-    time = WS(ws, RooRealVar('time', 'decay time',
-        1., timelo, 15., 'ps'))
+        timelo = max(timelo, config['BdPTAcceptance_offset'])
+    time = WS(ws, RooRealVar('time', 'decay time', 1., timelo, 15., 'ps'))
     if config['NBinsAcceptance'] > 0:
         # provide binning for acceptance
         from ROOT import RooUniformBinning
@@ -2038,7 +1873,10 @@ def getMasterPDF(config, name, debug = False):
             mass.getMin(), mass.getMax(), config['NBinsMass']), 'massbins')
     if '2011Paper' in config['Personality']:
         dsmass = WS(ws, RooRealVar('dsmass', 'dsmass', 1930., 2015.))
-        pidk = WS(ws, RooRealVar('pidk', 'pidk', log(5.), log(150.)))
+        if 'DsK' in config['Personality']:
+            pidk = WS(ws, RooRealVar('pidk', 'pidk', log(5.), log(150.)))
+        elif 'DsPi' in config['Personality']:
+            pidk = WS(ws, RooRealVar('pidk', 'pidk', 0., 150.))
     else:
         dsmass, pidk = None, None
     
@@ -2220,6 +2058,7 @@ def getMasterPDF(config, name, debug = False):
         del ncomp
     elif type(config['DecayTimeResolutionModel']) == type(''):
         if 'PEDTE' not in config['DecayTimeResolutionModel']:
+            PTResModels = ROOT.PTResModels
             trm = WS(ws, PTResModels.getPTResolutionModel(
                 config['DecayTimeResolutionModel'],
                 time, 'Bs', debug,
@@ -2620,12 +2459,28 @@ def getMasterPDF(config, name, debug = False):
                 trm, tacc, terrpdf, sigMistagPDF, kfactorpdf, kfactor,
                 asyms['Det'], asyms['TagEff_f'], asyms['TagEff_t'])
     
+    obs = RooArgSet('observables')
+    for o in observables:
+        obs.add(WS(ws, o))
+    condobs = RooArgSet('condobservables')
+    for o in condobservables:
+        condobs.add(WS(ws, o))
+    constr = RooArgSet('constraints')
+    for c in constraints:
+        constr.add(WS(ws, c))
+    
     # Create the total PDF/EPDF
     # ---------------------
     #
     # gather the bits and pieces
     components = { }
-    totEPDF = WS(ws, RooSimultaneous('TotEPDF', 'TotEPDF', sample))
+    sfx = ('' if ('RooFitTopSimultaneousWorkaround' not in config['BugFlags']
+        and 'GEN' not in config['Context']) else '_unfixed')
+    totPDF = WS(ws, RooSimultaneous(
+        'TotPDF%s' % sfx, 'TotPDF%s' % sfx, sample))
+    if 'GEN' in config['Context']: sfx = ''
+    totEPDF = WS(ws, RooSimultaneous(
+        'TotEPDF%s' % sfx, 'TotEPDF%s' % sfx, sample))
     for sname in config['SampleCategories']:
         pdfs = RooArgList()
         yields = RooArgList()
@@ -2637,33 +2492,48 @@ def getMasterPDF(config, name, debug = False):
             # skip zero yield components
             if (0. == abs(mpdf['yield'].getVal()) and
                     mpdf['yield'].isConstant()):
+                # if it doesn't have a yield, we might as well skip this component
                 continue
-            mtpdf = WS(ws, RooProdPdf('%s_%s_PDF' % (mode, sname),
-                '%s_%s_PDF' % (mode, sname), mpdf['pdf'], tpdf.clone('%s_%s' %
-                    (tpdf.GetName(), sname))))
+            else:
+                mtpdf = WS(ws, RooProdPdf('%s_%s_PDF' % (mode, sname),
+                    '%s_%s_PDF' % (mode, sname), mpdf['pdf'], tpdf))
+                components[mode] += [ sname ]
             pdfs.add(mtpdf)
             yields.add(mpdf['yield'])
-            components[mode] += [ sname ]
+        totyield = WS(ws, RooAddition(
+            '%s_totYield' % sname, '%s_totYield' % sname, yields))
+        itotyield = WS(ws, Inverse('%sInv' % totyield.GetName(),
+            '%sInv' % totyield.GetName(), totyield))
+        fractions = RooArgList()
+        for mode in config['Modes']:
+            mpdf = masstemplates[mode][sname]
+            if (0. == abs(mpdf['yield'].getVal()) and
+                    mpdf['yield'].isConstant()):
+                continue
+            f = WS(ws, RooProduct(
+                'f_%s_%s' % (mode, sname), 'f_%s_%s' % (mode, sname),
+                RooArgList(mpdf['yield'], itotyield)))
+            fractions.add(f)
+        # remove the last fraction added, so RooFit recognises that we want a
+        # normal PDF from RooAddPdf, not an extended one
+        fractions.remove(f)
         # add all pdfs contributing yield in this sample category
         totEPDF.addPdf(WS(ws, RooAddPdf(
-            '%s_PDF' % sname, '%s_PDF' % sname, pdfs, yields)), sname)
+            '%s_EPDF' % sname, '%s_EPDF' % sname, pdfs, yields)), sname)
+        totPDF.addPdf(WS(ws, RooAddPdf(
+            '%s_PDF' % sname, '%s_PDF' % sname, pdfs, fractions)), sname)
     # report which modes got selected
     for mode in config['Modes']:
         print 'INFO: Mode %s components %s' % (mode, str(components[mode]))
-
+    if '_unfixed' in totPDF.GetName():
+        totPDF = WS(ws, RooAddPdf('TotPDF', 'TotPDF', RooArgList(totPDF),
+            RooArgList()))
+    if '_unfixed' in totEPDF.GetName():
+        totEPDF = WS(ws, RooAddPdf('TotEPDF', 'TotEPDF', RooArgList(totEPDF),
+            RooArgList()))
     # set variables constant if they are supposed to be constant
     setConstantIfSoConfigured(config, totEPDF)
 
-    obs = RooArgSet('observables')
-    for o in observables:
-        obs.add(WS(ws, o))
-    condobs = RooArgSet('condobservables')
-    for o in condobservables:
-        condobs.add(WS(ws, o))
-    constr = RooArgSet('constraints')
-    for c in constraints:
-        constr.add(WS(ws, c))
-    
     print 72 * '#'
     print 'Configured master pdf %s' % totEPDF.GetName()
     print
@@ -2683,27 +2553,15 @@ def getMasterPDF(config, name, debug = False):
     return {
             'ws': ws,
             'epdf': WS(ws, totEPDF),
+            'pdf': WS(ws, totPDF),
             'observables': WS(ws, obs),
             'condobservables': WS(ws, condobs),
             'constraints': WS(ws, constr)
             }
 
 def runBsGammaFittercFit(generatorConfig, fitConfig, toy_num, debug, wsname, initvars) :
-    from B2DXFitters import taggingutils, cpobservables
-
-    GeneralModels = ROOT.GeneralModels
-    PTResModels   = ROOT.PTResModels
-    
-    from ROOT import ( RooRealVar, RooStringVar, RooFormulaVar, RooProduct,
-            RooCategory, RooMappedCategory, RooMultiCategory, RooConstVar,
-            RooArgSet, RooArgList, RooGaussian, RooLandau, RooDecay,
-            RooGaussModel, RooTruthModel, RooWorkspace, RooAbsArg, RooAddPdf,
-            RooProdPdf, RooExtendPdf, RooGenericPdf, RooExponential,
-            RooUniform, RooFit, RooUniformBinning, TRandom3,
-            RooDataSet, BdPTAcceptance, RooLinkedList, RooRandom )
-
     # tune integrator configuration
-    from ROOT import RooAbsReal
+    from ROOT import RooAbsReal, TRandom3, RooArgSet, RooRandom, RooLinkedList
     RooAbsReal.defaultIntegratorConfig().setEpsAbs(1e-9)
     RooAbsReal.defaultIntegratorConfig().setEpsRel(1e-9)
     RooAbsReal.defaultIntegratorConfig().getConfigSection('RooAdaptiveGaussKronrodIntegrator1D').setCatLabel('method','15Points')
@@ -2719,6 +2577,8 @@ def runBsGammaFittercFit(generatorConfig, fitConfig, toy_num, debug, wsname, ini
     rndm = TRandom3(toy_num + 1)
     RooRandom.randomGenerator().SetSeed(int(rndm.Uniform(4294967295)))
     del rndm
+
+    pdf['ws'].Print()
 
     cats = [ ]
     for cat in [ 'sample', 'qt', 'qf' ]:
@@ -2793,6 +2653,8 @@ def runBsGammaFittercFit(generatorConfig, fitConfig, toy_num, debug, wsname, ini
     plot_init   = (wsname != None) and initvars
     plot_fitted = (wsname != None) and (not initvars)
 
+    pdf['ws'].Print()
+
     if plot_init :
         pdf['ws'].writeToFile(wsname)
 
@@ -2825,7 +2687,8 @@ def runBsGammaFittercFit(generatorConfig, fitConfig, toy_num, debug, wsname, ini
     for o in fitOpts:
         fitopts.Add(o)
 
-    fitResult = pdf['epdf'].fitTo(dataset, fitopts)
+    fitResult = pdf['pdf'].fitTo(dataset, fitopts)
+
 
     printResult(fitConfig, fitResult,
             fitConfig['Blinding'] and not fitConfig['IsToy'])

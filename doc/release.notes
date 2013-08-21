@@ -5,6 +5,11 @@
 !-----------------------------------------------------------------------------
 
 ! 2013-08-21 - Manuel Tobias Schiller
+ - fixed version of the cFit (LH at Optimize = 0 and Optimize = 2 now the same)
+   this will most likely also need a bit of cleanup in the near future
+ - ignore certain file types in scripts, too
+
+! 2013-08-21 - Manuel Tobias Schiller
  - add new personalities for cFit, correct some old ones (this will likely
    need more tweaking)
 
