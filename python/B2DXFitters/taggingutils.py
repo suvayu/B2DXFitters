@@ -11,17 +11,9 @@
 # -----------------------------------------------------------------------------
 # Import statements
 # -----------------------------------------------------------------------------
-import os, sys
-if 'CMTCONFIG' in os.environ:
-    import GaudiPython
-    GaudiPython.loaddict('B2DXFittersDict')
-else:
-    # running standalone, have to load things ourselves
-    import ROOT
-    ROOT.gSystem.Load('libCintex')
-    ROOT.Cintex.Enable()
-    ROOT.gSystem.Load(os.environ['B2DXFITTERSROOT'] +
-	    '/standalone/libB2DXFitters')
+import B2DXFitters, os, sys
+import ROOT
+from ROOT import RooFit
 
 
 # -----------------------------------------------------------------------------
