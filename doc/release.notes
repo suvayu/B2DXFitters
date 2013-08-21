@@ -4,6 +4,10 @@
 ! Purpose     : RooFit-based fitters for B -> D X
 !-----------------------------------------------------------------------------
 
+! 2013-08-21 - Manuel Tobias Schiller
+ - be much more explicit in DecRateCoeff and NonOscTaggingPdf about what
+   RooFit may cache and what not
+
 ! 2013-08-20 - Agnieszka Dziurda
  - change logic in MDFitter for DsK 
    . # Group 1: Bd->DsK, Bs->DsK*: (g1_f1)*Bd->DsK + (1-g1_f1)*Bs->DsK*

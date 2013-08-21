@@ -644,7 +644,7 @@ DecRateCoeff::DecRateCoeff(
     m_aprod("aprod", this, other.m_aprod),
     m_adet("adet", this, other.m_adet),
     m_atageff("atageff", this, other.m_atageff),
-    m_cacheMgr(other.m_cacheMgr, this), m_nsets(other.m_nsets),
+    m_cacheMgr(this), m_nsets(other.m_nsets),
     m_nset(other.m_nset), m_nsethash(other.m_nsethash), m_flags(other.m_flags)
 {
     // no need to verify constraints as in other constructors - we make a copy
@@ -708,9 +708,13 @@ Double_t DecRateCoeff::evaluate() const
 	    RooNameReg::ptr(nrange)).first->eval(1., 1., 1., 1.);
 }
 
-Bool_t DecRateCoeff::forceAnalyticalInt(
-	const RooAbsArg& /*dep*/) const
-{ return kTRUE; }
+Bool_t DecRateCoeff::forceAnalyticalInt(const RooAbsArg& dep) const
+{
+    if (&dep == m_qf.absArg()) return kTRUE;
+    if (&dep == m_qt.absArg()) return kTRUE;
+    if (&dep == m_etaobs.absArg()) return kTRUE;
+    return kFALSE;
+}
 
 Int_t DecRateCoeff::getAnalyticalIntegral(
 	RooArgSet& allVars, RooArgSet& anaIntVars,
@@ -1067,6 +1071,19 @@ RooArgList DecRateCoeff::CacheElem::containedArgs(Action)
 	retVal.add(*m_workRange[1].first);
     if (m_workRange[1].second)
 	retVal.add(*m_workRange[1].second);
+    if (!(m_flags & IntQf)) retVal.add(m_parent.m_qf.arg());
+    if (!(m_flags & IntQt)) retVal.add(m_parent.m_qt.arg());
+    if (!(m_flags & IntEta)) {
+	if (m_parent.m_etaobs.absArg()) retVal.add(m_parent.m_etaobs.arg());
+	if (m_parent.m_etapdf.absArg()) retVal.add(m_parent.m_etapdf.arg());
+	if (m_parent.m_etapdfut.absArg()) retVal.add(m_parent.m_etapdfut.arg());
+    }
+    retVal.add(m_parent.m_tageff.arg());
+    retVal.add(m_parent.m_eta.arg());
+    if (m_parent.m_etabar.absArg()) retVal.add(m_parent.m_etabar.arg());
+    retVal.add(m_parent.m_aprod.arg());
+    retVal.add(m_parent.m_adet.arg());
+    retVal.add(m_parent.m_atageff.arg());
     return retVal;
 }
 

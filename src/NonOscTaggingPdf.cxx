@@ -9,7 +9,7 @@
 
 #include <RooCategory.h>
 
-#include "B2DXFitters/NonOscTaggingPdf.h" 
+#include "B2DXFitters/NonOscTaggingPdf.h"
 
 RooArgSet NonOscTaggingPdf::s_emptyset;
 
@@ -164,7 +164,7 @@ NonOscTaggingPdf::NonOscTaggingPdf(const char* name, const char* title,
 }
 
 NonOscTaggingPdf::NonOscTaggingPdf(
-	const NonOscTaggingPdf& other, const char* name) :  
+	const NonOscTaggingPdf& other, const char* name) :
     RooAbsPdf(other, name),
     m_qf("qf", this, other.m_qf), m_qt("qt", this, other.m_qt),
     m_etaobs("etaobs", this, other.m_etaobs),
@@ -175,12 +175,12 @@ NonOscTaggingPdf::NonOscTaggingPdf(
     m_adet("adet", this, other.m_adet),
     m_atageff_f("atageff_f", this, other.m_atageff_f),
     m_atageff_t("atageff_t", this, other.m_atageff_t),
-    m_cacheMgr(other.m_cacheMgr, this)
+    m_cacheMgr(this)
 {
-    if (m_etaobs.absArg()) {                                                                                                                            
-	m_etapdfut.setArg(m_etapdfutinstance);                                                                                                          
+    if (m_etaobs.absArg()) {
+	m_etapdfut.setArg(m_etapdfutinstance);
     }
-} 
+}
 
 NonOscTaggingPdf::~NonOscTaggingPdf() { }
 
@@ -190,8 +190,8 @@ TObject* NonOscTaggingPdf::clone(const char* newname) const
 Bool_t NonOscTaggingPdf::selfNormalized() const
 { return kTRUE; }
 
-Double_t NonOscTaggingPdf::evaluate() const 
-{ 
+Double_t NonOscTaggingPdf::evaluate() const
+{
     // get value
     const double val = getCache(
 	    s_emptyset, _normSet, RooNameReg::ptr(0)).first->eval();
@@ -205,10 +205,15 @@ Double_t NonOscTaggingPdf::evaluate() const
     const double norm = getCache(*_normSet, _normSet,
 	    RooNameReg::ptr(nrange)).first->eval();
     return val / norm;
-} 
+}
 
-Bool_t NonOscTaggingPdf::forceAnalyticalInt(const RooAbsArg& /*dep*/) const
-{ return kTRUE; }
+Bool_t NonOscTaggingPdf::forceAnalyticalInt(const RooAbsArg& dep) const
+{
+    if (&dep == m_qf.absArg()) return kTRUE;
+    if (&dep == m_qt.absArg()) return kTRUE;
+    if (&dep == m_etaobs.absArg()) return kTRUE;
+    return kFALSE;
+}
 
 Int_t NonOscTaggingPdf::getAnalyticalIntegral(
 	RooArgSet& allVars, RooArgSet& anaIntVars,
@@ -249,7 +254,7 @@ Int_t NonOscTaggingPdf::getAnalyticalIntegralWN(
 
 Double_t NonOscTaggingPdf::analyticalIntegralWN(
         Int_t code, const RooArgSet* nset, const char* /* rangeName */) const
-{   
+{
     if (!code) return getValV(nset);
     assert(code > 0);
     const unsigned icode(unsigned(code) & 32767);
@@ -341,6 +346,17 @@ RooArgList NonOscTaggingPdf::CacheElem::containedArgs(Action)
     RooArgList retVal;
     if (m_etapdfint) retVal.add(*m_etapdfint);
     if (m_etapdfintut) retVal.add(*m_etapdfintut);
+    if (!(m_flags & IntQf)) retVal.add(m_parent.m_qf.arg());
+    if (!(m_flags & IntQt)) retVal.add(m_parent.m_qt.arg());
+    if (!(m_flags & IntEta)) {
+	if (m_parent.m_etaobs.absArg()) retVal.add(m_parent.m_etaobs.arg());
+	if (m_parent.m_etapdf.absArg()) retVal.add(m_parent.m_etapdf.arg());
+	if (m_parent.m_etapdfut.absArg()) retVal.add(m_parent.m_etapdfut.arg());
+    }
+    retVal.add(m_parent.m_epsilon.arg());
+    retVal.add(m_parent.m_adet.arg());
+    retVal.add(m_parent.m_atageff_f.arg());
+    retVal.add(m_parent.m_atageff_t.arg());
     return retVal;
 }
 double NonOscTaggingPdf::CacheElem::etapdfint() const
