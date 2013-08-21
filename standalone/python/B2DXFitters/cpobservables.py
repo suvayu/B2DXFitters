@@ -1,1 +1,0 @@
-../../../python/B2DXFitters/cpobservables.py

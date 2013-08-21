@@ -67,9 +67,9 @@ else
 fi
 
 # append the package's standalone python directory
-if (echo "$PYTHONPATH" | grep -qv "$B2DXFITTERSROOT/standalone/python"); then
-    echo Adding "$B2DXFITTERSROOT/standalone/python" to PYTHONPATH.
-    export PYTHONPATH="$B2DXFITTERSROOT/standalone/python":"$PYTHONPATH"
+if (echo "$PYTHONPATH" | grep -qv "$B2DXFITTERSROOT/python"); then
+    echo Adding "$B2DXFITTERSROOT/python" to PYTHONPATH.
+    export PYTHONPATH="$B2DXFITTERSROOT/python":"$PYTHONPATH"
 fi
 
 # append the package's standalone directory to LD_LIBRARY_PATH
