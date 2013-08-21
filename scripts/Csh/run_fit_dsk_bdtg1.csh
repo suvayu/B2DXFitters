@@ -1,1 +1,1 @@
-python runBsDsKMassFitterOnData3D5M.py --debug --merge -m both -o all --configName Bs2DsKConfigForNominalMassFitBDTG1 --fileName work_dsk_pid_53005800_PIDK5_5M_BDTG1.root -s WS_Mass_DsK_5M_BDTG1.root --sweight
+python runBsDsKMassFitterOnData3D5M.py --debug --merge -m both -o all --configName Bs2DsKConfigForNominalMassFitBDTG1 --fileName /afs/cern.ch/work/a/adudziak/public/workspace/MDFitter/work_dsk_pid_53005800_PIDK5_5M_BDTG1.root -s WS_Mass_DsK_5M_BDTG1.root --sweight

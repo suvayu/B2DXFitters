@@ -429,7 +429,8 @@ def runBdGammaFitterOnData(debug, wsname, initvars, tvar, terrvar, probvar, pere
                 terrpdf.append(GeneralUtils.CreateHistPDF(dataWW[i], terr, name, myconfigfile['nBinsProperTimeErr'], debug))
         else:
             name = TString("sigTimeErrorPdf")
-            terrpdf = GeneralUtils.CreateHistPDF(dataW, terr, name, myconfigfile['nBinsProperTimeErr'], debug)
+            terrpdf = Bs2Dsh2011TDAnaModels.GetRooHistPdfFromWorkspace(templateWorkspace, TString(myconfigfile["TimeErrorTemplateName"]), debug)
+            #terrpdf = GeneralUtils.CreateHistPDF(dataW, terr, name, myconfigfile['nBinsProperTimeErr'], debug)
             
     # Decay time acceptance function
     # ------------------------------

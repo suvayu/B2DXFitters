@@ -4,6 +4,7 @@ def getconfig() :
     
     from math import pi
     from math import log
+    configdict["lumRatio"] =  0.44/(0.59+0.44)
 
     configdict["BDPi_BDTGA_sigma1"]  = [6.0109]
     configdict["BDPi_BDTGA_sigma2"]  = [11.710]

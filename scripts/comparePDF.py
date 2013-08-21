@@ -35,8 +35,8 @@ def runComparePDF( debug, name1, file1, work1, text1, name2, file2, work2, text2
     workspace2 = GeneralUtils.LoadWorkspace(TString(file2),TString(work2),debug)
 
     obs   = GeneralUtils.GetObservable(workspace1,TString(obs), debug)
-    if not data:
-        obs.setRange(0,150)
+    #if not data:
+        #obs.setRange(0,150)
 
     if not data:
         pdf1 =  Bs2Dsh2011TDAnaModels.GetRooBinned1DFromWorkspace(workspace1,TString(name1), debug)
@@ -105,7 +105,7 @@ def runComparePDF( debug, name1, file1, work1, text1, name2, file2, work2, text2
         legend.AddEntry(l1, text1 , "L")
 
         l2 = TLine()
-        l2.SetLineColor(kRed)
+        l2.SetLineColor(kBlue+2)
         l2.SetLineWidth(4)
         l2.SetLineStyle(kSolid)
         legend.AddEntry(l2, text2 , "L")
@@ -113,8 +113,8 @@ def runComparePDF( debug, name1, file1, work1, text1, name2, file2, work2, text2
 
     frame.Draw()
     legend.Draw("same")
-    frame.GetYaxis().SetRangeUser(0.1,250.)
-    canv.GetPad(0).SetLogy()
+    #frame.GetYaxis().SetRangeUser(0.1,250.)
+    #canv.GetPad(0).SetLogy()
     canv.Print("comparePDF.pdf")
                                                                                     
 

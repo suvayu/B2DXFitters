@@ -83,6 +83,7 @@ def fitCombBkg( debug, var , mode, modeDs, merge, BDTG, configName, WS) :
     mVarTS = TString("lab0_MassFitConsD_M")
     mdVarTS = TString("lab2_MM")
     tVarTS = TString("lab0_LifetimeFit_ctau")
+    terrVarTS = TString("lab0_LifetimeFit_ctauErr")
     tagVarTS = TString("lab0_BsTaggingTool_TAGDECISION_OS")
     tagOmegaVarTS = TString("lab0_BsTaggingTool_TAGOMEGA_OS")
     idVarTS = TString("lab1_ID")
@@ -126,8 +127,13 @@ def fitCombBkg( debug, var , mode, modeDs, merge, BDTG, configName, WS) :
         modeDsTS=TString(modeDs)
         Dmass_down = 1930
         Dmass_up = 2015
-        Bmass_down = 5600
+        Bmass_down = 6500
         Bmass_up = 7000
+
+    if obsTS == "lab1_PIDK":
+        fileName = "/afs/cern.ch/work/a/adudziak/public/workspace/MDFitter/work_dsk_pid_53005800_PIDK5_5M_BDTGA.root"
+        workName = 'workspace'
+        worktem  = GeneralUtils.LoadWorkspace(TString(fileName),TString(workName), debug)
 
     if ( modeDsTS == "NonRes" or modeDsTS == "KstK" or modeDsTS == "PhiPi" or modeDsTS == "All"):
         if WS:
@@ -144,7 +150,7 @@ def fitCombBkg( debug, var , mode, modeDs, merge, BDTG, configName, WS) :
             modeDsTS2 = "phipi"
             index = 1
         else:
-            modeDsTS2 = "kkpi"
+            modeDsTS2 = ""
             index = 1                            
     else:
         if WS:
@@ -188,7 +194,7 @@ def fitCombBkg( debug, var , mode, modeDs, merge, BDTG, configName, WS) :
                                         Dmass_down, Dmass_up,
                                         Bmass_down, Bmass_up,
                                         Time_down, Time_up,
-                                        mVarTS, mdVarTS, tVarTS, tagVarTS,
+                                        mVarTS, mdVarTS, tVarTS, terrVarTS, tagVarTS,
                                         tagOmegaVarTS, idVarTS,
                                         mProbVarTS,
                                         modeTS, false, NULL, debug)
@@ -277,7 +283,22 @@ def fitCombBkg( debug, var , mode, modeDs, merge, BDTG, configName, WS) :
         nSigEvts.append(0.9*nEntries[i])
         nameSig = TString("nCombBkgEvts_")+sample[i]
         nSig.append(RooRealVar( nameSig.Data(), nameSig.Data(), nEntries[i], 0.8*nEntries[i], 1.2*nEntries[i]))
-        if obsTS == "lab2_MM" and (modeDsTS != "KPiPi" or modeTS == "BDPi") and BDTGTS != "BDTG3" and modeDsTS != "PiPiPi":
+        if obsTS == "lab1_PIDK":
+            lumRatio = RooRealVar("lumRatio","lumRatio", myconfigfile["lumRatio"])
+            fracPIDKComb1 = RooRealVar("CombBkg_fracPIDKComb1", "CombBkg_fracPIDKComb1",  0.6, 0.0, 1.0)
+            fracPIDKComb2 = RooRealVar("CombBkg_fracPIDKComb2", "CombBkg_fracPIDKComb2",  0.6, 0.0, 1.0)
+            m = TString("CombK")
+            PIDK_combo_K = Bs2Dsh2011TDAnaModels.ObtainPIDKShape(worktem, m, sample[i], lumRatio, false, debug)
+            m = TString("CombPi")
+            PIDK_combo_Pi = Bs2Dsh2011TDAnaModels.ObtainPIDKShape(worktem, m, sample[i], lumRatio, false, debug)
+            m = TString("CombP")
+            PIDK_combo_P = Bs2Dsh2011TDAnaModels.ObtainPIDKShape(worktem, m, sample[i], lumRatio, false, debug)
+            name = "ShapePIDKAll_Comb";
+            sigPDF.append(RooAddPdf("ShapePIDKAll_combo","ShapePIDKAll_combo",
+                                    RooArgList(PIDK_combo_K, PIDK_combo_Pi, PIDK_combo_P), RooArgList(fracPIDKComb1, fracPIDKComb2), true))
+            
+            
+        elif obsTS == "lab2_MM" and (modeDsTS != "KPiPi" or modeTS == "BDPi") and BDTGTS != "BDTG3" and modeDsTS != "PiPiPi":
             nameExp = TString("Exp")
             nameGauss = TString("Gauss")
             nameAdd = TString("Add")

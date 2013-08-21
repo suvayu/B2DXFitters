@@ -18,6 +18,7 @@
 # -----------------------------------------------------------------------------
 from optparse import OptionParser
 from os.path  import exists
+from math import log
 
 import GaudiPython
 GaudiPython.loaddict( 'B2DXFittersDict' )
@@ -80,7 +81,7 @@ parser.add_option( '-s', '--sufix',
 #------------------------------------------------------------------------------
 def plotDataSet( dataset, frame, sample, merge ) :
 
-    bin = 100
+    bin = 20
     if sample == "both":
         if merge == True:
             dataset.plotOn( frame,
@@ -216,6 +217,8 @@ if __name__ == '__main__' :
         Bmass_up = 7000
         Dmass_down = 1930
         Dmass_up = 2015
+        PIDK_down = log(5)
+        PIDK_up = 5
 
     if sam == "up":
         print "Sample up"
@@ -255,6 +258,9 @@ if __name__ == '__main__' :
     
     if ( mVarTS == "lab2_MM" ):
         mass.setRange(Dmass_down,Dmass_up)
+    elif (mVarTS == "lab1_PIDK" ):
+        mass.setRange(PIDK_down,PIDK_up)
+ 
     else:
         mass.setRange(Bmass_down,Bmass_up)
     frame_m = mass.frame()
@@ -320,6 +326,8 @@ if __name__ == '__main__' :
     axisX = pullHist.GetXaxis()
     if ( mVarTS == "lab0_MassFitConsD_M" ):
         axisX.Set(100,Bmass_down,Bmass_up)
+    elif (mVarTS == "lab1_PIDK"):
+        axisX.Set(100,PIDK_down,PIDK_up)
     else:
         axisX.Set(100,Dmass_down,Dmass_up)
     
@@ -333,6 +341,10 @@ if __name__ == '__main__' :
     if ( mVarTS == "lab0_MassFitConsD_M" ):
         graph.SetPoint(1,Bmass_down,0)
         graph.SetPoint(2,Bmass_up,0)
+    elif ( mVarTS == "lab1_PIDK" ):
+        graph.SetPoint(1,PIDK_down,0)
+        graph.SetPoint(2,PIDK_up,0)
+                
     else:    
         graph.SetPoint(1,Dmass_down,0)
         graph.SetPoint(2,Dmass_up,0)
@@ -343,6 +355,10 @@ if __name__ == '__main__' :
     if ( mVarTS == "lab0_MassFitConsD_M" ):
         graph2.SetPoint(1,Bmass_down,-3)
         graph2.SetPoint(2,Bmass_up,-3)
+    elif ( mVarTS == "lab1_PIDK" ):
+        graph2.SetPoint(1,PIDK_down,0)
+        graph2.SetPoint(2,PIDK_up,0)
+                        
     else:    
         graph2.SetPoint(1,Dmass_down,-3)
         graph2.SetPoint(2,Dmass_up,-3)
@@ -354,6 +370,10 @@ if __name__ == '__main__' :
     if ( mVarTS == "lab0_MassFitConsD_M" ):
         graph3.SetPoint(1,Bmass_down,3)
         graph3.SetPoint(2,Bmass_up,3)
+    elif ( mVarTS == "lab1_PIDK" ):
+        graph3.SetPoint(1,PIDK_down,0)
+        graph3.SetPoint(2,PIDK_up,0)
+            
     else:
         graph3.SetPoint(1,Dmass_down,3)
         graph3.SetPoint(2,Dmass_up,3)

@@ -15,10 +15,22 @@ def getconfig() :
     configdict["ArgLf"]         = configdict["StrongPhase"] - configdict["WeakPhase"]
     configdict["ArgLbarfbar"]   = configdict["StrongPhase"] + configdict["WeakPhase"]
     configdict["ModLf"]         = 0.372
-    configdict["tacc_exponent"] = 1.83165e+00 #1.75 
-    configdict["tacc_offset"]   = 1.94941e-02 #0.02
-    configdict["tacc_beta"]     = 3.55134e-02 #3.5e-02 
-    configdict["tacc_turnon"]   = 1.31231e+00 #1.3       
+    #configdict["tacc_exponent"] = 1.83165e+00 #1.75 
+    #configdict["tacc_offset"]   = 1.94941e-02 #0.02
+    #configdict["tacc_beta"]     = 3.55134e-02 #3.5e-02 
+    #configdict["tacc_turnon"]   = 1.31231e+00 #1.3
+
+    configdict["tacc_exponent"] = 1.83214e+00
+    configdict["tacc_offset"]   = 1.98046e-02
+    configdict["tacc_beta"]     = 3.55307e-02
+    configdict["tacc_turnon"]   = 1.31250e+00
+                
+
+    #configdict["tacc_exponent"] = 1.83184e+00
+    #configdict["tacc_offset"]   = 1.94729e-02
+    #configdict["tacc_beta"]     = 3.55230e-02                
+    #configdict["tacc_turnon"]   = 1.31231e+00
+    
 
     #configdict["tacc_exponent"] = 3.99829e+00
     #configdict["tacc_offset"]   = 1.94941e-02
@@ -36,9 +48,9 @@ def getconfig() :
     #configdict["tacc_turnon"]   = 6.2060e-01
     
 
-    configdict["resolutionScaleFactor"] = 1.15 
+    configdict["resolutionScaleFactor"] = 1.37 
     configdict["resolutionMeanBias"]    = 0.0
-    configdict["DecayTimeResolutionModel"] = "TripleGaussian"
+    configdict["DecayTimeResolutionModel"] = "PEDTETripleGaussian"
     configdict["DecayTimeErrInterpolation"] = True
 
     configdict["calibration_p1"] = 1.035 #1.035
@@ -55,7 +67,7 @@ def getconfig() :
     configdict["TimeUp"]   = 15.0
 
     configdict["nBinsMistag"]   = 50
-    configdict["nBinsProperTimeErr"]   = 50
+    configdict["nBinsProperTimeErr"]   = 740
     configdict["nBinsAcceptance"]   = 740    
     
             

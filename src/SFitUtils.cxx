@@ -133,7 +133,7 @@ namespace SFitUtils {
         s.push_back("both_phipi");
         s.push_back("both_kstk");
       }
-    else if(pathFile.Contains("toys") == true || pathFile.Contains("Toys") == true || pathFile.Contains("TOYS") == true)  
+    else if(pathFile.Contains("toys1m") == true || pathFile.Contains("Toys1M") == true || pathFile.Contains("TOYS1M") == true)  
       {
 	s.push_back("both_phipi");
       }
@@ -355,7 +355,6 @@ namespace SFitUtils {
 	  }
       weights->setVal(sum_sw);
       sqSumsW += sum_sw*sum_sw;
-
       if (weighted == true )
 	{
 	  dataSet->add(*obs,sum_sw,0);
@@ -618,7 +617,7 @@ namespace SFitUtils {
     RooDataSet* dataout = NULL;
 
     
-    RooRealVar* lab0_MM = new RooRealVar(mVar.Data(),mVar.Data(),5100, 5800);
+    RooRealVar* lab0_MM = new RooRealVar(mVar.Data(),mVar.Data(),5300, 5800);
     RooRealVar* lab2_MM = new RooRealVar(mDVar.Data(),mDVar.Data(),1930, 2015);
     RooRealVar* lab1_PIDK = NULL;
     if ( dataName.Contains("Pi") == true )

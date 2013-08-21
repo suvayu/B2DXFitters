@@ -73,8 +73,16 @@ DecayTree
 DecayTree
 ###
 
-
 #BsDsK KKPi All
+/afs/cern.ch/work/a/adudziak/public/Bs2DsKFitTuple/
+DsK_All_MD_BDTG_MINI.root
+DsK_All_MU_BDTG_MINI.root
+DecayTree
+DecayTree
+###
+
+
+#BsDsK All
 /afs/cern.ch/work/g/gligorov/public/Bs2DsKFitTuples/DV_v33r1/SmallTuples/
 DsK_KKPi_MD_BDTG_MINI.root
 DsK_KKPi_MU_BDTG_MINI.root

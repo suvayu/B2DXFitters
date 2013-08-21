@@ -24,7 +24,7 @@ import sys
 sys.path.append("../data/")
 
 # Get the configuration file
-myconfigfilegrabber = __import__("Bs2DsKConfigForGenerator",fromlist=['getconfig']).getconfig
+myconfigfilegrabber = __import__("Bs2DsKConfigForGenerator2",fromlist=['getconfig']).getconfig
 myconfigfile = myconfigfilegrabber()
 
 splitCharge = False
@@ -44,7 +44,7 @@ useavgmistag = False
 avgmistagsuffix = "AvgMistag_"
 
 ntoys               = 1000
-toysdir             = '/afs/cern.ch/work/a/adudziak/public/Bs2DsKToys/Gamma70/'
+toysdir             = '/afs/cern.ch/work/a/adudziak/public/Bs2DsKToys/Gamma70_5M/Float/'
 toysresultprefix    = 'DsK_Toys_TimeFitResult_'
 toysresultprefixMD  = 'DsK_Toys_MassFitResult_'
 
@@ -52,7 +52,7 @@ if useavgmistag : toysresultprefix += avgmistagsuffix
 if largeToys    : toysresultprefix = 'DsK_Toys_FullLarge_TimeFitResult_'
 toysresultsuffix    = '.log'    
 #outputdir = '/afs/cern.ch/work/g/gligorov/public/Bs2DsKToys/sWeightToys/DsKToysAgnieszka_010813/'
-outputdir = '/afs/cern.ch/work/a/adudziak/public/Bs2DsKToys/Gamma70/'
+outputdir = '/afs/cern.ch/work/a/adudziak/public/Bs2DsKToys/Gamma70_5M/Float/'
 
 additionalsuffix = ""#FixParSyst_p1_"
 
@@ -249,7 +249,7 @@ pull_C.Fit("gaus")
 pull_C.Draw("PE")
 
 if not useavgmistag and not largeToys and saveplots:
-    pullcanvasC.Print(outputdir+"PullPlot_2kSample_"+additionalsuffix+"DsK_Time_C.pdf")
+    pullcanvasC.Print(outputdir+"PullPlot_"+additionalsuffix+"DsK_Time_C.pdf")
 elif not largeToys and saveplots:
     pullcanvasC.Print(outputdir+"PullPlot_DsK_Time_"+avgmistagsuffix+"C.pdf")
 elif saveplots :
@@ -282,7 +282,7 @@ pull_S.Fit("gaus")
 pull_S.Draw("PE")
 
 if not useavgmistag and not largeToys and saveplots:
-    pullcanvasS.Print(outputdir+"PullPlot_2kSample_"+additionalsuffix+"DsK_Time_S.pdf")
+    pullcanvasS.Print(outputdir+"PullPlot_"+additionalsuffix+"DsK_Time_S.pdf")
 elif not largeToys and saveplots:
     pullcanvasS.Print(outputdir+"PullPlot_DsK_Time_"+avgmistagsuffix+"S.pdf")
 elif saveplots :
@@ -315,7 +315,7 @@ pull_Sbar.Fit("gaus")
 pull_Sbar.Draw("PE")
 
 if not useavgmistag and not largeToys and saveplots:
-    pullcanvasSbar.Print(outputdir+"PullPlot_2kSample_"+additionalsuffix+"DsK_Time_Sbar.pdf")
+    pullcanvasSbar.Print(outputdir+"PullPlot_"+additionalsuffix+"DsK_Time_Sbar.pdf")
 elif not largeToys and saveplots:
     pullcanvasSbar.Print(outputdir+"PullPlot_DsK_Time_"+avgmistagsuffix+"Sbar.pdf")
 elif saveplots :
@@ -348,7 +348,7 @@ pull_D.Fit("gaus")
 pull_D.Draw("PE")
 
 if not useavgmistag and not largeToys  and saveplots:
-    pullcanvasD.Print(outputdir+"PullPlot_2kSample_"+additionalsuffix+"DsK_Time_D.pdf")
+    pullcanvasD.Print(outputdir+"PullPlot_"+additionalsuffix+"DsK_Time_D.pdf")
 elif not largeToys and saveplots:
     pullcanvasD.Print(outputdir+"PullPlot_DsK_Time_"+avgmistagsuffix+"D.pdf")
 elif saveplots :
@@ -381,7 +381,7 @@ pull_Dbar.Fit("gaus")
 pull_Dbar.Draw("PE")
 
 if not useavgmistag and not largeToys and saveplots:
-    pullcanvasDbar.Print(outputdir+"PullPlot_2kSample_"+additionalsuffix+"DsK_Time_Dbar.pdf")
+    pullcanvasDbar.Print(outputdir+"PullPlot_"+additionalsuffix+"DsK_Time_Dbar.pdf")
 elif not largeToys and saveplots:
     pullcanvasDbar.Print(outputdir+"PullPlot_DsK_Time_"+avgmistagsuffix+"Dbar.pdf")
 elif saveplots :

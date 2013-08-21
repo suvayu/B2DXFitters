@@ -4,6 +4,26 @@
 ! Purpose     : RooFit-based fitters for B -> D X
 !-----------------------------------------------------------------------------
 
+! 2013-08-20 - Agnieszka Dziurda
+ - change logic in MDFitter for DsK 
+   . # Group 1: Bd->DsK, Bs->DsK*: (g1_f1)*Bd->DsK + (1-g1_f1)*Bs->DsK*
+   . # Group 2: Bs->DsPi, Bs->DsstPi, Bs->DsRho: 
+               (g2_f1)*DsPi + (1-g2_f1)*[ (g2_f2)*DsstPi+(1-g2_f2)*DsRho] 
+   . # Group 3: g3_f1*Lb->Dsp + (1-g3_f1)Lb->Ds*p
+   . # Global fraction: (g5_f1)*Bs2DsDsstPiRho + (1-g5_f1)*Lb2DsDsstp
+   . changes in src/Bs2Dsh2011TDAnaModels.{cxx,h}
+ - in DsK MDFitter new treatment of pdfs: firstly RooProdPdf then RooAddPdf
+ - allow to create 5 modes toys, new scripts:
+   . scripts/Csh/runBsDsK_sFit_Toys_Time_5M.csh
+   . scripts/Csh/runBsDsK_sFit_Toys_Mass_5M.csh
+   . scripts/DrawPullsForToys_DsK_Mass_5M.py
+   . scripts/GenerateToySWeights_DsK_5M.py
+   . data/Bs2DsKConfigForNominalGammaFitToys5M.py
+   . data/Bs2DsKConfigForNominalMassFitToys5M.py
+ - some cleans up
+ - update workspace to the last result: 
+   . data/workspace/MDFitter/WS_Mass_DsK_5M_BDTGA.root
+
 ! 2013-08-14 - Manuel Tobias Schiller
  - fix bug in make_histos.py - deltaMs was treated as a phase
 

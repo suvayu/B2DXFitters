@@ -44,11 +44,11 @@ bin3->Sumw2();
 bin4->Sumw2();
 bin5->Sumw2();
 
-c->Draw("log(lab1_PIDK)>>bin1","lab0_MassFitConsD_M[0]>5625. && lab0_MassFitConsD_M[0] < 5775. && lab1_PIDK > 5 && BDTGResponse_1 > 0.3");
-c->Draw("log(lab1_PIDK)>>bin2","lab0_MassFitConsD_M[0]>5775. && lab0_MassFitConsD_M[0] < 5950. && lab1_PIDK > 5 && BDTGResponse_1 > 0.3");
-c->Draw("log(lab1_PIDK)>>bin3","lab0_MassFitConsD_M[0]>5950. && lab0_MassFitConsD_M[0] < 6200. && lab1_PIDK > 5 && BDTGResponse_1 > 0.3");
-c->Draw("log(lab1_PIDK)>>bin4","lab0_MassFitConsD_M[0]>6200. && lab0_MassFitConsD_M[0] < 6500. && lab1_PIDK > 5 && BDTGResponse_1 > 0.3");
-c->Draw("log(lab1_PIDK)>>bin5","lab0_MassFitConsD_M[0]>6500. && lab0_MassFitConsD_M[0] < 7000. && lab1_PIDK > 5 && BDTGResponse_1 > 0.3");
+c->Draw("log(lab1_PIDK)>>bin1","lab0_MassFitConsD_M[0]>5625. && lab0_MassFitConsD_M[0] < 5775. && lab1_PIDK > 5 && BDTGResponse_1 > 0.3 && lab2_MM > 1930 && lab2_MM < 2015");
+c->Draw("log(lab1_PIDK)>>bin2","lab0_MassFitConsD_M[0]>5775. && lab0_MassFitConsD_M[0] < 5950. && lab1_PIDK > 5 && BDTGResponse_1 > 0.3 && lab2_MM > 1930 && lab2_MM < 2015");
+c->Draw("log(lab1_PIDK)>>bin3","lab0_MassFitConsD_M[0]>5950. && lab0_MassFitConsD_M[0] < 6200. && lab1_PIDK > 5 && BDTGResponse_1 > 0.3 & lab2_MM > 1930 && lab2_MM < 2015");
+c->Draw("log(lab1_PIDK)>>bin4","lab0_MassFitConsD_M[0]>6200. && lab0_MassFitConsD_M[0] < 6500. && lab1_PIDK > 5 && BDTGResponse_1 > 0.3 && lab2_MM> 1930 && lab2_MM < 2015");
+c->Draw("log(lab1_PIDK)>>bin5","lab0_MassFitConsD_M[0]>6500. && lab0_MassFitConsD_M[0] < 7000. && lab1_PIDK > 5 && BDTGResponse_1 > 0.3 && lab2_MM> 1930 && lab2_MM < 2015");
 
 TCanvas* canv = new TCanvas("canv","canv",800,600);
 canv->cd(1);
