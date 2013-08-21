@@ -5,6 +5,9 @@
 !-----------------------------------------------------------------------------
 
 ! 2013-08-21 - Manuel Tobias Schiller
+ - Rules.mk: fix small bug in rule for automatic dependencies
+
+! 2013-08-21 - Manuel Tobias Schiller
  - be much more explicit in DecRateCoeff and NonOscTaggingPdf about what
    RooFit may cache and what not
 

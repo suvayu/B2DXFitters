@@ -53,6 +53,8 @@
 # v0.13 2013-07-02 Manuel Schiller <manuel.schiller@nikhef.nl>
 #	fix optimisation flags used for the GNU compilers on non x86(_64)
 #	platforms
+# v0.14 2013-08-21 Manuel Schiller <manuel.schiller@nikhef.nl>
+# 	fix small bug in rule for automatic dependencies
 #######################################################################
 
 #######################################################################
@@ -878,7 +880,7 @@ $(foreach extension,$(OBJSUFFIXES),$(eval $(call \
 MKDEPEND_RFLXMANGLING := \
     's,\.deps/\([^ .]\+\)Rflx\.dd : \1Rflx.\(C\|cc\|cpp\|cxx\|c++\), : \1Rflx.\2\n\1Rflx.\2 .deps/\1Rflx.dd :,g'
 MKDEPEND = $(CPP) $(CPPDEPFLAGS) $(CPPFLAGS) $< | \
-	   $(SED) -e 's,\($*\)\.o[ :]*,\1.o $@ : ,g' \
+	   $(SED) -e 's,\($*\)\.o[ :]*,\1.o \1.os $@ : ,g' \
 	   	-e $(MKDEPEND_RFLXMANGLING) > $@ || \
 	   $(RM) -f $@
 MKDEPENDMSG = "\\x1b[36m[MKDEPEND]\\x1b[m\\t$<"
