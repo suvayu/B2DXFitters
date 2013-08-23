@@ -4,6 +4,9 @@
 ! Purpose     : RooFit-based fitters for B -> D X
 !-----------------------------------------------------------------------------
 
+! 2013-08-23 - Manuel Tobias Schiller
+ - adapt more files to work with both Urania v1r1 and v2r0p1
+
 ! 2013-08-21 - Manuel Tobias Schiller
  - fixed version of the cFit (LH at Optimize = 0 and Optimize = 2 now the same)
    this will most likely also need a bit of cleanup in the near future
