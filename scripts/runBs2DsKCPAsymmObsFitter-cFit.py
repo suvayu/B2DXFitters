@@ -273,7 +273,7 @@ defaultConfig = {
     # mass templates
     'MassTemplateFile':		os.environ['B2DXFITTERSROOT']+'/data/workspace/WS_Mass_DsK.root',
     'MassTemplateWorkspace':	'FitMeToolWS',
-    'MassInterpolation':	True,
+    'MassInterpolation':	False,
     # either one element or 6 (kkpi,kpipi,pipipi)x(up,down) in "sample" order
     'NEvents':			[ 1731. ],
     # target S/B: None means keep default
@@ -289,7 +289,7 @@ defaultConfig = {
     'DecayTimeErrorTemplateWorkspace':  None,
     'DecayTimeErrorTemplateName':       None,
     'DecayTimeErrorVarName':            None,
-    'DecayTimeErrInterpolation':	True,
+    'DecayTimeErrInterpolation':	False,
 
     # k-factor templates
     # ROOT file to read
@@ -1127,18 +1127,24 @@ def getMassTemplateOneMode2011Paper(
         modemap = {
                 'Bs2DsKst': 'Bs2DsDsstKKst',
                 'Bd2DsK': 'Bs2DsDsstKKst',
-                'Bs2DsstPi': 'Bs2DsDsstPiRho' if \
-                        'Bs2DsK' == config['Modes'][0] else 'Bs2DsDsstPi',
-                'Bs2DsRho': 'Bs2DsDsstPiRho',
+                'Bs2DsstPi': ('BsLb2DsDsstPPiRho' if
+                    'Bs2DsK' == config['Modes'][0] else 'Bs2DsDsstPi'),
+                'Bs2DsRho': ('Bs2DsDsstPiRho' if
+                    'Bs2DsPi' == config['Modes'][0] else 'BsLb2DsDsstPPiRho'),
                 'Bs2DsstRho': 'Bs2DsDsstPiRho',
-                'Lb2Dsp': 'Lb2DsDsstP',
-                'Lb2Dsstp': 'Lb2DsDsstP',
+                'Lb2Dsp': ('Lb2DsDsstP' if
+                    'Bs2DsPi' == config['Modes'][0] else 'BsLb2DsDsstPPiRho'),
+                'Lb2Dsstp': ('Lb2DsDsstP' if
+                    'Bs2DsPi' == config['Modes'][0] else 'BsLb2DsDsstPPiRho'),
                 'Bs2DsPi': 'Bs2DsPi',
                 'Lb2LcK': 'Lb2DsK',
                 'Lb2LcPi': 'Lb2DsPi',
                 'Bd2DK': 'Bd2DK',
                 'Bd2DPi': 'Bd2DPi',
-                'Bd2DsPi': 'Bs2DsDsstPi',
+                'Bd2DsPi': ('Bs2DsDsstPi' if
+                    'Bs2DsPi' == config['Modes'][0] else 'BsLb2DsDsstPPiRho'),
+                'Bs2DsPi': ('Bs2DsPi' if
+                    'Bs2DsPi' == config['Modes'][0] else 'BsLb2DsDsstPPiRho'),
                 'Bs2DsK': 'Bs2DsK'
                 }
         trysfx = [
@@ -1177,7 +1183,23 @@ def getMassTemplateOneMode2011Paper(
                     f = 1. - f.getVal()
                 else:
                     f = None
-            elif 'Lb2DsDsstP' in sfx or 'Lb2DsDsstp' in sfx: 
+            elif ('BsLb2DsDsstPPiRho' in sfx and 'Bs2DsK' == config['Modes'][0]
+                    and 'Bs2Ds' in mode):
+                f = fromws.var('g2_f2_frac')
+                if 'Bs2DsstPi' == mode:
+                    f = f.getVal()
+                elif 'Bs2DsRho' == mode:
+                    f = 1. - f.getVal()
+                elif 'Bs2DsPi' == mode:
+                    f = fromws.var('g2_f1_frac').getVal()
+                else:
+                    f = None
+                if None != f and 'Bs2DsPi' != mode:
+                    f *= (1. - fromws.var('g2_f1_frac').getVal())
+                if None != f:
+                    f *= fromws.var('g5_f1_frac').getVal()
+            elif ('Lb2DsDsstP' in sfx or 'Lb2DsDsstp' in sfx or
+                    ('Lb2Ds' in mode and 'BsLb2DsDsstPPiRho' in sfx)):
                 f = fromws.var('g3_f1_frac')
                 if 'Lb2Dsp' == mode:
                     f = f.getVal()
@@ -1185,14 +1207,8 @@ def getMassTemplateOneMode2011Paper(
                     f = 1. - f.getVal()
                 else:
                     f = None
-            elif 'Bs2DsDsstPiRho' in sfx and 'Bs2DsK' == config['Modes'][0]:
-                f = fromws.var('g2_f1_frac')
-                if 'Bs2DsstPi' == mode:
-                    f = f.getVal()
-                elif 'Bs2DsRho' == mode:
-                    f = 1. - f.getVal()
-                else:
-                    f = None
+                if None != f and 'Bs2DsK' == config['Modes'][0]:
+                    f *= (1. - fromws.var('g5_f1_frac').getVal())
             elif 'Bs2DsDsstPiRho' in sfx and 'Bs2DsPi' == config['Modes'][0]:
                 f = fromws.var('g1_f1_frac')
                 if 'Bs2DsstPi' == mode:
@@ -1206,6 +1222,15 @@ def getMassTemplateOneMode2011Paper(
                 return None
             # ok, fix the yield with the right fraction
             nYield = nYield * f
+    # ok, we should have all we need for now
+    if None == pdf or None == nYield:
+        if None == pdf:
+            print '@@@@ - ERROR: NO PDF FOR MODE %s SAMPLE CATEGORY %s' % (
+                    mode, sname)
+        if None == nYield:
+            print '@@@@ - ERROR: NO YIELD FOR MODE %s SAMPLE CATEGORY %s' % (
+                    mode, sname)
+        return None
     # figure out name of mass variable - should start with 'lab0' and end in
     # '_M'; while we're at it, figure out how we need to scale yields due to
     # potentially different mass ranges
@@ -1267,11 +1292,6 @@ def getMassTemplateOneMode2011Paper(
         # ok, figure out yield
         nYield = RooRealVar('n%s_%s_Evts' % (mode, sname),
                 'n%s_%s_Evts' % (mode, sname), nYield * yieldrangescaling)
-    # ok, we should have all we need for now
-    if None == pdf or None == nYield:
-        print '@@@@ - ERROR: NO PDF FOR MODE %s SAMPLE CATEGORY %s' % (
-                mode, sname)
-        return None
     # import mass pdf and corresponding yield into our workspace
     # in the way, we rename whatever mass variable was used to the one supplied
     # by our caller
@@ -1745,6 +1765,16 @@ def buildBDecayTimePdf(
         time, tau, kDeltaGamma,	cosh, sinh, cos, sin,
         kDeltaM, timeresmodel, RooBDecay.SingleSided))
 
+    if config['ParameteriseIntegral']:
+        comp = rawtimepdf.getComponents()
+        ROOT.SetOwnership(comp, True)
+        it = comp.fwdIterator()
+        while True:
+            obj = it.next()
+            if None == obj: break
+            if '_conv_' not in obj.GetName(): continue
+            parameteriseResModelIntegrals(config, timeerrpdf, timeerr,
+                    obj)
     # work out in which observables to parameterise k-factor smearing, then
     # apply it
     paramObs = RooArgSet(qt, qf)
@@ -2177,8 +2207,8 @@ def getMasterPDF(config, name, debug = False):
                             'timeerr to %u bins' % obins
             timeerr.setBins(nbins)
             hist = terrpdf.createHistogram('%s_hist' % terrpdf.GetName(), timeerr)
-            hist.Scale(1. / hist.Integral())
             ROOT.SetOwnership(hist, True)
+            hist.Scale(1. / hist.Integral())
             terrpdf = WS(ws, RooBinned1DQuinticPdf(
                 '%s_interpol' % terrpdf.GetName(),
                 '%s_interpol' % terrpdf.GetName(), hist, timeerr, True))

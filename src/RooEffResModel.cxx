@@ -54,7 +54,8 @@ RooEffResModel::CacheElem::~CacheElem()
 RooArgList RooEffResModel::CacheElem::containedArgs(Action)
 {
     // Return list of all RooAbsArgs in cache element
-    return RooArgList(*_int, *_eff);
+    if (_eff) return RooArgList(*_int, *_eff, *_x, *_xmin, *_xmax);
+    else return RooArgList(*_int);
 }
 
 //_____________________________________________________________________________
@@ -71,12 +72,12 @@ RooEffResModel::CacheElem::CacheElem(const RooEffResModel& parent, const RooArgS
     std::auto_ptr<const RooArgSet> effInt( eff.getObservables(iset) );
 
     assert(effInt->getSize() < 2); // for now, we only do 1D efficiency histograms...
-    if (effInt->getSize() == 0) {
+    if (0 == effInt->getSize()) {
 	_int = parent.model().createIntegral(iset, RooNameReg::str(rangeName));
 	return;
     }
 
-    const char* rn = (rangeName ? RooNameReg::str(rangeName) : "default");
+    const char* rn = (rangeName ? RooNameReg::str(rangeName) : "");
     // get bin bounds
     const double rxmin = x.getMin(rn);
     const double rxmax = x.getMax(rn);
@@ -101,7 +102,6 @@ RooEffResModel::CacheElem::CacheElem(const RooEffResModel& parent, const RooArgS
     _x = dynamic_cast<RooRealVar*>(x.clone((std::string(x.GetName()) + "_" +
 		    rn).c_str()));
     assert(_x);
-    _x->setConstant(true);
     RooCustomizer customizer2(model, (std::string(rn) + "_customizer2").c_str());
     customizer2.replaceArg(x, *_x);
     RooAbsReal* m = dynamic_cast<RooAbsReal*>(customizer2.build(false));
@@ -110,12 +110,14 @@ RooEffResModel::CacheElem::CacheElem(const RooEffResModel& parent, const RooArgS
     RooArgSet custiset(iset);
     custiset.replace(x, *_x);
     // working range
-    _xmin = new RooRealVar("_xmin", "_xmin", _bounds.front());
+    _xmin = dynamic_cast<RooRealVar*>(_x->clone(
+		(std::string(_x->GetName()) + "_xmin").c_str()));
     assert(_xmin);
-    _xmin->setConstant(true);
-    _xmax = new RooRealVar("_xmax", "_xmax", _bounds.back());
+    _xmin->setVal(_bounds.front());
+    _xmax = dynamic_cast<RooRealVar*>(_x->clone(
+		(std::string(_x->GetName()) + "_xmax").c_str()));
     assert(_xmax);
-    _xmax->setConstant(true);
+    _xmax->setVal(_bounds.back());
     std::string wrn(parent.GetName());
     wrn += "_"; wrn += x.GetName(); wrn += "_"; wrn += model.GetName();
     wrn += "_"; wrn += eff.GetName(); wrn += "_"; wrn += rn;
@@ -165,7 +167,7 @@ RooEffResModel::RooEffResModel(const char *name, const char *title,
     , _observables("observables", "observables", this)
     , _model("!model","Original resolution model",this,__model)
     , _eff("!efficiency","efficiency of convvar", this,eff)
-    , _cacheMgr(this, 10)
+    , _cacheMgr(this)
 {
     // FIXME: assert that efficiency is a function of convVar, and there are no overlaps...
     _observables.add(__model.convVar());
