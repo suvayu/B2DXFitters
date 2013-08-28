@@ -1976,14 +1976,14 @@ def getMasterPDF(config, name, debug = False):
                 for p in config['MistagCalibrationParams'][j][0:2]:
                     mistagcalib.add(WS(ws, RooRealVar(
                         'MistagCalib%s_p%u' % (namsfx[j], i),
-                        'MistagCalib%s_p%u' % (namsfx[j], i), p, 0., 1.)))
+                        'MistagCalib%s_p%u' % (namsfx[j], i), p, 0., 2.)))
                     i = i + 1
                 del i
             if len(config['MistagCalibrationParams'][j]) == 3:
                 avgmistag = WS(ws, RooRealVar(
                     'MistagCalib%s_avgmistag' % namsfx[j],
                     'MistagCalib%s_avgmistag' % namsfx[j],
-                    config['MistagCalibrationParams'][j][2], 0., 1.))
+                    config['MistagCalibrationParams'][j][2], 0., 2.))
             tagOmegaSigCal.append(WS(ws, MistagCalibration(
                 '%s%s_c' % (tagOmegaSig.GetName(), namsfx[j]),
                 '%s%s_c' % (tagOmegaSig.GetName(), namsfx[j]),
