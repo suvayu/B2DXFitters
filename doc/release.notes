@@ -4,6 +4,9 @@
 ! Purpose     : RooFit-based fitters for B -> D X
 !-----------------------------------------------------------------------------
 
+! 2013-08-28 - Manuel Tobias Schiller
+ - tiny patch to enable event-by-event tagging calibration in the cFit
+
 ! 2013-08-26 - Manuel Tobias Schiller
  - some tiny cleanup in RooEffResModel
  - revert to Optimize=0 for cFit, add support for fixed MDFitter models
