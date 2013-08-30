@@ -1,9 +1,5 @@
-# personality for 2011 Paper - mode DsK for DATA
+# personality for 2011 Paper - mode DsK
 {
-        'IsToy':                False,
-        'DataFileName':         os.environ['B2DXFITTERSROOT']+'/data/workspace/MDFitter/WS_Mass_DsK_5M_BDTGA.root',
-        'DataWorkSpaceName':    'FitMeToolWS',
-        'DataSetNames':         'combData',
         'Modes': [
             'Bs2DsK',
 #            'Bs2DsKst',
@@ -31,7 +27,21 @@
             },   
         'CombineModesForEffCPObs': [ ],
         'NEvents':			[ 3518. ],
-        'MassTemplateFile':             os.environ['B2DXFITTERSROOT']+'/data/workspace/MDFitter/WS_Mass_DsK_5M_BDTGA.root',
+        'DataFileName':         os.environ['B2DXFITTERSROOT']+'/scripts/mdfit-003/data/DsK_Toys_Work_ForMassPlot_%d.root' % TOY_NUMBER,
+        'DataWorkSpaceName':    'FitMeToolWS',
+        'DataSetNames':         'combData',
+	'DataSetVarNameMapping': {
+	    'sample':   'sample',
+	    'mass':     'lab0_MassFitConsD_M',
+	    'pidk':     'lab1_PIDK',
+            'dsmass':   'lab2_MM',
+            'time':     'lab0_LifetimeFit_ctau',
+            'timeerr':  'lab0_LifetimeFit_ctauErr',
+            'tagOmegaSig': 'lab0_BsTaggingTool_TAGOMEGA_OS',
+            'qf':       'lab1_ID_idx',
+            'qt':       'lab0_BsTaggingTool_TAGDECISION_OS_idx'
+            },
+        'MassTemplateFile':             os.environ['B2DXFITTERSROOT']+'/scripts/mdfit-003/data/DsK_Toys_Work_ForMassPlot_%d.root' % TOY_NUMBER,
         'MassTemplateWorkspace':	'FitMeToolWS',
         'MassInterpolation':		False,
         'MistagTemplateFile':           os.environ['B2DXFITTERSROOT']+'/data/workspace/MDFitter/templates_BsDsPi.root',
@@ -56,4 +66,5 @@
             'MistagCalibBbar_p0', 'MistagCalibBbar_p1', 'MistagCalibBbar_avgmistag',
             'Bs2DsKst_TagEff', 'Bs2DsKst_delta', 'Bs2DsKst_lambda', 'Bs2DsKst_phi_w',
             ],
+        'Optimize': 0,
 }

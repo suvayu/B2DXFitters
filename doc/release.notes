@@ -4,6 +4,9 @@
 ! Purpose     : RooFit-based fitters for B -> D X
 !-----------------------------------------------------------------------------
 
+! 2013-08-30 - Manuel Tobias Schiller
+ - add personalities to run with Agnieszka's toys
+
 ! 2013-08-28 - Manuel Tobias Schiller
  - tiny patch to enable event-by-event tagging calibration in the cFit
 

@@ -1351,6 +1351,8 @@ def getMassTemplates(
             '2011PaperDsPi': getMassTemplateOneMode2011Paper,
             '2011PaperDsKDATA': getMassTemplateOneMode2011Paper,
             '2011PaperDsPiDATA': getMassTemplateOneMode2011Paper,
+            '2011PaperDsK-Agn70': getMassTemplateOneMode2011Paper,
+            '2011PaperDsK-Agn140': getMassTemplateOneMode2011Paper,
             }
     import sys
     if None == snames:
