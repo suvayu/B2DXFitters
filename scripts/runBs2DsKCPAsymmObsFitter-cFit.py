@@ -1767,16 +1767,6 @@ def buildBDecayTimePdf(
         time, tau, kDeltaGamma,	cosh, sinh, cos, sin,
         kDeltaM, timeresmodel, RooBDecay.SingleSided))
 
-    if config['ParameteriseIntegral']:
-        comp = rawtimepdf.getComponents()
-        ROOT.SetOwnership(comp, True)
-        it = comp.fwdIterator()
-        while True:
-            obj = it.next()
-            if None == obj: break
-            if '_conv_' not in obj.GetName(): continue
-            parameteriseResModelIntegrals(config, timeerrpdf, timeerr,
-                    obj)
     # work out in which observables to parameterise k-factor smearing, then
     # apply it
     paramObs = RooArgSet(qt, qf)

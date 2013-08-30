@@ -5,6 +5,9 @@
 !-----------------------------------------------------------------------------
 
 ! 2013-08-30 - Manuel Tobias Schiller
+ - cFit: remove a piece of code which accidentally got committed
+
+! 2013-08-30 - Manuel Tobias Schiller
  - add personalities to run with Agnieszka's toys
 
 ! 2013-08-28 - Manuel Tobias Schiller
