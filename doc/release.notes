@@ -5,6 +5,10 @@
 !-----------------------------------------------------------------------------
 
 ! 2013-08-30 - Manuel Tobias Schiller
+ - add scripts/AvgResModel.py to calculate average resolution models from
+   per-event decay time errors
+
+! 2013-08-30 - Manuel Tobias Schiller
  - cFit: remove a piece of code which accidentally got committed
 
 ! 2013-08-30 - Manuel Tobias Schiller
