@@ -1,20 +1,9 @@
 from optparse import OptionParser
 from os.path  import join
 
-import GaudiPython
-
-GaudiPython.loaddict( 'B2DXFittersDict' )
-
-from ROOT import *
-
-GeneralUtils = GaudiPython.gbl.GeneralUtils
-MassFitUtils = GaudiPython.gbl.MassFitUtils
-Bs2Dsh2011TDAnaModels = GaudiPython.gbl.Bs2Dsh2011TDAnaModels
-SFitUtils = GaudiPython.gbl.SFitUtils
-
-
 from ROOT import *
 import ROOT
+ROOT.gROOT.SetBatch()
 
 gStyle.SetOptStat(0)
 gStyle.SetOptFit(1011)
@@ -24,13 +13,14 @@ import sys
 sys.path.append("../data/")
 
 # Get the configuration file
-myconfigfilegrabber = __import__("Bs2DsKConfigForGenerator2",fromlist=['getconfig']).getconfig
+myconfigfilegrabber = __import__("Bs2DsKConfigForGenerator5M",fromlist=['getconfig']).getconfig
 myconfigfile = myconfigfilegrabber()
 
 splitCharge = False
 largeToys = False
 saveplots = True
 tbtd = False
+tagEffPlot = True
 
 nbinspull = 50
 lowerpullrange = -5
@@ -44,7 +34,8 @@ useavgmistag = False
 avgmistagsuffix = "AvgMistag_"
 
 ntoys               = 1000
-toysdir             = '/afs/cern.ch/work/a/adudziak/public/Bs2DsKToys/Gamma70_5M/Float/'
+toysdir             = '/afs/cern.ch/work/a/adudziak/public/Bs2DsKToys/Gamma70_5M/tagEff_PETE/'
+toysdirmd           = '/afs/cern.ch/work/a/adudziak/public/Bs2DsKToys/Gamma70_5M/' 
 toysresultprefix    = 'DsK_Toys_TimeFitResult_'
 toysresultprefixMD  = 'DsK_Toys_MassFitResult_'
 
@@ -52,7 +43,7 @@ if useavgmistag : toysresultprefix += avgmistagsuffix
 if largeToys    : toysresultprefix = 'DsK_Toys_FullLarge_TimeFitResult_'
 toysresultsuffix    = '.log'    
 #outputdir = '/afs/cern.ch/work/g/gligorov/public/Bs2DsKToys/sWeightToys/DsKToysAgnieszka_010813/'
-outputdir = '/afs/cern.ch/work/a/adudziak/public/Bs2DsKToys/Gamma70_5M/Float/'
+outputdir = '/afs/cern.ch/work/a/adudziak/public/Bs2DsKToys/Gamma70_5M/tagEff_PETE/'
 
 additionalsuffix = ""#FixParSyst_p1_"
 
@@ -70,11 +61,12 @@ dmsgenera["D"]    = ntoys*[(theseobservables.Df(),0.)]#ntoys*[(0.420,0.)]
 dmsfitted["D"]    = ntoys*[(0,0)]
 dmsgenera["Dbar"] = ntoys*[(theseobservables.Dfbar(),0.)]#ntoys*[(0.0,0.)]
 dmsfitted["Dbar"] = ntoys*[(0,0)]
-
+dmsgenera["tagEff"] = ntoys*[(0.403,0.0)] #403,0.)]
+dmsfitted["tagEff"] = ntoys*[(0,0)]
 nfailed = []
 
 for thistoy in range(0,ntoys) :
-    f = open(toysdir+toysresultprefixMD+str(thistoy)+toysresultsuffix)
+    f = open(toysdirmd+toysresultprefixMD+str(thistoy)+toysresultsuffix)
     counter = 0
     counterstop = -100
     badfit = False
@@ -130,6 +122,7 @@ for thistoy in range(0,ntoys) :
                 secondcount = True
             counterstop = counter
         if not splitCharge :
+            print "0"
             if counter == counterstop + 2 :
                 result = line.split()
                 dmsgenera["C"][thistoy] =  (float(result[2]), float(result[4]))
@@ -145,7 +138,14 @@ for thistoy in range(0,ntoys) :
             if counter == counterstop + 6 :
                 result = line.split()
                 dmsgenera["Sbar"][thistoy] =  (float(result[2]), float(result[4]))
-                break
+                
+            if counter == counterstop + 7 :
+                if tagEffPlot:
+                    result = line.split()
+                    dmsfitted["tagEff"][thistoy] =  (float(result[2]), float(result[4]))
+                    break
+                else:
+                    break
     f.close()
 
 for thistoy in range(0,ntoys) :
@@ -175,22 +175,37 @@ for thistoy in range(0,ntoys) :
                 secondcount = True
             counterstop = counter
         if not splitCharge :
+            
             if counter == counterstop + 2 :
                 result = line.split()
                 dmsfitted["C"][thistoy] =  (float(result[2]), float(result[4]))
+#                print dmsfitted["C"][thistoy]
             if counter == counterstop + 3 : 
                 result = line.split()
                 dmsfitted["D"][thistoy] =  (float(result[2]), float(result[4]))
+#                print dmsfitted["D"][thistoy] 
             if counter == counterstop + 4 : 
                 result = line.split()
                 dmsfitted["Dbar"][thistoy] =  (float(result[2]), float(result[4]))
+#                print dmsfitted["Dbar"][thistoy]
             if counter == counterstop + 5 : 
                 result = line.split()
                 dmsfitted["S"][thistoy] =  (float(result[2]), float(result[4]))
+#                print dmsfitted["S"][thistoy]
             if counter == counterstop + 6 : 
                 result = line.split()
                 dmsfitted["Sbar"][thistoy] =  (float(result[2]), float(result[4]))
-                break
+#                print dmsfitted["Sbar"][thistoy]
+            if counter == counterstop + 7 :
+                if tagEffPlot:
+                    result = line.split()
+                    dmsfitted["tagEff"][thistoy] =  (float(result[2]), float(result[4]))
+                    #                print dmsfitted["tagEff"][thistoy]
+                    #                exit(0)
+                    break
+                else:
+                    break
+            
         else :
             if not secondcount and counter == counterstop + 2 : 
                 result = line.split()
@@ -210,6 +225,10 @@ for thistoy in range(0,ntoys) :
             if secondcount and counter == counterstop + 4 : 
                 result = line.split()
                 dmsfitted["S"][thistoy] =  (float(result[2]), float(result[4]))
+            if counter == counterstop + 7 :
+                result = line.split()
+                dmsfitted["tagEff"][thistoy] =  (float(result[2]), float(result[4]))
+                
                 break
     if counterstop == -100 :
         nfailed.append(thistoy)
@@ -218,6 +237,7 @@ for thistoy in range(0,ntoys) :
             
 print nfailed.__len__(),'toys failed to converge properly'
 print nfailed
+#exit(0)
 
 if tbtd : additionalsuffix += "TBTD_"
 additionalsuffix += ""
@@ -386,3 +406,39 @@ elif not largeToys and saveplots:
     pullcanvasDbar.Print(outputdir+"PullPlot_DsK_Time_"+avgmistagsuffix+"Dbar.pdf")
 elif saveplots :
     pullcanvasDbar.Print(outputdir+"PullPlot_DsK_Time_Large_Dbar.pdf")
+
+if tagEffPlot:
+    fitted_tagEff = TH1F("fitted_tagEff","fitted_tagEff",100,0.0,1.0)
+    fitted_tagEff.GetXaxis().SetTitle("Fitted tagEff events")
+    errf_tagEff   = TH1F("errf_tagEff","errf_tagEff",100,0.0,0.1)
+    errf_tagEff.GetXaxis().SetTitle("Fitted error")
+    pull_tagEff   = TH1F("pull_tagEff","pull_tagEff",nbinspull,lowerpullrange,upperpullrange)
+    pull_tagEff.GetXaxis().SetTitle("Fitted Pull")
+    
+    for thistoy in range(0,ntoys) :
+        if thistoy in nfailed : continue
+        if dmsfitted["tagEff"][thistoy][1] == 0 : continue
+        fitted_tagEff.Fill(dmsfitted["tagEff"][thistoy][0])
+        errf_tagEff.Fill(dmsfitted["tagEff"][thistoy][1])
+        #print dmsfitted["tagEff"][thistoy]
+        pull_tagEff.Fill((dmsgenera["tagEff"][thistoy][0]-dmsfitted["tagEff"][thistoy][0])/dmsfitted["tagEff"][thistoy][1])
+    
+    pullcanvastagEff = TCanvas("pullcanvastagEff","pullcanvastagEff",1500,500)
+    pullcanvastagEff.Divide(3,1)
+    pullcanvastagEff.cd(1)
+    fitted_tagEff.Fit("gaus")
+    fitted_tagEff.Draw("PE")
+    pullcanvastagEff.cd(2)
+    errf_tagEff.Fit("gaus")
+    errf_tagEff.Draw("PE")
+    pullcanvastagEff.cd(3)
+    pull_tagEff.Fit("gaus")
+    pull_tagEff.Draw("PE")
+    
+    if not useavgmistag and not largeToys and saveplots:
+        pullcanvastagEff.Print(outputdir+"PullPlot_"+additionalsuffix+"DsK_Time_tagEff.pdf")
+    elif not largeToys and saveplots:
+        pullcanvastagEff.Print(outputdir+"PullPlot_DsK_Time_"+avgmistagsuffix+"tagEff.pdf")
+    elif saveplots :
+        pullcanvastagEff.Print(outputdir+"PullPlot_DsK_Time_Large_tagEff.pdf")
+    

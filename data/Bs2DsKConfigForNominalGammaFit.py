@@ -31,9 +31,17 @@ def getconfig() :
     configdict["tacc_turnon"]   = 1.31231e+00
                 
     
-    configdict["resolutionScaleFactor"] = 1.15 
+    configdict["resolutionScaleFactor"] = 1.37 
     configdict["resolutionMeanBias"]    = 0.
-    configdict["DecayTimeResolutionModel"] = "PEDTETripleGaussian"
+    configdict["DecayTimeResolutionModel"] = "TripleGaussian"
+
+    configdict["resolutionSigma1"] = 2.21465e-02
+    configdict["resolutionSigma2"] = 3.72057e-02
+    configdict["resolutionSigma3"] = 6.37859e-02
+    configdict["resolutionFrac1"]  = 3.62689e-01
+    configdict["resolutionFrac2"]  = 5.65100e-01
+                    
+
     configdict["calibration_p1"] = 1.03 #1.035 #1.035
     configdict["calibration_p0"] = 0.39 #0.392 #-0.013
         
@@ -44,7 +52,10 @@ def getconfig() :
     configdict["nBinsProperTimeErr"]   = 50
     configdict["nBinsAcceptance"]   = 740
 
-    configdict["TemplateFile"]      = "/afs/cern.ch/work/a/adudziak/public/workspace/MDFitter/templates_BsDsPi.root"
+    configdict["TemplateFilePi"]      = "/afs/cern.ch/work/a/adudziak/public/workspace/MDFitter/templates_BsDsPi.root"
+    configdict["TemplateFileK"]      = "/afs/cern.ch/work/a/adudziak/public/workspace/MDFitter/templates_BsDsK.root"
+    
+    
     configdict["TemplateWorkspace"] = "workspace"
     configdict["MistagTemplateName"]      = "MistagPdf_signal_BDTGA"
     configdict["MistagVarName"]           = "lab0_BsTaggingTool_TAGOMEGA_OS"

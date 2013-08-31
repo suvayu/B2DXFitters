@@ -28,7 +28,7 @@ SFitUtils = GaudiPython.gbl.SFitUtils
 
 from B2DXFitters import taggingutils, cpobservables
 
-RooRandom.randomGenerator().SetSeed(471354417);
+RooRandom.randomGenerator().SetSeed(446829203);
 RooAbsData.setDefaultStorageType(RooAbsData.Tree)
 
 RooAbsReal.defaultIntegratorConfig().setEpsAbs(1e-2)
@@ -1096,7 +1096,7 @@ def runBsDsPiGenerator( debug, single, configName, numberOfToys, numberOfEvents 
         if not single :
             #workout.writeToFile("/afs/cern.ch/work/g/gligorov//public/Bs2DsKToys/sWeightToys/DsPi_Toys_Full_Work_"+str(i)+".root")
             #outfile  = TFile("/afs/cern.ch/work/g/gligorov//public/Bs2DsKToys/sWeightToys/DsPi_Toys_Full_Tree_"+str(i)+".root","RECREATE")
-            workout.writeToFile("/afs/cern.ch/work/a/adudziak/public/Bs2DsPiToys/DsPi_Toys_Work_"+str(i+500)+".root")
+            workout.writeToFile("/afs/cern.ch/work/a/adudziak/public/Bs2DsPiToys/PETE/DsPi_Toys_Work_"+str(i+750)+".root")
             #outfile  = TFile("/afs/cern.ch/work/a/adudziak/public/DsPiToys/DsPi_Toys_Tree_"+str(i)+".root","RECREATE")
             
         else :
@@ -1127,7 +1127,7 @@ parser.add_option( '-s', '--single',
 
 parser.add_option( '--numberOfToys',
                    dest = 'numberOfToys',
-                   default = 500)
+                   default = 250)
 
 parser.add_option( '--numberOfEvents',
                    dest = 'numberOfEvents',

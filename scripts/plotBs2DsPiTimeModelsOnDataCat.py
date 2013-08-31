@@ -64,8 +64,7 @@ def plotFitModel(model, frame, wksp, combData) :
         model.Print('t')
         frame.Print('v')
 
-    lab0_BsTaggingTool_TAGDECISION_OS   = wksp.var('lab0_BsTaggingTool_TAGDECISION_OS')
-    lab1_ID                             = wksp.var('lab1_ID')
+    mistag                              = wksp.var('lab0_BsTaggingTool_TAGOMEGA_OS')
     time                                = wksp.var('lab0_LifetimeFit_ctau')
     terr                                = wksp.var('lab0_LifetimeFit_ctauErr')
     dataset                             = wksp.data("combData") #dataSetToPlot)
@@ -74,7 +73,8 @@ def plotFitModel(model, frame, wksp, combData) :
     cat = obs.find('bdtgbin')
     qf = obs.find('qf')
     qt = obs.find('qt')
-    
+
+   
     #for i in range(0,dataset.numEntries()) :
     #    obs = dataset.get(i)
     #    obs.Print("v")
@@ -84,8 +84,8 @@ def plotFitModel(model, frame, wksp, combData) :
     frame.Print("v")
     
     model.plotOn(frame,
-                 RooFit.Slice(RooArgSet(cat, qf, qt)),
-                 RooFit.ProjWData(RooArgSet(cat,qf,qt), dataset),
+                 RooFit.Slice(RooArgSet(qf,qt,cat)),
+                 RooFit.ProjWData(obs, dataset),
                  #RooFit.ProjWData(RooArgSet(cat,qf,qt,terr),dataset),
                  RooFit.LineColor(kBlue+3))
     
@@ -100,24 +100,55 @@ def plotFitModel(model, frame, wksp, combData) :
     #                  RooFit.LineColor(kMagenta+2))
     
      
+    qt.setIndex(0)
+    qt.Print("v")
+    print "1"
+    pdf = model.createProjection(RooArgSet(qf,qt,time,cat,mistag))
+    pdf.plotOn(frame,
+               #RooFit.Slice(RooArgSet(qf,qt,cat)),
+               #RooFit.ProjWData(obs, dataset),
+               RooFit.LineColor(kRed))
 
+    print "2"
     #model.createProjection(RooArgSet(qf,qt))    
     '''
-    sliceData_1 = dataset.reduce(RooArgSet(time,qf,qt,cat),"((qt == 1 && qf == -1) || ( qt == -1 && qf == 1))")
-    sliceData_1.plotOn(frame,RooFit.MarkerColor(kRed))
+    sliceData_1 = dataset.reduce(RooArgSet(obs),"((qt == 1 && qf == -1) || ( qt == -1 && qf == 1))")
+    sliceData_1.plotOn(frame,RooFit.MarkerColor(kOrange))
 
-    model.plotOn(frame,
-                 RooFit.Slice(RooArgSet(cat,qf,qt)),
-                 RooFit.ProjWData(RooArgSet(cat,qf,qt), sliceData_1),
-                 #RooFit.ProjWData(RooArgSet(cat,qf,qt,terr),dataset),
-                 RooFit.LineColor(kRed))
+    obs1 = sliceData_1.get()
+    obs1.Print("v")
     
+    model.plotOn(frame,
+                 RooFit.Slice(obs1),
+                 RooFit.ProjWData(obs1, sliceData_1),
+                 RooFit.LineColor(kOrange))
+    
+    
+    sliceData_2 = dataset.reduce(RooArgSet(obs),"(qt == -1 && qf == -1) || ( qt == 1 && qf == 1)")
+    sliceData_2.plotOn(frame,RooFit.MarkerColor(kBlue+2))
 
-    sliceData_2 = dataset.reduce(RooArgSet(time,qf,qt,cat),"(qt == -1 && qf == -1) || ( qt == 1 && qf == 1)")
-    sliceData_2.plotOn(frame,RooFit.MarkerColor(kBlue))
+    obs2 = sliceData_2.get()
+    obs2.Print("v")
+    
+    model.plotOn(frame,
+                 RooFit.Slice(obs2),
+                 RooFit.ProjWData(obs2, sliceData_2),
+                 RooFit.LineColor(kBlue+2))
+    
+                 
+    sliceData_3 = dataset.reduce(RooArgSet(obs),"qt == 0")
+    sliceData_3.plotOn(frame,RooFit.MarkerColor(kRed))
 
-    sliceData_3 = dataset.reduce(RooArgSet(time,qf,qt,cat),"qt == 0")
-    sliceData_3.plotOn(frame,RooFit.MarkerColor(kGreen+3))
+    obs3 = sliceData_3.get()
+    obs3.Print("v")
+    
+    #qt.setLabel("Untagged")
+    #qt.Print("v")
+    
+    model.plotOn(frame,
+                 RooFit.Slice(obs3),
+                 RooFit.ProjWData(obs3, sliceData_3),
+                 RooFit.LineColor(kRed))
     '''
     
     

@@ -7,6 +7,9 @@
 //  Authors: Eduardo Rodrigues                                               //
 //  Date   : 19 / 05 / 2011                                                  //
 //                                                                           //
+//  Authors: Agnieszka Dziurda                                               //
+//  Date   : 20/08/2013                                                      //
+//                                                                           // 
 //---------------------------------------------------------------------------//
 
 // STL includes
@@ -80,7 +83,7 @@ namespace PTResModels {
     }
     else if ( strcmp( modelName, "TripleGaussian") == 0 ) {
       printf( "    Using a triple Gaussian model with fixed parameters.\n" );
-      return tripleGausResolutionModel(time,true,true,true,false,scalingfactor,biasonmean); 
+      return tripleGausResolutionModel(time,true,true,true,debug,scalingfactor,biasonmean); 
     }
     else {
       printf( "[ERROR] The specified PT resolution model \"%s\" is not recognised!\n",
@@ -98,7 +101,7 @@ namespace PTResModels {
                                                  bool extended,
                                                  bool debug,
                                                  double scalingfactor,  
-                                                 double biasonmean
+                                                 double biasonmean						 
                                                  )
   {
     if ( debug )
@@ -130,10 +133,10 @@ namespace PTResModels {
       WidthGaus3= new RooRealVar("WidthGaus3",      "WidthGaus3",   0.273,    0.10,    0.40);
     }
     else{
-      bias      = new RooRealVar(      "bias",            "bias",    -0.00149+biasonmean);
+      bias      = new RooRealVar(      "bias",            "bias",  -0.00149+biasonmean);
       WidthGaus1= new RooRealVar("WidthGaus1",      "WidthGaus1",  0.029*scalingfactor);
       WidthGaus2= new RooRealVar("WidthGaus2",      "WidthGaus2",  0.059*scalingfactor);
-      WidthGaus3= new RooRealVar("WidthGaus3",      "WidthGaus3",   0.182*scalingfactor);
+      WidthGaus3= new RooRealVar("WidthGaus3",      "WidthGaus3",  0.182*scalingfactor);
     }
     RooGaussModel *timeGausModel1 = new RooGaussModel("timeGausModel1","timeGausModel1",time,*bias,*WidthGaus1);
     RooGaussModel *timeGausModel2 = new RooGaussModel("timeGausModel2","timeGausModel2",time,*bias,*WidthGaus2);
@@ -154,7 +157,117 @@ namespace PTResModels {
     }
     return tripleGausModelResolution;
   }
+
+  //=============================================================================
+  //
+  //=============================================================================
+  RooResolutionModel* tripleGausResolutionModel( RooRealVar& time,
+						 double scalingfactor,
+                                                 double biasonmean,
+                                                 double sigma1,
+						 double sigma2,
+						 double sigma3,
+						 double frac1,
+						 double frac2,
+						 bool debug
+						 )
+  {
+    if ( debug == true )
+      {
+	printf( "==> PTResModels::tripleGausResolutionModel( .)\n" );
+	std::cout<<"[INFO] Scaling factor: "<<scalingfactor<<std::endl;
+	std::cout<<"[INFO] Bias on mean: "<<biasonmean<<std::endl;
+	std::cout<<"[INFO] Sigma1: "<<sigma1<<std::endl;
+	std::cout<<"[INFO] Sigma2: "<<sigma2<<std::endl;
+	std::cout<<"[INFO] Sigma3: "<<sigma3<<std::endl;
+	std::cout<<"[INFO] Frac1: "<<frac1<<std::endl;
+	std::cout<<"[INFO] Frac2: "<<frac2<<std::endl;
+      }
   
+    RooRealVar  *bias;
+    RooRealVar *FractionGaus1;
+    RooRealVar *FractionGaus2;
+    RooRealVar *WidthGaus1;
+    RooRealVar *WidthGaus2;
+    RooRealVar *WidthGaus3;
+    RooAddModel * tripleGausModelResolution;
+
+    FractionGaus1= new RooRealVar("FractionGaus1",   "FractionGaus1",  frac1); 
+    FractionGaus2= new RooRealVar("FractionGaus2",   "FractionGaus2",  frac2);
+
+    bias      = new RooRealVar(      "bias",            "bias",  biasonmean); 
+    WidthGaus1= new RooRealVar("WidthGaus1",      "WidthGaus1",  sigma1*scalingfactor); 
+    WidthGaus2= new RooRealVar("WidthGaus2",      "WidthGaus2",  sigma2*scalingfactor); 
+    WidthGaus3= new RooRealVar("WidthGaus3",      "WidthGaus3",  sigma3*scalingfactor); 
+
+    RooGaussModel *timeGausModel1 = new RooGaussModel("timeGausModel1","timeGausModel1",time,*bias,*WidthGaus1);
+    RooGaussModel *timeGausModel2 = new RooGaussModel("timeGausModel2","timeGausModel2",time,*bias,*WidthGaus2);
+    RooGaussModel *timeGausModel3 = new RooGaussModel("timeGausModel3","timeGausModel3",time,*bias,*WidthGaus3);
+
+    tripleGausModelResolution = new RooAddModel("tripleGausModelResolution","tripleGausModelResolution",
+						RooArgList(*timeGausModel1 , *timeGausModel2, *timeGausModel3),
+						RooArgList(*FractionGaus1, *FractionGaus2)
+						);
+    return tripleGausModelResolution;
+  }
+
+  //=============================================================================
+  //
+  //=============================================================================
+  RooResolutionModel* tripleGausResolutionModel( RooRealVar& time,
+                                                 double scalingfactor,
+                                                 double biasonmean,
+                                                 double sigma1,
+                                                 double sigma2,
+                                                 double sigma3,
+                                                 double frac1,
+                                                 double frac2,
+						 double frac3,
+						 bool debug
+                                                 )
+  {
+    if ( debug == true )
+      {
+        printf( "==> PTResModels::tripleGausResolutionModel( .)\n" );
+	std::cout<<"[INFO] Scaling factor: "<<scalingfactor<<std::endl;
+	std::cout<<"[INFO] Bias on mean: "<<biasonmean<<std::endl;
+	std::cout<<"[INFO] Sigma1: "<<sigma1<<std::endl;
+	std::cout<<"[INFO] Sigma2: "<<sigma2<<std::endl;
+	std::cout<<"[INFO] Sigma3: "<<sigma3<<std::endl;
+	std::cout<<"[INFO] Frac1: "<<frac1<<std::endl;
+	std::cout<<"[INFO] Frac2: "<<frac2<<std::endl;
+	std::cout<<"[INFO] Frac3: "<<frac3<<std::endl;
+      }
+
+    RooRealVar  *bias;
+    RooRealVar *FractionGaus1;
+    RooRealVar *FractionGaus2;
+    RooRealVar *FractionGaus3;
+    RooRealVar *WidthGaus1;
+    RooRealVar *WidthGaus2;
+    RooRealVar *WidthGaus3;
+    RooAddModel * tripleGausModelResolution;
+
+    FractionGaus1= new RooRealVar("FractionGaus1",   "FractionGaus1",  frac1);
+    FractionGaus2= new RooRealVar("FractionGaus2",   "FractionGaus2",  frac2);
+    FractionGaus3= new RooRealVar("FractionGaus3",   "FractionGaus3",  frac3);
+
+    bias      = new RooRealVar(      "bias",            "bias",  biasonmean);
+    WidthGaus1= new RooRealVar("WidthGaus1",      "WidthGaus1",  sigma1*scalingfactor);
+    WidthGaus2= new RooRealVar("WidthGaus2",      "WidthGaus2",  sigma2*scalingfactor);
+    WidthGaus3= new RooRealVar("WidthGaus3",      "WidthGaus3",  sigma3*scalingfactor);
+
+    RooGaussModel *timeGausModel1 = new RooGaussModel("timeGausModel1","timeGausModel1",time,*bias,*WidthGaus1);
+    RooGaussModel *timeGausModel2 = new RooGaussModel("timeGausModel2","timeGausModel2",time,*bias,*WidthGaus2);
+    RooGaussModel *timeGausModel3 = new RooGaussModel("timeGausModel3","timeGausModel3",time,*bias,*WidthGaus3);
+    
+    tripleGausModelResolution = new RooAddModel("tripleGausModelResolution","tripleGausModelResolution",
+						RooArgList(*timeGausModel1 , *timeGausModel2, *timeGausModel3),
+						RooArgList(*FractionGaus1, *FractionGaus2, *FractionGaus3)
+						);
+    return tripleGausModelResolution;
+  }
+
 }
 
 //=============================================================================

@@ -111,10 +111,11 @@ def getconfig() :
     configdict["n2Ds"]      = 1.8122
     configdict["fracDs"]    = 0.44075
                                             
-    configdict["tacc_exponent"] = 1.83165e+00
-    configdict["tacc_offset"]   = 1.94941e-02
-    configdict["tacc_beta"]     = 3.55134e-02
-    configdict["tacc_turnon"]   = 1.31231e+00
+    configdict["tacc_exponent"] = 1.8627e+00 #1.849
+    configdict["tacc_offset"]   = 1.6710e-02 #0.0373
+    configdict["tacc_beta"]     = 3.4938e-02 #0.0363
+    configdict["tacc_turnon"]   = 1.3291e+00 #1.215
+                    
     
     #---------------------------Combo----------------------------#
       

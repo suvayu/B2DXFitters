@@ -148,6 +148,7 @@ if in_gdb():
     ROOT.SetSignalPolicy(ROOT.kSignalFast)
     ROOT.gEnv.SetValue('Root.Stacktrace', '0')
 
+
 AcceptanceFunction       =  'PowLawAcceptance'#BdPTAcceptance'  # None/BdPTAcceptance/DTAcceptanceLHCbNote2007041
 
 # MISCELLANEOUS
@@ -194,7 +195,8 @@ def runBdGammaFitterOnData(debug, wsname, initvars, tvar, terrvar, probvar, pere
     from ROOT import RooNLLVar, RooMinuit, RooProfileLL, RooWorkspace, RooLinkedList    
     from ROOT import kRed, TCanvas, RooEffResModel, MistagCalibration
     from ROOT import RooBinnedPdf, SquaredSum, DecRateCoeff, CPObservable, TagEfficiencyWeight
-   
+    from ROOT import kBlue, kRed, kOrange
+    
     # Get the configuration file
     myconfigfilegrabber = __import__(configName,fromlist=['getconfig']).getconfig
     myconfigfile = myconfigfilegrabber()
@@ -379,6 +381,16 @@ def runBdGammaFitterOnData(debug, wsname, initvars, tvar, terrvar, probvar, pere
 
     if debug:
         frame = time.frame()
+        sliceData_1 = dataW.reduce(RooArgSet(time,id,tag),"(qt == 0)")
+        sliceData_1.plotOn(frame,RooFit.MarkerColor(kRed))
+        print "Untagged: number of events: %d, sum of events: %d"%(sliceData_1.numEntries(),sliceData_1.sumEntries())
+        sliceData_2 = dataW.reduce(RooArgSet(time,id,tag),"((qt == 1) && (qf == 1)) || ((qt == -1)&&(qf==-1))")
+        print "Bs tagged: number of events: %d, sum of events: %d"%(sliceData_2.numEntries(),sliceData_2.sumEntries())
+        sliceData_2.plotOn(frame,RooFit.MarkerColor(kBlue+2))
+        sliceData_3 = dataW.reduce(RooArgSet(time,id,tag),"((qt == 1) && (qf == -1)) || ((qt == -1)&&(qf==1))")
+        sliceData_3.plotOn(frame,RooFit.MarkerColor(kOrange))
+        print "barBs tagged: number of events: %d, sum of events: %d"%(sliceData_3.numEntries(),sliceData_3.sumEntries())
+        
         dataW.plotOn(frame)
         canvas = TCanvas("canvas", "canvas", 1200, 1000)
         canvas.cd()
@@ -406,8 +418,19 @@ def runBdGammaFitterOnData(debug, wsname, initvars, tvar, terrvar, probvar, pere
     # ---------------------------
     if 'PEDTE' not in myconfigfile["DecayTimeResolutionModel"] :
         print 'PTResModels'
-        trm = PTResModels.getPTResolutionModel(myconfigfile["DecayTimeResolutionModel"],
-                                               time, 'Bs', debug,myconfigfile["resolutionScaleFactor"], myconfigfile["resolutionMeanBias"])
+        #trm = PTResModels.getPTResolutionModel(myconfigfile["DecayTimeResolutionModel"],
+        #                                       time, 'Bs', debug,myconfigfile["resolutionScaleFactor"], myconfigfile["resolutionMeanBias"])
+        trm = PTResModels.tripleGausResolutionModel( time,
+                                                     myconfigfile["resolutionScaleFactor"],
+                                                     myconfigfile["resolutionMeanBias"],
+                                                     myconfigfile["resolutionSigma1"],
+                                                     myconfigfile["resolutionSigma2"],
+                                                     myconfigfile["resolutionSigma3"],
+                                                     myconfigfile["resolutionFrac1"],
+                                                     myconfigfile["resolutionFrac2"],
+                                                     debug
+                                                     )
+        
         terrpdf = None
     else :
         # the decay time error is an extra observable !
@@ -674,7 +697,8 @@ def runBdGammaFitterOnData(debug, wsname, initvars, tvar, terrvar, probvar, pere
             
                 totPDFSim = RooSimultaneous("simPdf","simultaneous pdf",BdtgBin)
                 totPDFSim.addPdf(totPDF,  Bin[0].Data())
-            
+
+            pdf = RooAddPdf('totPDFtot', 'totPDFtot', RooArgList(totPDFSim), RooArgList())
             
         #sigTimePDF      = time # RooEffProd('time_signal','time_signal',time_noacc,tacc)
         #totPDF = time
@@ -727,8 +751,8 @@ def runBdGammaFitterOnData(debug, wsname, initvars, tvar, terrvar, probvar, pere
             myfitresult.covarianceMatrix().Print()
         else :    #Don't
             if Cat:
-                myfitresult = totPDFSim.fitTo(combData, RooFit.Save(1), RooFit.Optimize(2), RooFit.Strategy(2),
-                                              RooFit.Verbose(False), RooFit.SumW2Error(True), RooFit.Extended(False))
+                myfitresult = pdf.fitTo(combData, RooFit.Save(1), RooFit.Optimize(2), RooFit.Strategy(2),
+                                        RooFit.Verbose(False), RooFit.SumW2Error(True), RooFit.Extended(False))
             else:
                 myfitresult = totPDF.fitTo(dataW, RooLinkedList(RooFit.Save(1), RooFit.Optimize(2), RooFit.Strategy(2),
                                                                 RooFit.SumW2Error(True), RooFit.PrintLevel(-1)))
@@ -740,7 +764,7 @@ def runBdGammaFitterOnData(debug, wsname, initvars, tvar, terrvar, probvar, pere
         workout = RooWorkspace("workspace","workspace")
         if Cat:
             getattr(workout,'import')(combData)
-            getattr(workout,'import')(totPDFSim)
+            getattr(workout,'import')(pdf)
         else:
             getattr(workout,'import')(dataW)
             getattr(workout,'import')(totPDF)

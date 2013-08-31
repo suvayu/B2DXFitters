@@ -2,11 +2,9 @@ from optparse import OptionParser
 from os.path  import join
 from math import sqrt
 
-import GaudiPython
-
-GaudiPython.loaddict( 'B2DXFittersDict' )
-
 from ROOT import *
+import ROOT
+ROOT.gROOT.SetBatch()
 
 gStyle.SetOptStat(0)
 gStyle.SetOptFit(1011)
@@ -16,10 +14,10 @@ sys.path.append("../data/")
 
 debug = True
 largeToys = False
-drawGeneratedYields = False
+drawGeneratedYields = True
 
 ntoys               = 1000
-toysdir             = '/afs/cern.ch/work/a/adudziak/public/Bs2DsKToys/Gamma70_5M/Float/'
+toysdir             = '/afs/cern.ch/work/a/adudziak/public/Bs2DsKToys/Gamma70_5M_2/'
 toystupleprefix     = 'DsK_Toys_sWeights_ForTimeFit_'
 if largeToys : toystupleprefix     = 'DsK_Toys_FullLarge_Tree_'
 toystuplesuffix     = '.root'
@@ -28,7 +26,7 @@ if largeToys : toysresultprefix    = 'DsK_Toys_FullLarge_MassFitResult_'
 toysresultsuffix    = '.log'    
 
 #outputdir = '/afs/cern.ch/work/g/gligorov/public/Bs2DsKToys/sWeightToys/DsKToysAgnieszka_010813/'
-outputdir = '/afs/cern.ch/work/a/adudziak/public/Bs2DsKToys/Gamma70_5M/Float/'
+outputdir = '/afs/cern.ch/work/a/adudziak/public/Bs2DsKToys/Gamma70_5M_2/'
 
 eventtypes = {"Signal" : 1.0, 
               "DK"     : 2.0,
@@ -44,28 +42,28 @@ eventtypes = {"Signal" : 1.0,
 myconfigfilegrabber = __import__("Bs2DsKConfigForGenerator",fromlist=['getconfig']).getconfig
 myconfigfile = myconfigfilegrabber()
 
-numgenevt ={"Signal" : ntoys*[1854.0]}
+numgenevt ={"Signal" : ntoys*[1856.0]} #1857.0]} #1856.0]} #1854.0]}
 numfitted ={"Signal1" : ntoys*[(0,0)]}
 numfitted["Signal2"] = ntoys*[(0,0)]
 numfitted["Signal3"] = ntoys*[(0,0)]
 numfitted["Signal4"] = ntoys*[(0,0)]
 numfitted["Signal5"] = ntoys*[(0,0)]
 
-numgenevt["Combo"] = ntoys*[3970]
+numgenevt["Combo"] = ntoys*[3967.0] #3967.0] #3970]
 numfitted["Combo1"] = ntoys*[(0,0)]
 numfitted["Combo2"] = ntoys*[(0,0)]
 numfitted["Combo3"] = ntoys*[(0,0)]
 numfitted["Combo4"] = ntoys*[(0,0)]
 numfitted["Combo5"] = ntoys*[(0,0)]
 
-numgenevt["LMK"] = ntoys*[149.5]
+numgenevt["LMK"] = ntoys*[149.2] #150.3] #149.2] #149.5]
 numfitted["LMK1"] = ntoys*[(0,0)]
 numfitted["LMK2"] = ntoys*[(0,0)]
 numfitted["LMK3"] = ntoys*[(0,0)]
 numfitted["LMK4"] = ntoys*[(0,0)]
 numfitted["LMK5"] = ntoys*[(0,0)]
 
-numgenevt["LMPi"] = ntoys*[1379]
+numgenevt["LMPi"] = ntoys*[1380.0] #1380.0] #1379]
 numfitted["LMPi1"] = ntoys*[(0,0)]
 numfitted["LMPi2"] = ntoys*[(0,0)]
 numfitted["LMPi3"] = ntoys*[(0,0)]
@@ -392,11 +390,11 @@ if debug:
     print "Number of DsPi failed toys: ", nDsPifailed.__len__()
 '''            
     
-gen_signal    = TH1F("gen_signal","gen_signal",100,1500,2500)
+gen_signal    = TH1F("gen_signal","gen_signal",100,1500,2300)
 gen_signal.GetXaxis().SetTitle("Generated signal events")
-fitted_signal = TH1F("fitted_signal","fitted_signal",100,1500,2500) 
+fitted_signal = TH1F("fitted_signal","fitted_signal",100,1500,2300) 
 fitted_signal.GetXaxis().SetTitle("Fitted signal events")
-errf_signal   = TH1F("errf_signal","errf_signal",100,0,200)
+errf_signal   = TH1F("errf_signal","errf_signal",100,0,100)
 errf_signal.GetXaxis().SetTitle("Fitted error")
 pull_signal   = TH1F("pull_signal","pull_signal",50,-5,5)
 pull_signal.GetXaxis().SetTitle("Fitted Pull")
@@ -420,11 +418,13 @@ for thistoy in range(0,ntoys) :
 pullcanvassignal = TCanvas("pullcanvassignal","pullcanvassignal",800,800)
 pullcanvassignal.Divide(2,2)
 pullcanvassignal.cd(1)
+gen_signal.Fit("gaus")
 gen_signal.Draw("PE")
 pullcanvassignal.cd(2)
-fitted_signal.Draw("PE")
 fitted_signal.Fit("gaus")
+fitted_signal.Draw("PE")
 pullcanvassignal.cd(3)
+errf_signal.Fit("gaus")
 errf_signal.Draw("PE")
 pullcanvassignal.cd(4)
 pull_signal.Fit("gaus")
@@ -439,7 +439,7 @@ gen_combo    = TH1F("gen_combo","gen_combo",100,3000,5000)
 gen_combo.GetXaxis().SetTitle("Generated combo events")
 fitted_combo = TH1F("fitted_combo","fitted_combo",100,3000,5000)
 fitted_combo.GetXaxis().SetTitle("Fitted combo events")
-errf_combo   = TH1F("errf_combo","errf_combo",100,0,1000)
+errf_combo   = TH1F("errf_combo","errf_combo",100,0,200)
 errf_combo.GetXaxis().SetTitle("Fitted error")
 pull_combo   = TH1F("pull_combo","pull_combo",50,-5,5)
 pull_combo.GetXaxis().SetTitle("Fitted Pull")
@@ -462,11 +462,13 @@ for thistoy in range(0,ntoys) :
 pullcanvascombo = TCanvas("pullcanvascombo","pullcanvascombo",800,800)
 pullcanvascombo.Divide(2,2)
 pullcanvascombo.cd(1)
+gen_combo.Fit("gaus")
 gen_combo.Draw("PE")
 pullcanvascombo.cd(2)
 fitted_combo.Draw("PE")
 fitted_combo.Fit("gaus")
 pullcanvascombo.cd(3)
+errf_combo.Fit("gaus")
 errf_combo.Draw("PE")
 pullcanvascombo.cd(4)
 pull_combo.Fit("gaus")
@@ -477,11 +479,11 @@ if largeToys :
 else :
     pullcanvascombo.Print(outputdir+"PullPlot_DsK_Mass_Combo.pdf")
 
-gen_lmk    = TH1F("gen_lmk","gen_lmk",100,0,600)
+gen_lmk    = TH1F("gen_lmk","gen_lmk",100,0,400)
 gen_lmk.GetXaxis().SetTitle("Generated lmk events")
-fitted_lmk = TH1F("fitted_lmk","fitted_lmk",100,0,600)
+fitted_lmk = TH1F("fitted_lmk","fitted_lmk",100,0,400)
 fitted_lmk.GetXaxis().SetTitle("Fitted lmk events")
-errf_lmk   = TH1F("errf_lmk","errf_lmk",100,0,500)
+errf_lmk   = TH1F("errf_lmk","errf_lmk",100,0,100)
 errf_lmk.GetXaxis().SetTitle("Fitted error")
 pull_lmk   = TH1F("pull_lmk","pull_lmk",50,-5,5)
 pull_lmk.GetXaxis().SetTitle("Fitted Pull")
@@ -503,11 +505,13 @@ for thistoy in range(0,ntoys) :
 pullcanvaslmk = TCanvas("pullcanvaslmk","pullcanvaslmk",800,800)
 pullcanvaslmk.Divide(2,2)
 pullcanvaslmk.cd(1)
+gen_lmk.Fit("gaus")
 gen_lmk.Draw("PE")
 pullcanvaslmk.cd(2)
 fitted_lmk.Draw("PE")
 fitted_lmk.Fit("gaus")
 pullcanvaslmk.cd(3)
+errf_lmk.Fit("gaus")
 errf_lmk.Draw("PE")
 pullcanvaslmk.cd(4)
 pull_lmk.Fit("gaus")
@@ -518,11 +522,11 @@ if largeToys :
 else :
     pullcanvaslmk.Print(outputdir+"PullPlot_DsK_Mass_LMK.pdf")
 
-gen_lmpi    = TH1F("gen_lmpi","gen_lmpi",800,0,1500)
+gen_lmpi    = TH1F("gen_lmpi","gen_lmpi",100,800,2000)
 gen_lmpi.GetXaxis().SetTitle("Generated lmpi events")
-fitted_lmpi = TH1F("fitted_lmpi","fitted_lmpi",800,0,1500)
+fitted_lmpi = TH1F("fitted_lmpi","fitted_lmpi",100,800,2000)
 fitted_lmpi.GetXaxis().SetTitle("Fitted lmpi events")
-errf_lmpi   = TH1F("errf_lmpi","errf_lmpi",100,0,500)
+errf_lmpi   = TH1F("errf_lmpi","errf_lmpi",100,0,150)
 errf_lmpi.GetXaxis().SetTitle("Fitted error")
 pull_lmpi   = TH1F("pull_lmpi","pull_lmpi",50,-5,5)
 pull_lmpi.GetXaxis().SetTitle("Fitted Pull")
@@ -545,11 +549,13 @@ for thistoy in range(0,ntoys) :
 pullcanvaslmpi = TCanvas("pullcanvaslmpi","pullcanvaslmpi",800,800)
 pullcanvaslmpi.Divide(2,2)
 pullcanvaslmpi.cd(1)
+gen_lmpi.Fit("gaus")
 gen_lmpi.Draw("PE")
 pullcanvaslmpi.cd(2)
 fitted_lmpi.Draw("PE")
 fitted_lmpi.Fit("gaus")
 pullcanvaslmpi.cd(3)
+errf_lmpi.Fit("gaus")
 errf_lmpi.Draw("PE")
 pullcanvaslmpi.cd(4)
 pull_lmpi.Fit("gaus")
@@ -648,11 +654,11 @@ else :
     pullcanvasdsp.Print(outputdir+"PullPlot_DsK_Mass_Dsp.pdf")
 '''
 
-gen_f5    = TH1F("gen_f5","gen_f5",100,0,1)
+gen_f5    = TH1F("gen_f5","gen_f5",100,0.5,1)
 gen_f5.GetXaxis().SetTitle("Generated g5_f1 events")
-fitted_f5 = TH1F("fitted_f5","fitted_f5",100,0,1)
+fitted_f5 = TH1F("fitted_f5","fitted_f5",100,0.5,1)
 fitted_f5.GetXaxis().SetTitle("Fitted g5_f1 events")
-errf_f5   = TH1F("errf_f5","errf_f5",100,0,100)
+errf_f5   = TH1F("errf_f5","errf_f5",100,0,0.3)
 errf_f5.GetXaxis().SetTitle("Fitted error")
 pull_f5   = TH1F("pull_5f","pull_5f",50,-5,5)
 pull_f5.GetXaxis().SetTitle("Fitted Pull")
@@ -664,16 +670,18 @@ for thistoy in range(0,ntoys) :
     errf_f5.Fill(numfitted["g5_f1"][thistoy][1])
     pull_f5.Fill((numgenevt["g5_f1"][thistoy]-numfitted["g5_f1"][thistoy][0])/numfitted["g5_f1"][thistoy][1])
     
-pullcanvasf5 = TCanvas("pullcanvasf5","pullcanvasf5",800,800)
-pullcanvasf5.Divide(2,2)
+pullcanvasf5 = TCanvas("pullcanvasf5","pullcanvasf5",1500,500)
+pullcanvasf5.Divide(3,1)
+#pullcanvasf5.cd(1)
+#gen_f5.Fit("gaus")
+#gen_f5.Draw("PE")
 pullcanvasf5.cd(1)
-gen_f5.Draw("PE")
-pullcanvasf5.cd(2)
 fitted_f5.Draw("PE")
 fitted_f5.Fit("gaus")
-pullcanvasf5.cd(3)
+pullcanvasf5.cd(2)
+errf_f5.Fit("gaus")
 errf_f5.Draw("PE")
-pullcanvasf5.cd(4)
+pullcanvasf5.cd(3)
 pull_f5.Fit("gaus")
 pull_f5.Draw("PE")
 
@@ -683,11 +691,11 @@ else :
     pullcanvasf5.Print(outputdir+"PullPlot_DsK_Mass_f5g1.pdf")
                 
 
-gen_f2    = TH1F("gen_f2","gen_f2",100,0,1)
+gen_f2    = TH1F("gen_f2","gen_f2",100,0.4,1)
 gen_f2.GetXaxis().SetTitle("Generated g2_f1 events")
-fitted_f2 = TH1F("fitted_f2","fitted_f2",100,0,1)
+fitted_f2 = TH1F("fitted_f2","fitted_f2",100,0.4,1)
 fitted_f2.GetXaxis().SetTitle("Fitted g2_f1 events")
-errf_f2   = TH1F("errf_f2","errf_f2",100,0,100)
+errf_f2   = TH1F("errf_f2","errf_f2",100,0,0.3)
 errf_f2.GetXaxis().SetTitle("Fitted error")
 pull_f2   = TH1F("pull_f2","pull_f2",50,-5,5)
 pull_f2.GetXaxis().SetTitle("Fitted Pull")
@@ -699,16 +707,18 @@ for thistoy in range(0,ntoys) :
     errf_f2.Fill(numfitted["g2_f1"][thistoy][1])
     pull_f2.Fill((numgenevt["g2_f1"][thistoy]-numfitted["g2_f1"][thistoy][0])/numfitted["g2_f1"][thistoy][1])
     
-pullcanvasf2 = TCanvas("pullcanvasf2","pullcanvasf2",800,800)
-pullcanvasf2.Divide(2,2)
+pullcanvasf2 = TCanvas("pullcanvasf2","pullcanvasf2",1500,500)
+pullcanvasf2.Divide(3,1)
+#pullcanvasf2.cd(1)
+#gen_f2.Fit("gaus")
+#gen_f2.Draw("PE")
 pullcanvasf2.cd(1)
-gen_f2.Draw("PE")
-pullcanvasf2.cd(2)
 fitted_f2.Draw("PE")
 fitted_f2.Fit("gaus")
-pullcanvasf2.cd(3)
+pullcanvasf2.cd(2)
+errf_f2.Fit("gaus")
 errf_f2.Draw("PE")
-pullcanvasf2.cd(4)
+pullcanvasf2.cd(3)
 pull_f2.Fit("gaus")
 pull_f2.Draw("PE")
 

@@ -30,7 +30,7 @@ SFitUtils = GaudiPython.gbl.SFitUtils
 from B2DXFitters import taggingutils, cpobservables
 
 
-RooRandom.randomGenerator().SetSeed(78249292)
+RooRandom.randomGenerator().SetSeed(746829203) #78249292)
 
 RooAbsData.setDefaultStorageType(RooAbsData.Tree)
 
@@ -1274,7 +1274,7 @@ def runBsDsKGenerator( debug, single, configName, numberOfToys, numberOfEvents )
             canv_Btime.Print("DsK_Toys_Btime.pdf")
         if not single :
             #workout.writeToFile("/afs/cern.ch/work/g/gligorov/public/Bs2DsKToys/sWeightToys/DsKToys_Full_2ksample_140912/DsK_Toys_Full_Work_2kSample_"+str(i)+".root")
-            workout.writeToFile("/afs/cern.ch/work/a/adudziak/public/Bs2DsKToys/Gamma70_5M/DsK_Toys_Work_"+str(i+900)+".root")
+            workout.writeToFile("/afs/cern.ch/work/a/adudziak/public/Bs2DsKToys/Gamma70_5M_ET/DsK_Toys_Work_"+str(i+900)+".root")
             #outfile  = TFile("/afs/cern.ch/work/g/gligorov/public/Bs2DsKToys/sWeightToys/DsKToys_Full_2ksample_140912/DsK_Toys_Full_Tree_2kSample_"+str(i)+".root","RECREATE")
         else :
             workout.writeToFile("Data_Toys_Single_Work_DsK.root")
@@ -1305,7 +1305,7 @@ parser.add_option( '-s', '--single',
                                       )
 parser.add_option( '--numberOfToys',
                    dest = 'numberOfToys',
-                   default = 1000)
+                   default = 100)
 
 parser.add_option( '--numberOfEvents',
                    dest = 'numberOfEvents',

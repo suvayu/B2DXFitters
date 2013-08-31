@@ -108,6 +108,7 @@ __doc__ = """ real docstring """
 import B2DXFitters
 import ROOT
 from ROOT import RooFit
+ROOT.gROOT.SetBatch()
 
 from optparse import OptionParser
 from math     import pi
@@ -124,7 +125,7 @@ AcceptanceFunction       =  'PowLawAcceptance'
 # BLINDING
 Blinding =  False
 
-param_limits = {"lower" : -3., "upper" : 3.}
+param_limits = {"lower" : -10., "upper" : 10.}
 
 # DATA FILES
 saveName      = 'work_'
@@ -306,7 +307,7 @@ def runBdGammaFitterOnData(debug, wsname, initvars, var, terrvar, probvar,pereve
 
     # tagging
     # -------
-    tagEffSig = RooRealVar('tagEffSig', 'Signal tagging efficiency'    , myconfigfile["TagEffSig"], 0., 1.)
+    tagEffSig = RooRealVar('tagEffSig', 'Signal tagging efficiency'    , myconfigfile["TagEffSig"], 0.2, 0.8) #0., 1.)
     setConstantIfSoConfigured(tagEffSig,myconfigfile)
     
     #tagOmegaSig = RooRealVar('tagOmegaSig', 'Signal mistag rate'    , myconfigfile["TagOmegaSig"], 0., 1.)
@@ -362,13 +363,18 @@ def runBdGammaFitterOnData(debug, wsname, initvars, var, terrvar, probvar,pereve
         frame = time.frame()
         sliceData_1 = dataW.reduce(RooArgSet(time,fChargeMap,bTagMap),"(qt == 0)")
         sliceData_1.plotOn(frame,RooFit.MarkerColor(kRed))
-        sliceData_2 = dataW.reduce(RooArgSet(time,fChargeMap,bTagMap),"(qt != 0)")
+        print "Untagged: number of events: %d, sum of events: %d"%(sliceData_1.numEntries(),sliceData_1.sumEntries())
+        sliceData_2 = dataW.reduce(RooArgSet(time,fChargeMap,bTagMap),"(qt == 1)")
+        print "Bs tagged: number of events: %d, sum of events: %d"%(sliceData_2.numEntries(),sliceData_2.sumEntries())
         sliceData_2.plotOn(frame,RooFit.MarkerColor(kBlue+2))
+        sliceData_3 = dataW.reduce(RooArgSet(time,fChargeMap,bTagMap),"(qt == -1)")
+        sliceData_3.plotOn(frame,RooFit.MarkerColor(kOrange+2))
+        print "barBs tagged: number of events: %d, sum of events: %d"%(sliceData_3.numEntries(),sliceData_3.sumEntries())        
         dataW.plotOn(frame)
         canvas = TCanvas("canvas", "canvas", 1200, 1000)
         canvas.cd()
         frame.Draw()
-        frame.GetYaxis().SetRangeUser(0.1,500)
+        frame.GetYaxis().SetRangeUser(0.1,150)
         canvas.GetPad(0).SetLogy()
         canvas.SaveAs('data_time_DsK.pdf')
 
@@ -380,8 +386,15 @@ def runBdGammaFitterOnData(debug, wsname, initvars, var, terrvar, probvar,pereve
           
     #exit(0)
                                     
-    templateWorkspace = GeneralUtils.LoadWorkspace(TString(myconfigfile["TemplateFile"]), TString(myconfigfile["TemplateWorkspace"]), debug)
+    #templateWorkspace2 = GeneralUtils.LoadWorkspace(TString("templates_DATA_BsDsPi_All.root"), TString(myconfigfile["TemplateWorkspace"]), debug)
+    templateWorkspacePi = GeneralUtils.LoadWorkspace(TString(myconfigfile["TemplateFilePi"]), TString(myconfigfile["TemplateWorkspace"]), debug)
+    templateWorkspaceK = GeneralUtils.LoadWorkspace(TString(myconfigfile["TemplateFileK"]), TString(myconfigfile["TemplateWorkspace"]), debug)
 
+    #tagEffNum = (sliceData_2.sumEntries()+sliceData_3.sumEntries())/(sliceData_2.sumEntries()+sliceData_3.sumEntries()+sliceData_1.sumEntries())
+    #print "tag efficiency: %s"%(str(tagEffNum))
+    #tagEffSig = RooRealVar('tagEffSig', 'Signal tagging efficiency'    , tagEffNum) #, 0.0, 1.0)
+
+    #exit(0)
     if BDTGbins:
         Bin = [TString("BDTG1"), TString("BDTG2"), TString("BDTG3")]
     else:
@@ -390,10 +403,24 @@ def runBdGammaFitterOnData(debug, wsname, initvars, var, terrvar, probvar,pereve
     # Decay time resolution model
     # ---------------------------
     if 'PEDTE' not in myconfigfile["DecayTimeResolutionModel"] :
-        trm = PTResModels.getPTResolutionModel(myconfigfile["DecayTimeResolutionModel"],
-                                               time, 'Bs', debug,
-                                               myconfigfile["resolutionScaleFactor"],
-                                               myconfigfile["resolutionMeanBias"])
+        #trm = PTResModels.getPTResolutionModel(myconfigfile["DecayTimeResolutionModel"],
+        #                                       time, 'Bs', debug,
+        #                                       myconfigfile["resolutionScaleFactor"],
+        #
+        #myconfigfile["resolutionMeanBias"])
+
+        trm = PTResModels.tripleGausResolutionModel( time,
+                                                     myconfigfile["resolutionScaleFactor"],
+                                                     myconfigfile["resolutionMeanBias"],
+                                                     myconfigfile["resolutionSigma1"],
+                                                     myconfigfile["resolutionSigma2"],
+                                                     myconfigfile["resolutionSigma3"],
+                                                     myconfigfile["resolutionFrac1"],
+                                                     myconfigfile["resolutionFrac2"],
+                                                     debug
+                                                     )
+        
+        
         terrpdf = None
     else :
         # the decay time error is an extra observable !
@@ -413,8 +440,8 @@ def runBdGammaFitterOnData(debug, wsname, initvars, var, terrvar, probvar,pereve
                 
         else:
             name = TString("sigTimeErrorPdf")
-            terrpdf = GeneralUtils.CreateHistPDF(dataW, terr, name, myconfigfile['nBinsProperTimeErr'], debug)
-            #terrpdf  = Bs2Dsh2011TDAnaModels.GetRooHistPdfFromWorkspace(templateWorkspace, TString(myconfigfile["TimeErrorTemplateBDTGA"]))
+            #terrpdf = GeneralUtils.CreateHistPDF(dataW, terr, name, myconfigfile['nBinsProperTimeErr'], debug)
+            terrpdf  = Bs2Dsh2011TDAnaModels.GetRooHistPdfFromWorkspace(templateWorkspaceK, TString(myconfigfile["TimeErrorTemplateBDTGA"]),debug)
         
     # Decay time acceptance function
     # ------------------------------
@@ -529,15 +556,15 @@ def runBdGammaFitterOnData(debug, wsname, initvars, var, terrvar, probvar,pereve
                                                 
     if pereventmistag :
         # we need calibrated mistag
-        calibration_p1   = RooRealVar('calibration_p1','calibration_p1',myconfigfile["calibration_p1"])
-        calibration_p0   = RooRealVar('calibration_p0','calibration_p0',myconfigfile["calibration_p0"])
-        avmistag = RooRealVar('avmistag','avmistag',myconfigfile["TagOmegaSig"])
+        calibration_p1   = RooRealVar('calibration_p1','calibration_p1',myconfigfile["calibration_p1"]) #, 0.90, 1.5)
+        calibration_p0   = RooRealVar('calibration_p0','calibration_p0',myconfigfile["calibration_p0"]) #, 0.25, 0.5)
+        avmistag = RooRealVar('avmistag','avmistag',myconfigfile["TagOmegaSig"]) #, 0.2, 0.6)
         
         mistagCalibrated = MistagCalibration('mistag_calibrated','mistag_calibrated',
                                              mistag, calibration_p0,calibration_p1,avmistag)
         observables.add( mistag )
         name = TString("sigMistagPdf")
-        mistagPDF  = Bs2Dsh2011TDAnaModels.GetRooHistPdfFromWorkspace(templateWorkspace, TString(myconfigfile["MistagTemplateName"]), debug)
+        mistagPDF  = Bs2Dsh2011TDAnaModels.GetRooHistPdfFromWorkspace(templateWorkspacePi, TString(myconfigfile["MistagTemplateName"]), debug)
         #mistagPDF = GeneralUtils.CreateHistPDF(dataW, mistag, name, myconfigfile['nBinsMistag'], debug)
 
     else:
@@ -568,7 +595,7 @@ def runBdGammaFitterOnData(debug, wsname, initvars, var, terrvar, probvar,pereve
     setConstantIfSoConfigured(sigCbar,myconfigfile)
     setConstantIfSoConfigured(sigSbar,myconfigfile)
     setConstantIfSoConfigured(sigDbar,myconfigfile)    
-
+    print "lower limit: %s, upper limit: %s"%(str(param_limits["lower"]), str(param_limits["upper"]))
     aProd = zero     # production asymmetry
     aDet = zero      # detector asymmetry
     aTagEff = zero   # taginng eff asymmetry
@@ -615,6 +642,20 @@ def runBdGammaFitterOnData(debug, wsname, initvars, var, terrvar, probvar,pereve
         time_noacc.setParameterizeIntegral(RooArgSet(mistag))
         '''   
         #sigTimePDF      = RooEffProd('time_signal','time_signal',time_noacc,tacc)
+        '''
+        if debug :
+            print 'DATASET NOW CONTAINS', nEntries, 'ENTRIES!!!!'
+            data.Print("v")
+            for i in range(0,nEntries) :
+                obs = data.get(i)
+                obs.Print("v")
+                #data.get(i).Print("v")
+                print data.weight()
+                print cos.getValV(obs)
+                print sin.getValV(obs)
+                print cosh.getValV(obs)
+                print sinh.getValV(obs)
+        '''                                                                                                                
 
         if BDTGbins:
             timePDF = []
@@ -691,15 +732,16 @@ def runBdGammaFitterOnData(debug, wsname, initvars, var, terrvar, probvar,pereve
                 totPDFSim = RooSimultaneous("simPdf","simultaneous pdf",BdtgBin)
                 totPDFSim.addPdf(totPDF,  Bin[0].Data())
                            
-                
+            pdf = RooAddPdf('totPDFtot', 'totPDFtot', RooArgList(totPDFSim), RooArgList())
+            
         if toys or not Blinding: #Unblind yourself
             if BDTGbins or Cat:
-                myfitresult = totPDFSim.fitTo(combData, RooFit.Save(1), RooFit.Optimize(2), RooFit.Strategy(2),\
-                                              RooFit.Verbose(True), RooFit.SumW2Error(True))
+                myfitresult = pdf.fitTo(combData, RooFit.Save(1), RooFit.Optimize(2), RooFit.Strategy(2),\
+                                        RooFit.Verbose(False), RooFit.SumW2Error(True))
                 
             else:
                 myfitresult = totPDF.fitTo(dataW, RooFit.Save(1), RooFit.Optimize(2), RooFit.Strategy(2),\
-                                           RooFit.Verbose(True), RooFit.SumW2Error(True))
+                                           RooFit.Verbose(False), RooFit.SumW2Error(True))
                 
             myfitresult.Print("v")
             myfitresult.correlationMatrix().Print()
@@ -737,7 +779,7 @@ def runBdGammaFitterOnData(debug, wsname, initvars, var, terrvar, probvar,pereve
         
         if Cat or BDTGbins:
             getattr(workout,'import')(combData)
-            getattr(workout,'import')(totPDFSim)
+            getattr(workout,'import')(pdf)
         else:
             getattr(workout,'import')(data)
             getattr(workout,'import')(totPDF)

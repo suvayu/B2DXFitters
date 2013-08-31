@@ -1,25 +1,30 @@
 from optparse import OptionParser
 from os.path  import join
-import GaudiPython
-GaudiPython.loaddict( 'B2DXFittersDict' )
+
 from ROOT import *
+import ROOT
+ROOT.gROOT.SetBatch()
+
+gStyle.SetOptStat(0)
+gStyle.SetOptFit(1011)
+
 import sys
 sys.path.append("../data/")
 
 gStyle.SetOptStat(0)
 gStyle.SetOptFit(1011)
 
-drawGeneratedYields = False
+drawGeneratedYields = True
 debug = True
 
 ntoys               = 1000
-toysdir             = '/afs/cern.ch/work/a/adudziak/public/Bs2DsPiToys/' #'/afs/cern.ch/work/g/gligorov/public/Bs2DsKToys/sWeightToys/'
-toystupleprefix     = 'DsPi_Toys_sWeights_ForTimeFit_'
+toysdir             = '/afs/cern.ch/work/a/adudziak/public/Bs2DsPiToys/PETE/' #'/afs/cern.ch/work/g/gligorov/public/Bs2DsKToys/sWeightToys/'
+toystupleprefix     = 'DsPi_Toys1M_sWeights_ForTimeFit_'
 toystuplesuffix     = '.root'
 toysresultprefix    = 'DsPi_Toys_MassFitResult_'
 toysresultsuffix    = '.log'    
 
-outputdir = '/afs/cern.ch/work/a/adudziak/public/Bs2DsPiToys/'
+outputdir = '/afs/cern.ch/work/a/adudziak/public/Bs2DsPiToys/PETE/'
 
 #numgenevt = {"Signal" : ntoys*[25000*.975],"Lb2LcPi" : ntoys*[1000*.975],"Combo" : ntoys*[15000*.975], "LM" : ntoys*[33000*.975]}
 #numevents = {"Signal" : ntoys*[25000*.975],"Lb2LcPi" : ntoys*[1000*.975],"Combo" : ntoys*[15000*.975], "LM" : ntoys*[33000*.975]}
@@ -38,11 +43,11 @@ eventtypes = {"Signal"  :1.0,
 myconfigfilegrabber = __import__("Bs2DsPiConfigForGenerator",fromlist=['getconfig']).getconfig
 myconfigfile = myconfigfilegrabber()
 
-numgenevt = {"Signal" : ntoys*[29330.]}
+numgenevt = {"Signal" : ntoys*[29340.]}
 numfitted = {"Signal" : ntoys*[(0,0)]}
 numgenevt["Combo"] = ntoys*[12930.]
 numfitted["Combo"] = ntoys*[(0,0)]
-numgenevt["LM"] = ntoys*[288.2]
+numgenevt["LM"] = ntoys*[289.0]
 numfitted["LM"] = ntoys*[(0,0)]
 
 numevents       = {}
@@ -91,7 +96,7 @@ if drawGeneratedYields :
         numeventshistos[eventtype].Fit("gaus")
         numeventshistos[eventtype].Draw("EP")
     
-    geneventcanvas.Print(outputdir+"NumGenByChannel_DsPi_Mass_s.pdf")
+    geneventcanvas.Print(outputdir+"NumGenByChannel_DsPi_Mass.pdf")
                                 
 #exit(0)                                
 
@@ -144,15 +149,19 @@ for thistoy in range(0,ntoys) :
         if counter == counterstop + 10 : 
             result = line.split()
             numfitted["LM"][thistoy] =  (float(result[2]), float(result[4]))
+            #print numfitted["LM"][thistoy]
         if counter == counterstop + 11 :
             result = line.split()
             numfitted["Combo"][thistoy] =  (float(result[2]), float(result[4]))    
+            #print numfitted["Combo"][thistoy]
         #if counter == counterstop + 9 :
         #    result = line.split()
         #    numfitted["Lb2LcPi"][thistoy] =  (float(result[2]), float(result[4]))
         if counter == counterstop + 12 :
             result = line.split()
             numfitted["Signal"][thistoy] =  (float(result[2]), float(result[4]))
+            #print numfitted["Signal"][thistoy]
+            #exit(0)
             break
     f.close()
 
@@ -178,11 +187,13 @@ for thistoy in range(0,ntoys) :
 pullcanvassignal = TCanvas("pullcanvassignal","pullcanvassignal",800,800)
 pullcanvassignal.Divide(2,2)
 pullcanvassignal.cd(1)
+gen_signal.Fit("gaus")
 gen_signal.Draw("PE")
 pullcanvassignal.cd(2)
 fitted_signal.Draw("PE")
 fitted_signal.Fit("gaus")
 pullcanvassignal.cd(3)
+errf_signal.Fit("gaus")
 errf_signal.Draw("PE")
 pullcanvassignal.cd(4)
 pull_signal.Fit("gaus")
@@ -242,11 +253,13 @@ for thistoy in range(0,ntoys) :
 pullcanvascombo = TCanvas("pullcanvascombo","pullcanvascombo",800,800)
 pullcanvascombo.Divide(2,2)
 pullcanvascombo.cd(1)
+gen_combo.Fit("gaus")
 gen_combo.Draw("PE")
 pullcanvascombo.cd(2)
 fitted_combo.Draw("PE")
 fitted_combo.Fit("gaus")
 pullcanvascombo.cd(3)
+errf_combo.Fit("gaus")
 errf_combo.Draw("PE")
 pullcanvascombo.cd(4)
 pull_combo.Fit("gaus")
@@ -273,11 +286,13 @@ for thistoy in range(0,ntoys) :
 pullcanvaslm = TCanvas("pullcanvaslm","pullcanvaslm",800,800)
 pullcanvaslm.Divide(2,2)
 pullcanvaslm.cd(1)
+gen_lm.Fit("gaus")
 gen_lm.Draw("PE")
 pullcanvaslm.cd(2)
 fitted_lm.Draw("PE")
 fitted_lm.Fit("gaus")
 pullcanvaslm.cd(3)
+errf_lm.Fit("gaus")
 errf_lm.Draw("PE")
 pullcanvaslm.cd(4)
 pull_lm.Fit("gaus")

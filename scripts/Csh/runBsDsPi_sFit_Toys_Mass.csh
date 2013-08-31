@@ -1,5 +1,5 @@
-set dirinput =  '/afs/cern.ch/work/a/adudziak/public/Bs2DsPiToys/'
-set diroutput = '/afs/cern.ch/work/a/adudziak/public/Bs2DsPiToys/'
+set dirinput =  '/afs/cern.ch/work/a/adudziak/public/Bs2DsPiToys/NoPETE/'
+set diroutput = '/afs/cern.ch/work/a/adudziak/public/Bs2DsPiToys/NoPETE/'
 
 set outputprefix = 'DsPi_Toys_MassFitResult_'
 set outputsuffix = '.log'
@@ -7,7 +7,7 @@ set outputsuffix = '.log'
 set inputprefix = 'DsPi_Toys_Work_'
 set inputsuffix = '.root'
 
-set sweightsprefix = 'DsPi_Toys_sWeights_ForTimeFit_'
+set sweightsprefix = 'DsPi_Toys1M_sWeights_ForTimeFit_'
 set massplotprefix = 'DsPi_Toys_Work_ForMassPlot_'
 
 @ thissample = $1

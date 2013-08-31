@@ -1,5 +1,5 @@
-set dirinput =  '/afs/cern.ch/work/a/adudziak/public/Bs2DsKToys/Gamma70_5M/Float/'
-set diroutput = '/afs/cern.ch/work/a/adudziak/public/Bs2DsKToys/Gamma70_5M/Float/'
+set dirinput =  '/afs/cern.ch/work/a/adudziak/public/Bs2DsKToys/Gamma140_5M/'
+set diroutput = '/afs/cern.ch/work/a/adudziak/public/Bs2DsKToys/Gamma140_5M/tagEff_NoPETE/'
 
 
 set outputprefix = 'DsK_Toys_TimeFitResult_'

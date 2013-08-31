@@ -4,6 +4,10 @@
 ! Purpose     : RooFit-based fitters for B -> D X
 !-----------------------------------------------------------------------------
 
+! 2013-08-31 - Agnieszka Dziurda
+ - sFit update
+ - Add new functions to PropertimeResolutionModels.{h,cxx}
+
 ! 2013-08-31 - Manuel Tobias Schiller
  - cFit: make it work with Urania v1r1 again
 

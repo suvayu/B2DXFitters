@@ -108,6 +108,8 @@ __doc__ = """ real docstring """
 # -----------------------------------------------------------------------------
 import B2DXFitters
 import ROOT
+ROOT.gROOT.SetBatch()
+
 from ROOT import RooFit, RooAbsReal
 RooAbsReal.defaultIntegratorConfig().setEpsAbs(1e-9)
 RooAbsReal.defaultIntegratorConfig().setEpsRel(1e-9)
@@ -148,6 +150,7 @@ def getDecayTimeErrorTemplate(
         RooArgList, RooDataHist, RooArgSet )
     import os
     fromfile = os.environ['B2DXFITTERSROOT']+'/data/workspace/MDFitter/templates_BsDsPi.root'
+    #fromfile = "/afs/cern.ch/work/a/adudziak/public/workspace/MDFitter/templates_BsDsK.root"
     fromws = 'workspace'
     fromvarname = 'lab0_LifetimeFit_ctauErr'
     fromfile = TFile(fromfile, 'READ')
@@ -197,7 +200,7 @@ f=sigma_t.frame()
 ds.plotOn(f)
 pdf.plotOn(f)
 f.Draw()
-gPad.Print('AvgResModel-sigma_t.eps')
+gPad.Print('AvgResModel-sigma_t.pdf')
 
 a=RooArgSet(t)
 ds2=ds.reduce(RooFit.SelectVars(a))
@@ -219,4 +222,4 @@ gpdf.plotOn(f,RooFit.Components('g1'),RooFit.LineWidth(2),RooFit.LineStyle(ROOT.
 gpdf.plotOn(f,RooFit.Components('g2'),RooFit.LineWidth(2),RooFit.LineStyle(ROOT.kDashed),RooFit.LineColor(ROOT.kCyan+1))
 f.Draw()
 gPad.SetLogy()
-gPad.Print('AvgResModel-t.eps')
+gPad.Print('AvgResModel-t.pdf')

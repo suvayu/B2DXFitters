@@ -47,16 +47,22 @@ def getconfig() :
     #configdict["tacc_beta"]     = 5.5636e-02
     #configdict["tacc_turnon"]   = 6.2060e-01
     
-
     configdict["resolutionScaleFactor"] = 1.37 
     configdict["resolutionMeanBias"]    = 0.0
-    configdict["DecayTimeResolutionModel"] = "PEDTETripleGaussian"
+    configdict["DecayTimeResolutionModel"] = "TripleGaussian"
     configdict["DecayTimeErrInterpolation"] = True
+
+    configdict["resolutionSigma1"] = 2.14946e-02
+    configdict["resolutionSigma2"] = 3.67643e-02
+    configdict["resolutionSigma3"] = 6.32869e-02
+    configdict["resolutionFrac1"]  = 3.72147e-01
+    configdict["resolutionFrac2"]  = 5.65150e-01
 
     configdict["calibration_p1"] = 1.035 #1.035
     configdict["calibration_p0"] = 0.392 #-0.013
     
     configdict["TemplateFile"]            = "/afs/cern.ch/work/a/adudziak/public/workspace/MDFitter/templates_BsDsPi.root"
+    #"/afs/cern.ch/work/a/adudziak/public/workspace/MDFitter/templates_BsDsPi.root"
     configdict["TemplateWorkspace"]       = "workspace"
     configdict["MistagTemplateName"]      = "MistagPdf_signal_BDTGA"
     configdict["MistagVarName"]           = "lab0_BsTaggingTool_TAGOMEGA_OS"
@@ -67,8 +73,8 @@ def getconfig() :
     configdict["TimeUp"]   = 15.0
 
     configdict["nBinsMistag"]   = 50
-    configdict["nBinsProperTimeErr"]   = 740
-    configdict["nBinsAcceptance"]   = 740    
+    configdict["nBinsProperTimeErr"]   = 50
+    configdict["nBinsAcceptance"]   = 370    
     
             
 

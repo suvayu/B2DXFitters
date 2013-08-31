@@ -1,24 +1,26 @@
 from optparse import OptionParser
 from os.path  import join
 
-import GaudiPython
-
-GaudiPython.loaddict( 'B2DXFittersDict' )
-
 from ROOT import *
 import ROOT
+ROOT.gROOT.SetBatch()
 
 gStyle.SetOptStat(0)
 gStyle.SetOptFit(1011)
 
+import sys
+sys.path.append("../data/")
+
 PlotAcceptance = False
 
 ntoys               = 1000
-toysdir             = '/afs/cern.ch/work/a/adudziak/public/Bs2DsPiToys/'
+toysdir             = '/afs/cern.ch/work/a/adudziak/public/Bs2DsPiToys/PETE/NoPETE/'
+toysdirmd           = '/afs/cern.ch/work/a/adudziak/public/Bs2DsPiToys/PETE/'
 toysresultprefix    = 'DsPi_Toys_TimeFitResult_DMS_'
+toysresultprefixMD  = 'DsPi_Toys_MassFitResult_'
 toysresultsuffix    = '.log'    
 
-outputdir = '/afs/cern.ch/work/a/adudziak/public/Bs2DsPiToys/'
+outputdir = '/afs/cern.ch/work/a/adudziak/public/Bs2DsPiToys/PETE/NoPETE/'
 
 dmsgenera = {"Signal" : ntoys*[17.768]}
 dmsfitted = {"Signal" : ntoys*[(0,0)]}
@@ -37,6 +39,33 @@ if PlotAcceptance:
     turnonfitted = {"TaccTurnOn" : ntoys*[(0,0)]}
     
 nfailed = []
+
+for thistoy in range(0,ntoys) :
+    f = open(toysdirmd+toysresultprefixMD+str(thistoy)+toysresultsuffix)
+    counter = 0
+    counterstop = -100
+    badfit = False
+    print "Processing toy",thistoy
+    for line in f :
+        counter += 1
+        if line.find('MIGRAD=4') > -1 :
+            badfit = True
+            nfailed.append(thistoy)
+            break
+        if line.find('NOT POS-DEF') > -1 :
+            badfit = True
+        if line.find('ERROR MATRIX ACCURATE') > -1 :
+            badfit = False
+        if line.find('FinalValue') >  -1 :
+            if badfit :
+                nfailed.append(thistoy)
+                break
+            #print line
+            counterstop = counter
+            break
+
+print nfailed.__len__(),'toys failed to converge properly'
+print nfailed
 
 for thistoy in range(0,ntoys) :
     f = open(toysdir+toysresultprefix+str(thistoy)+toysresultsuffix)
@@ -106,21 +135,14 @@ for thistoy in range(0,ntoys) :
 pullcanvassignal = TCanvas("pullcanvassignal","pullcanvassignal",1500,500)
 pullcanvassignal.Divide(3,1)
 pullcanvassignal.cd(1)
+fitted_signal.Fit("gaus")
 fitted_signal.Draw("PE")
-fitted_result = fitted_signal.Fit("gaus","S")
-fitted_result.Print()
-
-print "Mean fitted: ",fitted_signal.GetMean()
-
 pullcanvassignal.cd(2)
+errf_signal.Fit("gaus")
 errf_signal.Draw("PE")
 pullcanvassignal.cd(3)
-pull_result=pull_signal.Fit("gaus","S")
-pull_result.Print()
+pull_signal.Fit("gaus")
 pull_signal.Draw("PE")
-
-print "Pull mean: ",pull_signal.GetMean()
-
 pullcanvassignal.Print(outputdir+"PullPlot_DsPi_Time_DMS.pdf")
 
 
