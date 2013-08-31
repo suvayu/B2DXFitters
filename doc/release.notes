@@ -4,6 +4,9 @@
 ! Purpose     : RooFit-based fitters for B -> D X
 !-----------------------------------------------------------------------------
 
+! 2013-08-31 - Manuel Tobias Schiller
+ - cFit: make it work with Urania v1r1 again
+
 ! 2013-08-30 - Manuel Tobias Schiller
  - add scripts/AvgResModel.py to calculate average resolution models from
    per-event decay time errors

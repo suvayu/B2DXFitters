@@ -514,7 +514,8 @@ def readDataSet(
         if None != observables.find(n):
             names += (n,)
     # build RooArgSets and maps with source and destination variables
-    dmap = { k: observables.find(k) for k in names }
+    dmap = { }
+    for k in names: dmap[k] = observables.find(k)
     if None in dmap.values():
         raise NameError('Some variables not found in destination: %s' % str(dmap))
     dset = RooArgSet(*dmap.values())
@@ -531,7 +532,8 @@ def readDataSet(
         timeConvFactor = 1e9 / 2.99792458e8
         if config['IsToy']:
             timeConvFactor = 1.
-        smap = { k: fws.obj(config['DataSetVarNameMapping'][k]) for k in names }
+        smap = { }
+        for k in names: smap[k] = fws.obj(config['DataSetVarNameMapping'][k])
         if 'sample' in smap.keys() and None == smap['sample'] and None != sname:
             smap.pop('sample')
             dmap['sample'].setLabel(sname)
@@ -551,9 +553,11 @@ def readDataSet(
             sdata.get(i)
             if 0 == i % 128:
                 sys.stdout.write('*')
-            vals = { vname: smap[vname].getVal() if
-                    smap[vname].InheritsFrom('RooAbsReal') else
-                    smap[vname].getIndex() for vname in smap.keys() }
+            vals = { }
+            for vname in smap.keys():
+                vals[vname] = (smap[vname].getVal() if
+                        smap[vname].InheritsFrom('RooAbsReal') else
+                        smap[vname].getIndex())
             # first fixup: apply time/timeerr conversion factor
             if 'time' in dmap.keys():
                 vals['time'] *= timeConvFactor
@@ -597,6 +601,7 @@ def readDataSet(
                         dvar.setIndex(round_to_even(svar))
             ddata.add(dset)
             ninwindow = ninwindow + 1
+        sdata.resetBuffers()
         del sdata
         sys.stdout.write(', done - %d events\n' % ninwindow)
         return ninwindow
@@ -1309,12 +1314,25 @@ def getMassTemplateOneMode2011Paper(
     else:
         # ok, pdf not in workspace, so swallow it
         if None != massname:
-            pdf = WS(ws, pdf, [
-                RooFit.RenameVariable(massname, mass.GetName()),
-                RooFit.RenameVariable(dsmassname, dsmass.GetName()),
-                RooFit.RenameVariable(pidkname, pidk.GetName()),
-                RooFit.RenameConflictNodes('_%s_%s' % (mode, sname)),
-                RooFit.Silence()])
+            if ROOT.gROOT.gVersionInt() > 53405:
+                pdf = WS(ws, pdf, [ RooFit.Silence(),
+                    RooFit.RenameVariable(massname, mass.GetName()),
+                    RooFit.RenameVariable(dsmassname, dsmass.GetName()),
+                    RooFit.RenameVariable(pidkname, pidk.GetName()),
+                    RooFit.RenameConflictNodes('_%s_%s' % (mode, sname)),
+                    RooFit.Silence()])
+            else:
+                # work around RooFit's limitations in ROOT 5.34.05 and
+                # earlier...
+                tmpws = RooWorkspace()
+                pdf = WS(tmpws, pdf, [ RooFit.Silence(),
+                    RooFit.RenameVariable(dsmassname, dsmass.GetName()),
+                    RooFit.RenameVariable(pidkname, pidk.GetName())])
+                pdf = WS(ws, pdf, [
+                    RooFit.RenameVariable(massname, mass.GetName()),
+                    RooFit.RenameConflictNodes('_%s_%s' % (mode, sname)),
+                    RooFit.Silence()])
+                del tmpws
         else:
             pdf = WS(ws, pdf, [
                 RooFit.RenameConflictNodes('_%s_%s' % (mode, sname)),
