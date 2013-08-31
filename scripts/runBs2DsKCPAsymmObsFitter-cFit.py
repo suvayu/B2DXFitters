@@ -1314,7 +1314,7 @@ def getMassTemplateOneMode2011Paper(
     else:
         # ok, pdf not in workspace, so swallow it
         if None != massname:
-            if ROOT.gROOT.gVersionInt() > 53405:
+            if ROOT.gROOT.GetVersionInt() > 53405:
                 pdf = WS(ws, pdf, [ RooFit.Silence(),
                     RooFit.RenameVariable(massname, mass.GetName()),
                     RooFit.RenameVariable(dsmassname, dsmass.GetName()),
