@@ -36,13 +36,16 @@ PowLawAcceptance::PowLawAcceptance()
 PowLawAcceptance::PowLawAcceptance(const char *name, const char *title,
 				   RooAbsReal& turnon, RooAbsReal& time,
 				   RooAbsReal& __offset, RooAbsReal& exponent,
-				   RooAbsReal& beta, RooAbsReal* correction) :
+				   RooAbsReal& beta, RooAbsReal& cutoff_low, RooAbsReal& cutoff_high, 
+                   RooAbsReal* correction) :
   RooAbsReal(name, title),
   _turnon("turnon", "turnon", this, turnon),
   _time("time", "time", this, time),
   _offset("offset", "offset", this, __offset),
   _exponent("exponent", "exponent", this, exponent),
   _beta("beta", "beta", this, beta),
+  _cutoff_low("cutoff_low","cutoff_low",this,cutoff_low),
+  _cutoff_high("cutoff_high","cutoff_high",this,cutoff_high),
   _correction("correction", "correction", this,
 	      correction ? *correction : _one)
 {
@@ -57,6 +60,8 @@ PowLawAcceptance::PowLawAcceptance(const PowLawAcceptance& other,
   _offset("offset", this, other._offset),
   _exponent("exponent", this, other._exponent),
   _beta("beta", this, other._beta),
+  _cutoff_low("cutoff_low", this, other._cutoff_low),
+  _cutoff_high("cutoff_high", this, other._cutoff_high),
   _correction("correction", this, other._correction)
 {
 }
@@ -79,6 +84,8 @@ PowLawAcceptance::PowLawAcceptance(const PowLawAcceptance& other,
   _offset("offset", this, other._offset),
   _exponent("exponent", this, other._exponent),
   _beta("beta", this, other._beta),
+  _cutoff_low("cutoff_low", this, other._cutoff_low),
+  _cutoff_high("cutoff_high", this, other._cutoff_high),
   _correction("correction", "correction", this,
 	      correction ? *correction : _one)
 {
@@ -105,6 +112,8 @@ PowLawAcceptance& PowLawAcceptance::operator=(const PowLawAcceptance& other)
   _offset = RooRealProxy("offset", this, other._offset);
   _exponent = RooRealProxy("exponent", this, other._exponent);
   _beta = RooRealProxy("beta", this, other._beta);
+  _cutoff_low = RooRealProxy("cutoff_low", this, other._cutoff_low);
+  _cutoff_high = RooRealProxy("cutoff_high", this, other._cutoff_high);
   _correction = RooRealProxy("correction", this, other._correction);
 
   return *this;
@@ -115,12 +124,14 @@ Double_t PowLawAcceptance::evaluate() const
 {
   Double_t turnon((Double_t)_turnon), time((Double_t)_time),
     __offset((Double_t)_offset), exponent((Double_t)_exponent),
-    beta((Double_t)_beta), ratio(1.0);
+    beta((Double_t)_beta), cutoff_low((Double_t)_cutoff_low),
+    cutoff_high((Double_t)_cutoff_high), ratio(1.0);
 
   // check if underlying data type is valid
   if (_correction.absArg()) ratio = (Double_t)_correction;
 
-  if (time < 0.2) return 0.;
+  if (time < cutoff_low) return 0.;
+  if (time > cutoff_high) return 0;
   if (beta < -0.0) return 0.0;
   if (beta*time > 1.0) return 0.0;
   Double_t expnoff = std::pow(turnon*time, exponent) - __offset;
