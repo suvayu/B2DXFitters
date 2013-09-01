@@ -468,6 +468,8 @@ def runBdGammaFitterOnData(debug, wsname, initvars, tvar, terrvar, probvar, pere
             setConstantIfSoConfigured(tacc_offset,myconfigfile)
             setConstantIfSoConfigured(tacc_beta,myconfigfile)
         elif AcceptanceFunction == 'PowLawAcceptance' :
+            tacc_cutoff_low = RooRealVar('tacc_cutoff_low', 'PowLawAcceptance_cutoff_low', myconfigfile["TimeDown"])
+            tacc_cutoff_high = RooRealVar('tacc_cutoff_high', 'PowLawAcceptance_cutoff_high', myconfigfile["TimeUp"])
             if BDTGbins:
                 tacc_beta = []
                 tacc_exponent = []
@@ -486,7 +488,8 @@ def runBdGammaFitterOnData(debug, wsname, initvars, tvar, terrvar, probvar, pere
                     tacc_turnon.append(RooRealVar(name_turnon.Data(), name_turnon.Data(), myconfigfile[name_turnon.Data()], 0.50 , 7.00))
                     name_tacc = TString("BsPowLawAcceptance_")+Bin[i] 
                     tacc.append(PowLawAcceptance(name_tacc.Data(), name_tacc.Data(),
-                                                 tacc_turnon[i], time, tacc_offset[i], tacc_exponent[i], tacc_beta[i]))
+                                                 tacc_turnon[i], time, tacc_offset[i], tacc_exponent[i], tacc_beta[i],
+                                                 tacc_cutoff_low,tacc_cutoff_high ))
                     setConstantIfSoConfigured(tacc_beta[i],myconfigfile)
                     setConstantIfSoConfigured(tacc_exponent[i],myconfigfile)
                     setConstantIfSoConfigured(tacc_offset[i],myconfigfile)
@@ -503,7 +506,8 @@ def runBdGammaFitterOnData(debug, wsname, initvars, tvar, terrvar, probvar, pere
                 tacc_offset     = RooRealVar('tacc_offset'  , 'PowLawAcceptance_offset',    myconfigfile["tacc_offset"]     , -0.2 , 0.10)
                 tacc_turnon     = RooRealVar('tacc_turnon'  , 'PowLawAcceptance_turnon',    myconfigfile["tacc_turnon"]     , 0.50 , 5.00)  
                 tacc          = PowLawAcceptance('BsPowLawAcceptance', '%s decay time acceptance function' % bName,
-                                                 tacc_turnon, time, tacc_offset, tacc_exponent, tacc_beta)
+                                                 tacc_turnon, time, tacc_offset, tacc_exponent, tacc_beta,
+                                                 tacc_cutoff_low, tacc_cutoff_high)
                 setConstantIfSoConfigured(tacc_beta,myconfigfile)
                 setConstantIfSoConfigured(tacc_exponent,myconfigfile)
                 setConstantIfSoConfigured(tacc_offset,myconfigfile)
