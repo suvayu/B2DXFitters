@@ -5,6 +5,10 @@
 !-----------------------------------------------------------------------------
 
 ! 2013-09-01 - Manuel Tobias Schiller
+ - PowLawAcceptance: put acceptance function to zero outside the range of the
+   time variable
+
+! 2013-09-01 - Manuel Tobias Schiller
  - cFit: add code needed to read my own tuples from a tree
 
 ! 2013-09-01 - Manuel Tobias Schiller
