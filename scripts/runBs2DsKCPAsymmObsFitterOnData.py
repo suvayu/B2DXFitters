@@ -488,10 +488,10 @@ def runBdGammaFitterOnData(debug, wsname, initvars, var, terrvar, probvar,pereve
                     name_tacc = TString("BsPowLawAcceptance_")+Bin[i]
                     if smearaccept :
                         tacc.append(PowLawAcceptance(name_tacc.Data(), name_tacc.Data(),
-                                                     tacc_turnon[i], time,tacc_offset[i], tacc_exponent[i], tacc_beta[i]))
+                                                     tacc_turnon[i], time, tacc_offset[i], tacc_exponent[i], tacc_beta[i],accratio))
                     else:
                         tacc.append(PowLawAcceptance(name_tacc.Data(), name_tacc.Data(),
-                                                     tacc_turnon[i],time,tacc_offset[i], tacc_exponent[i], tacc_beta[i])
+                                                     tacc_turnon[i], time, tacc_offset[i], tacc_exponent[i], tacc_beta[i]))
                     setConstantIfSoConfigured(tacc_beta[i],myconfigfile)
                     setConstantIfSoConfigured(tacc_exponent[i],myconfigfile)
                     setConstantIfSoConfigured(tacc_offset[i],myconfigfile)
@@ -512,9 +512,10 @@ def runBdGammaFitterOnData(debug, wsname, initvars, var, terrvar, probvar,pereve
                 accratio.Print("v") 
                 if smearaccept :
                     tacc = PowLawAcceptance('BsPowLawAcceptance', '%s decay time acceptance function' % bName,
-                                            tacc_turnon, time, tacc_offset,                else :
+                                            tacc_turnon, time, tacc_offset, tacc_exponent, tacc_beta,accratio)
+                else :
                     tacc = PowLawAcceptance('BsPowLawAcceptance', '%s decay time acceptance function' % bName,
-                                            tacc_turnon, time,tacc_offset,tacc_exponent, tacc_beta)
+                                            tacc_turnon, time, tacc_offset, tacc_exponent, tacc_beta)
                 setConstantIfSoConfigured(tacc_beta,myconfigfile)
                 setConstantIfSoConfigured(tacc_exponent,myconfigfile)
                 setConstantIfSoConfigured(tacc_offset,myconfigfile)
