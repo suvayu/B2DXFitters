@@ -1944,7 +1944,7 @@ def getMasterPDF(config, name, debug = False):
     timeerr = WS(ws, RooRealVar('timeerr', 'decay time error', 1e-6, 0.25,
         'ps'))
 
-    mass = WS(ws, RooRealVar('mass', 'mass', 5300., 5800.))#5320., 5420.))
+    mass = WS(ws, RooRealVar('mass', 'mass', 5320., 5420.))
     if config['NBinsMass'] > 0:
         mass.setBinning(RooUniformBinning(
             mass.getMin(), mass.getMax(), config['NBinsMass']), 'massbins')
