@@ -335,6 +335,10 @@ defaultConfig = {
             'qf':       'lab1_ID',
             'qt':       'lab0_BsTaggingTool_TAGDECISION_OS'
             },
+    # write data set to file name
+    'WriteDataSetFileName': None,
+    'WriteDataSetTreeName': 'data',
+    'QuitAfterGeneration': False,
     # bug-for-bug compatibility flags
     'BugFlags': [
             # 'PdfSSbarSwapMinusOne',
@@ -632,6 +636,39 @@ def readDataSet(
             data.table(dmap['sample']).Print('v')
     # all done, return Data to the bridge
     return ddata
+
+def writeDataSet(dataset, filename, treename, bnamemap = {}):
+    from ROOT import TFile, TTree
+    import array
+    f = TFile(filename, 'RECREATE')
+    t = TTree(treename, treename)
+    obs = dataset.get()
+    # create branches
+    branches = { }
+    it = obs.fwdIterator()
+    while True:
+        obj = it.next()
+        if None == obj: break
+        bname = (bnamemap[obj.GetName()] if obj.GetName() in bnamemap else
+                obj.GetName())
+        branches[obj.GetName()] = (array.array('d', [0.]) if
+                obj.InheritsFrom('RooAbsReal') else array.array('i', [0]))
+        t.Branch(bname, branches[obj.GetName()], bname+('/D' if
+            obj.InheritsFrom('RooAbsReal') else '/I'))
+    # fill tuple
+    for i in xrange(0, dataset.numEntries()):
+        dataset.get(i)
+        it = obs.fwdIterator()
+        while True:
+            obj = it.next()
+            if None == obj: break
+            branches[obj.GetName()][0] = (obj.getVal() if
+                    obj.InheritsFrom('RooAbsReal') else obj.getIndex())
+        t.Fill()
+    t.Write()
+    del t
+    f.Close()
+    del f
 
 def readAcceptanceCorrection(
     config,	# config dictionary
@@ -1907,7 +1944,7 @@ def getMasterPDF(config, name, debug = False):
     timeerr = WS(ws, RooRealVar('timeerr', 'decay time error', 1e-6, 0.25,
         'ps'))
 
-    mass = WS(ws, RooRealVar('mass', 'mass', 5320., 5420.))
+    mass = WS(ws, RooRealVar('mass', 'mass', 5300., 5800.))#5320., 5420.))
     if config['NBinsMass'] > 0:
         mass.setBinning(RooUniformBinning(
             mass.getMin(), mass.getMax(), config['NBinsMass']), 'massbins')
@@ -2628,6 +2665,11 @@ def runBsGammaFittercFit(generatorConfig, fitConfig, toy_num, debug, wsname, ini
         pdf['observables'].Print()
         dataset = pdf['epdf'].generate(pdf['observables'], RooFit.Verbose())
         ROOT.SetOwnership(dataset, True)
+        if None != generatorConfig['WriteDataSetFileName']:
+            writeDataSet(dataset,
+                    generatorConfig['WriteDataSetFileName'],
+                    generatorConfig['WriteDataSetTreeName'],
+                    generatorConfig['DataSetVarNameMapping'])
     else:
         # read event from external file
         dataset = readDataSet(
@@ -2648,6 +2690,8 @@ def runBsGammaFittercFit(generatorConfig, fitConfig, toy_num, debug, wsname, ini
     for cat in cats:
         dataset.table(cat).Print('v')
     dataset.table(RooArgSet(pdf['ws'].obj('qt'), pdf['ws'].obj('qf'))).Print('v')
+    if generatorConfig['QuitAfterGeneration']:
+        return
 
     # to speed things up during the fit, we sort events by qf and qt
     # this avoids "cache poisoning" by making pdf argument changes rarer

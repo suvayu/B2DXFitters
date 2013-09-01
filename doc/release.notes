@@ -4,6 +4,9 @@
 ! Purpose     : RooFit-based fitters for B -> D X
 !-----------------------------------------------------------------------------
 
+! 2013-09-01 - Manuel Tobias Schiller
+ - cFit: add routine dumping generated data set to tree in ROOT file
+
 ! 2013-08-31 - Agnieszka Dziurda
  - sFit update
  - Add new functions to PropertimeResolutionModels.{h,cxx}
