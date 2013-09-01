@@ -9,6 +9,16 @@
    differences
 
 ! 2013-09-01 - Manuel Tobias Schiller
+ - cFit: various fixes:
+   * Bd2DPi mode accidentally slipped in with the DsPi-like modes even though
+     it's DsK-like (the interference term which is sensitive to gamma should
+     be small, though)
+   * personalities to read Agnieszka's toys should not apply acceptance
+     correction
+   * Optimize = 1 seems safe enough for new fits for now
+   * fix yield discrepancies (most apparent) in DsPi modes
+
+! 2013-09-01 - Manuel Tobias Schiller
  - PowLawAcceptance: put acceptance function to zero outside the range of the
    time variable
 

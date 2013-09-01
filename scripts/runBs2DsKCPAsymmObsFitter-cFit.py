@@ -178,19 +178,22 @@ defaultConfig = {
             'Bs2DsK':		20. / 180. * pi,
             'Bs2DsstK': 	-160. / 180. * pi,
             'Bs2DsKst': 	-160. / 180. * pi,
-            'Bs2DsstKst': 	20. / 180. * pi
+            'Bs2DsstKst': 	20. / 180. * pi,
+            'Bd2DPi':           20. / 180. * pi,
             },
         'WeakPhase': {
                 'Bs2DsK':	50. / 180. * pi,
                 'Bs2DsstK':	50. / 180. * pi,
                 'Bs2DsKst':	50. / 180. * pi,
-                'Bs2DsstKst':	50. / 180. * pi
+                'Bs2DsstKst':	50. / 180. * pi,
+                'Bd2DPi':       50. / 180. * pi,
                 },
         'ModLf': {
                 'Bs2DsK': 	0.372,
                 'Bs2DsstK': 	0.470,
                 'Bs2DsKst': 	0.372,
-                'Bs2DsstKst': 	0.470
+                'Bs2DsstKst': 	0.470,
+                'Bd2DPi':       0.0187
                 },
         # asymmetries
     'Asymmetries' : {
@@ -991,12 +994,11 @@ def getMassTemplateOneMode2011Conf(
         pdf.specialIntegratorConfig().getConfigSection('RooIntegrator1D').setRealValue('maxSteps', 16)
         pdf.specialIntegratorConfig().method1D().setLabel('RooIntegrator1D')
         # figure out yield scaling due to mass ranges
-        integral = pdf.createIntegral(RooArgSet(oldmass))
+        oldmass.setRange('signalRegion', mass.getMin(), mass.getMax())
+        integral = pdf.createIntegral(RooArgSet(oldmass),
+                RooArgSet(oldmass, olddsmass, oldpidk), 'signalRegion')
         ROOT.SetOwnership(integral, True)
-        oldint = integral.getVal()
-        oldmass.setRange(mass.getMin(), mass.getMax())
-        newint = integral.getVal()
-        yieldrangescaling = newint / oldint
+        yieldrangescaling = integral.getVal()
         # ok, figure out yield
         nYield = None
         if mode == 'Bs2DsK':
@@ -1338,32 +1340,12 @@ def getMassTemplateOneMode2011Paper(
             else:
                 # set anything else constant
                 varset.find(n).setConstant(True)
-        # mass integration factorises, so we can afford to be a little sloppier
-        # when doing numerical integrations
-        components = pdf.getComponents()
-        ROOT.SetOwnership(components, True)
-        components.add(pdf)
-        it = components.fwdIterator()
-        while True:
-            obj = it.next()
-            if None == obj: break
-            obj.specialIntegratorConfig(True).setEpsAbs(1e-9)
-            obj.specialIntegratorConfig().setEpsRel(1e-9)
-            obj.specialIntegratorConfig().getConfigSection('RooIntegrator1D').setCatLabel('sumRule', 'Trapezoid')
-            obj.specialIntegratorConfig().getConfigSection('RooIntegrator1D').setCatLabel('extrapolation', 'Wynn-Epsilon')
-            obj.specialIntegratorConfig().getConfigSection('RooIntegrator1D').setRealValue('minSteps', 3)
-            obj.specialIntegratorConfig().getConfigSection('RooIntegrator1D').setRealValue('maxSteps', 16)
-            obj.specialIntegratorConfig().method1D().setLabel('RooIntegrator1D')
-        del obj
-        del it
-        del components
         # figure out yield scaling due to mass ranges
-        integral = pdf.createIntegral(RooArgSet(oldmass, olddsmass, oldpidk))
+        oldmass.setRange('signalRegion', mass.getMin(), mass.getMax())
+        integral = pdf.createIntegral(RooArgSet(oldmass, olddsmass, oldpidk),
+                RooArgSet(oldmass, olddsmass, oldpidk), 'signalRegion')
         ROOT.SetOwnership(integral, True)
-        oldint = integral.getVal()
-        oldmass.setRange(mass.getMin(), mass.getMax())
-        newint = integral.getVal()
-        yieldrangescaling = newint / oldint
+        yieldrangescaling = integral.getVal()
         # ok, figure out yield
         nYield = RooRealVar('n%s_%s_Evts' % (mode, sname),
                 'n%s_%s_Evts' % (mode, sname), nYield * yieldrangescaling)
@@ -1441,6 +1423,7 @@ def getMassTemplates(
             '2011PaperDsPiDATA': getMassTemplateOneMode2011Paper,
             '2011PaperDsK-Agn70': getMassTemplateOneMode2011Paper,
             '2011PaperDsK-Agn140': getMassTemplateOneMode2011Paper,
+            '2011PaperDsPi-Agn70': getMassTemplateOneMode2011Paper,
             }
     import sys
     if None == snames:
@@ -1918,6 +1901,62 @@ def combineCPObservables(config, modes, yields):
         retVal['WeakPhase'][mode] = WeakPhase
     return retVal
 
+def printPDFTermsOnDataSet(dataset, terms = []):
+    print 72 * '#'
+    print 'DEBUG: DUMPING TERMS FOR EACH ENTRY IN DATASET'
+    print 72 * '#'
+    vlist = [ v.clone(v.GetName()) for v in terms ]
+    for v in vlist:
+        ROOT.SetOwnership(v, True)
+        v.attachDataSet(dataset)
+    vlist = { v.GetName(): v for v in vlist }
+    notchanged = False
+    while not notchanged:
+        notchanged = True
+        for k in dict(vlist):
+            vs = vlist[k].getVariables()
+            ROOT.SetOwnership(vs, True)
+            it = vs.fwdIterator()
+            while True:
+                obj = it.next()
+                if None == obj: break
+                if obj.GetName() in vlist: continue
+                notchanged = False
+                vlist[obj.GetName()] = obj
+            vs = vlist[k].getComponents()
+            ROOT.SetOwnership(vs, True)
+            it = vs.fwdIterator()
+            while True:
+                obj = it.next()
+                if None == obj: break
+                if obj.GetName() in vlist: continue
+                notchanged = False
+                vlist[obj.GetName()] = obj
+        if not notchanged: break
+    obs = dataset.get()
+    obsdict = { }
+    it = obs.fwdIterator()
+    while True:
+        obj = it.next()
+        if None == obj: break
+        obsdict[obj.GetName()] = obj
+    for i in range(0, dataset.numEntries()):
+        dataset.get(i)
+        s = 'DEBUG: OBSERVABLES:'
+        for k in obsdict:
+            s = ('%s %s = %g' % (s, k, obsdict[k].getVal()) if
+                    obsdict[k].InheritsFrom('RooAbsReal') else
+                    '%s %s = %d' % (s, k, obsdict[k].getIndex()))
+        print s
+        vals = {k: (vlist[k].getValV(obs) if
+            vlist[k].InheritsFrom('RooAbsReal') else vlist[k].getIndex()) for
+            k in vlist}
+        for k in sorted(vals.keys()):
+            if k in obsdict: continue
+            print 'DEBUG:    ===> %s = %g' % (k, vals[k])
+    print 72 * '#'
+    return None
+
 #------------------------------------------------------------------------------
 def getMasterPDF(config, name, debug = False):
     from B2DXFitters import cpobservables
@@ -2361,7 +2400,7 @@ def getMasterPDF(config, name, debug = False):
     # create time pdfs for the remaining DsK-like modes
     #
     # signal Bs -> DsK is treated in the same way as the backgrounds
-    for mode in ( 'Bs2DsK', 'Bs2DsstK', 'Bs2DsKst', 'Bs2DsstKst' ):
+    for mode in ( 'Bs2DsK', 'Bs2DsstK', 'Bs2DsKst', 'Bs2DsstKst', 'Bd2DPi' ):
         if mode not in config['Modes']:
             continue
         # limits in which CP observables are allowed to vary
@@ -2484,9 +2523,15 @@ def getMasterPDF(config, name, debug = False):
             tageff = WS(ws, RooRealVar('%s_TagEff' % modenick, '%s_TagEff' % modenick,
                 config['TagEffSig'], 0., 1.))
             tageff.setError(0.25)
+        if mode.startswith('Bs'):
+            gamma, deltagamma, deltam = gammas, deltaGammas, deltaMs
+        elif mode.startswith('Bd'):
+            gamma, deltagamma, deltam = gammad, deltaGammad, deltaMd
+        else:
+            gamma, deltagamma, deltam = None, None, None
         timepdfs[mode] = buildBDecayTimePdf(myconfig, mode, ws,
                 time, timeerr, qt, qf, tagOmegaSigCal, tageff,
-                gammas, deltaGammas, deltaMs, C, D, Dbar, S, Sbar,
+                gamma, deltagamma, deltam, C, D, Dbar, S, Sbar,
                 trm, tacc, terrpdf, sigMistagPDF, tagOmegaSig, kfactorpdf, kfactor,
                 asyms['Prod'], asyms['Det'], asyms['TagEff'])
 
@@ -2494,7 +2539,7 @@ def getMasterPDF(config, name, debug = False):
     # Bs -> Ds Pi like modes
     ########################################################################
     for mode in ( 'Bs2DsPi', 'Bs2DsstPi', 'Bs2DsRho', 'Bs2DsstRho',
-            'Bd2DsK', 'Bd2DK', 'Bd2DPi', 'Bd2DsPi' ):
+            'Bd2DsK', 'Bd2DK', 'Bd2DsPi' ):
         if mode not in config['Modes']:
             continue
         if mode.startswith('Bs'):

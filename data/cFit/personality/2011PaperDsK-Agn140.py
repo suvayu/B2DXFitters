@@ -2,7 +2,7 @@
 {
         'Modes': [
             'Bs2DsK',
-#            'Bs2DsKst',
+            'Bs2DsKst',
             'Bs2DsPi', 'Bs2DsstPi', 'Bs2DsRho',
             'Bd2DK', 'Bd2DsK',
             'Lb2LcK', 'Lb2Dsp', 'Lb2Dsstp',
@@ -17,16 +17,19 @@
             'Bs2DsK':           140. / 180. * pi,
             'Bs2DsstK':         70. / 180. * pi,
             'Bs2DsKst':         70. / 180. * pi,
-            'Bs2DsstKst':	70. / 180. * pi
+            'Bs2DsstKst':	70. / 180. * pi,
+            'Bd2DPi':           70. / 180. * pi
             },
         'StrongPhase': {
             'Bs2DsK':           30. / 180. * pi,
             'Bs2DsstK':         -150. / 180. * pi,
-            'Bs2DsKst':         -150. / 180. * pi,                                                                                                                                                                
-            'Bs2DsstKst':       30. / 180. * pi                                                                                                                                                                   
-            },   
+            'Bs2DsKst':         -150. / 180. * pi,
+            'Bs2DsstKst':       30. / 180. * pi,
+            'Bd2DPi':           30. / 180. * pi
+            },
+        'AcceptanceCorrectionFile': None,
         'CombineModesForEffCPObs': [ ],
-        'NEvents':			[ 3518. ],
+        'NEvents':			[ 3474. ],
         'DataFileName':         os.environ['B2DXFITTERSROOT']+'/scripts/mdfit-004/data/DsK_Toys_Work_ForMassPlot_%d.root' % TOY_NUMBER,
         'DataWorkSpaceName':    'FitMeToolWS',
         'DataSetNames':         'combData',
@@ -66,5 +69,5 @@
             'MistagCalibBbar_p0', 'MistagCalibBbar_p1', 'MistagCalibBbar_avgmistag',
             'Bs2DsKst_TagEff', 'Bs2DsKst_delta', 'Bs2DsKst_lambda', 'Bs2DsKst_phi_w',
             ],
-        'Optimize': 0,
+        'Optimize': 1,
 }
