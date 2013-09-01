@@ -27,7 +27,7 @@ public:
   PowLawAcceptance(const char *name, const char *title,
 		   RooAbsReal& turnon, RooAbsReal& time,
 		   RooAbsReal& __offset, RooAbsReal& exponent,
-		   RooAbsReal& beta, RooAbsReal* correction=0);
+		   RooAbsReal& beta, RooAbsReal& cutoff_low, RooAbsReal& cutoff_high, RooAbsReal* correction=0);
   PowLawAcceptance(const PowLawAcceptance& other, const char* name=0);
   PowLawAcceptance(const PowLawAcceptance& other, const char* name,
 		   RooAbsReal* correction);
@@ -44,6 +44,8 @@ protected:
   RooRealProxy _offset;
   RooRealProxy _exponent;
   RooRealProxy _beta;
+  RooRealProxy _cutoff_low;
+  RooRealProxy _cutoff_high;
   static RooConstVar  _one;
   RooRealProxy _correction;
 
