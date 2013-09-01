@@ -529,13 +529,39 @@ def readDataSet(
     # get workspace
     fws = f.Get(config['DataWorkSpaceName'])
     ROOT.SetOwnership(fws, True)
+    if None == fws or not fws.InheritsFrom('TTree'):
+        # ok, no workspace, so try to read a tree of the same name and
+        # synthesize a workspace
+        from ROOT import RooWorkspace, RooDataSet
+        fws = RooWorkspace(config['DataWorkSpaceName'])
+        iset = RooArgSet()
+        it = observables.fwdIterator()
+        while True:
+            obj = it.next()
+            if None == obj: break
+            if obj.InheritsFrom('RooAbsReal'):
+                var = RooRealVar(
+                    config['DataSetVarNameMapping'][obj.GetName()],
+                    config['DataSetVarNameMapping'][obj.GetName()],
+                    obj.getMin(), obj.getMax())
+            else:
+                var = RooCategory(
+                    config['DataSetVarNameMapping'][obj.GetName()],
+                    config['DataSetVarNameMapping'][obj.GetName()])
+                tit = obj.typeIterator()
+                ROOT.SetOwnership(tit, True)
+                while True:
+                    tobj = tit.Next()
+                    if None == tobj: break
+                    var.defineType(tobj.GetName(), tobj.getVal())
+            iset.addClone(var)
+        for dsname in ((config['DataSetNames'], )
+               if type(config['DataSetNames']) == str else
+               config['DataSetNames']):
+           fws.__getattribute__('import')(RooDataSet(dsname, dsname,
+               f.Get(dsname), iset))
     # local data conversion routine
     def doIt(config, rangeName, dsname, sname, names, dmap, dset, ddata, fws):
-        # additional complication: toys save decay time in ps, data is in nm
-        # figure out which time conversion factor to use
-        timeConvFactor = 1e9 / 2.99792458e8
-        if config['IsToy']:
-            timeConvFactor = 1.
         smap = { }
         for k in names: smap[k] = fws.obj(config['DataSetVarNameMapping'][k])
         if 'sample' in smap.keys() and None == smap['sample'] and None != sname:
@@ -547,6 +573,13 @@ def readDataSet(
         sdata = fws.obj(dsname)
         if None == sdata: return 0
         sdata.attachBuffers(sset)
+        # additional complication: toys save decay time in ps, data is in nm
+        # figure out which time conversion factor to use
+        timeConvFactor = 1e9 / 2.99792458e8
+        meantime = sdata.mean(smap['time'])
+        if (dmap['time'].getMin() <= meantime and
+                meantime <= dmap['time'].getMax()):
+            timeConvFactor = 1.
         # loop over all entries of data set
         ninwindow = 0
         if None != sname:

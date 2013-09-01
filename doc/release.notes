@@ -5,6 +5,9 @@
 !-----------------------------------------------------------------------------
 
 ! 2013-09-01 - Manuel Tobias Schiller
+ - cFit: add code needed to read my own tuples from a tree
+
+! 2013-09-01 - Manuel Tobias Schiller
  - cFit: add routine dumping generated data set to tree in ROOT file
 
 ! 2013-08-31 - Agnieszka Dziurda
