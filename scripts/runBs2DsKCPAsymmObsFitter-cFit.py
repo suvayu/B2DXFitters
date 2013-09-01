@@ -529,7 +529,7 @@ def readDataSet(
     # get workspace
     fws = f.Get(config['DataWorkSpaceName'])
     ROOT.SetOwnership(fws, True)
-    if None == fws or not fws.InheritsFrom('TTree'):
+    if None == fws or not fws.InheritsFrom('RooWorkspace'):
         # ok, no workspace, so try to read a tree of the same name and
         # synthesize a workspace
         from ROOT import RooWorkspace, RooDataSet
