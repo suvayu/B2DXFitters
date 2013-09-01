@@ -456,6 +456,8 @@ def runBdGammaFitterOnData(debug, wsname, initvars, var, terrvar, probvar,pereve
             setConstantIfSoConfigured(tacc_offset,myconfigfile)
             setConstantIfSoConfigured(tacc_beta,myconfigfile)
         elif AcceptanceFunction == 'PowLawAcceptance' : 
+            tacc_cutoff_low = RooRealVar('tacc_cutoff_low','PowLawAcceptance_cutoff_low', myconfigfile["TimeDown"])
+            tacc_cutoff_high = RooRealVar('tacc_cutoff_high','PowLawAcceptance_cutoff_high', myconfigfile["TimeUp"])
             if smearaccept :
                 print 'SMEARING THE ACCEPTANCE FUNCTION FROM HISTOGRAM'
                 print accsmearfile, accsmearhist 
@@ -488,10 +490,12 @@ def runBdGammaFitterOnData(debug, wsname, initvars, var, terrvar, probvar,pereve
                     name_tacc = TString("BsPowLawAcceptance_")+Bin[i]
                     if smearaccept :
                         tacc.append(PowLawAcceptance(name_tacc.Data(), name_tacc.Data(),
-                                                     tacc_turnon[i], time, tacc_offset[i], tacc_exponent[i], tacc_beta[i],accratio))
+                                                     tacc_turnon[i], time, tacc_offset[i], tacc_exponent[i], tacc_beta[i],
+                                                     tacc_cutoff_low,tacc_cutoff_high, accratio))
                     else:
                         tacc.append(PowLawAcceptance(name_tacc.Data(), name_tacc.Data(),
-                                                     tacc_turnon[i], time, tacc_offset[i], tacc_exponent[i], tacc_beta[i]))
+                                                     tacc_turnon[i], time,tacc_offset[i], tacc_exponent[i], tacc_beta[i],
+                                                     tacc_cutoff_low,tacc_cutoff_high))
                     setConstantIfSoConfigured(tacc_beta[i],myconfigfile)
                     setConstantIfSoConfigured(tacc_exponent[i],myconfigfile)
                     setConstantIfSoConfigured(tacc_offset[i],myconfigfile)
@@ -512,10 +516,12 @@ def runBdGammaFitterOnData(debug, wsname, initvars, var, terrvar, probvar,pereve
                 accratio.Print("v") 
                 if smearaccept :
                     tacc = PowLawAcceptance('BsPowLawAcceptance', '%s decay time acceptance function' % bName,
-                                            tacc_turnon, time, tacc_offset, tacc_exponent, tacc_beta,accratio)
+                                            tacc_turnon, time, tacc_offset, tacc_exponent, tacc_beta,
+                                            tacc_cutoff_low,tacc_cutoff_high,accratio)
                 else :
                     tacc = PowLawAcceptance('BsPowLawAcceptance', '%s decay time acceptance function' % bName,
-                                            tacc_turnon, time, tacc_offset, tacc_exponent, tacc_beta)
+                                            tacc_turnon, time, tacc_offset,tacc_exponent, tacc_beta,
+                                            tacc_cutoff_low,tacc_cutoff_high)
                 setConstantIfSoConfigured(tacc_beta,myconfigfile)
                 setConstantIfSoConfigured(tacc_exponent,myconfigfile)
                 setConstantIfSoConfigured(tacc_offset,myconfigfile)
