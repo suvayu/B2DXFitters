@@ -123,7 +123,7 @@ from math     import pi
 AcceptanceFunction       =  'PowLawAcceptance'
 
 # BLINDING
-Blinding =  False
+Blinding =  True
 
 param_limits = {"lower" : -10., "upper" : 10.}
 
@@ -151,11 +151,11 @@ def runBdGammaFitterOnData(debug, wsname, initvars, var, terrvar, probvar,pereve
                            smearaccept, accsmearfile, accsmearhist,
                            BDTGbins, pathName2, pathName3, Cat) :
 
-    #if not Blinding and not toys :
-    #    print "RUNNING UNBLINDED!"
-    #    really = input('Do you really want to unblind? ')
-    #    if really != "yes" :
-    #        exit(-1)
+    if not Blinding and not toys :
+        print "RUNNING UNBLINDED!"
+        really = input('Do you really want to unblind? ')
+        if really != "yes" :
+            exit(-1)
 
     #if toys :
     #    if int(pathToys.split('.')[1].split('_')[-1]) in bannedtoys :
