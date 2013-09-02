@@ -5,6 +5,9 @@
 !-----------------------------------------------------------------------------
 
 ! 2013-09-02 - Manuel Tobias Schiller
+ - cFit: fix various small issues
+
+! 2013-09-02 - Manuel Tobias Schiller
  - cFit: fix python ownership issue
 
 ! 2013-09-02 - Manuel Tobias Schiller

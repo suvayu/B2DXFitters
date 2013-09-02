@@ -486,6 +486,13 @@ def WS(ws, obj, opts = [RooFit.RecycleConflictNodes(), RooFit.Silence()]):
         else:
             if wsobj.Class() != obj.Class():
                 raise TypeError()
+    elif obj.InheritsFrom('RooArgSet'):
+        if None == wsobj:
+            ws.defineSet(name, obj, True)
+            wsobj = ws.set(name)
+        else:
+            if wsobj.Class() != obj.Class():
+                raise TypeError()
     else:
         if None == wsobj:
             ws.__getattribute__('import')(obj, name)
@@ -1370,11 +1377,12 @@ def getMassTemplateOneMode2011Paper(
     else:
         # ok, pdf not in workspace, so swallow it
         if None != massname:
+            fromnames = '%s,%s,%s' % (massname, dsmassname, pidkname)
+            tonames = '%s,%s,%s' % (mass.GetName(), dsmass.GetName(),
+                    pidk.GetName())
             if ROOT.gROOT.GetVersionInt() > 53405:
                 pdf = WS(ws, pdf, [ RooFit.Silence(),
-                    RooFit.RenameVariable(massname, mass.GetName()),
-                    RooFit.RenameVariable(dsmassname, dsmass.GetName()),
-                    RooFit.RenameVariable(pidkname, pidk.GetName()),
+                    RooFit.RenameVariable(fromnames, tonames),
                     RooFit.RenameConflictNodes('_%s_%s' % (mode, sname)),
                     RooFit.Silence()])
             else:
@@ -1382,10 +1390,8 @@ def getMassTemplateOneMode2011Paper(
                 # earlier...
                 tmpws = RooWorkspace()
                 pdf = WS(tmpws, pdf, [ RooFit.Silence(),
-                    RooFit.RenameVariable(dsmassname, dsmass.GetName()),
-                    RooFit.RenameVariable(pidkname, pidk.GetName())])
+                    RooFit.RenameVariable(fromnames, tonames)])
                 pdf = WS(ws, pdf, [
-                    RooFit.RenameVariable(massname, mass.GetName()),
                     RooFit.RenameConflictNodes('_%s_%s' % (mode, sname)),
                     RooFit.Silence()])
                 del tmpws
@@ -2013,9 +2019,9 @@ def getMasterPDF(config, name, debug = False):
     if config['NBinsAcceptance'] > 0:
         # provide binning for acceptance
         from ROOT import RooUniformBinning
-        acceptanceBinning = WS(ws, RooUniformBinning(
+        acceptanceBinning = RooUniformBinning(
             time.getMin(), time.getMax(), config['NBinsAcceptance'],
-            'acceptanceBinning'))
+            'acceptanceBinning')
         time.setBinning(acceptanceBinning, 'acceptanceBinning')
     timeerr = WS(ws, RooRealVar('timeerr', 'decay time error', 1e-6, 0.25,
         'ps'))
@@ -2744,7 +2750,6 @@ def runBsGammaFittercFit(generatorConfig, fitConfig, toy_num, debug, wsname, ini
         cats.append(pdf['ws'].obj(cat))
 
     if None == generatorConfig['DataFileName']:
-        pdf['observables'].Print()
         dataset = pdf['epdf'].generate(pdf['observables'], RooFit.Verbose())
         ROOT.SetOwnership(dataset, True)
         if None != generatorConfig['WriteDataSetFileName']:
@@ -2803,7 +2808,7 @@ def runBsGammaFittercFit(generatorConfig, fitConfig, toy_num, debug, wsname, ini
         while len(oldds) > 1:
             oldds[0].append(oldds[1])
             del oldds[1]
-        dataset = oldds[0]
+    dataset = oldds[0]
     del oldds
 
     del cats
@@ -2812,6 +2817,8 @@ def runBsGammaFittercFit(generatorConfig, fitConfig, toy_num, debug, wsname, ini
 
     pdf = getMasterPDF(fitConfig, 'FIT', debug)
 
+    # reduce dataset to observables used in the fit
+    dataset = dataset.reduce(RooFit.SelectVars(pdf['observables']))
     ROOT.SetOwnership(dataset, True)
     dataset = WS(pdf['ws'], dataset, [])
     gc.collect()
