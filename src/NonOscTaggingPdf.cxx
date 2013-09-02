@@ -175,7 +175,7 @@ NonOscTaggingPdf::NonOscTaggingPdf(
     m_adet("adet", this, other.m_adet),
     m_atageff_f("atageff_f", this, other.m_atageff_f),
     m_atageff_t("atageff_t", this, other.m_atageff_t),
-    m_cacheMgr(this)
+    m_cacheMgr(other.m_cacheMgr, this)
 {
     if (m_etaobs.absArg()) {
 	m_etapdfut.setArg(m_etapdfutinstance);

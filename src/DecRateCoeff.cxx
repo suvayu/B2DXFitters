@@ -644,7 +644,7 @@ DecRateCoeff::DecRateCoeff(
     m_aprod("aprod", this, other.m_aprod),
     m_adet("adet", this, other.m_adet),
     m_atageff("atageff", this, other.m_atageff),
-    m_cacheMgr(this), m_nsets(other.m_nsets),
+    m_cacheMgr(other.m_cacheMgr, this), m_nsets(other.m_nsets),
     m_nset(other.m_nset), m_nsethash(other.m_nsethash), m_flags(other.m_flags)
 {
     // no need to verify constraints as in other constructors - we make a copy

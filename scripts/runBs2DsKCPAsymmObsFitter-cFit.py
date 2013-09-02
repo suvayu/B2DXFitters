@@ -996,7 +996,7 @@ def getMassTemplateOneMode2011Conf(
         # figure out yield scaling due to mass ranges
         oldmass.setRange('signalRegion', mass.getMin(), mass.getMax())
         integral = pdf.createIntegral(RooArgSet(oldmass),
-                RooArgSet(oldmass, olddsmass, oldpidk), 'signalRegion')
+                RooArgSet(oldmass), 'signalRegion')
         ROOT.SetOwnership(integral, True)
         yieldrangescaling = integral.getVal()
         # ok, figure out yield
@@ -1228,7 +1228,11 @@ def getMassTemplateOneMode2011Paper(
             '%sPdf_m_both_%s_Tot' % (mode, sname),
             '%sPdf_m_both_Tot' % mode,
             '%sPdf_m_both_%s_Tot' % (modemap[mode], sname),
-            '%sPdf_m_both_Tot' % modemap[mode]
+            '%sPdf_m_both_Tot' % modemap[mode],
+            # "modeless" names for single-mode DsPi toys (only in DsK, I
+            # think, but we need the fallback solution at least once)
+            '%sPdf_m_both_%s_Tot' % (mode, ''),
+            '%sPdf_m_both_%s_Tot' % (modemap[mode], ''),
             ]
         for sfx in trysfx:
             pdf = fromws.pdf('PhysBkg%s' % sfx)

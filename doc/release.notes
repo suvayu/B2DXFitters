@@ -4,6 +4,11 @@
 ! Purpose     : RooFit-based fitters for B -> D X
 !-----------------------------------------------------------------------------
 
+! 2013-09-02 - Manuel Tobias Schiller
+ - cFit: add code to read Agnieszka's DsPi toys
+ - tiny fix in DecRateCoeff, NonOscTaggingPdf (no user visible changes, but
+   should be a bit tidier)
+
 ! 2013-09-01 - V. Gligorov
  - Update DrawPullsForToys_DsPi_Time.py script to allow plotting of toy-by-toy
    differences
