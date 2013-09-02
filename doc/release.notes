@@ -5,6 +5,9 @@
 !-----------------------------------------------------------------------------
 
 ! 2013-09-02 - Manuel Tobias Schiller
+ - cFit: fix python ownership issue
+
+! 2013-09-02 - Manuel Tobias Schiller
  - cFit: add code to read Agnieszka's DsPi toys
  - tiny fix in DecRateCoeff, NonOscTaggingPdf (no user visible changes, but
    should be a bit tidier)

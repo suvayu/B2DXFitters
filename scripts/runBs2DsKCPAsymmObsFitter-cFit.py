@@ -995,8 +995,8 @@ def getMassTemplateOneMode2011Conf(
         pdf.specialIntegratorConfig().method1D().setLabel('RooIntegrator1D')
         # figure out yield scaling due to mass ranges
         oldmass.setRange('signalRegion', mass.getMin(), mass.getMax())
-        integral = pdf.createIntegral(RooArgSet(oldmass),
-                RooArgSet(oldmass), 'signalRegion')
+        iset = nset = RooArgSet(oldmass)
+        integral = pdf.createIntegral(iset, nset, 'signalRegion')
         ROOT.SetOwnership(integral, True)
         yieldrangescaling = integral.getVal()
         # ok, figure out yield
@@ -1346,8 +1346,8 @@ def getMassTemplateOneMode2011Paper(
                 varset.find(n).setConstant(True)
         # figure out yield scaling due to mass ranges
         oldmass.setRange('signalRegion', mass.getMin(), mass.getMax())
-        integral = pdf.createIntegral(RooArgSet(oldmass, olddsmass, oldpidk),
-                RooArgSet(oldmass, olddsmass, oldpidk), 'signalRegion')
+        iset = nset = RooArgSet(oldmass, olddsmass, oldpidk)
+        integral = pdf.createIntegral(iset, nset, 'signalRegion')
         ROOT.SetOwnership(integral, True)
         yieldrangescaling = integral.getVal()
         # ok, figure out yield
