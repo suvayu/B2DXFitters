@@ -44,7 +44,7 @@
             'qf':       'lab1_ID_idx',
             'qt':       'lab0_BsTaggingTool_TAGDECISION_OS_idx'
             },
-        'MassTemplateFile':             os.environ['B2DXFITTERSROOT']+'/scripts/mdfit-005/data/DsiPi_Toys_Work_ForMassPlot_%d.root' % TOY_NUMBER,
+        'MassTemplateFile':             os.environ['B2DXFITTERSROOT']+'/scripts/mdfit-005/data/DsPi_Toys_Work_ForMassPlot_%d.root' % TOY_NUMBER,
         'MassTemplateWorkspace':	'FitMeToolWS',
         'MassInterpolation':		False,
         'MistagTemplateFile':           os.environ['B2DXFITTERSROOT']+'/data/workspace/MDFitter/templates_BsDsPi.root',
