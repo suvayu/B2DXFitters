@@ -4,6 +4,9 @@
 ! Purpose     : RooFit-based fitters for B -> D X
 !-----------------------------------------------------------------------------
 
+! 2013-09-03 - V. Gligorov
+ - Update config files for dms/dgammas/gammas/tagcalib systematics
+
 ! 2013-09-02 - Manuel Tobias Schiller
  - cFit: fix various small issues
 
@@ -18,6 +21,8 @@
 ! 2013-09-01 - V. Gligorov
  - Update DrawPullsForToys_DsPi_Time.py script to allow plotting of toy-by-toy
    differences
+ - Make blinding the default in the DsK fitter, force explicit verification
+   by hand to unblind
 
 ! 2013-09-01 - Manuel Tobias Schiller
  - cFit: various fixes:
