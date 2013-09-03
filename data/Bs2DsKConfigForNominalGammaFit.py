@@ -33,7 +33,8 @@ def getconfig() :
     
     configdict["resolutionScaleFactor"] = 1.37 
     configdict["resolutionMeanBias"]    = 0.
-    configdict["DecayTimeResolutionModel"] = "TripleGaussian"
+    configdict["DecayTimeResolutionModel"] = "TripleGaussianPEDTE"
+    configdict["DecayTimeErrInterpolation"] = True
 
     configdict["resolutionSigma1"] = 2.21465e-02
     configdict["resolutionSigma2"] = 3.72057e-02
@@ -55,8 +56,7 @@ def getconfig() :
     configdict["TemplateFilePi"]      = "/afs/cern.ch/work/a/adudziak/public/workspace/MDFitter/templates_BsDsPi.root"
     configdict["TemplateFileK"]      = "/afs/cern.ch/work/a/adudziak/public/workspace/MDFitter/templates_BsDsK.root"
     
-    
-    configdict["TemplateWorkspace"] = "workspace"
+    configdict["TemplateWorkspace"]       = "workspace"
     configdict["MistagTemplateName"]      = "MistagPdf_signal_BDTGA"
     configdict["MistagVarName"]           = "lab0_BsTaggingTool_TAGOMEGA_OS"
     configdict["MistagInterpolation"]     =   False
@@ -66,7 +66,7 @@ def getconfig() :
     configdict["constParams"].append('Gammas')
     configdict["constParams"].append('deltaGammas')
     configdict["constParams"].append('deltaMs')
-    configdict["constParams"].append('tagEffSig')
+    #configdict["constParams"].append('tagEffSig')
     configdict["constParams"].append('tacc_exponent')
     configdict["constParams"].append('tacc_offset')
     configdict["constParams"].append('tacc_beta')
