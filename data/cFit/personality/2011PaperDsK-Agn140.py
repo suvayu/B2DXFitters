@@ -30,7 +30,8 @@
         'AcceptanceCorrectionFile': None,
         'CombineModesForEffCPObs': [ ],
         'NEvents':			[ 3474. ],
-        'DataFileName':         os.environ['B2DXFITTERSROOT']+'/scripts/mdfit-004/data/DsK_Toys_Work_ForMassPlot_%d.root' % TOY_NUMBER,
+        'DataFileName':         ('/afs/cern.ch/work/a/adudziak/public/Bs2DsKToys/Gamma140_5M/DsK_Toys_Work_ForMassPlot_%d.root' if haveAFS else
+            os.environ['B2DXFITTERSROOT']+'/scripts/mdfit-004/data/DsK_Toys_Work_ForMassPlot_%d.root') % TOY_NUMBER,
         'DataWorkSpaceName':    'FitMeToolWS',
         'DataSetNames':         'combData',
 	'DataSetVarNameMapping': {
@@ -44,7 +45,8 @@
             'qf':       'lab1_ID_idx',
             'qt':       'lab0_BsTaggingTool_TAGDECISION_OS_idx'
             },
-        'MassTemplateFile':             os.environ['B2DXFITTERSROOT']+'/scripts/mdfit-004/data/DsK_Toys_Work_ForMassPlot_%d.root' % TOY_NUMBER,
+        'MassTemplateFile':             ('/afs/cern.ch/work/a/adudziak/public/Bs2DsKToys/Gamma140_5M/DsK_Toys_Work_ForMassPlot_%d.root' if haveAFS else
+            os.environ['B2DXFITTERSROOT']+'/scripts/mdfit-004/data/DsK_Toys_Work_ForMassPlot_%d.root') % TOY_NUMBER,
         'MassTemplateWorkspace':	'FitMeToolWS',
         'MassInterpolation':		False,
         'MistagTemplateFile':           os.environ['B2DXFITTERSROOT']+'/data/workspace/MDFitter/templates_BsDsPi.root',

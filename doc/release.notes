@@ -5,6 +5,10 @@
 !-----------------------------------------------------------------------------
 
 ! 2013-09-04 - Manuel Tobias Schiller
+ - cFit: make personalities work both at Nikhef and in places where AFS is
+   available; fix data conversion bug for data samples
+
+! 2013-09-04 - Manuel Tobias Schiller
  - add scripts/make_toy_for_toy_histos.py to produce cFit/sFit toy-for-toy
    difference plots
 

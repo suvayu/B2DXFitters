@@ -113,6 +113,9 @@ from optparse import OptionParser
 from math     import pi, log
 import os, sys, gc
 
+# set a flag if we have access to AFS (can be used in the personality files)
+haveAFS = os.path.isdir('/afs') and os.path.isdir('/afs/cern.ch')
+
 # -----------------------------------------------------------------------------
 # Configuration settings
 #
@@ -588,7 +591,7 @@ def readDataSet(
         timeConvFactor = 1e9 / 2.99792458e8
         meantime = sdata.mean(smap['time'])
         if (dmap['time'].getMin() <= meantime and
-                meantime <= dmap['time'].getMax()):
+                meantime <= dmap['time'].getMax() and config['IsToy']):
             timeConvFactor = 1.
         # loop over all entries of data set
         ninwindow = 0
