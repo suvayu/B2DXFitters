@@ -4,6 +4,10 @@
 ! Purpose     : RooFit-based fitters for B -> D X
 !-----------------------------------------------------------------------------
 
+! 2013-09-04 - Manuel Tobias Schiller
+ - add scripts/make_toy_for_toy_histos.py to produce cFit/sFit toy-for-toy
+   difference plots
+
 ! 2013-09-03 - V. Gligorov
  - Update config files for dms/dgammas/gammas/tagcalib systematics
 
