@@ -4,6 +4,35 @@
 ! Purpose     : RooFit-based fitters for B -> D X
 !-----------------------------------------------------------------------------
 
+! 2013-09-05 - V. Gligorov
+ - Update p0/p1 systematics config files in order to have both positive and
+   negative variations, remove old versions
+ - Update SFitUtils to remove the obsolete function used to read toys, migrate
+   the kFactor smearing functionality into the main function which reads data, now controlled
+   by a switch which defaults to ``do nothing'' (i.e. this is transparent).
+ - Related to the above update the 
+   
+   runBs2DsKCPAsymmObsFitterOnData.py 
+ 
+   script to use this new functionality and remove some obsolete and commented
+   out options.
+ - Simplify sending of sFit systematics jobs. They can now be controlled from
+   the following script 
+   
+   runBsDsK_sFit_Toys_Time_Syst_SendInParallel.csh
+   
+   which then launches the specified systematic over the specified toy numbers.
+   Each systematic still has an individual csh script which defines input and
+   output directories at present, and this should be streamlined further
+ - Slighly modify the logic of
+
+   DrawPullsForToys_DsK_Time.py
+  
+   to take the toy-by-toy results from separate directories (or at least allow
+   the possibility of separate directories). This script needs to be made 
+   configurable via an optionsParser instance.
+ - Remove a whole bunch of obsolete .csh scripts in scripts/Csh   
+
 ! 2013-09-04 - Manuel Tobias Schiller
  - cFit: make personalities work both at Nikhef and in places where AFS is
    available; fix data conversion bug for data samples
