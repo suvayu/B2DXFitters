@@ -224,50 +224,56 @@ def runBdGammaFitterOnData(debug, wsname, initvars, var, terrvar, probvar,pereve
     tagWeightVarTS = TString("lab0_BsTaggingTool_TAGOMEGA_OS")
     idVarTS        = TString("lab1_ID")
 
-    if ( not toys):
+    if BDTGbins:
+        if (toys) :
+            applykfactor = (not nokfactcorr)
+        else :
+            applykfactor = False
+        workspace = SFitUtils.ReadDataFromSWeights(TString("DsK"),TString(pathName), TString(treeName),
+                                                    myconfigfile["TimeDown"], myconfigfile["TimeUp"],
+                                                    tVarTS, terrVarTS, tagVarTS, tagWeightVarTS, idVarTS, 
+                                                    False, debug, applykfactor)
+                   
+        workspace2 = SFitUtils.ReadDataFromSWeights(TString("DsK"),TString(pathName2), TString(treeName),
+                                                    myconfigfile["TimeDown"], myconfigfile["TimeUp"],
+                                                    tVarTS, terrVarTS, tagVarTS, tagWeightVarTS, idVarTS, 
+                                                    False, debug, applykfactor)
         
-        if BDTGbins:
-            workspace = SFitUtils.ReadDataFromSWeights(TString("DsK"),TString(pathName), TString(treeName),
-                                                        myconfigfile["TimeDown"], myconfigfile["TimeUp"],
-                                                        tVarTS, terrVarTS, tagVarTS, tagWeightVarTS, idVarTS, False, debug)
-                       
-            workspace2 = SFitUtils.ReadDataFromSWeights(TString("DsK"),TString(pathName2), TString(treeName),
-                                                        myconfigfile["TimeDown"], myconfigfile["TimeUp"],
-                                                        tVarTS, terrVarTS, tagVarTS, tagWeightVarTS, idVarTS, False, debug)
-            
-            workspace3 = SFitUtils.ReadDataFromSWeights(TString("DsK"),TString(pathName3), TString(treeName),
-                                                        myconfigfile["TimeDown"], myconfigfile["TimeUp"],
-                                                        tVarTS, terrVarTS, tagVarTS, tagWeightVarTS, idVarTS, False, debug)
+        workspace3 = SFitUtils.ReadDataFromSWeights(TString("DsK"),TString(pathName3), TString(treeName),
+                                                    myconfigfile["TimeDown"], myconfigfile["TimeUp"],
+                                                    tVarTS, terrVarTS, tagVarTS, tagWeightVarTS, idVarTS, 
+                                                    False, debug, applykfactor)
 
-            workspaceW = SFitUtils.ReadDataFromSWeights(TString("DsK"),TString(pathName), TString(treeName),
-                                                        myconfigfile["TimeDown"], myconfigfile["TimeUp"],
-                                                        #time, tag, mistag, id,
-                                                        tVarTS, terrVarTS, tagVarTS, tagWeightVarTS, idVarTS, True, debug)
-            
-            workspace2W = SFitUtils.ReadDataFromSWeights(TString("DsK"),TString(pathName2), TString(treeName),
-                                                         myconfigfile["TimeDown"], myconfigfile["TimeUp"],
-                                                         tVarTS, terrVarTS, tagVarTS, tagWeightVarTS, idVarTS, True, debug)
-            
-            workspace3W = SFitUtils.ReadDataFromSWeights(TString("DsK"),TString(pathName3), TString(treeName),
-                                                         myconfigfile["TimeDown"], myconfigfile["TimeUp"],
-                                                         tVarTS, terrVarTS, tagVarTS, tagWeightVarTS, idVarTS, True, debug)
-                        
-        else:
-            workspace = SFitUtils.ReadDataFromSWeights(TString("DsK"),TString(pathName), TString(treeName),
-                                                       myconfigfile["TimeDown"], myconfigfile["TimeUp"],
-                                                       tVarTS, terrVarTS, tagVarTS, tagWeightVarTS, idVarTS, False, debug)
-
-            workspaceW = SFitUtils.ReadDataFromSWeights(TString("DsK"),TString(pathName), TString(treeName),
-                                                        myconfigfile["TimeDown"], myconfigfile["TimeUp"],
-                                                        tVarTS, terrVarTS, tagVarTS, tagWeightVarTS, idVarTS, True, debug)
-            
-            
+        workspaceW = SFitUtils.ReadDataFromSWeights(TString("DsK"),TString(pathName), TString(treeName),
+                                                    myconfigfile["TimeDown"], myconfigfile["TimeUp"],
+                                                    #time, tag, mistag, id,
+                                                    tVarTS, terrVarTS, tagVarTS, tagWeightVarTS, idVarTS, 
+                                                    True, debug, applykfactor)
+        
+        workspace2W = SFitUtils.ReadDataFromSWeights(TString("DsK"),TString(pathName2), TString(treeName),
+                                                     myconfigfile["TimeDown"], myconfigfile["TimeUp"],
+                                                     tVarTS, terrVarTS, tagVarTS, tagWeightVarTS, idVarTS, 
+                                                     True, debug, applykfactor)
+        
+        workspace3W = SFitUtils.ReadDataFromSWeights(TString("DsK"),TString(pathName3), TString(treeName),
+                                                     myconfigfile["TimeDown"], myconfigfile["TimeUp"],
+                                                     tVarTS, terrVarTS, tagVarTS, tagWeightVarTS, idVarTS, 
+                                                     True, debug, applykfactor)
+                    
     else:
-        workspace = SFitUtils.ReadDataFromSWeightsToys(TString("DsK"),TString(pathName), TString(treeName),
-                                                       myconfigfile["TimeDown"], myconfigfile["TimeUp"],
-                                                       tVarTS, tagVarTS+TString("_idx"),
-                                                       tagWeightVarTS, idVarTS+TString("_idx"),nokfactcorr, debug)
-        
+        if (toys) :
+            applykfactor = (not nokfactcorr)
+        else :
+            applykfactor = False
+        workspace = SFitUtils.ReadDataFromSWeights(TString("DsK"),TString(pathName), TString(treeName),
+                                                   myconfigfile["TimeDown"], myconfigfile["TimeUp"],
+                                                   tVarTS, terrVarTS, tagVarTS, tagWeightVarTS, idVarTS, 
+                                                   False, debug, applykfactor)
+
+        workspaceW = SFitUtils.ReadDataFromSWeights(TString("DsK"),TString(pathName), TString(treeName),
+                                                    myconfigfile["TimeDown"], myconfigfile["TimeUp"],
+                                                    tVarTS, terrVarTS, tagVarTS, tagWeightVarTS, idVarTS, 
+                                                    True, debug, applykfactor)
    
     workspace.Print()
         
@@ -280,19 +286,6 @@ def runBdGammaFitterOnData(debug, wsname, initvars, var, terrvar, probvar,pereve
     tagVarTS       = TString("qt")
     idVarTS        = TString("qf")
         
-    '''
-    if ( not toys ):
-        time   = GeneralUtils.GetObservable(workspace,tVarTS,debug)
-        bTagMap    = GeneralUtils.GetObservable(workspace,tagVarTS,debug)
-        mistag = GeneralUtils.GetObservable(workspace,tagWeightVarTS, debug)
-        fChargeMap = GeneralUtils.GetObservable(workspace,idVarTS, debug)
-    else:
-        time   = GeneralUtils.GetObservable(workspace,tVarTS, debug)
-        bTagMap    = GeneralUtils.GetObservable(workspace,tagVarTS+TString("_idx"),debug)
-        mistag = GeneralUtils.GetObservable(workspace,tagWeightVarTS, debug)
-        fChargeMap = GeneralUtils.GetObservable(workspace,idVarTS+TString("_idx"), debug)
-    '''
-    
     mass = RooRealVar('mass', '%s mass' % bName, 5., 6.)
      
     gammas = RooRealVar('Gammas', '%s average lifetime' % bName, myconfigfile["Gammas"], 0., 5., 'ps^{-1}')
@@ -310,45 +303,25 @@ def runBdGammaFitterOnData(debug, wsname, initvars, var, terrvar, probvar,pereve
     tagEffSig = RooRealVar('tagEffSig', 'Signal tagging efficiency'    , myconfigfile["TagEffSig"], 0.2, 0.8) #0., 1.)
     setConstantIfSoConfigured(tagEffSig,myconfigfile)
     
-    #tagOmegaSig = RooRealVar('tagOmegaSig', 'Signal mistag rate'    , myconfigfile["TagOmegaSig"], 0., 1.)
-    #if not pereventmistag : setConstantIfSoConfigured(tagOmegaSig,myconfigfile)
-   
-    # Define the observables
-    # ----------------------
-    #if pereventmistag : 
-    #    observables = RooArgSet(time,bTagMap,fChargeMap,mistag)    
-    #else : 
-    #    observables = RooArgSet(time,bTagMap,fChargeMap)
- 
     # Data set
     #-----------------------
-    if toys :
-        data_pos = GeneralUtils.GetDataSet(workspace,"dataSet_time_Bs2DsK_pos", debug)#[]
-        data_neg = GeneralUtils.GetDataSet(workspace,"dataSet_time_Bs2DsK_neg", debug)
-        nEntries_pos = data_pos.numEntries()
-        nEntries_neg = data_neg.numEntries() 
-        if not splitCharge :
-            data = data_pos
-            data.append(data_neg)
-            nEntries = data.numEntries()#[]
-    else :
-        nameData = TString("dataSet_time_Bs2DsK") 
-        if BDTGbins:
-            data   = GeneralUtils.GetDataSet(workspace,   nameData, debug)
-            data2  = GeneralUtils.GetDataSet(workspace2,  nameData, debug)
-            data3  = GeneralUtils.GetDataSet(workspace3,  nameData, debug)
-            data1W = GeneralUtils.GetDataSet(workspaceW,  nameData, debug)
-            data2W = GeneralUtils.GetDataSet(workspace2W, nameData, debug)
-            data3W = GeneralUtils.GetDataSet(workspace3W, nameData, debug)
-            dataWW = [data1W, data2W, data3W]
-            dataW  = GeneralUtils.GetDataSet(workspaceW,  nameData, debug)
-            dataW.append(data2W)
-            dataW.append(data3W)
-        else:
-            data  = GeneralUtils.GetDataSet(workspace, nameData, debug)
-            dataW = GeneralUtils.GetDataSet(workspaceW, nameData, debug)
-                        
-        nEntries = data.numEntries()    
+    nameData = TString("dataSet_time_Bs2DsK") 
+    if BDTGbins:
+        data   = GeneralUtils.GetDataSet(workspace,   nameData, debug)
+        data2  = GeneralUtils.GetDataSet(workspace2,  nameData, debug)
+        data3  = GeneralUtils.GetDataSet(workspace3,  nameData, debug)
+        data1W = GeneralUtils.GetDataSet(workspaceW,  nameData, debug)
+        data2W = GeneralUtils.GetDataSet(workspace2W, nameData, debug)
+        data3W = GeneralUtils.GetDataSet(workspace3W, nameData, debug)
+        dataWW = [data1W, data2W, data3W]
+        dataW  = GeneralUtils.GetDataSet(workspaceW,  nameData, debug)
+        dataW.append(data2W)
+        dataW.append(data3W)
+    else:
+        data  = GeneralUtils.GetDataSet(workspace, nameData, debug)
+        dataW = GeneralUtils.GetDataSet(workspaceW, nameData, debug)
+                    
+    nEntries = data.numEntries()    
         
     dataW.Print("v")
     obs = data.get()
@@ -378,23 +351,9 @@ def runBdGammaFitterOnData(debug, wsname, initvars, var, terrvar, probvar,pereve
         canvas.GetPad(0).SetLogy()
         canvas.SaveAs('data_time_DsK.pdf')
 
-    #workout = RooWorkspace("workspace","workspace")
-    #getattr(workout,'import')(dataW)
-    #saveNameTS = TString("data_time_dsk_dupa.root")
-    #workout.Print()
-    #GeneralUtils.SaveWorkspace(workout,saveNameTS, debug)
-          
-    #exit(0)
-                                    
-    #templateWorkspace2 = GeneralUtils.LoadWorkspace(TString("templates_DATA_BsDsPi_All.root"), TString(myconfigfile["TemplateWorkspace"]), debug)
     templateWorkspacePi = GeneralUtils.LoadWorkspace(TString(myconfigfile["TemplateFilePi"]), TString(myconfigfile["TemplateWorkspace"]), debug)
     templateWorkspaceK = GeneralUtils.LoadWorkspace(TString(myconfigfile["TemplateFileK"]), TString(myconfigfile["TemplateWorkspace"]), debug)
 
-    #tagEffNum = (sliceData_2.sumEntries()+sliceData_3.sumEntries())/(sliceData_2.sumEntries()+sliceData_3.sumEntries()+sliceData_1.sumEntries())
-    #print "tag efficiency: %s"%(str(tagEffNum))
-    #tagEffSig = RooRealVar('tagEffSig', 'Signal tagging efficiency'    , tagEffNum) #, 0.0, 1.0)
-
-    #exit(0)
     if BDTGbins:
         Bin = [TString("BDTG1"), TString("BDTG2"), TString("BDTG3")]
     else:
@@ -403,12 +362,6 @@ def runBdGammaFitterOnData(debug, wsname, initvars, var, terrvar, probvar,pereve
     # Decay time resolution model
     # ---------------------------
     if 'PEDTE' not in myconfigfile["DecayTimeResolutionModel"] :
-        #trm = PTResModels.getPTResolutionModel(myconfigfile["DecayTimeResolutionModel"],
-        #                                       time, 'Bs', debug,
-        #                                       myconfigfile["resolutionScaleFactor"],
-        #
-        #myconfigfile["resolutionMeanBias"])
-
         trm = PTResModels.tripleGausResolutionModel( time,
                                                      myconfigfile["resolutionScaleFactor"],
                                                      myconfigfile["resolutionMeanBias"],
@@ -440,8 +393,8 @@ def runBdGammaFitterOnData(debug, wsname, initvars, var, terrvar, probvar,pereve
                 
         else:
             name = TString("sigTimeErrorPdf")
-            #terrpdf = GeneralUtils.CreateHistPDF(dataW, terr, name, myconfigfile['nBinsProperTimeErr'], debug)
-            terrpdf  = Bs2Dsh2011TDAnaModels.GetRooHistPdfFromWorkspace(templateWorkspaceK, TString(myconfigfile["TimeErrorTemplateBDTGA"]),debug)
+            terrpdf = GeneralUtils.CreateHistPDF(dataW, terr, name, myconfigfile['nBinsProperTimeErr'], debug)
+            #terrpdf  = Bs2Dsh2011TDAnaModels.GetRooHistPdfFromWorkspace(templateWorkspaceK, TString(myconfigfile["TimeErrorTemplateBDTGA"]),debug)
         
     # Decay time acceptance function
     # ------------------------------
@@ -1055,8 +1008,9 @@ if __name__ == '__main__' :
     print "=========================================================="    
 
     import sys 
-    sys.path.append("../data/")
-
+    sys.path.append("../../data/")
+    sys.path.append("../data")
+    
     totPDF = runBdGammaFitterOnData( options.debug,
                                      options.wsname,
                                      options.initvars,
