@@ -52,7 +52,8 @@ namespace SFitUtils {
 				     TString& tagOmegaVar,
 				     TString& idVar,
 				     bool weighted,
-				     bool        debug = false
+				     bool        debug = false,
+                     bool applykfactor = false
 				     );
   
   //===========================================================================
@@ -75,24 +76,6 @@ namespace SFitUtils {
 				      bool        debug = false
 				      );
 
-  //===========================================================================
-  // Read observables tVar, tagVar, tagOmegaVar, idVar from sWeights file for toys
-  // Name of file is read from pathFile, name of tree: treName
-  // time_{up,down} - range for tVar
-  // part means mode (DsPi, DsKand so on)
-  //===========================================================================
-  
-  RooWorkspace* ReadDataFromSWeightsToys(TString& part,
-					 TString& pathFile,
-					 TString& treeName,
-					 double time_down, double time_up,
-					 TString& tVar,
-					 TString& tagName,
-					 TString& tagOmegaVar,
-					 TString& idVar, bool nokfactcorr,
-					 bool        debug = false
-					 );
-  
   //===========================================================================
   // Copy Data for Toys, change RooCategory to RooRealVar
   //===========================================================================
