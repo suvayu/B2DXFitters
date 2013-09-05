@@ -76,7 +76,8 @@ namespace SFitUtils {
 				     TString& tagOmegaVar,
 				     TString& idVar,
 				     bool weighted,
-				     bool debug
+				     bool debug,
+                     bool applykfactor
 				     )
   {
     if ( debug == true) 
@@ -100,7 +101,7 @@ namespace SFitUtils {
     TTree* treeSW = ReadTreeMC(pathFile.Data(),treeName.Data(), debug);
      
     RooRealVar* lab0_TAU = new RooRealVar(tVar.Data(),tVar.Data(),1.,time_down,time_up);
-    RooRealVar* lab0_TAUERR = new RooRealVar(terrVar.Data(),terrVar.Data(), 0.01, 0.01, 0.1);
+    RooRealVar* lab0_TAUERR = new RooRealVar(terrVar.Data(),terrVar.Data(), 0.01, 0.0075, 0.2);
     RooRealVar* lab0_TAGOMEGA = new RooRealVar(tagOmegaVar.Data(),tagOmegaVar.Data(),0.,0.,0.5);
     
     RooCategory* qt = new RooCategory("qt", "flavour tagging result");
@@ -197,8 +198,8 @@ namespace SFitUtils {
     Double_t tag, ID;
     Double_t tagweight;
     Double_t sw[bound];
-    
-    //Double_t mass;
+    Double_t trueid; 
+    Double_t mass;
     //Double_t p, pt;
     //Double_t nTr;
     //Double_t PIDK, PIDp;
@@ -212,6 +213,7 @@ namespace SFitUtils {
 	TString name = tagName+"_idx";
 	treeSW->SetBranchAddress(name.Data(), &tag);
         treeSW->SetBranchAddress("lab1_ID_idx", &ID);
+        treeSW->SetBranchAddress("lab0_TRUEID", &trueid);
       }
     else
       {
@@ -219,7 +221,7 @@ namespace SFitUtils {
 	treeSW->SetBranchAddress("lab1_ID", &ID);
       }    
     
-    //treeSW->SetBranchAddress("lab0_MassFitConsD_M", &mass);
+    treeSW->SetBranchAddress("lab0_MassFitConsD_M", &mass);
     //treeSW->SetBranchAddress("lab1_P", &p);
     //treeSW->SetBranchAddress("nTracks",&nTr);
     //treeSW->SetBranchAddress("lab1_PIDK",&PIDK);
@@ -235,15 +237,32 @@ namespace SFitUtils {
 
     Float_t c = 299792458.;
     Double_t sqSumsW = 0;
-    
+    double correction=0.0;
+ 
     for (Long64_t jentry=0; jentry<treeSW->GetEntries(); jentry++) {
       treeSW->GetEntry(jentry);
       double m = 0; 
       double merr = 0;
+      //if (jentry>10000) continue;  
       if(pathFile.Contains("toys") == true || pathFile.Contains("Toys") == true || pathFile.Contains("TOYS") == true)
 	{
 	  m =tau;
 	  merr = tauerr;
+      if ((trueid > 1.5) && (trueid < 9.5)) {
+        //Apply k-factor smearing
+        if (fabs(trueid-2) < 0.5 || fabs(trueid-8) < 0.5) {
+            //correctionmean  = 1+2*(mass-5279.)/5279.;
+            correction      = mass/5279.;//gR->Gaus(correctionmean,0.0001);  
+        } else if (fabs(trueid-4) < 0.5 || fabs(trueid-7) < 0.5 || fabs(trueid-8) < 0.5) {
+            correction      = mass/5369.;
+        } else if (fabs(trueid-5) < 0.5 || fabs(trueid-6) < 0.5) {
+            correction      = mass/5620.;
+        }   
+        //cout << "Applying k-factor correction " << trueid << " " << mass << " " << tau << " " << correction << endl;
+      } else correction = 1.; 
+      if (!applykfactor) correction = 1.;
+      std::cout << "The correction factor is " << correction << std::endl;
+      m *=correction;
 	}
       else
 	{
@@ -253,7 +272,7 @@ namespace SFitUtils {
       if (m < 0.2) continue;  
       lab0_TAU->setVal(m);
       lab0_TAUERR->setVal(merr);
-      
+
       if (tagweight > 0.5) tagweight = 0.5;
       lab0_TAGOMEGA->setVal(tagweight);
       
@@ -285,6 +304,7 @@ namespace SFitUtils {
 	{
 	  dataSet->add(*obs);
 	}
+      //std::cout << "this event has time = " << m << " and error = " << merr << " with weight = " << sum_sw << std::endl;  
       
     }
       
@@ -457,7 +477,7 @@ namespace SFitUtils {
         {
           m =tau*1e9/c;
           merr = tauerr*1e9/c;
-	}
+	    }
       if (m < 0.2) continue;
       lab0_TAU->setVal(m);
       lab0_TAUERR->setVal(merr);
@@ -554,124 +574,6 @@ namespace SFitUtils {
     
   }
 
-  //===========================================================================
-  // Read observables tVar, tagVar, tagOmegaVar, idVar from sWeights file for toys
-  // Name of file is read from pathFile, name of tree: treName
-  // time_{up,down} - range for tVar
-  // part means mode (DsPi, DsKand so on)
-  //===========================================================================
-
-  RooWorkspace* ReadDataFromSWeightsToys(TString& part, 
-					 TString& pathFile, 
-					 TString& treeName,
-					 double time_down, double time_up,
-					 TString& tVar,
-					 TString& tagName,
-					 TString& tagOmegaVar,
-					 TString& idVar, bool nokfactcorr,
-					 bool debug
-					 )
-  {
-    if ( debug == true) 
-      {
-	std::cout<<"[INFO] ==> GeneralUtils::ReadDataFromSWeightsToys(...). Read data set from sWeights NTuple for toys"<<std::endl;
-	std::cout<<"path of file: "<<pathFile<<std::endl;
-	std::cout<<"name of tree: "<<treeName<<std::endl;
-	std::cout<<"B(s) time range: ("<<time_down<<","<<time_up<<")"<<std::endl;
-	std::cout<<"Name of time observable: "<<tVar<<std::endl;
-	std::cout<<"Name of tag observable: "<<tagName<<std::endl;
-	std::cout<<"Name of mistag observable: "<<tagOmegaVar<<std::endl;
-	std::cout<<"Name of id observable: "<<idVar<<std::endl;
-	std::cout<<"Bool kfactor: "<<nokfactcorr<<std::endl;
-	std::cout<<"Mode: "<<part<<std::endl;
-      }
-
-    RooWorkspace* work = NULL;
-    work =  new RooWorkspace("workspace","workspace");
-
-    TTree* treeSW = ReadTreeMC(pathFile.Data(),treeName.Data(), debug);
-    
-    RooRealVar* lab0_TAU = new RooRealVar(tVar.Data(),tVar.Data(),1.,time_down,time_up);
-    RooRealVar* lab0_TAG = new RooRealVar(tagName.Data(),tagName.Data(),0.,-1.,1.);
-    RooRealVar* lab0_TAGOMEGA = new RooRealVar(tagOmegaVar.Data(),tagOmegaVar.Data(),0.,0.,1.);
-    RooRealVar* lab1_ID = new RooRealVar(idVar.Data(),idVar.Data(),1.,-1.,1.);
-
-    std::vector <TString> s;
-    s.push_back("down_kkpi");
-
-    TString catpos; TString catneg;
-    if (part == "DsPi" ) {
-      catpos = "dataSet_time_Bs2DsPi_pos";
-      catneg = "dataSet_time_Bs2DsPi_neg";
-    } else {
-      catpos = "dataSet_time_Bs2DsK_pos";
-      catneg = "dataSet_time_Bs2DsK_neg";
-    }
-
-    TString namew = "sWeights";
-    RooRealVar* weights = new RooRealVar(namew.Data(), namew.Data(), -2.0, 2.0 );  // create weights //
-
-    RooDataSet* dataSet_pos = new RooDataSet(catpos.Data(),catpos.Data(),RooArgSet(*lab0_TAU,*lab0_TAG,*lab0_TAGOMEGA,*lab1_ID,*weights),namew.Data());
-    RooDataSet* dataSet_neg = new RooDataSet(catneg.Data(),catneg.Data(),RooArgSet(*lab0_TAU,*lab0_TAG,*lab0_TAGOMEGA,*lab1_ID,*weights),namew.Data()); 
-    Double_t mass;
-    Double_t tau;
-    Double_t tag, ID,trueid;
-    Double_t tagweight;
-    Double_t sw;
-    treeSW->SetBranchAddress(tVar.Data(), &tau);
-    treeSW->SetBranchAddress(tagName.Data(), &tag);
-    treeSW->SetBranchAddress(tagOmegaVar.Data(), &tagweight);
-    treeSW->SetBranchAddress(idVar.Data(), &ID);
-    treeSW->SetBranchAddress("lab0_MassFitConsD_M", &mass);
-    treeSW->SetBranchAddress("lab0_TRUEID", &trueid);
-    TString swname = "nSig_"+s[0]+"_Evts_sw";
-    treeSW->SetBranchAddress(swname.Data(), &sw);
-    
-      
-    TRandom3* gR = new TRandom3();
-    gR->SetSeed(0);
-    double correction=0.0;
- 
-    for (Long64_t jentry=0; jentry<treeSW->GetEntries(); jentry++) {
-      treeSW->GetEntry(jentry);
-      if ((trueid > 1.5) && (trueid < 9.5)) {
-        //Apply k-factor smearing
-        if (fabs(trueid-2) < 0.5) {
-            //correctionmean  = 1+2*(mass-5279.)/5279.;
-            correction      = mass/5279.;//gR->Gaus(correctionmean,0.0001);  
-        } else if (fabs(trueid-4) < 0.5 || fabs(trueid-7) < 0.5 || fabs(trueid-8) < 0.5) {
-            correction      = mass/5369.;
-        } else if (fabs(trueid-5) < 0.5 || fabs(trueid-6) < 0.5) {
-            correction      = mass/5620.;
-        }
-        //cout << "Applying k-factor correction " << trueid << " " << mass << " " << tau << " " << correction << endl;
-      } else correction = 1.;
-      if (nokfactcorr) correction = 1.; 
-      lab0_TAU->setVal(tau*correction);
-      if (tagweight > 0.5) tagweight = 0.5;
-      if (fabs(tag-0) < 0.1) tagweight = 0.5;
-      lab0_TAG->setVal(tag);
-      lab0_TAGOMEGA->setVal(tagweight);
-      if (ID > 0) {
-	    lab1_ID->setVal(1.);
-      } else lab1_ID->setVal(-1.);
-            
-      weights->setVal(sw);
-
-        
-      if (ID > 0) { 
-        dataSet_pos->add(RooArgSet(*lab0_TAU,*lab0_TAG,*lab0_TAGOMEGA,*lab1_ID,*weights),sw,0);
-      } else {
-        dataSet_neg->add(RooArgSet(*lab0_TAU,*lab0_TAG,*lab0_TAGOMEGA,*lab1_ID,*weights),sw,0);
-      } 
-
-    }
-    work->import(*dataSet_pos);work->import(*dataSet_neg);
-
-    return work;
-  }   
-
-  
   //===========================================================================
   // Copy Data for Toys, changeRooCategory to RooRealVar
   //===========================================================================
