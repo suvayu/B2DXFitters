@@ -452,8 +452,8 @@ def runBdGammaFitterOnData(debug, wsname, initvars, tvar, terrvar, probvar, pere
                 terrpdf.append(GeneralUtils.CreateHistPDF(dataWW[i], terr, name, myconfigfile['nBinsProperTimeErr'], debug))
         else:
             name = TString("sigTimeErrorPdf")
-            #terrpdf = Bs2Dsh2011TDAnaModels.GetRooHistPdfFromWorkspace(templateWorkspace, TString(myconfigfile["TimeErrorTemplateName"]), debug)
-            terrpdf = GeneralUtils.CreateHistPDF(dataW, terr, name, myconfigfile['nBinsProperTimeErr'], debug)
+            terrpdf = Bs2Dsh2011TDAnaModels.GetRooHistPdfFromWorkspace(templateWorkspace, TString(myconfigfile["TimeErrorTemplateName"]), debug)
+            #terrpdf = GeneralUtils.CreateHistPDF(dataW, terr, name, myconfigfile['nBinsProperTimeErr'], debug)
             
     # Decay time acceptance function
     # ------------------------------
@@ -598,9 +598,9 @@ def runBdGammaFitterOnData(debug, wsname, initvars, tvar, terrvar, probvar, pere
     otherargs.append(aTagEff)
     
     cosh = DecRateCoeff('signal_cosh', 'signal_cosh', DecRateCoeff.CPEven, id, tag, one, one, *otherargs)
-    sinh = DecRateCoeff('signal_sinh', 'signal_sinh', DecRateCoeff.CPEven, id, tag, D, Dbar, *otherargs)
-    cos =  DecRateCoeff('signal_cos' , 'signal_cos' , DecRateCoeff.CPOdd, id, tag, C, C, *otherargs)
-    sin =  DecRateCoeff('signal_sin' , 'signal_sin' , DecRateCoeff.CPOdd, id, tag, S, Sbar, *otherargs)
+    sinh = DecRateCoeff('signal_sinh', 'signal_sinh', DecRateCoeff.CPEven, id, tag, D, Dbar,  *otherargs)
+    cos =  DecRateCoeff('signal_cos' , 'signal_cos' , DecRateCoeff.CPOdd,  id, tag, C, C,     *otherargs)
+    sin =  DecRateCoeff('signal_sin' , 'signal_sin' , DecRateCoeff.CPOdd,  id, tag, S, Sbar,  *otherargs)
     
     #if debug:
     #    print "[INFO] sin, cos, sinh, cosh created"
@@ -675,9 +675,8 @@ def runBdGammaFitterOnData(debug, wsname, initvars, tvar, terrvar, probvar, pere
                                       RooFit.Import(Bin[0].Data(),data),
                                       RooFit.Import(Bin[1].Data(),data2),
                                       RooFit.Import(Bin[2].Data(),data3),
-                                      RooFit.WeightVar("sWeights")) #
-                                  #RooFit.SumW2Error(True))
-                                  
+                                      RooFit.WeightVar("sWeights")) 
+                                                                    
                 totPDFSim = RooSimultaneous("simPdf","simultaneous pdf",BdtgBin)
                 totPDFSim.addPdf(totPDF[0], Bin[0].Data())
                 totPDFSim.addPdf(totPDF[1], Bin[1].Data())
@@ -692,17 +691,13 @@ def runBdGammaFitterOnData(debug, wsname, initvars, tvar, terrvar, probvar, pere
                 combData = RooDataSet("combData","combined data",RooArgSet(observables),
                                       RooFit.Index(BdtgBin),
                                       RooFit.Import(Bin[0].Data(),data),
-                                      RooFit.WeightVar("sWeights")) #,
-                                  #RooFit.SumW2Error(True))
-            
+                                      RooFit.WeightVar("sWeights")) 
+                                              
                 totPDFSim = RooSimultaneous("simPdf","simultaneous pdf",BdtgBin)
                 totPDFSim.addPdf(totPDF,  Bin[0].Data())
 
             pdf = RooAddPdf('totPDFtot', 'totPDFtot', RooArgList(totPDFSim), RooArgList())
             
-        #sigTimePDF      = time # RooEffProd('time_signal','time_signal',time_noacc,tacc)
-        #totPDF = time
-        #totPDF.Print("v")
         '''
         if debug :
             print 'DATASET NOW CONTAINS', nEntries, 'ENTRIES!!!!' 
@@ -764,7 +759,7 @@ def runBdGammaFitterOnData(debug, wsname, initvars, tvar, terrvar, probvar, pere
         workout = RooWorkspace("workspace","workspace")
         if Cat:
             getattr(workout,'import')(combData)
-            getattr(workout,'import')(pdf)
+            getattr(workout,'import')(totPDFSim)
         else:
             getattr(workout,'import')(dataW)
             getattr(workout,'import')(totPDF)

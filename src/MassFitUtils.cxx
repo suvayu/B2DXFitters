@@ -156,46 +156,78 @@ namespace MassFitUtils {
     RooRealVar* nTracks = new RooRealVar("nTracks","nTracks",log(1),log(1000));
 
     
-    TString tagsskaonVar, tagosmuonVar, tagoselectronVar, tagoskaonVar, tagvtxchargeVar, pVar, ptVar;
+    TString tagsskaonVar,tagdecsskaonVar, tagosmuonVar,tagdecosmuonVar, tagoselectronVar, tagdecoselectronVar, tagoskaonVar, tagdecoskaonVar, tagvtxchargeVar, tagdecvtxchargeVar, pVar, ptVar;
+
     if( tagtool == true )
       {
 	std::cout<<"[INFO] TagTool added"<<std::endl;
-	tagsskaonVar      = "lab0_BsTaggingTool_SS_Kaon_PROB";
-	tagosmuonVar      = "lab0_BsTaggingTool_OS_Muon_PROB";
-	tagoselectronVar  = "lab0_BsTaggingTool_OS_Electron_PROB";
-	tagoskaonVar      = "lab0_BsTaggingTool_OS_Kaon_PROB";
-	tagvtxchargeVar   = "lab0_BsTaggingTool_VtxCharge_PROB";
+	tagsskaonVar       = "lab0_SS_Kaon_PROB";
+	tagdecsskaonVar    = "lab0_SS_Kaon_DEC";
+	tagosmuonVar       = "lab0_OS_Muon_PROB";
+	tagdecosmuonVar    = "lab0_OS_Muon_DEC";
+	tagoselectronVar   = "lab0_OS_Electron_PROB";
+	tagdecoselectronVar= "lab0_OS_Electron_DEC";
+	tagoskaonVar       = "lab0_OS_Kaon_PROB";
+	tagdecoskaonVar    = "lab0_OS_Kaon_DEC";
+	tagvtxchargeVar    = "lab0_VtxCharge_PROB";
+	tagdecvtxchargeVar = "lab0_VtxCharge_DEC";
       }
     pVar              = "lab1_P";
     ptVar             = "lab1_PT";
     
     RooRealVar* lab0_TAG_SS_Kaon=NULL;
+    RooRealVar* lab0_TAGDEC_SS_Kaon=NULL;
     RooRealVar* lab0_TAG_OS_Muon=NULL;
+    RooRealVar* lab0_TAGDEC_OS_Muon=NULL;
     RooRealVar* lab0_TAG_OS_Electron=NULL;
+    RooRealVar* lab0_TAGDEC_OS_Electron=NULL;
     RooRealVar* lab0_TAG_OS_Kaon=NULL;
+    RooRealVar* lab0_TAGDEC_OS_Kaon=NULL;
     RooRealVar* lab0_TAG_VtxCharge=NULL;
+    RooRealVar* lab0_TAGDEC_VtxCharge=NULL;
+    
     RooRealVar* lab1_P=NULL;
     RooRealVar* lab1_PT=NULL;
 
     if ( tagtool == true )
       {
 	lab0_TAG_SS_Kaon = new RooRealVar(tagsskaonVar.Data(), tagsskaonVar.Data(), -3., 1.);
+	lab0_TAGDEC_SS_Kaon = new RooRealVar(tagdecsskaonVar.Data(), tagdecsskaonVar.Data(), -2., 2.);
 	lab0_TAG_OS_Muon = new RooRealVar(tagosmuonVar.Data(), tagosmuonVar.Data(), -3., 1.);
+	lab0_TAGDEC_OS_Muon = new RooRealVar(tagdecosmuonVar.Data(), tagdecosmuonVar.Data(), -2., 2.);
 	lab0_TAG_OS_Electron = new RooRealVar(tagoselectronVar.Data(),tagoselectronVar.Data(),-3.,1.);
+	lab0_TAGDEC_OS_Electron = new RooRealVar(tagdecoselectronVar.Data(),tagdecoselectronVar.Data(),-2.,2.);
 	lab0_TAG_OS_Kaon = new RooRealVar(tagoskaonVar.Data(),tagoskaonVar.Data(),-3.,1.);
+	lab0_TAGDEC_OS_Kaon = new RooRealVar(tagdecoskaonVar.Data(),tagdecoskaonVar.Data(),-2.,2.);
 	lab0_TAG_VtxCharge = new RooRealVar(tagvtxchargeVar.Data(), tagvtxchargeVar.Data(), -3.,1.);
+	lab0_TAGDEC_VtxCharge = new RooRealVar(tagdecvtxchargeVar.Data(), tagdecvtxchargeVar.Data(), -2.,2.);
       }
 
     lab1_P = new RooRealVar(pVar.Data(),pVar.Data(),log(Pcut_down),log(Pcut_up));
     lab1_PT = new RooRealVar(ptVar.Data(),ptVar.Data(),log(1),log(45000));
     
     RooArgSet* obs = new RooArgSet(*lab0_MM,*lab0_TAU,
-				   *lab0_TAG,*lab0_TAGOMEGA, *lab1_PT, *lab1_ID,
-				   *lab2_MM,*lab1_P); 
+				   *lab0_TAG,*lab0_TAGOMEGA, *lab1_ID,
+				   *lab2_MM,*lab1_PIDK); 
     obs->add(*lab1_PIDp);
-    obs->add(*lab1_PIDK); 
     obs->add(*lab0_TAUERR);
+    obs->add(*lab1_PT);
+    obs->add(*lab1_P);
     obs->add(*nTracks);
+
+    if(tagtool == true)
+      {
+	obs->add(*lab0_TAG_SS_Kaon);
+	obs->add(*lab0_TAGDEC_SS_Kaon);
+	obs->add(*lab0_TAG_OS_Muon);
+	obs->add(*lab0_TAGDEC_OS_Muon);
+	obs->add(*lab0_TAG_OS_Electron);
+	obs->add(*lab0_TAGDEC_OS_Electron);
+	obs->add(*lab0_TAG_OS_Kaon);
+	obs->add(*lab0_TAGDEC_OS_Kaon);
+	obs->add(*lab0_TAG_VtxCharge);
+	obs->add(*lab0_TAGDEC_VtxCharge);
+      }
 
     std::vector <std::string> FileName;
 
@@ -209,14 +241,14 @@ namespace MassFitUtils {
         tree[i] = ReadTreeData(FileName,i, debug);
       }
 
-    // Read sample (means down or up)  from path // 
-    // Read mode (means D mode: kkpi, kpipi or pipipi) from path //
+    //Read sample (means down or up)  from path // 
+    //Read mode (means D mode: kkpi, kpipi or pipipi) from path //
     TString smp[2], md[2];
 
     for (int i=1; i<3; i++){
       smp[i-1] = CheckPolarity(FileName[i], debug);
       md[i-1] = CheckDMode(FileName[i], debug);
-      if ( md[i-1] == "kkpi" ){ md[i-1] = CheckKKPiMode(FileName[i], debug);}
+      if ( md[i-1] == "kkpi" || md[i-1] == ""){ md[i-1] = CheckKKPiMode(FileName[i], debug);}
     }
 
     //Set PID cut depends on mode// 
@@ -248,33 +280,23 @@ namespace MassFitUtils {
     if( debug == true) std::cout<<All_cut<<std::endl;
 
     RooDataSet*  dataSet[2];
-    RooDataSet*  dataSetTagTool[2];
+    
+    
 
     // Create Data Set //
     for (int i = 0; i< 2; i++){
 		TString name = "dataSet"+mode+"_"+smp[i]+"_"+md[i];
 		TString nametagtool = "dataSetTagTool"+mode+"_"+smp[i]+"_"+md[i];
-		if( tagtool == true )
-		  {
-		    dataSetTagTool[i] = new RooDataSet(nametagtool.Data(),nametagtool.Data(),RooArgSet(*lab0_MM,
-												       *lab0_TAG_SS_Kaon, 
-												       *lab0_TAG_OS_Muon, 
-												       *lab0_TAG_OS_Electron, 
-												       *lab0_TAG_OS_Kaon, 
-												       *lab0_TAG_VtxCharge, 
-												       *lab1_P,
-												       *lab1_PT));
-		  }
+		
 		dataSet[i] = new RooDataSet(name.Data(),name.Data(), *obs);
 		
 		TTree* treetmp=NULL;
 		treetmp = TreeCut(tree[i],All_cut,smp[i],mode, debug);
 	
-		//Float_t lab0_MM3,lab0_TAU3, lab0_TAUERR3, lab0_TAG3,lab0_TAGOMEGA3,lab1_ID3, lab2_MM3, lab1_PIDK3, lab1_PIDp3, nTracks3;
 		Float_t lab0_MM3, lab0_TAU3, lab0_TAUERR3;
 		Double_t lab2_MM3, lab1_PIDK3, lab1_PIDp3, lab0_TAGOMEGA3;
 		Int_t lab0_TAG3, lab1_ID3, nTracks3;
-
+		
 		treetmp->SetBranchAddress(mVar.Data(), &lab0_MM3);
 		treetmp->SetBranchAddress(tVar.Data(),&lab0_TAU3);
 		treetmp->SetBranchAddress(terrVar.Data(),&lab0_TAUERR3);
@@ -283,22 +305,27 @@ namespace MassFitUtils {
 		treetmp->SetBranchAddress(idVar.Data(),&lab1_ID3);
 		treetmp->SetBranchAddress(mDVar.Data(),&lab2_MM3);
 		treetmp->SetBranchAddress("lab1_PIDK",&lab1_PIDK3);
+		//treetmp->SetBranchAddress("sample",&sample);
 		treetmp->SetBranchAddress("lab1_PIDp",&lab1_PIDp3);
 		treetmp->SetBranchAddress("nTracks",&nTracks3);
 		
-		
 	
-		Float_t lab0_TAG_SS_Kaon3, lab0_TAG_OS_Muon3, lab0_TAG_OS_Electron3, lab0_TAG_OS_Kaon3, lab0_TAG_VtxCharge3;
-		//Float_t lab1_P3, lab1_PT3;
+		Double_t lab0_TAG_SS_Kaon3, lab0_TAG_OS_Muon3, lab0_TAG_OS_Electron3, lab0_TAG_OS_Kaon3, lab0_TAG_VtxCharge3;
+		Int_t lab0_TAGDEC_SS_Kaon3, lab0_TAGDEC_OS_Muon3, lab0_TAGDEC_OS_Electron3, lab0_TAGDEC_OS_Kaon3, lab0_TAGDEC_VtxCharge3;
 		Double_t lab1_P3, lab1_PT3;
 
 		if ( tagtool == true )
 		  {
 		    treetmp->SetBranchAddress(tagsskaonVar.Data(),&lab0_TAG_SS_Kaon3);
+		    treetmp->SetBranchAddress(tagdecsskaonVar.Data(),&lab0_TAGDEC_SS_Kaon3);
 		    treetmp->SetBranchAddress(tagosmuonVar.Data(),&lab0_TAG_OS_Muon3);
+		    treetmp->SetBranchAddress(tagdecosmuonVar.Data(),&lab0_TAGDEC_OS_Muon3);
 		    treetmp->SetBranchAddress(tagoselectronVar.Data(),&lab0_TAG_OS_Electron3);
+		    treetmp->SetBranchAddress(tagdecoselectronVar.Data(),&lab0_TAGDEC_OS_Electron3);
 		    treetmp->SetBranchAddress(tagoskaonVar.Data(),&lab0_TAG_OS_Kaon3);
+		    treetmp->SetBranchAddress(tagdecoskaonVar.Data(),&lab0_TAGDEC_OS_Kaon3);
 		    treetmp->SetBranchAddress(tagvtxchargeVar.Data(),&lab0_TAG_VtxCharge3);
+		    treetmp->SetBranchAddress(tagdecvtxchargeVar.Data(),&lab0_TAGDEC_VtxCharge3);
 		  }
 		treetmp->SetBranchAddress(pVar.Data(), &lab1_P3);
 		treetmp->SetBranchAddress(ptVar.Data(), &lab1_PT3);
@@ -307,7 +334,6 @@ namespace MassFitUtils {
 		//Float_t m;
 		for (Long64_t jentry=0; jentry<treetmp->GetEntries(); jentry++) {
 		  treetmp->GetEntry(jentry);
-		  //m = lab0_MM3;
 		  lab0_MM->setVal(lab0_MM3);
 		  lab0_TAU->setVal(lab0_TAU3);
 		  lab0_TAUERR->setVal(lab0_TAUERR3);
@@ -321,22 +347,27 @@ namespace MassFitUtils {
 		    {	  lab1_PIDK->setVal(-lab1_PIDK3); }
 		  else
 		    {     lab1_PIDK->setVal(log(lab1_PIDK3)); }
+		  
 		  lab1_PIDp->setVal(lab1_PIDK3-lab1_PIDp3);
 		  nTracks->setVal(log(nTracks3));
-		  //		  std::cout<<"lab1_PIDK: "<<lab1_PIDK3<<" log(-lab1_PIDK):"<<log(-lab1_PIDK3)<<std::endl;
+		  //std::cout<<"lab1_PIDK: "<<lab1_PIDK3<<" log(-lab1_PIDK):"<<log(-lab1_PIDK3)<<std::endl;
 		  if (tagtool == true )
 		    {
 		      lab0_TAG_SS_Kaon->setVal(lab0_TAG_SS_Kaon3);
+		      lab0_TAGDEC_SS_Kaon->setVal(lab0_TAGDEC_SS_Kaon3);
 		      lab0_TAG_OS_Muon->setVal(lab0_TAG_OS_Muon3);
+		      lab0_TAGDEC_OS_Muon->setVal(lab0_TAGDEC_OS_Muon3);
 		      lab0_TAG_OS_Electron->setVal(lab0_TAG_OS_Electron3);
+		      lab0_TAGDEC_OS_Electron->setVal(lab0_TAGDEC_OS_Electron3);
 		      lab0_TAG_OS_Kaon->setVal(lab0_TAG_OS_Kaon3);
 		      lab0_TAG_VtxCharge->setVal(lab0_TAG_VtxCharge3);
+		      lab0_TAGDEC_VtxCharge->setVal(lab0_TAGDEC_VtxCharge3);
 		      lab1_P->setVal(lab1_P3);
 		      lab1_PT->setVal(lab1_PT3);
-		      dataSetTagTool[i]->add(RooArgSet(*lab0_MM,*lab0_TAG_SS_Kaon, *lab0_TAG_OS_Muon, *lab0_TAG_OS_Electron,
-						       *lab0_TAG_OS_Kaon, *lab0_TAG_VtxCharge, *lab1_P, *lab1_PT));
+		      
 		    }
-		  dataSet[i]->add(*obs);
+		   
+		      dataSet[i]->add(*obs);
 		  
 		}
 	 
@@ -349,15 +380,11 @@ namespace MassFitUtils {
 		  }
 
 		TString s = smp[i]+"_"+md[i];
-		SaveDataSet(dataSet[i], lab1_PIDp , s, mode, debug);
+		//SaveDataSet(dataSet[i], lab1_PIDp , s, mode, debug);
 		saveDataTemplateToFile( dataSet[i], NULL, lab0_MM,
-				      mode.Data(), "root", s.Data(), debug );
+					mode.Data(), "root", s.Data(), debug );
 		work->import(*dataSet[i]);
-		if ( tagtool == true )
-		  {
-		    work->import(*dataSetTagTool[i]);
-		  }
-
+		
     }
     return work;
     
@@ -964,16 +991,16 @@ namespace MassFitUtils {
       treetmp[i] = TreeCut(tree[i],All_cut,smp[i],md[i],debug);  // obtain new tree after applied all cuts //
       
       // Load all necessary variables to change hypo D->Ds from tree //
-      Float_t lab1_P2, lab1_PT2;
-      Float_t lab1_PX2, lab1_PY2, lab1_PZ2;
-      Float_t lab3_PX2, lab3_PY2, lab3_PZ2;
-      Float_t lab4_PX2, lab4_PY2, lab4_PZ2;
-      Float_t lab5_PX2, lab5_PY2, lab5_PZ2;
-      Float_t lab1_M2;
-      Float_t masshypo(0.0), phypo(0.0), masshypod(0.0), phypolc(0.0), masshypolb(0.0), p2(0.0);
-      Float_t lab0_TAGOMEGA2,tag;
-      Float_t nTr2;
-      Float_t lab1_PIDK2;
+      Double_t lab1_P2, lab1_PT2;
+      Double_t lab1_PX2, lab1_PY2, lab1_PZ2;
+      Double_t lab3_PX2, lab3_PY2, lab3_PZ2;
+      Double_t lab4_PX2, lab4_PY2, lab4_PZ2;
+      Double_t lab5_PX2, lab5_PY2, lab5_PZ2;
+      Double_t lab1_M2;
+      Double_t masshypo(0.0), phypo(0.0), masshypod(0.0), phypolc(0.0), masshypolb(0.0), p2(0.0);
+      Double_t lab0_TAGOMEGA2,tag;
+      Int_t nTr2;
+      Double_t lab1_PIDK2;
       
 
       treetmp[i]->SetBranchAddress("lab1_P",  &lab1_P2);

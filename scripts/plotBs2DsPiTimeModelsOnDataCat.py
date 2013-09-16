@@ -85,8 +85,7 @@ def plotFitModel(model, frame, wksp, combData) :
     
     model.plotOn(frame,
                  RooFit.Slice(RooArgSet(qf,qt,cat)),
-                 RooFit.ProjWData(obs, dataset),
-                 #RooFit.ProjWData(RooArgSet(cat,qf,qt,terr),dataset),
+                 RooFit.ProjWData(RooArgSet(qf,qt,cat,terr), dataset), #obs, dataset),
                  RooFit.LineColor(kBlue+3))
     
     #fr = model.plotOn(frame,
@@ -99,7 +98,7 @@ def plotFitModel(model, frame, wksp, combData) :
     #                  RooFit.ProjWData(combData),
     #                  RooFit.LineColor(kMagenta+2))
     
-     
+    '''
     qt.setIndex(0)
     qt.Print("v")
     print "1"
@@ -110,6 +109,7 @@ def plotFitModel(model, frame, wksp, combData) :
                RooFit.LineColor(kRed))
 
     print "2"
+    '''
     #model.createProjection(RooArgSet(qf,qt))    
     '''
     sliceData_1 = dataset.reduce(RooArgSet(obs),"((qt == 1 && qf == -1) || ( qt == -1 && qf == 1))")

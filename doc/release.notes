@@ -4,6 +4,9 @@
 ! Purpose     : RooFit-based fitters for B -> D X
 !-----------------------------------------------------------------------------
 
+! 2013-09-16 - Agnieszka Dziurda (on behalf of Giulia Tellarini)
+ - update tagTool option for MDFitter and current samples 
+
 ! 2013-09-05 - V. Gligorov
  - Update p0/p1 systematics config files in order to have both positive and
    negative variations, remove old versions

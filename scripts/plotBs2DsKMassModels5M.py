@@ -587,7 +587,7 @@ if __name__ == '__main__' :
             pullfake = "h_combData_Cut[sample==sample::%s_%s || sample==sample::%s_%s || sample==sample::%s_%s]"%(sam,mod1,sam,mod2,sam,mod3)
             pullname2TS = TString(pullfake)
             
-        elif mod == "phipi" or mod == "kstk" or mod == "nonres" or mode == "kkpi" or mode == "kpipi" or mode == "pipipi":
+        elif mod == "phipi" or mod == "kstk" or mod == "nonres" or mod == "kkpi" or mod == "kpipi" or mod == "pipipi":
             print "Sample %s, %s "%(sam,mod)
             w.factory("SUM:FullPdf(nBsLb2DsDsstPPiRho_%s_%s_Evts*BsLb2DsDsstPPiRhoEPDF_m_%s_%s, nBs2DsDssKKst_%s_%s_Evts*Bs2DsDsstKKstEPDF_m_%s_%s, nBd2DK_%s_%s_Evts*Bd2DKEPDF_m_%s_%s, nSig_%s_%s_Evts*SigEPDF_%s_%s, nCombBkg_%s_%s_Evts*CombBkgEPDF_m_%s_%s, nLb2LcK_%s_%s_Evts*Lb2LcKEPDF_m_%s_%s)"%(sam,mod,sam,mod,sam,mod,sam,mod,sam,mod,sam,mod,sam,mod,sam,mod,sam,mod,sam,mod,sam,mod,sam,mod))
             pullfake = "h_combData_Cut[sample==sample::%s_%s]"%(sam,mod)

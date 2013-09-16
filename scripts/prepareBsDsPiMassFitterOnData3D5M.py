@@ -36,7 +36,7 @@ Bs2Dsh2011TDAnaModels = GaudiPython.gbl.Bs2Dsh2011TDAnaModels
 # -----------------------------------------------------------------------------
 saveName      = 'work_'
 #------------------------------------------------------------------------------
-def prepareBsDsPiMassFitterOnData( debug, mVar, tVar, terrVar, tagVar, tagOmegaVar, idVar, mdVar, mProbVar, save, OmegaPdf, TagTool, configName,
+def prepareBsDsPiMassFitterOnData( debug, mVar, tVar, terrVar, tagVar, tagOmegaVar, idVar, mdVar, mProbVar, save, TagTool, configName,
                                    Data, DPi, DPiPID, MC, MCPID, Signal, SignalPID, CombPID) :
 
     # Get the configuration file
@@ -66,25 +66,18 @@ def prepareBsDsPiMassFitterOnData( debug, mVar, tVar, terrVar, tagVar, tagOmegaV
     mProbVarTS = TString(mProbVar)
     mdVarTS = TString(mdVar)
 
-    if ( OmegaPdf == "no" ):
-        tagOmega = false
-    else:
-        tagOmega = true
-
-    if ( TagTool == "no"):
-        tagTool = false
-    else:
-        tagTool = true
+    tagTool = TagTool
+    
     dataTS  = TString(myconfigfile["dataName"])
 
     workspace = RooWorkspace("workspace","workspace")
 
     if Data:
-        dataNames = [ TString("#BsDsPi KKPi NonRes"),
-                      TString("#BsDsPi KKPi PhiPi"),
-                      TString("#BsDsPi KKPi KstK"),
-                      TString("#BsDsPi KPiPi"),
-                      TString("#BsDsPi PiPiPi")]
+        dataNames = [ TString("#Bs2DsPi NonRes"),
+                      TString("#Bs2DsPi PhiPi"),
+                      TString("#Bs2DsPi KstK"),
+                      TString("#Bs2DsPi KPiPi"),
+                      TString("#Bs2DsPi PiPiPi")]
 
         for i in range(0,5):
             workspace = MassFitUtils.ObtainData(dataTS, dataNames[i],
@@ -114,7 +107,7 @@ def prepareBsDsPiMassFitterOnData( debug, mVar, tVar, terrVar, tagVar, tagOmegaV
                                                      myconfigfile["PTDown"], myconfigfile["PTUp"],
                                                      myconfigfile["nTracksDown"], myconfigfile["nTracksUp"],
                                                      mVarTS, mdVarTS, mProbVarTS,
-                                                     TString("Bd2DPi"),workspace, tagOmega, debug)
+                                                     TString("Bd2DPi"),workspace, false, debug)
         
     saveNameTS = TString(saveName)+TString(save)+TString(".root")
     workspace.Print()
@@ -161,7 +154,7 @@ def prepareBsDsPiMassFitterOnData( debug, mVar, tVar, terrVar, tagVar, tagOmegaV
                                                 myconfigfile["BMassDown"], myconfigfile["BMassUp"],
                                                 mVarTS, mdVarTS, mProbVarTS,
                                                 TString("BsDsPi"),
-                                                workspace, false, tagOmega, debug)
+                                                workspace, false, false, debug)
         
         workspace = MassFitUtils.ObtainSpecBack(dataTS, TString("#MC FileName MU"), TString("#MC TreeName"),
                                                 myconfigfile["PIDBach2"], myconfigfile["PIDChild"], myconfigfile["PIDProton"],
@@ -171,7 +164,7 @@ def prepareBsDsPiMassFitterOnData( debug, mVar, tVar, terrVar, tagVar, tagOmegaV
                                                 myconfigfile["BMassDown"], myconfigfile["BMassUp"],
                                                 mVarTS, mdVarTS, mProbVarTS,
                                                 TString("BsDsPi") ,
-                                                workspace, false, tagOmega, debug)
+                                                workspace, false, false, debug)
                                             
     
         workspace = MassFitUtils.CreatePdfSpecBackground(dataTS, TString("#MC FileName MD"),
@@ -179,7 +172,7 @@ def prepareBsDsPiMassFitterOnData( debug, mVar, tVar, terrVar, tagVar, tagOmegaV
                                                          mVarTS, mdVarTS,
                                                          myconfigfile["BMassDown"], myconfigfile["BMassUp"],
                                                          myconfigfile["DMassDown"], myconfigfile["DMassUp"],
-                                                         workspace, tagOmega, debug)
+                                                         workspace, false, debug)
         
     saveNameTS = TString(saveName)+TString(save)+TString(".root")
     workspace.Print()
@@ -572,14 +565,11 @@ parser.add_option( '-c', '--cutvariable',
                    default = 'lab1_PIDK',
                    help = 'set observable '
                    )
-parser.add_option( '--tagOmegaPdf',
-                   dest = 'tagOmegaPdf',
-                   default = "no",
-                   help = 'create RooKeysPdf for TagOmega '
-                   )
+
 parser.add_option( '--tagTool',
                    dest = 'tagTool',
-                   default = "no",
+                   action = 'store_true',
+                   default = False,
                    help = 'add to workspace a lot of tagging observables '
                    )
 parser.add_option( '--configName',
@@ -656,7 +646,7 @@ if __name__ == '__main__' :
         
     prepareBsDsPiMassFitterOnData(  options.debug, options.mvar, options.tvar, options.terrvar, \
                                     options.tagvar, options.tagomegavar, options.idvar,options.mdvar,\
-                                    options.ProbVar, options.save, options.tagOmegaPdf, options.tagTool, options.configName,
+                                    options.ProbVar, options.save, options.tagTool, options.configName,
                                     options.Data,
                                     options.DPi, options.DPiPID,
                                     options.MC, options.MCPID,
