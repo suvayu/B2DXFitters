@@ -4,6 +4,11 @@
 ! Purpose     : RooFit-based fitters for B -> D X
 !-----------------------------------------------------------------------------
 
+! 2013-09-17 - Manuel Tobias Schiller
+ - DecRateCoeff: some fixesi to verification of constructor arguments to make
+   it run with mistag in categories - no user visible or functional changes
+ - cFit: add functionality for tagging calibration fits
+
 ! 2013-09-16 - Agnieszka Dziurda (on behalf of Giulia Tellarini)
  - update tagTool option for MDFitter and current samples 
 

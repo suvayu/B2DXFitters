@@ -255,6 +255,9 @@ defaultConfig = {
     'PowLawAcceptance_beta':	0.0363,
 
     'PerEventMistag': 		True,
+    'NMistagCategories':        None,
+    'MistagCategoryBinBounds':  None,
+    'MistagCategoryOmegas':     None,
     'TrivialMistag':		False,
     'UseKFactor':		False,
 
@@ -1131,7 +1134,7 @@ def getMassTemplateOneMode2011Conf(
             ROOT.SetOwnership(hist, True)
             dhist = WS(ws, RooDataHist(
                 '%s_dhist' % pdf.GetName(), '%s_dhist' % pdf.GetName(),
-                RooArgList(mass), hist))
+                RooArgList(mass), hist), [])
             pdf = WS(ws, RooHistPdf('%s_pdf' % dhist.GetName(),
                 '%s_pdf' % dhist.GetName(), RooArgSet(mass), dhist))
             del hist
@@ -1971,6 +1974,169 @@ def printPDFTermsOnDataSet(dataset, terms = []):
     return None
 
 #------------------------------------------------------------------------------
+def getMistagBinBounds(config, mistag, mistagdistrib):
+    # suggest a binning for turning per-event mistag into mistag categories;
+    # mistagdistrib can be a PDF or a RooDataSet
+    from ROOT import RooArgSet, RooHistPdf
+    if (mistagdistrib.InheritsFrom('RooAbsData') and not
+            mistagdistrib.InheritsFrom('RooDataHist')):
+        # ok, unbinned data set, get only tagged events, and form a binned clone
+        argset = RooArgSet(mistag)
+        mistagdistrib = mistagdistrib.reduce(
+                RooFit.SelectVars(argset), RooFit.cut('0 != qt'))
+        ROOT.SetOwnership(mistagdistrib, True)
+        mistagdistrib = mistagdistrib.binnedClone()
+        ROOT.SetOwnership(mistagdistrib, True)
+    if mistagdistrib.InheritsFrom('RooAbsData'):
+        # convert a binned dataset to a RooHistPdf
+        dhist = mistagdistrib
+        mistagdistrib = RooHistPdf('%s_pdf' % dhist.GetName(),
+                '%s_pdf' % dhist.GetName(), RooArgSet(mistag), dhist)
+    if (mistagdistrib.InheritsFrom('RooAbsPdf') and not
+            mistagdistrib.InheritsFrom('RooHistPdf')):
+        # use createCdf to obtain the CDF
+        cdfroofit = mistagdistrib.createCdf(
+                RooArgSet(mistag), RooArgSet(mistag))
+        def cdf(x):
+            oldval = mistag.getVal()
+            mistag.setVal(x)
+            retVal = cdfroofit.getVal()
+            mistag.setVal(oldval)
+            return retVal
+    elif mistagdistrib.InheritsFrom('RooHistPdf'):
+        # createCdf does not work properly for RooHistPdf because RooHistPdf
+        # does not support integrals over subranges, so we have to fake this
+        # functionality until it's supported by RooFit upstream
+        #
+        # capture histogram bin boundaries and contents
+        binboundlist = mistagdistrib.binBoundaries(
+                mistag, mistag.getMin(), mistag.getMax())
+        ROOT.SetOwnership(binboundlist, True)
+        binbounds = [ v for v in binboundlist ]
+        del binboundlist
+        bincontents = [ ]
+        oldval = mistag.getVal()
+        for i in xrange(0, len(binbounds) - 1):
+            mistag.setVal(0.5 * (binbounds[i] + binbounds[i + 1]))
+            bincontents.append(mistagdistrib.getValV(RooArgSet(mistag)))
+        mistag.setVal(oldval)
+        binsum = sum(bincontents)
+        # build CDF from histogram
+        def cdf(x):
+            s = 0.
+            for i in xrange(0, len(binbounds) - 1):
+                if x < binbounds[i]:
+                    break
+                elif x > binbounds[i]:
+                    s += bincontents[i]
+                else:
+                    s += (bincontents[i] * (x - binbounds[i]) /
+                                (binbounds[i + 1] - binbounds[i]))
+                    break
+            return s
+    # find x for which f(x) = y by bisection
+    def mybisect(y, f, lo, hi):
+        initdx = abs(hi - lo)
+        flo, fhi = f(lo) - y, f(hi) - y
+        if 0. == flo: return lo
+        elif 0. == fhi: return hi
+        mid = .5 * (lo + hi)
+        while (abs(hi - lo) > 1e-15 and abs(hi - lo) / initdx > 1e-15):
+            fmid = f(mid) - y
+            if 0. == fmid: break
+            elif flo * fmid < 0.: hi, fhi = mid, fmid
+            elif fmid * fhi < 0.: lo, flo = mid, fmid
+            else: raise ValueError('no sign change in f(x) between %g and %g'
+                    % (lo, hi))
+            mid = .5 * (lo + hi)
+        return mid
+    # find binning with roughly same stats by inverting the CDF by bisection
+    lo, hi = binbounds[0], binbounds[len(binbounds) - 1]
+    retVal = [ lo ]
+    for i in xrange(1, config['NMistagCategories']):
+        retVal.append(mybisect(binsum *
+            float(i) / float(config['NMistagCategories']), cdf, lo, hi))
+    retVal.append(hi)
+    print 'INFO: suggested mistag category bounds: %s' % str(retVal)
+    return retVal
+
+def getTrueOmegasPerCat(config, mistagobs, mistag, mistagpdf):
+    # calculate true per-category omegas based on the mistagpdf and the
+    # calibration that goes into the generation pdf
+    from ROOT import RooRealVar, RooCustomizer, RooProduct, RooArgList, RooArgSet
+    eta1 = RooRealVar('eta1', 'eta1', mistagobs.getMin(),
+            mistagobs.getMin(), mistagobs.getMax())
+    eta2 = RooRealVar('eta2', 'eta2', mistagobs.getMax(),
+            mistagobs.getMin(), mistagobs.getMax())
+    prod = RooProduct('prod', 'prod', RooArgList(mistag, mistagpdf))
+    oldmistagobs = mistagobs
+    mistagobs = mistagobs.clone(mistagobs.GetName() + '_catclone')
+    ROOT.SetOwnership(mistagobs, True)
+    mistagobs.setRange(eta1, eta2)
+    c = RooCustomizer(prod, 'cust')
+    c.replaceArg(oldmistagobs, mistagobs)
+    prod = c.build()
+    ROOT.SetOwnership(prod, True)
+    c = RooCustomizer(mistagpdf, 'cust2')
+    c.replaceArg(oldmistagobs, mistagobs)
+    pdf = c.build()
+    ROOT.SetOwnership(pdf, True)
+    if pdf.InheritsFrom('RooHistPdf'): pdf.forceNumInt()
+    evnumer = prod.createIntegral(RooArgSet(mistagobs))
+    evdenom = pdf.createIntegral(RooArgSet(mistagobs))
+    omegas = [ ]
+    for i in xrange(0, len(config['MistagCategoryBinBounds']) - 1):
+        eta1.setVal(config['MistagCategoryBinBounds'][i])
+        eta2.setVal(config['MistagCategoryBinBounds'][i + 1])
+        omegas.append(evnumer.getVal() / evdenom.getVal())
+    eta1.setVal(config['MistagCategoryBinBounds'][0])
+    avomega = evnumer.getVal() / evdenom.getVal()
+    print 'INFO: Mistag calibration %s:' % mistag.GetName()
+    print 'INFO:               Average omega (PDF): %g' % avomega
+    print 'INFO: Per category average omegas (PDF): %s' % str(omegas)
+    return avomega, omegas
+
+def getEtaPerCat(config, mistagobs, ds):
+    # calculate overall and per-category eta averages for a given data set ds
+    from ROOT import RooArgList, RooArgSet
+    # isolate tagged events
+    argset = RooArgSet(mistagobs)
+    ds = ds.reduce(RooFit.Cut('0 != qt'), RooFit.SelectVars(argset))
+    ROOT.SetOwnership(ds, True)
+    # set up loop over data set to get eta averages
+    etasums = [ 0. for i in xrange(0, config['NMistagCategories']) ]
+    weightsums = [ 0. for i in xrange(0, config['NMistagCategories']) ]
+    etasum = 0.
+    weightsum = 0.
+    obs = ds.get()
+    etavar = obs.find(mistagobs.GetName())
+    isWeighted = ds.isWeighted()
+    # loop over data set
+    for i in xrange(0, ds.numEntries()):
+        ds.get(i)
+        eta = etavar.getVal()
+        w = ds.weight() if isWeighted else 1.
+        # calculate average eta
+        etasum += w * eta
+        weightsum += w
+        # find category and update per-category eta averages
+        for j in xrange(0, len(config['MistagCategoryBinBounds']) - 1):
+            if eta < config['MistagCategoryBinBounds'][j]: break
+            elif eta >= config['MistagCategoryBinBounds'][j + 1]: continue
+            else:
+                # found bin
+                etasums[j] += w * eta
+                weightsums[j] += w
+                break
+    # final division needed to form the eta averages
+    etasum /= weightsum
+    for i in xrange(0, len(etasums)):
+        etasums[i] /= weightsums[i]
+    print 'INFO:               Average eta (data sample): %g' % etasum
+    print 'INFO: Per category average etas (data sample): %s' % str(etasums)
+    return etasum, etasums
+
+#------------------------------------------------------------------------------
 def getMasterPDF(config, name, debug = False):
     from B2DXFitters import cpobservables
 
@@ -2174,6 +2340,79 @@ def getMasterPDF(config, name, debug = False):
                             nbins, config['NBinsMistag'])
             config['NBinsMistag'] = nbins
             del nbins
+
+    # OK, get the show on the road if we are using mistag categories
+    if (None != config['NMistagCategories'] and
+            config['NMistagCategories'] > 0 and config['PerEventMistag']):
+        # ok, we have to provide the machinery to convert per-event mistag to
+        # mistag categories
+        if (None != config['MistagCategoryBinBounds'] and
+                len(config['MistagCategoryBinBounds']) != 1 +
+                config['NMistagCategories']):
+            print ('ERROR: %d mistag categories requested, number of bin '
+                    'bounds does not match' % config['NMistagCategories'])
+            return None
+        if (None == config['MistagCategoryBinBounds']):
+            # ok, auto-tune mistag category bin bounds from mistag pdf template
+            if None == mistagtemplate:
+                print ('ERROR: No mistag category bounds present, and no '
+                        'mistag pdf template to tune from!')
+                return None
+            # all fine
+            config['MistagCategoryBinBounds'] = getMistagBinBounds(
+                    config, tagOmegaSig, mistagtemplate)
+        # create category
+        from ROOT import std, RooBinning, RooBinningCategory
+        bins = std.vector('double')()
+        for bound in config['MistagCategoryBinBounds']:
+            bins.push_back(bound)
+        binning = RooBinning(bins.size() - 1,
+                bins.begin().base(), 'taggingCat')
+        tagOmegaSig.setBinning(binning, 'taggingCat')
+        tagcat = WS(ws, RooBinningCategory('tagcat', 'tagcat',
+            tagOmegaSig, 'taggingCat'))
+        del binning
+        del bins
+        # print MC truth omegas for all categories and calibrations when
+        # generating
+        if 'GEN' in config['Context']:
+            for cal in tagOmegaSigCal:
+                getTrueOmegasPerCat(config, tagOmegaSig, cal, mistagtemplate)
+    if (None != config['NMistagCategories'] and
+            config['NMistagCategories'] > 0 and not config['PerEventMistag']):
+        # ok, we have mistag categories
+        if (None == config['MistagCategoryBinBounds'] or
+                len(config['MistagCategoryBinBounds']) != 1 +
+                config['NMistagCategories']):
+            print ('ERROR: %d mistag categories requested, number of bin '
+                    'bounds does not match' % config['NMistagCategories'])
+            return None
+        if (None == config['MistagCategoryBinBounds'] or
+                len(config['MistagCategoryOmegas']) !=
+                config['NMistagCategories']):
+            print ('ERROR: %d mistag categories requested, number of '
+                    'per-category omegas does not match' %
+                    config['NMistagCategories'])
+            return None
+        # create a category for mistag categories and the per-category omegas
+        from math import sqrt
+        omegas = RooArgList()
+        tagcat = WS(ws, RooCategory('tagcat', 'tagcat'))
+        for i in xrange(0, config['NMistagCategories']):
+            tagcat.defineType('cat%02d' % i, i)
+            omegas.add(WS(ws, RooRealVar(
+                'OmegaCat%02d' % i, 'OmegaCat%02d' % i,
+                config['MistagCategoryOmegas'][i], 0., 0.5)))
+            # set rough and reasonable error estimate
+            omegas[i].setError((config['MistagCategoryBinBounds'][i + 1] -
+                config['MistagCategoryBinBounds'][i]) / sqrt(12.))
+        # ok, build the mistag
+        from ROOT import TaggingCat
+        tagOmegaSig = WS(ws, TaggingCat('OmegaPerCat', 'OmegaPerCat',
+				    qt, tagcat, omegas))
+        tagOmegaSigCal = [ tagOmegaSig ]
+        del omegas
+        observables.append(tagcat)
 
     timepdfs = { }
 
@@ -2724,7 +2963,8 @@ def getMasterPDF(config, name, debug = False):
             'pdf': WS(ws, totPDF),
             'observables': WS(ws, obs),
             'condobservables': WS(ws, condobs),
-            'constraints': WS(ws, constr)
+            'constraints': WS(ws, constr),
+            'config': config
             }
 
 def runBsGammaFittercFit(generatorConfig, fitConfig, toy_num, debug, wsname, initvars) :
@@ -2776,9 +3016,41 @@ def runBsGammaFittercFit(generatorConfig, fitConfig, toy_num, debug, wsname, ini
             del tmpds
             gc.collect()
 
+    # ok, if we are to fit in mistag categories, we need to convert per-event
+    # mistag to categories now
+    datasetAvgEta = None
+    if (pdf['config']['PerEventMistag'] and
+            None != pdf['config']['NMistagCategories'] and
+            0 < pdf['config']['NMistagCategories']):
+        # step 1: if there are no starting values for the per-category omegas,
+        # we get them from the data now
+        if (None == pdf['config']['MistagCategoryOmegas']):
+            aveta, pdf['config']['MistagCategoryOmegas'] = \
+                    getEtaPerCat(pdf['config'],
+                            pdf['observables'].find('tagOmegaSig'), dataset)
+            # save average eta of the dataset to go into the fit workspace
+            from ROOT import RooConstVar
+            datasetAvgEta = RooConstVar('EtaAvg', 'EtaAvg', aveta)
+        # step 2: add new column to dataset with mistag category
+        tagcat = pdf['ws'].obj('tagcat')
+        print tagcat
+        dataset.addColumn(tagcat)
+        cats.append(tagcat)
+        # step 3: copy generator values over to fitConfig (if not specified
+        # explicitly by user in config options)
+        for name in ('MistagCategoryOmegas', 'MistagCategoryBinBounds',
+                'NMistagCategories'):
+            if (None == fitConfig[name]):
+                fitConfig[name] = pdf['config'][name]
+
+    # print some stats on the data set
     dataset.Print('v')
     for cat in cats:
-        dataset.table(cat).Print('v')
+        myds = dataset
+        if 'tagcat' == cat.GetName():
+            myds = dataset.reduce(RooFit.Cut('0 != qt'))
+            ROOT.SetOwnership(myds, True)
+        myds.table(cat).Print('v')
     dataset.table(RooArgSet(pdf['ws'].obj('qt'), pdf['ws'].obj('qf'))).Print('v')
     if generatorConfig['QuitAfterGeneration']:
         return
@@ -2819,6 +3091,9 @@ def runBsGammaFittercFit(generatorConfig, fitConfig, toy_num, debug, wsname, ini
     gc.collect()
 
     pdf = getMasterPDF(fitConfig, 'FIT', debug)
+    # put average eta in if necessary
+    if None != datasetAvgEta:
+        datasetAvgEta = WS(pdf['ws'], datasetAvgEta)
 
     # reduce dataset to observables used in the fit
     dataset = dataset.reduce(RooFit.SelectVars(pdf['observables']))
@@ -2865,13 +3140,48 @@ def runBsGammaFittercFit(generatorConfig, fitConfig, toy_num, debug, wsname, ini
 
     fitResult = pdf['pdf'].fitTo(dataset, fitopts)
 
-
     printResult(fitConfig, fitResult,
             fitConfig['Blinding'] and not fitConfig['IsToy'])
+
+    # if we fit in mistag categories, do the calibration fit here
+    if (not pdf['config']['PerEventMistag'] and
+            None != pdf['config']['NMistagCategories'] and
+            0 < pdf['config']['NMistagCategories']):
+        from ROOT import (RooRealVar, RooDataSet, RooArgSet, RooArgList,
+                MistagCalibration)
+        # create observables
+        eta = RooRealVar('eta', '#eta', 0., 0.5)
+        omega = RooRealVar('omega', '#omega', 0., 0.5)
+        # create data set and populate with per-category omegas
+        ds = RooDataSet('mistagcalibdata', 'mistagcalibdata',
+                RooArgSet(eta, omega))
+        for i in xrange(0, pdf['config']['NMistagCategories']):
+            vname = 'OmegaCat%02d' % i
+            eta.setVal(fitResult.floatParsInit().find(vname).getVal())
+            omega.setVal(fitResult.floatParsFinal().find(vname).getVal())
+            omega.setError(fitResult.floatParsFinal().find(vname).getError())
+            ds.add(RooArgSet(eta, omega))
+        # calibration polynomial
+        p0 = RooRealVar('p0', 'p0', datasetAvgEta.getVal(), 0., 0.5)
+        p1 = RooRealVar('p1', 'p1', 1., 0., 2.)
+        calib = MistagCalibration('calib', 'calib', eta, RooArgList(p0, p1),
+                datasetAvgEta)
+        # fit calib to data
+        calibFitResult = calib.chi2FitTo(ds, RooFit.YVar(omega),
+                RooFit.Strategy(fitConfig['Strategy']),
+                RooFit.Minimizer(*fitConfig['Minimizer']),
+                RooFit.Timer(), RooFit.Save(), RooFit.Verbose())
+        printResult(fitConfig, calibFitResult,
+                fitConfig['Blinding'] and not fitConfig['IsToy'])
+    else:
+        calibFitResult = None
+
     # dump fit result to a ROOT file
     from ROOT import TFile
     fitresfile = TFile('fitresult_%04d.root' % toy_num, 'RECREATE')
     fitresfile.WriteTObject(fitResult, 'fitresult_%04d' % toy_num)
+    if None != calibFitResult:
+        fitresfile.WriteTObject(calibFitResult, 'fitresult_calib_%04d' % toy_num)
     fitresfile.Close()
     del fitresfile
 

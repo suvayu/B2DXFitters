@@ -412,7 +412,8 @@ DecRateCoeff::DecRateCoeff(
 	assert(!qt.overlaps(Cf) || Cf.isConstant());
 	assert(!qt.overlaps(Cfbar) || Cfbar.isConstant());
 	assert(!qt.overlaps(tageff) || tageff.isConstant());
-	assert(!qt.overlaps(eta) || eta.isConstant());
+	assert(!qt.overlaps(eta) || eta.isConstant() ||
+		eta.InheritsFrom("TaggingCat"));
 	assert(!qt.overlaps(aprod) || aprod.isConstant());
 	assert(!qt.overlaps(adet) || adet.isConstant());
 	assert(!qt.overlaps(atageff) || atageff.isConstant());
@@ -451,7 +452,8 @@ DecRateCoeff::DecRateCoeff(
 
     if (!eta.isConstant()) {
 	assert(!eta.overlaps(qf) || qf.isConstant());
-	assert(!eta.overlaps(qt) || qt.isConstant());
+	assert(!eta.overlaps(qt) || qt.isConstant() ||
+		eta.InheritsFrom("TaggingCat"));
 	assert(!eta.overlaps(Cf) || Cf.isConstant());
 	assert(!eta.overlaps(Cfbar) || Cfbar.isConstant());
 	assert(!eta.overlaps(tageff) || tageff.isConstant());
@@ -530,8 +532,10 @@ DecRateCoeff::DecRateCoeff(
 	assert(!qt.overlaps(Cf) || Cf.isConstant());
 	assert(!qt.overlaps(Cfbar) || Cfbar.isConstant());
 	assert(!qt.overlaps(tageff) || tageff.isConstant());
-	assert(!qt.overlaps(eta) || eta.isConstant());
-	assert(!qt.overlaps(etabar) || etabar.isConstant());
+	assert(!qt.overlaps(eta) || eta.isConstant() ||
+		eta.InheritsFrom("TaggingCat"));
+	assert(!qt.overlaps(etabar) || etabar.isConstant() ||
+		etabar.InheritsFrom("TaggingCat"));
 	assert(!qt.overlaps(aprod) || aprod.isConstant());
 	assert(!qt.overlaps(adet) || adet.isConstant());
 	assert(!qt.overlaps(atageff) || atageff.isConstant());
@@ -573,7 +577,8 @@ DecRateCoeff::DecRateCoeff(
 
     if (!eta.isConstant()) {
 	assert(!eta.overlaps(qf) || qf.isConstant());
-	assert(!eta.overlaps(qt) || qt.isConstant());
+	assert(!eta.overlaps(qt) || qt.isConstant() ||
+		eta.InheritsFrom("TaggingCat"));
 	assert(!eta.overlaps(Cf) || Cf.isConstant());
 	assert(!eta.overlaps(Cfbar) || Cfbar.isConstant());
 	assert(!eta.overlaps(tageff) || tageff.isConstant());
@@ -584,7 +589,8 @@ DecRateCoeff::DecRateCoeff(
 
     if (!etabar.isConstant()) {
 	assert(!etabar.overlaps(qf) || qf.isConstant());
-	assert(!etabar.overlaps(qt) || qt.isConstant());
+	assert(!etabar.overlaps(qt) || qt.isConstant() ||
+		etabar.InheritsFrom("TaggingCat"));
 	assert(!etabar.overlaps(Cf) || Cf.isConstant());
 	assert(!etabar.overlaps(Cfbar) || Cfbar.isConstant());
 	assert(!etabar.overlaps(tageff) || tageff.isConstant());
