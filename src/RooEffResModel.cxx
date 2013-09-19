@@ -163,7 +163,7 @@ Double_t RooEffResModel::CacheElem::getVal(const RooArgSet* nset) const
 //_____________________________________________________________________________
 RooEffResModel::RooEffResModel(const char *name, const char *title,
 	RooResolutionModel& __model, RooAbsReal& eff) :
-    RooAbsEffResModel(name,title,__model.convVar())
+    RooResolutionModel(name,title,__model.convVar())
     , _observables("observables", "observables", this)
     , _model("!model","Original resolution model",this,__model)
     , _eff("!efficiency","efficiency of convvar", this,eff)
@@ -175,7 +175,7 @@ RooEffResModel::RooEffResModel(const char *name, const char *title,
 
 //_____________________________________________________________________________
 RooEffResModel::RooEffResModel(const RooEffResModel& other, const char* name) :
-    RooAbsEffResModel(other,name)
+    RooResolutionModel(other,name)
     , _observables("observables", this, other._observables)
     , _model("!model", this, other._model)
     , _eff("!efficiency", this, other._eff)
@@ -192,6 +192,9 @@ RooEffResModel::~RooEffResModel()
 {
     // Destructor
 }
+
+RooArgSet* RooEffResModel::observables() const
+{ return new RooArgSet(_observables); }
 
 RooAbsReal* RooEffResModel::efficiency() const
 { return static_cast<RooAbsReal*>(_eff.absArg()); }

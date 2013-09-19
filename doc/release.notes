@@ -4,8 +4,21 @@
 ! Purpose     : RooFit-based fitters for B -> D X
 !-----------------------------------------------------------------------------
 
+! 2013-09-19 - Manuel Tobias Schiller
+ - import new classes from P2VV package; these classes are somewhat modified
+   to slience compiler warnings and support genreflex dictionaries; the new
+   classes are:
+   * RooCubicSplineKnot: helper class for splines
+   * RooCubicSplineFun: function approximation with splines
+   * RooBinnedFun: similar to RooBinnedPdf
+   * RooAbsGaussModelEfficiency: base class for RooGaussEfficiencyModel
+   * RooGaussEfficiencyModel: similar to RooEffResModel, but for splines
+   * RooComplementCoef: returns 1 - sum_i coeff_i
+ - also pulled in new interface for RooAbsEffResModel to satisfy needs of new
+   classes, which required changes in RooEffResModel and RooEffConvGenContext
+
 ! 2013-09-17 - Manuel Tobias Schiller
- - DecRateCoeff: some fixesi to verification of constructor arguments to make
+ - DecRateCoeff: some fixes to verification of constructor arguments to make
    it run with mistag in categories - no user visible or functional changes
  - cFit: add functionality for tagging calibration fits
 

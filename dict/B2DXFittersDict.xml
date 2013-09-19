@@ -81,5 +81,18 @@
 	<class name="TaggingCat" />
         <class name="RooCruijff" />
         
-    </selection>
+	<class name="RooComplementCoef"/>
+	<class name="RooAbsGaussModelEfficiency"/>
+	<class name="RooCubicSplineKnot::S_jk" />
+	<class name="RooCubicSplineKnot::S_edge" />
+	<class name="RooCubicSplineKnot::BoundaryConditions" />
+	<class name="RooCubicSplineKnot">
+	    <field name = "_PQRS" transient = "true" />
+	    <field name = "_IABCD" transient = "true" />
+	    <field name = "_S_jk" transient = "true" />
+	</class>
+	<class name="RooCubicSplineFun"/>
+	<class name="RooBinnedFun"/>
+	<class name="RooGaussEfficiencyModel"/>
+    </selection>/>
 </lcgdict>

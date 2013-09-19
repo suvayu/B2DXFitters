@@ -11,26 +11,22 @@
 #ifndef ROO_ABS_EFF_RES_MODEL
 #define ROO_ABS_EFF_RES_MODEL
 
-#include <RooResolutionModel.h>
-#include <RooRealProxy.h>
-#include <RooObjCacheManager.h>
-#include <RooSetProxy.h>
+#include "RooArgSet.h"
+class RooAbsReal;
 
-class RooAbsEffResModel : public RooResolutionModel  {
+class RooAbsEffResModel {
 public:
    // Constructors, assignment etc
-   inline RooAbsEffResModel() { }
-   RooAbsEffResModel(const char *name, const char *title, RooRealVar& convVar);
-   RooAbsEffResModel(const RooAbsEffResModel& other, const char* name=0);
-
    virtual ~RooAbsEffResModel();
   
-   virtual RooAbsReal* efficiency() const = 0;
-   virtual std::vector<RooAbsReal*> efficiencies() const = 0;
+   /** 
+    * Get a RooArgSet of all observables
+    * @return RooArgSet of observables
+    */
+   virtual RooArgSet* observables() const = 0;
 
-private:
+   virtual const RooAbsReal* efficiency() const = 0;
 
-   ClassDef(RooAbsEffResModel, 0) // EffResian Resolution Model
 };
 
 #endif

@@ -73,4 +73,11 @@ template class std::pair<std::string,RooAbsData*>;
 
 #include "B2DXFitters/RooCruijff.h"
 
+#include "B2DXFitters/RooAbsGaussModelEfficiency.h"
+#include "B2DXFitters/RooCubicSplineKnot.h"
+#include "B2DXFitters/RooCubicSplineFun.h"
+#include "B2DXFitters/RooBinnedFun.h"
+#include "B2DXFitters/RooGaussEfficiencyModel.h"
+#include "B2DXFitters/RooComplementCoef.h"
+
 #endif // DICT_B2DXFITTERSDICT_H

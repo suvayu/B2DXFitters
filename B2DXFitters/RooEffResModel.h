@@ -18,16 +18,16 @@
 
 #include <string>
 
-#include <RooRealProxy.h>
-#include <RooObjCacheManager.h>
-#include <RooSetProxy.h>
+#include "RooRealProxy.h"
+#include "RooObjCacheManager.h"
+#include "RooSetProxy.h"
 #include "RooAbsEffResModel.h"
+#include "RooResolutionModel.h"
 
 class RooCustomizer;
-class RooResoluitionModel;
 class RooAbsAnaConvPdf;
 
-class RooEffResModel : public RooAbsEffResModel {
+class RooEffResModel : public RooResolutionModel, public RooAbsEffResModel {
     public:
 	// Constructors, assignment etc
 	inline RooEffResModel()  { }
@@ -65,8 +65,7 @@ class RooEffResModel : public RooAbsEffResModel {
 	virtual RooResolutionModel& model() const;
 
 	/// Return pointer to pdf in product
-	const RooArgSet* observables() const
-	{ return static_cast<const RooArgSet*>(&_observables); }
+	virtual RooArgSet* observables() const;
 
     protected:
 	virtual Double_t evaluate() const;
@@ -105,7 +104,7 @@ class RooEffResModel : public RooAbsEffResModel {
 
 	mutable RooObjCacheManager _cacheMgr; //!
 
-	ClassDef(RooEffResModel, 1) // EffResian Resolution Model
+	ClassDef(RooEffResModel, 2) // EffResian Resolution Model
 };
 
 #endif
