@@ -1,5 +1,10 @@
-# personality for 2011 Paper - mode DsK
+# personality for 2011 Paper - mode DsK for DATA
 {
+        'IsToy':                False,
+        'DataWorkSpaceName':    'FitMeToolWS',
+        'DataFileName': '/afs/cern.ch/work/a/adudziak/public/sWeights/sWeights_BsDsK_all_both_BDTGA.root',
+        'DataSetNames': 'merged',
+        'FitMode': 'sFit',
         'Modes': [
             'Bs2DsK',
             'Bs2DsKst',
@@ -27,27 +32,9 @@
             'Bs2DsstKst':       30. / 180. * pi,
             'Bd2DPi':           30. / 180. * pi
             },
-        'AcceptanceCorrectionFile': None,
         'CombineModesForEffCPObs': [ ],
         'NEvents':			[ 3474. ],
-        'DataFileName':         ('/afs/cern.ch/work/a/adudziak/public/Bs2DsKToys/Gamma70_5M/DsK_Toys_Work_ForMassPlot_%d.root' if haveAFS else
-            os.environ['B2DXFITTERSROOT']+'/scripts/mdfit-003/data/DsK_Toys_Work_ForMassPlot_%d.root') % TOY_NUMBER,
-        'DataWorkSpaceName':    'FitMeToolWS',
-        'DataSetNames':         'combData',
-	'DataSetVarNameMapping': {
-	    'sample':   'sample',
-	    'mass':     'lab0_MassFitConsD_M',
-	    'pidk':     'lab1_PIDK',
-            'dsmass':   'lab2_MM',
-            'time':     'lab0_LifetimeFit_ctau',
-            'timeerr':  'lab0_LifetimeFit_ctauErr',
-            'mistag': 'lab0_BsTaggingTool_TAGOMEGA_OS',
-            'qf':       'lab1_ID_idx',
-            'qt':       'lab0_BsTaggingTool_TAGDECISION_OS_idx',
-            'weight':   'nSig_both_nonres_Evts_sw+nSig_both_phipi_Evts_sw+nSig_both_kstk_Evts_sw+nSig_both_kpipi_Evts_sw+nSig_both_pipipi_Evts_sw'
-            },
-        'MassTemplateFile':             ('/afs/cern.ch/work/a/adudziak/public/Bs2DsKToys/Gamma70_5M/DsK_Toys_Work_ForMassPlot_%d.root' if haveAFS else
-            os.environ['B2DXFITTERSROOT']+'/scripts/mdfit-003/data/DsK_Toys_Work_ForMassPlot_%d.root') % TOY_NUMBER,
+        'MassTemplateFile':             os.environ['B2DXFITTERSROOT']+'/data/workspace/MDFitter/WS_Mass_DsK_5M_BDTGA.root',
         'MassTemplateWorkspace':	'FitMeToolWS',
         'MassInterpolation':		False,
         'MistagTemplateFile':           os.environ['B2DXFITTERSROOT']+'/data/workspace/MDFitter/templates_BsDsPi.root',

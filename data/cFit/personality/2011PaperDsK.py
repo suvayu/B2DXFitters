@@ -49,10 +49,9 @@
         'constParams': [
             'Gammas', 'deltaGammas', 'deltaMs',
             'Gammad', 'deltaGammad', 'deltaMd',
-            'tagOmegaSig', 'timeerr_bias', 'timeerr_scalefactor',
+            'mistag', 'timeerr_bias', 'timeerr_scalefactor',
             'MistagCalibB_p0', 'MistagCalibB_p1', 'MistagCalibB_avgmistag',
             'MistagCalibBbar_p0', 'MistagCalibBbar_p1', 'MistagCalibBbar_avgmistag',
             'Bs2DsKst_TagEff', 'Bs2DsKst_delta', 'Bs2DsKst_lambda', 'Bs2DsKst_phi_w',
             ],
-        'Optimize': 1,
 }

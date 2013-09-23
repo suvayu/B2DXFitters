@@ -30,10 +30,10 @@
         'AcceptanceCorrectionFile': None,
         'CombineModesForEffCPObs': [ ],
         'NEvents':			[ 3474. ],
-        'DataFileName':         ('/afs/cern.ch/work/a/adudziak/public/Bs2DsKToys/Gamma70_5M/DsK_Toys_Work_ForMassPlot_%d.root' if haveAFS else
-            os.environ['B2DXFITTERSROOT']+'/scripts/mdfit-003/data/DsK_Toys_Work_ForMassPlot_%d.root') % TOY_NUMBER,
+        'DataFileName': '/afs/cern.ch/work/a/adudziak/public/Bs2DsKToys/Gamma70_5M/DsK_Toys_sWeights_ForTimeFit_%d.root' % TOY_NUMBER,
+        'DataSetNames': 'merged',
+        'FitMode': 'sFit',
         'DataWorkSpaceName':    'FitMeToolWS',
-        'DataSetNames':         'combData',
 	'DataSetVarNameMapping': {
 	    'sample':   'sample',
 	    'mass':     'lab0_MassFitConsD_M',

@@ -4,6 +4,16 @@
 ! Purpose     : RooFit-based fitters for B -> D X
 !-----------------------------------------------------------------------------
 
+! 2013-09-23 - Manuel Tobias Schiller
+ - fix to cFit treatment of tagging calibration fits in categories:
+   - to get correct normalisation of the PDF, a tagging efficiency for each
+     category must be supplied, this is achieved by the combined effect of the
+     getEtaPerCat and makeTagEff routines in runBs2DsKCPAsymmObsFitter-cFit.py
+   - needs some modification in DecRateCoeff (no user visible changes)
+   - needs some modification in TaggingCat (no changes to existing code)
+ - cFit can now do weighted fits
+ - update cFit personalities
+
 ! 2013-09-19 - Manuel Tobias Schiller
  - import new classes from P2VV package; these classes are somewhat modified
    to slience compiler warnings and support genreflex dictionaries; the new

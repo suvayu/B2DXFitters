@@ -41,9 +41,10 @@
             'dsmass':   'lab2_MM',
             'time':     'lab0_LifetimeFit_ctau',
             'timeerr':  'lab0_LifetimeFit_ctauErr',
-            'tagOmegaSig': 'lab0_BsTaggingTool_TAGOMEGA_OS',
+            'mistag':   'lab0_BsTaggingTool_TAGOMEGA_OS',
             'qf':       'lab1_ID_idx',
-            'qt':       'lab0_BsTaggingTool_TAGDECISION_OS_idx'
+            'qt':       'lab0_BsTaggingTool_TAGDECISION_OS_idx',
+            'weight':   'nSig_both_nonres_Evts_sw+nSig_both_phipi_Evts_sw+nSig_both_kstk_Evts_sw+nSig_both_kpipi_Evts_sw+nSig_both_pipipi_Evts_sw'
             },
         'MassTemplateFile':             ('/afs/cern.ch/work/a/adudziak/public/Bs2DsKToys/Gamma140_5M/DsK_Toys_Work_ForMassPlot_%d.root' if haveAFS else
             os.environ['B2DXFITTERSROOT']+'/scripts/mdfit-004/data/DsK_Toys_Work_ForMassPlot_%d.root') % TOY_NUMBER,
@@ -66,10 +67,9 @@
         'constParams': [
             'Gammas', 'deltaGammas', 'deltaMs',
             'Gammad', 'deltaGammad', 'deltaMd',
-            'tagOmegaSig', 'timeerr_bias', 'timeerr_scalefactor',
+            'mistag', 'timeerr_bias', 'timeerr_scalefactor',
             'MistagCalibB_p0', 'MistagCalibB_p1', 'MistagCalibB_avgmistag',
             'MistagCalibBbar_p0', 'MistagCalibBbar_p1', 'MistagCalibBbar_avgmistag',
             'Bs2DsKst_TagEff', 'Bs2DsKst_delta', 'Bs2DsKst_lambda', 'Bs2DsKst_phi_w',
             ],
-        'Optimize': 1,
 }
