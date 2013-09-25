@@ -27,6 +27,7 @@
 //
 #include <memory>
 
+#include "RVersion.h"
 #include "RooFit.h"
 
 #include "TMath.h"
@@ -64,15 +65,25 @@ namespace {
     // Calculate Re[exp(-x^2) cwerf(i (z-x) )], taking care of numerical instabilities
     Double_t evalRe(Double_t x, const std::complex<double>& z) {
       Double_t re =  z.real()-x;
+#if ROOT_VERSION_CODE >= ROOT_VERSION(5,34,8)
       return (re>-5.0) ? RooMath::faddeeva_fast(std::complex<double>(-z.imag(),re)).real()*exp(-x*x)
                        : evalApprox(x,z).real() ;
+#else
+      return (re>-5.0) ? RooMath::FastComplexErrFunc(RooComplex(-z.imag(),re)).re()*exp(-x*x)
+                       : evalApprox(x,z).real() ;
+#endif
     }
 
     // Calculate Im[exp(-x^2) cwerf(i(z-x))], taking care of numerical instabilities
     Double_t evalIm(Double_t x, const std::complex<double>& z) {
       Double_t re = z.real()-x;
+#if ROOT_VERSION_CODE >= ROOT_VERSION(5,34,8)
       return (re>-5.0) ? RooMath::faddeeva_fast(std::complex<double>(-z.imag(),re)).imag()*exp(-x*x)
                        : evalApprox(x,z).imag() ;
+#else
+      return (re>-5.0) ? RooMath::FastComplexErrFunc(RooComplex(-z.imag(),re)).im()*exp(-x*x)
+                       : evalApprox(x,z).imag() ;
+#endif
     }
 
 }

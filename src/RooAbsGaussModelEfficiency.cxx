@@ -1,4 +1,5 @@
 #include "B2DXFitters/RooAbsGaussModelEfficiency.h"
+#include "RVersion.h"
 #include "RooMath.h"
 #include "TMath.h"
 
@@ -23,8 +24,17 @@ namespace {
     // Calculate exp(-x^2) cwerf(i(z-x)), taking care of numerical instabilities
     std::complex<double> eval(Double_t x, const std::complex<double>& z) {
       Double_t re = z.real()-x;
+#if ROOT_VERSION_CODE >= ROOT_VERSION(5,34,8)
       return (re>-5.0) ? RooMath::faddeeva_fast(std::complex<double>(-z.imag(),re))*exp(-x*x)
                        : evalApprox(x,z) ;
+#else
+      if (re > -5.0) {
+      RooComplex erfc = RooMath::FastComplexErrFunc(RooComplex(-z.imag(),re));
+      return std::complex<double>(erfc.re(), erfc.im())*exp(-x*x);
+      } else {
+	  return evalApprox(x,z) ;
+      }
+#endif
     }
 
   class N {

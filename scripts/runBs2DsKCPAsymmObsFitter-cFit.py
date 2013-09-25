@@ -2021,7 +2021,10 @@ def printPDFTermsOnDataSet(dataset, terms = []):
     for v in vlist:
         ROOT.SetOwnership(v, True)
         v.attachDataSet(dataset)
-    vlist = { v.GetName(): v for v in vlist }
+    tmpvlist = {}
+    for v in vlist: tmpvlist[v.GetName()] = v
+    vlist = tmpvlist
+    del tmpvlist
     notchanged = False
     while not notchanged:
         notchanged = True
@@ -2064,9 +2067,10 @@ def printPDFTermsOnDataSet(dataset, terms = []):
                     obsdict[k].InheritsFrom('RooAbsReal') else
                     '%s %s = %d' % (s, k, obsdict[k].getIndex()))
         print s
-        vals = {k: (vlist[k].getValV(obs) if
-            vlist[k].InheritsFrom('RooAbsReal') else vlist[k].getIndex()) for
-            k in vlist}
+        vals = {}
+        for k in vlist:
+            vals[k] = (vlist[k].getValV(obs) if
+                    vlist[k].InheritsFrom('RooAbsReal') else vlist[k].getIndex())
         for k in sorted(vals.keys()):
             if k in obsdict: continue
             print 'DEBUG:    ===> %s = %g' % (k, vals[k])
