@@ -73,16 +73,17 @@ def runBsDsKMassFitterOnData( debug, sample, mVar, mdVar, tVar, terrVar, tagVar,
         workspaceToys.Print("v")
         
         
-    if (not toys):
-        tagvar      = GeneralUtils.GetObservable(workspace[0],TString(tagVar), debug)
-        idvar       = GeneralUtils.GetObservable(workspace[0],TString(idVar), debug)
+                               
+                                                                           
+    if (not toys ):
         mass        = GeneralUtils.GetObservable(workspace[0],obsTS, debug)
         massDs      = GeneralUtils.GetObservable(workspace[0],TString(mdVar), debug)
         PIDK        = GeneralUtils.GetObservable(workspace[0],TString("lab1_PIDK"), debug)
         tvar        = GeneralUtils.GetObservable(workspace[0],TString(tVar), debug)
         terrvar     = GeneralUtils.GetObservable(workspace[0],TString(terrVar), debug)
         tagomegavar = GeneralUtils.GetObservable(workspace[0],TString(tagOmegaVar), debug)
-                            
+        tagvar      = GeneralUtils.GetObservable(workspace[0],TString(tagVar), debug)
+        idvar       = GeneralUtils.GetObservable(workspace[0],TString(idVar), debug)
     else:
         mass        = GeneralUtils.GetObservable(workspaceToys,obsTS, debug)
         massDs      = GeneralUtils.GetObservable(workspaceToys,TString(mdVar), debug)
@@ -93,25 +94,35 @@ def runBsDsKMassFitterOnData( debug, sample, mVar, mdVar, tVar, terrVar, tagVar,
         tagvar      = GeneralUtils.GetObservable(workspaceToys,TString(tagVar)+TString("_idx"), debug)
         idvar       = GeneralUtils.GetObservable(workspaceToys,TString(idVar)+TString("_idx"), debug)
         trueidvar   = GeneralUtils.GetObservable(workspaceToys,TString("lab0_TRUEID"), debug)
-                                                                        
-    if( tagTool == "yes"):
-        tagsskaonvar = GeneralUtils.GetObservable(workspace[0],TString("lab0_BsTaggingTool_SS_Kaon_PROB"), debug)
-        tagosmuonvar = GeneralUtils.GetObservable(workspace[0],TString("lab0_BsTaggingTool_OS_Muon_PROB"), debug)
-        tagoselectronvar = GeneralUtils.GetObservable(workspace[0],TString("lab0_BsTaggingTool_OS_Electron_PROB"), debug)
-        tagoskaonvar = GeneralUtils.GetObservable(workspace[0],TString("lab0_BsTaggingTool_OS_Kaon_PROB"), debug)
-        tagvtxchargevar = GeneralUtils.GetObservable(workspace[0],TString("lab0_BsTaggingTool_VtxCharge_PROB"), debug)
-        pvar = GeneralUtils.GetObservable(workspace[0],TString("lab1_P"), debug)
-        ptvar = GeneralUtils.GetObservable(workspace[0],TString("lab1_PT"), debug)
+
         
-    if( tagTool == "no"):
-        observables = RooArgSet( mass, massDs, PIDK, tvar, terrvar, tagvar,tagomegavar,idvar )
-        if toys:
-            observables.add(trueidvar)
-    else:
-        observables =  RooArgSet( mass,tagsskaonvar,tagosmuonvar,tagoselectronvar,tagoskaonvar,tagvtxchargevar, pvar, ptvar)
-        
-        
-        
+    observables = RooArgSet( mass,massDs, PIDK, tvar, terrvar, tagvar,tagomegavar,idvar )
+    if toys :
+        observables.add(trueidvar)
+
+    if tagtool:
+        tagsskaonVar       = GeneralUtils.GetObservable(workspace[0], TString("lab0_SS_Kaon_PROB"), debug)
+        tagdecsskaonVar    = GeneralUtils.GetObservable(workspace[0], TString("lab0_SS_Kaon_DEC"), debug)
+        tagosmuonVar       = GeneralUtils.GetObservable(workspace[0], TString("lab0_OS_Muon_PROB"), debug)
+        tagdecosmuonVar    = GeneralUtils.GetObservable(workspace[0], TString("lab0_OS_Muon_DEC"), debug)
+        tagoselectronVar   = GeneralUtils.GetObservable(workspace[0], TString("lab0_OS_Electron_PROB"), debug)
+        tagdecoselectronVar= GeneralUtils.GetObservable(workspace[0], TString("lab0_OS_Electron_DEC"), debug)
+        tagoskaonVar       = GeneralUtils.GetObservable(workspace[0], TString("lab0_OS_Kaon_PROB"), debug)
+        tagdecoskaonVar    = GeneralUtils.GetObservable(workspace[0], TString("lab0_OS_Kaon_DEC"), debug)
+        tagvtxchargeVar    = GeneralUtils.GetObservable(workspace[0], TString("lab0_VtxCharge_PROB"), debug)
+        tagdecvtxchargeVar = GeneralUtils.GetObservable(workspace[0], TString("lab0_VtxCharge_DEC"), debug)
+        observables.add(tagsskaonVar)
+        observables.add(tagosmuonVar)
+        observables.add(tagdecsskaonVar)
+        observables.add(tagdecosmuonVar)
+        observables.add(tagoselectronVar)
+        observables.add(tagdecoselectronVar=)
+        observables.add(tagoskaonVar)
+        observables.add(tagdecoskaonVar)
+        observables.add(tagvtxchargeVar)
+        observables.add(tagdecvtxchargeVar)
+            
+            
     
 
         
@@ -123,11 +134,8 @@ def runBsDsKMassFitterOnData( debug, sample, mVar, mdVar, tVar, terrVar, tagVar,
     modeTS = TString(mode)
     sampleTS = TString(sample)
 
-    if(tagTool == "no"):
-        datasetTS = TString("dataSetBsDsPi_")
-    else:
-        datasetTS = TString("dataSetTagToolBsDsPi_")
-        
+    datasetTS = TString("dataSetBsDsPi_")
+            
     sam = RooCategory("sample","sample")
     t = TString('_')
 
@@ -1006,7 +1014,8 @@ parser.add_option( '-y', '--yield',
 
 parser.add_option( '--tagTool',
                    dest = 'tagTool',
-                   default = "no",
+                   action = 'store_true',
+                   default = False,
                    help = 'generate sWeights with tagTool variables (for Matt)'
                    )
 parser.add_option( '--fileName',
