@@ -5,6 +5,10 @@
 !-----------------------------------------------------------------------------
 
 ! 2013-09-27 - Manuel Tobias Schiller
+ - standalone build: link libB2DXFitters.so against all relevant ROOT
+   libraries by default
+
+! 2013-09-27 - Manuel Tobias Schiller
  - QRDecomposition.h: add column pivoting for better numerical stability, make
    it a bit faster for small matrices by doing dynamic memory management
    ourselves instead of leaving it to std::vector
