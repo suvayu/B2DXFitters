@@ -10,7 +10,6 @@
 #define _QRDECOMPOSITION_H
 
 #include <cmath>
-#include <vector>
 #include <limits>
 #include <complex>
 #include <algorithm>
@@ -127,6 +126,7 @@ namespace QRDecompositionTools {
  * @date Aug 05 2006	implemented version with pivoting
  * @date Aug 14 2008	rewrite as templated class
  * @date Aug 19 2008	make it work for complex matrices
+ * @date Sep 26 2013	change pivoting for better stability
  */
 template <class F = double>
 class QRDecomposition
@@ -143,12 +143,13 @@ class QRDecomposition
      */
     template <class M>
 	QRDecomposition(unsigned nn, const M& m, FBASE eps = -1) :
-	    a(nn, std::vector<F>(nn)), c(nn), d(nn), p(nn), nsing(0)
+	    nnn(nn), a(new F[nn * (nn + 1)]), c(new F[nn]), d(a + nn * nn),
+	    pc(new unsigned[2 * nn]), pr(pc + nn), nsing(0)
     {
 	// copy m to working area a
 	for (unsigned i = 0; i < nn; ++i) {
 	    for (unsigned j = 0; j < nn; ++j) {
-		a[i][j] = m[i][j];
+		a[i * nn + j] = m[i][j];
 	    }
 	}
 	// make sure that eps has a reasonable size
@@ -168,12 +169,13 @@ class QRDecomposition
      */
     template <unsigned nn, class R>
 	QRDecomposition(const ROOT::Math::SMatrix<F, nn, nn, R>& m, FBASE eps = -1) :
-	    a(nn, std::vector<F>(nn)), c(nn), d(nn), p(nn), nsing(0)
+	    nnn(nn), a(new F[nn * (nn + 1)]), c(new F[nn]), d(a + nn * nn),
+	    pc(new unsigned[2 * nn]), pr(pc + nn), nsing(0)
     {
 	// copy m to working area a
 	for (unsigned i = 0; i < nn; ++i) {
 	    for (unsigned j = 0; j < nn; ++j) {
-		a[i][j] = m(i, j);
+		a[i * nn + j] = m(i, j);
 	    }
 	}
 	// make sure that eps has a reasonable size
@@ -186,13 +188,52 @@ class QRDecomposition
 	decompose(eps);
     }
 
+    /** @brief copy constructor
+     *
+     * @param other	matrix to copy from
+     */
+    QRDecomposition(const QRDecomposition<F>& other) :
+	    nnn(other.nnn), a(new F[nnn * (nnn + 1)]), c(new F[nnn]), d(a + nnn * nnn),
+	    pc(new unsigned[2 * nnn]), pr(pc + nnn), nsing(other.nsing)
+    {
+	for (unsigned i = 0; i < nnn * (nnn + 1); ++i) a[i] = other.a[i];
+	for (unsigned i = 0; i < nnn; ++i) c[i] = other.c[i];
+	for (unsigned i = 0; i < 2 * nnn; ++i) pc[i] = other.pc[i];
+    }
+
+    /** @brief assignment operator
+     *
+     * @param other	matrix to assign to this matrix
+     * @returns		this matrix
+     */
+    QRDecomposition<F>& operator=(const QRDecomposition<F>& other)
+    {
+	if (&other == this) return *this;
+	delete[] a;
+	delete[] c;
+	delete[] pc;
+	nnn = other.nnn;
+	a = new F[nnn * (nnn + 1)];
+	c = new F[nnn];
+	d = a + nnn * nnn;
+	pc = new unsigned[2 * nnn];
+	pr = pc + nnn;
+	nsing = other.nsing;
+	return *this;
+    }
+
     /// destructor
-    virtual ~QRDecomposition() { }
+    virtual ~QRDecomposition()
+    {
+	delete[] a;
+	delete[] c;
+	delete[] pc;
+    }
 
     /// return number of singularities encoutered
     inline unsigned nSing() const { return nsing; }
     /// return dimensionality of the matrix
-    inline unsigned n() const { return a.size(); }
+    inline unsigned n() const { return nnn; }
     /// return rank of the matrix
     inline unsigned rank() const { return n() - nSing(); }
     /// return true if decomposition was successful
@@ -209,12 +250,15 @@ class QRDecomposition
 	if (n() != nn) throw;
 
 	// apply pivoting
-	std::vector<F> tmp(nn);
-	for (unsigned i = nn; i--; tmp[i] = b[p[i]]);
+	//F* tmp = new F[nn];
+	F tmpa[nn];
+	F* tmp = tmpa;
+	for (unsigned i = nn; i--; tmp[i] = b[pr[i] / nn]);
 	// solve
 	doSolve(nn, tmp);
 	// copy back to user supplied vector
-	for (unsigned i = nn; i--; b[i] = tmp[i]);
+	for (unsigned i = nn; i--; b[pc[i]] = tmp[i]);
+	//delete[] tmp;
 
 	return nSing();
     }
@@ -278,11 +322,13 @@ class QRDecomposition
      * is applied to a in the code, while c and d are filled in the order of
      * the permuted rows.
      */
-    std::vector<std::vector<F> > a;	///< decomposed matrix
-    std::vector<FBASE> c;		///< scaling for householder matrices
-    std::vector<F> d;			///< diagonale of R
-    std::vector<unsigned> p;		///< permutation for pivoting
-    unsigned nsing;			///< number of singularities
+    unsigned nnn;	///< size of matrix
+    F* a;		///< decomposed matrix
+    FBASE* c;		///< scaling for householder matrices
+    F* d;		///< diagonale of R
+    unsigned* pc;	///< permutation for column pivoting
+    unsigned* pr;	///< permutation for row pivoting
+    unsigned nsing;	///< number of singularities
 
     /// squared distance from zero for real number
     inline FBASE norm(const FBASE& x) const { return x * x; }
@@ -311,60 +357,71 @@ class QRDecomposition
 	using std::abs;
 	const unsigned nn = n();
 
-	// set up the identity row permutation for pivoting
-	for (unsigned i = nn; i--; p[i] = i);
+	// set up the identity row and column permutations for pivoting
+	for (unsigned i = nn; i--; pc[i] = i, pr[i] = nn * i);
 	// find greatest absolute value of all elements in the matrix
 	// we need this to tell if a value is close to singular or not
 	// (1e-16 may be a large value if the maximum in the matrix is
 	// 1e-15, if the maximum is 3.1415 however, it's small, of course)
 	FBASE max = 0;
-	for (unsigned i = nn; i--; ) {
-	    for (unsigned j = nn; j--; )
-		if (abs(a[i][j]) > max)
-		    max = abs(a[i][j]);
+	for (unsigned i = 0; i < nn; ++i) {
+	    for (unsigned j = 0; j < nn; ++j)
+		if (abs(a[pr[i] + j]) > max)
+		    max = abs(a[pr[i] * nn + j]);
 	}
 	if (FBASE(0) == max) max = 1;
 
 	// ok, here comes the main decomposition loop
 	for (unsigned i = 0; i < (nn - 1); ++i) {
+	    // get column with largest column norm for column pivoting
+	    FBASE best = 0;
+	    unsigned q = i;
+	    for (unsigned j = i; j < nn; ++j) {
+		FBASE tmp = 0;
+		for (unsigned k = i; k < nn; ++k)
+		    tmp += norm(a[pr[k] + pc[j]]);
+		if (tmp <= best) continue;
+		q = j;
+		best = tmp;
+	    }
+	    FBASE colnorm = best;
+	    std::swap(pc[i], pc[q]);
+
 	    FBASE scale = 0;
 	    // determine scale
 	    for (unsigned j = i; j < nn; ++j)
-		if (abs(a[p[j]][i]) > scale)
-		    scale = abs(a[p[j]][i]);
+		if (abs(a[pr[j] + pc[i]]) > scale)
+		    scale = abs(a[pr[j] + pc[i]]);
 	    // we have to handle singularity - decomposition is attempted
 	    // anyway (i.e. decompose the non-singular part of the matrix)
-	    if (std::max(scale, abs(a[p[i]][i])) <= eps * max) {
+	    if (std::max(scale, abs(a[pr[i] + pc[i]])) <= eps * max) {
 		++nsing;
 		d[i] = c[i] = 0;
 		continue;
 	    }
 	    // select a pivot element (i.e. next row to work on)
-	    // we use the one with the smallest non-zero element on the
-	    // diagonal (this one would acquire the largest contribution from
-	    // rounding errors, so we deal with it before roundoff errors can
-	    // accumulate any more than they already have)
-	    FBASE best = std::numeric_limits<FBASE>::infinity();
-	    unsigned q = i;
-	    for (unsigned j = i; j < nn; ++j) {
-		FBASE goodness = abs(a[p[j]][i]);
-		if (goodness >= best) continue;
+	    // we use the one with the largest non-zero element on the
+	    // diagonal
+	    best = abs(a[pr[i] + pc[i]]);
+	    q = i;
+	    for (unsigned j = i + 1; j < nn; ++j) {
+		FBASE goodness = abs(a[pr[j] + pc[i]]);
+		if (goodness <= best) continue;
 		// better than previous best pivot choice, save it
 		best = goodness;
 		q = j;
 	    }
 	    // ok, modify the permutation in such a way that the pivot
 	    // element's row "bubbles up" to the diagonale
-	    std::swap(p[i], p[q]);
+	    std::swap(pr[i], pr[q]);
 	    // we scale the entries of our matrix (to avoid wildly differing
 	    // orders of magnitude)
 	    // scale the i-th column vector and calculate its length
-	    // scale still contains the scale factor we need (see above)
-	    FBASE tmp = 0;
-	    for (unsigned j = i; j < nn; ++j) {
-		a[p[j]][i] /= scale;
-		tmp += norm(a[p[j]][i]);
-	    }
+	    // scale still contains the scale factor we need (see above), and
+	    // colnorm can be adjusted
+	    for (unsigned j = i; j < nn; ++j)
+		a[pr[j] + pc[i]] /= scale;
+	    colnorm = sqrt(colnorm) / scale;
 
 	    // the orthogonal matrix Q for this step is 1 in that part of our
 	    // matrix which has already been decomposed to upper triangular
@@ -382,23 +439,23 @@ class QRDecomposition
 	    // u[0] and sqrt(x^T*x) should have the same argument)
 	    // things get slightly complicated by the compact storage format
 	    // and the scaling stuff needed
-	    F sigma = choosePhase(sqrt(tmp), a[p[i]][i]);
-	    a[p[i]][i] += sigma; // v in a[p[i]][i]...a[p[n]][i]
-	    c[i] = sqrt(tmp) * abs(a[p[i]][i]); // 1/2 * |v|^2
+	    F sigma = choosePhase(colnorm, a[pr[i] + pc[i]]);
+	    a[pr[i] + pc[i]] += sigma; // v in a[pr[i]][pc[i]]...a[pr[n]][pc[i]]
+	    c[i] = colnorm * abs(a[pr[i] + pc[i]]); // 1/2 * |v|^2
 	    d[i] = -scale * sigma;
 	    // apply Q to rest of a
 	    for (unsigned j = i + 1; j < nn; ++j) {
-		tmp = 0;
+		F tmp = 0;
 		for (unsigned k = i; k < nn; ++k)
-		    tmp += conj(a[p[k]][i]) * a[p[k]][j];
+		    tmp += conj(a[pr[k] + pc[i]]) * a[pr[k] + pc[j]];
 		tmp /= c[i];
 		for (unsigned k = i; k < nn; ++k)
-		    a[p[k]][j] -= tmp * a[p[k]][i];
+		    a[pr[k] + pc[j]] -= tmp * a[pr[k] + pc[i]];
 	    }
 	}
 	// write d entry for last column and check one last time for
 	// singularity
-	if (abs(d[nn - 1] = a[p[nn - 1]][nn - 1]) <= eps * max) {
+	if (abs(d[nn - 1] = a[pr[nn - 1] + pc[nn - 1]]) <= eps * max) {
 	    d[nn - 1] = c[nn - 1] = 0;
 	    ++nsing;
 	}
@@ -417,10 +474,10 @@ class QRDecomposition
 		continue;
 	    F tmp = 0;
 	    for (unsigned i = j; i < nn; ++i)
-		tmp += conj(a[p[i]][j]) * b[i];
+		tmp += conj(a[pr[i] + pc[j]]) * b[i];
 	    tmp /= c[j];
 	    for (unsigned i = j; i < nn; ++i)
-		b[i] -= tmp * a[p[i]][j];
+		b[i] -= tmp * a[pr[i] + pc[j]];
 	}
 
 	// ok, solve Rx = Q^T b
@@ -431,7 +488,7 @@ class QRDecomposition
 	    }
 	    F tmp = 0;
 	    for (unsigned j = i + 1; j < nn; ++j)
-		tmp += a[p[i]][j] * b[j];
+		tmp += a[pr[i] + pc[j]] * b[j];
 	    b[i] = (b[i] - tmp) / d[i];
 	}
     }

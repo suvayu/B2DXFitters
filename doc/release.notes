@@ -4,6 +4,11 @@
 ! Purpose     : RooFit-based fitters for B -> D X
 !-----------------------------------------------------------------------------
 
+! 2013-09-27 - Manuel Tobias Schiller
+ - QRDecomposition.h: add column pivoting for better numerical stability, make
+   it a bit faster for small matrices by doing dynamic memory management
+   ourselves instead of leaving it to std::vector
+
 ! 2013-09-25 - Manuel Tobias Schiller
  - cFit: make it run in Urania v1r1 again for Giulia
  - backport spline classes to Urania v1r1 - no guarantees given, neither in
