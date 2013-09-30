@@ -5,6 +5,13 @@
 !-----------------------------------------------------------------------------
 
 ! 2013-09-30 - Manuel Tobias Schiller
+ - cFit: fix last commit
+   the check if a per-category omega ran into the limit was a little
+   agressive, go back to something less controversial: skip a data point if it
+   is closer to the edges of the allowed interval than a permille of the fit
+   interval itself
+
+! 2013-09-30 - Manuel Tobias Schiller
  - cFit: improve a bit the code for tagging calibration applications
    - make routines reading templates a bit more flexible so they do the "right
      thing" more often without the need of user intervention (can now read

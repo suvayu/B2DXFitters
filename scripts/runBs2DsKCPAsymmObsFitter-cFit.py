@@ -3444,7 +3444,7 @@ def runBsGammaFittercFit(generatorConfig, fitConfig, toy_num, debug, wsname, ini
         omega = RooRealVar('omega', '#omega', 0., 0.5)
         # create data set and populate with per-category omegas;
         # also do a bit of validation on the way:
-        # if fitted omega in a category +/- error touches the bounds in
+        # if fitted omega comes very close to the bounds in
         # fitConfig['MistagCategoryOmegaRange'], we skip that data point
         # we also skip data points if the uncertainty looks suspect (a factor
         # 5 below or above the average of all categories)
@@ -3453,11 +3453,14 @@ def runBsGammaFittercFit(generatorConfig, fitConfig, toy_num, debug, wsname, ini
         averror = 0.
         varok = []
         mistagrange = fitConfig['MistagCategoryOmegaRange']
+        mistagrangetol = 0.001 * (mistagrange[1] - mistagrange[0])
         for i in xrange(0, pdf['config']['NMistagCategories']):
             vname = 'OmegaCat%02d' % i
             var = fitResult.floatParsFinal().find(vname)
-            if (var.getVal() - var.getError() <= mistagrange[0] or
-                    var.getVal() + var.getError() >= mistagrange[1]):
+            if (abs(var.getVal() - mistagrange[0]) < mistagrangetol or
+                    abs(var.getVal() - mistagrange[1]) < mistagrangetol or
+                    var.getVal() <= mistagrange[0] or
+                    var.getVal() >= mistagrange[1]):
                 print ('WARNING: Skipping %s in calibration fit: touches '
                         'or is outside range!') % var.GetName()
                 continue
