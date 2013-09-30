@@ -267,11 +267,22 @@ defaultConfig = {
     'PowLawAcceptance_beta':	0.0363,
 
     'PerEventMistag': 		True,
+
+    # divide mistag into categories?
+    #
+    # number of categories
     'NMistagCategories':        None,
+    # sorted list of category boundaries, e.g [ 0., 0.1, 0.2, 0.4, 0.5 ]
     'MistagCategoryBinBounds':  None,
+    # starting values for per-category mistags
     'MistagCategoryOmegas':     None,
+    # per category tagging efficiencies (N_cat_i / N_(tagged + untagged)
     'MistagCategoryTagEffs':    None,
+    # parameter range if per-cat. omegas are floated
+    'MistagCategoryOmegaRange': [ 0., 0.5 ],
+
     'TrivialMistag':		False,
+
     'UseKFactor':		False,
 
     # fitter settings
@@ -841,43 +852,116 @@ def readAcceptanceCorrection(
     del f
     return retVal
 
+def readTemplate1D(
+    fromfile,           # file to read from
+    fromws,             # workspace to read from
+    fromvarname,        # variable name in fromws
+    objname,            # object to ask for
+    ws, 	        # workspace to import into
+    variable,	        # variable
+    pfx,                # prefix of imported objects
+    binIfPDF = False    # bin if the template comes as Pdf
+    ):
+    # read a 1D template from a file - can either be in a workspace (either
+    # PDF or data set), or a plain 1D histogram
+    from ROOT import ( TFile, RooWorkspace, RooKeysPdf, RooHistPdf,
+        RooArgList, RooDataHist, RooArgSet )
+    ff = TFile(fromfile, 'READ')
+    if (None == ff or ff.IsZombie()):
+        print 'ERROR: Unable to open %s to get template for %s' % (fromfile,
+                variable.GetName())
+    workspace = ff.Get(fromws)
+    if None != workspace and workspace.InheritsFrom('RooWorkspace'):
+        # ok, we're reading from a ROOT file which contains a RooWorkspace, so
+        # we try to get a PDF of a RooAbsData from it
+        ROOT.SetOwnership(workspace, True)
+        var = workspace.var(fromvarname)
+        if (None == var):
+            print ('ERROR: Unable to read %s variable %s from '
+                    'workspace %s (%s)') % (variable.GetName(), fromvarname,
+                            fromws, fromfile)
+            return None
+        pdf = workspace.pdf(objname)
+        if (None == pdf):
+            # try to get a data sample of that name
+            data = workspace.data(objname)
+            if None == data:
+                print ('ERROR: Unable to read %s pdf/data %s from '
+                        'workspace %s (%s)') % (variable.GetName(),
+                                fromvarname, fromws, fromfile)
+                return None
+            if data.InheritsFrom('RooDataSet'):
+                # if unbinned data set, first create a binned version
+                argset = RooArgSet(var)
+                data = data.reduce(RooFit.SelectVars(argset))
+                ROOT.SetOwnership(data, True)
+                data = data.binnedClone()
+                ROOT.SetOwnership(data, True)
+            # get underlying histogram
+            hist = data.createHistogram(var.GetName())
+            del data
+        else:
+            # we need to jump through a few hoops to rename the dataset and variables
+            # get underlying histogram
+            if (pdf.InheritsFrom('RooHistPdf')):
+                hist = pdf.dataHist().createHistogram(var.GetName())
+            else:
+                if binIfPDF:
+                    hist = pdf.createHistogram(var.GetName(), var)
+                else:
+                    # ok, replace var with variable
+                    from ROOT import RooCustomizer
+                    c = RooCustomizer(pdf, '%sPdf' % pfx);
+                    c.replaceArg(var, variable)
+                    pdf = c.build()
+                    ROOT.SetOwnership(pdf, True)
+                    pdf.SetName('%sPdf' % pfx)
+                    pdf = WS(ws, pdf)
+                    del var
+                    del workspace
+                    ff.Close()
+                    del ff
+                    return pdf
+    else:
+        # no workspace found, try to find a TH1 instead
+        hist = None
+        for tmp in (fromws, objname):
+            hist = ff.Get(tmp)
+            if (None != tmp and hist.InheritsFrom('TH1') and
+                    1 == hist.GetDimension()):
+                break
+        if (None == hist or not hist.InheritsFrom('TH1') or
+                1 != hist.GetDimension()):
+            print ('ERROR: Utterly unable to find any kind of %s '
+                    'variable/data in %s') % (variable.GetName(), fromfile)
+            return None
+    variable.setBins(hist.GetNbinsX())
+    ROOT.SetOwnership(hist, True)
+    hist.SetNameTitle('%sPdf_hist' % pfx, '%sPdf_hist' % pfx)
+    hist.SetDirectory(None)
+    # recreate datahist
+    dh = RooDataHist('%sPdf_dhist' % pfx, '%sPdf_dhist' % pfx,
+            RooArgList(variable), hist)
+    del hist
+    del pdf
+    del var
+    del workspace
+    ff.Close()
+    del ff
+    # and finally use dh to create our pdf
+    pdf = WS(ws, RooHistPdf('%sPdf' % pfx, '%sPdf' % pfx, RooArgSet(variable), dh))
+    del dh
+    return pdf
+
 # read mistag distribution from file
 def getMistagTemplate(
     config,	# configuration dictionary
     ws, 	# workspace to import into
     mistag	# mistag variable
     ):
-    from ROOT import ( TFile, RooWorkspace, RooKeysPdf, RooHistPdf,
-        RooArgList, RooDataHist, RooArgSet )
-    fromfile = config['MistagTemplateFile']
-    fromws = config['MistagTemplateWorkspace']
-    fromvarname = config['MistagVarName']
-    fromfile = TFile(fromfile, 'READ')
-    workspace = fromfile.Get(fromws)
-    ROOT.SetOwnership(workspace, True)
-    var = workspace.var(fromvarname)
-    pdf = workspace.pdf(config['MistagTemplateName'])
-    # we need to jump through a few hoops to rename the dataset and variables
-    # get underlying histogram
-    hist = pdf.dataHist().createHistogram(var.GetName())
-    mistag.setBins(hist.GetNbinsX())
-    ROOT.SetOwnership(hist, True)
-    hist.SetNameTitle('sigMistagPdf_hist', 'sigMistagPdf_hist')
-    hist.SetDirectory(None)
-    # recreate datahist
-    dh = RooDataHist('sigMistagPdf_dhist', 'sigMistagPdf_dhist',
-            RooArgList(mistag), hist)
-    del hist
-    del pdf
-    del var
-    del workspace
-    fromfile.Close()
-    del fromfile
-    # and finally use dh to create our pdf
-    pdf = WS(ws, RooHistPdf('sigMistagPdf', 'sigMistagPdf',
-        RooArgSet(mistag), dh))
-    del dh
-    return pdf
+    return readTemplate1D(config['MistagTemplateFile'],
+            config['MistagTemplateWorkspace'], config['MistagVarName'],
+            config['MistagTemplateName'], ws, mistag, 'sigMistag')
 
 # read decay time error distribution from file
 def getDecayTimeErrorTemplate(
@@ -885,37 +969,10 @@ def getDecayTimeErrorTemplate(
     ws, 	# workspace to import into
     timeerr	# timeerr variable
     ):
-    from ROOT import ( TFile, RooWorkspace, RooKeysPdf, RooHistPdf,
-        RooArgList, RooDataHist, RooArgSet )
-    fromfile = config['DecayTimeErrorTemplateFile']
-    fromws = config['DecayTimeErrorTemplateWorkspace']
-    fromvarname = config['DecayTimeErrorVarName']
-    fromfile = TFile(fromfile, 'READ')
-    workspace = fromfile.Get(fromws)
-    ROOT.SetOwnership(workspace, True)
-    var = workspace.var(fromvarname)
-    pdf = workspace.pdf(config['DecayTimeErrorTemplateName'])
-    # we need to jump through a few hoops to rename the dataset and variables
-    # get underlying histogram
-    hist = pdf.dataHist().createHistogram(var.GetName())
-    timeerr.setBins(hist.GetNbinsX())
-    ROOT.SetOwnership(hist, True)
-    hist.SetNameTitle('sigTimeErrPdf_hist', 'sigTimeErrPdf_hist')
-    hist.SetDirectory(None)
-    # recreate datahist
-    dh = RooDataHist('sigTimeErrPdf_dhist', 'sigTimeErrPdf_dhist',
-            RooArgList(timeerr), hist)
-    del hist
-    del pdf
-    del var
-    del workspace
-    fromfile.Close()
-    del fromfile
-    # and finally use dh to create our pdf
-    pdf = WS(ws, RooHistPdf('sigTimeErrPdf', 'sigTimeErrPdf',
-        RooArgSet(timeerr), dh))
-    del dh
-    return pdf
+    return readTemplate1D(config['DecayTimeErrorTemplateFile'],
+            config['DecayTimeErrorTemplateWorkspace'],
+            config['DecayTimeErrorVarName'],
+            config['DecayTimeErrorTemplateName'], ws, timeerr, 'sigTimeErr')
 
 # Clean up work space into nicely named RooKeysPdfs for each mode
 def getKFactorTemplates(
@@ -2610,6 +2667,12 @@ def getMasterPDF(config, name, debug = False):
                     'per-category tagging efficiencies does not match' %
                     config['NMistagCategories'])
             return None
+        # verify that there is no error in MistagCategoryOmegaRange
+        if (2 != len(config['MistagCategoryOmegaRange']) or
+                config['MistagCategoryOmegaRange'][0] >=
+                config['MistagCategoryOmegaRange'][1]):
+            print 'ERROR: invalid MistagCategoryOmegaRange supplied in config!'
+            return None
         # create a category for mistag categories and the per-category omegas
         from math import sqrt
         omegas = RooArgList()
@@ -2618,7 +2681,8 @@ def getMasterPDF(config, name, debug = False):
             tagcat.defineType('cat%02d' % i, i)
             omegas.add(WS(ws, RooRealVar(
                 'OmegaCat%02d' % i, 'OmegaCat%02d' % i,
-                config['MistagCategoryOmegas'][i], 0., 0.5)))
+                config['MistagCategoryOmegas'][i],
+                *config['MistagCategoryOmegaRange'])))
             # set rough and reasonable error estimate
             omegas[i].setError((config['MistagCategoryBinBounds'][i + 1] -
                 config['MistagCategoryBinBounds'][i]) / sqrt(12.))
@@ -3378,14 +3442,41 @@ def runBsGammaFittercFit(generatorConfig, fitConfig, toy_num, debug, wsname, ini
         # create observables
         eta = RooRealVar('eta', '#eta', 0., 0.5)
         omega = RooRealVar('omega', '#omega', 0., 0.5)
-        # create data set and populate with per-category omegas
+        # create data set and populate with per-category omegas;
+        # also do a bit of validation on the way:
+        # if fitted omega in a category +/- error touches the bounds in
+        # fitConfig['MistagCategoryOmegaRange'], we skip that data point
+        # we also skip data points if the uncertainty looks suspect (a factor
+        # 5 below or above the average of all categories)
         ds = RooDataSet('mistagcalibdata', 'mistagcalibdata',
                 RooArgSet(eta, omega))
+        averror = 0.
+        varok = []
+        mistagrange = fitConfig['MistagCategoryOmegaRange']
         for i in xrange(0, pdf['config']['NMistagCategories']):
             vname = 'OmegaCat%02d' % i
-            eta.setVal(fitResult.floatParsInit().find(vname).getVal())
-            omega.setVal(fitResult.floatParsFinal().find(vname).getVal())
-            omega.setError(fitResult.floatParsFinal().find(vname).getError())
+            var = fitResult.floatParsFinal().find(vname)
+            if (var.getVal() - var.getError() <= mistagrange[0] or
+                    var.getVal() + var.getError() >= mistagrange[1]):
+                print ('WARNING: Skipping %s in calibration fit: touches '
+                        'or is outside range!') % var.GetName()
+                continue
+            varok += [ i ]
+            averror += var.getError()
+        averror /= float(len(varok))
+        for i in varok:
+            vname = 'OmegaCat%02d' % i
+            varinit = fitResult.floatParsInit().find(vname)
+            var = fitResult.floatParsFinal().find(vname)
+            errratio = var.getError() / averror
+            if (0.2 > errratio or 5. < errratio):
+                print ('WARNING: Skipping %s in calibration fit: uncertainty '
+                        'is suspect (more than factor 5 away from average)') \
+                                % var.GetName()
+                continue
+            eta.setVal(varinit.getVal())
+            omega.setVal(var.getVal())
+            omega.setError(var.getError())
             ds.add(RooArgSet(eta, omega))
         # calibration polynomial
         p0 = RooRealVar('p0', 'p0',

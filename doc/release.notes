@@ -4,6 +4,15 @@
 ! Purpose     : RooFit-based fitters for B -> D X
 !-----------------------------------------------------------------------------
 
+! 2013-09-30 - Manuel Tobias Schiller
+ - cFit: improve a bit the code for tagging calibration applications
+   - make routines reading templates a bit more flexible so they do the "right
+     thing" more often without the need of user intervention (can now read
+     pdfs, data sets or plain histograms)
+   - inspect the per-category omegas that were fitted carefully before
+     including them in the time fit, suspect data points are excluded (if fit
+     ran into limit, or if the uncertainty looks funny)
+
 ! 2013-09-27 - Manuel Tobias Schiller
  - standalone build: link libB2DXFitters.so against all relevant ROOT
    libraries by default
