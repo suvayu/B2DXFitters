@@ -4,6 +4,11 @@
 ! Purpose     : RooFit-based fitters for B -> D X
 !-----------------------------------------------------------------------------
 
+! 2013-10-02 - Manuel Tobias Schiller
+ - cFit: add straight line fit for the tagging calibration done analytically
+   just as the pattern reco does - suspect RooFit's chi^2 calculation is funny
+   somehow, and I want a known good result in there...
+
 ! 2013-10-01 - Manuel Tobias Schiller
  - add some code which ensures that all required libs are loaded and present
    when libB2DXFitters.so is loaded (to have things a little more convenient

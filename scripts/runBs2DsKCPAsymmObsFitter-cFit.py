@@ -2538,16 +2538,18 @@ def getMasterPDF(config, name, debug = False):
                     len(config['MistagCalibrationParams'][j]) == 3:
                 i = 0
                 for p in config['MistagCalibrationParams'][j][0:2]:
-                    mistagcalib.add(WS(ws, RooRealVar(
+                    v = WS(ws, RooRealVar(
                         'MistagCalib%s_p%u' % (namsfx[j], i),
-                        'MistagCalib%s_p%u' % (namsfx[j], i), p, 0., 2.)))
+                        'MistagCalib%s_p%u' % (namsfx[j], i), p))
+                    v.setConstant(False)
+                    mistagcalib.add(v)
                     i = i + 1
                 del i
             if len(config['MistagCalibrationParams'][j]) == 3:
                 avgmistag = WS(ws, RooRealVar(
                     'MistagCalib%s_avgmistag' % namsfx[j],
                     'MistagCalib%s_avgmistag' % namsfx[j],
-                    config['MistagCalibrationParams'][j][2], 0., 2.))
+                    config['MistagCalibrationParams'][j][2]))
             mistagCal.append(WS(ws, MistagCalibration(
                 '%s%s_c' % (mistag.GetName(), namsfx[j]),
                 '%s%s_c' % (mistag.GetName(), namsfx[j]),
@@ -2679,13 +2681,15 @@ def getMasterPDF(config, name, debug = False):
         tagcat = WS(ws, RooCategory('tagcat', 'tagcat'))
         for i in xrange(0, config['NMistagCategories']):
             tagcat.defineType('cat%02d' % i, i)
-            omegas.add(WS(ws, RooRealVar(
+            v = WS(ws, RooRealVar(
                 'OmegaCat%02d' % i, 'OmegaCat%02d' % i,
                 config['MistagCategoryOmegas'][i],
-                *config['MistagCategoryOmegaRange'])))
+                *config['MistagCategoryOmegaRange']))
             # set rough and reasonable error estimate
-            omegas[i].setError((config['MistagCategoryBinBounds'][i + 1] -
+            v.setConstant(False)
+            v.setError((config['MistagCategoryBinBounds'][i + 1] -
                 config['MistagCategoryBinBounds'][i]) / sqrt(12.))
+            omegas.add(v)
         # ok, build the mistag
         from ROOT import TaggingCat
         mistag = WS(ws, TaggingCat('OmegaPerCat', 'OmegaPerCat',
@@ -3247,6 +3251,105 @@ def getMasterPDF(config, name, debug = False):
             'weight': weight
             }
 
+def fitPolynomialAnalytically(deg, datapoints):
+    # fits a polynomial through a list of data points
+    #
+    # degree            degree of polynomial to fit
+    # datapoints        [ [ x_1, y_1, sigma_y_1], ... ]
+    #
+    # fit polynomial is p(x) = sum_k p_k x^k
+    import ROOT, math
+    from ROOT import Math, TMath, TGraphErrors, TF1
+    ncoeffpol = deg + 1
+    # check with ROOT's TGraphErrors
+    gr = TGraphErrors(len(datapoints))
+    i = 0
+    for dp in datapoints:
+        x, y, sigma = dp[0], dp[1], dp[2]
+        gr.SetPoint(i, x, y)
+        gr.SetPointError(i, 0., sigma)
+        i = i + 1
+    funcstr = '0'
+    for i in xrange(0, ncoeffpol):
+        funcstr = funcstr + ('+[%d]*x**%d' % (i, i))
+    func = TF1('func', funcstr)
+    print ''
+    print 'RESULT OF PLAIN ROOT FIT TO TGRAPHERRORS'
+    gr.Fit(func)
+    # accumulate data points
+    icov = ROOT.Math.SMatrix('double', ncoeffpol, ncoeffpol,
+            ROOT.Math.MatRepSym('double', ncoeffpol))()
+    rhs = ROOT.Math.SVector('double', ncoeffpol)()
+    for dp in datapoints:
+        x, y, sigma = dp[0], dp[1], dp[2]
+        for i in xrange(0, ncoeffpol):
+            rhs[i] += y * pow(x, i) / pow(sigma, 2)
+            for j in xrange(0, i + 1):
+                icov[i, j] = icov(i, j) + pow(x, i + j) / pow(sigma, 2)
+    # data point for analytical fit accumulated
+    # solve analytical fit
+    cov = ROOT.Math.SMatrix('double', ncoeffpol, ncoeffpol,
+            ROOT.Math.MatRepSym('double', ncoeffpol))(icov)
+    if (not cov.InvertChol()):
+        print ("ERROR: analytical fit for calibration parameters ' + \
+            'failed - HESSE matrix singular or with negative eigenvalues!")
+        return {}
+    sol = ROOT.Math.SVector('double', ncoeffpol)()
+    # python isn't smart enough to get the SMatrix matrix-vector
+    # multiply, so we do it by hand...
+    for i in xrange(0, ncoeffpol):
+        tmp = 0.
+        for j in xrange(0, ncoeffpol):
+            tmp += cov(i, j) * rhs(j)
+        sol[i] = tmp 
+    # work out number of degrees of freedom
+    ndf = len(datapoints) - ncoeffpol
+    # get chi2
+    chi2 = 0.
+    for dp in datapoints: # sum over measurements i
+        x, y, sigma = dp[0], dp[1], dp[2]
+        # evaluate om = sum_k p_k x^k
+        yy = 0.
+        for i in xrange(0, ncoeffpol):
+            yy += sol(ncoeffpol - 1 - i)
+            if i != ncoeffpol - 1:
+                yy *= x
+        # chi2 += ((yy - y) / sigma_i) ^ 2
+        chi2 += pow((yy - y) / sigma, 2)
+    # print result
+    print ''
+    print ('FIT RESULT OF ANALYTICAL FIT: CHI^2 %f NDF %d '
+            'CHI^2/NDF %f PROB %f') % (chi2, ndf, chi2 / float(ndf),
+                    ROOT.TMath.Prob(chi2, ndf))
+    print ''
+    for i in xrange(0, ncoeffpol):
+        print '%10s = %f +/- %f' % ('p%d' % i, sol(i),
+                math.sqrt(cov(i, i)))
+    print ''
+    print 'CORRELATION MATRIX:'
+    for i in xrange(0, ncoeffpol):
+        s = ''
+        for j in xrange(0, ncoeffpol):
+            rho = cov(i, j) / math.sqrt(cov(i, i) * cov(j, j))
+            s = s + (' % 6.3f' % rho )
+        print s
+    # analytical fit all done
+    return {
+            'ndf': ndf,
+            'chi^2': chi2,
+            'prob': TMath.Prob(chi2, ndf),
+            'polycoeffs': [ sol(i) for i in xrange(0, ncoeffpol) ],
+            'polycoefferrors': [
+                math.sqrt(cov(i, i)) for i in xrange(0, ncoeffpol) ],
+            'covariance': [
+                [ cov(i, j) for j in xrange(0, ncoeffpol) ]
+                for i in xrange(0, ncoeffpol) ],
+            'correlation': [
+                [ cov(i, j) / math.sqrt(cov(i, i) * cov(j, j))
+                    for j in xrange(0, ncoeffpol) ]
+                for i in xrange(0, ncoeffpol) ]
+            }
+
 def runBsGammaFittercFit(generatorConfig, fitConfig, toy_num, debug, wsname, initvars) :
     # tune integrator configuration
     from ROOT import RooAbsReal, TRandom3, RooArgSet, RooRandom, RooLinkedList
@@ -3437,19 +3540,15 @@ def runBsGammaFittercFit(generatorConfig, fitConfig, toy_num, debug, wsname, ini
             0 < pdf['config']['NMistagCategories'] and
             0 == fitResult.status() and
             (3 == fitResult.covQual() or 'sFit' == fitConfig['FitMode'])):
+        ROOT.gSystem.Load('libSmatrix')
         from ROOT import (RooRealVar, RooDataSet, RooArgSet, RooArgList,
-                MistagCalibration)
-        # create observables
-        eta = RooRealVar('eta', '#eta', 0., 0.5)
-        omega = RooRealVar('omega', '#omega', 0., 0.5)
+                MistagCalibration, Math)
         # create data set and populate with per-category omegas;
         # also do a bit of validation on the way:
         # if fitted omega comes very close to the bounds in
         # fitConfig['MistagCategoryOmegaRange'], we skip that data point
         # we also skip data points if the uncertainty looks suspect (a factor
         # 5 below or above the average of all categories)
-        ds = RooDataSet('mistagcalibdata', 'mistagcalibdata',
-                RooArgSet(eta, omega))
         averror = 0.
         varok = []
         mistagrange = fitConfig['MistagCategoryOmegaRange']
@@ -3464,37 +3563,52 @@ def runBsGammaFittercFit(generatorConfig, fitConfig, toy_num, debug, wsname, ini
                 print ('WARNING: Skipping %s in calibration fit: touches '
                         'or is outside range!') % var.GetName()
                 continue
-            varok += [ i ]
+            varok += [ vname ]
             averror += var.getError()
         averror /= float(len(varok))
-        for i in varok:
-            vname = 'OmegaCat%02d' % i
+        # create observables
+        eta = RooRealVar('eta', '#eta', 0.)
+        omega = RooRealVar('omega', '#omega', 0.)
+        ds = RooDataSet('mistagcalibdata', 'mistagcalibdata',
+                RooArgSet(eta, omega))
+        anafitds = []
+        for vname in varok:
             varinit = fitResult.floatParsInit().find(vname)
             var = fitResult.floatParsFinal().find(vname)
             errratio = var.getError() / averror
             if (0.2 > errratio or 5. < errratio):
                 print ('WARNING: Skipping %s in calibration fit: uncertainty '
                         'is suspect (more than factor 5 away from average)') \
-                                % var.GetName()
+                                % vname
                 continue
             eta.setVal(varinit.getVal())
             omega.setVal(var.getVal())
             omega.setError(var.getError())
             ds.add(RooArgSet(eta, omega))
+            # add data point for analytical fit 
+            detak = eta.getVal() - datasetAvgEta.getVal()
+            om = omega.getVal()
+            sigma = omega.getError()
+            anafitds += [ [detak, om, sigma] ]
         # calibration polynomial
         p0 = RooRealVar('p0', 'p0',
-                fitConfig['MistagCalibrationParams'][0][0], 0., 0.5)
+                fitConfig['MistagCalibrationParams'][0][0])
         p1 = RooRealVar('p1', 'p1',
-                fitConfig['MistagCalibrationParams'][0][1], 0., 2.)
+                fitConfig['MistagCalibrationParams'][0][1])
+        aveta = RooRealVar('aveta', '<eta>', datasetAvgEta.getVal())
+        for v in (p0, p1): v.setConstant(False)
         calib = MistagCalibration('calib', 'calib', eta, RooArgList(p0, p1),
-                datasetAvgEta)
+                aveta)
         # fit calib to data
+        ds.Print('v')
         calibFitResult = calib.chi2FitTo(ds, RooFit.YVar(omega),
                 RooFit.Strategy(fitConfig['Strategy']),
+                RooFit.Optimize(fitConfig['Optimize']),
                 RooFit.Minimizer(*fitConfig['Minimizer']),
                 RooFit.Timer(), RooFit.Save(), RooFit.Verbose())
         printResult(fitConfig, calibFitResult,
                 fitConfig['Blinding'] and not fitConfig['IsToy'])
+        fitPolynomialAnalytically(1, anafitds)
     else:
         calibFitResult = None
 
