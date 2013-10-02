@@ -3251,7 +3251,8 @@ def getMasterPDF(config, name, debug = False):
             'weight': weight
             }
 
-def fitPolynomialAnalytically(deg, datapoints):
+def fitPolynomialAnalytically(
+        deg, datapoints, crossCheckWithTGraphErrors = False):
     # fits a polynomial through a list of data points
     #
     # degree            degree of polynomial to fit
@@ -3261,21 +3262,22 @@ def fitPolynomialAnalytically(deg, datapoints):
     import ROOT, math
     from ROOT import Math, TMath, TGraphErrors, TF1
     ncoeffpol = deg + 1
-    # check with ROOT's TGraphErrors
-    gr = TGraphErrors(len(datapoints))
-    i = 0
-    for dp in datapoints:
-        x, y, sigma = dp[0], dp[1], dp[2]
-        gr.SetPoint(i, x, y)
-        gr.SetPointError(i, 0., sigma)
-        i = i + 1
-    funcstr = '0'
-    for i in xrange(0, ncoeffpol):
-        funcstr = funcstr + ('+[%d]*x**%d' % (i, i))
-    func = TF1('func', funcstr)
-    print ''
-    print 'RESULT OF PLAIN ROOT FIT TO TGRAPHERRORS'
-    gr.Fit(func)
+    # check with ROOT's TGraphErrors, if caller wants us to
+    if crossCheckWithTGraphErrors:
+        gr = TGraphErrors(len(datapoints))
+        i = 0
+        for dp in datapoints:
+            x, y, sigma = dp[0], dp[1], dp[2]
+            gr.SetPoint(i, x, y)
+            gr.SetPointError(i, 0., sigma)
+            i = i + 1
+        funcstr = '0'
+        for i in xrange(0, ncoeffpol):
+            funcstr = funcstr + ('+[%d]*x**%d' % (i, i))
+        func = TF1('func', funcstr)
+        print ''
+        print 'RESULT OF PLAIN ROOT FIT TO TGRAPHERRORS'
+        gr.Fit(func)
     # accumulate data points
     icov = ROOT.Math.SMatrix('double', ncoeffpol, ncoeffpol,
             ROOT.Math.MatRepSym('double', ncoeffpol))()
@@ -3336,7 +3338,7 @@ def fitPolynomialAnalytically(deg, datapoints):
     # analytical fit all done
     return {
             'ndf': ndf,
-            'chi^2': chi2,
+            'chi2': chi2,
             'prob': TMath.Prob(chi2, ndf),
             'polycoeffs': [ sol(i) for i in xrange(0, ncoeffpol) ],
             'polycoefferrors': [
@@ -3350,7 +3352,8 @@ def fitPolynomialAnalytically(deg, datapoints):
                 for i in xrange(0, ncoeffpol) ]
             }
 
-def runBsGammaFittercFit(generatorConfig, fitConfig, toy_num, debug, wsname, initvars) :
+def runBsGammaFittercFit(generatorConfig, fitConfig, toy_num, debug, wsname,
+        initvars, calibplotfile = None) :
     # tune integrator configuration
     from ROOT import RooAbsReal, TRandom3, RooArgSet, RooRandom, RooLinkedList
     RooAbsReal.defaultIntegratorConfig().setEpsAbs(1e-9)
@@ -3535,6 +3538,7 @@ def runBsGammaFittercFit(generatorConfig, fitConfig, toy_num, debug, wsname, ini
             fitConfig['Blinding'] and not fitConfig['IsToy'])
 
     # if we fit in mistag categories, do the calibration fit here
+    calibws = None
     if (not pdf['config']['PerEventMistag'] and
             None != pdf['config']['NMistagCategories'] and
             0 < pdf['config']['NMistagCategories'] and
@@ -3566,11 +3570,16 @@ def runBsGammaFittercFit(generatorConfig, fitConfig, toy_num, debug, wsname, ini
             varok += [ vname ]
             averror += var.getError()
         averror /= float(len(varok))
-        # create observables
-        eta = RooRealVar('eta', '#eta', 0.)
-        omega = RooRealVar('omega', '#omega', 0.)
-        ds = RooDataSet('mistagcalibdata', 'mistagcalibdata',
-                RooArgSet(eta, omega))
+        from ROOT import RooWorkspace
+        calibws = RooWorkspace('calib', 'mistag calibration in categories')
+        # create observables - we set a range for plotting later on
+        eta = WS(calibws, RooRealVar('eta', '#eta', 0.,
+            *fitConfig['MistagCategoryOmegaRange']))
+        omega = WS(calibws, RooRealVar('omega', '#omega', 0.,
+            *fitConfig['MistagCategoryOmegaRange']))
+        # we have to tell RooFit that omega is supposed to have an uncertainty
+        ds = WS(calibws, RooDataSet('mistagcalibdata', 'mistagcalibdata',
+                RooArgSet(eta, omega), RooFit.StoreError(RooArgSet(omega))))
         anafitds = []
         for vname in varok:
             varinit = fitResult.floatParsInit().find(vname)
@@ -3591,16 +3600,16 @@ def runBsGammaFittercFit(generatorConfig, fitConfig, toy_num, debug, wsname, ini
             sigma = omega.getError()
             anafitds += [ [detak, om, sigma] ]
         # calibration polynomial
-        p0 = RooRealVar('p0', 'p0',
-                fitConfig['MistagCalibrationParams'][0][0])
-        p1 = RooRealVar('p1', 'p1',
-                fitConfig['MistagCalibrationParams'][0][1])
-        aveta = RooRealVar('aveta', '<eta>', datasetAvgEta.getVal())
-        for v in (p0, p1): v.setConstant(False)
-        calib = MistagCalibration('calib', 'calib', eta, RooArgList(p0, p1),
-                aveta)
+        calibParams = RooArgList()
+        calibParams.add(WS(calibws, RooRealVar('p0', 'p_0',
+            fitConfig['MistagCalibrationParams'][0][0], -1., 1.)))
+        calibParams.add(WS(calibws, RooRealVar('p1', 'p_1',
+            fitConfig['MistagCalibrationParams'][0][1], 0., 2.)))
+        aveta = WS(calibws, RooRealVar('aveta', '<eta>',
+            datasetAvgEta.getVal()))
+        calib = WS(calibws, MistagCalibration('calib', 'calib', eta,
+            calibParams, aveta))
         # fit calib to data
-        ds.Print('v')
         calibFitResult = calib.chi2FitTo(ds, RooFit.YVar(omega),
                 RooFit.Strategy(fitConfig['Strategy']),
                 RooFit.Optimize(fitConfig['Optimize']),
@@ -3608,7 +3617,48 @@ def runBsGammaFittercFit(generatorConfig, fitConfig, toy_num, debug, wsname, ini
                 RooFit.Timer(), RooFit.Save(), RooFit.Verbose())
         printResult(fitConfig, calibFitResult,
                 fitConfig['Blinding'] and not fitConfig['IsToy'])
-        fitPolynomialAnalytically(1, anafitds)
+        anaCalibFitResult = fitPolynomialAnalytically(
+                len(calibParams) - 1, anafitds)
+        if None != calibplotfile:
+            # dump a plot of the calibration to an eps/pdf file
+            from ROOT import gROOT, gPad, RooGenericPdf, TPaveText
+            isbatch = gROOT.IsBatch()
+            gROOT.SetBatch(True)
+            if None != gPad: gPad.Delete()
+            etafr = eta.frame()
+            calib.plotOn(etafr, RooFit.VisualizeError(calibFitResult))
+            # ok, we need to cheat here because RooAbsReal does not have
+            # paramOn which we would very much like to use, so make a
+            # RooGenericPdf, and use that...
+            calibpdf = RooGenericPdf('calibpdf', 'calibpdf', '@0',
+                    RooArgList(calib))
+            tmp = RooArgSet(calibParams)
+            tmp.add(aveta)
+            calib.plotOn(etafr)
+            ds.plotOnXY(etafr, RooFit.YVar(omega))
+            calibpdf.paramOn(etafr, RooFit.Layout(.1, 0.5, 0.9),
+                    RooFit.Parameters(tmp), RooFit.ShowConstants(True))
+            etafr.Draw()
+            if (abs(anaCalibFitResult['chi2'] - calibFitResult.minNll()) /
+                    (0.5 * (abs(anaCalibFitResult['chi2']) +
+                        abs(calibFitResult.minNll()))) < 1e-3):
+                # if analytical fit result and the RooFit one have about the
+                # same chi^2, everything is fine, and we can use the
+                # analytical fit result to obtain ndf, chi2 etc., since that
+                # is much more convenient...
+                text = TPaveText(0.5 * eta.getMax(), omega.getMin(),
+                        .95 * eta.getMax(), 0.25 * omega.getMax())
+                text.SetFillColor(ROOT.kWhite)
+                text.SetBorderSize(0)
+                text.AddText('#chi^{2} = %5.3f NDF = %2u' % (
+                    anaCalibFitResult['chi2'], anaCalibFitResult['ndf']))
+                text.AddText('#chi^{2}/NDF = %5.3f' %
+                        (anaCalibFitResult['chi2'] / anaCalibFitResult['ndf']))
+                text.AddText('Prob(#chi^{2}, NDF) = %5.3f' %
+                        anaCalibFitResult['prob'])
+                text.Draw()
+            gPad.Print(calibplotfile)
+            gROOT.SetBatch(isbatch)
     else:
         calibFitResult = None
 
@@ -3622,7 +3672,9 @@ def runBsGammaFittercFit(generatorConfig, fitConfig, toy_num, debug, wsname, ini
     del fitresfile
 
     if plot_fitted:
-        pdf['ws'].writeToFile(wsname)
+        pdf['ws'].writeToFile(wsname, True)
+        if None != calibws:
+            calibws.writeToFile(wsname, False)
 
     del pdf
 
@@ -3688,6 +3740,13 @@ parser.add_option('-p', '--personality',
         type = 'string',
         action = 'store',
         help = 'fitter personality (e.g. \'2011Conf\')'
+        )
+parser.add_option('--calibplotfile',
+        dest = 'calibplotfile',
+        default = '',
+        type = 'string',
+        action = 'store',
+        help = 'file name for calibration plot'
         )
 
 # -----------------------------------------------------------------------------
@@ -3775,6 +3834,8 @@ if __name__ == '__main__' :
         except:
             parser.error('Unable to parse generator configuration in \'%s\'' %
                     options.genConfigString)
+    if '' == options.calibplotfile:
+        options.calibplotfile = None
     
     runBsGammaFittercFit(
             generatorConfig,
@@ -3782,6 +3843,7 @@ if __name__ == '__main__' :
             TOY_NUMBER,
             options.debug,
             options.wsname,
-            options.initvars)
+            options.initvars,
+            options.calibplotfile)
 
     # -----------------------------------------------------------------------------

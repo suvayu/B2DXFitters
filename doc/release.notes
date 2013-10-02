@@ -5,6 +5,13 @@
 !-----------------------------------------------------------------------------
 
 ! 2013-10-02 - Manuel Tobias Schiller
+ - cFit: figure out why the RooFit of the calibration data set went wrong (you
+   have to tell RooDataSet for which variables you want to keep the errors),
+   fix the problem, and add some moderately nice plotting for the calibration
+   that comes out... Also create (and save) a workspace with the calibration
+   fit objects.
+
+! 2013-10-02 - Manuel Tobias Schiller
  - cFit: add straight line fit for the tagging calibration done analytically
    just as the pattern reco does - suspect RooFit's chi^2 calculation is funny
    somehow, and I want a known good result in there...
