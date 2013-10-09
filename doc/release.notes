@@ -4,6 +4,9 @@
 ! Purpose     : RooFit-based fitters for B -> D X
 !-----------------------------------------------------------------------------
 
+!============================================== v2r3 2013-10-9 ==============================
+! 2013-10-9 Diego Martinez Santos
+	 Make version v2r3
 ! 2013-10-02 - Manuel Tobias Schiller
  - cFit: figure out why the RooFit of the calibration data set went wrong (you
    have to tell RooDataSet for which variables you want to keep the errors),
@@ -1820,30 +1823,4 @@
    in the Delta m_s analysis:
    - combinatorial backgroud
    - physical backgrounds
-   All individual models (templates) stored in ROOT files under data/:
-   - Bs2DsPiPhysBkg_Bd2DPi.root, Bs2DsPiPhysBkg_Bs2DsstPi.root,
-     Bs2DsPiPhysBkg_Bs2DsRho.root, Bs2DsPiPhysBkg_Bs2DsX.root,
-     Bs2DsPiPhysBkg_Lb2LcPi.root
-
-! 2011-05-24 - Eduardo Rodrigues
- - New helper files GeneralModels.h/.cxx for general RooFit models.
-   For now it provides easy creation of Gaussian (extended) PDFs.
- - Class CombBkgPTPdf added. Describes the combinatorial background PDF in time
-   as used in the Delta m_d and Delta m_s analyses.
- - Class BdPTAcceptance added. Describes the Bd -> D Pi propertime acceptance
-   function as used in the Delta m_d and Delta m_s analyses.
- - New helper files Bd2DhModels.h/.cxx for RooFit models for Bd -> D h.
-   For now it provides the background PDF models for Bd -> D pi as defined
-   in the Delta m_d analysis:
-   - combinatorial backgroud
-   - physical backgrounds
-   All individual models (templates) stored in ROOT files under data/:
-   - Bd2DPiPhysBkg_Bd2DK.root, Bd2DPiPhysBkg_Bd2DRho.root,
-     Bd2DPiPhysBkg_Bd2DstPi.root, Bd2DPiPhysBkg_Bd2DX.root
- - Added script runBdMassFitterToyMC.py to run a toy mass Bd -> D pi fit
- - Improved messaging in FitMeTool
-
-! 2011-05-23 - Eduardo Rodrigues
- - Package creation
- - Base class FitMeTool for fitting taken from package Phys/DeltaMsRooFitter.
-   Various improvements and extensions.
+   All individual m
