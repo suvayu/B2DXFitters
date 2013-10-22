@@ -36,18 +36,6 @@
 	</class>
 	<class name = "RooEffHistProd" />
 
-	<class name = "RooGenSmearIntegrandBinding" />
-	<class pattern = "RooGeneralisedSmearingBase<*>" >
-	    <field name = "_integrator" transient = "true" />
-	    <field name = "_integrand" transient = "true" />
-	    <field name = "_integvarset" transient = "true" />
-	    <field name = "_integralset" transient = "true" />
-	    <field name = "_integrandset" transient = "true" />
-	    <field name = "_integratorset" transient = "true" />
-	    <field name = "_binnedcache" transient = "true" />
-	    <field name = "_binnedcacheLastVal" transient = "true" />
-	    <field name = "_binnedvarClone" transient = "true" />
-	</class>
 	<class name = "RangeAcceptance" />
 	<class name = "PowLawAcceptance" />
 	<class name = "NonOscTaggingPdf" />
@@ -94,5 +82,9 @@
 	<class name="RooCubicSplineFun"/>
 	<class name="RooBinnedFun"/>
 	<class name="RooGaussEfficiencyModel"/>
+	<class name="RooKResModel">
+	    <field name = "_interpolation" transient = "true" />
+	    <field name = "_cacheMgr" transient = "true" />
+	</class>
     </selection>/>
 </lcgdict>

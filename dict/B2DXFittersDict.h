@@ -54,8 +54,6 @@
 #include "B2DXFitters/WeightingUtils.h"
 #include "B2DXFitters/KinHack.h"
 
-#include "B2DXFitters/RooGeneralisedSmearingBase.h"
-#include "B2DXFitters/RooGenSmearIntegrandBinding.h"
 #include "B2DXFitters/RangeAcceptance.h"
 
 template class std::vector<std::pair<std::string,std::string> >;
@@ -79,5 +77,6 @@ template class std::pair<std::string,RooAbsData*>;
 #include "B2DXFitters/RooBinnedFun.h"
 #include "B2DXFitters/RooGaussEfficiencyModel.h"
 #include "B2DXFitters/RooComplementCoef.h"
+#include "B2DXFitters/RooKResModel.h"
 
 #endif // DICT_B2DXFITTERSDICT_H
