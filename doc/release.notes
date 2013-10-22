@@ -4,12 +4,15 @@
 ! Purpose     : RooFit-based fitters for B -> D X
 !-----------------------------------------------------------------------------
 
+! 2013-10-22 - Manuel Tobias Schiller
+ - cFit: make calibration fits a little more robust
+
 ! 2013-10-22 - Manuel Tobias Schiller, Suvayu Ali
  - new class RooKEffResModel to do the k-factor smearing
  - remove old class for the same purpose (it never worked quite right anyway)
 
 ! 2013-10-9 Diego Martinez Santos
-	 Make version v2r3
+    Make version v2r3
 
 ! 2013-10-02 - Manuel Tobias Schiller
  - cFit: figure out why the RooFit of the calibration data set went wrong (you

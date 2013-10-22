@@ -3610,7 +3610,13 @@ def runBsGammaFittercFit(generatorConfig, fitConfig, toy_num, debug, wsname,
         calib = WS(calibws, MistagCalibration('calib', 'calib', eta,
             calibParams, aveta))
         # fit calib to data
-        calibFitResult = calib.chi2FitTo(ds, RooFit.YVar(omega),
+        # FIXME: apparently, RooFit needs the instantiation of an SMatrix
+        # below, or the chi^2 fit will be way off - this has to be understood,
+        # but in the meantime, it's a workaround
+        ROOT.Math.SMatrix('double', 2, 2,
+                ROOT.Math.MatRepSym('double', 2))()
+        calibFitResult = calib.chi2FitTo(ds,
+                RooFit.YVar(omega), RooFit.Integrate(False),
                 RooFit.Strategy(fitConfig['Strategy']),
                 RooFit.Optimize(fitConfig['Optimize']),
                 RooFit.Minimizer(*fitConfig['Minimizer']),
@@ -3619,7 +3625,12 @@ def runBsGammaFittercFit(generatorConfig, fitConfig, toy_num, debug, wsname,
                 fitConfig['Blinding'] and not fitConfig['IsToy'])
         anaCalibFitResult = fitPolynomialAnalytically(
                 len(calibParams) - 1, anafitds)
-        if None != calibplotfile:
+        if (abs(anaCalibFitResult['chi2'] - calibFitResult.minNll()) /
+                (0.5 * (abs(anaCalibFitResult['chi2']) +
+                    abs(calibFitResult.minNll()))) >= 1e-3):
+            print 'ERROR: calibration fit results of RooFit-driven and ' \
+                'analytical fit do not agree - INVESTIGATE!!'
+        elif None != calibplotfile:
             # dump a plot of the calibration to an eps/pdf file
             from ROOT import gROOT, gPad, RooGenericPdf, TPaveText
             isbatch = gROOT.IsBatch()
