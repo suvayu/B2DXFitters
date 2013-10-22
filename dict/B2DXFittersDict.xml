@@ -49,9 +49,9 @@
 	<function pattern = "Bs2Dsh2011TDAnaModels::*"  />
 
 	<function pattern = "GeneralUtils::*" />
-        <function pattern = "SFitUtils::*" />
-        <function pattern = "MassFitUtils::*" /> 
-        <function pattern = "WeightingUtils::*" />
+	<function pattern = "SFitUtils::*" />
+	<function pattern = "MassFitUtils::*" /> 
+	<function pattern = "WeightingUtils::*" />
 
 	<class pattern = "Bdecaytree" />
 
@@ -67,8 +67,8 @@
 	</class>
 	<class name="FinalStateChargePdf" />
 	<class name="TaggingCat" />
-        <class name="RooCruijff" />
-        
+	<class name="RooCruijff" />
+
 	<class name="RooComplementCoef"/>
 	<class name="RooAbsGaussModelEfficiency"/>
 	<class name="RooCubicSplineKnot::S_jk" />
@@ -86,5 +86,5 @@
 	    <field name = "_interpolation" transient = "true" />
 	    <field name = "_cacheMgr" transient = "true" />
 	</class>
-    </selection>/>
+</selection>
 </lcgdict>
