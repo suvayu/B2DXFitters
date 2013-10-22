@@ -55,6 +55,8 @@
 #	platforms
 # v0.14 2013-08-21 Manuel Schiller <manuel.schiller@nikhef.nl>
 # 	fix small bug in rule for automatic dependencies
+# v0.15	2013-10-23 Manuel Schiller <manuel.schiller@nikhef.nl>
+# 	get the rootcint rules to work with ROOT 6 (i.e. 5.99/...)
 #######################################################################
 
 #######################################################################
@@ -274,6 +276,8 @@ LD = $(shell $(ROOTCONFIG) --ld)
 CPP = $(CC) -E
 ROOTCONFIG_HASF77 := \
     $(strip $(shell $(ROOTCONFIG) --help | tr ' ' '\n' | grep -- '--f77'))
+ROOT_VERSION_CODE := $(shell $(AWK) '/define ROOT_VERSION_CODE/ { print $$3; }' < $(shell $(ROOTCONFIG) --incdir)/RVersion.h)
+ROOTCONFIG_ROOT56 := $(shell $(TEST) $(ROOT_VERSION_CODE) -ge 353024 && $(ECHO) ROOT6 || $(ECHO) ROOT5)
 ifneq ($(ROOTCONFIG_HASF77),)
 ifneq ($(FC),/usr/bin/f77)
 # if FC points to /usr/bin/f77 (which is usually f2c in disguise), we
@@ -614,7 +618,8 @@ export PICFLAGS.Unknown PICFLAGS.GNU PICFLAGS.Clang PICFLAGS.Open64 \
 export TUNEFLAGS.Unknown TUNEFLAGS.GNU TUNEFLAGS.Clang TUNEFLAGS.Open64 \
     TUNEFLAGS.PathScale TUNEFLAGS.Intel TUNEFLAGS.SunPro
 # ROOT libs, compiler flags etc
-export ROOTCONFIG ROOTLIBS ROOTLIBDIR ROOTINCLUDES ROOTCFLAGS LIBGENVECTOR
+export ROOTCONFIG ROOTLIBS ROOTLIBDIR ROOTINCLUDES ROOTCFLAGS LIBGENVECTOR \
+    ROOT_VERSION_CODE ROOTCONFIG_ROOT56
 # *nix like tools for text processing, copying/moving files etc.
 export AWK SED CPP CP MV MKDIR RMDIR TEST ECHO TRUE FALSE TOUCH UNAME \
     HEAD TAIL GREP
@@ -840,9 +845,14 @@ ROOTCINT_PP = $(AWK) \
 	      '/^.*<.*>.*::(fgIsA = 0(; *\/\/.*|;)|Class_Name\(\)|ImplFileName\(\)|ImplFileLine\(\)|Dictionary\(\)|Class\(\)|Streamer\(.*\)|ShowMembers\(.*\))$$/ \
 	      { if (!($$0 ~ /^template *<>/)) $$0 = "template <> " $$0; } \
 	      // { print; }'
+ifeq ($(ROOTCONFIG_ROOT56),ROOT6)
+DOROOTCINT = $(ROOTCINT) -f $@ -c -p \
+	 $(filter-out %LinkDef.h,$^) $(filter %LinkDef.h,$^)
+else
 DOROOTCINT = $(ROOTCINT) -f $@.tmp -c -p \
 	 $(filter-out %LinkDef.h,$^) $(filter %LinkDef.h,$^)  && \
 	 $(ROOTCINT_PP) < $@.tmp > $@ ; $(RM) -f $@.tmp
+endif
 ROOTCINTMSG = "\\x1b[31m[ROOTCINT]\\x1b[m\\t$@"
 $(foreach extension,$(EXTENSIONS_CXX),$(eval $(call \
     PATTERNRULE_TEMPLATE,%Dict.$(extension) %Dict.$(extension).h,,ROOTCINTMSG,DOROOTCINT)))

@@ -43,6 +43,8 @@
 #include "B2DXFitters/RooEffConvGenContext.h"
 #include "B2DXFitters/RooEffResModel.h"
 
+using std::endl;
+
 //_____________________________________________________________________________
 RooEffResModel::CacheElem::~CacheElem()
 {

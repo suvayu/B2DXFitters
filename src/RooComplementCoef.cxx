@@ -19,6 +19,7 @@
 
 #include <iostream>
 using std::endl;
+using std::ostream;
 
 //_____________________________________________________________________________
 RooComplementCoef::RooComplementCoef(const char* name, const char* title,

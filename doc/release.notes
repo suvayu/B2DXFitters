@@ -4,6 +4,11 @@
 ! Purpose     : RooFit-based fitters for B -> D X
 !-----------------------------------------------------------------------------
 
+! 2013-10-23 - Manuel Tobias Schiller
+ - some first preparations towards ROOT 6 - package builds standalone,
+   although I cannot load our library just yet (no visible changes for users
+   of ROOT 5.34 series)
+
 ! 2013-10-22 - Manuel Tobias Schiller
  - cFit: make calibration fits a little more robust
 

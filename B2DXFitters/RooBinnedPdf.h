@@ -122,6 +122,7 @@ private:
   }
 
   class CacheElem;
+  friend class CacheElem;
   CacheElem& cacheElem(RooArgSet* nset) const;
 
   Double_t evaluateCoef() const;
@@ -151,8 +152,6 @@ private:
   mutable UInt_t m_nsethash; //! transient member
   mutable std::map<UInt_t, RooArgSet> m_nsets; //! transient member
 
-  class CacheElem;
-  friend class CacheElem;
   class CacheElem : public RooAbsCacheElement
   {
       public:
