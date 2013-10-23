@@ -4,6 +4,57 @@
 ! Purpose     : RooFit-based fitters for B -> D X
 !-----------------------------------------------------------------------------
 
+! 2012-10-23 - Agnieszka Dziurda
+ - All scripts connected to MDFitter and sFit work for Urania v2r1.
+ - I have switched to proper MC files, which are here:
+     /afs/cern.ch/work/a/adudziak/public/MCMarch2013/
+ - New classes: PlotSettings, MDFitterSettings, HistPID1D, HistPID2D 
+   . PlotSettings is a class contains configuration for plotting as directory, 
+     extension, color/style of data/pdfs, log scale etc. It helps control 
+     plotting style from python script for C++ code.
+   . MDFitterSettings class translates python config file to cxx, 
+     which helps to control all of the namespaces *Utils.cxx. 
+     It contains variables names, ranges, everything what is needed for obtaining 
+     PID shapes etc. Moreover it is possible to put into config file structure as:
+        configdict["AdditionalVariables"] = [ "lab0_SS_Kaon_PROB", "lab0_SS_Kaon_DEC"]
+        configdict["lab0_SS_Kaon_PROB"]    = [ -3.0, 1,0 ]
+        configdict["lab0_SS_Kaon_DEC"]       = [ -2.0, 2.0 ]
+     MDFitterSettings will add additional variable to the data sets and in both steps: 
+     preparing workspaces and fitting MDFitter. By definition variables which are read 
+     by MDFitter from config file are: 
+          massB, massD, PIDK, Time, Time errors, Charge bachelor, 
+          tag, mistag, p, pt, ntracks, BDTG. 
+     Any other variable has to be added as "Additional Variables".
+   . HistPID1D, it helps control 1D PID histograms.
+     HistPID2D, it helps control ratio Data/MC.
+     Example of using:
+        HistPID1D hEff(nameHistEff, nameHistEff, filesDir, PID);
+        wE = hEff.GetWeight(lab1_P3, smp[i]);
+     where filesDir is a config.txt with paths to histograms and PID is the signature 
+     of PID histograms in file.  Please be aware that some PID histograms are splitted 
+     by calibration samples, and the class takes care of correct weighting and adding 
+     them together. Moreover getting correct weight is simplified by function 
+     GetWeight(var,polarity);
+ - New functions in MassFitUtils:
+     for example which return correct TCut for background or signal MC sample.
+ - Correction of strategy fitting for DsPi: firstly the RooProdPdf 
+     are created for each background and then they are added in group.
+ - Tagging calibration update (for Gulia).
+     Added updated version of calibration tagging script: 
+        runBs2DsPiCPAsymmObsFitterOnData_forTaggingCalib.py
+     and new configuration files:
+     data/Bs2DsPiConfigForNominalMassFitForTagCalib.py 
+        (which contains "additional variables" defined in config script)
+     data/Bs2DsPiConfigForTagCalib.py 
+        (her old Bs2DsPiConfigForNominalDMSFitPowLawFloatAcc.py with correct delta Ms)
+ - Changed code in sFit, to avoid any stupid cut on sWeighted data now when You run 
+     a code it is necessary to put new option: config file for MDFitter, example:
+     --configNameMD  Bs2DsPiConfigForNominalMassFitForTagCalib
+     and MDFitterSetting willl read ranges of your variables 
+     (which were set up before creation sWeights).
+ - Update default plotting. 
+ - Some other minor changes. 
+
 ! 2013-10-23 - Manuel Tobias Schiller
  - some first preparations towards ROOT 6 - package builds standalone,
    although I cannot load our library just yet (no visible changes for users
