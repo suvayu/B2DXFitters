@@ -34,8 +34,8 @@
 #include "RooHistPdf.h"
 #include "RooDataHist.h"
 
-#include "B2DXFitters/PlotSettings.h"
-#include "B2DXFitters/MDFitterSettings.h"
+#include "PlotSettings.h"
+#include "MDFitterSettings.h"
 
 namespace MassFitUtils {
 

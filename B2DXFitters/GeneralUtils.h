@@ -35,7 +35,7 @@
 #include "RooDataHist.h"
 #include "RooCategory.h"
 #include "RooAbsRealLValue.h"
-#include "B2DXFitters/PlotSettings.h"
+#include "PlotSettings.h"
 
 namespace GeneralUtils {
 

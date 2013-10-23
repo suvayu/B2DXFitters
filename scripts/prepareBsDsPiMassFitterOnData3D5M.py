@@ -1,4 +1,6 @@
-#!/usr/bin/env python
+#!/bin/sh
+# -*- mode: python; coding: utf-8 -*-
+# vim: ft=python:sw=4:tw=78
 # --------------------------------------------------------------------------- #
 #                                                                             #
 #   Python script to prepare a mass fit on data for Bd -> D pi                #
@@ -14,9 +16,8 @@
 #                                                                             #
 # --------------------------------------------------------------------------- #
 
-# -----------------------------------------------------------------------------
-# Set environment
-# -----------------------------------------------------------------------------
+# This file is used as both a shell script and as a Python script.
+
 """:"
 # This part is run by the shell. It does some setup which is convenient to save
 # work in common use cases.
@@ -24,14 +25,14 @@
 # make sure the environment is set up properly
 if test -n "$CMTCONFIG" \
          -a -f $B2DXFITTERSROOT/$CMTCONFIG/libB2DXFittersDict.so \
-         -a -f $B2DXFITTERSROOT/$CMTCONFIG/libB2DXFittersLib.so; then
-    # all ok, software environment set up correctly, so don't need to do
+     -a -f $B2DXFITTERSROOT/$CMTCONFIG/libB2DXFittersLib.so; then
+    # all ok, software environment set up correctly, so don't need to do 
     # anything
     true
 else
     if test -n "$CMTCONFIG"; then
-        # clean up incomplete LHCb software environment so we can run
-        # standalone
+    # clean up incomplete LHCb software environment so we can run
+    # standalone
         echo Cleaning up incomplete LHCb software environment.
         PYTHONPATH=`echo $PYTHONPATH | tr ':' '\n' | \
             egrep -v "^($User_release_area|$MYSITEROOT/lhcb)" | \
@@ -40,46 +41,48 @@ else
         LD_LIBRARY_PATH=`echo $LD_LIBRARY_PATH | tr ':' '\n' | \
             egrep -v "^($User_release_area|$MYSITEROOT/lhcb)" | \
             tr '\n' ':' | sed -e 's/:$//'`
-	export LD_LIBRARY_PATH
+        export LD_LIBRARY_PATH
         exec env -u CMTCONFIG -u B2DXFITTERSROOT "$0" "$@"
     fi
     # automatic set up in standalone build mode
     if test -z "$B2DXFITTERSROOT"; then
         cwd="$(pwd)"
         if test -z "$(dirname $0)"; then
-            # have to guess location of setup.sh
-            cd ../standalone
-            . ./setup.sh
-            cd "$cwd"
+        # have to guess location of setup.sh
+        cd ../standalone
+        . ./setup.sh
+        cd "$cwd"
         else
-            # know where to look for setup.sh
-            cd "$(dirname $0)"/../standalone
-            . ./setup.sh
-            cd "$cwd"
+        # know where to look for setup.sh
+        cd "$(dirname $0)"/../standalone
+        . ./setup.sh
+        cd "$cwd"
         fi
-        unset cwd
+    unset cwd
     fi
 fi
+
 # figure out which custom allocators are available
 # prefer jemalloc over tcmalloc
 for i in libjemalloc libtcmalloc; do
     for j in `echo "$LD_LIBRARY_PATH" | tr ':' ' '` \
-            /usr/local/lib /usr/lib /lib; do
+        /usr/local/lib /usr/lib /lib; do
         for k in `find "$j" -name "$i"'*.so.?' | sort -r`; do
             if test \! -e "$k"; then
-                continue
-            fi
-            echo adding $k to LD_PRELOAD
-            if test -z "$LD_PRELOAD"; then
-                export LD_PRELOAD="$k"
-                break 3
-            else
-                export LD_PRELOAD="$LD_PRELOAD":"$k"
-                break 3
-            fi
-        done
+            continue
+        fi
+        echo adding $k to LD_PRELOAD
+        if test -z "$LD_PRELOAD"; then
+            export LD_PRELOAD="$k"
+            break 3
+        else
+            export LD_PRELOAD="$LD_PRELOAD":"$k"
+            break 3
+        fi
+    done
     done
 done
+
 # set batch scheduling (if schedtool is available)
 schedtool="`which schedtool 2>/dev/zero`"
 if test -n "$schedtool" -a -x "$schedtool"; then
@@ -104,6 +107,7 @@ __doc__ = """ real docstring """
 import B2DXFitters
 import ROOT
 from ROOT import RooFit
+from ROOT import *
 from optparse import OptionParser
 from math     import pi, log
 from  os.path import exists
