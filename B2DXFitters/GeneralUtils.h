@@ -35,6 +35,7 @@
 #include "RooDataHist.h"
 #include "RooCategory.h"
 #include "RooAbsRealLValue.h"
+#include "B2DXFitters/PlotSettings.h"
 
 namespace GeneralUtils {
 
@@ -51,6 +52,8 @@ namespace GeneralUtils {
                                const char* mode,
                                const char* extension = "pdf",
                                const char* suffix = NULL,
+			       const char* dir = "Plot",
+			       Int_t bin = 100,
                                bool        debug = false
                                );
   //===========================================================================
@@ -76,23 +79,26 @@ namespace GeneralUtils {
                     bool        debug = false
                     );
 
-  void Save2DHist(TH2F* hist, TString& ext);
-  void Save3DHist(TH3F* hist, TString& ext);
+  void Save2DHist(TH2F* hist, PlotSettings* plotSet);
+  void Save3DHist(TH3F* hist, PlotSettings* plotSet);
 
   void Save2DComparison(TH2F* hist1, TString& l1,
                         TH2F* hist2, TString& l2,
                         TH2F* hist3, TString& l3,
-                        TString& ext);
+                        PlotSettings* plotSet);
 
 
   //===========================================================================
   // Add PID histogram with weights,
   // hist1 - first histogram;
-  // w1 - weight 1
   // hist2 - first histogram;
-  // w2 - weight 1
   //===========================================================================
-  TH1F* AddHist(TH1F* hist1, Double_t w1, TH1F* hist2, Double_t w2, bool        debug = false );
+  TH1F* WeightHist(TH1F* hist1, TH1F* hist2, bool        debug = false );
+  TH1F* WeightHistFull(TString& namehist, 
+		       std::vector <std::string> FileName1, 
+		       std::vector <std::string> FileName2, 
+		       int i, 
+		       bool debug=false);
 
   //===========================================================================
   // Read one name from config.txt file
@@ -156,10 +162,11 @@ namespace GeneralUtils {
   // Save template to the pdf file
   //==========================================================================
   void SaveTemplate(RooDataSet* dataSet, 
-		    RooKeysPdf* pdf,
+		    RooAbsPdf* pdf,
 		    RooRealVar* mass,
-		    TString &sample,
-		    TString &mode,
+		    TString sample = TString("both"),
+		    TString mode   = TString("Bs2DsK"),
+		    PlotSettings* plotset = NULL,
 		    bool        debug = false);
 
   //===========================================================================
@@ -168,8 +175,9 @@ namespace GeneralUtils {
   void SaveTemplateHist(RooDataHist* dataSet,
 			RooHistPdf* pdf,
 			RooRealVar* mass,
-			TString &sample,
-			TString &mode,
+			TString sample = TString("both"),
+			TString mode   = TString("Bs2DsK"),
+			PlotSettings*  plotset = NULL,
 			bool        debug = false);
 
 
@@ -179,8 +187,9 @@ namespace GeneralUtils {
   //==========================================================================
   void SaveDataSet(RooDataSet* dataSet, 
 		   RooRealVar* mass,
-		   TString &sample,
-		   TString &mode,
+		   TString sample = TString("both"),
+		   TString mode   = TString("Bs2DsK"),
+		   PlotSettings* plotset = NULL,
 		   bool        debug = false);
 
   //===========================================================================
@@ -194,12 +203,19 @@ namespace GeneralUtils {
 			  Bool_t mistag,
 			  bool        debug = false);
   
+  RooHistPdf* CreateHistPDF(TH1* hist,
+                            RooRealVar* obs,
+                            TString &name,
+                            Int_t bin,
+                            bool debug);
+
   RooHistPdf* CreateHistPDF(RooDataSet* dataSet,
                             RooRealVar* obs,
                             TString &name,
                             Int_t bin,
                             bool debug = false);
-
+  
+  
   RooAbsPdf* CreateBinnedPDF(RooDataSet* dataSet,
                              RooRealVar* obs,
                              TString &name,
@@ -251,14 +267,22 @@ namespace GeneralUtils {
   //===========================================================================
   // Check D/Ds final state (kkpi,kpipi,pipipi) from check
   //==========================================================================
-  TString CheckDMode(std::string& check, bool debug);
-  TString CheckDMode(TString& check, bool debug);
+  TString CheckDMode(std::string& check, bool debug = false);
+  TString CheckDMode(TString& check, bool debug = false);
 
-  TString CheckKKPiMode(std::string& check, bool debug);
-  TString CheckKKPiMode(TString& check, bool debug);
+  TString CheckKKPiMode(std::string& check, bool debug = false);
+  TString CheckKKPiMode(TString& check, bool debug = false);
 
-  TString GetLabel(TString& mode, bool debug);
-  TString CheckBDTGBin(TString& check, bool debug);
+  TString GetLabel(TString& mode, 
+		   bool bs = true,
+		   bool ds = true, 
+		   bool pol = true,
+		   bool debug = false);
+  
+  TString CheckBDTGBin(TString& check, bool debug = false);
+  
+  TString CheckObservable(TString& check, bool debug = false);
+  TString CheckBachelor(TString check, bool debug);
 } // end of namespace
 
 //=============================================================================

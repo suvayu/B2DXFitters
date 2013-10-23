@@ -104,16 +104,9 @@ __doc__ = """ real docstring """
 import B2DXFitters
 import ROOT
 from ROOT import RooFit
-from ROOT import *
-ROOT.gROOT.SetBatch()
-
 from optparse import OptionParser
-from math     import pi
-
-MassFitUtils = ROOT.MassFitUtils
-GeneralUtils = ROOT.GeneralUtils
-SFitUtils = ROOT.SFitUtils
-Bs2Dsh2011TDAnaModels = ROOT.Bs2Dsh2011TDAnaModels
+from math     import pi, log
+import os, sys, gc
         
 # -----------------------------------------------------------------------------
 # Configuration settings

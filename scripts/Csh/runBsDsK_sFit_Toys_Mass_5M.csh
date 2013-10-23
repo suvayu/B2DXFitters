@@ -1,5 +1,5 @@
-set dirinput =  '/afs/cern.ch/work/a/adudziak/public/Bs2DsKToys/Gamma70_5M_NoPETE/'
-set diroutput = '/afs/cern.ch/work/a/adudziak/public/Bs2DsKToys/Gamma70_5M_NoPETE/'
+set dirinput =  '/afs/cern.ch/work/a/adudziak/public/Bs2DsKToys/Gamma70_5M/'
+set diroutput = '/afs/cern.ch/work/a/adudziak/public/Bs2DsKToys/Gamma70_5M/'
 
 set outputprefix = 'DsK_Toys_MassFitResult_'
 set outputsuffix = '.log'

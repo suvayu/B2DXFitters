@@ -67,9 +67,9 @@ def getconfig() :
     configdict["constParams"].append('deltaGammas')
     configdict["constParams"].append('deltaMs')
     #configdict["constParams"].append('tagEffSig')
-    configdict["constParams"].append('tacc_exponent')
-    configdict["constParams"].append('tacc_offset')
-    configdict["constParams"].append('tacc_beta')
-    configdict["constParams"].append('tacc_turnon')
+    configdict["constParams"].append('tacc_exponent_BDTGA')
+    configdict["constParams"].append('tacc_offset_BDTGA')
+    configdict["constParams"].append('tacc_beta_BDTGA')
+    configdict["constParams"].append('tacc_turnon_BDTGA')
 
     return configdict

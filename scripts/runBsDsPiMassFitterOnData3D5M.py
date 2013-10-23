@@ -12,21 +12,101 @@
 #   Author: Vladimir Vava Gligorov                                            #
 #                                                                             #
 # --------------------------------------------------------------------------- #
+# -----------------------------------------------------------------------------
+# settings for running without GaudiPython
+# -----------------------------------------------------------------------------
+""":"
+# This part is run by the shell. It does some setup which is convenient to save
+# work in common use cases.
 
+# make sure the environment is set up properly
+if test -n "$CMTCONFIG" \
+         -a -f $B2DXFITTERSROOT/$CMTCONFIG/libB2DXFittersDict.so \
+         -a -f $B2DXFITTERSROOT/$CMTCONFIG/libB2DXFittersLib.so; then
+    # all ok, software environment set up correctly, so don't need to do
+    # anything
+    true
+else
+    if test -n "$CMTCONFIG"; then
+        # clean up incomplete LHCb software environment so we can run
+        # standalone
+        echo Cleaning up incomplete LHCb software environment.
+        PYTHONPATH=`echo $PYTHONPATH | tr ':' '\n' | \
+            egrep -v "^($User_release_area|$MYSITEROOT/lhcb)" | \
+            tr '\n' ':' | sed -e 's/:$//'`
+        export PYTHONPATH
+        LD_LIBRARY_PATH=`echo $LD_LIBRARY_PATH | tr ':' '\n' | \
+            egrep -v "^($User_release_area|$MYSITEROOT/lhcb)" | \
+            tr '\n' ':' | sed -e 's/:$//'`
+	export LD_LIBRARY_PATH
+        exec env -u CMTCONFIG -u B2DXFITTERSROOT "$0" "$@"
+    fi
+    # automatic set up in standalone build mode
+    if test -z "$B2DXFITTERSROOT"; then
+        cwd="$(pwd)"
+        if test -z "$(dirname $0)"; then
+            # have to guess location of setup.sh
+            cd ../standalone
+            . ./setup.sh
+            cd "$cwd"
+        else
+            # know where to look for setup.sh
+            cd "$(dirname $0)"/../standalone
+            . ./setup.sh
+            cd "$cwd"
+        fi
+        unset cwd
+    fi
+fi
+# figure out which custom allocators are available
+# prefer jemalloc over tcmalloc
+for i in libjemalloc libtcmalloc; do
+    for j in `echo "$LD_LIBRARY_PATH" | tr ':' ' '` \
+            /usr/local/lib /usr/lib /lib; do
+        for k in `find "$j" -name "$i"'*.so.?' | sort -r`; do
+            if test \! -e "$k"; then
+                continue
+            fi
+            echo adding $k to LD_PRELOAD
+            if test -z "$LD_PRELOAD"; then
+                export LD_PRELOAD="$k"
+                break 3
+            else
+                export LD_PRELOAD="$LD_PRELOAD":"$k"
+                break 3
+            fi
+        done
+    done
+done
+# set batch scheduling (if schedtool is available)
+schedtool="`which schedtool 2>/dev/zero`"
+if test -n "$schedtool" -a -x "$schedtool"; then
+    echo "enabling batch scheduling for this job (schedtool -B)"
+    schedtool="$schedtool -B -e"
+else
+    schedtool=""
+fi
+
+# set ulimit to protect against bugs which crash the machine: 2G vmem max,
+# no more then 8M stack
+ulimit -v $((2048 * 1024))
+ulimit -s $((   8 * 1024))
+
+# trampoline into python
+exec $schedtool /usr/bin/time -v env python -O -- "$0" "$@"
+"""
+__doc__ = """ real docstring """
 # -----------------------------------------------------------------------------
 # Load necessary libraries
 # -----------------------------------------------------------------------------
+import B2DXFitters
+import ROOT
+from ROOT import RooFit
 from optparse import OptionParser
-from os.path  import join
-
-import GaudiPython
-
-GaudiPython.loaddict( 'B2DXFittersDict' )
-
-from ROOT import *
-
-GeneralUtils = GaudiPython.gbl.GeneralUtils
-Bs2Dsh2011TDAnaModels = GaudiPython.gbl.Bs2Dsh2011TDAnaModels
+from math     import pi, log
+from  os.path import exists
+import os, sys, gc
+gROOT.SetBatch()
 
 # -----------------------------------------------------------------------------
 # Configuration settings
@@ -37,7 +117,9 @@ bName = 'Bs'
 dName = 'Ds'
 
 #------------------------------------------------------------------------------
-def runBsDsKMassFitterOnData( debug, sample, mVar, mdVar, tVar, terrVar, tagVar, tagOmegaVar, idVar, mode, sweight, yieldBdDPi, 
+def runBsDsKMassFitterOnData( debug, sample,
+                              mVar, mdVar, tVar, terrVar, tagVar, tagOmegaVar, idVar,
+                              mode, sweight, yieldBdDPi, 
                               fileNameAll, fileNameToys, workName,logoutputname,tagTool, configName, wider, merge ) :
 
     # Get the configuration file
@@ -57,6 +139,18 @@ def runBsDsKMassFitterOnData( debug, sample, mVar, mdVar, tVar, terrVar, tagVar,
 
     RooAbsData.setDefaultStorageType(RooAbsData.Tree)
 
+    config = TString("../data/")+TString(configName)+TString(".py")
+    MDSettings = MDFitterSettings("MDSettings","MDFSettings",config)
+
+    MDSettings.SetMassBVar(TString(mVar))
+    MDSettings.SetMassDVar(TString(mdVar))
+    MDSettings.SetTimeVar(TString(tVar))
+    MDSettings.SetTerrVar(TString(terrVar))
+    MDSettings.SetTagVar(TString(tagVar))
+    MDSettings.SetTagOmegaVar(TString(tagOmegaVar))
+    MDSettings.SetIDVar(TString(idVar))
+    
+        
     workNameTS = TString(workName)
     workspace = []
     workspace.append(GeneralUtils.LoadWorkspace(TString(fileNameAll),workNameTS,debug))
@@ -71,9 +165,7 @@ def runBsDsKMassFitterOnData( debug, sample, mVar, mdVar, tVar, terrVar, tagVar,
         toys = true
         workspaceToys = (GeneralUtils.LoadWorkspace(TString(fileNameToys),workNameTS, debug))
         workspaceToys.Print("v")
-        
-        
-                               
+                 
                                                                            
     if (not toys ):
         mass        = GeneralUtils.GetObservable(workspace[0],obsTS, debug)
@@ -99,34 +191,13 @@ def runBsDsKMassFitterOnData( debug, sample, mVar, mdVar, tVar, terrVar, tagVar,
     observables = RooArgSet( mass,massDs, PIDK, tvar, terrvar, tagvar,tagomegavar,idvar )
     if toys :
         observables.add(trueidvar)
-
-    if tagtool:
-        tagsskaonVar       = GeneralUtils.GetObservable(workspace[0], TString("lab0_SS_Kaon_PROB"), debug)
-        tagdecsskaonVar    = GeneralUtils.GetObservable(workspace[0], TString("lab0_SS_Kaon_DEC"), debug)
-        tagosmuonVar       = GeneralUtils.GetObservable(workspace[0], TString("lab0_OS_Muon_PROB"), debug)
-        tagdecosmuonVar    = GeneralUtils.GetObservable(workspace[0], TString("lab0_OS_Muon_DEC"), debug)
-        tagoselectronVar   = GeneralUtils.GetObservable(workspace[0], TString("lab0_OS_Electron_PROB"), debug)
-        tagdecoselectronVar= GeneralUtils.GetObservable(workspace[0], TString("lab0_OS_Electron_DEC"), debug)
-        tagoskaonVar       = GeneralUtils.GetObservable(workspace[0], TString("lab0_OS_Kaon_PROB"), debug)
-        tagdecoskaonVar    = GeneralUtils.GetObservable(workspace[0], TString("lab0_OS_Kaon_DEC"), debug)
-        tagvtxchargeVar    = GeneralUtils.GetObservable(workspace[0], TString("lab0_VtxCharge_PROB"), debug)
-        tagdecvtxchargeVar = GeneralUtils.GetObservable(workspace[0], TString("lab0_VtxCharge_DEC"), debug)
-        observables.add(tagsskaonVar)
-        observables.add(tagosmuonVar)
-        observables.add(tagdecsskaonVar)
-        observables.add(tagdecosmuonVar)
-        observables.add(tagoselectronVar)
-        observables.add(tagdecoselectronVar=)
-        observables.add(tagoskaonVar)
-        observables.add(tagdecoskaonVar)
-        observables.add(tagvtxchargeVar)
-        observables.add(tagdecvtxchargeVar)
-            
-            
-    
-
         
-        
+    if MDSettings.CheckAddVar() == true:
+        for i in range(0,MDSettings.GetNumAddVar()):
+            addVar = GeneralUtils.GetObservable(workspace[0], MDSettings.GetAddVarName(i), debug)
+            observables.add(addVar)
+                   
+             
  ###------------------------------------------------------------------------------------------------------------------------------------###
     ###------------------------------------------------------------------------------------------------------------------------------###
  ###------------------------------------------------------------------------------------------------------------------------------------###   
@@ -981,12 +1052,12 @@ parser.add_option( '--terrvar',
 
 parser.add_option( '--tagvar',
                    dest = 'tagvar',       
-                   default = 'lab0_BsTaggingTool_TAGDECISION_OS',
+                   default = 'lab0_TAGDECISION_OS',
                    help = 'set observable '
                    )
 parser.add_option( '--tagomegavar',
                    dest = 'tagomegavar',
-                   default = 'lab0_BsTaggingTool_TAGOMEGA_OS',
+                   default = 'lab0_TAGOMEGA_OS',
                    help = 'set observable '
                    )
 parser.add_option( '--idvar',
@@ -994,6 +1065,8 @@ parser.add_option( '--idvar',
                    default = 'lab1_ID',
                    help = 'set observable '
                    )
+
+
 parser.add_option( '-w', '--sweight',
                    dest = 'sweight',
                    action = 'store_true',

@@ -6,48 +6,50 @@ def getconfig() :
     from math import log
 
     # PHYSICAL PARAMETERS
-    configdict["BMassDown"]  = 5300
-    configdict["BMassUp"]    = 5800
-    configdict["DMassDown"]  = 1930
-    configdict["DMassUp"]    = 2015
-    configdict["TimeDown"]   = 0.0
-    configdict["TimeUp"]     = 15.0
-    configdict["PDown"]      = 0.0
-    configdict["PUp"]        = 650000.0
-    configdict["PTDown"]      = 100.0
-    configdict["PTUp"]        = 45000.0
-    configdict["PIDDown"]      = log(5.0)
-    configdict["PIDUp"]        = log(150.0)
-    configdict["nTracksDown"]      = 15
-    configdict["nTracksUp"]        = 1000.0
+    configdict["BMass"]      = [5300,    5800    ]
+    configdict["DMass"]      = [1930,    2015    ]
+    configdict["Time"]       = [0.2,     15.0    ]
+    configdict["Momentum"]   = [3000.0,  650000.0]
+    configdict["TrMom"]      = [400.0,   45000.0 ]
+    configdict["PIDK"]       = [1.61,    5.0     ]
+    configdict["nTracks"]    = [15.0,    1000.0  ]
+    configdict["TagDec"]     = [-1.0,    1.0     ]
+    configdict["TagOmega"]   = [0.0,     0.5     ]
+    configdict["Terr"]       = [0.01,    0.1     ]
+    configdict["BachCharge"] = [-1000.0, 1000.0  ]
+    configdict["BDTG"]       = [0.5,     1.0     ]
+                                                
+    
     configdict["Bin1"]      = 20
     configdict["Bin2"]      = 20
+    configdict["Bin3"]      = 10
     configdict["Var1"]      = "lab1_PT"
     configdict["Var2"]      = "nTracks"
-                                     
-    
-    configdict["BDTGDown"]   = 0.5
-    configdict["BDTGUp"]   = 1.0
+    configdict["Var3"]       = "lab1_P"
+    configdict["WeightingDimensions"] = 2
+        
     configdict["PIDBach"]    = 5
     configdict["PIDChild"]   = 0
     configdict["PIDProton"]  = 5    
     configdict["dataName"]   = "../data/config_Bs2Dsh2011TDAna_Bs2DsK.txt"
 
-    configdict["fileCalibUpPion"]  = "/afs/cern.ch/work/a/adudziak/public/workspace/CalibDStUpPi_DsK.root"
-    configdict["fileCalibDownPion"]  = "/afs/cern.ch/work/a/adudziak/public/workspace/CalibDStDownPi_DsK.root"
+    configdict["fileCalibPionUp"]  = "/afs/cern.ch/work/a/adudziak/public/workspace/CalibDStUpPi_DsK.root"
+    configdict["fileCalibPionDown"]  = "/afs/cern.ch/work/a/adudziak/public/workspace/CalibDStDownPi_DsK.root"
     configdict["workCalibPion"]  = "RSDStCalib"
-    configdict["fileCalibUpKaon"]  = "/afs/cern.ch/work/a/adudziak/public/workspace/CalibDStUpK_DsK.root"
-    configdict["fileCalibDownKaon"]  = "/afs/cern.ch/work/a/adudziak/public/workspace/CalibDStDownK_DsK.root"
+    configdict["fileCalibKaonUp"]  = "/afs/cern.ch/work/a/adudziak/public/workspace/CalibDStUpK_DsK.root"
+    configdict["fileCalibKaonDown"]  = "/afs/cern.ch/work/a/adudziak/public/workspace/CalibDStDownK_DsK.root"
     configdict["workCalibKaon"]  = "RSDStCalib"
-    configdict["fileCalibUpProton"]  = "/afs/cern.ch/work/a/adudziak/public/workspace/work_lblcpi_up_sw.root"
-    #"/afs/cern.ch/work/a/adudziak/public/workspace/CalibLam0UpP_DsK.root"
-    configdict["fileCalibDownProton"]  = "/afs/cern.ch/work/a/adudziak/public/workspace/work_lblcpi_down_sw.root"
-    #"/afs/cern.ch/work/a/adudziak/public/workspace/CalibLam0DownP_DsK.root"
+    configdict["fileCalibProtonUp"]  = "/afs/cern.ch/work/a/adudziak/public/workspace/work_lblcpi_up_sw.root"
+    configdict["fileCalibProtonDown"]  = "/afs/cern.ch/work/a/adudziak/public/workspace/work_lblcpi_down_sw.root"
     configdict["workCalibProton"]  = "workspace"
+    
     configdict["pathFileLcPi"]  = "/afs/cern.ch/work/a/adudziak/public/workspace/sWeights_LbLcPi_both_PIDK10.root"
     configdict["treeNameLcPi"] = "merged"
 
-    configdict["lumRatio"] =  0.44/(0.59+0.44)
+    configdict["lumRatioDown"] =  0.59
+    configdict["lumRatioUp"] =  0.44
+    configdict["lumRatio"] =  configdict["lumRatioUp"]/(configdict["lumRatioDown"]+configdict["lumRatioUp"])
+            
 
     # 1: NonRes, 2: PhiPi, 3: KstK, 4: KPiPi, 5: PiPiPi
     configdict["mean"]    = [5367.51,   5367.51,   5367.51,   5367.51,   5367.51]

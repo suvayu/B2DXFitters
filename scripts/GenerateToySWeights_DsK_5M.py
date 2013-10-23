@@ -12,25 +12,105 @@
 #                                                                             #
 # --------------------------------------------------------------------------- #
 
+# -----------------------------------------------------------------------------
+# settings for running without GaudiPython
+# -----------------------------------------------------------------------------
+""":"
+# This part is run by the shell. It does some setup which is convenient to save
+# work in common use cases.
 
-from math import *
+# make sure the environment is set up properly
+if test -n "$CMTCONFIG" \
+         -a -f $B2DXFITTERSROOT/$CMTCONFIG/libB2DXFittersDict.so \
+         -a -f $B2DXFITTERSROOT/$CMTCONFIG/libB2DXFittersLib.so; then
+    # all ok, software environment set up correctly, so don't need to do
+    # anything
+    true
+else
+    if test -n "$CMTCONFIG"; then
+        # clean up incomplete LHCb software environment so we can run
+        # standalone
+        echo Cleaning up incomplete LHCb software environment.
+        PYTHONPATH=`echo $PYTHONPATH | tr ':' '\n' | \
+            egrep -v "^($User_release_area|$MYSITEROOT/lhcb)" | \
+            tr '\n' ':' | sed -e 's/:$//'`
+        export PYTHONPATH
+        LD_LIBRARY_PATH=`echo $LD_LIBRARY_PATH | tr ':' '\n' | \
+            egrep -v "^($User_release_area|$MYSITEROOT/lhcb)" | \
+            tr '\n' ':' | sed -e 's/:$//'`
+	export LD_LIBRARY_PATH
+        exec env -u CMTCONFIG -u B2DXFITTERSROOT "$0" "$@"
+    fi
+    # automatic set up in standalone build mode
+    if test -z "$B2DXFITTERSROOT"; then
+        cwd="$(pwd)"
+        if test -z "$(dirname $0)"; then
+            # have to guess location of setup.sh
+            cd ../standalone
+            . ./setup.sh
+            cd "$cwd"
+        else
+            # know where to look for setup.sh
+            cd "$(dirname $0)"/../standalone
+            . ./setup.sh
+            cd "$cwd"
+        fi
+        unset cwd
+    fi
+fi
+# figure out which custom allocators are available
+# prefer jemalloc over tcmalloc
+for i in libjemalloc libtcmalloc; do
+    for j in `echo "$LD_LIBRARY_PATH" | tr ':' ' '` \
+            /usr/local/lib /usr/lib /lib; do
+        for k in `find "$j" -name "$i"'*.so.?' | sort -r`; do
+            if test \! -e "$k"; then
+                continue
+            fi
+            echo adding $k to LD_PRELOAD
+            if test -z "$LD_PRELOAD"; then
+                export LD_PRELOAD="$k"
+                break 3
+            else
+                export LD_PRELOAD="$LD_PRELOAD":"$k"
+                break 3
+            fi
+        done
+    done
+done
+# set batch scheduling (if schedtool is available)
+schedtool="`which schedtool 2>/dev/zero`"
+if test -n "$schedtool" -a -x "$schedtool"; then
+    echo "enabling batch scheduling for this job (schedtool -B)"
+    schedtool="$schedtool -B -e"
+else
+    schedtool=""
+fi
+
+# set ulimit to protect against bugs which crash the machine: 2G vmem max,
+# no more then 8M stack
+ulimit -v $((2048 * 1024))
+ulimit -s $((   8 * 1024))
+
+# trampoline into python
+exec $schedtool /usr/bin/time -v env python -O -- "$0" "$@"
+"""
+__doc__ = """ real docstring """
+# -----------------------------------------------------------------------------
+# Load necessary libraries
+# -----------------------------------------------------------------------------
+import B2DXFitters
+import ROOT
+from ROOT import RooFit
 from optparse import OptionParser
-from os.path  import join
-
-import GaudiPython
-GaudiPython.loaddict( 'B2DXFittersDict' )
-
-from ROOT import *
-
-GeneralUtils = GaudiPython.gbl.GeneralUtils
-MassFitUtils = GaudiPython.gbl.MassFitUtils
-Bs2Dsh2011TDAnaModels = GaudiPython.gbl.Bs2Dsh2011TDAnaModels
-SFitUtils = GaudiPython.gbl.SFitUtils
+from math     import pi, log
+import os, sys, gc
+gROOT.SetBatch()
 
 from B2DXFitters import taggingutils, cpobservables
 
 
-RooRandom.randomGenerator().SetSeed(746829203) #78249292)
+RooRandom.randomGenerator().SetSeed(746829245) #746829203) #78249292)
 
 RooAbsData.setDefaultStorageType(RooAbsData.Tree)
 
@@ -43,7 +123,7 @@ RooAbsReal.defaultIntegratorConfig().getConfigSection('RooAdaptiveGaussKronrodIn
 
 
 #------------------------------------------------------------------------------
-def runBsDsKGenerator( debug, single, configName, numberOfToys, numberOfEvents ) :
+def runBsDsKGenerator( debug, single, configName, rangeDown, rangeUp, numberOfEvents ) :
 
     # Get the configuration file
     myconfigfilegrabber = __import__(configName,fromlist=['getconfig']).getconfig
@@ -88,10 +168,10 @@ def runBsDsKGenerator( debug, single, configName, numberOfToys, numberOfEvents )
     lumRatio = RooRealVar("lumRatio","lumRatio", myconfigfile["lumRatio"])
            
     
-    if single :
-        ntoys = 1
-    else:
-        ntoys = int(numberOfToys)
+    #if single :
+    #    ntoys = 1
+    #else:
+    #    ntoys = int()
                             
       
     gendata = []
@@ -120,15 +200,14 @@ def runBsDsKGenerator( debug, single, configName, numberOfToys, numberOfEvents )
     workspace_mistag.Print("v")
     #exit(0)
 
-    timeVar_B   = RooRealVar(tVar,tVar,0,15) 
-    terrVar_B   = RooRealVar(terrVar,terrVar,0.01,0.1)
+    timeVar_B   = RooRealVar(tVar,tVar,myconfigfile["timeRange"][0],myconfigfile["timeRange"][1]) 
+    terrVar_B   = GeneralUtils.GetObservable(workspace_mistag,TString(terrVar), debug)
     massVar_D   = GeneralUtils.GetObservable(workspace,TString(mdVar), debug)
     PIDKVar_B   = GeneralUtils.GetObservable(workspace,TString(PIDKVar), debug)
     massVar_B   = GeneralUtils.GetObservable(workspace,TString(mVar), debug)
     trueIDVar_B = RooRealVar(trueID,trueID,0,100)
     mistagVar_B = GeneralUtils.GetObservable(workspace_mistag,TString(tagomega), debug)
-    #mistagVar_B.setMax(1.0)
-
+    
     #Time resolution
     trm_mean  = RooRealVar( 'trm_mean' , 'Gaussian resolution model mean', myconfigfile["resolutionMeanBias"], 'ps' )
     trm_scale = RooRealVar( 'trm_scale', 'Gaussian resolution model scale factor', myconfigfile["resolutionScaleFactor"] )
@@ -1065,9 +1144,12 @@ def runBsDsKGenerator( debug, single, configName, numberOfToys, numberOfEvents )
         
         total_pdf[i].Print("v")
 
-                         
+    rd = int(rangeDown)
+    ru = int(rangeUp)
+    print rd
+    print ru
            
-    for i in range(0,ntoys) :
+    for i in range(rd,ru) :
 
         workout = RooWorkspace("workspace","workspace")
 
@@ -1097,10 +1179,7 @@ def runBsDsKGenerator( debug, single, configName, numberOfToys, numberOfEvents )
                                                   debug)
         
             getattr(workout,'import')(data)
-            del gendata
-            del tree
-            del dataName
-            del data 
+             
         
         #Plot what we just did
         if single :
@@ -1166,7 +1245,8 @@ def runBsDsKGenerator( debug, single, configName, numberOfToys, numberOfEvents )
             canv_Bmass = TCanvas("canv_Bmass","canv_Bmass", 1200, 1000)
             frame_Bmass = massVar_B.frame()
             frame_Bmass.SetTitle('')
-            data[i].plotOn(frame_Bmass,RooFit.Binning(100))
+            data.plotOn(frame_Bmass,RooFit.Binning(100))
+            '''
             total_pdf.plotOn(frame_Bmass)
             total_pdf.plotOn(frame_Bmass,RooFit.Components("timeandmass_signal"),RooFit.LineStyle(kDashed), RooFit.LineColor(kRed-7))
             total_pdf.plotOn(frame_Bmass,RooFit.Components("timeandmass_dk"),RooFit.LineColor(kRed))
@@ -1177,6 +1257,7 @@ def runBsDsKGenerator( debug, single, configName, numberOfToys, numberOfEvents )
             #total_pdf.plotOn(frame_Bmass,RooFit.Components("timeandmass_dspi"), RooFit.LineColor(kBlue-6))
             total_pdf.plotOn(frame_Bmass,RooFit.Components("timeandmass_dsdsstp"),RooFit.LineColor(kOrange))
             total_pdf.plotOn(frame_Bmass,RooFit.Components("timeandmass_combo"),RooFit.LineColor(kMagenta-2))
+            '''
             frame_Bmass.Draw()
             legend.Draw("same")
             canv_Bmass.Print("DsK_Toys_Bmass.pdf") 
@@ -1185,7 +1266,8 @@ def runBsDsKGenerator( debug, single, configName, numberOfToys, numberOfEvents )
             canv_Dmass = TCanvas("canv_Dmass","canv_Dmass",1200, 1000)
             frame_Dmass = massVar_D.frame()
             frame_Dmass.SetTitle('')
-            data[i].plotOn(frame_Dmass,RooFit.Binning(100))
+            data.plotOn(frame_Dmass,RooFit.Binning(100))
+            '''
             total_pdf.plotOn(frame_Dmass)
             total_pdf.plotOn(frame_Dmass,RooFit.Components("timeandmass_signal"), RooFit.LineStyle(kDashed), RooFit.LineColor(kRed-7))
             total_pdf.plotOn(frame_Dmass,RooFit.Components("timeandmass_dk"),RooFit.LineColor(kRed))
@@ -1196,6 +1278,7 @@ def runBsDsKGenerator( debug, single, configName, numberOfToys, numberOfEvents )
             #total_pdf.plotOn(frame_Dmass,RooFit.Components("timeandmass_dspi"), RooFit.LineColor(kBlue-6))
             total_pdf.plotOn(frame_Dmass,RooFit.Components("timeandmass_dsdsstp"),RooFit.LineColor(kOrange))
             total_pdf.plotOn(frame_Dmass,RooFit.Components("timeandmass_combo"),RooFit.LineColor(kMagenta-2))
+            '''
             frame_Dmass.Draw()
             legend.Draw("same")
             canv_Dmass.Print("DsK_Toys_Dmass.pdf")
@@ -1204,7 +1287,8 @@ def runBsDsKGenerator( debug, single, configName, numberOfToys, numberOfEvents )
             canv_PIDK = TCanvas("canv_PIDK","canv_PIDK", 1200, 1000)
             frame_PIDK = PIDKVar_B.frame()
             frame_PIDK.SetTitle('')
-            data[i].plotOn(frame_PIDK,RooFit.Binning(100))
+            data.plotOn(frame_PIDK,RooFit.Binning(100))
+            '''
             total_pdf.plotOn(frame_PIDK)
             total_pdf.plotOn(frame_PIDK,RooFit.Components("timeandmass_signal"), RooFit.LineStyle(kDashed), RooFit.LineColor(kRed-7))
             total_pdf.plotOn(frame_PIDK,RooFit.Components("timeandmass_dk"),RooFit.LineColor(kRed))
@@ -1215,6 +1299,7 @@ def runBsDsKGenerator( debug, single, configName, numberOfToys, numberOfEvents )
             #total_pdf.plotOn(frame_PIDK,RooFit.Components("timeandmass_dspi"), RooFit.LineColor(kBlue-6))
             total_pdf.plotOn(frame_PIDK,RooFit.Components("timeandmass_dsdsstp"),RooFit.LineColor(kOrange))
             total_pdf.plotOn(frame_PIDK,RooFit.Components("timeandmass_combo"),RooFit.LineColor(kMagenta-2))
+            '''
             frame_PIDK.Draw()
             legend.Draw("same")
             canv_PIDK.Print("DsK_Toys_PIDK.pdf")
@@ -1223,7 +1308,7 @@ def runBsDsKGenerator( debug, single, configName, numberOfToys, numberOfEvents )
             canv_Bmistag = TCanvas("canv_Bmistag","canv_Btag", 1200, 1000)
             frame_Bmistag = mistagVar_B.frame()
             frame_Bmistag.SetTitle('')
-            data[i].plotOn(frame_Bmistag,RooFit.Binning(100))
+            data.plotOn(frame_Bmistag,RooFit.Binning(50))
             frame_Bmistag.Draw()
             canv_Bmistag.Print("DsK_Toys_Bmistag.pdf")
 
@@ -1231,19 +1316,19 @@ def runBsDsKGenerator( debug, single, configName, numberOfToys, numberOfEvents )
             canv_Bterr = TCanvas("canv_Bterr","canv_Bterr", 1200, 1000)
             frame_Bterr = terrVar_B.frame()
             frame_Bterr.SetTitle('')
-            data[i].plotOn(frame_Bterr,RooFit.Binning(100))
-            total_pdf.plotOn(frame_Bterr)
+            data.plotOn(frame_Bterr,RooFit.Binning(100))
+            #total_pdf.plotOn(frame_Bterr)
             frame_Bterr.Draw()
             canv_Bterr.Print("DsK_Toys_TimeErrors.pdf")
 
-            obs = data[i].get()
+            obs = data.get()
             tagFName = TString(tagdec)+TString("_idx")
             tagF = obs.find(tagFName.Data())
             gStyle.SetOptLogy(0)
             canv_Btag = TCanvas("canv_Btag","canv_Btag", 1200, 1000)
             frame_Btag = tagF.frame()
             frame_Btag.SetTitle('')
-            data[i].plotOn(frame_Btag,RooFit.Binning(5))
+            data.plotOn(frame_Btag,RooFit.Binning(5))
             frame_Btag.Draw()
             canv_Btag.Print("DsK_Toys_Tag.pdf")
             
@@ -1253,7 +1338,7 @@ def runBsDsKGenerator( debug, single, configName, numberOfToys, numberOfEvents )
             canv_Bid = TCanvas("canv_Bid","canv_Bid", 1200, 1000)
             frame_Bid = idF.frame()
             frame_Bid.SetTitle('')
-            data[i].plotOn(frame_Bid,RooFit.Binning(2))
+            data.plotOn(frame_Bid,RooFit.Binning(2))
             frame_Bid.Draw()
             canv_Bid.Print("DsK_Toys_Charge.pdf")
             
@@ -1263,7 +1348,7 @@ def runBsDsKGenerator( debug, single, configName, numberOfToys, numberOfEvents )
             canv_Btime = TCanvas("canv_Btime","canv_Btime", 1200, 1000)
             frame_Btime = timeVar_B.frame()
             frame_Btime.SetTitle('')
-            data[i].plotOn(frame_Btime,RooFit.Binning(100))
+            data.plotOn(frame_Btime,RooFit.Binning(100))
             #total_pdf.plotOn(frame_Btime)
             #total_pdf.plotOn(frame_Btime,RooFit.Components("time_signal"),RooFit.LineStyle(2))
             #total_pdf.plotOn(frame_Btime,RooFit.Components("time_dk"),RooFit.LineStyle(2),RooFit.LineColor(2))
@@ -1274,15 +1359,15 @@ def runBsDsKGenerator( debug, single, configName, numberOfToys, numberOfEvents )
             canv_Btime.Print("DsK_Toys_Btime.pdf")
         if not single :
             #workout.writeToFile("/afs/cern.ch/work/g/gligorov/public/Bs2DsKToys/sWeightToys/DsKToys_Full_2ksample_140912/DsK_Toys_Full_Work_2kSample_"+str(i)+".root")
-            workout.writeToFile("/afs/cern.ch/work/a/adudziak/public/Bs2DsKToys/Gamma70_5M_ET/DsK_Toys_Work_"+str(i+900)+".root")
+            workout.writeToFile("/afs/cern.ch/work/a/adudziak/public/Bs2DsKToys/Gamma70_5M/DsK_Toys_Work_"+str(i)+".root")
             #outfile  = TFile("/afs/cern.ch/work/g/gligorov/public/Bs2DsKToys/sWeightToys/DsKToys_Full_2ksample_140912/DsK_Toys_Full_Tree_2kSample_"+str(i)+".root","RECREATE")
         else :
             workout.writeToFile("Data_Toys_Single_Work_DsK.root")
             outfile  = TFile("Data_Toys_Single_Tree_DsK.root","RECREATE")
         del workout
-        #del gendata
-        #del data
-        #del tree 
+        del gendata
+        del data
+        del tree 
         #tree.Write()
         #outfile.Close()
     
@@ -1298,14 +1383,18 @@ parser.add_option( '-d', '--debug',
                    help = 'print debug information while processing'
                    )
 
-parser.add_option( '-s', '--single',
+parser.add_option( '--single',
                    dest = 'single',
                    action = 'store_true',
                    default = False,
                                       )
-parser.add_option( '--numberOfToys',
-                   dest = 'numberOfToys',
-                   default = 100)
+parser.add_option( '-s','--rangeDown',
+                   dest = 'rangeDown',
+                   default = 0)
+
+parser.add_option( '-e','--rangeUp',
+                   dest = 'rangeUp',
+                   default = 1)
 
 parser.add_option( '--numberOfEvents',
                    dest = 'numberOfEvents',
@@ -1328,7 +1417,7 @@ if __name__ == '__main__' :
     import sys
     sys.path.append("../data/")
     
-    runBsDsKGenerator( options.debug,  options.single , options.configName, options.numberOfToys, options.numberOfEvents)
+    runBsDsKGenerator( options.debug,  options.single , options.configName, options.rangeDown, options.rangeUp, options.numberOfEvents)
     
 # -----------------------------------------------------------------------------
                                 

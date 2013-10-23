@@ -52,6 +52,10 @@
 	<function pattern = "SFitUtils::*" />
 	<function pattern = "MassFitUtils::*" /> 
 	<function pattern = "WeightingUtils::*" />
+        <class name = "PlotSettings" />
+        <class name = "MDFitterSettings" />
+        <class name = "HistPID1D" />
+        <class name = "HistPID2D" />
 
 	<class pattern = "Bdecaytree" />
 

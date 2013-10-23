@@ -11,7 +11,7 @@ def getconfig() :
     configdict["TagEffSig"]   = 0.403 #392 #403
     configdict["TagOmegaSig"] = 0.391
     configdict["StrongPhase"] = 30. / 180. * pi
-    configdict["WeakPhase"]   = 140. / 180. * pi
+    configdict["WeakPhase"]   = 70. / 180. * pi
     configdict["ArgLf"]       = configdict["StrongPhase"] - configdict["WeakPhase"]
     configdict["ArgLbarfbar"] = configdict["StrongPhase"] + configdict["WeakPhase"]
     configdict["ModLf"]       = 0.372
@@ -23,7 +23,7 @@ def getconfig() :
                 
     configdict["resolutionScaleFactor"] = 1.37 
     configdict["resolutionMeanBias"]    = 0.
-    configdict["DecayTimeResolutionModel"] = "TripleGaussian"
+    configdict["DecayTimeResolutionModel"] = "PEDTETripleGaussian"
 
     configdict["resolutionSigma1"] = 2.21465e-02
     configdict["resolutionSigma2"] = 3.72057e-02

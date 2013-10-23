@@ -52,6 +52,7 @@
 #include "B2DXFitters/KinHack.h"
 #include "B2DXFitters/DecayTreeTupleSucksFitter.h"
 #include "B2DXFitters/RooBinned1DQuinticBase.h"
+#include "B2DXFitters/PlotSettings.h"
 
 #define DEBUG(COUNT, MSG)				   \
   std::cout << "SA-DEBUG: [" << COUNT << "] (" << __func__ << ") " \
@@ -78,6 +79,8 @@ namespace GeneralUtils {
                                const char* mode,
                                const char* extension,
                                const char* suffix,
+			       const char* dir,
+			       Int_t bin,
                                bool        debug
                                )
   {
@@ -107,12 +110,12 @@ namespace GeneralUtils {
     RooPlot* frame = observable -> frame();
     frame -> SetName( Form( "frame_%s", identifier ) );
     
-    data  -> plotOn( frame, RooFit::MarkerColor(kBlue+2), RooFit::Binning(50) );
+    data  -> plotOn( frame, RooFit::MarkerColor(kBlue+2), RooFit::Binning(bin) );
     if ( pdf ) pdf -> plotOn( frame, RooFit::LineColor(kRed) );
     frame -> Draw();
     
     name = Form( "Plot/data_%s.%s", identifier, extension );
-    if ( pdf ) name = Form( "Plot/template_%s.%s", identifier, extension );
+    if ( pdf ) name = Form( "%s/template_%s.%s", dir, identifier, extension );
     canvas -> Print( name );
     printf( "[INFO] \"%s\" file saved.\n", name );
   }
@@ -212,10 +215,12 @@ namespace GeneralUtils {
   }
 
 
-  void Save2DHist(TH2F* hist, TString& ext)
+  void Save2DHist(TH2F* hist, PlotSettings* plotSet)
   {
     TString nameHist = hist->GetName();
-    TString save = "Plot/"+nameHist+"."+ext;
+    TString dir = plotSet->GetDir();
+    TString ext = plotSet->GetExt();
+    TString save = dir+"/"+nameHist+"."+ext;
     TCanvas *rat = new TCanvas("can","",10,10,800,600);
     TStyle *style = new TStyle();
     style->SetPalette(1);
@@ -226,10 +231,12 @@ namespace GeneralUtils {
     rat->SaveAs(save.Data());
   }
 
-  void Save3DHist(TH3F* hist, TString& ext)
+  void Save3DHist(TH3F* hist, PlotSettings* plotSet)
   {
     TString nameHist = hist->GetName();
-    TString save = "Plot/"+nameHist+"."+ext;
+    TString dir= plotSet->GetDir();
+    TString ext= plotSet->GetExt();
+    TString save = dir+"/"+nameHist+"."+ext;
     TCanvas *rat = new TCanvas("can","",10,10,800,600);
     TStyle *style = new TStyle();
     style->SetPalette(1);
@@ -244,7 +251,7 @@ namespace GeneralUtils {
   void Save2DComparison(TH2F* hist1, TString& l1, 
 			TH2F* hist2, TString& l2, 
 			TH2F* hist3, TString& l3, 
-			TString& ext)
+			PlotSettings* plotSet)
   {
     TLatex* legend1 = new TLatex();
     legend1->SetTextSize(0.06);
@@ -266,7 +273,10 @@ namespace GeneralUtils {
     //style->SetOptLogz(1);
 
     TString nameHist = hist1->GetName();
-    TString save = "Plot/"+nameHist+"_comp."+ext;
+    TString dir= plotSet->GetDir();
+    TString ext= plotSet->GetExt();
+
+    TString save = dir+"/"+nameHist+"_comp."+ext;
     TCanvas *rat_RW = new TCanvas("ratio_RW","",10,10,1200,400);
     rat_RW->SetFillColor(0);
     rat_RW->Divide(3,1);
@@ -287,19 +297,19 @@ namespace GeneralUtils {
   }
 
   //===========================================================================
-  // Add PID histogram with weights,
+  // Weight PID histogram with weights,
   // hist1 - first histogram;
-  // w1 - weight 1
   // hist2 - first histogram;
-  // w2 - weight 1
   //===========================================================================
 
-
-  TH1F*AddHist(TH1F* hist1, Double_t w1, TH1F* hist2, Double_t w2, bool debug )
+  TH1F* WeightHist(TH1F* hist1, TH1F* hist2, bool debug )
   {
     
-    if ( debug == true) std::cout<<"[INFO] ==> GeneralUtils::AddHist(...)"<<std::endl;
+    if ( debug == true) std::cout<<"[INFO] ==> GeneralUtils::WeightHist(...)"<<std::endl;
+    Double_t w1 = hist1->GetEntries();
+    Double_t w2 = hist2->GetEntries();
     Double_t w = w1+w2;
+    if ( debug == true ) { std::cout<<"[INFO] weight: "<<w1<<" + "<<w2<<" which means: "<<w1/w<<" + "<<w2/w<<std::endl; }
     
     Int_t numbin = hist1 -> GetNbinsX();
     TAxis* axis=hist1->GetXaxis();
@@ -324,7 +334,9 @@ namespace GeneralUtils {
     //hist1->SetBins(bin,min,max);
     hist2->SetBins(Bin->numBins(), Bin->array());
     
-    TH1F* hist = new TH1F(hist1->GetName(),hist1->GetTitle(), Bin->numBins(), Bin->array());
+    TString namehist1 = hist1->GetName();
+    TString nameHist = namehist1+"_weighted";
+    TH1F* hist = new TH1F(nameHist.Data(), hist1->GetTitle(), Bin->numBins(), Bin->array());
     
     for(int i=0; i<numbin; i++)
       {
@@ -337,6 +349,24 @@ namespace GeneralUtils {
     return hist;
     
   }
+
+  TH1F* WeightHistFull(TString& namehist, std::vector <std::string> FileName1, std::vector <std::string> FileName2, int i, bool debug)
+  {
+    if ( debug == true) std::cout<<"[INFO] ==> GeneralUtils::WeightHistFull(...)"<<std::endl;
+
+    TH1F* hist1 = NULL;
+    TH1F* hist2 = NULL;
+
+    hist1 = ReadPIDHist(FileName1,namehist,i, debug);
+    hist2 = ReadPIDHist(FileName2,namehist,i, debug);
+    
+    TH1F* hist = NULL;
+    hist = WeightHist(hist1, hist2, debug);
+    
+    return hist;
+  }
+
+  
 
   //===========================================================================
   // Read one name from config.txt file 
@@ -498,7 +528,7 @@ namespace GeneralUtils {
       if( max != std::string::npos){ tmps.push_back(MCFileName[i].substr(max+1)); }
       else{ tmps.push_back(MCFileName[i]);}
       max = tmps[i].find("_");
-      max1 = tmps[i].find("Merged_");
+      max1 = tmps[i].find("MergedTree_");
       if( max1 == 0) {
 	std::string t = tmps[i].substr(max+1);
         size_t end = t.find("_");
@@ -557,32 +587,62 @@ namespace GeneralUtils {
   //==========================================================================
 
   void SaveTemplate(RooDataSet* dataSet, 
-		    RooKeysPdf* pdf, 
-		    RooRealVar* mass, 
-		    TString &sample, 
-		    TString &mode, bool debug )
+		    RooAbsPdf* pdf, 
+		    RooRealVar* obs, 
+		    TString sample, 
+		    TString mode, 
+		    PlotSettings* plotSet,
+		    bool debug )
   {
     if ( debug == true) std::cout<<"[INFO] ==> GeneralUtils::SaveTemplate(...). Saving template for background to pdf file"<<std::endl;
 
+    if (plotSet == NULL) { plotSet = new PlotSettings("plotSet","plotSet"); }
+
     TCanvas*  can=NULL;
     RooPlot* frame=NULL;
-    TString name,name2,name3;
-    name3 ="_"+sample;
-    name2 =mode+name3;
-    name="canvas_"+name2;
+    TString name,samplemode;
+    samplemode =mode+"_"+sample;
+
+    name="canvas_"+samplemode;
     can = new TCanvas(name.Data(),name.Data());
     can->cd();
-    frame = (RooPlot*)mass->frame();
-    name="frame_"+name2;
+    frame = (RooPlot*)obs->frame();
+    TString Title = ""; 
+    TString varName = obs->GetName();
+ 
+    frame->SetLabelFont(132);
+    frame->SetTitleFont(132);
+    frame->GetXaxis()->SetLabelFont( 132 );
+    frame->GetYaxis()->SetLabelFont( 132 );
+    
+    TString label = CheckObservable(varName,debug);
+    frame->GetXaxis()->SetTitle(label.Data());
+    
+    if ( plotSet->GetTitleStatus() == true ) { TString t = GetLabel(samplemode,true,true,true,debug); Title = "#font[12]{"+t+"}"; }
+    frame->SetTitle(Title.Data());
+    
+    name="frame_"+samplemode;
     frame->SetName(name.Data());
-                                                                                                         
-    dataSet->plotOn(frame, RooFit::MarkerColor(kRed)); //, RooFit::Binning(200));
-    pdf->plotOn(frame, RooFit::LineColor(kRed));
+                                     
+    Int_t bin = plotSet->GetBin();
+    if ( varName.Contains("DEC") == true ) { bin = 3; }
+    if ( varName.Contains("ID") == true && varName.Contains("PIDK") == false) { bin = 2; }
+
+    if ( plotSet->GetLogStatus() == true ) { gStyle->SetOptLogy(1); }
+    if (dataSet != NULL && obs != NULL) {  dataSet->plotOn(frame, RooFit::MarkerColor(plotSet->GetColorData(0)), RooFit::Binning(bin));}
+    if (pdf != NULL ) { pdf->plotOn(frame, RooFit::LineColor(plotSet->GetColorPdf(0)), RooFit::LineStyle(plotSet->GetStylePdf(0)));}
     frame->Draw();
 
-    TString name1;
-    name1="Plot/template_"+name2;
-    name=name1+".pdf";
+    TString dir = plotSet->GetDir(); 
+    
+    TString ext = plotSet->GetExt();
+    TString prefix = "";
+    if ( dataSet != NULL &&  pdf != NULL ) { prefix = "data_with_template"; }
+    else if ( pdf != NULL ) { prefix = "template"; }
+    else if ( dataSet != NULL ) { prefix = "data"; }
+    else { prefix = "bug"; }
+    
+    name=dir+"/"+prefix+"_"+varName+"_"+samplemode+"."+ext;
 
     can->Print(name.Data());
 
@@ -594,34 +654,58 @@ namespace GeneralUtils {
 
   void SaveTemplateHist(RooDataHist* dataSet,
 			RooHistPdf* pdf,
-			RooRealVar* mass,
-			TString &sample,
-			TString &mode, bool debug)
+			RooRealVar* obs,
+			TString sample,
+			TString mode, 
+			PlotSettings* plotSet,
+			bool debug)
   {
     if ( debug == true) std::cout<<"[INFO] ==> GeneralUtils::SaveTemplateHist(...). Saving template for background to pdf file"<<std::endl;
-
+    if (plotSet== NULL) { plotSet = new PlotSettings("plotSet","plotSet"); }
+    
     TCanvas*  can=NULL;
     RooPlot* frame=NULL;
-    TString name,name2,name3;
-    name3 ="_"+sample;
-    name2 =mode+name3;
-    name="canvas_"+name2;
+    TString name,samplemode; 
+    samplemode  =mode+"_"+sample;
+    
+
+    name="canvas_"+samplemode;
     can = new TCanvas(name.Data(),name.Data());
     can->cd();
-    frame = (RooPlot*)mass->frame();
-    name="frame_"+name2;
+    frame = (RooPlot*)obs->frame();
+    name="frame_"+samplemode;
     frame->SetName(name.Data());
+    TString Title = "";
+    TString varName = obs->GetName();
 
+    frame->SetLabelFont(132);
+    frame->SetTitleFont(132);
+    frame->GetXaxis()->SetLabelFont( 132 );
+    frame->GetYaxis()->SetLabelFont( 132 );
+    
+    TString label = CheckObservable(varName,debug);
+    frame->GetXaxis()->SetTitle(label.Data());
+
+    if ( plotSet->GetTitleStatus() == true ) { TString t = GetLabel(samplemode); Title = "#font[12]{"+t+"}"; }
+    frame->SetTitle(Title.Data());
+
+    if ( plotSet->GetLogStatus() == true ) { gStyle->SetOptLogy(1); }
     if ( dataSet != NULL ) 
       {
-	dataSet->plotOn(frame, RooFit::MarkerColor(kRed));
+	dataSet->plotOn(frame, RooFit::MarkerColor(plotSet->GetColorData(0)));
       }
-    pdf->plotOn(frame, RooFit::LineColor(kRed));
+    if( pdf != NULL ) { pdf->plotOn(frame, RooFit::LineColor(plotSet->GetColorPdf(0)), RooFit::LineStyle(plotSet->GetStylePdf(0))); }
     frame->Draw();
 
-    TString name1;
-    name1="Plot/template_"+name2;
-    name=name1+".pdf";
+    TString dir = plotSet->GetDir();
+    TString ext = plotSet->GetExt();
+    TString prefix = ""; 
+    if ( dataSet != NULL &&  pdf != NULL ) { prefix = "data_with_template"; }
+    else if ( pdf != NULL ) { prefix = "template"; }
+    else if ( dataSet != NULL ) { prefix = "data"; }
+    else { prefix = "bug"; }
+
+    name=dir+"/"+prefix+"_"+varName+"_"+samplemode+"."+ext;
 
     can->Print(name.Data());
   
@@ -634,32 +718,14 @@ namespace GeneralUtils {
   //==========================================================================
 
   void SaveDataSet(RooDataSet* dataSet, 
-		   RooRealVar* mass,
-		   TString &sample,
-		   TString &mode, bool debug)
+		   RooRealVar* obs,
+		   TString sample,
+		   TString mode,
+		   PlotSettings* plotSet,
+		   bool debug)
   {
     if ( debug == true) std::cout<<"[INFO] ==> GeneralUtils::SaveDataSet(...). Saving plot data set to pdf file"<<std::endl;
-
-    TCanvas*  can=NULL;
-    RooPlot* frame=NULL;
-    TString name,name2,name3;
-    name3 ="_"+sample;
-    name2 =mode+name3;
-    name="canvas_data_"+name2;
-    can = new TCanvas(name.Data(),name.Data());
-    can->cd();
-    frame = (RooPlot*)mass->frame();
-    name="frame_data_"+name2;
-    frame->SetName(name.Data());
-    //gStyle->SetOptLogy(1);
-    dataSet->plotOn(frame, RooFit::MarkerColor(kRed), RooFit::Binning(200),RooFit::DataError(RooAbsData::SumW2));
-    frame->Draw();
-
-    TString name1;
-    name1="Plot/dataset_"+name2;
-    name=name1+".pdf";
-
-    can->Print(name.Data());
+    SaveTemplate(dataSet, NULL, obs, sample, mode, plotSet, debug );
   }
 
   //===========================================================================
@@ -732,31 +798,26 @@ namespace GeneralUtils {
   // Sample and mode are used to create the name of RooKeysPdf.
   //==========================================================================
 
-  RooHistPdf* CreateHistPDF(RooDataSet* dataSet,
-			    RooRealVar* obs,
-			    TString &name,
-			    Int_t bin,
-			    bool debug)
+  RooHistPdf* CreateHistPDF(TH1* hist,
+                            RooRealVar* obs,
+                            TString &name,
+                            Int_t bin,
+                            bool debug)
   {
     if ( debug == true) std::cout<<"[INFO] ==> GeneralUtils::CreateHistPDFMC(...). Create RooHistPdf"<<std::endl;
     TString n = "";
     RooHistPdf* pdfH = NULL;
     
-    TH1* hist = NULL;
-    n = "hist_"+name;
-    hist = dataSet->createHistogram(n.Data(), *obs, RooFit::Binning(bin));
     for (int i = 1; i< bin+1; i++)
       {
-	Double_t c = hist->GetBinContent(i);
-	//std::cout<<"content: "<<c<<std::endl;
-	if (c < 1e-37)
+        Double_t c = hist->GetBinContent(i);
+        //std::cout<<"content: "<<c<<std::endl;
+        if (c < 1e-37)
           {
             hist->SetBinContent(i, 1e-37);
-	    // std::cout<<"set content to: "<<1e-20<<std::endl;
+            // std::cout<<"set content to: "<<1e-20<<std::endl;
           }
       }
-    
-    
     if( hist != NULL  && debug == true) { std::cout<<"[INFO] Create histogram "<<std::endl;}
     if( hist ==NULL  && debug == true) { std::cout<<"[ERROR] Cannot create histogram "<<std::endl; }
 
@@ -772,6 +833,26 @@ namespace GeneralUtils {
 
     return pdfH;
   }
+
+  RooHistPdf* CreateHistPDF(RooDataSet* dataSet,
+                            RooRealVar* obs,
+                            TString &name,
+                            Int_t bin,
+                            bool debug)
+  {
+    if ( debug == true) std::cout<<"[INFO] ==> GeneralUtils::CreateHistPDFMC(...). Create RooHistPdf"<<std::endl;
+    TString n = "";
+    RooHistPdf* pdfH = NULL;
+
+    TH1* hist = NULL;
+    n = "hist_"+name;
+    hist = dataSet->createHistogram(n.Data(), *obs, RooFit::Binning(bin));
+    pdfH = CreateHistPDF(hist, obs, name, bin, debug);
+
+    return pdfH;
+  }
+
+  
 
   RooAbsPdf* CreateBinnedPDF(RooDataSet* dataSet,
 			     RooRealVar* obs,
@@ -1080,15 +1161,19 @@ namespace GeneralUtils {
 
 
   
-  TString GetLabel(TString& mode, bool debug)
+  TString GetLabel(TString& mode, bool bs, bool ds, bool pol, bool debug)
   {
     TString Bs;
     TString ar = "#rightarrow";
     TString Ds;
     TString Bach;
     TString sample;
+    TString DsState = "";
+    TString DsStateTex = "";
 
     sample = CheckPolarity(mode, debug);
+    DsState = CheckDMode(mode, debug);
+    if ( DsState == "" || DsState == "kkpi" ) { DsState = CheckKKPiMode(mode, debug); } 
 
     if( mode.Contains("Bs") == true) { Bs = "B_{s}"; }
     else if ( mode.Contains("Bd") == true || mode.Contains("DPi") == true){ Bs="B_{d}"; }
@@ -1108,12 +1193,44 @@ namespace GeneralUtils {
     else if( mode.Contains("Rho") == true) {Bach = "#rho";}
     else { Bach ="";}
 
-    TString tex;
-    if ( mode.Contains("Comb") == true ) { tex = Bs+" "+Ds+" "+sample; } else { tex = Bs+ar+Ds+Bach+" "+sample;}
+    if ( DsState.Contains("kkpi") == true ) { DsStateTex = Ds+ar+" KK#pi"; }
+    else if ( DsState.Contains("kstk") == true ) { DsStateTex = Ds+ar+" KstK";}
+    else if ( DsState.Contains("phipi") == true ) { DsStateTex = Ds+ar+" #phi #pi";}
+    else if ( DsState.Contains("nonres") == true ) { DsStateTex = Ds+ar+"KK#pi (Non Resonant)";}
+    else if ( DsState.Contains("kpipi") == true ) { DsStateTex = Ds+ar+" K#pi#pi";}
+    else if ( DsState.Contains("pipipi") == true ) { DsStateTex = Ds+ar+" #pi#pi#pi";}
+    else { DsStateTex = ""; }
     
+    TString tex = "";
+    if ( mode.Contains("Comb") == true ) 
+      { 
+	if ( bs == true )
+	  {
+	    tex += Bs+" "+Ds+" ";
+	  }
+      } 
+    else 
+      { 
+	if ( bs == true )
+	  {
+	    tex +=Bs+" "+ar+" "+Ds+Bach+" ";
+	  }
+      }
+
+    if ( ds == true )
+      {
+	tex += DsStateTex+" ";
+      }
+    if ( pol == true )
+      {
+	tex += sample;
+      }
+
+        
     return tex;
   }
 
+  
   TString CheckBDTGBin(TString& check, bool debug)
   {
     TString BDTGbin;
@@ -1143,6 +1260,56 @@ namespace GeneralUtils {
       }
     if ( debug == true) std::cout<<"[INFO] BDTG bin: "<<BDTGbin<<std::endl;
     return BDTGbin;
+  }
+
+  
+  TString CheckObservable(TString& check, bool debug)
+  {
+    TString label = "";
+    if( check.Contains("lab0_MassFitConsD_M") == true || check.Contains("lab0_MM") == true  ) { label = "mass B_{(s)} [MeV/c^{2}]"; }
+    else if ( check.Contains("lab2_MassFitConsD_M") == true || check.Contains("lab2_MM") == true ) { label = "mass D_{(s)} [MeV/c^{2}]";}
+    else if ( check.Contains("TAGDECISION") == true || check.Contains("DEC") == true ) { label = "tagging decision [1]"; }
+    else if ( check.Contains("TAGOMEGA") == true || check.Contains("PROB") == true) {label ="#omega [1]"; }
+    else if ( check.Contains("lab0_LifetimeFit_ctau") == true || check.Contains("lab0_TAU") == true ||  check.Contains("lab0_TRUETAU") == true ) 
+      {label ="t [ps]"; }
+    else if ( check.Contains("lab1_ID") == true ) {label ="bachelor ID [1]"; }
+    else if ( check.Contains("lab1_PIDK") == true ) {label ="bachelor log(PIDK) [1]"; }
+    else if ( check.Contains("_PT") == true ) {label ="log(p_{t}) [MeV/c]"; }
+    else if ( check.Contains("_P") == true && check.Contains("_PT") == false ) {label ="log(p) [MeV/c]"; }
+    else if ( check.Contains("nTracks") == true ) {label ="log(nTracks) [1]"; }
+    else { label = check; } 
+    
+    if ( debug == true) std::cout<<"[INFO] Observable label: "<<label<<std::endl;
+
+    return label;
+  }
+
+  TString CheckBachelor(TString check, bool debug)
+  {
+    TString bachelor = "";
+    
+    if( check.Contains("CombPi") == true ) { TString s1 = "CombPi"; TString s2 = ""; check.ReplaceAll(s1,s2); }
+    if( check.Contains("CombK") == true ) { TString s1 = "CombK"; TString s2 = ""; check.ReplaceAll(s1,s2); }
+
+    if( check.Contains("pion") == true || check.Contains("Pion") == true || check.Contains("Pi") == true || check.Contains("pi") == true)
+	
+      {
+	bachelor = "Pi";
+      }
+    else if ( check.Contains("kaon") == true || check.Contains("Kaon") == true || check.Contains("K") == true )
+      {
+	bachelor = "K";
+      }
+    else if ( (check.Contains("p") == true && check.Contains("pi") == false ) || 
+	      (check.Contains("P") == true && check.Contains("Pi") == false ) ||
+	      check.Contains("proton") == true || check.Contains("Proton") == true )
+      {
+	bachelor = "P";
+      }
+
+    if ( debug == true) std::cout<<"[INFO] Sample: "<<bachelor<<std::endl;
+
+    return bachelor; 
   }
 
 } //end of namespace

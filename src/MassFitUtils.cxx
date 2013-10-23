@@ -1,10 +1,10 @@
 //---------------------------------------------------------------------------//
 //                                                                           //
-//  General utilities                                                        //
+//  Mass fit utilities                                                       //
 //                                                                           //
 //  Source file                                                              //
 //                                                                           //
-//  Authors: Agnieszka Dziurda, Eduardo Rodrigues                            //
+//  Authors: Agnieszka Dziurda                                               //
 //  Date   : 12 / 04 / 2012                                                  //
 //                                                                           //
 //---------------------------------------------------------------------------//
@@ -42,6 +42,8 @@
 #include "RooDataHist.h"
 #include "RooCategory.h"
 #include "RooBinning.h"
+#include "RooAbsArg.h"
+#include "TLeaf.h"
 
 // B2DXFitters includes
 #include "RooArgSet.h"
@@ -50,6 +52,10 @@
 #include "B2DXFitters/KinHack.h"
 #include "B2DXFitters/DecayTreeTupleSucksFitter.h"
 #include "B2DXFitters/RooBinned1DQuinticBase.h"
+#include "B2DXFitters/PlotSettings.h"
+#include "B2DXFitters/MDFitterSettings.h"
+#include "B2DXFitters/HistPID1D.h"
+#include "B2DXFitters/HistPID2D.h"
 
 #define DEBUG(COUNT, MSG)				   \
   std::cout << "SA-DEBUG: [" << COUNT << "] (" << __func__ << ") " \
@@ -86,22 +92,9 @@ namespace MassFitUtils {
   //==========================================================================
 
   RooWorkspace* ObtainData(TString& filesDir, TString& sig,
-			   int PIDcut, 
-			   double Pcut_down, double Pcut_up,
-			   double BDTG_down, double BDTG_up,
-			   double Dmass_down, double Dmass_up,
-			   double Bmass_down, double Bmass_up,
-			   double time_down, double time_up,
-			   TString& mVar,
-			   TString& mDVar,
-			   TString& tVar,
-			   TString& terrVar,
-			   TString& tagVar,
-			   TString& tagOmegaVar,
-			   TString& idVar,
-			   TString& mProbVar,
+			   MDFitterSettings* mdSet,
 			   TString& mode,
-			   Bool_t tagtool,
+			   PlotSettings* plotSet,
 			   RooWorkspace* workspace, 
 			   bool debug)
   {
@@ -111,130 +104,53 @@ namespace MassFitUtils {
       {
 	std::cout<<"[INFO] ==> GeneralUtils::ObtainData(...). Start preparing DataSet "<<std::endl;
 	std::cout<<"name of config file: "<<filesDir<<std::endl;
-	std::cout<<"PIDK cut: "<< PIDcut<<std::endl;
-	std::cout<<"Bachelor momentum range: ("<<Pcut_down<<","<<Pcut_up<<")"<<std::endl;
-	std::cout<<"D(s) mass range: ("<<Dmass_down<<","<<Dmass_up<<")"<<std::endl;
-	std::cout<<"Name of B(s) mass observable: "<<mVar<<std::endl;
-	std::cout<<"Name of D(s) mass observable: "<<mDVar<<std::endl;
-	std::cout<<"Name of time observable: "<<tVar<<std::endl;
-	std::cout<<"Name of time error observable: "<<terrVar<<std::endl;
-	std::cout<<"Name of tag observable: "<<tagVar<<std::endl;
-	std::cout<<"Name of mistag observable: "<<tagOmegaVar<<std::endl;
-	std::cout<<"Name of id observable: "<<idVar<<std::endl;
-	std::cout<<"Name of PID  observable: "<<mProbVar<<std::endl;
-	std::cout<<"Mode: "<<mode<<std::endl;
-	std::cout<<"Tagtool: "<<tagtool<<std::endl;
-      }
 	
-    double BMassRange[2];
-    BMassRange[0] = Bmass_down; BMassRange[1]=Bmass_up;
-    if ( debug == true)
-      {
-	std::cout<<"B(s) mass range: ("<<BMassRange[0]<<","<<BMassRange[1]<<")"<<std::endl;
-	std::cout<<"B(s) time range: ("<<time_down<<","<<time_up<<")"<<std::endl;
-	std::cout<<"D(s) mass range: ("<<Dmass_down<<","<<Dmass_up<<")"<<std::endl;
-	std::cout<<"BDTG range: ("<<BDTG_down<<","<<BDTG_up<<")"<<std::endl;
-
       }
+    
     RooWorkspace* work = NULL;
     if (workspace == NULL ) { work =  new RooWorkspace("workspace","workspace"); }
     else { work = workspace; }
 
-    RooRealVar* lab0_MM = new RooRealVar(mVar.Data(),mVar.Data(),BMassRange[0], BMassRange[1]);
-    RooRealVar* lab0_TAU = new RooRealVar(tVar.Data(),tVar.Data(), time_down, time_up);
-    RooRealVar* lab0_TAUERR = new RooRealVar(terrVar.Data(),terrVar.Data(), 0.0, 0.10);
-    RooRealVar* lab0_TAG = new RooRealVar(tagVar.Data(),tagVar.Data(),-2,2);
-    RooRealVar* lab0_TAGOMEGA = new RooRealVar(tagOmegaVar.Data(),tagOmegaVar.Data(),0.,1.); 
-    RooRealVar* lab1_ID = new RooRealVar(idVar.Data(),idVar.Data(),-1000,1000); 
-    RooRealVar* lab2_MM = new RooRealVar(mDVar.Data(),mDVar.Data(),Dmass_down, Dmass_up);
-    RooRealVar* lab1_PIDK;
-    if ( mode.Contains("Pi") == true )
-      {  lab1_PIDK= new RooRealVar("lab1_PIDK","lab1_PIDK",-PIDcut,150);}
-    else
-      {  lab1_PIDK= new RooRealVar("lab1_PIDK","lab1_PIDK",log(PIDcut),log(150));}
-    RooRealVar* lab1_PIDp = new RooRealVar("lab1_PIDp","lab1_PIDp",-150,150);
-    RooRealVar* nTracks = new RooRealVar("nTracks","nTracks",log(1),log(1000));
-
+    if ( plotSet == NULL ) { plotSet = new PlotSettings("plotSet","plotSet"); }
     
-    TString tagsskaonVar,tagdecsskaonVar, tagosmuonVar,tagdecosmuonVar, tagoselectronVar, tagdecoselectronVar, tagoskaonVar, tagdecoskaonVar, tagvtxchargeVar, tagdecvtxchargeVar, pVar, ptVar;
-
-    if( tagtool == true )
+    RooRealVar* lab0_MM       = mdSet->GetObs(mdSet->GetMassBVar()); 
+    RooRealVar* lab0_TAU      = mdSet->GetObs(mdSet->GetTimeVar());
+    RooRealVar* lab0_TAUERR   = mdSet->GetObs(mdSet->GetTerrVar()); 
+    RooRealVar* lab0_TAG      = mdSet->GetObs(mdSet->GetTagVar()); 
+    RooRealVar* lab0_TAGOMEGA = mdSet->GetObs(mdSet->GetTagOmegaVar()); 
+    RooRealVar* lab1_ID       = mdSet->GetObs(mdSet->GetIDVar()); 
+    RooRealVar* lab2_MM       = mdSet->GetObs(mdSet->GetMassDVar()); 
+    RooRealVar* lab1_PIDK     = mdSet->GetObs(mdSet->GetPIDKVar()); 
+    RooRealVar* nTracks       = mdSet->GetObs(mdSet->GetTracksVar(), true);
+    RooRealVar* lab1_P        = mdSet->GetObs(mdSet->GetMomVar(), true); 
+    RooRealVar* lab1_PT       = mdSet->GetObs(mdSet->GetTrMomVar(), true);
+      
+    std::vector <RooRealVar*> addVar;  
+    if( mdSet->CheckAddVar() == true )
       {
-	std::cout<<"[INFO] TagTool added"<<std::endl;
-	tagsskaonVar       = "lab0_SS_Kaon_PROB";
-	tagdecsskaonVar    = "lab0_SS_Kaon_DEC";
-	tagosmuonVar       = "lab0_OS_Muon_PROB";
-	tagdecosmuonVar    = "lab0_OS_Muon_DEC";
-	tagoselectronVar   = "lab0_OS_Electron_PROB";
-	tagdecoselectronVar= "lab0_OS_Electron_DEC";
-	tagoskaonVar       = "lab0_OS_Kaon_PROB";
-	tagdecoskaonVar    = "lab0_OS_Kaon_DEC";
-	tagvtxchargeVar    = "lab0_VtxCharge_PROB";
-	tagdecvtxchargeVar = "lab0_VtxCharge_DEC";
+	for(int i = 0; i<mdSet->GetNumAddVar(); i++)
+	  {
+	    addVar.push_back(mdSet->GetObs(mdSet->GetAddVarName(i)));
+	  }
       }
-    pVar              = "lab1_P";
-    ptVar             = "lab1_PT";
-    
-    RooRealVar* lab0_TAG_SS_Kaon=NULL;
-    RooRealVar* lab0_TAGDEC_SS_Kaon=NULL;
-    RooRealVar* lab0_TAG_OS_Muon=NULL;
-    RooRealVar* lab0_TAGDEC_OS_Muon=NULL;
-    RooRealVar* lab0_TAG_OS_Electron=NULL;
-    RooRealVar* lab0_TAGDEC_OS_Electron=NULL;
-    RooRealVar* lab0_TAG_OS_Kaon=NULL;
-    RooRealVar* lab0_TAGDEC_OS_Kaon=NULL;
-    RooRealVar* lab0_TAG_VtxCharge=NULL;
-    RooRealVar* lab0_TAGDEC_VtxCharge=NULL;
-    
-    RooRealVar* lab1_P=NULL;
-    RooRealVar* lab1_PT=NULL;
-
-    if ( tagtool == true )
-      {
-	lab0_TAG_SS_Kaon = new RooRealVar(tagsskaonVar.Data(), tagsskaonVar.Data(), -3., 1.);
-	lab0_TAGDEC_SS_Kaon = new RooRealVar(tagdecsskaonVar.Data(), tagdecsskaonVar.Data(), -2., 2.);
-	lab0_TAG_OS_Muon = new RooRealVar(tagosmuonVar.Data(), tagosmuonVar.Data(), -3., 1.);
-	lab0_TAGDEC_OS_Muon = new RooRealVar(tagdecosmuonVar.Data(), tagdecosmuonVar.Data(), -2., 2.);
-	lab0_TAG_OS_Electron = new RooRealVar(tagoselectronVar.Data(),tagoselectronVar.Data(),-3.,1.);
-	lab0_TAGDEC_OS_Electron = new RooRealVar(tagdecoselectronVar.Data(),tagdecoselectronVar.Data(),-2.,2.);
-	lab0_TAG_OS_Kaon = new RooRealVar(tagoskaonVar.Data(),tagoskaonVar.Data(),-3.,1.);
-	lab0_TAGDEC_OS_Kaon = new RooRealVar(tagdecoskaonVar.Data(),tagdecoskaonVar.Data(),-2.,2.);
-	lab0_TAG_VtxCharge = new RooRealVar(tagvtxchargeVar.Data(), tagvtxchargeVar.Data(), -3.,1.);
-	lab0_TAGDEC_VtxCharge = new RooRealVar(tagdecvtxchargeVar.Data(), tagdecvtxchargeVar.Data(), -2.,2.);
-      }
-
-    lab1_P = new RooRealVar(pVar.Data(),pVar.Data(),log(Pcut_down),log(Pcut_up));
-    lab1_PT = new RooRealVar(ptVar.Data(),ptVar.Data(),log(1),log(45000));
-    
     RooArgSet* obs = new RooArgSet(*lab0_MM,*lab0_TAU,
 				   *lab0_TAG,*lab0_TAGOMEGA, *lab1_ID,
 				   *lab2_MM,*lab1_PIDK); 
-    obs->add(*lab1_PIDp);
     obs->add(*lab0_TAUERR);
     obs->add(*lab1_PT);
     obs->add(*lab1_P);
     obs->add(*nTracks);
-
-    if(tagtool == true)
+    if( mdSet->CheckAddVar() == true )
       {
-	obs->add(*lab0_TAG_SS_Kaon);
-	obs->add(*lab0_TAGDEC_SS_Kaon);
-	obs->add(*lab0_TAG_OS_Muon);
-	obs->add(*lab0_TAGDEC_OS_Muon);
-	obs->add(*lab0_TAG_OS_Electron);
-	obs->add(*lab0_TAGDEC_OS_Electron);
-	obs->add(*lab0_TAG_OS_Kaon);
-	obs->add(*lab0_TAGDEC_OS_Kaon);
-	obs->add(*lab0_TAG_VtxCharge);
-	obs->add(*lab0_TAGDEC_VtxCharge);
+	for(int i = 0; i<mdSet->GetNumAddVar(); i++)
+          {
+	    obs->add(*addVar[i]); 
+	  }
       }
-
+        
     std::vector <std::string> FileName;
-
     ReadOneName(filesDir,FileName,sig, debug);
-    
     TTree* tree[2];
-    
     for( int i=0; i<2; i++)
       {
 	tree[i] = NULL;
@@ -253,17 +169,23 @@ namespace MassFitUtils {
 
     //Set PID cut depends on mode// 
     TCut PID_cut;  
-    if( mode.Contains("Pi") ) { PID_cut = Form("%s < %d",mProbVar.Data(),PIDcut); if ( debug == true)  std::cout<<"Mode with Pi"<<std::endl;}
-    else if (mode.Contains("K")) { PID_cut = Form("%s > %d",mProbVar.Data(),PIDcut);  if ( debug == true)  std::cout<<"Mode with K"<<std::endl; }
+    if( mode.Contains("Pi") )    { 
+      PID_cut = Form("%s < %d",mdSet->GetPIDKVar().Data(), mdSet->GetPIDBach()); 
+      if ( debug == true)  std::cout<<"Mode with Pi"<<std::endl;}
+    else if (mode.Contains("K")) { 
+      PID_cut = Form("%s > %d",mdSet->GetPIDKVar().Data(), mdSet->GetPIDBach()); 
+      if ( debug == true)  std::cout<<"Mode with K"<<std::endl; }
     else { if ( debug == true) std::cout<<"[ERROR] Wrong mode"; return work; }
 
     //Set other cuts//
-    TCut P_cut = Form("lab1_P > %f && lab1_P < %f",Pcut_down,Pcut_up);
-    TCut BDTG_cut = Form("BDTGResponse_1 > %f && BDTGResponse_1 < %f",BDTG_down, BDTG_up);
-    TCut mass_cut = Form("%s > %f && %s < %f",mVar.Data(),BMassRange[0],mVar.Data(),BMassRange[1]);
-    TCut massD_cut = Form("%s > %f && %s < %f",mDVar.Data(), Dmass_down,mDVar.Data(),Dmass_up);
-    //TCut massD_cut = Form("%s < %f || %s > %f",mDVar.Data(), Dmass_down,mDVar.Data(),Dmass_up);
-
+    TCut P_cut      = mdSet->GetCut(mdSet->GetMomVar()); 
+    TCut PT_cut     = mdSet->GetCut(mdSet->GetTrMomVar()); 
+    TCut nTr_cut    = mdSet->GetCut(mdSet->GetTracksVar()); 
+    TCut BDTG_cut   = mdSet->GetCut(mdSet->GetBDTGVar()); 
+    TCut mass_cut   = mdSet->GetCut(mdSet->GetMassBVar()); 
+    TCut massD_cut  = mdSet->GetCut(mdSet->GetMassDVar()); 
+    TCut Time_cut   = mdSet->GetCut(mdSet->GetTimeVar()); 
+   
     TCut FDCHI2 = "";
 
     if( md[0] == "kkpi" || md[0] == "nonres" || md[0] == "kstk" || md[0] == "phipi" ) 
@@ -276,61 +198,60 @@ namespace MassFitUtils {
       }
 
 
-    TCut All_cut = PID_cut&&P_cut&&BDTG_cut&&mass_cut&&massD_cut&&FDCHI2;
+    TCut All_cut = PID_cut&&P_cut&&BDTG_cut&&mass_cut&&massD_cut&&FDCHI2&&PT_cut&&nTr_cut&&Time_cut;
     if( debug == true) std::cout<<All_cut<<std::endl;
 
     RooDataSet*  dataSet[2];
     
-    
-
     // Create Data Set //
     for (int i = 0; i< 2; i++){
 		TString name = "dataSet"+mode+"_"+smp[i]+"_"+md[i];
-		TString nametagtool = "dataSetTagTool"+mode+"_"+smp[i]+"_"+md[i];
-		
 		dataSet[i] = new RooDataSet(name.Data(),name.Data(), *obs);
 		
 		TTree* treetmp=NULL;
 		treetmp = TreeCut(tree[i],All_cut,smp[i],mode, debug);
 	
 		Float_t lab0_MM3, lab0_TAU3, lab0_TAUERR3;
-		Double_t lab2_MM3, lab1_PIDK3, lab1_PIDp3, lab0_TAGOMEGA3;
+		Double_t lab2_MM3, lab1_PIDK3, lab0_TAGOMEGA3;
 		Int_t lab0_TAG3, lab1_ID3, nTracks3;
-		
-		treetmp->SetBranchAddress(mVar.Data(), &lab0_MM3);
-		treetmp->SetBranchAddress(tVar.Data(),&lab0_TAU3);
-		treetmp->SetBranchAddress(terrVar.Data(),&lab0_TAUERR3);
-		treetmp->SetBranchAddress(tagVar.Data(),&lab0_TAG3);
-		treetmp->SetBranchAddress(tagOmegaVar.Data(),&lab0_TAGOMEGA3);
-		treetmp->SetBranchAddress(idVar.Data(),&lab1_ID3);
-		treetmp->SetBranchAddress(mDVar.Data(),&lab2_MM3);
-		treetmp->SetBranchAddress("lab1_PIDK",&lab1_PIDK3);
-		//treetmp->SetBranchAddress("sample",&sample);
-		treetmp->SetBranchAddress("lab1_PIDp",&lab1_PIDp3);
-		treetmp->SetBranchAddress("nTracks",&nTracks3);
-		
-	
-		Double_t lab0_TAG_SS_Kaon3, lab0_TAG_OS_Muon3, lab0_TAG_OS_Electron3, lab0_TAG_OS_Kaon3, lab0_TAG_VtxCharge3;
-		Int_t lab0_TAGDEC_SS_Kaon3, lab0_TAGDEC_OS_Muon3, lab0_TAGDEC_OS_Electron3, lab0_TAGDEC_OS_Kaon3, lab0_TAGDEC_VtxCharge3;
 		Double_t lab1_P3, lab1_PT3;
+	
+		treetmp->SetBranchAddress(mdSet->GetMassBVar().Data(),    &lab0_MM3);
+		treetmp->SetBranchAddress(mdSet->GetTimeVar().Data(),     &lab0_TAU3);
+		treetmp->SetBranchAddress(mdSet->GetTerrVar().Data(),     &lab0_TAUERR3);
+		treetmp->SetBranchAddress(mdSet->GetTagVar().Data(),      &lab0_TAG3);
+		treetmp->SetBranchAddress(mdSet->GetTagOmegaVar().Data(), &lab0_TAGOMEGA3);
+		treetmp->SetBranchAddress(mdSet->GetIDVar().Data(),       &lab1_ID3);
+		treetmp->SetBranchAddress(mdSet->GetMassDVar().Data(),    &lab2_MM3);
+		treetmp->SetBranchAddress(mdSet->GetPIDKVar().Data(),     &lab1_PIDK3);
+		treetmp->SetBranchAddress(mdSet->GetTracksVar().Data(),   &nTracks3);
+		treetmp->SetBranchAddress(mdSet->GetMomVar().Data(),      &lab1_P3);
+                treetmp->SetBranchAddress(mdSet->GetTrMomVar().Data(),    &lab1_PT3);
+	
+		std::vector <Double_t> addVarD;
+		std::vector <Int_t> addVarI;
+		std::vector <Float_t> addVarF;
+		std::vector <TString> typeBranch;
+		if( mdSet->CheckAddVar() == true )
+                  {
+                    for(int k = 0; k<mdSet->GetNumAddVar(); k++)
+                      {
+                        addVarD.push_back(0.0); addVarI.push_back(0); addVarF.push_back(0.0);
+                        typeBranch.push_back(treetmp->GetLeaf(mdSet->GetAddVarName(k).Data())->GetTypeName());
+		      }
+                  }
 
-		if ( tagtool == true )
+		if( mdSet->CheckAddVar() == true )
 		  {
-		    treetmp->SetBranchAddress(tagsskaonVar.Data(),&lab0_TAG_SS_Kaon3);
-		    treetmp->SetBranchAddress(tagdecsskaonVar.Data(),&lab0_TAGDEC_SS_Kaon3);
-		    treetmp->SetBranchAddress(tagosmuonVar.Data(),&lab0_TAG_OS_Muon3);
-		    treetmp->SetBranchAddress(tagdecosmuonVar.Data(),&lab0_TAGDEC_OS_Muon3);
-		    treetmp->SetBranchAddress(tagoselectronVar.Data(),&lab0_TAG_OS_Electron3);
-		    treetmp->SetBranchAddress(tagdecoselectronVar.Data(),&lab0_TAGDEC_OS_Electron3);
-		    treetmp->SetBranchAddress(tagoskaonVar.Data(),&lab0_TAG_OS_Kaon3);
-		    treetmp->SetBranchAddress(tagdecoskaonVar.Data(),&lab0_TAGDEC_OS_Kaon3);
-		    treetmp->SetBranchAddress(tagvtxchargeVar.Data(),&lab0_TAG_VtxCharge3);
-		    treetmp->SetBranchAddress(tagdecvtxchargeVar.Data(),&lab0_TAGDEC_VtxCharge3);
+		    for(int k = 0; k<mdSet->GetNumAddVar(); k++)
+		      {
+			if ( typeBranch[k] == "Double_t") { treetmp->SetBranchAddress(mdSet->GetAddVarName(k).Data(),&addVarD[k]);}
+			else if( typeBranch[k] == "Int_t" ) { treetmp->SetBranchAddress(mdSet->GetAddVarName(k).Data(),&addVarI[k]);}
+			else if( typeBranch[k] == "Float_t" ) { treetmp->SetBranchAddress(mdSet->GetAddVarName(k).Data(),&addVarF[k]);}
+		      }
 		  }
-		treetmp->SetBranchAddress(pVar.Data(), &lab1_P3);
-		treetmp->SetBranchAddress(ptVar.Data(), &lab1_PT3);
-		  
-
+		    
+		std::cout<<"hmmm"<<std::endl;
 		//Float_t m;
 		for (Long64_t jentry=0; jentry<treetmp->GetEntries(); jentry++) {
 		  treetmp->GetEntry(jentry);
@@ -347,27 +268,18 @@ namespace MassFitUtils {
 		    {	  lab1_PIDK->setVal(-lab1_PIDK3); }
 		  else
 		    {     lab1_PIDK->setVal(log(lab1_PIDK3)); }
-		  
-		  lab1_PIDp->setVal(lab1_PIDK3-lab1_PIDp3);
 		  nTracks->setVal(log(nTracks3));
-		  //std::cout<<"lab1_PIDK: "<<lab1_PIDK3<<" log(-lab1_PIDK):"<<log(-lab1_PIDK3)<<std::endl;
-		  if (tagtool == true )
+		  if( mdSet->CheckAddVar() == true )
 		    {
-		      lab0_TAG_SS_Kaon->setVal(lab0_TAG_SS_Kaon3);
-		      lab0_TAGDEC_SS_Kaon->setVal(lab0_TAGDEC_SS_Kaon3);
-		      lab0_TAG_OS_Muon->setVal(lab0_TAG_OS_Muon3);
-		      lab0_TAGDEC_OS_Muon->setVal(lab0_TAGDEC_OS_Muon3);
-		      lab0_TAG_OS_Electron->setVal(lab0_TAG_OS_Electron3);
-		      lab0_TAGDEC_OS_Electron->setVal(lab0_TAGDEC_OS_Electron3);
-		      lab0_TAG_OS_Kaon->setVal(lab0_TAG_OS_Kaon3);
-		      lab0_TAG_VtxCharge->setVal(lab0_TAG_VtxCharge3);
-		      lab0_TAGDEC_VtxCharge->setVal(lab0_TAGDEC_VtxCharge3);
-		      lab1_P->setVal(lab1_P3);
-		      lab1_PT->setVal(lab1_PT3);
-		      
+		      for(int k = 0; k<mdSet->GetNumAddVar(); k++)
+			{
+			  if ( typeBranch[k] == "Double_t") { addVar[k]->setVal(addVarD[k]); }
+			  else if( typeBranch[k] == "Int_t" ) { addVar[k]->setVal(addVarI[k]); }
+			  else if( typeBranch[k] == "Float_t" ) {addVar[k]->setVal(addVarF[k]); }
+			}
+
 		    }
-		   
-		      dataSet[i]->add(*obs);
+		  dataSet[i]->add(*obs);
 		  
 		}
 	 
@@ -375,14 +287,33 @@ namespace MassFitUtils {
 		  {
 		    if ( dataSet != NULL  ){
 		      std::cout<<"[INFO] ==> Create "<<dataSet[i]->GetName()<<std::endl;
-		      std::cout<<"Sample "<<smp[i]<<" number of entries: "<<tree[i]->GetEntries()<<" in data set: "<<dataSet[i]->numEntries()<<std::endl;
+		      std::cout<<"Sample "<<smp[i]<<" number of entries: "<<tree[i]->GetEntries()
+			       <<" in data set: "<<dataSet[i]->numEntries()<<std::endl;
 		    } else { std::cout<<"Error in create dataset"<<std::endl; }
 		  }
 
 		TString s = smp[i]+"_"+md[i];
-		//SaveDataSet(dataSet[i], lab1_PIDp , s, mode, debug);
-		saveDataTemplateToFile( dataSet[i], NULL, lab0_MM,
-					mode.Data(), "root", s.Data(), debug );
+		if ( plotSet->GetStatus()  == true )
+		  {
+		    SaveDataSet(dataSet[i], lab0_MM        , s, mode, plotSet, debug);
+		    SaveDataSet(dataSet[i], lab2_MM        , s, mode, plotSet, debug);
+		    SaveDataSet(dataSet[i], lab1_PIDK      , s, mode, plotSet, debug);
+		    SaveDataSet(dataSet[i], lab0_TAU       , s, mode, plotSet, debug);
+		    SaveDataSet(dataSet[i], lab0_TAUERR    , s, mode, plotSet, debug);
+		    SaveDataSet(dataSet[i], lab0_TAG       , s, mode, plotSet, debug);
+		    SaveDataSet(dataSet[i], lab0_TAGOMEGA  , s, mode, plotSet, debug);
+		    SaveDataSet(dataSet[i], lab1_PT        , s, mode, plotSet, debug);
+		    //SaveDataSet(dataSet[i], lab1_P         , s, mode, plotSet, debug);
+		    SaveDataSet(dataSet[i], nTracks        , s, mode, plotSet, debug);
+		    if( mdSet->CheckAddVar() == true )
+		      {
+			for(int k = 0; k<mdSet->GetNumAddVar(); k++)
+			  {
+			    SaveDataSet(dataSet[i], addVar[k] , s, mode, plotSet, debug);
+			  }
+		      }
+
+		  }
 		work->import(*dataSet[i]);
 		
     }
@@ -390,6 +321,7 @@ namespace MassFitUtils {
     
   }
 
+  
   
 
   //==========================================================================
@@ -408,73 +340,46 @@ namespace MassFitUtils {
 
   
   RooWorkspace* ObtainMissForBsDsK(TString& filesDir, TString& sig,
-				   int PIDmisscut,
-				   double Pcut_down, double Pcut_up,
-				   double BDTG_down, double BDTG_up,
-				   double Dmass_down, double Dmass_up,  
-				   double Bmass_down, double Bmass_up,
-				   double PT_down, double PT_up,
-				   double nTr_down, double nTr_up,
-				   TString& mVar,
-				   TString& mDVar,
-				   TString& mProbVar,
+				   MDFitterSettings* mdSet,
 				   TString& mode,
-				   RooWorkspace* workspace, Bool_t mistag, bool debug)
+				   RooWorkspace* workspace, 
+				   Bool_t mistag, 
+				   PlotSettings* plotSet,
+				   bool debug)
   {
     if ( debug == true)
       {
 	std::cout<<"[INFO] ==> GeneralUtils::ObtainMissForBsDsK(...). Obtain Bs->DsPi under Bs->DsK  "<<std::endl;
 	std::cout<<"name of config file: "<<filesDir<<std::endl;
-	std::cout<<"PIDK cut: "<< PIDmisscut<<std::endl;
-	//std::cout<<"BDTGResponse cut: "<<BDTGCut<<std::endl;
-	std::cout<<"BDTG range: ("<<BDTG_down<<","<<BDTG_up<<")"<<std::endl;
-	std::cout<<"Bachelor momentum range: ("<<Pcut_down<<","<<Pcut_up<<")"<<std::endl;
-	std::cout<<"D(s) mass range: ("<<Dmass_down<<","<<Dmass_up<<")"<<std::endl;
-	std::cout<<"Name of B(s) mass observable: "<<mVar<<std::endl;
-	std::cout<<"Name of D(s) mass observable: "<<mDVar<<std::endl;
-	std::cout<<"Name of PID variable: "<<mProbVar<<std::endl;
 	std::cout<<"Mode: "<<mode<<std::endl;
       }
 
-    double BMassRange[2];
-    BMassRange[0] = Bmass_down;  BMassRange[1]=Bmass_up;
-    if ( debug == true)
-      {
-	std::cout<<"B(s) mass range: ("<<BMassRange[0]<<","<<BMassRange[1]<<")"<<std::endl;
-	
-      }
-    
     RooWorkspace* work = NULL;
     if (workspace == NULL ) { work =  new RooWorkspace("workspace","workspace"); }
     else { work = workspace; }
-
-    TString pVar = "lab1_P";
-    TString ptVar = "lab1_PT";
-    TString nTrVar = "nTracks";
-    TString PIDVar = "lab1_PIDK";
-    RooRealVar* lab0_MM = new RooRealVar(mVar.Data(),mVar.Data(),BMassRange[0], BMassRange[1]);
-    RooRealVar* lab2_MM = new RooRealVar(mDVar.Data(),mDVar.Data(),Dmass_down, Dmass_up);
-    RooRealVar* lab1_PT = new RooRealVar(ptVar.Data(), ptVar.Data(), log(PT_down), log(PT_up));
-    RooRealVar* lab1_P  = new RooRealVar(pVar.Data(),pVar.Data(),log(Pcut_down),log(Pcut_up));
-    RooRealVar* nTracks  = new RooRealVar(nTrVar.Data(),nTrVar.Data(),log(nTr_down),log(nTr_up));
-    RooRealVar* lab1_PIDK = new RooRealVar(PIDVar.Data(),PIDVar.Data(),log(5),log(150));
-
-
-    TString tagOmegaVar = "lab0_BsTaggingTool_TAGOMEGA_OS";
-    TString tagName = "lab0_BsTaggingTool_TAGDECISION_OS";
-    RooRealVar* lab0_TAGOMEGA = new RooRealVar(tagOmegaVar.Data(),tagOmegaVar.Data(),0.,0.,0.6);
-    lab0_TAGOMEGA->setBins(30);
     
-    std::vector <std::string> FileName;
-    std::vector <std::string> FileNamePID;
-    std::vector <std::string> FileNamePID2;
+    if ( plotSet == NULL ) { plotSet = new PlotSettings("plotSet","plotSet"); }
 
+    RooRealVar* lab0_MM       = mdSet->GetObs(mdSet->GetMassBVar());
+    RooRealVar* lab0_TAUERR   = mdSet->GetObs(mdSet->GetTerrVar());
+    RooRealVar* lab0_TAG      = mdSet->GetObs(mdSet->GetTagVar());
+    RooRealVar* lab0_TAGOMEGA = mdSet->GetObs(mdSet->GetTagOmegaVar());
+    RooRealVar* lab2_MM       = mdSet->GetObs(mdSet->GetMassDVar());
+    RooRealVar* lab1_PIDK     = mdSet->GetObs(mdSet->GetPIDKVar());
+    RooRealVar* nTracks       = mdSet->GetObs(mdSet->GetTracksVar(), true);
+    RooRealVar* lab1_P        = mdSet->GetObs(mdSet->GetMomVar(), true);
+    RooRealVar* lab1_PT       = mdSet->GetObs(mdSet->GetTrMomVar(), true);
+           
+    RooArgSet* obs = new RooArgSet(*lab0_MM,*lab2_MM,*lab1_PIDK,
+				   *lab1_PT, *lab1_P, *nTracks);
+    
+    if( mistag == true ) { obs->add(*lab0_TAGOMEGA); obs->add(*lab0_TAUERR); obs->add(*lab0_TAG); }
+   
+    std::vector <std::string> FileName;
     TString PID = "#PID";
     TString PID2 = "#PID2";
     ReadOneName(filesDir,FileName,sig,debug);
-    ReadOneName(filesDir,FileNamePID,PID,debug);
-    ReadOneName(filesDir,FileNamePID2,PID2,debug);
-  
+     
     TTree* tree[2];
 
     for( int i=0; i<2; i++)
@@ -494,183 +399,121 @@ namespace MassFitUtils {
     }
 
     //Read necessary misID histograms from file// 
-    TH1F* heffmiss1[2];
-    TH1F* heffmiss2[2];
-    TH1F* heffmiss[2];
-
-    TH1F* heff1[2];
-    TH1F* heff2[2];
-    TH1F* heff[2];
-
-    TString namehist;
-
-    for( int i = 0; i<2; i++ )
-      {
-	heffmiss1[i]=NULL; 
-	namehist = Form("MyPionMisID_%d;1",PIDmisscut);
-	heffmiss1[i] = ReadPIDHist(FileNamePID,namehist,i,debug);
-	heffmiss2[i]=NULL;
-	heffmiss2[i] = ReadPIDHist(FileNamePID2,namehist,i,debug);
-
-	namehist ="MyPionEff_0";
-	heff1[i] = NULL;
-	heff2[i] = NULL;
-	heff1[i] = ReadPIDHist(FileNamePID,namehist,i, debug);
-	heff2[i] = ReadPIDHist(FileNamePID2,namehist,i, debug);
-      }
-    
-    Double_t histent1[2];
-    Double_t histent2[2];
-    histent1[1] = 5092049.0;
-    histent1[0] = 6883094.0;
-    histent2[1] = 5866006.0;
-    histent2[0] = 9122416.0;
-    for (int i = 0; i<2; i++)
-      {
-	heffmiss[i]=NULL;
-	heffmiss[i]=AddHist(heffmiss1[i],  histent1[i], heffmiss2[i], histent2[i],debug);
-	heff[i] = NULL;
-	heff[i]=AddHist(heff1[i],  histent1[i], heff2[i], histent2[i], debug);
-      }
-
+    TString nameHistMiss = Form("MyPionMisID_%d;1",mdSet->GetPIDBach());
+    HistPID1D hmisID(nameHistMiss, nameHistMiss, filesDir, PID, PID2);
+    TString nameHistEff = "MyPionEff_0";
+    HistPID1D heff(nameHistEff, nameHistEff, filesDir, PID, PID2);
+    if ( debug == true ) { std::cout<<hmisID<<std::endl; std::cout<<heff<<std::endl; }
     
     //Set cuts//
-    TCut PID_cut;
-    PID_cut = "lab1_PIDK < 0";  
-    TCut P_cut = Form("%s > %f && %s < %f",pVar.Data(),Pcut_down,pVar.Data(),Pcut_up);
-    TCut PT_cut = Form("%s > %f && %s < %f",ptVar.Data(), PT_down,ptVar.Data(),PT_up);
-    TCut nTr_cut = Form("%s > %f && %s < %f",nTrVar.Data(),nTr_down,nTrVar.Data(),nTr_up);
-    TCut BDTG_cut = Form("BDTGResponse_1 > %f && BDTGResponse_1 < %f",BDTG_down, BDTG_up);
-    TCut mass_cut = Form(" %s > 5300 && %s < 5420",mVar.Data(),mVar.Data());
+    TCut PID_cut = Form("%s < 0",mdSet->GetPIDKVar().Data());  
+
+    TCut P_cut      = mdSet->GetCut(mdSet->GetMomVar());
+    TCut PT_cut     = mdSet->GetCut(mdSet->GetTrMomVar());
+    TCut nTr_cut    = mdSet->GetCut(mdSet->GetTracksVar());
+    TCut BDTG_cut   = mdSet->GetCut(mdSet->GetBDTGVar());
+        
+    TCut mass_cut   = Form("%s > 5300 && %s < 5420",
+			   mdSet->GetMassBVar().Data(), mdSet->GetMassBVar().Data());
+
     TCut FDCHI2 = "";
-
-    if( md[0] == "kkpi" || md[0] == "nonres" || md[0] == "kstk" || md[0] == "phipi" )
-      {
-        FDCHI2 = "lab2_FDCHI2_ORIVX > 2";
-      }
-    else
-      {
-	FDCHI2 = "lab2_FDCHI2_ORIVX > 9";
-      }
-
+    if( md[0] == "kkpi" || md[0] == "nonres" || md[0] == "kstk" || md[0] == "phipi" ) {  FDCHI2 = "lab2_FDCHI2_ORIVX > 2"; }
+    else{  FDCHI2 = "lab2_FDCHI2_ORIVX > 9"; }
 
     TCut All_cut = mass_cut&&P_cut&&BDTG_cut&&PID_cut&&PT_cut&&nTr_cut&&FDCHI2;
-  
-    
-    RooRealVar* weights[2];
+    if( debug == true) std::cout<<All_cut<<std::endl;
+   
+    RooRealVar* weights;
     RooDataSet* dataSet[2];
-    RooDataHist* dataHist[2];
-    TTree* treetmp[2];
     RooKeysPdf* pdfDataMiss[2];
     RooKeysPdf* pdfDataDMiss[2];
 
-    //RooBinned1DQuinticBase<RooAbsPdf>* pdfBinnedDataBs[2];
-    // RooBinned1DQuinticBase<RooAbsPdf>* pdfBinnedDataDs[2];
-    //TH1* histBs[2];
-    //TH1* histDs[2];
+    TString namew = "weights";
+    weights = new RooRealVar(namew.Data(), namew.Data(), 0.0, 1.0 );  // create weights //
+    obs->add(*weights);
 
     for (int i = 0; i<2; i++){
       
       TString s = smp[i]+"_"+md[i];
       
       dataSet[i] = NULL;
-      dataHist[i] = NULL;
       pdfDataMiss[i] = NULL;
       pdfDataDMiss[i] = NULL;
-      treetmp[i] = NULL;
-      //pdfBinnedDataBs[i] = NULL;
-      //pdfBinnedDataDs[i] = NULL;
-      //histBs[i] = NULL;
-      //histDs[i] = NULL;
-
-      TString namew = "weights_Miss_"+smp[i];
-      weights[i] = new RooRealVar(namew.Data(), namew.Data(), 0.0, 1.0 );  // create weights //
-
+      TTree* treetmp = NULL;
+      
       TString name = "dataSet_Miss_"+s;
-      TString namehist ="data_mistag_"+s;
-      //dataSet[i] = new RooDataSet(name.Data(),name.Data(),RooArgSet(*lab0_MM,*weights[i]),namew.Data());  // create data set //
-
-      if( mistag == true)
-        {
-          dataHist[i] = new RooDataHist(namehist.Data(),namehist.Data(),RooArgSet(*lab0_TAGOMEGA)); //create new data set /
-        }
-      dataSet[i] = new RooDataSet(name.Data(),name.Data(),RooArgSet(*lab0_MM,*lab2_MM,*lab1_P,*lab1_PT,*nTracks,*lab1_PIDK,*weights[i]),namew.Data()); //create new data set //
-        
-
-
-      treetmp[i] = TreeCut(tree[i],All_cut, smp[i], mode, debug);  // obtain new tree after applied all cuts //
-
+      dataSet[i] = new RooDataSet(name.Data(),name.Data(),*obs,namew.Data()); //create new data set //
+      
+      treetmp = TreeCut(tree[i],All_cut, smp[i], mode, debug);  // obtain new tree after applied all cuts //
 
       // Load all necessary variables to change hypo Pi->K from tree //
-      Double_t lab2_MM3,lab1_PIDK3;
       Double_t lab1_P3, lab2_P3, lab1_PX3, lab1_PY3, lab1_PZ3, lab2_PX3, lab2_PY3, lab2_PZ3;
-      Double_t lab1_PT3;
-      Int_t nTracks3;
-
+            
       Float_t masshypo;
       Double_t w, wE, wA;
       
-      treetmp[i]->SetBranchAddress("lab1_P",  &lab1_P3);
-      treetmp[i]->SetBranchAddress("lab1_PX", &lab1_PX3);
-      treetmp[i]->SetBranchAddress("lab1_PY", &lab1_PY3);
-      treetmp[i]->SetBranchAddress("lab1_PZ", &lab1_PZ3);
+      treetmp->SetBranchAddress("lab1_P",  &lab1_P3);
+      treetmp->SetBranchAddress("lab1_PX", &lab1_PX3);
+      treetmp->SetBranchAddress("lab1_PY", &lab1_PY3);
+      treetmp->SetBranchAddress("lab1_PZ", &lab1_PZ3);
       
-      treetmp[i]->SetBranchAddress("lab2_P",  &lab2_P3);
-      treetmp[i]->SetBranchAddress("lab2_PX", &lab2_PX3);
-      treetmp[i]->SetBranchAddress("lab2_PY", &lab2_PY3);
-      treetmp[i]->SetBranchAddress("lab2_PZ", &lab2_PZ3);
-      
-      treetmp[i]->SetBranchAddress("lab2_MM", &lab2_MM3);
-      treetmp[i]->SetBranchAddress("lab1_PIDK", &lab1_PIDK3);
-      treetmp[i]->SetBranchAddress("lab1_PT", &lab1_PT3);
-      treetmp[i]->SetBranchAddress("nTracks", &nTracks3);
+      treetmp->SetBranchAddress("lab2_P",  &lab2_P3);
+      treetmp->SetBranchAddress("lab2_PX", &lab2_PX3);
+      treetmp->SetBranchAddress("lab2_PY", &lab2_PY3);
+      treetmp->SetBranchAddress("lab2_PZ", &lab2_PZ3);
 
+      Float_t lab0_TAUERR3;
+      Double_t lab2_MM3, lab1_PIDK3, lab0_TAGOMEGA3;
+      Int_t lab0_TAG3, nTracks3;
+      Double_t lab1_PT3;
 
-
-      Float_t lab0_TAGOMEGA2, tag;
       if (mistag == true )
 	{
-	  treetmp[i]->SetBranchAddress(tagOmegaVar.Data(),&lab0_TAGOMEGA2);
-	  treetmp[i]->SetBranchAddress(tagName.Data(), &tag);
+	  treetmp->SetBranchAddress(mdSet->GetTerrVar().Data(),     &lab0_TAUERR3);
+	  treetmp->SetBranchAddress(mdSet->GetTagVar().Data(),      &lab0_TAG3);
+	  treetmp->SetBranchAddress(mdSet->GetTagOmegaVar().Data(), &lab0_TAGOMEGA3);
 	}
-
       
-      for (Long64_t jentry=0; jentry<treetmp[i]->GetEntries(); jentry++) {
-	treetmp[i]->GetEntry(jentry);
-	Int_t bin;
-	
+      treetmp->SetBranchAddress(mdSet->GetMassDVar().Data(),    &lab2_MM3);
+      treetmp->SetBranchAddress(mdSet->GetPIDKVar().Data(),     &lab1_PIDK3);
+      treetmp->SetBranchAddress(mdSet->GetTracksVar().Data(),   &nTracks3);
+      treetmp->SetBranchAddress(mdSet->GetMomVar().Data(),      &lab1_P3);
+      treetmp->SetBranchAddress(mdSet->GetTrMomVar().Data(),    &lab1_PT3);
+         
+      for (Long64_t jentry=0; jentry<treetmp->GetEntries(); jentry++) {
+	treetmp->GetEntry(jentry);
+		
 	masshypo = (Float_t)std::sqrt(std::pow(std::sqrt(std::pow(493.677,2)+std::pow(lab1_P3,2))+std::sqrt(std::pow(lab2_MM3,2)+std::pow(lab2_P3,2)),2)
 				      -std::pow(lab1_PX3+lab2_PX3,2)
 				      -std::pow(lab1_PY3+lab2_PY3,2)
 				      -std::pow(lab1_PZ3+lab2_PZ3,2)); // change hypo Pi->K
 
-	//std::cout<<"mass: "<<masshypo<<std::endl;
-	if (masshypo > BMassRange[0] && masshypo < BMassRange[1] && lab2_MM3 > Dmass_down && lab2_MM3 < Dmass_up) {  // accept event only is in range, usually 5100,5800 // 
-	  bin = heffmiss[i]->FindBin(lab1_P3);  //reweight momentum of bachelor
-	  w = heffmiss[i]->GetBinContent(bin);
-	  bin = heff[i]->FindBin(lab1_P3);  //reweight momentum of bachelor
-          wE = heff[i]->GetBinContent(bin);
-	  if( wE == 0 ) { wA = 0; } else { wA = w/wE;}
-	  weights[i]->setVal(wA);
-	  lab0_MM->setVal(masshypo);
-	  lab2_MM->setVal(lab2_MM3);
-	  lab1_P->setVal(log(lab1_P3));
-	  lab1_PIDK->setVal(log(lab1_PIDK3));
-	  nTracks->setVal(log(nTracks3));
-	  lab1_PT->setVal(log(lab1_PT3));
-	  
-	  if( mistag == true)
-	    {
-	      //std::cout<<"mistag: "<<lab0_TAGOMEGA2<<std::endl;
-	      if ( tag != 0 && lab0_TAGOMEGA2 < 0.495)
-		{
-		  //std::cout<<"omega: "<<lab0_TAGOMEGA2<<" tag: "<<tag<<" mass: "<<mass<<std::endl;
-		  lab0_TAGOMEGA->setVal(lab0_TAGOMEGA2);
-		  dataHist[i]->add(RooArgSet(*lab0_TAGOMEGA));
-		}
-	    }
-	  dataSet[i]->add(RooArgSet(*lab0_MM,*lab2_MM,*lab1_P,*lab1_PT,*nTracks,*lab1_PIDK,*weights[i]),wA,0);
-	}
+	
+	if (masshypo > mdSet->GetMassBRangeDown() && masshypo < mdSet->GetMassBRangeUp() 
+	    && lab2_MM3 > mdSet->GetMassDRangeDown()  && lab2_MM3 < mdSet->GetMassBRangeUp()) 
+	  {  // accept event only is in range, usually 5100,5800 // 
+	   
+	    w = hmisID.GetWeight(lab1_P3, smp[i]);
+	    wE = heff.GetWeight(lab1_P3, smp[i]); 
+
+	    if( wE == 0 ) { wA = 0; } else { wA = w/wE;}
+	    weights->setVal(wA);
+	    lab0_MM->setVal(masshypo);
+	    lab2_MM->setVal(lab2_MM3);
+	    lab1_P->setVal(log(lab1_P3));
+	    lab1_PIDK->setVal(log(lab1_PIDK3));
+	    nTracks->setVal(log(nTracks3));
+	    lab1_PT->setVal(log(lab1_PT3));
+	    
+	    if( mistag == true )
+	      {
+		lab0_TAUERR->setVal(lab0_TAUERR3);
+	      lab0_TAG->setVal(lab0_TAG3);
+	      lab0_TAGOMEGA->setVal(lab0_TAGOMEGA3);
+	      }
+	    
+	    dataSet[i]->add(*obs,wA,0);
+	  }
       }
       
       if ( debug == true)
@@ -679,30 +522,13 @@ namespace MassFitUtils {
 	    std::cout<<"[INFO] ==> Create dataSet for missID BsDsPi background"<<std::endl;
 	    std::cout<<"Number of events in dataSet: "<<dataSet[i]->numEntries()<<std::endl;
 	  } else { std::cout<<"Error in create dataset"<<std::endl; }
-	
-	  if( mistag == true)
-	    {
-	      if ( dataHist[i] != NULL ){
-		std::cout<<"[INFO] ==> Create dataHist for missID BsDsPi background"<<std::endl;
-		std::cout<<"Number of events in dataSet: "<<dataHist[i]->numEntries()<<std::endl;
-	      } else { std::cout<<"Error in create dataset"<<std::endl; }
-	      
-	    }
+
 	}
+
       // create RooKeysPdf for misID background //
       name="PhysBkgBs2DsPiPdf_m_"+s;
       TString name2=name+"_Ds";
-      /*
-      TString namehistBs = "histBs_"+s;
-      histBs[i] = dataSet[i]->createHistogram(namehistBs.Data(),*lab0_MM);
-      histBs[i]->SetName(namehist.Data());
-      name = "PhysBkgBsDsPi_m_"+s;
-      name2=name+"_Ds";
-      pdfBinnedDataBs[i]= new RooBinned1DQuinticBase<RooAbsPdf>(name.Data(), name.Data(), *histBs[i], *lab0_MM, true);
-      RooAbsPdf* pdf = pdfBinnedDataBs[i];
-      work->import(*pdf); 
-      saveDataTemplateToFile( dataSet[i], pdf, lab0_MM,  mode.Data(), "pdf", s.Data(), debug );
-      */
+      
       pdfDataMiss[i] = new RooKeysPdf(name.Data(),name.Data(),*lab0_MM,*dataSet[i]);
       pdfDataDMiss[i] = new RooKeysPdf(name2.Data(),name2.Data(),*lab2_MM,*dataSet[i]);
       if ( debug == true) 
@@ -714,26 +540,31 @@ namespace MassFitUtils {
           else { std::cout<<"Cannot create RooKeysPdf for Ds mass BsDsPi under BsDsK."<<std::endl;}
 
 	}
-      SaveTemplate(dataSet[i], pdfDataMiss[i], lab0_MM,s,mode,debug);
-      saveDataTemplateToFile( dataSet[i], pdfDataMiss[i], lab0_MM,  mode.Data(), "root", s.Data(), debug );
-      TString ds = "_Ds_"+s;
-      SaveTemplate(dataSet[i], pdfDataDMiss[i], lab2_MM,ds,mode,debug);
-      saveDataTemplateToFile( dataSet[i], pdfDataDMiss[i], lab2_MM,  mode.Data(), "root", ds.Data(), debug );
-      
+            
+      if (plotSet->GetStatus() == true )
+	{
+	  SaveTemplate(dataSet[i], pdfDataMiss[i],  lab0_MM, smp[i], mode, plotSet, debug);
+	  SaveTemplate(dataSet[i], pdfDataDMiss[i], lab2_MM, smp[i], mode, plotSet, debug);
+	}
       work->import(*pdfDataMiss[i]);
       work->import(*pdfDataDMiss[i]);
       work->import(*dataSet[i]);
       
       if (mistag == true)
         {
+	  TString namepdf ="PhysBkg"+mode+"Pdf_m_"+s+"_mistag";
+	  TString histName = "hist_PhysBkg"+mode+"Pdf_m_"+s+"_mistag";
+	  TString condition = mdSet->GetTagVar()+" != 0";
+	  RooAbsData*  dataRed = dataSet[i]->reduce(condition.Data());
+	  Int_t bin = 50;
+	  TH1* hist = dataRed->createHistogram(histName.Data(), *lab0_TAGOMEGA, RooFit::Binning(bin));
+	  RooHistPdf* pdf = CreateHistPDF(hist, lab0_TAGOMEGA, namepdf, bin, debug);
 	  
-          TString namepdf ="PhysBkg"+mode+"Pdf_m_"+s+"_mistag";
-	  RooHistPdf* pdf = NULL;
-	  pdf = new RooHistPdf(namepdf.Data(), namepdf.Data(), RooArgSet(*lab0_TAGOMEGA), *dataHist[i]);
-
-	  TString mdd = s+"_mistag";
-          SaveTemplateHist(dataHist[i], pdf, lab0_TAGOMEGA, mdd,mode, debug);
-          work->import(*pdf);
+	  if ( plotSet->GetStatus() == true )
+	    {
+	      SaveTemplateHist(NULL, pdf, lab0_TAGOMEGA, s, mode, plotSet, debug);
+	    }
+	  work->import(*pdf);
         }
 
     }
@@ -757,79 +588,51 @@ namespace MassFitUtils {
 
 
   RooWorkspace* ObtainMissForBsDsPi(TString& filesDir, TString& sig,
-				    TString& hypo, // int PIDmisscut,
-				    double Pcut_down, double Pcut_up,
-				    double BDTG_down, double BDTG_up,
-				    double Dmass_down, double Dmass_up,
-				    double Bmass_down, double Bmass_up,
-				    double PT_down, double PT_up,
-				    double nTr_down, double nTr_up, 
-				    TString& mVar, 
-				    TString& mDVar,
-				    TString& mProbVar,
+				    TString& hypo, 
+				    MDFitterSettings* mdSet,
 				    TString& mode,
-				    RooWorkspace* workspace, Bool_t mistag, bool debug)
+				    RooWorkspace* workspace, 
+				    Bool_t mistag, 
+				    PlotSettings* plotSet, 
+				    bool debug)
   {
     if ( debug == true)
       {
 	std::cout<<"[INFO] ==> GeneralUtils::ObtainMissForBsDsK(...). Obtain Bs->DsPi under Bs->DsK  "<<std::endl;
 	std::cout<<"name of config file: "<<filesDir<<std::endl;
-	//std::cout<<"PIDK cut: "<< PIDmisscut<<std::endl;
-	//std::cout<<"BDTGResponse cut: "<<BDTGCut<<std::endl;
-	std::cout<<"BDTG range: ("<<BDTG_down<<","<<BDTG_up<<")"<<std::endl;
-	std::cout<<"Bachelor momentum range: ("<<Pcut_down<<","<<Pcut_up<<")"<<std::endl;
-	std::cout<<"D(s) mass range: ("<<Dmass_down<<","<<Dmass_up<<")"<<std::endl;
-	std::cout<<"Name B(s) of observable: "<<mVar<<std::endl;
-	std::cout<<"Name D(s) of observable: "<<mDVar<<std::endl;
-	std::cout<<"Name of PID variable: "<<mProbVar<<std::endl;
 	std::cout<<"Mode: "<<mode<<std::endl;
 	std::cout<<"Hypo: "<<hypo<<std::endl; 
       }
     
-    double BMassRange[2];
-    BMassRange[0] = Bmass_down; BMassRange[1]=Bmass_up;
-    if ( debug == true) std::cout<<"B(s) mass range: ("<<BMassRange[0]<<","<<BMassRange[1]<<")"<<std::endl;
-
     RooWorkspace* work = NULL;
     if (workspace == NULL ) { work =  new RooWorkspace("workspace","workspace"); }
     else { work = workspace; }
-    
-    TString pVar = "lab1_P";
-    TString ptVar = "lab1_PT";
-    TString nTrVar = "nTracks";
-    TString PIDVar = "lab1_PIDK";
 
-    RooRealVar* lab0_MM = new RooRealVar(mVar.Data(),mVar.Data(),BMassRange[0], BMassRange[1]);
-    RooRealVar* lab2_MM = new RooRealVar(mDVar.Data(),mDVar.Data(),Dmass_down, Dmass_up);
-    RooRealVar* lab1_PT = new RooRealVar(ptVar.Data(), ptVar.Data(), log(PT_down), log(PT_up));
-    RooRealVar* lab1_P  = new RooRealVar(pVar.Data(),pVar.Data(),log(Pcut_down),log(Pcut_up));
-    RooRealVar* nTracks  = new RooRealVar(nTrVar.Data(),nTrVar.Data(),log(nTr_down),log(nTr_up));
-    RooRealVar* lab1_PIDK = new RooRealVar(PIDVar.Data(),PIDVar.Data(),0.0,150.0);
+    if ( plotSet == NULL ) { plotSet = new PlotSettings("plotSet","plotSet"); }
 
+    RooRealVar* lab0_MM       = mdSet->GetObs(mdSet->GetMassBVar());
+    RooRealVar* lab0_TAUERR   = mdSet->GetObs(mdSet->GetTerrVar());
+    RooRealVar* lab0_TAG      = mdSet->GetObs(mdSet->GetTagVar());
+    RooRealVar* lab0_TAGOMEGA = mdSet->GetObs(mdSet->GetTagOmegaVar());
+    RooRealVar* lab2_MM       = mdSet->GetObs(mdSet->GetMassDVar());
+    RooRealVar* lab1_PIDK     = mdSet->GetObs(mdSet->GetPIDKVar());
+    RooRealVar* nTracks       = mdSet->GetObs(mdSet->GetTracksVar(), true);
+    RooRealVar* lab1_P        = mdSet->GetObs(mdSet->GetMomVar(), true);
+    RooRealVar* lab1_PT       = mdSet->GetObs(mdSet->GetTrMomVar(), true);
 
-    TString tagOmegaVar = "lab0_BdTaggingTool_TAGOMEGA_OS";
-    TString tagName = "lab0_BdTaggingTool_TAGDECISION_OS";
-    RooRealVar* lab0_TAGOMEGA = new RooRealVar(tagOmegaVar.Data(),tagOmegaVar.Data(),0.,0.,0.6);
-    lab0_TAGOMEGA->setBins(30);
+    RooArgSet* obs = new RooArgSet(*lab0_MM,*lab2_MM,*lab1_PIDK,
+                                   *lab1_PT, *lab1_P, *nTracks);
+
+    if( mistag == true ) { obs->add(*lab0_TAGOMEGA); obs->add(*lab0_TAUERR); obs->add(*lab0_TAG); }
     
     std::vector <std::string> FileName;
-    std::vector <std::string> FileNamePID11;
-    std::vector <std::string> FileNamePID12;
-    std::vector <std::string> FileNamePID21;
-    std::vector <std::string> FileNamePID22;
-
-
+    
     TString PID = "#PID";
     TString PID2 = "#PID2";
     TString PID2m2 = "#PID2m2";
     TString PID2m22 = "#PID2m22";
+    
     ReadOneName(filesDir,FileName,sig,debug);
-    ReadOneName(filesDir,FileNamePID11,PID,debug);
-    ReadOneName(filesDir,FileNamePID12,PID2,debug);
-    ReadOneName(filesDir,FileNamePID21,PID2m2,debug);
-    ReadOneName(filesDir,FileNamePID22,PID2m22,debug);
-
-
     TTree* tree[2];
     
     for( int i=0; i<2; i++)
@@ -848,118 +651,54 @@ namespace MassFitUtils {
     }
 
    
-   //Read necessary misID histograms from file//
-    TH1F* hmisID1[2];
-    TH1F* hmisID2[2];
-    TH1F* hmisID[2];
-    
-    TH1F* hmisID1L[2];
-    TH1F* hmisID2L[2];
-    TH1F* hmisIDL[2];
+    //Read necessary misID histograms from file//
+    TString nameHmisID = "MyPionMisID_10"; 
+    TString nameHmisIDL = "MyPionMisID_10_pKm5";
+    TString nameHeff = "MyKaonEff_5";
+    TString nameHeff5 = "MyKaonEff_5";
+    TString nameHeff0 = "MyPionEff_5";
 
-    TH1F* heff1[2];
-    TH1F* heff2[2];
-    TH1F* heff[2];
-
-    TH1F* heff01[2];
-    TH1F* heff02[2];
-    TH1F* heff0[2];
-
-    TH1F* heff51[2];
-    TH1F* heff52[2];
-    TH1F* heff5[2];
-
-    TString namehist;
-    for( int i = 0; i<2; i++ )
+    HistPID1D hmisID(nameHmisID, nameHmisID, filesDir, PID, PID2); 
+    HistPID1D hmisIDL(nameHmisIDL, nameHmisIDL, filesDir, PID2m2, PID2m22);
+    HistPID1D heff(nameHeff, nameHeff, filesDir, PID, PID2);
+    HistPID1D heff5(nameHeff5, nameHeff5, filesDir, PID, PID2);
+    HistPID1D heff0(nameHeff0, nameHeff0, filesDir, PID, PID2);
+    if ( debug == true )
       {
-	hmisID1[i]=NULL;
-        namehist = "MyPionMisID_10"; //Form("MyKaonMisID_%d;1",PIDmisscut);
-	hmisID1[i] = ReadPIDHist(FileNamePID11,namehist,i,debug);
-        hmisID2[i]=NULL;
-        hmisID2[i] = ReadPIDHist(FileNamePID12,namehist,i,debug);
+	std::cout<<hmisID<<std::endl;
+	std::cout<<hmisIDL<<std::endl;
+	std::cout<<heff<<std::endl;
+	std::cout<<heff5<<std::endl;
+	std::cout<<heff0<<std::endl;
       }
 
-    for( int i = 0; i<2; i++ )
-      {
-        hmisID1L[i]=NULL;
-        namehist = "MyPionMisID_10_pKm5"; //Form("MyKaonMisID_%d;1",PIDmisscut);
-        hmisID1L[i] = ReadPIDHist(FileNamePID21,namehist,i,debug);
-        hmisID2L[i]=NULL;
-        hmisID2L[i] = ReadPIDHist(FileNamePID22,namehist,i,debug);
-      }
-    
-    for( int i = 0; i<2; i++ )
-      {
-        heff1[i]=NULL;
-        namehist = "MyKaonEff_5"; //Form("MyKaonMisID_%d;1",PIDmisscut);
-        heff1[i] = ReadPIDHist(FileNamePID11,namehist,i,debug);
-        heff2[i]=NULL;
-        heff2[i] = ReadPIDHist(FileNamePID12,namehist,i,debug);
-      }
-
-    for( int i = 0; i<2; i++ )
-      {
-	heff51[i]=NULL;
-        namehist = "MyKaonEff_5"; //Form("MyKaonMisID_%d;1",PIDmisscut);
-        heff51[i] = ReadPIDHist(FileNamePID11,namehist,i,debug);
-        heff52[i]=NULL;
-        heff52[i] = ReadPIDHist(FileNamePID12,namehist,i,debug);
-      }
-
-    for( int i = 0; i<2; i++ )
-      {
-	heff01[i]=NULL;
-        namehist = "MyPionEff_0"; //Form("MyKaonMisID_%d;1",PIDmisscut);
-        heff01[i] = ReadPIDHist(FileNamePID11,namehist,i,debug);
-        heff02[i]=NULL;
-        heff02[i] = ReadPIDHist(FileNamePID12,namehist,i,debug);
-      }
-
-
-    Double_t histent1[2];
-    Double_t histent2[2];
-    histent1[1] = 5092049.0;
-    histent1[0] = 6883094.0;
-    histent2[1] = 5866006.0;
-    histent2[0] = 9122416.0;
-    for (int i = 0; i<2; i++)
-      {
-	hmisID[i]=NULL;
-	hmisID[i]=AddHist(hmisID1[i],  histent1[i], hmisID2[i], histent2[i], debug);
-	hmisIDL[i]=NULL;
-        hmisIDL[i]=AddHist(hmisID1L[i],  histent1[i], hmisID2L[i], histent2[i], debug);
-	heff[i]=NULL;
-	heff[i]=AddHist(heff1[i],  histent1[i], heff2[i], histent2[i], debug);
-	heff0[i]=NULL;
-        heff0[i]=AddHist(heff01[i],  histent1[i], heff02[i], histent2[i], debug);
-	heff5[i]=NULL;
-        heff5[i]=AddHist(heff51[i],  histent1[i], heff52[i], histent2[i], debug);
-      }
-
-    
     //Set cuts//
     TCut PID_cut;
-    //PID_cut = Form("%s < %d",mProbVar.Data(),PIDmisscut);  
-    TCut P_cut = Form("lab1_P > %f && lab1_P < %f",Pcut_down,Pcut_up);
-    TCut PT_cut = Form("lab1_PT > %f && lab1_PT < %f",PT_down,PT_up);
-    TCut nTr_cut = Form("nTracks > %f && nTracks < %f",nTr_down,nTr_up);
-    TCut BDTG_cut = Form("BDTGResponse_1 > %f && BDTGResponse_1 < %f",BDTG_down, BDTG_up);
-    TCut mass_cut = Form("%s > 5200 && %s < 5340",mVar.Data(),mVar.Data());
-    TCut PIDBach_cut = Form("lab1_PIDK < %f",0.0);
+    TCut P_cut      = mdSet->GetCut(mdSet->GetMomVar());
+    TCut PT_cut     = mdSet->GetCut(mdSet->GetTrMomVar());
+    TCut nTr_cut    = mdSet->GetCut(mdSet->GetTracksVar());
+    TCut BDTG_cut   = mdSet->GetCut(mdSet->GetBDTGVar());
+    
+    TCut mass_cut   = Form("%s > 5200 && %s < 5340",
+                           mdSet->GetMassBVar().Data(), mdSet->GetMassBVar().Data());
+    
+    TCut PIDBach_cut = Form("%s < %f",mdSet->GetPIDKVar().Data(),0.0);
+    
     TCut FDCHI2 = "lab2_FDCHI2_ORIVX > 2";
 
     TCut All_cut = mass_cut&&P_cut&&BDTG_cut&&PT_cut&&nTr_cut&&PIDBach_cut&&FDCHI2;
+    if( debug == true) std::cout<<All_cut<<std::endl;
     
-    RooRealVar* weights[2];
+    RooRealVar* weights;
     RooDataSet* dataSet[2];
-    RooDataHist* dataHist[2];
-    TTree* treetmp[2];
     RooKeysPdf* pdfDataMiss[2];
     RooKeysPdf* pdfDataDMiss[2];
 
+    TString namew = "weights";
+    weights = new RooRealVar(namew.Data(), namew.Data(), 0.0, 1.0 );  // create weights //
+    obs->add(*weights);
     
     Double_t tmpc[2];
-    Int_t bin=0;
     Float_t w=0.0;
     
     for (int i = 0; i<2; i++){
@@ -970,25 +709,15 @@ namespace MassFitUtils {
       pdfDataDMiss[i]=NULL;
 
       dataSet[i] = NULL;
-      dataHist[i] = NULL;
-      weights[i]=NULL;
-      
-      treetmp[i] = NULL;
-      
-      TString namew = "weights_Miss_"+s;
-      weights[i] = new RooRealVar(namew.Data(), namew.Data(), 0.0, 1.0 ); // create weights //
+      TTree* treetmp = NULL;
       
       TString name = "dataSet_Miss_"+s;
       TString namehist ="data_mistag_"+s;
       
-      if( mistag == true)
-	{
-          dataHist[i] = new RooDataHist(namehist.Data(),namehist.Data(),RooArgSet(*lab0_TAGOMEGA)); //create new data hist /
-	}
-      dataSet[i] = new RooDataSet(name.Data(),name.Data(),RooArgSet(*lab0_MM,*lab2_MM,*lab1_P,*nTracks,*lab1_PT,*lab1_PIDK,*weights[i]),namew.Data()); 
+      dataSet[i] =  new RooDataSet(name.Data(),name.Data(),*obs,namew.Data()); 
 //create new data set //
 
-      treetmp[i] = TreeCut(tree[i],All_cut,smp[i],md[i],debug);  // obtain new tree after applied all cuts //
+      treetmp = TreeCut(tree[i],All_cut,smp[i],md[i],debug);  // obtain new tree after applied all cuts //
       
       // Load all necessary variables to change hypo D->Ds from tree //
       Double_t lab1_P2, lab1_PT2;
@@ -998,42 +727,42 @@ namespace MassFitUtils {
       Double_t lab5_PX2, lab5_PY2, lab5_PZ2;
       Double_t lab1_M2;
       Double_t masshypo(0.0), phypo(0.0), masshypod(0.0), phypolc(0.0), masshypolb(0.0), p2(0.0);
-      Double_t lab0_TAGOMEGA2,tag;
-      Int_t nTr2;
-      Double_t lab1_PIDK2;
+                 
+      treetmp->SetBranchAddress("lab1_P",  &lab1_P2);
+      treetmp->SetBranchAddress("lab1_PT", &lab1_PT2);
+      treetmp->SetBranchAddress("lab1_PX", &lab1_PX2);
+      treetmp->SetBranchAddress("lab1_PY", &lab1_PY2);
+      treetmp->SetBranchAddress("lab1_PZ", &lab1_PZ2);
+      treetmp->SetBranchAddress("lab1_M",  &lab1_M2);
       
-
-      treetmp[i]->SetBranchAddress("lab1_P",  &lab1_P2);
-      treetmp[i]->SetBranchAddress("lab1_PT", &lab1_PT2);
-      treetmp[i]->SetBranchAddress("lab1_PX", &lab1_PX2);
-      treetmp[i]->SetBranchAddress("lab1_PY", &lab1_PY2);
-      treetmp[i]->SetBranchAddress("lab1_PZ", &lab1_PZ2);
-      treetmp[i]->SetBranchAddress("lab1_M",  &lab1_M2);
+      treetmp->SetBranchAddress("lab3_PX", &lab3_PX2);
+      treetmp->SetBranchAddress("lab3_PY", &lab3_PY2);
+      treetmp->SetBranchAddress("lab3_PZ", &lab3_PZ2);
       
-      treetmp[i]->SetBranchAddress("lab3_PX", &lab3_PX2);
-      treetmp[i]->SetBranchAddress("lab3_PY", &lab3_PY2);
-      treetmp[i]->SetBranchAddress("lab3_PZ", &lab3_PZ2);
+      treetmp->SetBranchAddress("lab4_PX", &lab4_PX2);
+      treetmp->SetBranchAddress("lab4_PY", &lab4_PY2);
+      treetmp->SetBranchAddress("lab4_PZ", &lab4_PZ2);
       
-      treetmp[i]->SetBranchAddress("lab4_PX", &lab4_PX2);
-      treetmp[i]->SetBranchAddress("lab4_PY", &lab4_PY2);
-      treetmp[i]->SetBranchAddress("lab4_PZ", &lab4_PZ2);
+      treetmp->SetBranchAddress("lab5_PZ",  &lab5_PZ2);
+      treetmp->SetBranchAddress("lab5_PX", &lab5_PX2);
+      treetmp->SetBranchAddress("lab5_PY", &lab5_PY2);
       
-      treetmp[i]->SetBranchAddress("lab5_PZ",  &lab5_PZ2);
-      treetmp[i]->SetBranchAddress("lab5_PX", &lab5_PX2);
-      treetmp[i]->SetBranchAddress("lab5_PY", &lab5_PY2);
-
-      treetmp[i]->SetBranchAddress("nTracks", &nTr2);
-      treetmp[i]->SetBranchAddress("lab1_PIDK",  &lab1_PIDK2);
-
+      Float_t lab0_TAUERR3;
+      Double_t lab1_PIDK3, lab0_TAGOMEGA3;
+      Int_t lab0_TAG3, nTracks3;
+      
       if (mistag == true )
 	{
-	  treetmp[i]->SetBranchAddress(tagOmegaVar.Data(),&lab0_TAGOMEGA2);
-	  treetmp[i]->SetBranchAddress(tagName.Data(), &tag);
-	}
+          treetmp->SetBranchAddress(mdSet->GetTerrVar().Data(),     &lab0_TAUERR3);
+          treetmp->SetBranchAddress(mdSet->GetTagVar().Data(),      &lab0_TAG3);
+          treetmp->SetBranchAddress(mdSet->GetTagOmegaVar().Data(), &lab0_TAGOMEGA3);
+        }
 
+      treetmp->SetBranchAddress(mdSet->GetPIDKVar().Data(),     &lab1_PIDK3);
+      treetmp->SetBranchAddress(mdSet->GetTracksVar().Data(),   &nTracks3);
       
-      for (Long64_t jentry=0; jentry<treetmp[i]->GetEntries(); jentry++) {
-	treetmp[i]->GetEntry(jentry);
+      for (Long64_t jentry=0; jentry<treetmp->GetEntries(); jentry++) {
+	treetmp->GetEntry(jentry);
 	//std::cout<<"3: "<<lab3_PX2<<" "<<lab3_PY2<<" "<<lab3_PZ2<<std::endl;
 	//std::cout<<"4: "<<lab4_PX2<<" "<<lab4_PY2<<" "<<lab4_PZ2<<std::endl;
 	//std::cout<<"5: "<<lab5_PX2<<" "<<lab5_PY2<<" "<<lab5_PZ2<<std::endl;
@@ -1048,7 +777,6 @@ namespace MassFitUtils {
 	vL3.SetPx(lab3_PX2); vL4.SetPx(lab4_PX2); vL5.SetPx(lab5_PX2);
         vL3.SetPy(lab3_PY2); vL4.SetPy(lab4_PY2); vL5.SetPy(lab5_PY2);
         vL3.SetPz(lab3_PZ2); vL4.SetPz(lab4_PZ2); vL5.SetPz(lab5_PZ2);
-
 	
 	Double_t E3, E4, E5;
 	Double_t EL3, EL4, EL5;
@@ -1095,7 +823,7 @@ namespace MassFitUtils {
 	    
 	    //std::cout<<"massd: "<<masshypod<<std::endl;
 	    
-	    if (masshypod > Dmass_down && masshypod < Dmass_up)  //only events which fall into Ds mass window are acceptable
+	    if (masshypod > mdSet->GetMassDRangeDown() && masshypod < mdSet->GetMassDRangeUp()) //only events which fall into Ds mass window are acceptable
 	      {
 
 		masshypo = (Float_t) std::sqrt( std::pow(std::sqrt(std::pow(lab1_M2,2) + std::pow(lab1_P2,2))
@@ -1108,47 +836,33 @@ namespace MassFitUtils {
 
 		//std::cout<<"massb: "<<masshypo<<std::endl;
 		
-		if( masshypo > BMassRange[0] && masshypo < BMassRange[1]){ // only events which fall into Bs mass range are acceptable
+		if( masshypo > mdSet->GetMassBRangeDown()  && masshypo < mdSet->GetMassBRangeUp()){ // only events which fall into Bs mass range are acceptable
 		  tmpc[i] += w;
 		  lab0_MM->setVal(masshypo);
 		  lab2_MM->setVal(masshypod);
 		  lab1_P->setVal(log(lab1_P2));
 		  lab1_PT->setVal(log(lab1_PT2));
-		  nTracks->setVal(log(nTr2));
-		  lab1_PIDK->setVal(-lab1_PIDK2);
+		  nTracks->setVal(log(nTracks3));
+		  lab1_PIDK->setVal(-lab1_PIDK3);
 		  Double_t w1=1.0;
-		  if ( fabs(masshypolb -2285)<30 )
-		    {
-		      bin = hmisIDL[i]->FindBin(phypolc);
-		      w1 = hmisIDL[i]->GetBinContent(bin);  			
-		    }
-		  else
-		    {
-		      bin = hmisID[i]->FindBin(phypo);
-		      w1 = hmisID[i]->GetBinContent(bin);
-		    }
-		  bin = heff[i]->FindBin(p2); //reweighting procedure is applied for Ds child (lab5)
-		  Double_t w2 = heff[i]->GetBinContent(bin);
-		  bin = heff0[i]->FindBin(lab1_P2); //reweighting procedure is applied for Ds child (lab5)
-                  Double_t w0 = heff0[i]->GetBinContent(bin);
-		  bin = heff0[i]->FindBin(lab1_P2); //reweighting procedure is applied for Ds child (lab5)
-                  Double_t w5 = heff5[i]->GetBinContent(bin);
+		  if ( fabs(masshypolb -2285)<30 )  {  w1 = hmisIDL.GetWeight(phypolc,smp[i]);    }
+		  else{   w1 = hmisID.GetWeight(phypo,smp[i]);   }
 
+		  Double_t w2 = heff.GetWeight(p2,smp[i]); 
+		  Double_t w0 = heff0.GetWeight(lab1_P2, smp[i]); 
+		  Double_t w5 = heff5.GetWeight(lab1_P2, smp[i]); 
 		  Double_t w = 1.0;
 		  if ( w0 != 0 ) { w = w1*w2/w0*w5;} else {w =  w1*w2*w5;}
-		  weights[i]->setVal(w);
-		  //dataSet[i]->add(RooArgSet(*lab0_MM,*weights[i]),w,0);
-		  
-		  if( mistag == true)
+		  weights->setVal(w);
+
+		  if( mistag == true )
 		    {
-		      if ( tag != 0 && lab0_TAGOMEGA2 < 0.495)
-			{
-			  //std::cout<<"omega: "<<lab0_TAGOMEGA2<<" tag: "<<tag<<" mass: "<<mMC<<std::endl;
-			  lab0_TAGOMEGA->setVal(lab0_TAGOMEGA2);
-			  dataHist[i]->add(RooArgSet(*lab0_TAGOMEGA));
-			}
+		      lab0_TAUERR->setVal(lab0_TAUERR3);
+		      lab0_TAG->setVal(lab0_TAG3);
+		      lab0_TAGOMEGA->setVal(lab0_TAGOMEGA3);
 		    }
-		  dataSet[i]->add(RooArgSet(*lab0_MM,*lab2_MM,*lab1_P,*nTracks,*lab1_PT,*lab1_PIDK,*weights[i]),w,0);
+
+		  dataSet[i]->add(*obs,w,0);
 		  
 		}
 	      }
@@ -1162,23 +876,16 @@ namespace MassFitUtils {
 	    std::cout<<"=====> Create dataSet for missID BdDPi background"<<std::endl;
 	    std::cout<<"Number of events in dataSet: "<<dataSet[i]->numEntries()<<" nMisID: "<<tmpc[i]<<std::endl;
 	  } else { std::cout<<"Error in create dataset"<<std::endl; }
-	  
-	  if( mistag == true)
-	    {
-	      if ( dataHist[i] != NULL ){
-		std::cout<<"[INFO] ==> Create dataHist for missID BsDsPi background"<<std::endl;
-		std::cout<<"Number of events in dataSet: "<<dataHist[i]->numEntries()<<std::endl;
-	      } else { std::cout<<"Error in create dataset"<<std::endl; }
-	    }
+	    
 	}
 
       //Create RooKeysPdf for misID background//
             
       name="PhysBkgBd2DPiPdf_m_"+s;
-      pdfDataMiss[i] = new RooKeysPdf(name.Data(),name.Data(),*lab0_MM,*dataSet[i]);
+      pdfDataMiss[i] = new RooKeysPdf(name.Data(),name.Data(),*lab0_MM,*dataSet[i],RooKeysPdf::MirrorBoth,1.5);
       
       TString nameD=name+"_Ds";
-      pdfDataDMiss[i] = new RooKeysPdf(nameD.Data(),nameD.Data(),*lab2_MM,*dataSet[i]);
+      pdfDataDMiss[i] = new RooKeysPdf(nameD.Data(),nameD.Data(),*lab2_MM,*dataSet[i], RooKeysPdf::MirrorBoth,1.5);
 
 
       if (debug == true) 
@@ -1191,37 +898,177 @@ namespace MassFitUtils {
 
 	}
       
-      TString dupa = md[i]+"_PT";
-      SaveDataSet(dataSet[i], lab1_PT , smp[i], dupa, debug);
-      TString dupa2 =md[i]+"_nTracks";
-      SaveDataSet(dataSet[i], nTracks , smp[i], dupa2, debug);
-      work->import(*dataSet[i]);
-
+      if( plotSet->GetStatus() == true )
+	{
+	  TString s = smp[i]+"_"+md[i]; 
+	  SaveDataSet(dataSet[i],  lab1_PT, s, mode, plotSet, debug);
+	  SaveDataSet(dataSet[i],  nTracks, s, mode, plotSet, debug);
+	  SaveDataSet(dataSet[i],  lab1_PIDK, s, mode, plotSet, debug);
+	  SaveTemplate(dataSet[i], pdfDataMiss[i],  lab0_MM, s, mode, plotSet, debug);
+	  SaveTemplate(dataSet[i], pdfDataDMiss[i], lab2_MM, s, mode, plotSet, debug);
+	}
       
-      SaveTemplate(dataSet[i], pdfDataMiss[i], lab0_MM,smp[i],md[i], debug);
-      saveDataTemplateToFile( dataSet[i], pdfDataMiss[i], lab0_MM, md[i].Data(), "root", smp[i].Data(), debug);
-
-      TString ds = "_Ds_"+smp[i];
-      SaveTemplate(dataSet[i], pdfDataDMiss[i], lab2_MM, ds, md[i],debug);
-      saveDataTemplateToFile( dataSet[i], pdfDataDMiss[i], lab2_MM,  md[i].Data(), "root", ds.Data(), debug );
-
+      work->import(*dataSet[i]);
       work->import(*pdfDataMiss[i]);
       work->import(*pdfDataDMiss[i]);
       
       if (mistag == true)
 	{
 	  TString namepdf ="PhysBkg"+mode+"Pdf_m_"+s+"_mistag";
-          RooHistPdf* pdf = NULL;
-          pdf = new RooHistPdf(namepdf.Data(), namepdf.Data(), RooArgSet(*lab0_TAGOMEGA), *dataHist[i]);
+          TString histName = "hist_PhysBkg"+mode+"Pdf_m_"+s+"_mistag";
+          TString condition = mdSet->GetTagVar()+" != 0";
+          RooAbsData*  dataRed = dataSet[i]->reduce(condition.Data());
+          Int_t bin = 50;
+          TH1* hist = dataRed->createHistogram(histName.Data(), *lab0_TAGOMEGA, RooFit::Binning(bin));
+          RooHistPdf* pdf = CreateHistPDF(hist, lab0_TAGOMEGA, namepdf, bin, debug);
 
-          TString mdd = s+"_mistag";
-          SaveTemplateHist(dataHist[i], pdf, lab0_TAGOMEGA, mdd, mode, debug);
-          work->import(*pdf);
+	  if( plotSet->GetStatus() == true )
+	    {
+	      SaveTemplateHist(NULL, pdf, lab0_TAGOMEGA, s, mode, plotSet, debug);
+	    }
+	  work->import(*pdf);
 	}
     }
     return work;
   }
+  
+  //===========================================================================
+  // Get cut for background MC
+  //===========================================================================
 
+  TCut GetCutMCBkg( MDFitterSettings* mdSet, TString mode, TString hypo, bool debug )
+  {
+    TCut MCCut= ""; 
+
+    //Set id for bachelor //
+    int id_lab1=0;
+    if( hypo.Contains("Pi") ) { id_lab1=211; if ( debug == true) std::cout<<" Hypo with Pi"<<std::endl;}
+    else if (hypo.Contains("K")) { id_lab1=321; if ( debug == true) std::cout<<"Hypo with K"<<std::endl; }
+
+    // Set id for D child //
+    int id_lab4=0;
+    if (hypo.Contains("Ds") == true ) { id_lab4=321; if ( debug == true) std::cout<<"Hypo with Ds"<<std::endl; }
+    else if (hypo.Contains("D") == true && hypo.Contains("Ds") == false) { id_lab4=211;  if ( debug == true) std::cout<<"Hypo with D"<<std::endl;}
+
+    // Set other cuts//
+    TCut P_cut      = mdSet->GetCut(mdSet->GetMomVar());
+    TCut PT_cut     = mdSet->GetCut(mdSet->GetTrMomVar());
+    TCut nTr_cut    = mdSet->GetCut(mdSet->GetTracksVar());
+    TCut BDTG_cut   = mdSet->GetCut(mdSet->GetBDTGVar());
+    
+    TCut MCTriggerCut="lab0_Hlt1TrackAllL0Decision_TOS && (lab0_Hlt2Topo2BodyBBDTDecision_TOS || lab0_Hlt2Topo3BodyBBDTDecision_TOS || lab0_Hlt2Topo4BodyBBDTDecision_TOS)";
+
+    TCut MCBsIDCut = Form("abs(lab1_ID)==%d && abs(lab5_ID)==321 && abs(lab3_ID)==211 && abs(lab4_ID)==%d",id_lab1, id_lab4);
+
+    TCut MCCut1, MCCut2;
+    TCut hypoKaon = "lab1_M > 200";  // hypo Kaon //
+    TCut hypoPion = "lab1_M < 200";  // hypo Pion //
+
+    if ( (mode.Contains("Bs") == true) || ( (mode.Contains("Ds") == true) && (mode.Contains("Dst") != true))) 
+      {
+	MCCut1 = "lab2_BKGCAT < 30 || lab2_BKGCAT == 50";
+      }
+    else { MCCut1 = "lab2_BKGCAT == 30"; }
+    MCCut2 = "lab0_BKGCAT < 60";
+
+    if ( mode == "Bs2DsstKst" || mode == "Bs2DsKst") { MCCut1 = "lab2_BKGCAT == 30";}  // because in fact this is Bd2DKst sample //
+    if ( mode == "Bd2DsstPi" ){ MCCut1 = "lab2_BKGCAT < 30";} // bacause in fact this is Bs2DsstPi sample //
+    if ( debug == true) std::cout<<"mode: "<<mode<<std::endl;
+    if ( hypo.Contains("Bd"))
+      {
+	if ( ( (mode.Contains("D") == true) && (mode.Contains("Ds") != true) )
+	     || (mode.Contains("Dst") == true))
+	  {
+	    MCCut1 = "(lab2_BKGCAT < 30 || lab2_BKGCAT == 50 )&& lab2_FDCHI2_ORIVX > 9";
+	  }
+	else {
+	  MCCut1 = "(lab2_BKGCAT == 30) && lab2_FDCHI2_ORIVX > 9";
+	}
+      }
+
+    if (hypo.Contains("K"))  // consider PartReco backgrounds for BsDsK
+      {
+	MCCut = MCBsIDCut&&MCCut1&&MCCut2&&MCTriggerCut&&P_cut&&BDTG_cut&&hypoKaon&&PT_cut&&nTr_cut;
+      }
+    else //consider PartReco backgrounds for BsDsPi//
+      {
+	MCCut = MCBsIDCut&&MCCut1&&MCCut2&&MCTriggerCut&&P_cut&&BDTG_cut&&hypoPion&&PT_cut&&nTr_cut;
+      }
+
+    if (debug == true )
+      {
+	std::cout<<"------Cut-----"<<std::endl;
+	std::cout<<MCCut<<std::endl;
+	std::cout<<"--------------"<<std::endl;
+      }
+
+    return MCCut;
+
+  }
+
+  //===========================================================================
+  // Get name of PID hist for bachelor  - background MC
+  //===========================================================================
+  TString GetHistNameBachPIDBkgMC(MDFitterSettings* mdSet, TString hypo, bool debug )
+  {
+    TString nameHistBach = "";
+
+    if ( hypo.Contains("Bd")) {  nameHistBach = Form("MyKaonMisID_%d;1",mdSet->GetPIDBach()); }
+    else { nameHistBach = Form("MyPionMisID_%d;1", mdSet->GetPIDBach()); }
+    if( mdSet->GetPIDBach() == -5) {nameHistBach = "MyPionMisID_Minus5";}
+    if( mdSet->GetPIDBach() > 10 ) {nameHistBach = "MyPionMisID_10";}
+    
+    if ( debug == true ) { std::cout<<"[INFO] Bachelor PID histogram: "<< nameHistBach<<std::endl; } 
+
+    return nameHistBach;
+  }
+
+  //===========================================================================
+  // Get name of PID hist for Ds child -  background MC
+  //===========================================================================
+  TString GetHistNameChildPIDBkgMC(MDFitterSettings* mdSet, TString hypo, bool debug)
+  {
+    TString nameHistChild = "";
+
+    if ( hypo.Contains("Bd")) { nameHistChild = Form("MyKaonMisID_%d;1",mdSet->GetPIDChild()); }
+    else { nameHistChild = Form("MyPionMisID_%d;1", mdSet->GetPIDChild()); }
+
+    if ( debug == true ) { std::cout<<"[INFO] Ds child PID histogram: "<< nameHistChild<<std::endl; }
+
+    return nameHistChild;
+  }
+
+  //===========================================================================
+  // Get name of PID hist for proton veto - background MC
+  //===========================================================================
+  TString GetHistNameProtonPIDBkgMC(MDFitterSettings* mdSet, TString hypo, bool debug)
+  {
+    TString nameHistProton = "";
+
+    if ( hypo.Contains("Bd") == true) { nameHistProton = Form("MyProtonMisID_p%d;1",mdSet->GetPIDProton());}
+    else {  nameHistProton = "MyProtonMisID_pKm5_KPi5"; }
+    
+    if ( debug == true ) { std::cout<<"[INFO] Proton PID histogram: "<< nameHistProton<<std::endl; }
+    
+    return nameHistProton;
+  }
+
+  //===========================================================================
+  // Get name of PID hist for bachelor eff -  background MC
+  //===========================================================================
+  TString GetHistNameBachPIDEffBkgMC(MDFitterSettings* mdSet, TString hypo, bool debug)
+  {
+    TString nameHistEff = "";
+
+    if ( hypo.Contains("Pi")) { nameHistEff = Form("MyPionEff_%d;1",mdSet->GetPIDBach()); }
+    else { nameHistEff = Form("MyKaonEff_%d;1", mdSet->GetPIDBach()); }
+
+    if ( debug == true ) { std::cout<<"[INFO] Bachelor PID eff histogram: "<< nameHistEff<<std::endl; }
+
+    return nameHistEff;
+  }
+
+  
 
   //===========================================================================
   // Obtain dataSets for all partially reconstructed backgrounds
@@ -1240,63 +1087,40 @@ namespace MassFitUtils {
   //==========================================================================
 
   RooWorkspace* ObtainSpecBack(TString& filesDir, TString& sig, TString& sigtree,
-			       int PIDcut,
-			       int PIDmisscut,
-			       int pPIDcut,
-			       double Pcut_down, double Pcut_up,
-			       double BDTG_down, double BDTG_up,
-			       double Dmass_down, double Dmass_up,
-			       double Bmass_down, double Bmass_up,
-			       TString& mVar, 
-			       TString& mDVar,
-			       TString& mProbVar,
+			       MDFitterSettings* mdSet,
 			       TString& hypo,
 			       RooWorkspace* workspace, 
-			       Bool_t save, Bool_t mistag, bool debug)
+			       Bool_t mistag,
+			       double globalWeight,
+			       PlotSettings* plotSet, 
+			       bool debug)
   {
     if ( debug == true)
       {
 	std::cout<<"[INFO] ==> GeneralUtils::ObtainSpecBack(...). Obtain dataSets for all partially reconstructed backgrounds"<<std::endl;
 	std::cout<<"name of config file: "<<filesDir<<std::endl;
-	std::cout<<"PID cut: "<< PIDcut<<std::endl;
-	std::cout<<"PIDmiss cut: "<< PIDmisscut<<std::endl;
-	std::cout<<"PIDp cut: "<< pPIDcut<<std::endl;
-	//std::cout<<"BDTGResponse cut: "<<BDTGCut<<std::endl;
-	std::cout<<"BDTG range: ("<<BDTG_down<<","<<BDTG_up<<")"<<std::endl;
-	std::cout<<"Bachelor momentum range: ("<<Pcut_down<<","<<Pcut_up<<")"<<std::endl;
-	std::cout<<"D(s) mass range: ("<<Dmass_down<<","<<Dmass_up<<")"<<std::endl;
-	std::cout<<"Name B(s) of observable: "<<mVar<<std::endl;
-	std::cout<<"Name D(s) of observable: "<<mVar<<std::endl;
-	std::cout<<"Name of PID variable: "<<mProbVar<<std::endl;
 	std::cout<<"Data mode: "<<hypo<<std::endl;
+	std::cout<<"Global weight: "<<globalWeight<<std::endl;
       }
-    double BMassRange[2];
-    BMassRange[0] = Bmass_down; BMassRange[1]=Bmass_up;
-    if ( debug == true) std::cout<<"B(s) mass range: ("<<BMassRange[0]<<","<<BMassRange[1]<<")"<<std::endl;
-
+    
     RooWorkspace* work = NULL;
     if (workspace == NULL ) { work =  new RooWorkspace("workspace","workspace"); }
     else { work = workspace; }
 
-     
-    
-    RooRealVar* lab0_MM = new RooRealVar(mVar.Data(),mVar.Data(),BMassRange[0], BMassRange[1]);
-    RooRealVar* lab2_MM = new RooRealVar(mDVar.Data(),mDVar.Data(),Dmass_down, Dmass_up);
-    RooRealVar* lab1_P = new RooRealVar("lab1_P","lab1_P",log(Pcut_down), log(Pcut_up));
-    RooRealVar* lab0_P = new RooRealVar("lab0_P","lab0_P",log(Pcut_down), log(Pcut_up));
-    RooRealVar* nTracks  = new RooRealVar("nTracks","nTracks",2.75,log(1000));
-    RooRealVar* lab1_PIDK;
-    if( hypo.Contains("Pi") == true )
-      {    lab1_PIDK= new RooRealVar("lab1_PIDK","lab1_PIDK",-150,150);}
-    else
-      {    lab1_PIDK= new RooRealVar("lab1_PIDK","lab1_PIDK",log(PIDcut),log(150));}
-    RooRealVar* lab1_PT = new RooRealVar("lab1_PT","lab1_PT",6, log(45000));
-
-    TString tagOmegaVar = "lab0_BsTaggingTool_TAGOMEGA_OS";
-    TString tagName = "lab0_BsTaggingTool_TAGDECISION_OS";
-    RooRealVar* lab0_TAGOMEGA = new RooRealVar(tagOmegaVar.Data(),tagOmegaVar.Data(),0.,0.,0.6);
-    lab0_TAGOMEGA->setBins(30);
-       
+    if ( plotSet == NULL ) { plotSet = new PlotSettings("plotSet","plotSet"); }
+    RooRealVar* lab0_MM       = mdSet->GetObs(mdSet->GetMassBVar());
+    RooRealVar* lab0_TAUERR   = mdSet->GetObs(mdSet->GetTerrVar());
+    RooRealVar* lab0_TAG      = mdSet->GetObs(mdSet->GetTagVar());
+    RooRealVar* lab0_TAGOMEGA = mdSet->GetObs(mdSet->GetTagOmegaVar());
+    RooRealVar* lab2_MM       = mdSet->GetObs(mdSet->GetMassDVar());
+    RooRealVar* lab1_PIDK     = mdSet->GetObs(mdSet->GetPIDKVar());
+    RooRealVar* nTracks       = mdSet->GetObs(mdSet->GetTracksVar(), true);
+    RooRealVar* lab1_P        = mdSet->GetObs(mdSet->GetMomVar(), true);
+    RooRealVar* lab1_PT       = mdSet->GetObs(mdSet->GetTrMomVar(), true);
+             
+    RooArgSet* obs = new RooArgSet(*lab0_MM,*lab2_MM,*lab1_P,*lab1_PT, *nTracks, *lab1_PIDK); 
+    if( mistag == true) {  obs->add(*lab0_TAGOMEGA);  obs->add(*lab0_TAG);  obs->add(*lab0_TAUERR); }
+           
     std::vector <std::string> MCFileName;
     std::vector <std::string> MCTreeName;
     
@@ -1321,283 +1145,104 @@ namespace MassFitUtils {
     ReadMode(MCFileName, mode, false, debug);
     
     //Read all necessary histogram for misID//
-    
-    std::vector <std::string> FileNamePID;
-    std::vector <std::string> FileNamePIDp;
-    std::vector <std::string> FileNamePID2;
-    std::vector <std::string> FileNameRDM;
-
     TString PID = "#PID";
     TString PID2 = "#PID2";
     TString PIDp = "";
-    if ( hypo.Contains("Bd") == true)
-      { PIDp = "#PIDp"; }
-    else
-      { PIDp = "#PIDp3";}
-    TString RDM = "#RatioDataMC2D";
-    ReadOneName(filesDir,FileNamePID,PID,debug);
-    ReadOneName(filesDir,FileNamePID2,PID2,debug);
-    ReadOneName(filesDir,FileNamePIDp,PIDp,debug);
-    ReadOneName(filesDir,FileNameRDM,RDM,debug);
-
-    TH1F* hmissbach[2]; //heff[2];
-    TH1F* hmisschild[2]; //heffmiss1[i];
-    TH1F* hmissbach1[2];
-    TH1F* hmisschild1[2];
-    TH1F* hmissbach2[2];
-    TH1F* hmisschild2[2];
-    TH1F* heffProton[2];
-    TH1F* heff[2];
-    TH1F* heff1[2];
-    TH1F* heff2[2];
-    TH2F* hrdm[2];
-
-    Double_t histent1[2];
-    Double_t histent2[2];
-    histent1[1] = 5092049.0;
-    histent1[0] = 6883094.0;
-    histent2[1] = 5866006.0;
-    histent2[0] = 9122416.0;
+    if ( hypo.Contains("Bd") == true) { PIDp = "#PIDp"; } else { PIDp = "#PIDp3";}
     
-    TString namehist, namehist2;
-    TString smpmiss[2];
-    TString smpProton[2];
-    TString smpRDM[2]; 
-
-    for( int i = 0; i<2; i++ )
+    TString RDM = "#RatioDataMC2D";
+    TString nameHistBach = GetHistNameBachPIDBkgMC(mdSet,hypo,debug); 
+    TString nameHistMiss = GetHistNameChildPIDBkgMC(mdSet,hypo,debug);
+    TString nameHistEff  = GetHistNameBachPIDEffBkgMC(mdSet,hypo,debug);
+    TString nameHistProton = GetHistNameProtonPIDBkgMC(mdSet,hypo,debug);
+    TString nameHistRatio = "histRatio";
+    
+    HistPID1D hBach(nameHistBach, nameHistBach, filesDir, PID, PID2);
+    HistPID1D hChild(nameHistMiss, nameHistMiss, filesDir, PID, PID2);
+    HistPID1D hBachEff(nameHistEff, nameHistEff, filesDir, PID, PID2);
+    HistPID1D hProton(nameHistProton, nameHistProton, filesDir, PIDp);
+    HistPID2D hRDM(nameHistRatio, nameHistRatio, filesDir, RDM); 
+    if ( debug == true )
       {
-	hmissbach1[i]=NULL;
-	if ( hypo.Contains("Bd"))
-	  {
-	    namehist = Form("MyKaonMisID_%d;1",PIDcut);
-	  }
-	else
-	  {
-	    namehist = Form("MyPionMisID_%d;1",PIDcut);
-	  }
-	if( PIDcut == -5) {namehist = "MyPionMisID_Minus5";}
-	if( PIDcut > 10 ) {namehist = "MyPionMisID_10";}
-      
-	hmissbach1[i] = ReadPIDHist(FileNamePID,namehist,i,debug);
-
-	hmissbach2[i]=NULL;
-	hmissbach2[i] = ReadPIDHist(FileNamePID2,namehist,i,debug);
-
-	hmissbach[i]=NULL;
-	hmissbach[i]=AddHist(hmissbach1[i],  histent1[i], hmissbach2[i], histent2[i],debug);
-
-	hmisschild1[i]=NULL;
-	if ( hypo.Contains("Bd"))
-          {
-            namehist = Form("MyKaonMisID_%d;1",PIDmisscut);
-          }
-        else
-          {
-            namehist = Form("MyPionMisID_%d;1",PIDmisscut);
-          }
-	hmisschild1[i] = ReadPIDHist(FileNamePID,namehist,i,debug);
-
-	hmisschild2[i]=NULL;
-	hmisschild2[i] = ReadPIDHist(FileNamePID2,namehist,i,debug);
-
-	hmisschild[i]=NULL;
-	hmisschild[i]=AddHist(hmisschild1[i],  histent1[i], hmisschild2[i], histent2[i],debug);
-
-	smpmiss[i] = CheckPolarity(FileNamePID[i+1], debug);
-
-	heff1[i]=NULL;
-        if ( hypo.Contains("Pi"))
-          {
-            namehist = Form("MyPionEff_%d;1",PIDcut);
-          }
-        else
-          {
-            namehist = Form("MyKaonEff_%d;1",PIDcut);
-          }
-	heff1[i] = ReadPIDHist(FileNamePID,namehist,i,debug);
-
-	heff2[i]=NULL;
-        heff2[i] = ReadPIDHist(FileNamePID2,namehist,i,debug);
-
-	heff[i]=NULL;
-        heff[i]=AddHist(heff1[i],  histent1[i], heff2[i], histent2[i],debug);
-
-        smpmiss[i] = CheckPolarity(FileNamePID[i+1], debug);
-
-
-	heffProton[i]=NULL; 
-	if ( hypo.Contains("Bd") == true)
-	  {
-	    namehist = Form("MyProtonMisID_p%d;1",pPIDcut);
-	  }
-	else
-	  {
-	    namehist = "MyProtonMisID_pKm5_KPi5"; //Form("MyProtonMisID_pK%d;1",pPIDcut);
-	  }
-	heffProton[i] = ReadPIDHist(FileNamePIDp,namehist,i,debug);
-	smpProton[i] = CheckPolarity(FileNamePIDp[i+1], debug);
-
-
-
-	hrdm[i] = NULL;
-	namehist = "histRatio";
-	hrdm[i] = Read2DHist(FileNameRDM,namehist,i);
-	//hrdm[i]  = Read3DHist(FileNameRDM,namehist,i);
-	smpRDM[i] = CheckPolarity(FileNameRDM[i+1], debug);
-
-	if (hmissbach[i]) {}; // hush up compiler warning
-        if (hmisschild[i]) {}; // hush up compiler warning
-	if (heff[i]) {}; // hush up compiler warning
-        if (heffProton[i]) {}; // hush up compiler warning
-        if (hrdm[i]) {}; // hush up compiler warning
+	std::cout<<hBach<<std::endl;
+	std::cout<<hChild<<std::endl;
+	std::cout<<hBachEff<<std::endl;
+	std::cout<<hProton<<std::endl;
+	std::cout<<hRDM<<std::endl;
       }
-
+    
     // Read sample (means down or up)  from path //
     TString smp[size1];
 
     if (debug == true) { std::cout<<"Polarities of MC samples:"<<std::endl;}
     for (int i=0; i<size1; i++){
-      smp[i] = CheckPolarity(MCFileName[i], debug);
+      smp[i] = CheckPolarity(sig, debug);
+      if (smp[i] == "both" )
+	{
+	  smp[i] = CheckPolarity(sig,debug);
+	}
     }
-        
-    //Set id for bachelor //
-    int id_lab1=0;
-    if( hypo.Contains("Pi") ) { id_lab1=211; if ( debug == true) std::cout<<" Hypo with Pi"<<std::endl;}
-    else if (hypo.Contains("K")) { id_lab1=321; if ( debug == true) std::cout<<"Hypo with K"<<std::endl; }
-    
-    // Set id for D child //
-    int id_lab4=0;
-    if (hypo.Contains("Ds") == true ) { id_lab4=321; if ( debug == true) std::cout<<"Hypo with Ds"<<std::endl; }
-    else if (hypo.Contains("D") == true && hypo.Contains("Ds") == false) { id_lab4=211;  if ( debug == true) std::cout<<"Hypo with D"<<std::endl;}
-    
-    // Set other cuts//
-    TCut P_cut = Form("lab1_P > %f && lab1_P < %f",Pcut_down,Pcut_up);
-    TCut BDTG_cut = Form("BDTGResponse_1 > %f && BDTGResponse_1 < %f",BDTG_down, BDTG_up);
-    TCut MCTriggerCut="lab0Hlt1TrackAllL0Decision_TOS && (lab0Hlt2Topo2BodyBBDTDecision_TOS || lab0Hlt2Topo3BodyBBDTDecision_TOS || lab0Hlt2Topo4BodyBBDTDecision_TOS)";
-    
-    //TCut MCBsIDCut = Form("abs(lab1_ID)==%d && abs(lab5_ID)==321 && abs(lab3_ID)==211 && abs(lab4_ID)==%d && (lab5_ID/abs(lab5_ID)) != (lab1_ID/abs(lab1_ID))",id_lab1, id_lab4);
-    TCut MCBsIDCut = Form("abs(lab1_ID)==%d && abs(lab5_ID)==321 && abs(lab3_ID)==211 && abs(lab4_ID)==%d",id_lab1, id_lab4);
 
     
-    TCut MCCut, MCCut1, MCCut2;
-    TCut MCD = Form("lab2_MM > %f && lab2_MM < %f",Dmass_down,Dmass_up);
-    TCut MCB = Form("%s > %f && %s < %f",mVar.Data(),BMassRange[0],mVar.Data(),BMassRange[1]);
-    TCut hypoKaon = "lab1_M > 200";  // hypo Kaon //
-    TCut hypoPion = "lab1_M < 200";  // hypo Pion //
-    
-
     if ( debug == true) std::cout<<"[INFO] ==> Create RooKeysPdf for PartReco backgrounds" <<std::endl;
     
-    RooRealVar* weightsMC[size1];
+    RooRealVar* weight;
     RooDataSet* dataSetMC[size1];
     RooDataSet* dataSetMCtmp[size1];
-    RooDataHist* dataHistMC[size1];
-    RooKeysPdf* pdfMC[size1];
-     
+         
     TTree* treetmp[size1];
     TH2F* corrBsVsDs[size1]; 
     TH2F* corrBsVsPIDK[size1];
     TH2F* corrDsVsPIDK[size1];
 
     Int_t nentriesMC[size1];
-    Int_t binMC=0;
     Float_t wMC(0), wRW(0), mMC(0), mDMC(0);
+    
+    TString namew = "weights";
+    weight = new RooRealVar(namew.Data(), namew.Data(), 0.0, 5.0);  // create new data set //
+    obs->add(*weight);
     
     for(int i = 0; i< size1; i++ )
       {
+	
 	TString md= mode[i];
-	if ( (mode[i].find("Bs") != std::string::npos) || ( (mode[i].find("Ds") != std::string::npos) && (mode[i].find("Dst") == std::string::npos))) {
-	  MCCut1 = "lab2_BKGCAT < 30 || lab2_BKGCAT == 50";
-	}
-	else { MCCut1 = "lab2_BKGCAT == 30"; }
-	MCCut2 = "lab0_BKGCAT < 60";
-		
-	if ( mode[i] == "Bs2DsstKst" || mode[i] == "Bs2DsKst") { MCCut1 = "lab2_BKGCAT == 30";}  // because in fact this is Bd2DKst sample //
-	if ( mode[i] == "Bd2DsstPi" ){ MCCut1 = "lab2_BKGCAT < 30";} // bacause in fact this is Bs2DsstPi sample //
-	if ( debug == true) std::cout<<"mode: "<<mode[i]<<std::endl;
-	if ( hypo.Contains("Bd"))
-	  {
-	    if ( ( (mode[i].find("D") != std::string::npos) && (mode[i].find("Ds") == std::string::npos) ) 
-		 || (mode[i].find("Dst") != std::string::npos)) 
-	      {
-	      MCCut1 = "(lab2_BKGCAT < 30 || lab2_BKGCAT == 50 )&& lab2_FDCHI2_ORIVX > 9";	 
-	      
-	      }
-	    else {
-	      MCCut1 = "(lab2_BKGCAT == 30) && lab2_FDCHI2_ORIVX > 9";
-	    }
-	  }
-	if (hypo.Contains("K"))  // consider PartReco backgrounds for BsDsK
-	  {  
-	    MCCut = MCBsIDCut&&MCCut1&&MCCut2&&MCTriggerCut&&MCD&&P_cut&&BDTG_cut&&hypoKaon;
-	  }
-	else //consider PartReco backgrounds for BsDsPi//
-	  {
-	    MCCut = MCBsIDCut&&MCCut1&&MCCut2&&MCTriggerCut&&MCD&&P_cut&&BDTG_cut&&hypoPion;
-	  }
-	std::cout<<MCCut<<std::endl;
+	
+	TCut MCCut = GetCutMCBkg(mdSet, md, hypo); 
+	
 	treetmp[i] = NULL;
 	treetmp[i] = TreeCut(treeMC[i], MCCut, smp[i], md, debug);  // create new tree after applied all cuts // 
 	
 	//load from tree all necessary variable (which have to be reweighted) and observable // 
-	float  lab0_P2, lab1_P2, lab0_MM2, lab4_P2, lab0_TAGOMEGA2, lab2_MM2, lab1_PT2, lab5_P2;
+	Float_t lab0_MM2;
+	Double_t  lab1_P2, lab4_P2, lab0_TAGOMEGA2, lab2_MM2, lab1_PT2, lab5_P2;
 	Int_t tag;
 	Int_t nTr;
-	Float_t PIDK2;  
+	Double_t PIDK2;  
 	
-	treetmp[i]->SetBranchAddress("lab1_P", &lab1_P2);
-	treetmp[i]->SetBranchAddress("lab0_P", &lab0_P2);
-	treetmp[i]->SetBranchAddress(mVar.Data(), &lab0_MM2);
-	treetmp[i]->SetBranchAddress("lab4_P", &lab4_P2);
-	treetmp[i]->SetBranchAddress("lab5_P", &lab5_P2);
-	treetmp[i]->SetBranchAddress(mDVar.Data(), &lab2_MM2);
-	treetmp[i]->SetBranchAddress("lab1_PT", &lab1_PT2);
-	treetmp[i]->SetBranchAddress("nTracks", &nTr);
-	treetmp[i]->SetBranchAddress("lab1_PIDK", &PIDK2);
-
-	if (mistag == true )
-	  {
-	    treetmp[i]->SetBranchAddress(tagOmegaVar.Data(),&lab0_TAGOMEGA2);
-	    treetmp[i]->SetBranchAddress(tagName.Data(), &tag);
-	  }
+	treetmp[i]->SetBranchAddress(mdSet->GetMomVar().Data(),      &lab1_P2);
+	treetmp[i]->SetBranchAddress(mdSet->GetMassBVar().Data(),    &lab0_MM2);
+	treetmp[i]->SetBranchAddress("lab4_P",                       &lab4_P2);
+	treetmp[i]->SetBranchAddress("lab5_P",                       &lab5_P2);
+	treetmp[i]->SetBranchAddress(mdSet->GetMassDVar().Data(),    &lab2_MM2);
+	treetmp[i]->SetBranchAddress(mdSet->GetTrMomVar().Data(),    &lab1_PT2);
+	treetmp[i]->SetBranchAddress(mdSet->GetTracksVar().Data(),   &nTr);
+	treetmp[i]->SetBranchAddress(mdSet->GetPIDKVar().Data(),     &PIDK2);
+	treetmp[i]->SetBranchAddress(mdSet->GetTagOmegaVar().Data(), &lab0_TAGOMEGA2);
+	treetmp[i]->SetBranchAddress(mdSet->GetTagVar().Data(),      &tag);
+	
 	nentriesMC[i] = treetmp[i]->GetEntries();
 	
 	if ( debug == true) std::cout<<"Calculating "<<mode[i]<<" "<<smp[i]<<std::endl;
-	weightsMC[i] = NULL;
 	dataSetMC[i] = NULL;
-	dataHistMC[i] = NULL;
 	corrBsVsDs[i] = NULL;
 	
 	TString nm = mode[i]+"_"+smp[i];
-	TString namew = "weights_"+nm;
-	weightsMC[i] = new RooRealVar(namew.Data(), namew.Data(), 0.0, 1.0);  // create new data set //
-	
 	TString name="dataSetMC_"+nm;
-	TString namehist ="dataHistMC_"+nm;
-	if( mistag == true) 
-	  {
-	    dataHistMC[i] = new RooDataHist(namehist.Data(),namehist.Data(),RooArgSet(*lab0_TAGOMEGA)); //create new data hist //
-	  }
-	dataSetMC[i] = new RooDataSet(name.Data(),name.Data(),RooArgSet(*lab0_MM,*lab2_MM,*lab0_P,*lab1_P,*nTracks,*lab1_PIDK,*lab1_PT,*weightsMC[i]),namew.Data()); //create new data set //
-	dataSetMCtmp[i] = new RooDataSet(name.Data(),name.Data(),RooArgSet(*lab0_MM,*lab2_MM,*lab0_P,*lab1_P,*nTracks,*lab1_PIDK,*lab1_PT,*weightsMC[i]),namew.Data());
 		
-	// take good histogram (for correct md or mu sample) //
-	TH1F* hmb=NULL;
-	TH1F* hmc=NULL;
-	TH1F* he=NULL;
-	TH1F* hProton=NULL;
-	TH2F* hRDM = NULL;
-	for(int k = 0; k < 2; k++)
-	  {
-	    for(int j = 0; j< 2; j++)
-	      {
-		if (smp[k] == smpmiss[j] ) { hmb = hmissbach[j]; he = heff[j]; hmc = hmisschild[j]; }
-		if (smp[k] == smpProton[j] ) { hProton = heffProton[j]; }
-		if (smp[k] == smpRDM[j]) { hRDM = hrdm[j];}
-	      }
-	  }
-	
-	if ( debug == true) std::cout<<"Number of entries: "<<nentriesMC[i]<<std::endl;
+	dataSetMC[i] = new RooDataSet(name.Data(),name.Data(),RooArgSet(*obs)); //, namew.Data()); //create new data set //
+	dataSetMCtmp[i] = new RooDataSet(name.Data(),name.Data(),RooArgSet(*obs), namew.Data());
+		
+	if  (debug == true) std::cout<<"Number of entries: "<<nentriesMC[i]<<std::endl;
 	Double_t sh=3.9;
 
 	long ag_counter(0), ag_shifted_counter(0), sa_counter(0);
@@ -1617,169 +1262,105 @@ namespace MassFitUtils {
 		    {
 		      Double_t shift=86.6;
 		      mMC = lab0_MM2+shift-sh;
-		      binMC = hmc->FindBin(lab4_P2);  // this has to be reweighted becasue in fact this is D mode
-		      wMC = hmc->GetBinContent(binMC);
-		      //weightsMC[i]->setVal(wMC);
-		      lab0_MM->setVal(mMC);
-		      //mDMC = lab2_MM2;
-		      //lab2_MM->setVal(mDMC);
-		      //lab1_P->setVal(lab1_P2);
+		      wMC = hChild.GetWeight(lab4_P2,smp[i]);
 		    }
 
 		  else if ( mode[i] == "Bs2DsstKst" ) // this is in fact Bd2DKst and we shift this 86.6 (Bs-Bd) upward and 200 (Ds-D) downward //
 		    {
 		      Double_t shift=86.6-200;
 		      mMC = lab0_MM2+shift-sh;
-		      binMC = hmc->FindBin(lab4_P2);  // this has to be reweighted becasue in fact this is D mode
-		      wMC = hmc->GetBinContent(binMC);
-		      //weightsMC[i]->setVal(wMC);
-		      lab0_MM->setVal(mMC);
-		      //mDMC = lab2_MM2;
-                      //lab2_MM->setVal(mDMC);
-		      //lab1_P->setVal(lab1_P2);
-
+		      wMC = hChild.GetWeight(lab4_P2,smp[i]);
 		    }
 		  else if ( mode[i].find("Bd") != std::string::npos )
 		    {
 		      mMC=lab0_MM2-sh;
-		      binMC = hmc->FindBin(lab4_P2);  // this has to be reweighted becasue in fact this is D mode
-                      wMC = hmc->GetBinContent(binMC);
-                      //weightsMC[i]->setVal(wMC);
-                      lab0_MM->setVal(mMC);
-		      //mDMC = lab2_MM2;
-                      //lab2_MM->setVal(mDMC);
-		      //lab1_P->setVal(lab1_P2);
+		      wMC = hChild.GetWeight(lab4_P2,smp[i]);
 		    }
 		  else // typical mode with K, nothing to do 
 		    {
 		      mMC=lab0_MM2-sh;
-		      binMC = he->FindBin(lab1_P2);  
-                      wMC = he->GetBinContent(binMC);
-		      lab0_MM->setVal(mMC);
-		      //weightsMC[i]->setVal(wMC);
-		      //mDMC = lab2_MM2;
-                      //lab2_MM->setVal(mDMC);
-		      //lab1_P->setVal(lab1_P2);
+		      wMC = hBachEff.GetWeight(lab1_P2,smp[i]);
 		    }
 		}
 	      else   // mode with {Pi,Rho}, bachelor has to be reweighted //  
 		{
-		  binMC = hmb->FindBin(lab1_P2);
-		  wMC = hmb->GetBinContent(binMC);
-		  //weightsMC[i]->setVal(wMC);
+		  wMC = hBach.GetWeight(lab1_P2,smp[i]);
 		  mMC=lab0_MM2-sh;
-		  lab0_MM->setVal(mMC);
-		  //mDMC = lab2_MM2;
-		  //lab2_MM->setVal(mDMC);
-		  //lab1_P->setVal(lab1_P2);
 		}
 	      mDMC = lab2_MM2;
+	      lab0_MM->setVal(mMC);
 	      lab2_MM->setVal(mDMC);
 	      lab1_P->setVal(log(lab1_P2));
-	      lab0_P->setVal(log(lab0_P2));
 	      nTracks->setVal(log(nTr));
 	      lab1_PT->setVal(log(lab1_PT2));
 	      lab1_PIDK->setVal(log(PIDK2));
-	      Int_t binRW = hRDM->FindBin(log(lab1_PT2),log(nTr)); //,log(lab1_P2));
-	      wRW = hRDM->GetBinContent(binRW);
-	      weightsMC[i]->setVal(wMC*wRW);
+	      wRW = hRDM.GetWeight(log(lab1_PT2),log(nTr), smp[i]);
+	      weight->setVal(wMC*wRW*globalWeight);
 	    }
 	  else if (hypo.Contains("Pi")){  //PartReco for BsDsPi 
 	    if ( hypo.Contains("Bd") == true )
 	      {
 		mMC = lab0_MM2+3.75;
 		if( mode[i] == "Lb2LcPi"){ // Lc child has to be reweighted
-
-                  binMC = hProton->FindBin(lab4_P2);
-		  Int_t binMC2 = he->FindBin(lab1_P2);
-                  wMC = hProton->GetBinContent(binMC)*he->GetBinContent(binMC2); 
-		    //wMC = 1.0; //he->GetBinContent(binMC2);
-                  //weightsMC[i]->setVal(wMC);
-
-                }
+		  wMC = hProton.GetWeight(lab4_P2,smp[i])*hBachEff.GetWeight(lab1_P2,smp[i]);
+		}
 		else if( mode[i] == "Bs2DsPi")
 		  {
-		    binMC = hmc->FindBin(lab5_P2);
-		    Int_t binMC2 = he->FindBin(lab1_P2);
-                    wMC = hmc->GetBinContent(binMC)*he->GetBinContent(binMC2);
-		    //wMC = 1.0; //he->GetBinContent(binMC2);
+		    wMC = hChild.GetWeight(lab5_P2,smp[i])*hBachEff.GetWeight(lab1_P2,smp[i]);
 		  }
 		else if( mode[i] == "Bd2DK")
 		  {
-		    binMC = hmb->FindBin(lab1_P2);
-                    wMC = hmb->GetBinContent(binMC);
+		    wMC = hBach.GetWeight(lab1_P2,smp[i]);
 		  }
 		else
 		  {
-		    binMC = he->FindBin(lab1_P2);
-                    wMC = he->GetBinContent(binMC);
+		    wMC = hBachEff.GetWeight(lab1_P2,smp[i]);
 		  }
 	      }
 	    else
 	      {
 		mMC = lab0_MM2-sh;
 		if( mode[i] == "Lb2LcPi"){ // Lc child has to be reweighted
-		  binMC = hProton->FindBin(lab5_P2);
-		  Int_t binMC2 = he->FindBin(lab1_P2);
-		  wMC = hProton->GetBinContent(binMC)*he->GetBinContent(binMC2);
-		  //weightsMC[i]->setVal(wMC);
+		  wMC = hProton.GetWeight(lab5_P2,smp[i])*hBachEff.GetWeight(lab1_P2,smp[i]);
 		}
 		else if ( mode[i] == "Bd2DsstPi") { // this is in fact Bs2DsstPi and we shift this 86.6 downward //
-		  binMC = he->FindBin(lab1_P2);
-		  wMC = he->GetBinContent(binMC);
-		  //weightsMC[i]->setVal(wMC);
+		  wMC = hBachEff.GetWeight(lab1_P2,smp[i]);
 		  mMC = mMC-86.6;
 		}
 		else if (mode[i] == "Bd2DRho" || mode[i] == "Bd2DstPi" || mode[i] == "Bd2DPi")
 		  {
-		    binMC = hmc->FindBin(lab4_P2);
-		    Int_t binMC2 = he->FindBin(lab1_P2); 
-		    wMC = hmc->GetBinContent(binMC)*he->GetBinContent(binMC2);
+		    wMC = hChild.GetWeight(lab4_P2,smp[i])*hBachEff.GetWeight(lab1_P2,smp[i]);
 		  }
 		else if ( mode[i].find("Kst") != std::string::npos  || mode[i].find("K") != std::string::npos )
 		  {
-		    binMC = hmb->FindBin(lab1_P2);
-		    wMC = hmb->GetBinContent(binMC);
+		    wMC = hBach.GetWeight(lab1_P2,smp[i]);
 		  }
 		else { //nothing done, mode with Pi //
-		  binMC = he->FindBin(lab1_P2);
-		  wMC = he->GetBinContent(binMC);
-		  //weightsMC[i]->setVal(wMC);
+		  wMC = hBachEff.GetWeight(lab1_P2,smp[i]);
 		}
 	      }
 	    lab0_MM->setVal(mMC);
 	    mDMC = lab2_MM2;
 	    lab2_MM->setVal(mDMC);
 	    lab1_P->setVal(log(lab1_P2));
-	    lab0_P->setVal(log(lab0_P2));
 	    nTracks->setVal(log(nTr));
 	    lab1_PT->setVal(log(lab1_PT2));
-	    lab1_PIDK->setVal(PIDK2);
-	    Int_t binRW = hRDM->FindBin(log(lab1_PT2),log(nTr)); //,log(lab1_P2));
-	    wRW = hRDM->GetBinContent(binRW);
-	    weightsMC[i]->setVal(wMC*wRW);
+	    lab1_PIDK->setVal(-PIDK2);
+	    wRW = hRDM.GetWeight(log(lab1_PT2),log(nTr), smp[i]); 
+	    weight->setVal(wMC*wRW*globalWeight);
 	  }
 
 	  if (5320 < lab0_MM2 and lab0_MM2 < 5420) sa_counter++;
-	  if (BMassRange[0] < lab0_MM2 and lab0_MM2 < BMassRange[1]) ag_counter++;
+	  if (mdSet->GetMassBRangeDown() < lab0_MM2 and lab0_MM2 < mdSet->GetMassBRangeUp()) ag_counter++;
 	  
-	  if ( mMC > BMassRange[0] && mMC < BMassRange[1] ) //&& mDMC > Dmass_down && mDMC < Dmass_up  )
+	  if ( mMC > mdSet->GetMassBRangeDown() && mMC < mdSet->GetMassBRangeUp() 
+	       && mDMC > mdSet->GetMassDRangeDown()  && mDMC < mdSet->GetMassDRangeUp()  )
 	    {
-	      if( mistag == true) 
-		{
-		  //std::cout<<"mistag: "<<lab0_TAGOMEGA2<<std::endl;
-		  if ( tag != 0 && lab0_TAGOMEGA2 < 0.495) 
-		    {
-		      // std::cout<<"omega: "<<lab0_TAGOMEGA2<<" tag: "<<tag<<" mass: "<<mMC<<std::endl; 
-		      lab0_TAGOMEGA->setVal(lab0_TAGOMEGA2);
-		      dataHistMC[i]->add(RooArgSet(*lab0_TAGOMEGA));
-		    }
-		  }
-	      dataSetMC[i]->add(RooArgSet(*lab0_MM,*lab2_MM,*lab1_P,*lab0_P,*nTracks,*lab1_PIDK,*lab1_PT,*weightsMC[i]),wMC*wRW,0);
+	      dataSetMC[i]->add(*obs); //,wMC*wRW*globalWeight,0);
 	      ag_shifted_counter++;
-	      if ( log(PIDK2) > log(PIDcut))
+	      if ( log(PIDK2) > log(mdSet->GetPIDBach()))
 		{
-		  dataSetMCtmp[i]->add(RooArgSet(*lab0_MM,*lab2_MM,*lab1_P,*nTracks,*lab1_PIDK,*lab1_PT,*weightsMC[i]),wMC*wRW,0);
+		  dataSetMCtmp[i]->add(*obs,wMC*wRW*globalWeight,0);
 		}
 	    }
 	  
@@ -1792,72 +1373,38 @@ namespace MassFitUtils {
 	
 	std::cout<<"Create dataSet MC: "<<dataSetMC[i]->GetName()<<" with entries: "<<dataSetMC[i]->numEntries()<<std::endl;
 	}
-	TString dupa = md+"_TrMom";
-	SaveDataSet(dataSetMC[i], lab1_PT , smp[i], dupa, debug);
-	TString dupa2 = md+"_Tracks";
-	SaveDataSet(dataSetMC[i], nTracks , smp[i], dupa2, debug);
-	TString dupa3 = md+"_PIDK";
-        SaveDataSet(dataSetMC[i], lab1_PIDK , smp[i], dupa3, debug);
-	TString dupa4 = md+"_Mass";
-        SaveDataSet(dataSetMC[i], lab0_MM , smp[i], dupa4, debug);
-	TString dupa5 = md+"_Mom";
-        //SaveDataSet(dataSetMC[i], lab1_P , smp[i], dupa5, debug);
 
-	TString corrName = "corrBsVsDs_"+nm;
-	Int_t bin1 = 40;
-	Int_t bin2 = 40;
-	corrBsVsDs[i] = dataSetMC[i]->createHistogram(*lab0_MM, *lab2_MM, bin1, bin2, "", corrName.Data());
-	corrBsVsDs[i]->SetName(corrName.Data());
-	corrBsVsDs[i]->GetXaxis()->SetTitle("m(B_{s}) [MeV/c^2]");
-	corrBsVsDs[i]->GetYaxis()->SetTitle("m(D_{s}) [MeV/c^2]");
-	//corrBsVsDs[i]->SetBinContent(0, 0.0);
-	TString ext ="pdf";
-	Save2DHist(corrBsVsDs[i],ext);
-
-	corrName = "corrBsVsPIDK_"+nm;
-        corrBsVsPIDK[i] = dataSetMCtmp[i]->createHistogram(*lab0_MM, *lab1_PIDK, bin1, bin2, "", corrName.Data());
-        corrBsVsPIDK[i]->SetName(corrName.Data());
-        corrBsVsPIDK[i]->GetXaxis()->SetTitle("m(B_{s}) [MeV/c^2]");
-        corrBsVsPIDK[i]->GetYaxis()->SetTitle("PIDK [1]");
-	
-	Save2DHist(corrBsVsPIDK[i],ext);
-
-	corrName = "corrDsVsPIDK_"+nm;
-        corrDsVsPIDK[i] = dataSetMCtmp[i]->createHistogram(*lab2_MM, *lab1_PIDK, bin1, bin2, "", corrName.Data());
-        corrDsVsPIDK[i]->SetName(corrName.Data());
-        corrDsVsPIDK[i]->GetXaxis()->SetTitle("m(D_{s}) [MeV/c^2]");
-        corrDsVsPIDK[i]->GetYaxis()->SetTitle("PIDK [1]");
-        
-	Save2DHist(corrDsVsPIDK[i],ext);
-
-
-	if( save == true){
-	  pdfMC[i] = NULL;
-	  TString mdd = md+"before";
-	  if ( mistag == true )
-	    {
-	      TString namepdf ="PhysBkg"+mode[i]+"Pdf_m_"+smp[i]+"_mistag";
-	      RooHistPdf* pdf = NULL;
-	      pdf = new RooHistPdf(namepdf.Data(), namepdf.Data(), RooArgSet(*lab0_TAGOMEGA), *dataHistMC[i]);
-
-	      TString mddd = mdd+"_mistag";
-	      SaveTemplateHist(dataHistMC[i], pdf, lab0_TAGOMEGA, mddd ,smp[i], debug);
-	      work->import(*pdf);
-	    }
-	  else
-	    {
-	      pdfMC[i] = CreatePDFMC(dataSetMC[i], lab1_P, smp[i], mdd, false, debug);
-	      
-	      SaveTemplate(dataSetMC[i], pdfMC[i], lab1_P, smp[i],mdd, debug);
-	      saveDataTemplateToFile( dataSetMC[i], pdfMC[i], lab0_MM,
-				      mdd.Data(), "root", smp[i].Data(), debug );
-	    }
-	}
-	//work->import(*pdfMC[i]);
-	if (mistag == true )
+	if (plotSet->GetStatus() == true ) 
 	  {
-	    work->import(*dataHistMC[i]);
+	    TString corrName = "corrBsVsDs_"+nm;
+	    Int_t bin1 = 40;
+	    Int_t bin2 = 40;
+	    corrBsVsDs[i] = dataSetMC[i]->createHistogram(*lab0_MM, *lab2_MM, bin1, bin2, "", corrName.Data());
+	    corrBsVsDs[i]->SetName(corrName.Data());
+	    corrBsVsDs[i]->GetXaxis()->SetTitle("m(B_{s}) [MeV/c^2]");
+	    corrBsVsDs[i]->GetYaxis()->SetTitle("m(D_{s}) [MeV/c^2]");
+	    //corrBsVsDs[i]->SetBinContent(0, 0.0);
+	    TString ext ="pdf";
+	    Save2DHist(corrBsVsDs[i],plotSet);
+	    
+	    corrName = "corrBsVsPIDK_"+nm;
+	    corrBsVsPIDK[i] = dataSetMCtmp[i]->createHistogram(*lab0_MM, *lab1_PIDK, bin1, bin2, "", corrName.Data());
+	    corrBsVsPIDK[i]->SetName(corrName.Data());
+	    corrBsVsPIDK[i]->GetXaxis()->SetTitle("m(B_{s}) [MeV/c^2]");
+	    corrBsVsPIDK[i]->GetYaxis()->SetTitle("PIDK [1]");
+	    
+	    Save2DHist(corrBsVsPIDK[i],plotSet);
+	    
+	    corrName = "corrDsVsPIDK_"+nm;
+	    corrDsVsPIDK[i] = dataSetMCtmp[i]->createHistogram(*lab2_MM, *lab1_PIDK, bin1, bin2, "", corrName.Data());
+	    corrDsVsPIDK[i]->SetName(corrName.Data());
+	    corrDsVsPIDK[i]->GetXaxis()->SetTitle("m(D_{s}) [MeV/c^2]");
+	    corrDsVsPIDK[i]->GetYaxis()->SetTitle("PIDK [1]");
+	    
+	    Save2DHist(corrDsVsPIDK[i],plotSet);
+	    
 	  }
+
 	work->import(*dataSetMC[i]);
 	
       }
@@ -1946,13 +1493,6 @@ namespace MassFitUtils {
     TH1F* heffmiss2[2];
     TH1F* heffProton[2];
 
-    Double_t histent1[2];
-    Double_t histent2[2];
-    histent1[1] = 5092049.0;
-    histent1[0] = 6883094.0;
-    histent2[1] = 5866006.0;
-    histent2[0] = 9122416.0;
-
     TString namehist;
     TString smpmiss[2];
     TString smpProton[2];
@@ -1966,7 +1506,7 @@ namespace MassFitUtils {
       heff2[i] = ReadPIDHist(FileNamePID2,namehist,i);
 
       heff[i]=NULL;
-      heff[i]=AddHist(heff1[i],  histent1[i], heff2[i], histent2[i]);
+      heff[i]=WeightHist(heff1[i],  heff2[i]);
 
       heffmiss1[i]=NULL;
       namehist = Form("MyPionMisID_%d;1",PIDmisscut);
@@ -1976,7 +1516,7 @@ namespace MassFitUtils {
       heffmiss2[i] = ReadPIDHist(FileNamePID2,namehist,i);
 
       heffmiss[i]=NULL;
-      heffmiss[i]=AddHist(heffmiss1[i],  histent1[i], heffmiss2[i], histent2[i]);
+      heffmiss[i]=WeightHist(heffmiss1[i],  heffmiss2[i]);
       
       smpmiss[i] = CheckPolarity(FileNamePID[i+1], debug);
 
@@ -2548,6 +2088,90 @@ namespace MassFitUtils {
     return workspace;
   }
 
+  TCut GetCutMCSig( MDFitterSettings* mdSet, TString modeB, TString modeD, bool debug )
+  {
+    TCut cut = "";
+    TCut PID_cut="";
+    int id_lab1=0;
+
+    TCut BachHypo;
+    if( modeB.Contains("Pi") ) {
+      PID_cut = Form("%s < %d", mdSet->GetPIDKVar().Data(), mdSet->GetPIDBach());
+      id_lab1=211;
+      BachHypo = "lab1_M < 200";
+      if ( debug == true) std::cout<<"Mode with Pi"<<std::endl;
+    }
+    else if (modeB.Contains("K")) {
+      PID_cut = Form("%s > %d", mdSet->GetPIDKVar().Data(), mdSet->GetPIDBach());
+      id_lab1=321;
+      BachHypo = "lab1_M > 200";
+      if ( debug == true) std::cout<<"Mode with K"<<std::endl;
+    }
+
+    TCut P_cut      = mdSet->GetCut(mdSet->GetMomVar());
+    TCut PT_cut     = mdSet->GetCut(mdSet->GetTrMomVar());
+    TCut nTr_cut    = mdSet->GetCut(mdSet->GetTracksVar());
+    TCut BDTG_cut   = mdSet->GetCut(mdSet->GetBDTGVar());
+    TCut MCB        = mdSet->GetCut(mdSet->GetMassBVar());
+    TCut MCD        = mdSet->GetCut(mdSet->GetMassDVar());
+    TCut Time_cut   = mdSet->GetCut(mdSet->GetTimeVar());
+
+    TCut FDCHI2 = "";
+    if ( modeD.Contains("kkpi") == true || 
+	 modeD.Contains("nonres") == true || 
+	 modeD.Contains("kstk") == true  || 
+	 modeD.Contains("phipi") == true ) 
+      { FDCHI2 = "lab2_FDCHI2_ORIVX > 2";}
+    else
+      { FDCHI2 = "lab2_FDCHI2_ORIVX > 9"; }
+
+    TCut MCTriggerCut="lab0_Hlt1TrackAllL0Decision_TOS && (lab0_Hlt2Topo2BodyBBDTDecision_TOS || lab0_Hlt2Topo3BodyBBDTDecision_TOS || lab0_Hlt2Topo4BodyBBDTDecision_TOS)";
+
+    TCut DHypo = "";
+    TCut MCBsIDCut = "";
+    TCut MCBsTRUEIDCut = "";
+    TCut Charge = "(lab5_ID/abs(lab5_ID)) != (lab1_ID/abs(lab1_ID))";
+    TCut BkgCAT = "(lab0_BKGCAT < 30 || lab0_BKGCAT == 50) && (lab2_BKGCAT<30 || lab2_BKGCAT == 50)";
+
+    TCut MCCut;
+    
+    int id_lab4(0), id_lab3(0), id_lab5(0);
+    if ( modeD.Contains("kkpi") == true || modeD.Contains("nonres") == true ||
+	 modeD.Contains("kstk") == true || modeD.Contains("phipi") == true)
+      {
+	id_lab3=211; id_lab4=321; id_lab5 = 321;
+	DHypo = "lab3_M < 200 && lab4_M > 200 && lab5_M > 200";
+	if ( debug == true) std::cout<<"Mode with KKPi"<<std::endl;
+      }
+    else if (modeD.Contains("kpipi") == true )
+      {
+	id_lab3=211; id_lab4=211; id_lab5 = 321;
+	DHypo = "lab3_M < 200 && lab4_M < 200 && lab5_M > 200";
+	if ( debug == true) std::cout<<"Mode with KPiPi"<<std::endl;
+      }
+    else if (modeD.Contains("pipipi") == true )
+      {
+	id_lab3=211; id_lab4=211; id_lab5 = 211;
+	DHypo = "lab3_M < 200 && lab4_M < 200 && lab5_M < 200";
+	if ( debug == true) std::cout<<"Mode with PiPiPi"<<std::endl;
+      }
+
+    MCBsIDCut = Form("abs(lab1_ID)==%d && abs(lab5_ID)==%d && abs(lab3_ID)==%d && abs(lab4_ID)==%d",
+		     id_lab1, id_lab5, id_lab3, id_lab4);
+    MCBsTRUEIDCut = Form("abs(lab1_TRUEID)==%d && abs(lab5_TRUEID)==%d && abs(lab3_TRUEID)==%d && abs(lab4_TRUEID)==%d",
+			 id_lab1, id_lab5, id_lab3, id_lab4);
+
+    cut = MCBsIDCut&&MCTriggerCut&&MCD&&MCB&&Time_cut&&P_cut&&BDTG_cut&&FDCHI2&&BachHypo&&DHypo&&MCBsTRUEIDCut&&BkgCAT;
+
+    if (debug == true )
+      {
+	std::cout<<"------Cut-----"<<std::endl;
+	std::cout<<cut<<std::endl;
+	std::cout<<"--------------"<<std::endl;
+      }
+    return cut;
+  }
+
 
   //===========================================================================
   // Obtain Signal sample
@@ -2565,81 +2189,67 @@ namespace MassFitUtils {
   //==========================================================================
 
   RooWorkspace* ObtainSignal( TString& filesDir, TString& sig,
-			      int PIDcut, 
-			      double Pcut_down, double Pcut_up,
-			      double BDTG_down, double BDTG_up, 
-			      double Dmass_down, double Dmass_up,
-			      double Bmass_down, double Bmass_up,
-			      double time_down, double time_up,
-			      double PT_down,double PT_up,
-			      double nTr_down, double nTr_up,
-			      TString &mVar,
-			      TString& mDVar,
-			      TString& tVar,
-			      TString& terrVar,
-                              TString& tagVar,
-                              TString& tagOmegaVar,
-                              TString& idVar,
-			      TString &mProbVar,
+			      MDFitterSettings* mdSet,
 			      TString& mode,
 			      Bool_t reweight,
 			      Bool_t veto,
 			      RooWorkspace* workspace,
+			      Bool_t mistag,
+			      double globalWeightMD,
+			      double globalWeightMU,
+			      PlotSettings* plotSet,
 			      bool debug
 			      )
 
   {
     if ( debug == true)
       {
-	std::cout<<"[INFO] ==> GeneralUtils::ObtainSpecBack(...). Obtain dataSets for all partially reconstructed backgrounds"<<std::endl;
+	std::cout<<"[INFO] ==> GeneralUtils::ObtainSignal(...). "<<std::endl;
 	std::cout<<"name of config file: "<<filesDir<<std::endl;
-	std::cout<<"PIDK cut: "<< PIDcut<<std::endl;
-	//std::cout<<"BDTGResponse cut: "<<BDTGcut<<std::endl;
-	std::cout<<"BDTG range: ("<<BDTG_down<<","<<BDTG_up<<")"<<std::endl;
-	std::cout<<"Bachelor momentum range: ("<<Pcut_down<<","<<Pcut_up<<")"<<std::endl;
-	std::cout<<"D(s) mass range: ("<<Dmass_down<<","<<Dmass_up<<")"<<std::endl;
-	std::cout<<"Name of B(s) mass observable: "<<mVar<<std::endl;
-	std::cout<<"Name of D(s) mass observable: "<<mDVar<<std::endl;
-	std::cout<<"Name of time observable: "<<tVar<<std::endl;
-	std::cout<<"Name of time error observable: "<<terrVar<<std::endl;
-	std::cout<<"Name of tag observable: "<<tagVar<<std::endl;
-	std::cout<<"Name of mistag observable: "<<tagOmegaVar<<std::endl;
-	std::cout<<"Name of id observable: "<<idVar<<std::endl;
-	std::cout<<"Name of PID variable: "<<mProbVar<<std::endl;
 	std::cout<<"Data mode: "<<mode<<std::endl;
+	std::cout<<"Reweight: "<<reweight<<std::endl;
+	std::cout<<"Veto: "<<veto<<std::endl;
+	
       }
-     
-
-    double BMassRange[2];
-    BMassRange[0] = Bmass_down; BMassRange[1]=Bmass_up;
-    if ( debug == true) std::cout<<"B(s) mass range: ("<<Bmass_down<<","<<Bmass_up<<")"<<std::endl;
-    if ( debug == true) std::cout<<"B(s) time range: ("<<time_down<<","<<time_up<<")"<<std::endl;
-
-    // BMassRange[0] = 5330.; BMassRange[1]=5410.;
     
+    RooWorkspace* work = NULL;
+    if (workspace == NULL){ work =  new RooWorkspace("workspace","workspace");}
+    else {work = workspace; }
+
+    if ( plotSet == NULL ) { plotSet = new PlotSettings("plotSet","plotSet"); }
+
+    RooRealVar* lab0_MM       = mdSet->GetObs(mdSet->GetMassBVar());
+    RooRealVar* lab0_TAU      = mdSet->GetObs(mdSet->GetTimeVar());
+    RooRealVar* lab0_TAUERR   = mdSet->GetObs(mdSet->GetTerrVar());
+    RooRealVar* lab0_TAG      = mdSet->GetObs(mdSet->GetTagVar());
+    RooRealVar* lab0_TAGOMEGA = mdSet->GetObs(mdSet->GetTagOmegaVar());
+    RooRealVar* lab1_ID       = mdSet->GetObs(mdSet->GetIDVar());
+    RooRealVar* lab2_MM       = mdSet->GetObs(mdSet->GetMassDVar());
+    RooRealVar* lab1_PIDK     = mdSet->GetObs(mdSet->GetPIDKVar());
+    RooRealVar* nTracks       = mdSet->GetObs(mdSet->GetTracksVar(), true);
+    RooRealVar* lab1_P        = mdSet->GetObs(mdSet->GetMomVar(), true);
+    RooRealVar* lab1_PT       = mdSet->GetObs(mdSet->GetTrMomVar(), true);
+   
+    RooArgSet* obs = new RooArgSet(*lab0_MM,*lab2_MM, *lab1_PIDK,
+                                   *lab1_P, *lab1_PT, *nTracks);
+    obs->add(*lab0_TAU);
+    obs->add(*lab0_TAUERR);
+    obs->add(*lab0_TAG);
+    obs->add(*lab0_TAGOMEGA);
+    
+    RooRealVar* weight;
+    TString wname = "weights";
+    weight = new RooRealVar(wname.Data(), wname.Data(), 0.0, 5.0);  // create new data set //
+    obs->add(*weight);
     
     std::vector <std::string> FileName;
     
     ReadOneName(filesDir,FileName,sig,debug);
 
-    std::vector <std::string> FileNameRDM;
     TString RDM = "#RatioDataMC2D";
-    ReadOneName(filesDir,FileNameRDM,RDM,debug);
+    TString nameHistRDM = "histRatio";
+    HistPID2D hRDM(nameHistRDM, nameHistRDM, filesDir, RDM); 
 
-    TH2F* hrdm[2];
-
-    TString namehist;
-    TString smpRDM[2];
-    
-    for( int i = 0; i<2; i++ )
-      {
-	hrdm[i] = NULL;
-	namehist = "histRatio";
-	hrdm[i] = Read2DHist(FileNameRDM,namehist,i,debug);
-	//hrdm[i]  = Read3DHist(FileNameRDM,namehist,i);
-	smpRDM[i] = CheckPolarity(FileNameRDM[i+1], debug);
-      }
-        
     TTree* tree[2];
     
     for( int i=0; i<2; i++)
@@ -2648,41 +2258,22 @@ namespace MassFitUtils {
 	tree[i] = ReadTreeData(FileName,i, debug);
       }
     
-  
-    RooWorkspace* work = NULL;
-    if (workspace == NULL){ work =  new RooWorkspace("workspace","workspace");}
-    else {work = workspace; }
+       
+    TString PID = "#PID";
+    TString PID2 = "#PID2";
+      
+    TString histNamePre = "";
+    TString histNameSuf = "";
+
+    if( mdSet->GetPIDBach() == -5) { histNameSuf = "Minus5";}
+    else { histNameSuf = Form("%d",mdSet->GetPIDBach()); }
+
+    if ( mode.Contains("Pi") == true ){histNamePre = "MyPionEff_"; }
+    else{ histNamePre = "MyKaonEff_";}
+
+    TString namehist    = histNamePre+histNameSuf;
+    HistPID1D heff(namehist, namehist, filesDir, PID, PID2);  
     
-    RooRealVar* lab0_MM = new RooRealVar(mVar.Data(),mVar.Data(),BMassRange[0], BMassRange[1]);
-    RooRealVar* lab2_MM = new RooRealVar(mDVar.Data(),mDVar.Data(),Dmass_down, Dmass_up);
-    RooRealVar* lab0_TAU = new RooRealVar(tVar.Data(),tVar.Data(),time_down,time_up);
-    RooRealVar* lab0_TAUERR = new RooRealVar(terrVar.Data(),terrVar.Data(),0.0,0.1);
-    RooRealVar* lab0_TAG = new RooRealVar(tagVar.Data(),tagVar.Data(),-1.,1.);
-    RooRealVar* lab0_TAGOMEGA = new RooRealVar(tagOmegaVar.Data(),tagOmegaVar.Data(),0.,1.);
-    RooRealVar* lab1_ID = new RooRealVar(idVar.Data(),idVar.Data(),-1.,1.);
-    RooRealVar* lab1_P  = new RooRealVar("lab1_P","lab1_P",log(Pcut_down),log(Pcut_up));
-    RooRealVar* lab0_P  = new RooRealVar("lab0_P","lab0_P",log(Pcut_down),log(Pcut_up));
-    RooRealVar* lab1_PT  = new RooRealVar("lab1_PT","lab1_PT",log(PT_down),log(PT_up));
-    RooRealVar* nTracks  = new RooRealVar("nTracks","nTracks",log(nTr_down),log(nTr_up));
-    RooRealVar* lab1_PIDK = NULL;
-    if ( mode.Contains("Pi") )
-      {
-	lab1_PIDK = new RooRealVar("lab1_PIDK","lab1_PIDK",-150.0,150.0);
-      }
-    else
-      {
-	lab1_PIDK = new RooRealVar("lab1_PIDK","lab1_PIDK",log(PIDcut),log(150.0));
-      }
-    lab0_TAGOMEGA->setBins(30);
-
-    RooArgSet* obs = new RooArgSet(*lab0_MM,*lab0_TAU,
-                                   *lab0_TAG,*lab0_TAGOMEGA, *lab1_PT, *lab1_ID,
-                                   *lab2_MM,*lab1_P);
-    obs->add(*nTracks);
-    obs->add(*lab1_PIDK);
-    obs->add(*lab0_P); 
-    obs->add(*lab0_TAUERR);
-
     // Read sample (down,up) from path//
     TString smp[2], md[2];
     for (int i=1; i<3; i++){
@@ -2690,54 +2281,7 @@ namespace MassFitUtils {
       md[i-1] = CheckDMode(FileName[i], debug);
       if ( md[i-1] == "kkpi" ){ md[i-1] = CheckKKPiMode(FileName[i], debug);}
     }
-    
-
-    //Set all cuts//
-    TCut PID_cut=""; 
-    int id_lab1=0;
-  
-    TCut BachHypo;
-    if( mode.Contains("Pi") ) { 
-      PID_cut = Form("%s < %d",mProbVar.Data(),PIDcut); 
-      id_lab1=211; 
-      BachHypo = "lab1_M < 200"; 
-      if ( debug == true) std::cout<<"Mode with Pi"<<std::endl;
-    }
-    else if (mode.Contains("K")) { 
-      PID_cut = Form("%s > %d",mProbVar.Data(),PIDcut); 
-      id_lab1=321; 
-      BachHypo = "lab1_M > 200"; 
-      if ( debug == true) std::cout<<"Mode with K"<<std::endl; 
-    }
-          
-    TCut P_cut = Form("lab1_P > %f && lab1_P < %f",Pcut_down,Pcut_up);
-    TCut Time_cut = Form("%s > %f && %s < %f",tVar.Data(), time_down, tVar.Data(), time_up);
-    TCut BDTG_cut = Form("BDTGResponse_1 > %f && BDTGResponse_1 < %f",BDTG_down, BDTG_up);
-    TCut FDCHI2 = "";
-
-    if ( md[0] == "kkpi" || md[0] == "nonres" || md[0] == "kstk" || md[0] == "phipi" )
-      {
-	FDCHI2 = "lab2_FDCHI2_ORIVX > 2";
-      }
-    else
-      {
-	FDCHI2 = "lab2_FDCHI2_ORIVX > 9";
-      }
-
-    TCut MCTriggerCut="lab0_Hlt1TrackAllL0Decision_TOS && (lab0_Hlt2Topo2BodyBBDTDecision_TOS || lab0_Hlt2Topo3BodyBBDTDecision_TOS || lab0_Hlt2Topo4BodyBBDTDecision_TOS)";
-    //TCut MCTriggerCut="lab0Hlt1TrackAllL0Decision_TOS && (lab0Hlt2Topo2BodyBBDTDecision_TOS || lab0Hlt2Topo3BodyBBDTDecision_TOS || lab0Hlt2Topo4BodyBBDTDecision_TOS)";
-
-    TCut DHypo = "";
-    TCut MCBsIDCut = ""; 
-    TCut MCBsTRUEIDCut = ""; 
-    TCut Charge = "(lab5_ID/abs(lab5_ID)) != (lab1_ID/abs(lab1_ID))";
-    TCut BkgCAT = "(lab0_BKGCAT < 30 || lab0_BKGCAT == 50) && (lab2_BKGCAT<30 || lab2_BKGCAT == 50)";
-
-    TCut TAU_cut = "lab2_TAU > 0";
-    TCut MCCut;
-    TCut MCD = Form("lab2_MM > %f && lab2_MM < %f",Dmass_down,Dmass_up);
-    TCut MCB = Form("%s > %f && %s < %f",mVar.Data(),BMassRange[0],mVar.Data(),BMassRange[1]);
-    
+        
     TCut Veto = "";
     if (veto == true)
       {
@@ -2745,7 +2289,7 @@ namespace MassFitUtils {
 	TCut LambdaVeto2 = "!(abs(sqrt(pow(sqrt(pow(938.2,2)+pow(lab3_P,2))+sqrt(pow(lab4_M,2)+pow(lab4_P,2))+sqrt(pow(lab5_M,2)+pow(lab5_P,2)),2)-pow(lab3_PX+lab4_PX+lab5_PX,2)-pow(lab3_PY+lab4_PY+lab5_PY,2)-pow(lab3_PZ+lab4_PZ+lab5_PZ,2))-2285.)<30 && lab3_PIDp > 0)";
 	TCut DVeto1 = "((sqrt(pow(sqrt(pow(lab3_M,2)+pow(lab3_P,2))+sqrt(pow(493.667,2)+pow(lab4_P,2))+sqrt(pow(lab5_M,2)+pow(lab5_P,2)),2)-pow(lab3_PX+lab4_PX+lab5_PX,2)-pow(lab3_PY+lab4_PY+lab5_PY,2)-pow(lab3_PZ+lab4_PZ+lab5_PZ,2))< 1950) || (sqrt(pow(sqrt(pow(lab3_M,2)+pow(lab3_P,2))+sqrt(pow(493.667,2)+pow(lab4_P,2))+sqrt(pow(lab5_M,2)+pow(lab5_P,2)),2)-pow(lab3_PX+lab4_PX+lab5_PX,2)-pow(lab3_PY+lab4_PY+lab5_PY,2)-pow(lab3_PZ+lab4_PZ+lab5_PZ,2)) > 2030) || lab3_PIDK < 0)";
 	TCut DVeto2 = "((sqrt(pow(sqrt(pow(493.667,2)+pow(lab3_P,2))+sqrt(pow(lab4_M,2)+pow(lab4_P,2))+sqrt(pow(lab5_M,2)+pow(lab5_P,2)),2)-pow(lab3_PX+lab4_PX+lab5_PX,2)-pow(lab3_PY+lab4_PY+lab5_PY,2)-pow(lab3_PZ+lab4_PZ+lab5_PZ,2))< 1950) || (sqrt(pow(sqrt(pow(493.667,2)+pow(lab3_P,2))+sqrt(pow(lab4_M,2)+pow(lab4_P,2))+sqrt(pow(lab5_M,2)+pow(lab5_P,2)),2)-pow(lab3_PX+lab4_PX+lab5_PX,2)-pow(lab3_PY+lab4_PY+lab5_PY,2)-pow(lab3_PZ+lab4_PZ+lab5_PZ,2)) > 2030) || lab4_PIDK < 0)";
-	FDCHI2 = "lab2_FDCHI2_ORIVX > 9"; 
+	TCut FDCHI2 = "lab2_FDCHI2_ORIVX > 9"; 
 	Veto = LambdaVeto1&&LambdaVeto2&&DVeto1&&DVeto2&&FDCHI2;
       }
 
@@ -2758,194 +2302,197 @@ namespace MassFitUtils {
     TH2F* corrDsVsPIDK[2];
     TH2F* corrBsVsPIDK[2];
     TH2F* corrBsVsDs[2];
-    RooRealVar* w[2];
-
+    
     Float_t c = 299792458.;
     Float_t factor = 1e9/c;
     Double_t wRW=0;
+    Double_t wE = 0;
     
-    for(int i = 0; i<1; i++)
+    for(int i = 0; i<2; i++)
     { 
-      int id_lab4(0), id_lab3(0), id_lab5(0);
-      if ( md[i].Contains("kkpi") == true || md[i].Contains("nonres") == true || 
-	   md[i].Contains("kstk") == true || md[0].Contains("phipi") == true) 
-	{ 
-	  id_lab3=211; id_lab4=321; id_lab5 = 321; 
-	  DHypo = "lab3_M < 200 && lab4_M > 200 && lab5_M > 200";
-	  if ( debug == true) std::cout<<"Mode with KKPi"<<std::endl;
-	}
-      else if (md[i].Contains("kpipi") == true ) 
-	{ 
-	  id_lab3=211; id_lab4=211; id_lab5 = 321;
-	  DHypo = "lab3_M < 200 && lab4_M < 200 && lab5_M > 200";
-	  if ( debug == true) std::cout<<"Mode with KPiPi"<<std::endl;
-	}
-      else if (md[i].Contains("pipipi") == true ) 
-	{
-	  id_lab3=211; id_lab4=211; id_lab5 = 211; 
-	  DHypo = "lab3_M < 200 && lab4_M < 200 && lab5_M < 200";
-	  if ( debug == true) std::cout<<"Mode with PiPiPi"<<std::endl;
-	}
-      
-      MCBsIDCut = Form("abs(lab1_ID)==%d && abs(lab5_ID)==%d && abs(lab3_ID)==%d && abs(lab4_ID)==%d",id_lab1, id_lab5, id_lab3, id_lab4);
-      MCBsTRUEIDCut = Form("abs(lab1_TRUEID)==%d && abs(lab5_TRUEID)==%d && abs(lab3_TRUEID)==%d && abs(lab4_TRUEID)==%d",id_lab1, id_lab5, id_lab3, id_lab4);
-
-      MCCut = MCBsIDCut&&MCTriggerCut&&MCD&&MCB&&Time_cut&&P_cut&&BDTG_cut&&FDCHI2&&TAU_cut&&BachHypo&&DHypo&&MCBsTRUEIDCut&&BkgCAT;
-      //MCCut = MCTriggerCut&&MCD&&MCB&&Time_cut&&P_cut&&BDTG_cut&&FDCHI2&&TAU_cut&&BachHypo&&DHypo&&BkgCAT;
-
-      std::cout<<"------Cut-----"<<std::endl;
-      std::cout<<MCCut<<std::endl;
-      std::cout<<"--------------"<<std::endl;
+      TCut MCCut = GetCutMCSig(mdSet,mode,md[i],debug);
 
       treetmp = TreeCut(tree[i], MCCut, smp[i], mode, debug);  //obtain new tree with applied all cuts//
       Int_t nentriesMC = treetmp->GetEntries();
       
       Float_t lab0_MM3, lab0_TAU3[10], lab0_TAUERR3[10];
-      Double_t lab0_TAGOMEGA3, lab2_MM3, lab1_P3, lab1_PT3, lab1_PIDK3, lab0_P3;
+      Double_t lab0_TAGOMEGA3, lab2_MM3, lab1_P3, lab1_PT3, lab1_PIDK3;
       Int_t lab1_ID3, lab0_TAG3, nTr3;
       
-      treetmp->SetBranchAddress(mVar.Data(), &lab0_MM3);
-      treetmp->SetBranchAddress(tVar.Data(),&lab0_TAU3);
-      treetmp->SetBranchAddress(terrVar.Data(),&lab0_TAUERR3);
-      treetmp->SetBranchAddress(tagVar.Data(),&lab0_TAG3);
-      treetmp->SetBranchAddress(tagOmegaVar.Data(),&lab0_TAGOMEGA3);
-      treetmp->SetBranchAddress(idVar.Data(),&lab1_ID3);
-      treetmp->SetBranchAddress(mDVar.Data(), &lab2_MM3);
-      treetmp->SetBranchAddress("nTracks", &nTr3);
-      treetmp->SetBranchAddress("lab1_P", &lab1_P3);
-      treetmp->SetBranchAddress("lab0_P", &lab0_P3);
-      treetmp->SetBranchAddress("lab1_PT", &lab1_PT3);
-      treetmp->SetBranchAddress("lab1_PIDK", &lab1_PIDK3);
-
-      TH2F* hRDM = NULL;
-      for(int k = 0; k < 2; k++)
-	{
-	  for(int j = 0; j< 2; j++)
-	    {
-	      if (smp[k] == smpRDM[j] || smp[k] == "both") { hRDM = hrdm[j];}
-	    }
-	}
-
-
+      treetmp->SetBranchAddress(mdSet->GetMassBVar().Data(),    &lab0_MM3);
+      treetmp->SetBranchAddress(mdSet->GetTimeVar().Data(),     &lab0_TAU3);
+      treetmp->SetBranchAddress(mdSet->GetTerrVar().Data(),     &lab0_TAUERR3);
+      treetmp->SetBranchAddress(mdSet->GetTagVar().Data(),      &lab0_TAG3);
+      treetmp->SetBranchAddress(mdSet->GetTagOmegaVar().Data(), &lab0_TAGOMEGA3);
+      treetmp->SetBranchAddress(mdSet->GetIDVar().Data(),       &lab1_ID3);
+      treetmp->SetBranchAddress(mdSet->GetMassDVar().Data(),    &lab2_MM3);
+      treetmp->SetBranchAddress(mdSet->GetPIDKVar().Data(),     &lab1_PIDK3);
+      treetmp->SetBranchAddress(mdSet->GetTracksVar().Data(),   &nTr3);
+      treetmp->SetBranchAddress(mdSet->GetMomVar().Data(),      &lab1_P3);
+      treetmp->SetBranchAddress(mdSet->GetTrMomVar().Data(),    &lab1_PT3);
+      
+      if( smp[i] == "both" ){ smp[i] = hRDM.GetPolarity(i); }
+      Double_t globalWeight = 1.0;
+      if( smp[i] == "up") { globalWeight = globalWeightMU; }
+      else if ( smp[i] == "down" ) { globalWeight = globalWeightMD; }
+      else if ( smp[i] == "both" ) { globalWeight = globalWeightMU+globalWeightMD; }
+      if( debug == true ) { std::cout<<"[INFO] Global weight: "<<globalWeight<<std::endl; }
+      
       TString name="dataSetMC_"+mode+"_"+smp[i]+"_"+md[i];
       TString namehist = "dataHistMC"+mode+"_"+smp[i];
       dataSetMC[i] = NULL;
-      w[i] = NULL;
-      TString wname = "weight_"+mode+"_"+smp[i]+"_"+md[i];
-      w[i] = new RooRealVar(wname.Data(), wname.Data(), -5.0, 5.0);
-      obs->add(*w[i]);
-      dataSetMC[i] = new RooDataSet(name.Data(),name.Data(), *obs, wname.Data());
+         
+      if (reweight == true)
+	{
+	  dataSetMC[i] = new RooDataSet(name.Data(),name.Data(), *obs, wname.Data());
+	}
+      else
+	{
+	  dataSetMC[i] = new RooDataSet(name.Data(),name.Data(), *obs);
+	}
+      
       dataSetMCtmp[i] = new RooDataSet(name.Data(),name.Data(), *obs, wname.Data());
       for (Long64_t jentry=0; jentry<nentriesMC; jentry++) {
 	treetmp->GetEntry(jentry);
 	
 	if (lab0_TAG3 < -10) continue;
 
-	if ( lab0_MM3 > BMassRange[0] && lab0_MM3 < BMassRange[1])
+	Int_t id;
+	if (lab1_ID3 > 0) { id = 1.0; }
+	else { id = -1.0; }
+	
+	if ( lab0_TAGOMEGA3 > 0.5) { lab0_TAGOMEGA3 = 0.5;}
+	
+	if ( (double)lab0_TAG3 > 0.5 ) { lab0_TAG3 = 1.0; }
+	else if ((double)lab0_TAG3 < -0.5 ) {lab0_TAG3 = -1.0; }
+	else { lab0_TAG3 = 0;}
+	
+	lab0_MM->setVal(lab0_MM3);
+	lab2_MM->setVal(lab2_MM3);
+	Float_t time = lab0_TAU3[0]*factor;
+	lab0_TAU->setVal(time);
+	Float_t timeerr = lab0_TAUERR3[0]*factor; 
+	//std::cout<<"time: "<<time<<" time error "<<timeerr<<std::endl;
+	lab0_TAUERR->setVal(timeerr);
+	lab0_TAG->setVal(lab0_TAG3);
+	lab0_TAGOMEGA->setVal(lab0_TAGOMEGA3);
+	lab1_ID->setVal(id);
+	lab1_P->setVal(log(lab1_P3));
+	lab1_PT->setVal(log(lab1_PT3));
+	nTracks->setVal(log(nTr3));
+	if ( mode.Contains("Pi") )
 	  {
-
-	    Int_t id;
-            if (lab1_ID3 > 0) { id = 1.0; }
-            else { id = -1.0; }
-
-            if ( lab0_TAGOMEGA3 > 0.5) { lab0_TAGOMEGA3 = 0.5;}
-
-	    
-            if ( (double)lab0_TAG3 > 0.5 ) { lab0_TAG3 = 1.0; }
-            else if ((double)lab0_TAG3 < -0.5 ) {lab0_TAG3 = -1.0; }
-            else { lab0_TAG3 = 0;}
-
-	    lab0_MM->setVal(lab0_MM3);
-	    lab2_MM->setVal(lab2_MM3);
-	    Float_t time = lab0_TAU3[0]*factor;
-	    lab0_TAU->setVal(time);
-	    Float_t timeerr = lab0_TAUERR3[0]*factor; 
-	    //std::cout<<"time: "<<time<<" time error "<<timeerr<<std::endl;
-	    lab0_TAUERR->setVal(timeerr);
-            lab0_TAG->setVal(lab0_TAG3);
-            lab0_TAGOMEGA->setVal(lab0_TAGOMEGA3);
-            lab1_ID->setVal(id);
-	    lab1_P->setVal(log(lab1_P3));
-	    lab0_P->setVal(log(lab0_P3)); 
-	    lab1_PT->setVal(log(lab1_PT3));
-	    nTracks->setVal(log(nTr3));
-	    if ( mode.Contains("Pi") )
-	      {
-		lab1_PIDK->setVal(lab1_PIDK3);
-	      }
-	    else
-	      {
-		lab1_PIDK->setVal(log(lab1_PIDK3));
-	      }
-	    if (reweight == true)
-	      {
-		Float_t lab1_PT3F = lab1_PT3;
-		Float_t nTr3F = nTr3; 
-		Int_t binRW = hRDM->FindBin(log(lab1_PT3F),log(nTr3F)); //,log(lab1_P3));
-		wRW = hRDM->GetBinContent(binRW);
-	      }
-	    else
-	      {
-		wRW = 1.0;
-	      }
-	    //wRW =1.0;
-	    w[i]->setVal(wRW);
-	    //if (  id  == 1.0 )
-	    //   {
-		dataSetMC[i]->add(*obs,wRW,0);
-		//  }	    
-	    if( log(lab1_PIDK3) > log(PIDcut) )
-	      {
-		dataSetMCtmp[i]->add(*obs,wRW,0);
-	      }
+	    lab1_PIDK->setVal(-lab1_PIDK3);
 	  }
+	else
+	  {
+	    lab1_PIDK->setVal(log(lab1_PIDK3));
+	  }
+	Float_t lab1_PT3F = lab1_PT3;
+	Float_t nTr3F = nTr3; 
+	wRW = hRDM.GetWeight(log(lab1_PT3F),log(nTr3F), smp[i]); 
+	wE = heff.GetWeight(lab1_P3, smp[i]); 
+	
+	weight->setVal(wRW*wE*globalWeight);
+	
+	if (reweight == true) { dataSetMC[i]->add(*obs,wRW*wE*globalWeight,0); }
+	else { dataSetMC[i]->add(*obs); }
+	
+	if( log(lab1_PIDK3) > log(mdSet->GetPIDBach()) )
+	  {
+	    dataSetMCtmp[i]->add(*obs,wRW*wE*globalWeight,0);
+	  }
+      
 	
       }
+      
+      
+      const TTree* treeConst = dataSetMC[i]->tree();
+      TTree* treeC = new TTree("DecayTree","DecayTree");
+      treeC = treeConst->GetTree();
+      treeC->SetName("DecayTree"); 
+      if( debug == true ) { std::cout<<"[INFO] Create tree with entries: "<<treeC->GetEntries()<<std::endl;}
+      
+      TString nameFile = "Signal_"+mode+"_"+smp[i]+"_"+md[i]+"_PIDK"+histNameSuf+".root";
+      TFile* outfile  = new TFile(nameFile.Data(),"RECREATE");
+      treeC->Write();
+      outfile->Write();
+      outfile->Close();
+      
+      if( debug == true ) {  std::cout<<"[INFO] Close file: "<<nameFile<<std::endl; }
+
 
       if ( debug == true) std::cout<<"Number of entries: "<<dataSetMC[i]->numEntries()<<std::endl;
-      SaveDataSet(dataSetMC[i],lab1_PT, smp[i], mode, debug);
-      saveDataTemplateToFile( dataSetMC[i], NULL, lab0_MM,
-			      mode.Data(), "root", smp[i].Data(), debug );
+      
+      if (plotSet->GetStatus() == true )
+	{
+	  SaveDataSet(dataSetMC[i],lab1_PT, smp[i], mode, plotSet, debug);
+	  	  
+	  TString corrName = "corrBsVsDs_"+mode+"_"+smp[i];
+	  Int_t bin1 = 40;
+	  Int_t bin2 = 40;
+	  corrBsVsDs[i] = dataSetMC[i]->createHistogram(*lab0_MM, *lab2_MM, bin1, bin2, "", corrName.Data());
+	  corrBsVsDs[i]->SetName(corrName.Data());
+	  corrBsVsDs[i]->GetXaxis()->SetTitle("m(B_{s}) [MeV/c^2]");
+	  corrBsVsDs[i]->GetYaxis()->SetTitle("m(D_{s}) [MeV/c^2]");
+	  
+	  TString ext ="pdf";
+	  Save2DHist(corrBsVsDs[i],plotSet);
+	  
+	  corrName = "corrBsVsPIDK_"+mode+"_"+smp[i];;
+	  corrBsVsPIDK[i] = dataSetMCtmp[i]->createHistogram(*lab0_MM, *lab1_PIDK, bin1, bin2, "", corrName.Data());
+	  corrBsVsPIDK[i]->SetName(corrName.Data());
+	  corrBsVsPIDK[i]->GetXaxis()->SetTitle("m(B_{s}) [MeV/c^2]");
+	  corrBsVsPIDK[i]->GetYaxis()->SetTitle("PIDK [1]");
+	  Save2DHist(corrBsVsPIDK[i],plotSet);
+	  
+	  corrName = "corrDsVsPIDK_"+mode+"_"+smp[i];;
+	  corrDsVsPIDK[i] = dataSetMCtmp[i]->createHistogram(*lab2_MM, *lab1_PIDK, bin1, bin2, "", corrName.Data());
+	  corrDsVsPIDK[i]->SetName(corrName.Data());
+	  corrDsVsPIDK[i]->GetXaxis()->SetTitle("m(D_{s}) [MeV/c^2]");
+	  corrDsVsPIDK[i]->GetYaxis()->SetTitle("PIDK [1]");
+	  Save2DHist(corrDsVsPIDK[i],plotSet);
+	}
 
-      TString corrName = "corrBsVsDs_"+mode+"_"+smp[i];
-      Int_t bin1 = 40;
-      Int_t bin2 = 40;
-      corrBsVsDs[i] = dataSetMC[i]->createHistogram(*lab0_MM, *lab2_MM, bin1, bin2, "", corrName.Data());
-      corrBsVsDs[i]->SetName(corrName.Data());
-      corrBsVsDs[i]->GetXaxis()->SetTitle("m(B_{s}) [MeV/c^2]");
-      corrBsVsDs[i]->GetYaxis()->SetTitle("m(D_{s}) [MeV/c^2]");
+      TString s = smp[i]+"_"+md[i];
+      TString m = mode+"MC";
 
-      TString ext ="pdf";
-      Save2DHist(corrBsVsDs[i],ext);
+      if ( plotSet->GetStatus()  == true )
+	{
+	  SaveDataSet(dataSetMC[i], lab0_MM        , s, m, plotSet, debug);
+	  SaveDataSet(dataSetMC[i], lab2_MM        , s, m, plotSet, debug);
+	  SaveDataSet(dataSetMC[i], lab1_PIDK      , s, m, plotSet, debug);
+	  SaveDataSet(dataSetMC[i], lab0_TAU       , s, m, plotSet, debug);
+	  SaveDataSet(dataSetMC[i], lab0_TAUERR    , s, m, plotSet, debug);
+	  SaveDataSet(dataSetMC[i], lab0_TAG       , s, m, plotSet, debug);
+	  SaveDataSet(dataSetMC[i], lab0_TAGOMEGA  , s, m, plotSet, debug);
+	  SaveDataSet(dataSetMC[i], lab1_PT        , s, m, plotSet, debug);
+	  //SaveDataSet(dataSetMC[i], lab1_P         , s, m, plotSet, debug);
+	  SaveDataSet(dataSetMC[i], nTracks        , s, m, plotSet, debug);
+	}
 
-      corrName = "corrBsVsPIDK_"+mode+"_"+smp[i];;
-      corrBsVsPIDK[i] = dataSetMCtmp[i]->createHistogram(*lab0_MM, *lab1_PIDK, bin1, bin2, "", corrName.Data());
-      corrBsVsPIDK[i]->SetName(corrName.Data());
-      corrBsVsPIDK[i]->GetXaxis()->SetTitle("m(B_{s}) [MeV/c^2]");
-      corrBsVsPIDK[i]->GetYaxis()->SetTitle("PIDK [1]");
-      Save2DHist(corrBsVsPIDK[i],ext);
 
-      corrName = "corrDsVsPIDK_"+mode+"_"+smp[i];;
-      corrDsVsPIDK[i] = dataSetMCtmp[i]->createHistogram(*lab2_MM, *lab1_PIDK, bin1, bin2, "", corrName.Data());
-      corrDsVsPIDK[i]->SetName(corrName.Data());
-      corrDsVsPIDK[i]->GetXaxis()->SetTitle("m(D_{s}) [MeV/c^2]");
-      corrDsVsPIDK[i]->GetYaxis()->SetTitle("PIDK [1]");
-      Save2DHist(corrDsVsPIDK[i],ext);
+      if (mistag == true)
+	{
 
+	  TString condition = mdSet->GetTagVar()+" != 0";
+	  Int_t bin = 50;
+
+	  RooAbsData*  dataRed = dataSetMC[i]->reduce(condition.Data());
+	  TString histName = "hist_PhysBkg"+mode+"Pdf_m_"+smp[i]+"_mistag";
+	  TH1* hist = dataRed->createHistogram(histName.Data(), *lab0_TAGOMEGA, RooFit::Binning(bin));
+
+	  TString namepdf ="PhysBkg"+mode+"Pdf_m_"+smp[i]+"_mistag";
+	  RooHistPdf* pdf = CreateHistPDF(hist, lab0_TAGOMEGA, namepdf, bin, debug);
+	  work->import(*pdf);
+
+	}
 
       work->import(*dataSetMC[i]);
 
     }
-    //TString nameboth="dataSetMC_"+mode+"_both_"+md[0];
-    //RooDataSet* databoth = NULL;
-    //databoth = new RooDataSet(nameboth.Data(),nameboth.Data(),*obs);
-    //databoth->append(*dataSetMC[0]);
-    //databoth->append(*dataSetMC[1]);
-    //if ( debug == true) std::cout<<" data: "<<databoth->numEntries()<<std::endl;
-    //work->import(*databoth);
-    
+     
     return work;
-
   }
 
   //===========================================================================
@@ -2959,12 +2506,13 @@ namespace MassFitUtils {
   //==========================================================================
   RooWorkspace* CreatePdfSpecBackground(TString& filesDirMU, TString& sigMU,
 					TString& filesDirMD, TString& sigMD,
-					TString &mVar,
-					TString& mDVar,
-					double Bmass_down, double Bmass_up,
-					double Dmass_down, double Dmass_up,
+					TString mVar,
+					TString mDVar,
+					TString tagVar,
+					TString tagOmegaVar,
 					RooWorkspace* work, 
 					Bool_t mistag,
+					PlotSettings* plotSet,
 					bool debug
 					)
   {
@@ -2975,26 +2523,9 @@ namespace MassFitUtils {
                   << " Obtain RooKeysPdf for partially reconstructed backgrounds"
                   << std::endl;
       }
-    double BMassRange[2];
-    BMassRange[0] = Bmass_down; BMassRange[1]=Bmass_up;
-    
-    RooRealVar* lab0_MM = new RooRealVar(mVar.Data(),mVar.Data(),BMassRange[0], BMassRange[1]);
-    RooRealVar* lab2_MM = new RooRealVar(mDVar.Data(),mDVar.Data(),Dmass_down, Dmass_up);
-    RooRealVar* lab1_P = new RooRealVar("lab1_P","lab1_P",0, log(650000));
-    RooRealVar* lab1_PIDK = new RooRealVar("lab1_PIDK","lab1_PIDK",-5,6);
-    RooRealVar* nTracks  = new RooRealVar("nTracks","nTracks",2.75,log(1000));
-    RooRealVar* lab1_PT = new RooRealVar("lab1_PT","lab1_PT",6, log(45000));
 
+    if ( plotSet == NULL ) { plotSet = new PlotSettings("plotSet","plotSet"); }
     
-    if(debug == true) std::cout<<"Name of B(s) mass observable: "<<mVar<<std::endl;
-    if(debug == true) std::cout<<"Name of D(s) mass observable: "<<mDVar<<std::endl;
-    if(debug == true) std::cout<<"B(s) mass range: ("<<BMassRange[0]<<","<<BMassRange[1]<<")"<<std::endl;
-    if(debug == true) std::cout<<"D(s) mass range: ("<<Dmass_down<<","<<Dmass_up<<")"<<std::endl;
-    
-
-    TString tagOmegaVar = "lab0_BsTaggingTool_TAGOMEGA_OS";
-    RooRealVar* lab0_TAGOMEGA = new RooRealVar(tagOmegaVar.Data(),tagOmegaVar.Data(),0.,0.,1.);
-
     std::vector <std::string> MCFileNameMD;
     std::vector <std::string> MCFileNameMU;
 
@@ -3016,6 +2547,7 @@ namespace MassFitUtils {
     for(int i = 0; i< sizeMD; i++ )
       {
 	smpMD[i] = CheckPolarity(MCFileNameMD[i], debug);
+	if (smpMD[i] == "both") { smpMD[i] = "down"; if (debug == true ) { std::cout<<"[INFO] Correction: "<<smpMD[i]<<std::endl; } }
       }
 
     //Read sample (down,up) from path for MU// 
@@ -3023,8 +2555,10 @@ namespace MassFitUtils {
     for(int i = 0; i< sizeMU; i++ )
       {
 	smpMU[i] = CheckPolarity(MCFileNameMU[i], debug);
+	if (smpMD[i] == "both") { smpMD[i] = "up"; if (debug == true ) { std::cout<<"[INFO] Correction: "<<smpMD[i]<<std::endl; }}
       }
     
+        
     //Merged data sets//
 
     double minsize = std::min(sizeMD, sizeMU);
@@ -3034,8 +2568,10 @@ namespace MassFitUtils {
     std::vector <TString> mode;
     std::vector <RooKeysPdf*> pdfMC;
     std::vector <RooKeysPdf*> pdfDMC;
-    std::vector <RooKeysPdf*> pdfPIDK;
-  
+      
+    RooRealVar* lab0_MM = GetObservable(work,mVar,debug);
+    RooRealVar* lab2_MM = GetObservable(work,mDVar,debug);
+
     for( int i = 0; i<sizeMU; i++)
     {
       for (int j = 0; j < sizeMD; j++)
@@ -3043,128 +2579,66 @@ namespace MassFitUtils {
 	  // std::cout<<" modeMD: "<<modeMD[j]<<" modeMU: "<<modeMU[i]<<std::endl;
 	  if ( modeMU[i] == modeMD[j] )
 	    {
-	      TString nmMD = modeMD[j]+"_"+smpMD[j];
-	      TString nmMU = modeMU[i]+"_"+smpMU[i];
+	      TString nmMD = modeMD[j]+"_down";
+	      TString nmMU = modeMU[i]+"_up";
 	      
 	      TString nameMD="dataSetMC_"+nmMD;
 	      RooDataSet*  dataMD = GetDataSet(work,nameMD,debug);
 	      TString nameMU="dataSetMC_"+nmMU;
               RooDataSet*  dataMU = GetDataSet(work,nameMU,debug);
 	      
-	      TString namew = "weight_"+modeMD[i];
-	      RooRealVar* weights = new RooRealVar(namew.Data(), namew.Data(), 0.0, 1.0);
-	      TString name = "dataSetMC_"+modeMD[i];
-	      RooDataSet* datatmp = NULL;
-	      if ( mistag == true )
-		{
-		  datatmp = new RooDataSet(name.Data(),name.Data(),RooArgSet(*lab0_MM,*lab0_TAGOMEGA,*weights), namew.Data());   
-		}
-	      else
-		{
-		  datatmp = new RooDataSet(name.Data(),name.Data(),RooArgSet(*lab0_MM,*lab2_MM,*lab1_P,*nTracks,*lab1_PIDK,*lab1_PT,*weights), namew.Data());
-		}
-	      datatmp->append(*dataMD);
-	      datatmp->append(*dataMU);
-	      if(debug == true) std::cout<<"dataMD: "<<dataMD->numEntries()<<" dataMU: "<<dataMU->numEntries()<<" data: "<<datatmp->numEntries()<<std::endl;
-
-	      data.push_back(datatmp);
+	      TString namew = "weights";
+	      RooDataSet* datatmpMD = NULL;
+	      RooDataSet* datatmpMU = NULL;
+	      const RooArgSet* obs = dataMD->get(); 
+	      	      	      
+	      datatmpMD = new RooDataSet(nameMD.Data(), nameMD.Data(), *obs, RooFit::Import(*dataMD), RooFit::WeightVar("weights"));
+	      datatmpMU = new RooDataSet(nameMU.Data(), nameMU.Data(), *obs, RooFit::Import(*dataMU), RooFit::WeightVar("weights"));
+	      datatmpMD->append(*datatmpMU);
+	      if(debug == true) std::cout<<"dataMD: "<<dataMD->numEntries()<<" dataMU: "<<dataMU->numEntries()
+					 <<" data: "<<datatmpMD->numEntries()<<std::endl;
+	      
+	      
+	      data.push_back(datatmpMD);
 	      mode.push_back(modeMD[i]);
-           
+	      int sizeData = data.size();
+                   
 	      TString s="both";
 	      TString m = modeMD[j];
-	      pdfMC.push_back(CreatePDFMC(datatmp, lab0_MM, s, m, false, debug));
+	      pdfMC.push_back(CreatePDFMC(data[sizeData-1], lab0_MM, s, m, false, debug));
 	      int size = pdfMC.size();
-	      SaveTemplate(datatmp, pdfMC[size-1], lab0_MM, s , m, debug);
-	      saveDataTemplateToFile( datatmp, pdfMC[size-1], lab0_MM,
-				      m.Data(), "root", s.Data(), debug );
-
+	      
+	      if (plotSet->GetStatus() == true)
+		{
+		  SaveTemplate(data[sizeData-1], pdfMC[size-1], lab0_MM, s , m, plotSet, debug);
+		}
+	      
 	      TString s1="both_Ds";
-	      pdfDMC.push_back(CreatePDFMC(datatmp, lab2_MM, s1, m, false, debug));
+	      pdfDMC.push_back(CreatePDFMC(data[sizeData-1], lab2_MM, s1, m, false, debug));
               int size1 = pdfDMC.size();
-              SaveTemplate(datatmp, pdfDMC[size1-1], lab2_MM, s1 , m, debug);
-              saveDataTemplateToFile( datatmp, pdfDMC[size1-1], lab2_MM,
-                                      m.Data(), "root", s1.Data(), debug );
-
-	      /*
-	      TString s2="both_PIDK";
-              pdfPIDK.push_back(CreatePDFMC(datatmp, lab1_PIDK, s2, m, false, debug));
-              int size2 = pdfPIDK.size();
-              SaveTemplate(datatmp, pdfPIDK[size2-1], lab1_PIDK, s2 , m, debug);
-              saveDataTemplateToFile( datatmp, pdfPIDK[size2-1], lab1_PIDK,
-                                      m.Data(), "root", s2.Data(), debug );
-	      */
+	      if (plotSet->GetStatus() == true)
+		{
+		  SaveTemplate(data[sizeData-1], pdfDMC[size1-1], lab2_MM, s , m, plotSet, debug);
+		}
+	      
 	      work->import(*pdfMC[size-1]);
 	      work->import(*pdfDMC[size1-1]);
-	      //work->import(*pdfPIDK[size2-1]);
-
+	      
 	      if (mistag == true)
 		{
 
-		  TString nameMD="dataHistMC_"+nmMD;
-		  RooDataHist*  datahistMD = GetDataHist(work,nameMD);
-		  TString nameMU="dataHistMC_"+nmMU;
-		  RooDataHist*  datahistMU = GetDataHist(work,nameMU);
+		  TString condition = tagVar+" != 0";
+		  RooRealVar* lab0_TAGOMEGA =  GetObservable(work, tagOmegaVar, debug);
+		  Int_t bin = 50;
 
-
-		  Int_t bin=25;
-		  Double_t x_min = 0.0;
-		  Double_t x_max = 0.5;
-
-		  RooRealVar* lab0_TAGOMEGA = new RooRealVar(tagOmegaVar.Data(),tagOmegaVar.Data(),0.,x_min,x_max);
-		  lab0_TAGOMEGA->setBins(bin);
-
-		  TH1* histMU = datahistMU->createHistogram("hist_MU",*lab0_TAGOMEGA,RooFit::Binning(bin,x_min,x_max));
-		  TH1* histMD = datahistMD->createHistogram("hist_MD",*lab0_TAGOMEGA,RooFit::Binning(bin,x_min,x_max));
-
-		  TH1F* hist = new TH1F("hist","hist",bin,x_min,x_max);
+		  RooAbsData*  dataRed = data[sizeData-1]->reduce(condition.Data());
+		  TString histName = "hist_PhysBkg"+modeMD[j]+"Pdf_m_both_mistag";
+		  TH1* hist = dataRed->createHistogram(histName.Data(), *lab0_TAGOMEGA, RooFit::Binning(bin));
 		  
-		  for(int i=0; i<bin; i++)
-		    {
-		      Double_t con1 = histMU->GetBinContent(i);
-		      Double_t con2 = histMD->GetBinContent(i);
-		      hist->SetBinContent(i,con1+con2);
-		    }
-		  	  
-		  TString namehist = "DataHistTmp";
-		  RooDataHist* dataHist = new RooDataHist(namehist.Data(),namehist.Data(),RooArgList(*lab0_TAGOMEGA),hist);
-		  
-		  /*
-		  TString tagOmegaVar = "lab0_BsTaggingTool_TAGOMEGA_OS";
-		  Float_t tagomegaMD, tagomegaMU;
-		  trMD->SetBranchAddress(tagOmegaVar.Data(),&tagomegaMD);
-		  trMU->SetBranchAddress(tagOmegaVar.Data(),&tagomegaMU);
-
-		  for(int i =0; i<treeMD->GetEntries(); i++)
-		    {
-		      lab0_TAGOMEGA->setVal(tagomegaMD);
-		      datahistMD->add(RooArgSet(*lab0_TAGOMEGA));
-		    }
-		  for(int i =0; i<treeMU->GetEntries(); i++)
-                    {
-                      lab0_TAGOMEGA->setVal(tagomegaMU);
-                      datahistMU->add(RooArgSet(*lab0_TAGOMEGA));
-                    }
-		  
-		  */
-		  
-		  TString s = "mistag";
-		  TString namepdf ="PhysBkg"+modeMD[j]+"Pdf_m_both_"+s;
-		  RooHistPdf* pdf = NULL;
-		  pdf = new RooHistPdf(namepdf.Data(), namepdf.Data(), RooArgSet(*lab0_TAGOMEGA), *dataHist);
-		  SaveTemplateHist(dataHist, pdf, lab0_TAGOMEGA, s, m, debug);
+		  TString namepdf ="PhysBkg"+modeMD[j]+"Pdf_m_both_mistag";
+		  RooHistPdf* pdf = CreateHistPDF(hist, lab0_TAGOMEGA, namepdf, bin, debug);
 		  work->import(*pdf);
-		  
-		  /*		  
-		    TString s="mistag";
-		  TString m = modeMD[j];
-		  pdfMC.push_back(CreatePDFMC(datatmp, lab0_TAGOMEGA, s, m, true));
-		  int size = pdfMC.size();
-		  SaveTemplate(datatmp, pdfMC[size-1], lab0_TAGOMEGA, s , m);
-		  saveDataTemplateToFile( datatmp, pdfMC[size-1], lab0_TAGOMEGA,
-					  m.Data(), "root", s.Data(), true );
-
-		  work->import(*pdfMC[size-1]);
-		  */
+		  	  
 		}
               
 	    }
@@ -3173,6 +2647,32 @@ namespace MassFitUtils {
     }
   return work;
   }
+
+  RooWorkspace* CreatePdfSpecBackground(TString& filesDirMU, TString& sigMU,
+                                        TString& filesDirMD, TString& sigMD,
+					MDFitterSettings* mdSet,
+                                        RooWorkspace* work,
+                                        Bool_t mistag,
+                                        PlotSettings* plotSet,
+					bool debug
+                                        )
+  {
+
+    work =  CreatePdfSpecBackground(filesDirMU, sigMU,
+				    filesDirMD, sigMD,
+				    mdSet->GetMassBVar(),
+				    mdSet->GetMassDVar(),
+				    mdSet->GetTagVar(),
+				    mdSet->GetTagOmegaVar(),
+				    work,
+				    mistag,
+				    plotSet,
+				    debug
+				    );
+    return work;
+
+  }
+
 
   //===========================================================================
   // Calculate expected number of yields and misID 
@@ -3278,13 +2778,7 @@ namespace MassFitUtils {
     TH1F* h_22[2];
     TH1F* h_32[2];
 
-    Double_t histent1[2];
-    Double_t histent2[2];
-    histent1[1] = 5092049.0;
-    histent1[0] = 6883094.0;
-    histent2[1] = 5866006.0;
-    histent2[0] = 9122416.0;
-    
+       
     TString namehist;
     //Read first PID histogram: PIDhist_1 //
     for( int i = 0; i<2; i++ )
@@ -3302,7 +2796,7 @@ namespace MassFitUtils {
 	    
 	    h_12[i] = ReadPIDHist(FileNamePID2_1,PIDhist_1,i, true); //load the second part
 	    h_1[i] = NULL;
-	    h_1[i] = AddHist(h_11[i],  histent1[i], h_12[i], histent2[i], true); //add both parts
+	    h_1[i] = WeightHist(h_11[i],  h_12[i], true); //add both parts
 	  }
 	else {
 	  h_1[i] = h_11[i];
@@ -3324,7 +2818,7 @@ namespace MassFitUtils {
 		h_22[i]=NULL;
 		h_22[i] = ReadPIDHist(FileNamePID2_2,PIDhist_2,i, true); // load the second part
 		h_2[i] = NULL;
-		h_2[i]=AddHist(h_21[i],  histent1[i], h_22[i], histent2[i], true); // add both parts
+		h_2[i]=WeightHist(h_21[i],  h_22[i], true); // add both parts
 	      }
 	    else
 	      {
@@ -3354,7 +2848,7 @@ namespace MassFitUtils {
 	      h_32[i]=NULL;
 	      h_32[i] = ReadPIDHist(FileNamePID2_3,PIDhist_3,i, true); // load the second part
 	      h_3[i] = NULL;
-	      h_3[i]=AddHist(h_31[i],  histent1[i], h_32[i], histent2[i], true); // add both parts
+	      h_3[i]=WeightHist(h_31[i],  h_32[i], true); // add both parts
 	    }
 	    else
 	      {
@@ -3668,8 +3162,8 @@ namespace MassFitUtils {
 	heff10_2 = ReadPIDHist(FileNamePID3,name,i, true); // read the seconf part of MyKaonEff_5
 	heff10_name = heff10_1->GetName();
 	
-	heff0=AddHist(heff0_1,  histent1[i], heff10_2, histent2[i], true);   // add both MyPionEff_0 histograms
-	heff10=AddHist(heff10_1,  histent1[i], heff10_2, histent2[i], true); // add both MyKaonEff_5 histograms 
+	heff0=WeightHist(heff0_1,  heff10_2, true);   // add both MyPionEff_0 histograms
+	heff10=WeightHist(heff10_1,  heff10_2, true); // add both MyKaonEff_5 histograms 
 	
 	TH1F* hpeff1 =NULL ;
 	if ( hpeff1 ) {}
@@ -4481,7 +3975,8 @@ namespace MassFitUtils {
 
     RooWorkspace* work = NULL;
     work =  new RooWorkspace("workspace","workspace");
-    
+    PlotSettings* plotSet = NULL;
+    plotSet = new PlotSettings("plotSet","plotSet");
 
     //Double_t number=0;
 
@@ -4629,7 +4124,10 @@ namespace MassFitUtils {
 		dataSetMC[i]->add(RooArgSet(*lab0_MM,*lab2_MM,*lab1_P,*lab0_P,*lab1_PT,*nTracks));
 	      }
 	  }
-	SaveDataSet(dataSetMC[i],lab0_MM, smp[i], mode, true);
+	if( plotSet -> GetStatus()  == true )
+	  {
+	    SaveDataSet(dataSetMC[i],lab0_MM, smp[i], mode, plotSet, true);
+	  }
 	std::cout<<"Number of entries: "<<dataSetMC[i]->numEntries()<<std::endl;
 	n_ev[i]=dataSetMC[i]->numEntries();
 	work->import(*dataSetMC[i]);
@@ -4688,6 +4186,8 @@ namespace MassFitUtils {
     RooWorkspace* work = NULL;
     if (workspace == NULL){ work =  new RooWorkspace("workspace","workspace");}
     else {work = workspace; }
+    PlotSettings* plotSet = NULL;
+    plotSet = new PlotSettings("plotSet","plotSet");
 
     Double_t Dmass_down = 2200;
     Double_t Dmass_up = 2380;
@@ -4772,10 +4272,10 @@ namespace MassFitUtils {
 	}
 
 	if ( debug == true) std::cout<<"Number of entries: "<<dataSet[i]->numEntries()<<std::endl;
-	SaveDataSet(dataSet[i],lab1_PT, smp[i], mode, debug);
-	saveDataTemplateToFile( dataSet[i], NULL, lab0_MM,
-				mode.Data(), "root", smp[i].Data(), debug );
-	
+	if(plotSet->GetStatus() == true )
+	  {
+	    SaveDataSet(dataSet[i],lab1_PT, smp[i], mode, plotSet, debug);
+	  }
 	work->import(*dataSet[i]);
       }
     return work;

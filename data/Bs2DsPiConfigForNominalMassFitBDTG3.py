@@ -6,47 +6,44 @@ def getconfig() :
     from math import log
     
     # PHYSICAL PARAMETERS
-    configdict["BMassDown"]  = 5300
-    configdict["BMassUp"]    = 5800
-    configdict["BMassDownData"]  = 5300
-    configdict["BMassUpData"]    = 5800
-    configdict["BMassDownComb"]  = 5600
-    configdict["BMassUpComb"]    = 7000
-        
-    configdict["DMassDown"]  = 1930
-    configdict["DMassUp"]    = 2015
-    configdict["TimeDown"]   = 0.0
-    configdict["TimeUp"]     = 15.0
-    configdict["PDown"]      = 3000.0
-    configdict["PUp"]        = 650000.0
-    configdict["PTDown"]      = 400.0
-    configdict["PTUp"]        = 45000.0
-    configdict["PIDDown"]      = -150.0
-    configdict["PIDUp"]        = 0.0
-    configdict["nTracksDown"]      = 15
-    configdict["nTracksUp"]        = 1000.0
+    configdict["BMass"]      = [5300,    5800    ]
+    configdict["DMass"]      = [1930,    2015    ]
+    configdict["Time"]       = [0.2,     15.0    ]
+    configdict["Momentum"]   = [3000.0,  650000.0]
+    configdict["TrMom"]      = [400.0,   45000.0 ]
+    configdict["PIDK"]       = [0.0,     150.0   ]
+    configdict["nTracks"]    = [15.0,    1000.0  ]
+    configdict["TagDec"]     = [-1.0,    1.0     ]
+    configdict["TagOmega"]   = [0.0,     0.5     ]
+    configdict["Terr"]       = [0.01,    0.1     ]
+    configdict["BachCharge"] = [-1000.0, 1000.0  ]
+    configdict["BDTG"]       = [0.9,     1.0     ]
+                                                
     configdict["Bin1"]      = 20
     configdict["Bin2"]      = 20
     configdict["Bin3"]      = 10
     configdict["Var1"]      = "lab1_PT"
     configdict["Var2"]      = "nTracks"
     configdict["Var3"]      = "lab1_P"
-    configdict["BDTGDown"]   = 0.9
-    configdict["BDTGUp"]     = 1.0
+    configdict["WeightingDimensions"] = 2
+
     configdict["PIDBach"]    = 0
     configdict["PIDBach2"]   = 0
     configdict["PIDChild"]   = 0
     configdict["PIDProton"]  = 5    
     configdict["dataName"]   = "../data/config_Bs2Dsh2011TDAna_Bs2DsPi.txt"
     
-    configdict["fileCalib"]  = "/afs/cern.ch/work/a/adudziak/public/workspace/CalibDStUpPi_0.root"
-    configdict["fileCalibDown"]  = "/afs/cern.ch/work/a/adudziak/public/workspace/CalibDStDownPi_0.root"
+    configdict["fileCalibPionUp"]  = "/afs/cern.ch/work/a/adudziak/public/workspace/CalibDStUpPi_0.root"
+    configdict["fileCalibPionDown"]  = "/afs/cern.ch/work/a/adudziak/public/workspace/CalibDStDownPi_0.root"
     configdict["fileCalibKaonUp"]  = "/afs/cern.ch/work/a/adudziak/public/workspace/CalibDStUpK_0.root"
     configdict["fileCalibKaonDown"]  = "/afs/cern.ch/work/a/adudziak/public/workspace/CalibDStDownK_0.root"
-    configdict["workCalib"]  = "RSDStCalib"
-
-    configdict["lumRatio"] =  0.44/(0.59+0.44)
-
+    configdict["workCalibPion"]  = "RSDStCalib"
+    configdict["workCalibKaon"]  = "RSDStCalib"
+    
+    configdict["lumRatioDown"] =  0.59
+    configdict["lumRatioUp"] =  0.44
+    configdict["lumRatio"] =  configdict["lumRatioUp"]/(configdict["lumRatioDown"]+configdict["lumRatioUp"])
+    
     # 1: NonRes, 2: PhiPi, 3: KstK, 4: KPiPi, 5: PiPiPi
     configdict["mean"]    = [5367.51,   5367.51,   5367.51,   5367.51,   5367.51]
     configdict["sigma1"]  = [17.491,    16.798,    20.000,    11.966,    12.200 ]

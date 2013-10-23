@@ -1,10 +1,11 @@
 //---------------------------------------------------------------------------//
 //                                                                           //
-//  General utilities                                                        //
+//  SFit utilities                                                           //
 //                                                                           //
 //  Source file                                                              //
 //                                                                           //
-//  Authors: Agnieszka Dziurda, Eduardo Rodrigues                            //
+//  Author: Agnieszka Dziurda                                                //
+//  Author: Vladimir Vava Gligorov                                           //
 //  Date   : 12 / 04 / 2012                                                  //
 //                                                                           //
 //---------------------------------------------------------------------------//
@@ -44,6 +45,9 @@
 #include "B2DXFitters/SFitUtils.h"
 #include "B2DXFitters/KinHack.h"
 #include "B2DXFitters/DecayTreeTupleSucksFitter.h"
+#include "B2DXFitters/PlotSettings.h"
+#include "B2DXFitters/MDFitterSettings.h"
+
 
 #define DEBUG(COUNT, MSG)				   \
   std::cout << "SA-DEBUG: [" << COUNT << "] (" << __func__ << ") " \
@@ -66,18 +70,14 @@ namespace SFitUtils {
   // part means mode (DsPi, DsK and so on)
   //===========================================================================
 
-  RooWorkspace* ReadDataFromSWeights(TString& part, 
-				     TString& pathFile,
+  RooWorkspace* ReadDataFromSWeights(TString& pathFile,
 				     TString& treeName,
-				     double time_down, double time_up,
-				     TString& tVar,
-				     TString& terrVar,
-				     TString& tagName,
-				     TString& tagOmegaVar,
-				     TString& idVar,
+				     MDFitterSettings* mdSet,
+				     TString& part,
 				     bool weighted,
-				     bool debug,
-                     bool applykfactor
+				     bool toys,
+				     bool applykfactor,
+				     bool debug
 				     )
   {
     if ( debug == true) 
@@ -85,14 +85,7 @@ namespace SFitUtils {
 	std::cout<<"[INFO] ==> GeneralUtils::ReadDataFromSWeights(...). Read data set from sWeights NTuple "<<std::endl;
 	std::cout<<"path of file: "<<pathFile<<std::endl;
 	std::cout<<"name of tree: "<<treeName<<std::endl;
-	std::cout<<"B(s) time range: ("<<time_down<<","<<time_up<<")"<<std::endl;
-	std::cout<<"B(s) time  error range: (0.01,0.1)"<<std::endl;
-	std::cout<<"B(s) mistag range: (0.0,0.5)"<<std::endl;
-	std::cout<<"Name of time observable: "<<tVar<<std::endl;
-	std::cout<<"Name of time error observable: "<<terrVar<<std::endl;
-	std::cout<<"Name of tag observable: "<<tagName<<std::endl;
-	std::cout<<"Name of mistag observable: "<<tagOmegaVar<<std::endl;
-	std::cout<<"Name of id observable: "<<idVar<<std::endl;
+	std::cout<<"apply kfactor: "<<applykfactor<<std::endl;
 	std::cout<<"Mode: "<<part<<std::endl;
       }
 
@@ -100,10 +93,14 @@ namespace SFitUtils {
     work =  new RooWorkspace("workspace","workspace");
     TTree* treeSW = ReadTreeMC(pathFile.Data(),treeName.Data(), debug);
      
-    RooRealVar* lab0_TAU = new RooRealVar(tVar.Data(),tVar.Data(),1.,time_down,time_up);
-    RooRealVar* lab0_TAUERR = new RooRealVar(terrVar.Data(),terrVar.Data(), 0.01, 0.0075, 0.2);
-    RooRealVar* lab0_TAGOMEGA = new RooRealVar(tagOmegaVar.Data(),tagOmegaVar.Data(),0.,0.,0.5);
-    
+    RooRealVar* lab0_TAU      = new RooRealVar(mdSet->GetTimeVar(),                mdSet->GetTimeVar(),
+                                               mdSet->GetTimeRangeDown(),          mdSet->GetTimeRangeUp());
+    RooRealVar* lab0_TAUERR   = new RooRealVar(mdSet->GetTerrVar(),                mdSet->GetTerrVar(),
+                                               mdSet->GetTerrRangeDown(),          mdSet->GetTerrRangeUp());
+    RooRealVar* lab0_TAGOMEGA = new RooRealVar(mdSet->GetTagOmegaVar(),            mdSet->GetTagOmegaVar(),
+                                               mdSet->GetTagOmegaRangeDown(),      mdSet->GetTagOmegaRangeUp());
+
+
     RooCategory* qt = new RooCategory("qt", "flavour tagging result");
     qt->defineType("B"       ,  1);
     qt->defineType("Bbar"    , -1);
@@ -123,17 +120,12 @@ namespace SFitUtils {
 
 
     std::vector <TString> s;
-    if( pathFile.Contains("3modeskkpi") == true )
+    if( pathFile.Contains("3modeskkpi") == true or pathFile.Contains("3MODESKKPI") == true )
       {
 	if(debug == true) { std::cout<<"[INFO] 3 Ds final states: NonRes, PhiPi, Kstk"<<std::endl; }
 	s.push_back("both_nonres");
         s.push_back("both_phipi");
         s.push_back("both_kstk");
-      }
-    else if(pathFile.Contains("toys1m") == true || pathFile.Contains("Toys1M") == true || pathFile.Contains("TOYS1M") == true)  
-      {
-	if (debug == true ) { std::cout<<"[INFO]  1D Toys: read only PhiPi"<<std::endl;}
-	s.push_back("both_phipi");
       }
     else
       {
@@ -143,6 +135,12 @@ namespace SFitUtils {
         s.push_back("both_kstk");
 	s.push_back("both_kpipi");
         s.push_back("both_pipipi");
+      }
+    
+    if ( toys == true && ( pathFile.Contains("toys1m") == true || pathFile.Contains("Toys1M") == true || pathFile.Contains("TOYS1M") == true ) )
+      {
+	if (debug == true ) { std::cout<<"[INFO]  1D Toys: read only PhiPi"<<std::endl;}
+        s.push_back("both_phipi");
       }
 	
     Int_t bound = s.size();
@@ -174,7 +172,7 @@ namespace SFitUtils {
     obs->setName(setOfObsName.Data());
     
     TString namew = "sWeights";
-    weights = new RooRealVar(namew.Data(), namew.Data(), -1.0, 2.0 );  // create weights //
+    weights = new RooRealVar(namew.Data(), namew.Data(), -2.0, 2.0 );  // create weights //
     obs->add(*weights);
 
     //obs->add(*lab1_P);
@@ -192,7 +190,8 @@ namespace SFitUtils {
       {
 	dataSet = new RooDataSet(   cat.Data(), cat.Data(), *obs); 
       }
-        
+    
+    Float_t c = 299792458.;
     Double_t tau;
     Double_t tauerr;
     Double_t tag, ID;
@@ -200,28 +199,18 @@ namespace SFitUtils {
     Double_t sw[bound];
     Double_t trueid; 
     Double_t mass;
-    //Double_t p, pt;
-    //Double_t nTr;
-    //Double_t PIDK, PIDp;
-    
-    treeSW->SetBranchAddress(tVar.Data(), &tau);
-    treeSW->SetBranchAddress(terrVar.Data(), &tauerr);
-    treeSW->SetBranchAddress(tagOmegaVar.Data(), &tagweight);
-
-    if(pathFile.Contains("toys") == true || pathFile.Contains("Toys") == true || pathFile.Contains("TOYS") == true)
+            
+    treeSW->SetBranchAddress(mdSet->GetTimeVar(), &tau);
+    treeSW->SetBranchAddress(mdSet->GetTerrVar(), &tauerr);
+    treeSW->SetBranchAddress(mdSet->GetTagOmegaVar(), &tagweight);
+    treeSW->SetBranchAddress(mdSet->GetTagVar(), &tag);
+    treeSW->SetBranchAddress(mdSet->GetIDVar(), &ID);
+    treeSW->SetBranchAddress(mdSet->GetMassBVar(), &mass);
+    if(toys)
       {
-	TString name = tagName+"_idx";
-	treeSW->SetBranchAddress(name.Data(), &tag);
-        treeSW->SetBranchAddress("lab1_ID_idx", &ID);
-        treeSW->SetBranchAddress("lab0_TRUEID", &trueid);
+	treeSW->SetBranchAddress("lab0_TRUEID", &trueid);
       }
-    else
-      {
-	treeSW->SetBranchAddress(tagName.Data(), &tag);
-	treeSW->SetBranchAddress("lab1_ID", &ID);
-      }    
-    
-    treeSW->SetBranchAddress("lab0_MassFitConsD_M", &mass);
+      
     //treeSW->SetBranchAddress("lab1_P", &p);
     //treeSW->SetBranchAddress("nTracks",&nTr);
     //treeSW->SetBranchAddress("lab1_PIDK",&PIDK);
@@ -235,7 +224,7 @@ namespace SFitUtils {
 	if (debug == true ) { std::cout<<"[INFO] sWeights names: "<<swname<<std::endl; }
       }
 
-    Float_t c = 299792458.;
+    
     Double_t sqSumsW = 0;
     double correction=0.0;
  
@@ -244,37 +233,42 @@ namespace SFitUtils {
       double m = 0; 
       double merr = 0;
       //if (jentry>10000) continue;  
-      if(pathFile.Contains("toys") == true || pathFile.Contains("Toys") == true || pathFile.Contains("TOYS") == true)
+      if(toys)
 	{
 	  m =tau;
 	  merr = tauerr;
-      if ((trueid > 1.5) && (trueid < 9.5)) {
-        //Apply k-factor smearing
-        if (fabs(trueid-2) < 0.5 || fabs(trueid-8) < 0.5) {
-            //correctionmean  = 1+2*(mass-5279.)/5279.;
-            correction      = mass/5279.;//gR->Gaus(correctionmean,0.0001);  
-        } else if (fabs(trueid-4) < 0.5 || fabs(trueid-7) < 0.5 || fabs(trueid-8) < 0.5) {
-            correction      = mass/5369.;
-        } else if (fabs(trueid-5) < 0.5 || fabs(trueid-6) < 0.5) {
-            correction      = mass/5620.;
-        }   
-        //cout << "Applying k-factor correction " << trueid << " " << mass << " " << tau << " " << correction << endl;
-      } else correction = 1.; 
-      if (!applykfactor) correction = 1.;
-      std::cout << "The correction factor is " << correction << std::endl;
-      m *=correction;
+	  if (applykfactor == true )
+	    {
+	      if ((trueid > 1.5) && (trueid < 9.5)) {
+		//Apply k-factor smearing
+		if (fabs(trueid-2) < 0.5 || fabs(trueid-8) < 0.5) {
+		  //correctionmean  = 1+2*(mass-5279.)/5279.;
+		  correction      = mass/5279.;//gR->Gaus(correctionmean,0.0001);  
+		} else if (fabs(trueid-4) < 0.5 || fabs(trueid-7) < 0.5 || fabs(trueid-8) < 0.5) {
+		  correction      = mass/5369.;
+		} else if (fabs(trueid-5) < 0.5 || fabs(trueid-6) < 0.5) {
+		  correction      = mass/5620.;
+		}   
+		//cout << "Applying k-factor correction " << trueid << " " << mass << " " << tau << " " << correction << endl;
+	      } else correction = 1.;
+	    }
+	  else
+	    { correction = 1.; }
+	  //std::cout << "The correction factor is " << correction << std::endl;
+	  m *=correction;
 	}
       else
 	{
 	  m =tau*1e9/c;   
 	  merr = tauerr*1e9/c;
 	}
-      if (m < 0.2) continue;  
+      
+      //if ( m < 0.2 ) continue; 
+
       lab0_TAU->setVal(m);
       lab0_TAUERR->setVal(merr);
-
-      if (tagweight > 0.5) tagweight = 0.5;
-      lab0_TAGOMEGA->setVal(tagweight);
+      //if (tagweight > 0.5) tagweight = 0.5;
+      //lab0_TAGOMEGA->setVal(tagweight);
       
       //lab1_P->setVal(p);
       //lab1_PT->setVal(pt);
@@ -285,9 +279,10 @@ namespace SFitUtils {
 
       if (ID > 0) { qf->setIndex(1); } else { qf->setIndex(-1); }
 
-      if( tag > 0.1 ) {   qt->setIndex(1); }
-      else if ( tag < -0.1 ) { qt->setIndex(-1);}
-      else{ qt->setIndex(0);}
+      if( tag > 0.1 ) {   qt->setIndex(1); if (tagweight > 0.5) tagweight = 0.5;}
+      else if ( tag < -0.1 ) { qt->setIndex(-1); if (tagweight > 0.5) tagweight = 0.5;}
+      else{ qt->setIndex(0); tagweight = 0.5; }
+      lab0_TAGOMEGA->setVal(tagweight);
 
       Double_t sum_sw=0;
       for (int i = 0; i<bound; i++) {
@@ -683,6 +678,7 @@ namespace SFitUtils {
 				       TString& nTrVar,
 				       TString& pidVar,
 				       RooWorkspace* workspace, 
+				       PlotSettings* plotSet,
                                        bool debug
                                        )
 
@@ -709,6 +705,8 @@ namespace SFitUtils {
     RooWorkspace* work = NULL;
     if (workspace == NULL){ work =  new RooWorkspace("workspace","workspace");}
     else {work = workspace; }
+    
+    if ( plotSet == NULL ) { plotSet = new PlotSettings("plotSet","plotSet"); }
 
     Double_t Dmass_down = 2200;
     Double_t Dmass_up = 2380;
@@ -777,16 +775,14 @@ namespace SFitUtils {
 	
 	work->import(*data[i]);
 
-	TString dupa = "LbLcPi_TrMom";
-        SaveDataSet(data[i], lab1_PT , s[i], dupa, debug);
-        TString dupa2 = "LbLcPi_Tracks";
-        SaveDataSet(data[i], nTracks , s[i], dupa2, debug);
-	TString dupa3 = "LbLcPi_PIDK";
-        SaveDataSet(data[i], lab1_PIDK , s[i], dupa3, debug);
-        TString dupa4 = "LbLcPi_MassD";
-        SaveDataSet(data[i], lab2_MM , s[i], dupa4, debug);
-	TString dupa5 = "LbLcPi_Mom";
-	//SaveDataSet(data[i], lab1_P , s[i], dupa5, debug);
+	if (plotSet->GetStatus() == true )
+	  {
+	    TString mode = "Lb2LcPi";
+	    SaveDataSet(data[i], lab1_PT ,   s[i], mode, plotSet, debug);
+	    SaveDataSet(data[i], nTracks ,   s[i], mode, plotSet, debug);
+	    SaveDataSet(data[i], lab1_PIDK , s[i], mode, plotSet, debug);
+	    SaveDataSet(data[i], lab2_MM ,   s[i], mode, plotSet, debug);
+	  }
 	
 	
       }

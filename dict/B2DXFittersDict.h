@@ -52,6 +52,10 @@
 #include "B2DXFitters/SFitUtils.h"
 #include "B2DXFitters/MassFitUtils.h"
 #include "B2DXFitters/WeightingUtils.h"
+#include "B2DXFitters/PlotSettings.h"
+#include "B2DXFitters/MDFitterSettings.h"
+#include "B2DXFitters/HistPID1D.h"
+#include "B2DXFitters/HistPID2D.h"
 #include "B2DXFitters/KinHack.h"
 
 #include "B2DXFitters/RangeAcceptance.h"

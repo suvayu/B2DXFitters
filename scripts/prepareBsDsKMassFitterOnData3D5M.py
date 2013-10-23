@@ -15,24 +15,99 @@
 # --------------------------------------------------------------------------- #
 
 # -----------------------------------------------------------------------------
+# settings for running without GaudiPython
+# -----------------------------------------------------------------------------
+""":"
+# This part is run by the shell. It does some setup which is convenient to save
+# work in common use cases.
+
+# make sure the environment is set up properly
+if test -n "$CMTCONFIG" \
+         -a -f $B2DXFITTERSROOT/$CMTCONFIG/libB2DXFittersDict.so \
+         -a -f $B2DXFITTERSROOT/$CMTCONFIG/libB2DXFittersLib.so; then
+    # all ok, software environment set up correctly, so don't need to do
+    # anything
+    true
+else
+    if test -n "$CMTCONFIG"; then
+        # clean up incomplete LHCb software environment so we can run
+        # standalone
+        echo Cleaning up incomplete LHCb software environment.
+        PYTHONPATH=`echo $PYTHONPATH | tr ':' '\n' | \
+            egrep -v "^($User_release_area|$MYSITEROOT/lhcb)" | \
+            tr '\n' ':' | sed -e 's/:$//'`
+        export PYTHONPATH
+        LD_LIBRARY_PATH=`echo $LD_LIBRARY_PATH | tr ':' '\n' | \
+            egrep -v "^($User_release_area|$MYSITEROOT/lhcb)" | \
+            tr '\n' ':' | sed -e 's/:$//'`
+	export LD_LIBRARY_PATH
+        exec env -u CMTCONFIG -u B2DXFITTERSROOT "$0" "$@"
+    fi
+    # automatic set up in standalone build mode
+    if test -z "$B2DXFITTERSROOT"; then
+        cwd="$(pwd)"
+        if test -z "$(dirname $0)"; then
+            # have to guess location of setup.sh
+            cd ../standalone
+            . ./setup.sh
+            cd "$cwd"
+        else
+            # know where to look for setup.sh
+            cd "$(dirname $0)"/../standalone
+            . ./setup.sh
+            cd "$cwd"
+        fi
+        unset cwd
+    fi
+fi
+# figure out which custom allocators are available
+# prefer jemalloc over tcmalloc
+for i in libjemalloc libtcmalloc; do
+    for j in `echo "$LD_LIBRARY_PATH" | tr ':' ' '` \
+            /usr/local/lib /usr/lib /lib; do
+        for k in `find "$j" -name "$i"'*.so.?' | sort -r`; do
+            if test \! -e "$k"; then
+                continue
+            fi
+            echo adding $k to LD_PRELOAD
+            if test -z "$LD_PRELOAD"; then
+                export LD_PRELOAD="$k"
+                break 3
+            else
+                export LD_PRELOAD="$LD_PRELOAD":"$k"
+                break 3
+            fi
+        done
+    done
+done
+# set batch scheduling (if schedtool is available)
+schedtool="`which schedtool 2>/dev/zero`"
+if test -n "$schedtool" -a -x "$schedtool"; then
+    echo "enabling batch scheduling for this job (schedtool -B)"
+    schedtool="$schedtool -B -e"
+else
+    schedtool=""
+fi
+
+# set ulimit to protect against bugs which crash the machine: 2G vmem max,
+# no more then 8M stack
+ulimit -v $((2048 * 1024))
+ulimit -s $((   8 * 1024))
+
+# trampoline into python
+exec $schedtool /usr/bin/time -v env python -O -- "$0" "$@"
+"""
+__doc__ = """ real docstring """
+# -----------------------------------------------------------------------------
 # Load necessary libraries
 # -----------------------------------------------------------------------------
+import B2DXFitters
+import ROOT
+from ROOT import RooFit
 from optparse import OptionParser
-from os.path  import join
-
-import GaudiPython
-
-GaudiPython.loaddict( 'B2DXFittersDict' )
-
-from ROOT import *
-#from ROOT import RooRealVar, RooStringVar
-#from ROOT import RooArgSet, RooArgList
-#from ROOT import RooAddPdf
-#from ROOT import FitMeTool
-
-GeneralUtils = GaudiPython.gbl.GeneralUtils
-MassFitUtils = GaudiPython.gbl.MassFitUtils
-Bs2Dsh2011TDAnaModels = GaudiPython.gbl.Bs2Dsh2011TDAnaModels
+from math     import pi, log
+from  os.path import exists
+import os, sys, gc
 
 
 # -----------------------------------------------------------------------------
@@ -43,7 +118,10 @@ saveName      = 'work_'
 
 
 #------------------------------------------------------------------------------
-def prepareBsDsKMassFitterOnData( debug, mVar, tVar, terrVar, tagVar, tagOmegaVar, idVar, mdVar, mProbVar, save, OmegaPdf, TagTool, configName,
+def prepareBsDsKMassFitterOnData( debug,
+                                  mVar, tVar, terrVar, tagVar, tagOmegaVar, idVar,
+                                  mdVar, pidkVar, bdtgVar, pVar, ptVar, ntracksVar,
+                                  save, OmegaPdf, TagTool, configName,
                                   Data, DsPi, DsPiPID, MC, MCPID, Signal, SignalPID, CombPID ) : 
 
     # Get the configuration file
@@ -59,17 +137,50 @@ def prepareBsDsKMassFitterOnData( debug, mVar, tVar, terrVar, tagVar, tagOmegaVa
         else :
             print option, " = ", myconfigfile[option]
     print "=========================================================="
-            
 
-    mVarTS = TString(mVar)
-    tVarTS = TString(tVar)
-    terrVarTS = TString(terrVar)
-    tagVarTS = TString(tagVar)
-    tagOmegaVarTS = TString(tagOmegaVar)
-    idVarTS = TString(idVar)
-    mProbVarTS = TString(mProbVar)
-    mdVarTS = TString(mdVar)
-     
+    RooAbsData.setDefaultStorageType(RooAbsData.Tree)
+    saveNameTS = TString(saveName)+TString(save)+TString(".root")
+
+    #plot settings:
+    plotSettings = PlotSettings("plotSettings","plotSettings", "PlotBs2DsK3DBDTGC", "pdf", 100, true, false, true)
+    plotSettings.Print()
+    
+    config = TString("../data/")+TString(configName)+TString(".py")
+    MDSettings = MDFitterSettings("MDSettings","MDFSettings",config)
+    
+    MDSettings.SetMassBVar(TString(mVar))
+    MDSettings.SetMassDVar(TString(mdVar))
+    MDSettings.SetTimeVar(TString(tVar))
+    MDSettings.SetTerrVar(TString(terrVar))
+    MDSettings.SetTagVar(TString(tagVar))
+    MDSettings.SetTagOmegaVar(TString(tagOmegaVar))
+    MDSettings.SetIDVar(TString(idVar))
+    MDSettings.SetPIDKVar(TString(pidkVar))
+    MDSettings.SetBDTGVar(TString(bdtgVar))
+    MDSettings.SetMomVar(TString(pVar))
+    MDSettings.SetTrMomVar(TString(ptVar))
+    MDSettings.SetTracksVar(TString(ntracksVar))
+    
+    MDSettingsMC = MDFitterSettings("MDSettingsMC","MDFSettingsMC",config)
+    MDSettingsMC.SetMassBVar(TString(mVar))
+    MDSettingsMC.SetMassDVar(TString(mdVar))
+    MDSettingsMC.SetTimeVar(TString(tVar))
+    MDSettingsMC.SetTerrVar(TString(terrVar))
+    MDSettingsMC.SetTagVar(TString("lab0_BsTaggingTool_TAGDECISION_OS"))
+    MDSettingsMC.SetTagOmegaVar(TString("lab0_BsTaggingTool_TAGOMEGA_OS"))
+    MDSettingsMC.SetIDVar(TString(idVar))
+    MDSettingsMC.SetPIDKVar(TString(pidkVar))
+    MDSettingsMC.SetBDTGVar(TString(bdtgVar))
+    MDSettingsMC.SetMomVar(TString(pVar))
+    MDSettingsMC.SetTrMomVar(TString(ptVar))
+    MDSettingsMC.SetTracksVar(TString(ntracksVar))
+    
+    MDRatio= 1.0-myconfigfile["lumRatio"]
+    MURatio= myconfigfile["lumRatio"]
+    
+    MDSettings.Print()
+    MDSettingsMC.Print()
+        
     if ( OmegaPdf == "no" ):
         tagOmega = false
     else:
@@ -81,127 +192,68 @@ def prepareBsDsKMassFitterOnData( debug, mVar, tVar, terrVar, tagVar, tagOmegaVa
         tagTool = true
 
     workspace = RooWorkspace("workspace","workspace")
+    dataTS  = TString(myconfigfile["dataName"])
     
     if Data:     
-        dataNames = [TString("#BsK kkpi nonres"),
-                     TString("#BsK kkpi phipi"),
-                     TString("#BsK kkpi kstk"),
-                     TString("#BsK kpipi"),
-                     TString("#BsK pipipi")]
+        dataNames = [TString("#Bs2DsK NonRes"),
+                     TString("#Bs2DsK PhiPi"),
+                     TString("#Bs2DsK KstK"),
+                     TString("#Bs2DsK KPiPi"),
+                     TString("#Bs2DsK PiPiPi")]
 
         for i in range(0,5):
-            workspace = MassFitUtils.ObtainData(TString(myconfigfile["dataName"]) , dataNames[i],
-                                                myconfigfile["PIDBach"],
-                                                myconfigfile["PDown"], myconfigfile["PUp"],
-                                                myconfigfile["BDTGDown"], myconfigfile["BDTGUp"],
-                                                myconfigfile["DMassDown"], myconfigfile["DMassUp"],
-                                                myconfigfile["BMassDown"], myconfigfile["BMassUp"],
-                                                myconfigfile["TimeDown"], myconfigfile["TimeUp"],
-                                                mVarTS, mdVarTS, tVarTS, terrVarTS, tagVarTS,
-                                                tagOmegaVarTS, idVarTS, mProbVarTS,
-                                                TString("BsDsK"),tagTool,
-                                                workspace,
-                                                debug)
+            workspace = MassFitUtils.ObtainData(dataTS, dataNames[i],  MDSettings, TString("BsDsK"), plotSettings, workspace, debug)
         
         
-    saveNameTS = TString(saveName)+TString(save)+TString(".root")
     GeneralUtils.SaveWorkspace(workspace,saveNameTS, debug)
     workspace.Print()
-    #exit(0)
 
     if DsPi:
-        DsPiNames = [TString("#BsPi kkpi nores"),
-                     TString("#BsPi kkpi phipi"),
-                     TString("#BsPi kkpi kstk"),
-                     TString("#BsPi kpipi"),
-                     TString("#BsPi pipipi")]
+        DsPiNames = [TString("#Bs2DsPi NonRes"),
+                     TString("#Bs2DsPi PhiPi"),
+                     TString("#Bs2DsPi KstK"),
+                     TString("#Bs2DsPi KPiPi"),
+                     TString("#Bs2DsPi PiPiPi")]
 
         for i in range(0,5):
-            workspace = MassFitUtils.ObtainMissForBsDsK(TString(myconfigfile["dataName"]), DsPiNames[i],
-                                                        myconfigfile["PIDBach"],
-                                                        myconfigfile["PDown"], myconfigfile["PUp"],
-                                                        myconfigfile["BDTGDown"], myconfigfile["BDTGUp"],
-                                                        myconfigfile["DMassDown"], myconfigfile["DMassUp"],
-                                                        myconfigfile["BMassDown"], myconfigfile["BMassUp"],
-                                                        myconfigfile["PTDown"], myconfigfile["PTUp"],
-                                                        myconfigfile["nTracksDown"], myconfigfile["nTracksUp"],
-                                                        mVarTS, mdVarTS, mProbVarTS,
-                                                        TString("BsDsPi"), workspace, tagOmega, debug)
+            workspace = MassFitUtils.ObtainMissForBsDsK(TString(myconfigfile["dataName"]), DsPiNames[i], MDSettings,
+                                                        TString("BsDsPi"), workspace, tagOmega, plotSettings, debug)
 
                 
-    saveNameTS = TString(saveName)+TString(save)+TString(".root")
     GeneralUtils.SaveWorkspace(workspace,saveNameTS, debug)
     workspace.Print()
-    #exit(0)
-
+    
     if DsPiPID:
-        DsPiPIDDownNames = [TString("BsDsPi KKPi NonRes Pion Down"),
-                            TString("BsDsPi KKPi PhiPi Pion Down"),
-                            TString("BsDsPi KKPi KstK Pion Down"),
-                            TString("BsDsPi KPiPi Pion Down"),
-                            TString("BsDsPi PiPiPi Pion Down")]
-        DsPiPIDUpNames = [TString("BsDsPi KKPi NonRes Pion Up"),
-                          TString("BsDsPi KKPi PhiPi Pion Up"),
-                          TString("BsDsPi KKPi KstK Pion Up"),
-                          TString("BsDsPi KPiPi Pion Up"),
-                          TString("BsDsPi PiPiPi Pion Up")]
+        DsPiPIDNames = [TString("BsDsPi KKPi NonRes Pion Down"),
+                        TString("BsDsPi KKPi PhiPi Pion Down"),
+                        TString("BsDsPi KKPi KstK Pion Down"),
+                        TString("BsDsPi KPiPi Pion Down"),
+                        TString("BsDsPi PiPiPi Pion Down"),
+                        TString("BsDsPi KKPi NonRes Pion Up"),
+                        TString("BsDsPi KKPi PhiPi Pion Up"),
+                        TString("BsDsPi KKPi KstK Pion Up"),
+                        TString("BsDsPi KPiPi Pion Up"),
+                        TString("BsDsPi PiPiPi Pion Up")]
 
-        for i in range(0,5):
-            workspace = WeightingUtils.ObtainHistRatioOneSample(TString(myconfigfile["fileCalibDownPion"]),
-                                                                TString(myconfigfile["workCalibPion"]),
-                                                                myconfigfile["Bin1"], myconfigfile["Bin2"],
-                                                                TString(myconfigfile["Var1"]), TString(myconfigfile["Var2"]),
-                                                                myconfigfile["PTDown"], myconfigfile["PTUp"],
-                                                                myconfigfile["nTracksDown"], myconfigfile["nTracksUp"],
-                                                                DsPiPIDDownNames[i],
-                                                                workspace, workspace, debug)
+        for i in range(0,10):
+            workspace = WeightingUtils.ObtainHistRatioOneSample(MDSettings,DsPiPIDNames[i], workspace, workspace, plotSettings, debug)
         
-            workspace = WeightingUtils.ObtainPIDShapeFromCalibSampleOneSample(TString(myconfigfile["fileCalibDownPion"]),
-                                                                              TString(myconfigfile["workCalibPion"]),
-                                                                              mProbVarTS,
-                                                                              TString(myconfigfile["Var1"]), TString(myconfigfile["Var2"]),
-                                                                              myconfigfile["PIDDown"], myconfigfile["PIDUp"],
-                                                                              myconfigfile["PTDown"], myconfigfile["PTUp"],
-                                                                              myconfigfile["nTracksDown"], myconfigfile["nTracksUp"],
-                                                                              myconfigfile["Bin1"], myconfigfile["Bin2"],
-                                                                              DsPiPIDDownNames[i],
-                                                                              workspace, debug)
+            workspace = WeightingUtils.ObtainPIDShapeFromCalibSampleOneSample(MDSettings, DsPiPIDNames[i], workspace, plotSettings, debug)
             
-            workspace = WeightingUtils.ObtainHistRatioOneSample(TString(myconfigfile["fileCalibUpPion"]),
-                                                                TString(myconfigfile["workCalibPion"]),
-                                                                myconfigfile["Bin1"], myconfigfile["Bin2"],
-                                                                TString(myconfigfile["Var1"]), TString(myconfigfile["Var2"]),
-                                                                myconfigfile["PTDown"], myconfigfile["PTUp"],
-                                                                myconfigfile["nTracksDown"], myconfigfile["nTracksUp"],
-                                                                DsPiPIDUpNames[i],
-                                                                workspace, workspace, debug)
-            
-            workspace = WeightingUtils.ObtainPIDShapeFromCalibSampleOneSample(TString(myconfigfile["fileCalibUpPion"]),
-                                                                              TString(myconfigfile["workCalibPion"]),
-                                                                              mProbVarTS,
-                                                                              TString(myconfigfile["Var1"]), TString(myconfigfile["Var2"]),
-                                                                              myconfigfile["PIDDown"], myconfigfile["PIDUp"],
-                                                                              myconfigfile["PTDown"], myconfigfile["PTUp"],
-                                                                              myconfigfile["nTracksDown"], myconfigfile["nTracksUp"],
-                                                                              myconfigfile["Bin1"], myconfigfile["Bin2"],
-                                                                              DsPiPIDUpNames[i],
-                                                                              workspace, debug)
-            saveNameTS = TString(saveName)+TString(save)+TString(".root")
-            GeneralUtils.SaveWorkspace(workspace,saveNameTS, debug)
-            workspace.Print()
+    GeneralUtils.SaveWorkspace(workspace,saveNameTS, debug)
+    workspace.Print()
 
-       
-   
     if MC:
         workspace = MassFitUtils.ObtainSpecBack(TString(myconfigfile["dataName"]), TString("#MC FileName MD"), TString("#MC TreeName"),
-                                                myconfigfile["PIDBach"], myconfigfile["PIDChild"], myconfigfile["PIDProton"],
-                                                myconfigfile["PDown"], myconfigfile["PUp"],
-                                                myconfigfile["BDTGDown"], myconfigfile["BDTGUp"],
-                                                myconfigfile["DMassDown"], myconfigfile["DMassUp"],
-                                                myconfigfile["BMassDown"], myconfigfile["BMassUp"],
-                                                mVarTS, mdVarTS, mProbVarTS,
-                                                TString("BsDsK"),
-                                                workspace, false, tagOmega, debug)
+                                                MDSettingsMC, TString("BsDsK"), workspace, true, MDRatio, plotSettings, debug)
+
+        workspace = MassFitUtils.ObtainSpecBack(TString(myconfigfile["dataName"]), TString("#MC FileName MU"), TString("#MC TreeName"),
+                                                MDSettingsMC, TString("BsDsK"), workspace, true, MURatio, plotSettings, debug)
+
+        workspace = MassFitUtils.CreatePdfSpecBackground(dataTS, TString("#MC FileName MD"),
+                                                         dataTS, TString("#MC FileName MU"),
+                                                         MDSettingsMC, workspace, true, plotSettings, debug)
+        
 
     '''                                        
     workspace = RooWorkspace("workspace","workspace")
@@ -225,113 +277,38 @@ def prepareBsDsKMassFitterOnData( debug, mVar, tVar, terrVar, tagVar, tagOmegaVa
     GeneralUtils.SaveWorkspace(workspace,saveNameTS, debug)
     workspace.Print()
     '''
-           
-    saveNameTS = TString(saveName)+TString(save)+TString(".root")
-    GeneralUtils.SaveWorkspace(workspace,saveNameTS, debug)
-    workspace.Print()
-    #exit(0)
-    
-    if MC:
-        workspace = MassFitUtils.ObtainSpecBack(TString(myconfigfile["dataName"]), TString("#MC FileName MU"), TString("#MC TreeName"),
-                                                myconfigfile["PIDBach"], myconfigfile["PIDChild"], myconfigfile["PIDProton"],
-                                                myconfigfile["PDown"], myconfigfile["PUp"],
-                                                myconfigfile["BDTGDown"], myconfigfile["BDTGUp"],
-                                                myconfigfile["DMassDown"], myconfigfile["DMassUp"],
-                                                myconfigfile["BMassDown"], myconfigfile["BMassUp"],
-                                                mVarTS, mdVarTS, mProbVarTS,
-                                                TString("BsDsK"),
-                                                workspace, false, tagOmega, debug)
-        
-    saveNameTS = TString(saveName)+TString(save)+TString(".root")
-    GeneralUtils.SaveWorkspace(workspace,saveNameTS, debug)
-    workspace.Print()
-    #exit(0)
-    
+          
     if MCPID:
 
-        calibSampleUpNames = [ TString(myconfigfile["fileCalibUpKaon"]),
-                               TString(myconfigfile["fileCalibUpPion"]),
-                               TString(myconfigfile["fileCalibUpProton"])]
+        MCDownNames = [TString("MC BsDsK Kaon Down"),
+                       TString("MC BsDsK Pion Down"),
+                       TString("MC BsDsK Proton Down")]
 
-        workNames = [TString(myconfigfile["workCalibKaon"]),
-                     TString(myconfigfile["workCalibPion"]),
-                     TString(myconfigfile["workCalibProton"])]
-
-        MCUpNames = [TString("MC BsDsK Kaon"),
-                     TString("MC BsDsK Pion"),
-                     TString("MC BsDsK Proton")]
-
-        for i in range(0,3):
-            workspace = WeightingUtils.ObtainHistRatio(TString(myconfigfile["dataName"]), TString("#MC FileName MU"),
-                                                       calibSampleUpNames[i],
-                                                       workNames[i],
-                                                       myconfigfile["Bin1"], myconfigfile["Bin2"],
-                                                       TString(myconfigfile["Var1"]), TString(myconfigfile["Var2"]),
-                                                       myconfigfile["PTDown"], myconfigfile["PTUp"],
-                                                       myconfigfile["nTracksDown"], myconfigfile["nTracksUp"],
-                                                       MCUpNames[i],
-                                                       workspace, debug)
-
-            workspace = WeightingUtils.ObtainPIDShapeFromCalibSample(TString(myconfigfile["dataName"]), TString("#MC FileName MU"),
-                                                                     calibSampleUpNames[i],
-                                                                     workNames[i],
-                                                                     mProbVarTS,
-                                                                     TString(myconfigfile["Var1"]), TString(myconfigfile["Var2"]),
-                                                                     myconfigfile["PIDDown"], myconfigfile["PIDUp"],
-                                                                     myconfigfile["PTDown"], myconfigfile["PTUp"],
-                                                                     myconfigfile["nTracksDown"], myconfigfile["nTracksUp"],
-                                                                     myconfigfile["Bin1"], myconfigfile["Bin2"],
-                                                                     MCUpNames[i],
-                                                                     workspace, debug)
-            
-            
-            saveNameTS = TString(saveName)+TString(save)+TString(".root")
-            GeneralUtils.SaveWorkspace(workspace,saveNameTS, debug)
-            workspace.Print()
+        MCUpNames = [TString("MC BsDsK Kaon Up"),
+                     TString("MC BsDsK Pion Up"),
+                     TString("MC BsDsK Proton Up")]
         
-        calibSampleDownNames = [ TString(myconfigfile["fileCalibDownKaon"]),
-                                 TString(myconfigfile["fileCalibDownPion"]),
-                                 TString(myconfigfile["fileCalibDownProton"])]
-
         for i in range(0,3):
+            
             workspace = WeightingUtils.ObtainHistRatio(TString(myconfigfile["dataName"]), TString("#MC FileName MD"),
-                                                       calibSampleDownNames[i],
-                                                       workNames[i],
-                                                       myconfigfile["Bin1"], myconfigfile["Bin2"],
-                                                       TString(myconfigfile["Var1"]), TString(myconfigfile["Var2"]),
-                                                       myconfigfile["PTDown"], myconfigfile["PTUp"],
-                                                       myconfigfile["nTracksDown"], myconfigfile["nTracksUp"],
-                                                       MCUpNames[i],
-                                                       workspace, debug)
+                                                       MDSettingsMC, MCDownNames[i], workspace, plotSettings, debug)
             
-            workspace = WeightingUtils.ObtainPIDShapeFromCalibSample(TString(myconfigfile["dataName"]), TString("#MC FileName MD"),
-                                                                     calibSampleDownNames[i],
-                                                                     workNames[i],
-                                                                     mProbVarTS,
-                                                                     TString(myconfigfile["Var1"]), TString(myconfigfile["Var2"]),
-                                                                     myconfigfile["PIDDown"], myconfigfile["PIDUp"],
-                                                                     myconfigfile["PTDown"], myconfigfile["PTUp"],
-                                                                     myconfigfile["nTracksDown"], myconfigfile["nTracksUp"],
-                                                                     myconfigfile["Bin1"], myconfigfile["Bin2"],
-                                                                     MCUpNames[i],
-                                                                     workspace, debug)
-
-            saveNameTS = TString(saveName)+TString(save)+TString(".root")
-            GeneralUtils.SaveWorkspace(workspace,saveNameTS, debug)
+            workspace = WeightingUtils.ObtainHistRatio(TString(myconfigfile["dataName"]), TString("#MC FileName MU"),
+                                                       MDSettingsMC, MCUpNames[i], workspace, plotSettings, debug)
+            
             workspace.Print()
-                      
-
-    if MC:
-        workspace = MassFitUtils.CreatePdfSpecBackground(TString(myconfigfile["dataName"]), TString("#MC FileName MD"),
-                                                         TString(myconfigfile["dataName"]), TString("#MC FileName MU"),
-                                                         mVarTS, mdVarTS,
-                                                         myconfigfile["BMassDown"], myconfigfile["BMassUp"],
-                                                         myconfigfile["DMassDown"], myconfigfile["DMassUp"],
-                                                         workspace, tagOmega, debug)
-        
-    saveNameTS = TString(saveName)+TString(save)+TString(".root")
-    GeneralUtils.SaveWorkspace(workspace,saveNameTS, debug)
-    workspace.Print()
+            GeneralUtils.SaveWorkspace(workspace,saveNameTS, debug)
+            
+            workspace = WeightingUtils.ObtainHistRatio(TString(myconfigfile["dataName"]), TString("#MC FileName MD"),
+                                                       MDSettingsMC, MCDownNames[i], workspace, plotSettings, debug)
+            
+            workspace = WeightingUtils.ObtainHistRatio(TString(myconfigfile["dataName"]), TString("#MC FileName MU"),
+                                                       MDSettingsMC, MCUpNames[i], workspace, plotSettings, debug)
+            
+            workspace.Print()
+            GeneralUtils.SaveWorkspace(workspace,saveNameTS, debug)
+            
+      
     
     if Signal:
         signalNames = [ TString("#Signal BsDsK NonRes"),
@@ -342,221 +319,51 @@ def prepareBsDsKMassFitterOnData( debug, mVar, tVar, terrVar, tagVar, tagOmegaVa
 
         for i in range(0,5):
             workspace = MassFitUtils.ObtainSignal(TString(myconfigfile["dataName"]), signalNames[i],
-                                                  myconfigfile["PIDBach"],
-                                                  myconfigfile["PDown"], myconfigfile["PUp"],
-                                                  myconfigfile["BDTGDown"], myconfigfile["BDTGUp"],
-                                                  myconfigfile["DMassDown"], myconfigfile["DMassUp"],
-                                                  myconfigfile["BMassDown"], myconfigfile["BMassUp"],
-                                                  myconfigfile["TimeDown"], myconfigfile["TimeUp"],
-                                                  myconfigfile["PTDown"], myconfigfile["PTUp"],
-                                                  myconfigfile["nTracksDown"], myconfigfile["nTracksUp"],
-                                                  mVarTS, mdVarTS, tVarTS, terrVarTS, tagVarTS,
-                                                  tagOmegaVarTS, idVarTS,
-                                                  mProbVarTS,
-                                                  TString("BsDsK"), false, false, workspace, debug)
-            
+                                                  MDSettingsMC, TString("BsDsK"), true, false, workspace, false,
+                                                  MDSettingsMC.GetLumDown(), MDSettingsMC.GetLumUp(), plotSettings, debug)
+
+        workspace.Print()
+        GeneralUtils.SaveWorkspace(workspace,saveNameTS, debug)
+           
                 
     if SignalPID:
-        signalPIDDownNames = [ TString("MC BsDsK KKPi NonRes Kaon Down"),
-                               TString("MC BsDsK KKPi KstK Kaon Down"),
-                               TString("MC BsDsK KKPi PhiPi Kaon Down"),
-                               TString("MC BsDsK KPiPi Kaon Down"),
-                               TString("MC BsDsK PiPiPi Kaon Down")]
+        signalPIDNames = [ TString("MC BsDsK KKPi NonRes Kaon Down"),
+                           TString("MC BsDsK KKPi KstK Kaon Down"),
+                           TString("MC BsDsK KKPi PhiPi Kaon Down"),
+                           TString("MC BsDsK KPiPi Kaon Down"),
+                           TString("MC BsDsK PiPiPi Kaon Down"),
+                           TString("MC BsDsK KKPi NonRes Kaon Up"),
+                           TString("MC BsDsK KKPi KstK Kaon Up"),
+                           TString("MC BsDsK KKPi PhiPi Kaon Up"),
+                           TString("MC BsDsK KPiPi Kaon Up"),
+                           TString("MC BsDsK PiPiPi Kaon Up")]
 
-        for i in range(0,5):
-            workspace = WeightingUtils.ObtainHistRatioOneSample(TString(myconfigfile["fileCalibDownKaon"]), TString(myconfigfile["workCalibKaon"]),
-                                                                myconfigfile["Bin1"], myconfigfile["Bin2"],
-                                                                TString(myconfigfile["Var1"]), TString(myconfigfile["Var2"]),
-                                                                myconfigfile["PTDown"], myconfigfile["PTUp"],
-                                                                myconfigfile["nTracksDown"], myconfigfile["nTracksUp"],
-                                                                signalPIDDownNames[i],
-                                                                workspace, workspace, debug)
+        for i in range(0,10):
+            workspace = WeightingUtils.ObtainHistRatioOneSample(MDSettingsMC, signalPIDNames[i], workspace, workspace, plotSettings, debug)
             
-            workspace = WeightingUtils.ObtainPIDShapeFromCalibSampleOneSample(TString(myconfigfile["fileCalibDownKaon"]),
-                                                                              TString(myconfigfile["workCalibKaon"]),
-                                                                              mProbVarTS,
-                                                                              TString(myconfigfile["Var1"]), TString(myconfigfile["Var2"]),
-                                                                              myconfigfile["PIDDown"], myconfigfile["PIDUp"],
-                                                                              myconfigfile["PTDown"], myconfigfile["PTUp"],
-                                                                              myconfigfile["nTracksDown"], myconfigfile["nTracksUp"],
-                                                                              myconfigfile["Bin1"], myconfigfile["Bin2"],
-                                                                              signalPIDDownNames[i],
-                                                                              workspace, debug)
-
-
-        saveNameTS = TString(saveName)+TString(save)+TString(".root")
-        GeneralUtils.SaveWorkspace(workspace,saveNameTS, debug)
-        workspace.Print()
-                
-        signalPIDUpNames = [ TString("MC BsDsK KKPi NonRes Kaon Up"),
-                             TString("MC BsDsK KKPi KstK Kaon Up"),
-                             TString("MC BsDsK KKPi PhiPi Kaon Up"),
-                             TString("MC BsDsK KPiPi Kaon Up"),
-                             TString("MC BsDsK PiPiPi Kaon Up")]
-        
-        
-        for i in range(0,5):
-            workspace = WeightingUtils.ObtainHistRatioOneSample(TString(myconfigfile["fileCalibUpKaon"]), TString(myconfigfile["workCalibKaon"]),
-                                                                myconfigfile["Bin1"], myconfigfile["Bin2"],
-                                                                TString(myconfigfile["Var1"]), TString(myconfigfile["Var2"]),
-                                                                myconfigfile["PTDown"], myconfigfile["PTUp"],
-                                                                myconfigfile["nTracksDown"], myconfigfile["nTracksUp"],
-                                                                signalPIDUpNames[i],
-                                                                workspace, workspace, debug)
-            
-            workspace = WeightingUtils.ObtainPIDShapeFromCalibSampleOneSample(TString(myconfigfile["fileCalibUpKaon"]),
-                                                                              TString(myconfigfile["workCalibKaon"]),
-                                                                              mProbVarTS,
-                                                                              TString(myconfigfile["Var1"]), TString(myconfigfile["Var2"]),
-                                                                              myconfigfile["PIDDown"], myconfigfile["PIDUp"],
-                                                                              myconfigfile["PTDown"], myconfigfile["PTUp"],
-                                                                              myconfigfile["nTracksDown"], myconfigfile["nTracksUp"],
-                                                                              myconfigfile["Bin1"], myconfigfile["Bin2"],
-                                                                              signalPIDUpNames[i],
-                                                                              workspace, debug)
+            workspace = WeightingUtils.ObtainPIDShapeFromCalibSampleOneSample(MDSettingsMC, signalPIDNames[i], workspace, plotSettings, debug)
+                        
             
         saveNameTS = TString(saveName)+TString(save)+TString(".root")
         GeneralUtils.SaveWorkspace(workspace,saveNameTS, debug)
         workspace.Print()
 
     if CombPID:
-        #workspace = GeneralUtils.LoadWorkspace(TString("work_dsk_pid_5358.root"),TString("workspace"),debug)
         workspaceL = GeneralUtils.LoadWorkspace(TString("/afs/cern.ch/work/a/adudziak/public/workspace/work_Comb_DsK_5358.root"),TString("workspace"),debug)
-        workspace = WeightingUtils.ObtainHistRatioOneSample(TString(myconfigfile["fileCalibDownPion"]),TString(myconfigfile["workCalibPion"]),
-                                                            myconfigfile["Bin1"], myconfigfile["Bin2"],
-                                                            TString(myconfigfile["Var1"]), TString(myconfigfile["Var2"]),
-                                                            myconfigfile["PTDown"], myconfigfile["PTUp"],
-                                                            myconfigfile["nTracksDown"], myconfigfile["nTracksUp"],
-                                                            TString("CombK Pion Down"),
-                                                            workspace, workspaceL, debug)
-        
-        workspace = WeightingUtils.ObtainPIDShapeFromCalibSampleOneSample(TString(myconfigfile["fileCalibDownPion"]),
-                                                                          TString(myconfigfile["workCalibPion"]),
-                                                                          mProbVarTS,
-                                                                          TString(myconfigfile["Var1"]), TString(myconfigfile["Var2"]),
-                                                                          myconfigfile["PIDDown"], myconfigfile["PIDUp"],
-                                                                          myconfigfile["PTDown"], myconfigfile["PTUp"],
-                                                                          myconfigfile["nTracksDown"], myconfigfile["nTracksUp"],
-                                                                          myconfigfile["Bin1"], myconfigfile["Bin2"],
-                                                                          TString("CombK Pion Down"),
-                                                                          workspace, debug)
-        
-        workspace = WeightingUtils.ObtainHistRatioOneSample(TString(myconfigfile["fileCalibUpPion"]),TString(myconfigfile["workCalibPion"]),
-                                                            myconfigfile["Bin1"], myconfigfile["Bin2"],
-                                                            TString(myconfigfile["Var1"]), TString(myconfigfile["Var2"]),
-                                                            myconfigfile["PTDown"], myconfigfile["PTUp"],
-                                                            myconfigfile["nTracksDown"], myconfigfile["nTracksUp"],
-                                                            TString("CombK Pion Up"),
-                                                            workspace, workspaceL, debug)
-        
-        workspace = WeightingUtils.ObtainPIDShapeFromCalibSampleOneSample(TString(myconfigfile["fileCalibUpPion"]),
-                                                                          TString(myconfigfile["workCalibPion"]),
-                                                                          mProbVarTS,
-                                                                          TString(myconfigfile["Var1"]), TString(myconfigfile["Var2"]),
-                                                                          myconfigfile["PIDDown"], myconfigfile["PIDUp"],
-                                                                          myconfigfile["PTDown"], myconfigfile["PTUp"],
-                                                                          myconfigfile["nTracksDown"], myconfigfile["nTracksUp"],
-                                                                          myconfigfile["Bin1"], myconfigfile["Bin2"],
-                                                                          TString("CombK Pion Up"),
-                                                                          workspace, debug)
-        saveNameTS = TString(saveName)+TString(save)+TString(".root")
-        GeneralUtils.SaveWorkspace(workspace,saveNameTS, debug)
-        workspace.Print()
-        
-        workspace = WeightingUtils.ObtainHistRatioOneSample(TString(myconfigfile["fileCalibDownKaon"]),TString(myconfigfile["workCalibKaon"]),
-                                                            myconfigfile["Bin1"], myconfigfile["Bin2"],
-                                                            TString(myconfigfile["Var1"]), TString(myconfigfile["Var2"]),
-                                                            myconfigfile["PTDown"], myconfigfile["PTUp"],
-                                                            myconfigfile["nTracksDown"], myconfigfile["nTracksUp"],
-                                                            TString("CombK Kaon Down"),
-                                                            workspace, workspaceL, debug)
-    
-        workspace = WeightingUtils.ObtainPIDShapeFromCalibSampleOneSample(TString(myconfigfile["fileCalibDownKaon"]),
-                                                                          TString(myconfigfile["workCalibKaon"]),
-                                                                          mProbVarTS,
-                                                                          TString(myconfigfile["Var1"]), TString(myconfigfile["Var2"]),
-                                                                          myconfigfile["PIDDown"], myconfigfile["PIDUp"],
-                                                                          myconfigfile["PTDown"], myconfigfile["PTUp"],
-                                                                          myconfigfile["nTracksDown"], myconfigfile["nTracksUp"],
-                                                                          myconfigfile["Bin1"], myconfigfile["Bin2"],
-                                                                          TString("CombK Kaon Down"),
-                                                                          workspace, debug)
-        
-        workspace = WeightingUtils.ObtainHistRatioOneSample(TString(myconfigfile["fileCalibUpKaon"]),TString(myconfigfile["workCalibKaon"]),
-                                                            myconfigfile["Bin1"], myconfigfile["Bin2"],
-                                                            TString(myconfigfile["Var1"]), TString(myconfigfile["Var2"]),
-                                                            myconfigfile["PTDown"], myconfigfile["PTUp"],
-                                                            myconfigfile["nTracksDown"], myconfigfile["nTracksUp"],
-                                                            TString("CombK Kaon Up"),
-                                                            workspace, workspaceL, debug)
-        
-        workspace = WeightingUtils.ObtainPIDShapeFromCalibSampleOneSample(TString(myconfigfile["fileCalibUpKaon"]),
-                                                                          TString(myconfigfile["workCalibKaon"]),
-                                                                          mProbVarTS,
-                                                                          TString(myconfigfile["Var1"]), TString(myconfigfile["Var2"]),
-                                                                          myconfigfile["PIDDown"], myconfigfile["PIDUp"],
-                                                                          myconfigfile["PTDown"], myconfigfile["PTUp"],
-                                                                          myconfigfile["nTracksDown"], myconfigfile["nTracksUp"],
-                                                                          myconfigfile["Bin1"], myconfigfile["Bin2"],
-                                                                          TString("CombK Kaon Up"),
-                                                                          workspace, debug)
-        
-        saveNameTS = TString(saveName)+TString(save)+TString(".root")
-        GeneralUtils.SaveWorkspace(workspace,saveNameTS, debug)
-        workspace.Print()
-        
-        #workspace = GeneralUtils.LoadWorkspace(TString("work_dsk_pid_8.root"),TString("workspace"),debug)
-        
-        workspace = WeightingUtils.ObtainHistRatioOneSample(TString(myconfigfile["fileCalibDownProton"]),TString(myconfigfile["workCalibProton"]),
-                                                            myconfigfile["Bin1"], myconfigfile["Bin2"],
-                                                            TString(myconfigfile["Var1"]), TString(myconfigfile["Var2"]),
-                                                            myconfigfile["PTDown"], myconfigfile["PTUp"],
-                                                            myconfigfile["nTracksDown"], myconfigfile["nTracksUp"],
-                                                            TString("CombK Proton Down"),
-                                                            workspace, workspaceL, debug)
-    
-        workspace = WeightingUtils.ObtainPIDShapeFromCalibSampleOneSample(TString(myconfigfile["fileCalibDownProton"]),
-                                                                          TString(myconfigfile["workCalibProton"]),
-                                                                          mProbVarTS,
-                                                                          TString(myconfigfile["Var1"]), TString(myconfigfile["Var2"]),
-                                                                          myconfigfile["PIDDown"], myconfigfile["PIDUp"],
-                                                                          myconfigfile["PTDown"], myconfigfile["PTUp"],
-                                                                          myconfigfile["nTracksDown"], myconfigfile["nTracksUp"],
-                                                                          myconfigfile["Bin1"], myconfigfile["Bin2"],
-                                                                          TString("CombK Proton Down"),
-                                                                          workspace, debug)
-        
-        workspace = WeightingUtils.ObtainHistRatioOneSample(TString(myconfigfile["fileCalibUpProton"]),TString(myconfigfile["workCalibProton"]),
-                                                            myconfigfile["Bin1"], myconfigfile["Bin2"],
-                                                            TString(myconfigfile["Var1"]), TString(myconfigfile["Var2"]),
-                                                            myconfigfile["PTDown"], myconfigfile["PTUp"],
-                                                            myconfigfile["nTracksDown"], myconfigfile["nTracksUp"],
-                                                            TString("CombK Proton Up"),
-                                                            workspace, workspaceL, debug)
-        
-        workspace = WeightingUtils.ObtainPIDShapeFromCalibSampleOneSample(TString(myconfigfile["fileCalibUpProton"]),
-                                                                          TString(myconfigfile["workCalibProton"]),
-                                                                          mProbVarTS,
-                                                                          TString(myconfigfile["Var1"]), TString(myconfigfile["Var2"]),
-                                                                          myconfigfile["PIDDown"], myconfigfile["PIDUp"],
-                                                                          myconfigfile["PTDown"], myconfigfile["PTUp"],
-                                                                          myconfigfile["nTracksDown"], myconfigfile["nTracksUp"],
-                                                                          myconfigfile["Bin1"], myconfigfile["Bin2"],
-                                                                          TString("CombK Proton Up"),
-                                                                          workspace, debug)
-        
-    
-#    workspace = MassFitUtils.ObtainSignal(myconfigfile["dataName"], TString("#Signal BdDsK"),
-#                                          myconfigfile["PIDBach"],
-#                                          myconfigfile["PDown"], myconfigfile["PUp"],
-#                                          myconfigfile["BDTG"],
-#                                          myconfigfile["DMassDown"], myconfigfile["DMassUp"],
-#                                          myconfigfile["BMassDown"], myconfigfile["BMassUp"],
-#                                          myconfigfile["TimeDown"], myconfigfile["TimeUp"],
-#                                          mVarTS, mdVarTS, tVarTS, tagVarTS,
-#                                          tagOmegaVarTS, idVarTS,
-#                                          mProbVarTS,
-#                                          TString("BdDsK"), workspace, tagOmega, debug)
+        combNames = [TString("CombK Pion Down"),
+                     TString("CombK Pion Up"),
+                     TString("CombK Kaon Down"),
+                     TString("CombK Kaon Up"),
+                     TString("CombK Proton Down"),
+                     TString("CombK Proton Up")]
+
+        for i in range(0,6):
+            workspace = WeightingUtils.ObtainHistRatioOneSample(MDSettings, combNames[i], workspace, workspaceL, plotSettings,  debug)
+            
+            workspace = WeightingUtils.ObtainPIDShapeFromCalibSampleOneSample(MDSettings, combNames[i], workspace, plotSettings, debug)
+            
+            workspace.Print()
+            GeneralUtils.SaveWorkspace(workspace,saveNameTS, debug)
 
     saveNameTS = TString(saveName)+TString(save)+TString(".root")
     GeneralUtils.SaveWorkspace(workspace,saveNameTS, debug)
@@ -620,11 +427,37 @@ parser.add_option( '--mdvar',
                    help = 'set observable '
                    )
 
-parser.add_option( '-c', '--cutvariable',
-                   dest = 'ProbVar',
+parser.add_option( '--pidkvar',
+                   dest = 'pidkvar',
                    default = 'lab1_PIDK',
-                   help = 'set observable for PID '
+                   help = 'set observable '
                    )
+
+parser.add_option( '--bdtgvar',
+                   dest = 'bdtgvar',
+                   default = 'BDTGResponse_1',
+                   help = 'set observable '
+                   )
+
+parser.add_option( '--momvar',
+                   dest = 'pvar',
+                   default = 'lab1_P',
+                   help = 'set observable '
+                   )
+parser.add_option( '--trmomvar',
+                   dest = 'ptvar',
+                   default = 'lab1_PT',
+                   help = 'set observable '
+                   )
+
+parser.add_option( '--ntracksvar',
+                   dest = 'ntracksvar',
+                   default = 'nTracks',
+                   help = 'set observable '
+                   )
+
+
+
 parser.add_option( '--tagOmegaPdf',
                   dest = 'tagOmegaPdf',
                   default = "no",
@@ -710,7 +543,8 @@ if __name__ == '__main__' :
         
     prepareBsDsKMassFitterOnData(  options.debug, options.mvar, options.tvar, options.terrvar, \
                                    options.tagvar, options.tagomegavar, options.idvar, options.mdvar,\
-                                   options.ProbVar, options.save, options.tagOmegaPdf,
+                                   options.pidkvar, options.bdtgvar, options.pvar, options.ptvar, options.ntracksvar,
+                                   options.save, options.tagOmegaPdf,
                                    options.tagTool, options.configName,
                                    options.Data,
                                    options.DsPi, options.DsPiPID,

@@ -324,6 +324,11 @@ namespace Bs2Dsh2011TDAnaModels {
   RooAbsPdf* GetRooBinned1DFromWorkspace(RooWorkspace* work, TString& name, bool  debug = false);
   
   //===============================================================================
+  // Load RooAbsPdf from workspace.
+  //===============================================================================
+  RooAbsPdf* GetRooAbsPdfFromWorkspace(RooWorkspace* work, TString& name, bool debug  = false );
+
+  //===============================================================================
   // Check PDF (whether is null).
   //===============================================================================
   bool CheckPDF(RooAbsPdf* pdf, bool debug = false);

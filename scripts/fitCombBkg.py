@@ -15,20 +15,99 @@
 # --------------------------------------------------------------------------- #
 
 # -----------------------------------------------------------------------------
+# settings for running without GaudiPython
+# -----------------------------------------------------------------------------
+""":"
+# This part is run by the shell. It does some setup which is convenient to save
+# work in common use cases.
+
+# make sure the environment is set up properly
+if test -n "$CMTCONFIG" \
+         -a -f $B2DXFITTERSROOT/$CMTCONFIG/libB2DXFittersDict.so \
+         -a -f $B2DXFITTERSROOT/$CMTCONFIG/libB2DXFittersLib.so; then
+    # all ok, software environment set up correctly, so don't need to do
+    # anything
+    true
+else
+    if test -n "$CMTCONFIG"; then
+        # clean up incomplete LHCb software environment so we can run
+        # standalone
+        echo Cleaning up incomplete LHCb software environment.
+        PYTHONPATH=`echo $PYTHONPATH | tr ':' '\n' | \
+            egrep -v "^($User_release_area|$MYSITEROOT/lhcb)" | \
+            tr '\n' ':' | sed -e 's/:$//'`
+        export PYTHONPATH
+        LD_LIBRARY_PATH=`echo $LD_LIBRARY_PATH | tr ':' '\n' | \
+            egrep -v "^($User_release_area|$MYSITEROOT/lhcb)" | \
+            tr '\n' ':' | sed -e 's/:$//'`
+	export LD_LIBRARY_PATH
+        exec env -u CMTCONFIG -u B2DXFITTERSROOT "$0" "$@"
+    fi
+    # automatic set up in standalone build mode
+    if test -z "$B2DXFITTERSROOT"; then
+        cwd="$(pwd)"
+        if test -z "$(dirname $0)"; then
+            # have to guess location of setup.sh
+            cd ../standalone
+            . ./setup.sh
+            cd "$cwd"
+        else
+            # know where to look for setup.sh
+            cd "$(dirname $0)"/../standalone
+            . ./setup.sh
+            cd "$cwd"
+        fi
+        unset cwd
+    fi
+fi
+# figure out which custom allocators are available
+# prefer jemalloc over tcmalloc
+for i in libjemalloc libtcmalloc; do
+    for j in `echo "$LD_LIBRARY_PATH" | tr ':' ' '` \
+            /usr/local/lib /usr/lib /lib; do
+        for k in `find "$j" -name "$i"'*.so.?' | sort -r`; do
+            if test \! -e "$k"; then
+                continue
+            fi
+            echo adding $k to LD_PRELOAD
+            if test -z "$LD_PRELOAD"; then
+                export LD_PRELOAD="$k"
+                break 3
+            else
+                export LD_PRELOAD="$LD_PRELOAD":"$k"
+                break 3
+            fi
+        done
+    done
+done
+# set batch scheduling (if schedtool is available)
+schedtool="`which schedtool 2>/dev/zero`"
+if test -n "$schedtool" -a -x "$schedtool"; then
+    echo "enabling batch scheduling for this job (schedtool -B)"
+    schedtool="$schedtool -B -e"
+else
+    schedtool=""
+fi
+
+# set ulimit to protect against bugs which crash the machine: 2G vmem max,
+# no more then 8M stack
+ulimit -v $((2048 * 1024))
+ulimit -s $((   8 * 1024))
+
+# trampoline into python
+exec $schedtool /usr/bin/time -v env python -O -- "$0" "$@"
+"""
+__doc__ = """ real docstring """
+# -----------------------------------------------------------------------------
 # Load necessary libraries
 # -----------------------------------------------------------------------------
+import B2DXFitters
+import ROOT
+from ROOT import RooFit
 from optparse import OptionParser
-from os.path  import join
-
-import GaudiPython
-
-GaudiPython.loaddict( 'B2DXFittersDict' )
-
-from ROOT import *
-
-GeneralUtils = GaudiPython.gbl.GeneralUtils
-MassFitUtils = GaudiPython.gbl.MassFitUtils
-Bs2Dsh2011TDAnaModels = GaudiPython.gbl.Bs2Dsh2011TDAnaModels
+from math     import pi, log
+import os, sys, gc
+gROOT.SetBatch()
 
 # -----------------------------------------------------------------------------
 # Configuration settings
@@ -45,14 +124,17 @@ n1 = 0.01
 n2 = 5.0
 frac = 0.50
                         
-Pcut_down = 0.0
-Pcut_up = 650000000.0
+P_down = 0.0
+P_up = 650000000.0
 Time_down = 0.0
 Time_up = 15.0
 PT_down  = 500.0
 PT_up = 45000.0
 nTr_down = 1.0
 nTr_up = 1000.0
+Terr_down = 0.01
+Terr_up = 0.1
+
 
 dataName      = '../data/config_fitCombBkg.txt'
 
@@ -80,16 +162,27 @@ def fitCombBkg( debug, var , mode, modeDs, merge, BDTG, configName, WS) :
     RooAbsData.setDefaultStorageType(RooAbsData.Tree)
     
     dataTS = TString(dataName)
-    mVarTS = TString("lab0_MassFitConsD_M")
-    mdVarTS = TString("lab2_MM")
-    tVarTS = TString("lab0_LifetimeFit_ctau")
-    terrVarTS = TString("lab0_LifetimeFit_ctauErr")
-    tagVarTS = TString("lab0_BsTaggingTool_TAGDECISION_OS")
-    tagOmegaVarTS = TString("lab0_BsTaggingTool_TAGOMEGA_OS")
-    idVarTS = TString("lab1_ID")
     modeTS = TString(mode)
-    mProbVarTS = TString("lab1_PIDK")
-
+    
+    plotSettings = PlotSettings("plotSettings","plotSettings", "PlotSignal", "pdf", 100, true, false, true)
+    plotSettings.Print()
+    
+    MDSettings = MDFitterSettings("MDSettings","MDFSettings")
+    
+    MDSettings.SetMassBVar(TString("lab0_MassFitConsD_M"))
+    MDSettings.SetMassDVar(TString("lab2_MM"))
+    MDSettings.SetTimeVar(TString("lab0_LifetimeFit_ctau"))
+    MDSettings.SetTerrVar(TString("lab0_LifetimeFit_ctauErr"))
+    MDSettings.SetTagVar(TString("lab0_BsTaggingTool_TAGDECISION_OS"))
+    MDSettings.SetTagOmegaVar(TString("lab0_BsTaggingTool_TAGOMEGA_OS"))
+    MDSettings.SetIDVar(TString("lab1_ID"))
+    MDSettings.SetPIDKVar(TString("lab1_PIDK"))
+    MDSettings.SetBDTGVar(TString("BDTGResponse_1"))
+    MDSettings.SetMomVar(TString("lab1_P"))
+    MDSettings.SetTrMomVar(TString("lab1_PT"))
+    MDSettings.SetTracksVar(TString("nTracks"))
+    
+    
     BDTGTS = TString(BDTG)
     if  BDTGTS == "BDTGA":
         BDTG_down = 0.3
@@ -112,8 +205,10 @@ def fitCombBkg( debug, var , mode, modeDs, merge, BDTG, configName, WS) :
 
     if modeTS  == "BsDsK":
         PIDcut = 5
+        MDSettings.SetPIDKRange(log(PIDcut),log(150))
     else:
         PIDcut = 0
+        MDSettings.SetPIDKRange(PIDcut,150)
     obsTS = TString(var)    
     if modeTS == "BDPi":
         modeDsTS = TString("KPiPi")
@@ -127,8 +222,28 @@ def fitCombBkg( debug, var , mode, modeDs, merge, BDTG, configName, WS) :
         modeDsTS=TString(modeDs)
         Dmass_down = 1930
         Dmass_up = 2015
-        Bmass_down = 6500
+        Bmass_down = 5600
         Bmass_up = 7000
+
+    MDSettings.SetMassBRange(Bmass_down, Bmass_up)
+    MDSettings.SetMassDRange(Dmass_down, Dmass_up)
+    MDSettings.SetTimeRange(Time_down,  Time_up )
+    MDSettings.SetMomRange(P_down, P_up  )
+    MDSettings.SetTrMomRange(PT_down, PT_up  )
+    MDSettings.SetTracksRange(nTr_down, nTr_up  )
+    MDSettings.SetBDTGRange( BDTG_down, BDTG_up  )
+    MDSettings.SetPIDBach(PIDcut)
+    MDSettings.SetTerrRange(Terr_down, Terr_up  )
+    MDSettings.SetTagRange(-2.0, 2.0  )
+    MDSettings.SetTagOmegaRange(0.0, 1.0  )
+    MDSettings.SetIDRange( -1000.0, 1000.0 )
+    
+    MDSettings.SetLumDown(0.59)
+    MDSettings.SetLumUp(0.44)
+    MDSettings.SetLumRatio()
+
+    MDSettings.Print()
+    
 
     if obsTS == "lab1_PIDK":
         fileName = "/afs/cern.ch/work/a/adudziak/public/workspace/MDFitter/work_dsk_pid_53005800_PIDK5_5M_BDTGA.root"
@@ -187,17 +302,7 @@ def fitCombBkg( debug, var , mode, modeDs, merge, BDTG, configName, WS) :
     print alpha2Name
     print fracName
     
-    workspace = MassFitUtils.ObtainData(dataTS, nameTS,
-                                        PIDcut,
-                                        Pcut_down, Pcut_up,
-                                        BDTG_down, BDTG_up,
-                                        Dmass_down, Dmass_up,
-                                        Bmass_down, Bmass_up,
-                                        Time_down, Time_up,
-                                        mVarTS, mdVarTS, tVarTS, terrVarTS, tagVarTS,
-                                        tagOmegaVarTS, idVarTS,
-                                        mProbVarTS,
-                                        modeTS, false, NULL, debug)
+    workspace = MassFitUtils.ObtainData(dataTS, nameTS, MDSettings, modeTS, false, plotSettings, NULL, debug)
     
     workspace.Print("v")
     mass = GeneralUtils.GetObservable(workspace,obsTS, debug)

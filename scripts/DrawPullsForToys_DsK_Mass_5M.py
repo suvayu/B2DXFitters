@@ -1,23 +1,106 @@
-from optparse import OptionParser
-from os.path  import join
-from math import sqrt
+# -----------------------------------------------------------------------------
+# settings for running without GaudiPython
+# -----------------------------------------------------------------------------
+""":"
+# This part is run by the shell. It does some setup which is convenient to save
+# work in common use cases.
 
-from ROOT import *
+# make sure the environment is set up properly
+if test -n "$CMTCONFIG" \
+         -a -f $B2DXFITTERSROOT/$CMTCONFIG/libB2DXFittersDict.so \
+         -a -f $B2DXFITTERSROOT/$CMTCONFIG/libB2DXFittersLib.so; then
+    # all ok, software environment set up correctly, so don't need to do
+    # anything
+    true
+else
+    if test -n "$CMTCONFIG"; then
+        # clean up incomplete LHCb software environment so we can run
+        # standalone
+        echo Cleaning up incomplete LHCb software environment.
+        PYTHONPATH=`echo $PYTHONPATH | tr ':' '\n' | \
+            egrep -v "^($User_release_area|$MYSITEROOT/lhcb)" | \
+            tr '\n' ':' | sed -e 's/:$//'`
+        export PYTHONPATH
+        LD_LIBRARY_PATH=`echo $LD_LIBRARY_PATH | tr ':' '\n' | \
+            egrep -v "^($User_release_area|$MYSITEROOT/lhcb)" | \
+            tr '\n' ':' | sed -e 's/:$//'`
+	export LD_LIBRARY_PATH
+        exec env -u CMTCONFIG -u B2DXFITTERSROOT "$0" "$@"
+    fi
+    # automatic set up in standalone build mode
+    if test -z "$B2DXFITTERSROOT"; then
+        cwd="$(pwd)"
+        if test -z "$(dirname $0)"; then
+            # have to guess location of setup.sh
+            cd ../standalone
+            . ./setup.sh
+            cd "$cwd"
+        else
+            # know where to look for setup.sh
+            cd "$(dirname $0)"/../standalone
+            . ./setup.sh
+            cd "$cwd"
+        fi
+        unset cwd
+    fi
+fi
+# figure out which custom allocators are available
+# prefer jemalloc over tcmalloc
+for i in libjemalloc libtcmalloc; do
+    for j in `echo "$LD_LIBRARY_PATH" | tr ':' ' '` \
+            /usr/local/lib /usr/lib /lib; do
+        for k in `find "$j" -name "$i"'*.so.?' | sort -r`; do
+            if test \! -e "$k"; then
+                continue
+            fi
+            echo adding $k to LD_PRELOAD
+            if test -z "$LD_PRELOAD"; then
+                export LD_PRELOAD="$k"
+                break 3
+            else
+                export LD_PRELOAD="$LD_PRELOAD":"$k"
+                break 3
+            fi
+        done
+    done
+done
+# set batch scheduling (if schedtool is available)
+schedtool="`which schedtool 2>/dev/zero`"
+if test -n "$schedtool" -a -x "$schedtool"; then
+    echo "enabling batch scheduling for this job (schedtool -B)"
+    schedtool="$schedtool -B -e"
+else
+    schedtool=""
+fi
+
+# set ulimit to protect against bugs which crash the machine: 2G vmem max,
+# no more then 8M stack
+ulimit -v $((2048 * 1024))
+ulimit -s $((   8 * 1024))
+
+# trampoline into python
+exec $schedtool /usr/bin/time -v env python -O -- "$0" "$@"
+"""
+__doc__ = """ real docstring """
+# -----------------------------------------------------------------------------
+# Load necessary libraries
+# -----------------------------------------------------------------------------
+import B2DXFitters
 import ROOT
-ROOT.gROOT.SetBatch()
-
-gStyle.SetOptStat(0)
-gStyle.SetOptFit(1011)
+from ROOT import RooFit
+from optparse import OptionParser
+from math     import pi, log
+import os, sys, gc
 
 import sys
 sys.path.append("../data/")
 
 debug = True
 largeToys = False
-drawGeneratedYields = True
+drawGeneratedYields = False
 
 ntoys               = 1000
-toysdir             = '/afs/cern.ch/work/a/adudziak/public/Bs2DsKToys/Gamma70_5M_2/'
+toysdir             = '/afs/cern.ch/work/a/adudziak/public/Bs2DsKToys/NEWToys/'
 toystupleprefix     = 'DsK_Toys_sWeights_ForTimeFit_'
 if largeToys : toystupleprefix     = 'DsK_Toys_FullLarge_Tree_'
 toystuplesuffix     = '.root'
@@ -26,7 +109,12 @@ if largeToys : toysresultprefix    = 'DsK_Toys_FullLarge_MassFitResult_'
 toysresultsuffix    = '.log'    
 
 #outputdir = '/afs/cern.ch/work/g/gligorov/public/Bs2DsKToys/sWeightToys/DsKToysAgnieszka_010813/'
-outputdir = '/afs/cern.ch/work/a/adudziak/public/Bs2DsKToys/Gamma70_5M_2/'
+outputdir = '/afs/cern.ch/work/a/adudziak/public/Bs2DsKToys/NEWToys/'
+
+nbinspull = 50
+lowerpullrange = -3
+upperpullrange = 3
+
 
 eventtypes = {"Signal" : 1.0, 
               "DK"     : 2.0,
@@ -49,21 +137,21 @@ numfitted["Signal3"] = ntoys*[(0,0)]
 numfitted["Signal4"] = ntoys*[(0,0)]
 numfitted["Signal5"] = ntoys*[(0,0)]
 
-numgenevt["Combo"] = ntoys*[3967.0] #3967.0] #3970]
+numgenevt["Combo"] = ntoys*[3968.0] #3967.0] #3970]
 numfitted["Combo1"] = ntoys*[(0,0)]
 numfitted["Combo2"] = ntoys*[(0,0)]
 numfitted["Combo3"] = ntoys*[(0,0)]
 numfitted["Combo4"] = ntoys*[(0,0)]
 numfitted["Combo5"] = ntoys*[(0,0)]
 
-numgenevt["LMK"] = ntoys*[149.2] #150.3] #149.2] #149.5]
+numgenevt["LMK"] = ntoys*[148.3] #150.3] #149.2] #149.5]
 numfitted["LMK1"] = ntoys*[(0,0)]
 numfitted["LMK2"] = ntoys*[(0,0)]
 numfitted["LMK3"] = ntoys*[(0,0)]
 numfitted["LMK4"] = ntoys*[(0,0)]
 numfitted["LMK5"] = ntoys*[(0,0)]
 
-numgenevt["LMPi"] = ntoys*[1380.0] #1380.0] #1379]
+numgenevt["LMPi"] = ntoys*[1378.0] #1380.0] #1379]
 numfitted["LMPi1"] = ntoys*[(0,0)]
 numfitted["LMPi2"] = ntoys*[(0,0)]
 numfitted["LMPi3"] = ntoys*[(0,0)]
@@ -396,7 +484,7 @@ fitted_signal = TH1F("fitted_signal","fitted_signal",100,1500,2300)
 fitted_signal.GetXaxis().SetTitle("Fitted signal events")
 errf_signal   = TH1F("errf_signal","errf_signal",100,0,100)
 errf_signal.GetXaxis().SetTitle("Fitted error")
-pull_signal   = TH1F("pull_signal","pull_signal",50,-5,5)
+pull_signal   = TH1F("pull_signal","pull_signal",nbinspull,lowerpullrange,upperpullrange)
 pull_signal.GetXaxis().SetTitle("Fitted Pull")
 
 for thistoy in range(0,ntoys) :
@@ -441,7 +529,7 @@ fitted_combo = TH1F("fitted_combo","fitted_combo",100,3000,5000)
 fitted_combo.GetXaxis().SetTitle("Fitted combo events")
 errf_combo   = TH1F("errf_combo","errf_combo",100,0,200)
 errf_combo.GetXaxis().SetTitle("Fitted error")
-pull_combo   = TH1F("pull_combo","pull_combo",50,-5,5)
+pull_combo   = TH1F("pull_combo","pull_combo",nbinspull,lowerpullrange,upperpullrange)
 pull_combo.GetXaxis().SetTitle("Fitted Pull")
 
 for thistoy in range(0,ntoys) :
@@ -485,7 +573,7 @@ fitted_lmk = TH1F("fitted_lmk","fitted_lmk",100,0,400)
 fitted_lmk.GetXaxis().SetTitle("Fitted lmk events")
 errf_lmk   = TH1F("errf_lmk","errf_lmk",100,0,100)
 errf_lmk.GetXaxis().SetTitle("Fitted error")
-pull_lmk   = TH1F("pull_lmk","pull_lmk",50,-5,5)
+pull_lmk   = TH1F("pull_lmk","pull_lmk",nbinspull,lowerpullrange,upperpullrange)
 pull_lmk.GetXaxis().SetTitle("Fitted Pull")
 
 for thistoy in range(0,ntoys) :
@@ -528,7 +616,7 @@ fitted_lmpi = TH1F("fitted_lmpi","fitted_lmpi",100,800,2000)
 fitted_lmpi.GetXaxis().SetTitle("Fitted lmpi events")
 errf_lmpi   = TH1F("errf_lmpi","errf_lmpi",100,0,150)
 errf_lmpi.GetXaxis().SetTitle("Fitted error")
-pull_lmpi   = TH1F("pull_lmpi","pull_lmpi",50,-5,5)
+pull_lmpi   = TH1F("pull_lmpi","pull_lmpi",nbinspull,lowerpullrange,upperpullrange)
 pull_lmpi.GetXaxis().SetTitle("Fitted Pull")
 
 for thistoy in range(0,ntoys) :
@@ -573,7 +661,7 @@ fitted_dspi = TH1F("fitted_dspi","fitted_dspi",500,0,1000)
 fitted_dspi.GetXaxis().SetTitle("Fitted dspi events")
 errf_dspi   = TH1F("errf_dspi","errf_dspi",100,0,500)
 errf_dspi.GetXaxis().SetTitle("Fitted error")
-pull_dspi   = TH1F("pull_dspi","pull_dspi",50,-5,5)
+pull_dspi   = TH1F("pull_dspi","pull_dspi",nbinspull,lowerpullrange,upperpullrange)
 pull_dspi.GetXaxis().SetTitle("Fitted Pull")
 
 for thistoy in range(0,ntoys) :

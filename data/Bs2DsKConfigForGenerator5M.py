@@ -33,7 +33,7 @@ def getconfig() :
     configdict["calibration_p0"] = 0.392 #-0.013
     configdict["TagOmegaSig"]   = 0.391
 
-    configdict["resolutionScaleFactor"] = 1.15 #1.37
+    configdict["resolutionScaleFactor"] = 1.37
     configdict["resolutionMeanBias"]    = 0.0
     
     configdict["nBinsMistag"]   = 50
@@ -41,6 +41,7 @@ def getconfig() :
     configdict["nBinsAcceptance"]   = 740
     
     configdict["lumRatio"] =  0.44/(0.59+0.44)
+    configdict["timeRange"] = [0.2, 15]
 
     configdict["tagEff_signal"]    = 0.403
     configdict["tagEff_dk"]        = 0.403
@@ -91,7 +92,8 @@ def getconfig() :
     configdict["num_dsdsstp"]   = [230*0.064, 496*0.064, 328*0.064, 86*0.064, 238*0.064]
     configdict["num_lm1"]       = [0,     0,   0,   0,    0]
     configdict["num_lm2"]       = [230*0.936*0.289, 496*0.936*0.289, 328*0.936*0.289, 86*0.936*0.289, 238*0.936*0.289]
-        
+
+            
     #----------------------------Signal----------------------------#
 
     configdict["mean"]    = [5367.51, 5367.51, 5367.51, 5367.51, 5367.51]

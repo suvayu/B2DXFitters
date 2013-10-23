@@ -16,18 +16,101 @@
 # -----------------------------------------------------------------------------
 # Load necessary libraries
 # -----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
+# settings for running without GaudiPython
+# -----------------------------------------------------------------------------
+""":"
+# This part is run by the shell. It does some setup which is convenient to save
+# work in common use cases.
+
+# make sure the environment is set up properly
+if test -n "$CMTCONFIG" \
+         -a -f $B2DXFITTERSROOT/$CMTCONFIG/libB2DXFittersDict.so \
+         -a -f $B2DXFITTERSROOT/$CMTCONFIG/libB2DXFittersLib.so; then
+    # all ok, software environment set up correctly, so don't need to do
+    # anything
+    true
+else
+    if test -n "$CMTCONFIG"; then
+        # clean up incomplete LHCb software environment so we can run
+        # standalone
+        echo Cleaning up incomplete LHCb software environment.
+        PYTHONPATH=`echo $PYTHONPATH | tr ':' '\n' | \
+            egrep -v "^($User_release_area|$MYSITEROOT/lhcb)" | \
+            tr '\n' ':' | sed -e 's/:$//'`
+        export PYTHONPATH
+        LD_LIBRARY_PATH=`echo $LD_LIBRARY_PATH | tr ':' '\n' | \
+            egrep -v "^($User_release_area|$MYSITEROOT/lhcb)" | \
+            tr '\n' ':' | sed -e 's/:$//'`
+	export LD_LIBRARY_PATH
+        exec env -u CMTCONFIG -u B2DXFITTERSROOT "$0" "$@"
+    fi
+    # automatic set up in standalone build mode
+    if test -z "$B2DXFITTERSROOT"; then
+        cwd="$(pwd)"
+        if test -z "$(dirname $0)"; then
+            # have to guess location of setup.sh
+            cd ../standalone
+            . ./setup.sh
+            cd "$cwd"
+        else
+            # know where to look for setup.sh
+            cd "$(dirname $0)"/../standalone
+            . ./setup.sh
+            cd "$cwd"
+        fi
+        unset cwd
+    fi
+fi
+# figure out which custom allocators are available
+# prefer jemalloc over tcmalloc
+for i in libjemalloc libtcmalloc; do
+    for j in `echo "$LD_LIBRARY_PATH" | tr ':' ' '` \
+            /usr/local/lib /usr/lib /lib; do
+        for k in `find "$j" -name "$i"'*.so.?' | sort -r`; do
+            if test \! -e "$k"; then
+                continue
+            fi
+            echo adding $k to LD_PRELOAD
+            if test -z "$LD_PRELOAD"; then
+                export LD_PRELOAD="$k"
+                break 3
+            else
+                export LD_PRELOAD="$LD_PRELOAD":"$k"
+                break 3
+            fi
+        done
+    done
+done
+# set batch scheduling (if schedtool is available)
+schedtool="`which schedtool 2>/dev/zero`"
+if test -n "$schedtool" -a -x "$schedtool"; then
+    echo "enabling batch scheduling for this job (schedtool -B)"
+    schedtool="$schedtool -B -e"
+else
+    schedtool=""
+fi
+
+# set ulimit to protect against bugs which crash the machine: 2G vmem max,
+# no more then 8M stack
+ulimit -v $((2048 * 1024))
+ulimit -s $((   8 * 1024))
+
+# trampoline into python
+exec $schedtool /usr/bin/time -v env python -O -- "$0" "$@"
+"""
+__doc__ = """ real docstring """
+# -----------------------------------------------------------------------------
+# Load necessary libraries
+# -----------------------------------------------------------------------------
+import B2DXFitters
+import ROOT
+from ROOT import RooFit
 from optparse import OptionParser
-from os.path  import exists
-from math import log
-
-# -----------------------------------------------------------------------------
-# Configuration settings
-# -----------------------------------------------------------------------------
-
-import GaudiPython
-GaudiPython.loaddict( 'B2DXFittersDict' )
-from ROOT import *
-from ROOT import RooCruijff
+from math     import pi, log
+from  os.path import exists
+import os, sys, gc
+gROOT.SetBatch()
 
 # PLOTTING CONFIGURATION
 plotData  =  True
@@ -36,13 +119,6 @@ plotModel =  True
 # MISCELLANEOUS
 debug = True
 bName = 'B_{s}'
-
-PIDK_down = log(5)
-PIDK_up = 5
-Dmass_down = 1930
-Dmass_up = 2015
-Bmass_down = 5300
-Bmass_up = 5800
 
 #------------------------------------------------------------------------------
 _usage = '%prog [options] <filename>'
@@ -87,6 +163,13 @@ parser.add_option( '-v', '--variable',
                    default = 'lab0_MassFitConsD_M',
                    help = 'set observable '
                    )
+parser.add_option( '--bin',
+                   dest = 'bin',
+                   action = 'store_true',
+                   default = 100,
+                   help = 'set number of bins'
+                   )
+
 #------------------------------------------------------------------------------
 def plotDataSet( dataset, frame, sample, mode, merge) :
 
@@ -543,16 +626,27 @@ if __name__ == '__main__' :
                       ( options.wsname, FILENAME ) )
     
     f.Close()
-    mVarTS = TString(options.var)    
+    bin = options.bin
+    mVarTS = TString(options.var)
     mass = w.var(mVarTS.Data())
-    mean  = 5366
-    #mass = RooRealVar( 'mass', '%s mass' % bName, mean, 5000, 5800, 'MeV/c^{2}' )
     sam = TString(options.sample)
     mod = TString(options.mode)
+       
     sufixTS = TString(options.sufix)
     if sufixTS != "":
         sufixTS = TString("_")+sufixTS
+
+    range_dw = mass.getMin()
+    range_up = mass.getMax()
     
+    if mVarTS != "lab1_PIDK":
+        unit = "[MeV/c^{2}]"
+    else:
+        unit = ""
+        
+    Bin = RooBinning(range_dw,range_up,'P')
+    Bin.addUniform(bin, range_dw, range_up)
+        
     merge = options.merge
     if sam != "both" and merge == True:
         print "You cannot plot with option sample up or down!"
@@ -636,16 +730,21 @@ if __name__ == '__main__' :
     frame_m.GetYaxis().SetLabelSize( 0.05 )
     frame_m.GetXaxis().SetLabelFont( 132 )
     frame_m.GetYaxis().SetLabelFont( 132 )
-    frame_m.GetXaxis().SetLabelOffset( 0.01 )
-    frame_m.GetYaxis().SetLabelOffset( 0.01 )
+    frame_m.GetXaxis().SetLabelOffset( 0.006 )
+    frame_m.GetYaxis().SetLabelOffset( 0.006 )
+    frame_m.GetXaxis().SetLabelColor( kWhite)
     
     frame_m.GetXaxis().SetTitleSize( 0.05 )
     frame_m.GetYaxis().SetTitleSize( 0.05 )
-    frame_m.GetYaxis().SetNdivisions(5)
+    frame_m.GetYaxis().SetNdivisions(512)
     
-    frame_m.GetXaxis().SetTitleOffset( 0.95 )
-    frame_m.GetYaxis().SetTitleOffset( 0.85 )
-
+    frame_m.GetXaxis().SetTitleOffset( 1.0 )
+    frame_m.GetYaxis().SetTitleOffset( 1.05 )
+    frame_m.GetYaxis().SetTitle((TString.Format("#font[12]{Candidates / ( " +
+                                                str(mass.getBinWidth(1))+" "+
+                                                unit+")}") ).Data())
+    
+    
     if mVarTS == "lab1_PIDK":
         frame_m.GetXaxis().SetTitle('#font[12]{ln(PIDK) [1]}')
     elif mVarTS == "lab2_MM":
@@ -653,27 +752,31 @@ if __name__ == '__main__' :
     else:
         frame_m.GetXaxis().SetTitle('#font[12]{m(B_{s} #rightarrow D_{s}#pi) [MeV/c^{2}]}')
                                         
-    
-    frame_m.GetYaxis().SetTitle('#font[12]{Events/(10.0 [MeV/c^{2}])}')
-    
+            
     if plotData : plotDataSet( dataset, frame_m, sam, mod , merge)
     if plotModel : plotFitModel( modelPDF, frame_m, sam, mVarTS, mod , merge)
     if plotData : plotDataSet( dataset, frame_m, sam, mod , merge)
-    
 
-    canvas = TCanvas("canvas", "canvas", 1400, 1000)
-    pad1 =  TPad("pad1","pad1",0.01,0.21,0.99,0.99)
-    pad2 =  TPad("pad2","pad2",0.01,0.01,0.99,0.20)
+    frame_m.GetYaxis().SetRangeUser(1,frame_m.GetMaximum()*1.1)
+
+    canvas = TCanvas("canvas", "canvas", 1200, 1000)
+    canvas.cd()
+    pad1 = TPad("upperPad", "upperPad", .050, .22, 1.0, 1.0)
+    pad1.SetBorderMode(0)
+    pad1.SetBorderSize(-1)
+    pad1.SetFillStyle(0)
+    pad1.SetTickx(0);
     pad1.Draw()
-    pad2.Draw()
-
+    pad1.cd()
+                                    
     if mVarTS == "lab1_PIDK":
-        legend = TLegend( 0.65, 0.38, 0.85, 0.88 )
+        legend = TLegend( 0.62, 0.45, 0.89, 0.89 )
     elif mVarTS == "lab2_MM":
-        legend = TLegend( 0.60, 0.38, 0.87, 0.88 )
+        legend = TLegend( 0.62, 0.45, 0.89, 0.89 )
     else:
-        legend = TLegend( 0.56, 0.30, 0.85, 0.80 )
+        legend = TLegend( 0.62, 0.45, 0.89, 0.89 )
                                         
+                                            
     
     legend.SetTextSize(0.05)
     legend.SetTextFont(12)
@@ -681,9 +784,7 @@ if __name__ == '__main__' :
     legend.SetShadowColor(0)
     legend.SetBorderSize(0)
     legend.SetTextFont(132)
-    
-    legend.SetHeader("LHCb Preliminary L_{int}=1fb^{-1}")
-
+        
     gr = TGraphErrors(10);
     gr.SetName("gr");
     gr.SetLineColor(kBlack);
@@ -731,15 +832,63 @@ if __name__ == '__main__' :
     h5.SetFillColor(kMagenta-2)
     h5.SetFillStyle(1001)
     legend.AddEntry(h5, "Combinatorial", "f")
-                
+
+    lhcbtext = TLatex()
+    lhcbtext.SetTextFont(132)
+    lhcbtext.SetTextColor(1)
+    lhcbtext.SetTextSize(0.07)
+    lhcbtext.SetTextAlign(12)
+                    
              
-
-
-    pad1.cd()
     frame_m.Draw()
     legend.Draw("same")
+    if mVarTS == "lab2_MM":
+        lhcbtext.DrawTextNDC(0.13,0.85,"LHCb")
+    else:
+        lhcbtext.DrawTextNDC(0.48,0.85,"LHCb")
+        
     pad1.Update()
 
+    canvas.cd()
+    pad2 = TPad("lowerPad", "lowerPad", .050, .005, 1.0, .3275)
+    pad2.SetBorderMode(0)
+    pad2.SetBorderSize(-1)
+    pad2.SetFillStyle(0)
+    pad2.SetBottomMargin(0.35)
+    pad2.SetTickx(0);
+    pad2.Draw()
+    pad2.SetLogy(0)
+    pad2.cd()
+    
+    gStyle.SetOptLogy(0)
+    
+    frame_p = mass.frame(RooFit.Title("pull_frame"))
+    frame_p.Print("v")
+    frame_p.SetTitle("")
+    frame_p.GetYaxis().SetTitle("")
+    frame_p.GetYaxis().SetTitleSize(0.09)
+    frame_p.GetYaxis().SetTitleOffset(0.26)
+    frame_p.GetYaxis().SetTitleFont(62)
+    frame_p.GetYaxis().SetNdivisions(106)
+    frame_p.GetYaxis().SetLabelSize(0.12)
+    frame_p.GetYaxis().SetLabelOffset(0.006)
+    frame_p.GetXaxis().SetTitleSize(0.15)
+    frame_p.GetXaxis().SetTitleFont(132)
+    frame_p.GetXaxis().SetTitleOffset(0.85)
+    frame_p.GetXaxis().SetNdivisions(512)
+    frame_p.GetYaxis().SetNdivisions(5)
+    frame_p.GetXaxis().SetLabelSize(0.12)
+    frame_p.GetXaxis().SetLabelFont( 132 )
+    frame_p.GetYaxis().SetLabelFont( 132 )
+    
+    if mVarTS == "lab1_PIDK":
+        frame_p.GetXaxis().SetTitle('#font[12]{bachelor log(PIDK) [1]}')
+    elif mVarTS == "lab2_MM":
+        frame_p.GetXaxis().SetTitle('#font[12]{m(D_{s}) [MeV/c^{2}]}')
+    else:
+        frame_p.GetXaxis().SetTitle('#font[12]{m(B_{s} #rightarrow D_{s}K) [MeV/c^{2}]}')
+                                                                                    
+    
     frame_m.Print("v")
     if mVarTS == "lab1_PIDK":
         pullnameTS = TString("FullPdf_Int[lab0_MassFitConsD_M,lab2_MM]_Norm[lab0_MassFitConsD_M,lab1_PIDK,lab2_MM]_Comp[FullPdf]")
@@ -750,13 +899,11 @@ if __name__ == '__main__' :
         
     pullHist  = frame_m.pullHist(pullname2TS.Data(),pullnameTS.Data())
     axisX = pullHist.GetXaxis()
-    axisX.Set(70,Bmass_down,Bmass_up)
-    if mVarTS == "lab2_MM":
-        axisX.Set(70,Dmass_down,Dmass_up)
-    if mVarTS == "lab1_PIDK":
-        axisX.Set(70,PIDK_down,PIDK_up)
-                    
-                
+    frame_p.addPlotable(pullHist,"P")
+    frame_p.Draw()
+        
+    axisX.Set(Bin.numBins(), Bin.array())
+    
     axisY = pullHist.GetYaxis()
     axisY.SetLabelSize(0.12)
     axisY.SetNdivisions(5)
@@ -771,41 +918,22 @@ if __name__ == '__main__' :
     graph = TGraph(2)
     graph.SetMaximum(max)
     graph.SetMinimum(min)
-    graph.SetPoint(1,Bmass_down,0)
-    graph.SetPoint(2,Bmass_up,0)
-    if mVarTS == "lab2_MM":
-        graph.SetPoint(1,Dmass_down,0)
-        graph.SetPoint(2,Dmass_up,0)
-    if mVarTS == "lab1_PIDK":
-        graph.SetPoint(1,PIDK_down,0)
-        graph.SetPoint(2,PIDK_up,0)
-                        
+    graph.SetPoint(1,range_dw,0)
+    graph.SetPoint(2,range_up,0)
+                  
 
     graph2 = TGraph(2)
     graph2.SetMaximum(max)
     graph2.SetMinimum(min)
-    graph2.SetPoint(1,Bmass_down,-3)
-    graph2.SetPoint(2,Bmass_up,-3)
-    if mVarTS == "lab2_MM":
-        graph2.SetPoint(1,Dmass_down,-3)
-        graph2.SetPoint(2,Dmass_up,-3)
-    if mVarTS == "lab1_PIDK":
-        graph2.SetPoint(1,PIDK_down,-3)
-        graph2.SetPoint(2,PIDK_up,-3)
-                        
+    graph2.SetPoint(1,range_dw,-3)
+    graph2.SetPoint(2,range_up,-3)
+                            
     graph2.SetLineColor(kRed)
     graph3 = TGraph(2)
     graph3.SetMaximum(max)
     graph3.SetMinimum(min)
-    graph3.SetPoint(1,Bmass_down,3)
-    graph3.SetPoint(2,Bmass_up,3)
-    if mVarTS == "lab2_MM":
-        graph3.SetPoint(1,Dmass_down,3)
-        graph3.SetPoint(2,Dmass_up,3)
-    if mVarTS == "lab1_PIDK":
-        graph3.SetPoint(1,PIDK_down,3)
-        graph3.SetPoint(2,PIDK_up,3)
-                
+    graph3.SetPoint(1,range_dw,3)
+    graph3.SetPoint(2,range_up,3)
     graph3.SetLineColor(kRed)
 
     pullHist.SetTitle("")
@@ -814,7 +942,7 @@ if __name__ == '__main__' :
     #print log(5)
     
     pad2.cd()
-    pullHist.Draw("ap")
+    frame_p.Draw()
     graph.Draw("same")
     graph2.Draw("same")
     graph3.Draw("same")
