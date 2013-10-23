@@ -97,9 +97,9 @@ __doc__ = """ real docstring """
 # -----------------------------------------------------------------------------
 # Load necessary libraries
 # -----------------------------------------------------------------------------
-import B2DXFitters
-import ROOT
-from ROOT import RooFit
+from B2DXFitters import *
+from ROOT import *
+
 from optparse import OptionParser
 from math     import pi, log
 import os, sys, gc
