@@ -101,6 +101,9 @@ __doc__ = """ real docstring """
 # -----------------------------------------------------------------------------
 import B2DXFitters
 import ROOT
+from B2DXFitters import *
+from ROOT import *
+
 from ROOT import RooFit
 from optparse import OptionParser
 from math     import pi, log
