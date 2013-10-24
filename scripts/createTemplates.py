@@ -107,7 +107,7 @@ from ROOT import RooFit
 from optparse import OptionParser
 from math     import pi, log
 import os, sys, gc
-        
+gROOT.SetBatch()        
 # -----------------------------------------------------------------------------
 # Configuration settings
 # -----------------------------------------------------------------------------

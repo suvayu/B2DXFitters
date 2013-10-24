@@ -114,6 +114,7 @@ from optparse import OptionParser
 from math     import pi, log
 from  os.path import exists
 import os, sys, gc
+gROOT.SetBatch()
 
 # -----------------------------------------------------------------------------
 # Configuration settings
@@ -126,7 +127,7 @@ AcceptanceFunction       =  'PowLawAcceptance'
 # BLINDING
 Blinding =  False
 
-param_limits = {"lower" : -10., "upper" : 10.}
+param_limits = {"lower" : -5., "upper" : 5.}
 
 # DATA FILES
 saveName      = 'work_'
@@ -592,7 +593,7 @@ def runBdGammaFitterOnData(debug, wsname,
                                     RooFit.Verbose(False), RooFit.SumW2Error(True))
             
         else:
-            myfitresult = totPDF.fitTo(dataWA, RooFit.Save(1), RooFit.Optimize(2), RooFit.Strategy(2),\
+            myfitresult = totPDF[0].fitTo(dataWA, RooFit.Save(1), RooFit.Optimize(2), RooFit.Strategy(2),\
                                        RooFit.Verbose(False), RooFit.SumW2Error(True))
             
         myfitresult.Print("v")
@@ -604,7 +605,7 @@ def runBdGammaFitterOnData(debug, wsname,
                                     RooFit.SumW2Error(True), RooFit.PrintLevel(-1))
             
         else:
-            myfitresult = totPDF.fitTo(dataWA, RooFit.Save(1), RooFit.Optimize(2), RooFit.Strategy(2),\
+            myfitresult = totPDF[0].fitTo(dataWA, RooFit.Save(1), RooFit.Optimize(2), RooFit.Strategy(2),\
                                        RooFit.SumW2Error(True), RooFit.PrintLevel(-1))
             
         print 'Matrix quality is',myfitresult.covQual()

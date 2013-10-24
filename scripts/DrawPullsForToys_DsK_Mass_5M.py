@@ -92,16 +92,17 @@ from ROOT import RooFit
 from optparse import OptionParser
 from math     import pi, log
 import os, sys, gc
+gROOT.SetBatch()
 
 import sys
 sys.path.append("../data/")
 
 debug = True
 largeToys = False
-drawGeneratedYields = False
+drawGeneratedYields = True
 
-ntoys               = 1000
-toysdir             = '/afs/cern.ch/work/a/adudziak/public/Bs2DsKToys/NEWToys/'
+ntoys               = 5000
+toysdir             = '/afs/cern.ch/work/a/adudziak/public/Bs2DsKToys/Gamma70_5M/'
 toystupleprefix     = 'DsK_Toys_sWeights_ForTimeFit_'
 if largeToys : toystupleprefix     = 'DsK_Toys_FullLarge_Tree_'
 toystuplesuffix     = '.root'
@@ -110,7 +111,7 @@ if largeToys : toysresultprefix    = 'DsK_Toys_FullLarge_MassFitResult_'
 toysresultsuffix    = '.log'    
 
 #outputdir = '/afs/cern.ch/work/g/gligorov/public/Bs2DsKToys/sWeightToys/DsKToysAgnieszka_010813/'
-outputdir = '/afs/cern.ch/work/a/adudziak/public/Bs2DsKToys/NEWToys/'
+outputdir = '/afs/cern.ch/work/a/adudziak/public/Bs2DsKToys/Gamma70_5M/'
 
 nbinspull = 50
 lowerpullrange = -3
