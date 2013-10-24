@@ -113,7 +113,6 @@ gROOT.SetBatch()
 from B2DXFitters import taggingutils, cpobservables
 
 
-RooRandom.randomGenerator().SetSeed(746829245) #746829203) #78249292)
 
 RooAbsData.setDefaultStorageType(RooAbsData.Tree)
 
@@ -126,7 +125,7 @@ RooAbsReal.defaultIntegratorConfig().getConfigSection('RooAdaptiveGaussKronrodIn
 
 
 #------------------------------------------------------------------------------
-def runBsDsKGenerator( debug, single, configName, rangeDown, rangeUp, numberOfEvents ) :
+def runBsDsKGenerator( debug, single, configName, rangeDown, rangeUp, numberOfEvents, seed , size) :
 
     # Get the configuration file
     myconfigfilegrabber = __import__(configName,fromlist=['getconfig']).getconfig
@@ -141,7 +140,11 @@ def runBsDsKGenerator( debug, single, configName, rangeDown, rangeUp, numberOfEv
         else :
             print option, " = ", myconfigfile[option]
     print "=========================================================="
-                                                                    
+
+    RooRandom.randomGenerator().SetSeed(int(seed)) #746829203) #78249292)
+    print int(seed)
+    size = int(size)
+    print size
     #workout = RooWorkspace("workspace","workspace")
 
     Gammad       = RooRealVar('Gammad','Gammad', myconfigfile["Gammad"])                     # in ps^{-1}
@@ -943,7 +946,7 @@ def runBsDsKGenerator( debug, single, configName, rangeDown, rangeUp, numberOfEv
         n2VarBs.append(RooRealVar(     "DblCBBsPDF_n2_%s"%(nameDs2[i]),     "n2",      myconfigfile["n2"][i]      ))
         fracVarBs.append(RooRealVar(   "DblCBBsPDF_frac_%s"%(nameDs2[i]),   "frac",    myconfigfile["frac"][i]    ))
     
-        num_signal.append(RooRealVar("num_signal_%s"%(nameDs2[i]),"num_signal_%s"%(nameDs2[i]), myconfigfile["num_signal"][i]))
+        num_signal.append(RooRealVar("num_signal_%s"%(nameDs2[i]),"num_signal_%s"%(nameDs2[i]), myconfigfile["num_signal"][i]*size))
     
         massB_signal.append(Bs2Dsh2011TDAnaModels.buildDoubleCBEPDF_sim(massVar_B, meanVarBs[i],
                                                                         sigma1VarBs[i], alpha1VarBs[i], n1VarBs[i],
@@ -981,7 +984,7 @@ def runBsDsKGenerator( debug, single, configName, rangeDown, rangeUp, numberOfEv
     
     #-------------------------------------------------- Bd -> DK ----------------------------------------------------#
     
-        num_dk.append(RooRealVar("num_dk_%s"%(nameDs2[i]),"num_dk",myconfigfile["num_dk"][i]))
+        num_dk.append(RooRealVar("num_dk_%s"%(nameDs2[i]),"num_dk",myconfigfile["num_dk"][i]*size))
                     
                
         timeandmass_dk.append(RooProdPdf("timeandmass_dk_%s"%(nameDs2[i]),"timeandmass_dk",RooArgList(timeerr_dk,
@@ -997,7 +1000,7 @@ def runBsDsKGenerator( debug, single, configName, rangeDown, rangeUp, numberOfEv
         sigma1VarBd.append(RooRealVar( "DblCBBdPDF_sigma1_%s"%(nameDs2[i]), "sigma1",  myconfigfile["sigma1"][i]*myconfigfile["ratio1"] ))
         sigma2VarBd.append(RooRealVar(  "DblCBBdPDF_sigma2_%s"%(nameDs2[i]), "sigma2",  myconfigfile["sigma2"][i]*myconfigfile["ratio2"] ))
     
-        num_dsk.append(RooRealVar("num_dsk_%s"%(nameDs[i]),"num_dsk",myconfigfile["num_dsk"][i]))
+        num_dsk.append(RooRealVar("num_dsk_%s"%(nameDs[i]),"num_dsk",myconfigfile["num_dsk"][i]*size))
         
         massB_dsk.append(Bs2Dsh2011TDAnaModels.buildDoubleCBEPDF_sim(massVar_B, meanVarBd[i],
                                                                      sigma1VarBd[i], alpha1VarBs[i], n1VarBs[i],
@@ -1032,7 +1035,7 @@ def runBsDsKGenerator( debug, single, configName, rangeDown, rangeUp, numberOfEv
         #The Bs->DsPi - MDFitter
         MDFitter_dspi.append(RooProdPdf("MDFitter_dspi_%s"%(nameDs2[i]),"MDFitter_dspi",RooArgList(massB_dspi[i], massD_dspi[i], PIDK_dspi[i])))
                                  
-        num_dspi.append(RooRealVar("num_dspi_%s"%(nameDs2[i]),"num_dspi", myconfigfile["num_dspi"][i]))
+        num_dspi.append(RooRealVar("num_dspi_%s"%(nameDs2[i]),"num_dspi", myconfigfile["num_dspi"][i]*size))
         
             
         
@@ -1045,7 +1048,7 @@ def runBsDsKGenerator( debug, single, configName, rangeDown, rangeUp, numberOfEv
     #------------------------------------------------- Lb -> LcK ----------------------------------------------------#
     
               
-        num_lck.append(RooRealVar("num_lck_%s"%(nameDs2[i]),"num_lck", myconfigfile["num_lck"][i]))
+        num_lck.append(RooRealVar("num_lck_%s"%(nameDs2[i]),"num_lck", myconfigfile["num_lck"][i]*size))
         
               
         timeandmass_lck.append(RooProdPdf("timeandmass_lck_%s"%(nameDs2[i]),"timeandmass_lck",RooArgList(timeerr_lck,
@@ -1057,7 +1060,7 @@ def runBsDsKGenerator( debug, single, configName, rangeDown, rangeUp, numberOfEv
     #------------------------------------------------- Lb -> Dsp, Dsstp ----------------------------------------------------#
     
                
-        num_dsdsstp.append(RooRealVar("num_dsdsstp_%s"%(nameDs2[i]),"num_dsdsstp", myconfigfile["num_dsdsstp"][i]))
+        num_dsdsstp.append(RooRealVar("num_dsdsstp_%s"%(nameDs2[i]),"num_dsdsstp", myconfigfile["num_dsdsstp"][i]*size))
         
         #The Lb->Dsp, Lb->Dsstp - mass
         massD_dsdsstp.append(massD_signal[i])
@@ -1078,7 +1081,7 @@ def runBsDsKGenerator( debug, single, configName, rangeDown, rangeUp, numberOfEv
     #------------------------------------------------- Combinatorial ----------------------------------------------------#
 
         #The combinatorics - mass
-        num_combo.append(RooRealVar("num_combo_%s"%(nameDs2[i]),"num_combo", myconfigfile["num_combo"][i]))
+        num_combo.append(RooRealVar("num_combo_%s"%(nameDs2[i]),"num_combo", myconfigfile["num_combo"][i]*size))
     
         #The combinatorics - mass B
         cBVar.append(RooRealVar("CombBkg_slope_Bs_%s"%(nameDs2[i]),"CombBkg_slope_Bs", myconfigfile["cB"][i]))
@@ -1107,7 +1110,7 @@ def runBsDsKGenerator( debug, single, configName, rangeDown, rangeUp, numberOfEv
         #The low mass - MDFitter
         MDFitter_lm1.append(RooProdPdf("MDFitter_lm1_%s"%(nameDs2[i]),"MDFitter_lm1",RooArgList(massB_lm1, massD_lm1[i], PIDK_lm1)))
         
-        num_lm1.append( RooRealVar("num_lm1_%s"%(nameDs2[i]),"num_lm1",myconfigfile["num_lm1"][i]))
+        num_lm1.append( RooRealVar("num_lm1_%s"%(nameDs2[i]),"num_lm1",myconfigfile["num_lm1"][i]*size))
                      
         
         timeandmass_lm1.append(RooProdPdf("timeandmass_lm1_%s"%(nameDs2[i]),"timeandmass_lm1",RooArgList(timeerr_lm1,
@@ -1117,7 +1120,7 @@ def runBsDsKGenerator( debug, single, configName, rangeDown, rangeUp, numberOfEv
           
     #------------------------------------------------- Low mass Pi ----------------------------------------------------#
 
-        num_lm2.append(RooRealVar("num_lm2_%s"%(nameDs2[i]),"num_lm2", myconfigfile["num_lm2"][i]))
+        num_lm2.append(RooRealVar("num_lm2_%s"%(nameDs2[i]),"num_lm2", myconfigfile["num_lm2"][i]*size))
     
         #The low mass - mass D
         massD_lm2.append(massD_signal[i])
@@ -1362,7 +1365,7 @@ def runBsDsKGenerator( debug, single, configName, rangeDown, rangeUp, numberOfEv
             canv_Btime.Print("DsK_Toys_Btime.pdf")
         if not single :
             #workout.writeToFile("/afs/cern.ch/work/g/gligorov/public/Bs2DsKToys/sWeightToys/DsKToys_Full_2ksample_140912/DsK_Toys_Full_Work_2kSample_"+str(i)+".root")
-            workout.writeToFile("/afs/cern.ch/work/a/adudziak/public/Bs2DsKToys/Gamma70_5M/DsK_Toys_Work_"+str(i)+".root")
+            workout.writeToFile("/afs/cern.ch/work/a/adudziak/public/Bs2DsKToys/Gamma70_5M_10x/DsK_Toys_Work_"+str(i)+".root")
             #outfile  = TFile("/afs/cern.ch/work/g/gligorov/public/Bs2DsKToys/sWeightToys/DsKToys_Full_2ksample_140912/DsK_Toys_Full_Tree_2kSample_"+str(i)+".root","RECREATE")
         else :
             workout.writeToFile("Data_Toys_Single_Work_DsK.root")
@@ -1401,12 +1404,20 @@ parser.add_option( '-e','--rangeUp',
 
 parser.add_option( '--numberOfEvents',
                    dest = 'numberOfEvents',
-                   default = 7372)
+                   default = 73720)
 
 
 parser.add_option( '--configName',
                    dest = 'configName',
                    default = 'Bs2DsKConfigForGenerator5M')
+
+parser.add_option( '--seed',
+                   dest = 'seed',
+                   default = 746829245)
+
+parser.add_option( '--size',
+                   dest = 'size',
+                   default = 1)
 
 # -----------------------------------------------------------------------------
 if __name__ == '__main__' :
@@ -1420,7 +1431,9 @@ if __name__ == '__main__' :
     import sys
     sys.path.append("../data/")
     
-    runBsDsKGenerator( options.debug,  options.single , options.configName, options.rangeDown, options.rangeUp, options.numberOfEvents)
+    runBsDsKGenerator( options.debug,  options.single , options.configName,
+                       options.rangeDown, options.rangeUp, options.numberOfEvents,
+                       options.seed, options.size)
     
 # -----------------------------------------------------------------------------
                                 
