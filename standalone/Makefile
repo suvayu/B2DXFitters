@@ -3,6 +3,9 @@ alldicts += B2DXFittersRflx.cxx
 
 SUBDIRS = readTree taggingtoy
 
+STDOPTFLAGS.GNU = -O0
+TUNEFLAGS.GNU   = 
+
 include Rules.mk
 
 # Mac OS/X hack
