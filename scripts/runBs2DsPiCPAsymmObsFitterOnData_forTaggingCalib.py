@@ -110,6 +110,10 @@ from optparse import OptionParser
 from math     import pi, log
 from  os.path import exists
 import os, sys, gc
+gROOT.SetBatch()
+
+AcceptanceFunction       =  'PowLawAcceptance'#BdPTAcceptance'  # None/BdPTAcceptance/DTAcceptanceLHCbNote2007041
+
 # MISCELLANEOUS
 bName = 'B_{s}'
 
