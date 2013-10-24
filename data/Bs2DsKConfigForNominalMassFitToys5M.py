@@ -6,37 +6,27 @@ def getconfig() :
     from math import log
 
     # PHYSICAL PARAMETERS
-    configdict["BMassDown"]  = 5300
-    configdict["BMassUp"]    = 5800
-    configdict["DMassDown"]  = 1930
-    configdict["DMassUp"]    = 2015
-    configdict["TimeDown"]   = 0.2
-    configdict["TimeUp"]     = 15.0
-    configdict["PDown"]      = 0.0
-    configdict["PUp"]        = 650000.0
-    configdict["PTDown"]      = 100.0
-    configdict["PTUp"]        = 45000.0
-    configdict["PIDDown"]      = 1.6094379124341003
-    configdict["PIDUp"]        = 5.0106352940962555
-    configdict["nTracksDown"]      = 15
-    configdict["nTracksUp"]        = 1000.0
-    configdict["TagDown"]     = -1.0
-    configdict["TagUp"]       = 1.0
-    configdict["TagOmegaDown"]= 0.0
-    configdict["TagOmegaUp"]  = 0.5
-    configdict["TerrDown"]    = 0.01
-    configdict["TerrUp"]      = 0.1
-    configdict["IDDown"]      = -1000.0
-    configdict["IDUp"]        = 1000.0
-                                
+    configdict["BMass"]      = [5300,    5800    ]
+    configdict["DMass"]      = [1930,    2015    ]
+    configdict["Time"]       = [0.2,     15.0    ]
+    configdict["Momentum"]   = [3000.0,  650000.0]
+    configdict["TrMom"]      = [400.0,   45000.0 ]
+    configdict["PIDK"]       = [0.0,     150.0   ]
+    configdict["nTracks"]    = [15.0,    1000.0  ]
+    configdict["TagDec"]     = [-1.0,    1.0     ]
+    configdict["TagOmega"]   = [0.0,     0.5     ]
+    configdict["Terr"]       = [0.01,    0.1     ]
+    configdict["BachCharge"] = [-1000.0, 1000.0  ]
+    configdict["BDTG"]       = [0.3,     1.0     ]
+                                            
+                               
     configdict["Bin1"]      = 20
     configdict["Bin2"]      = 20
     configdict["Var1"]      = "lab1_PT"
     configdict["Var2"]      = "nTracks"
     configdict["WeightingDimensions"] = 2                                 
     
-    configdict["BDTGDown"]   = 0.3
-    configdict["BDTGUp"]   = 1.0
+    
     configdict["PIDBach"]    = 5
     configdict["PIDChild"]   = 0
     configdict["PIDProton"]  = 5    
