@@ -5,6 +5,9 @@
 !-----------------------------------------------------------------------------
 
 ! 2013-10-25 - Manuel Tobias Schiller
+ - incorporate improvements from Rules.mk that accumulated in other projects
+
+! 2013-10-25 - Manuel Tobias Schiller
  - more work on ROOT 6 compatibility - can load our library now, but not run
    code, ROOT I/O is to blame for now (can't read templates written with old
    ROOT versions), but I guess that will be fixed before ROOT 6 is released
