@@ -29,7 +29,7 @@ public:
   PlotSettings(const PlotSettings& other);
   virtual TObject* clone() const { return new PlotSettings(*this); }
 
-  friend ostream & operator<< (ostream &out, const PlotSettings &s);
+  friend std::ostream & operator<< (std::ostream &out, const PlotSettings &s);
   virtual ~PlotSettings();
 
   void SetDir(TString dir)   { _dir = dir; }

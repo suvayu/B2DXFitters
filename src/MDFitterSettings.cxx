@@ -381,7 +381,7 @@ MDFitterSettings::MDFitterSettings(const MDFitterSettings& other) :
 
 MDFitterSettings::~MDFitterSettings() { }
 
-ostream & operator<< (ostream &out, const MDFitterSettings &s)
+std::ostream & operator<< (std::ostream &out, const MDFitterSettings &s)
 {
   out<<"MDFitterSettings("<<s.GetName()<<","<<s.GetTitle()<<")"<<std::endl;
   out<<"B(s) mass range: ("<<s._massBRange[0]<<","<<s._massBRange[1]<<"), variable name: "<<s._mVar<<std::endl;

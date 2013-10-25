@@ -3,6 +3,13 @@
 
 // Include files
 
+#ifndef __GCCXML__
+// this file is only ever used in dictionary generation, and I have not found
+// out what the ROOT6 rootcling/genreflex equivalent sets, so I force things
+// from here... - Manuel 10-25-13
+#define __GCCXML__
+#endif
+
 /** @file DeltaMsRooFitterDict.h dict/DeltaMsRooFitterDict.h
  *
  *

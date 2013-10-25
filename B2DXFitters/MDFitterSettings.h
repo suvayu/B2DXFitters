@@ -31,7 +31,7 @@ public:
 
   virtual ~MDFitterSettings();
 
-  friend ostream & operator<< (ostream &out, const MDFitterSettings &s);
+  friend std::ostream & operator<< (std::ostream &out, const MDFitterSettings &s);
   void Print() { std::cout<<*this<<std::endl;}
 
   std::vector <Double_t> GetMassBRange()    { return _massBRange;    }

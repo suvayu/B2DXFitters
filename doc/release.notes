@@ -4,6 +4,11 @@
 ! Purpose     : RooFit-based fitters for B -> D X
 !-----------------------------------------------------------------------------
 
+! 2013-10-25 - Manuel Tobias Schiller
+ - more work on ROOT 6 compatibility - can load our library now, but not run
+   code, ROOT I/O is to blame for now (can't read templates written with old
+   ROOT versions), but I guess that will be fixed before ROOT 6 is released
+
 ! 2012-10-23 - Agnieszka Dziurda
  - All scripts connected to MDFitter and sFit work for Urania v2r1.
  - I have switched to proper MC files, which are here:

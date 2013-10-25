@@ -249,7 +249,7 @@ class SharedArray : public TObject
 	ClassDef(SharedArray, 1);
 };
 
-#ifdef __GCCXML__
+#if defined(__GCCXML__) || defined(__CINT__)
 template class SharedArrayImp<char>;
 template class SharedArrayImp<short>;
 template class SharedArrayImp<int>;
@@ -274,7 +274,7 @@ template class SharedArray<unsigned long>;
 template class SharedArray<unsigned long long>;
 template class SharedArray<float>;
 template class SharedArray<double>;
-#endif // __GCCXML__
+#endif // __GCCXML__ || __CINT__
 
 #endif // _SHAREDARRAY_H
 

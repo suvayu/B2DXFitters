@@ -171,10 +171,10 @@ class RooBinned1DQuinticBase : public BASE
 };
 
 // help genreflex
-#ifdef __GCCXML__
+#if defined(__GCCXML__) || defined(__CINT__)
 template class RooBinned1DQuinticBase<RooAbsReal>;
 template class RooBinned1DQuinticBase<RooAbsPdf>;
-#endif // __GCCXML__
+#endif // __GCCXML__ || __CINT__
 
 typedef RooBinned1DQuinticBase<RooAbsReal> RooBinned1DQuintic;
 typedef RooBinned1DQuinticBase<RooAbsPdf> RooBinned1DQuinticPdf;

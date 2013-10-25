@@ -26,7 +26,7 @@ public:
   HistPID1D(const HistPID1D& other);
   virtual TObject* clone() const { return new HistPID1D(*this); }
 
-  friend ostream & operator<< (ostream &out, const HistPID1D &s);
+  friend std::ostream & operator<< (std::ostream &out, const HistPID1D &s);
   virtual ~HistPID1D();
   
   void Print() { std::cout<<*this<<std::endl;}
