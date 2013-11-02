@@ -16,17 +16,33 @@
 TagDLLToTagDec::TagDLLToTagDec(const char *name, const char *title, 
 	RooAbsReal& _dll) :
     RooAbsCategory(name,title), 
-    dll("dll","dll",this,_dll)
+    dll("dll","dll",this,_dll),
+    indecisions("indecisions", "indecisions", this)
 { 
     defineType("B", +1);
     defineType("Bbar", -1);
     defineType("Untagged", 0);
 } 
 
+TagDLLToTagDec::TagDLLToTagDec(const char *name, const char *title, 
+	RooAbsReal& _dll, RooArgList& _indecisions) :
+    RooAbsCategory(name,title), 
+    dll("dll","dll",this,_dll),
+    indecisions("indecisions", "indecisions", this)
+{ 
+    defineType("Untagged", 0);
+    for (int i = 1; i < (1 << _indecisions.getSize()); ++i) {
+	assert(dynamic_cast<RooAbsCategory*>(indecisions.at(i)));
+	defineType(Form("B%d", i), +i);
+	defineType(Form("Bbar%d", i), -i);
+    }
+} 
+
 
 TagDLLToTagDec::TagDLLToTagDec(const TagDLLToTagDec& other, const char* name) :  
     RooAbsCategory(other,name), 
-    dll("dll",this,other.dll)
+    dll("dll",this,other.dll),
+    indecisions("indecisions", this, other.indecisions)
 { 
 } 
 
@@ -35,5 +51,16 @@ TagDLLToTagDec::~TagDLLToTagDec() { }
 
 RooCatType TagDLLToTagDec::evaluate() const 
 {
-    return *lookupType(int(TagTools::tagDec(double(dll))));
+    if (!((RooArgList&)indecisions).getSize()) {
+	return *lookupType(int(TagTools::tagDec(double(dll))));
+    } else {
+	int code = 0, i = 0;
+	RooFIter it = indecisions.fwdIterator();
+	for (RooAbsCategory* c = static_cast<RooAbsCategory*>(it.next());
+		c; c = static_cast<RooAbsCategory*>(it.next()), ++i) {
+	    if (int(c->getIndex()))
+		code |= 1 << i;
+	}
+	return *lookupType(code * int(TagTools::tagDec(double(dll))));
+    }
 }

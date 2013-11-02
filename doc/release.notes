@@ -5,6 +5,10 @@
 !-----------------------------------------------------------------------------
 
 ! 2013-11-02 - Manuel Tobias Schiller
+ - add possibility to classify output tagging decision of a combination of
+   taggers according to which input taggers "fired"
+
+! 2013-11-02 - Manuel Tobias Schiller
  - provide functions and RooFit classes to combine uncorrelated taggers
 
 ! 2013-11-02 - Manuel Tobias Schiller

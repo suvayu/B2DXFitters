@@ -10,12 +10,16 @@
 #include "RooAbsReal.h"
 #include "RooRealProxy.h"
 #include "RooAbsCategory.h"
+#include "RooArgList.h"
+#include "RooListProxy.h"
  
 class TagDLLToTagDec : public RooAbsCategory {
 public:
   TagDLLToTagDec() {} ; 
   TagDLLToTagDec(const char *name, const char *title,
 	      RooAbsReal& _dll);
+  TagDLLToTagDec(const char *name, const char *title,
+	      RooAbsReal& _dll, RooArgList& _indecisions);
   TagDLLToTagDec(const TagDLLToTagDec& other, const char* name=0) ;
   virtual TObject* clone(const char* newname) const { return new TagDLLToTagDec(*this,newname); }
   virtual ~TagDLLToTagDec();
@@ -23,6 +27,7 @@ public:
 protected:
 
   RooRealProxy dll;
+  RooListProxy indecisions;
   
   RooCatType evaluate() const;
 
