@@ -25,6 +25,7 @@
 // RooFit
 #include "RooFit.h"
 #include "Riostream.h"
+#include "RooMsgService.h"
 #include "RooMath.h"
 #include "RooAbsReal.h"
 #include "RooRealVar.h"
@@ -35,8 +36,6 @@
 #include "B2DXFitters/RooBinnedFun.h"
 
 using namespace std;
-
-//ClassImp(RooBinnedFun);
 
 //_____________________________________________________________________________
 RooBinnedFun::RooBinnedFun()
@@ -125,7 +124,11 @@ Int_t RooBinnedFun::getAnalyticalIntegral(RooArgSet& allVars, RooArgSet& analVar
 //_____________________________________________________________________________
 Double_t RooBinnedFun::analyticalIntegral(Int_t code, const char* /* rangeName */) const
 {
-  assert(code==1) ;
+  if (code != 1) {
+    coutE(InputArguments) << "RooBinnedFun::analyticalIntegral(" << GetName()
+        << "): argument \"code\" can only have value 1" << std::endl;
+    assert(code==1) ;
+  }
   Double_t result = 0;
   for(unsigned i=0;i<_u.size()-1;++i) {
         // TODO: check range...
@@ -173,7 +176,12 @@ Int_t RooBinnedFun::getMaxVal(const RooArgSet& vars) const
 //_____________________________________________________________________________
 Double_t RooBinnedFun::maxVal(Int_t code) const
 {
-    assert(code==1);
+    if (code != 1) {
+      coutE(InputArguments) << "RooBinnedFun::maxVal(" << GetName()
+          << "): argument \"code\" can only have value 1" << std::endl;
+      assert(code==1);
+    }
+
     RooFIter iter = _coefList.fwdIterator();
     RooAbsReal *c(0);
     double res = 0;

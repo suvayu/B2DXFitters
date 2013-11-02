@@ -117,6 +117,7 @@ void RooEffConvGenContext::generateEvent(RooArgSet &theEvent, Int_t remaining)
          // Smeared value in acceptance range, transfer values to output set
          theEvent = *_modelVars ;
          theEvent = *_pdfVars ;
+	 _cvOut->setVal(convValSmeared) ; // Add this line again
          return;
       }
    }

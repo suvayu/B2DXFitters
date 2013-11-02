@@ -1,4 +1,5 @@
 #include <algorithm>
+#include <iostream>
 #include "TMath.h"
 #include "RooAbsReal.h"
 #include "B2DXFitters/RooCubicSplineKnot.h"
@@ -197,6 +198,15 @@ RooCubicSplineKnot::S_jk RooCubicSplineKnot::S_jk_sum(int i, const RooArgList& b
          + get(_S_jk,i,3)*get(b,i,3);
 }
 
+RooCubicSplineKnot::S_edge::S_edge(const S_edge& other, double offset) :
+    alpha(other.alpha), beta(other.beta)
+{
+    if (offset != 0) {
+        std::cout << "RooCubicSplitKnot::S_edge: argument \"offset\" is not equal to 0" << std::endl;
+        assert(offset==0);
+    }
+}
+
 // S matrix for natural extrapolation beyond the first/last knot...
 RooCubicSplineKnot::S_edge RooCubicSplineKnot::S_jk_edge(bool left, const RooArgList& b) const {
        using RooCubicSplineKnot_aux::get;
@@ -362,4 +372,6 @@ double  RooCubicSplineKnot::expIntegral(const TH1* hist, double gamma, TVectorD&
     }
 
     return chisq;
+    // silence compiler warning about fI being unused
+    (void) fI;
 }

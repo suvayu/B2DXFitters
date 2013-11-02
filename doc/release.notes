@@ -5,6 +5,10 @@
 !-----------------------------------------------------------------------------
 
 ! 2013-11-02 - Manuel Tobias Schiller
+ - get latest patches for spline acceptance etc.
+ - fix compiler warning
+
+! 2013-11-02 - Manuel Tobias Schiller
  - update the cFit plotting code (to aid debugging knotty problems where a
    print statement won't do the trick in the future)
 

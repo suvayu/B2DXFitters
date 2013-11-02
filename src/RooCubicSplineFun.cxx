@@ -35,6 +35,7 @@
 // RooFit
 #include "RooFit.h"
 #include "Riostream.h"
+#include "RooMsgService.h"
 #include "RooMath.h"
 #include "RooAbsReal.h"
 #include "RooRealVar.h"
@@ -231,7 +232,11 @@ Int_t RooCubicSplineFun::getAnalyticalIntegral(RooArgSet& allVars, RooArgSet& an
 //_____________________________________________________________________________
 Double_t RooCubicSplineFun::analyticalIntegral(Int_t code, const char* /* rangeName */) const
 {
-  assert(code==1) ;
+  if (code != 1) {
+    coutE(InputArguments) << "RooCubicSplineFun::analyticalIntegral(" << GetName()
+        << "): argument \"code\" can only have value 1" << std::endl;
+    assert(code==1) ;
+  }
   return _aux.analyticalIntegral(_coefList);
 }
 
@@ -289,7 +294,11 @@ Int_t RooCubicSplineFun::getMaxVal(const RooArgSet& vars) const
 //_____________________________________________________________________________
 Double_t RooCubicSplineFun::maxVal(Int_t code) const
 {
-    assert(code==1);
+    if (code != 1) {
+      coutE(InputArguments) << "RooCubicSplineFun::maxVal(" << GetName()
+          << "): argument \"code\" can only have value 1" << std::endl;
+      assert(code==1) ;
+    }
     RooFIter iter = _coefList.fwdIterator();
     RooAbsReal *c(0);
     double res = 0;

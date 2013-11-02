@@ -32,6 +32,7 @@
 
 #include "TMath.h"
 #include "Riostream.h"
+#include "RooMsgService.h"
 #include "B2DXFitters/RooGaussEfficiencyModel.h"
 #include "B2DXFitters/RooEffConvGenContext.h"
 #include "RooMath.h"
@@ -39,9 +40,6 @@
 #include "RooRandom.h"
 
 using namespace std;
-
-//ClassImp(RooGaussEfficiencyModel)
-//;
 
 namespace {
     enum basisType { noBasis=0  ,  expBasis= 3
@@ -348,7 +346,13 @@ Int_t RooGaussEfficiencyModel::getGenerator(const RooArgSet& directVars, RooArgS
 //_____________________________________________________________________________
 void RooGaussEfficiencyModel::generateEvent(Int_t code)
 {
-  assert(code==1) ;
+  if (code != 1) {
+    coutE(InputArguments) << "RooGaussEfficiencyModel::generateEvent("
+        << GetName()<< "): argument \"code\" can only have value 1"
+        << std::endl;
+    assert(code==1);
+  }
+
   Double_t xmin = x.min();
   Double_t xmax = x.max();
   Double_t m = mean*msf;
