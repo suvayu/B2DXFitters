@@ -8,27 +8,29 @@
 
 #include "Riostream.h" 
 
-#include "B2DXFitters/Inverse.h" 
+#include "B2DXFitters/TagDLLToTagEta.h" 
 #include "RooAbsReal.h" 
 
-Inverse::Inverse(const char *name, const char *title, 
-	RooAbsReal& _val) :
+#include "B2DXFitters/TagCombiner.h"
+
+TagDLLToTagEta::TagDLLToTagEta(const char *name, const char *title, 
+	RooAbsReal& _dll) :
     RooAbsReal(name,title), 
-    val("val","val",this,_val)
+    dll("dll","dll",this,_dll)
 { 
 } 
 
 
-Inverse::Inverse(const Inverse& other, const char* name) :  
+TagDLLToTagEta::TagDLLToTagEta(const TagDLLToTagEta& other, const char* name) :  
     RooAbsReal(other,name), 
-    val("val",this,other.val)
+    dll("dll",this,other.dll)
 { 
 } 
 
-Inverse::~Inverse() { }
+TagDLLToTagEta::~TagDLLToTagEta() { }
 
 
-Double_t Inverse::evaluate() const 
+Double_t TagDLLToTagEta::evaluate() const 
 {
-    return 1. / double(val);
+    return TagTools::tagEta(double(dll));
 }
