@@ -421,9 +421,9 @@ double RooBinned2DBicubicBase<BASE>::evalXY(
 }
 
 // instantiate the templates we want to have
-#if !defined(__GCCXML__) && !defined(__CINT__)
+#if !defined(__GCCXML__) && !defined(__CINT__) && !defined(__ROOTCLING__)
 template class RooBinned2DBicubicBase<RooAbsReal>;
 template class RooBinned2DBicubicBase<RooAbsPdf>;
-#endif // !__GCCXML__ && !__CINT__
+#endif // !__GCCXML__ && !__CINT__ && !__ROOTCLING__
 
 // vim: ft=cpp:sw=4:tw=78

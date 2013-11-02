@@ -1478,7 +1478,7 @@ namespace WeightingUtils {
       }
     else { if( debug == true) std::cout<<"[ERROR] Wrong sample andmode"<<std::endl; }
     
-    TString smp[size];
+    std::vector<TString> smp(size);
     if ( type.Contains("MC") == true )
       {
 	for(int i = 0; i< size; i++ )
@@ -1636,7 +1636,7 @@ namespace WeightingUtils {
       }
     else { if( debug == true) { std::cout<<"[ERROR] Wrong sample and mode"<<std::endl;} return NULL; }
 
-    TString smp[size];
+    std::vector<TString> smp(size);
 
     if ( type.Contains("MC") == true )
       {
@@ -1879,7 +1879,7 @@ namespace WeightingUtils {
       }
     else { if( debug == true) {std::cout<<"[ERROR] Wrong sample andmode"<<std::endl;} return NULL; }
 
-    TString smp[size];
+    std::vector<TString> smp(size);
     if ( type.Contains("MC") == true )
       {
         for(int i = 0; i< size; i++ )
@@ -2194,7 +2194,7 @@ namespace WeightingUtils {
       }
     else { if( debug == true) {std::cout<<"[ERROR] Wrong sample andmode"<<std::endl;} return NULL; }
 
-    TString smp[size];
+    std::vector<TString> smp(size);
     
     if ( type.Contains("MC") == true )
       {

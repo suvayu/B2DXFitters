@@ -66,7 +66,7 @@ public:
   Bool_t  GetLogStatus() { return _log; }
   Bool_t  GetTitleStatus() { return _title; }
 
-  void Print() { std::cout<<*this<<std::endl;}
+  virtual void Print(Option_t * /*option*/ = "") const { std::cout<<*this<<std::endl;}
 
 protected:
 

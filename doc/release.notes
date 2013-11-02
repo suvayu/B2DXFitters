@@ -4,6 +4,11 @@
 ! Purpose     : RooFit-based fitters for B -> D X
 !-----------------------------------------------------------------------------
 
+! 2013-11-02 - Manuel Tobias Schiller
+ - some more source code cleanups, now code compiles with clang, too, and I
+   have been able to run the cFit in ROOT 6 (crashes at the end after the fit
+   is done, but we're almost there, now...)
+
 ! 2013-10-25 - Manuel Tobias Schiller
  - incorporate improvements from Rules.mk that accumulated in other projects
 

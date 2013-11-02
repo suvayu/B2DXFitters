@@ -1172,7 +1172,7 @@ namespace MassFitUtils {
       }
     
     // Read sample (means down or up)  from path //
-    TString smp[size1];
+    std::vector<TString> smp(size1);
 
     if (debug == true) { std::cout<<"Polarities of MC samples:"<<std::endl;}
     for (int i=0; i<size1; i++){
@@ -1533,7 +1533,7 @@ namespace MassFitUtils {
     } // end of for loop
 
     //Read sample (means down or up) from path//
-    TString smp[ndsets];
+    std::vector<TString> smp(ndsets);
     for (unsigned i = 0; i< ndsets; i++) {
       smp[i] = CheckPolarity(MCFileName[i], debug);
     }
@@ -2541,7 +2541,7 @@ namespace MassFitUtils {
     Int_t sizeMD = modeMD.size();
     Int_t sizeMU = modeMU.size();
 
-    TString smpMD[sizeMD];
+    std::vector<TString> smpMD(sizeMD);
 
     // Read sample (down.up) from paths for MD// 
     for(int i = 0; i< sizeMD; i++ )
@@ -2551,7 +2551,7 @@ namespace MassFitUtils {
       }
 
     //Read sample (down,up) from path for MU// 
-    TString smpMU[sizeMU];
+    std::vector<TString> smpMU(sizeMU);
     for(int i = 0; i< sizeMU; i++ )
       {
 	smpMU[i] = CheckPolarity(MCFileNameMU[i], debug);

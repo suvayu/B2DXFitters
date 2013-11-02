@@ -32,7 +32,7 @@ public:
   virtual ~MDFitterSettings();
 
   friend std::ostream & operator<< (std::ostream &out, const MDFitterSettings &s);
-  void Print() { std::cout<<*this<<std::endl;}
+  virtual void Print(Option_t * /*option*/ = "") const { std::cout<<*this<<std::endl;}
 
   std::vector <Double_t> GetMassBRange()    { return _massBRange;    }
   std::vector <Double_t> GetMassDRange()    { return _massDRange;    }

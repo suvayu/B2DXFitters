@@ -396,9 +396,9 @@ std::list<Double_t>* RooBinned1DQuinticBase<BASE>::plotSamplingHint(
 }
 
 // instantiate the templates we want to have
-#if !defined(__GCCXML__) && !defined(__CINT__)
+#if !defined(__GCCXML__) && !defined(__CINT__) && !defined(__ROOTCLING___)
 template class RooBinned1DQuinticBase<RooAbsReal>;
 template class RooBinned1DQuinticBase<RooAbsPdf>;
-#endif // !__GCCXML__ && !__CINT__
+#endif // !__GCCXML__ && !__CINT_ && !__ROOTCLING___
 
 // vim: ft=cpp:sw=4:tw=78

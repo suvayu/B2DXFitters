@@ -142,10 +142,10 @@ class RooBinned2DBicubicBase : public BASE
 };
 
 // help genreflex
-#if defined(__GCCXML__) || defined(__CINT__)
+#if defined(__GCCXML__) || defined(__CINT__) || defined(__ROOTCLING__)
 template class RooBinned2DBicubicBase<RooAbsReal>;
 template class RooBinned2DBicubicBase<RooAbsPdf>;
-#endif // __GCCXML__ || __CINT__
+#endif // __GCCXML__ || __CINT__ || __ROOTCLING__
 
 typedef RooBinned2DBicubicBase<RooAbsReal> RooBinned2DBicubic;
 typedef RooBinned2DBicubicBase<RooAbsPdf> RooBinned2DBicubicPdf;

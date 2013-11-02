@@ -29,7 +29,7 @@ public:
   friend std::ostream & operator<< (std::ostream &out, const HistPID2D &s);
   virtual ~HistPID2D();
   
-  void Print() { std::cout<<*this<<std::endl;}
+  virtual void Print(Option_t * /*option*/ = "") const { std::cout<<*this<<std::endl;}
 
   
   TH2F* GetHist(TString& pol) { 
