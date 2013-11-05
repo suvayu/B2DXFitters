@@ -4,8 +4,6 @@
 <!--- Created : 2011-05-23 -->
 <lcgdict>
     <selection>
-	<class pattern = "std::vector<*>" />
-
 	<class name = "BdPTAcceptance"              />
 	<class name = "FitMeTool"                   />
 	<class name = "CombBkgPTPdf"                />
@@ -39,8 +37,6 @@
 	<class name = "RangeAcceptance" />
 	<class name = "PowLawAcceptance" />
 	<class name = "NonOscTaggingPdf" />
-
-	<class name = "std::pair<std::string, RooAbsData*>" /> 
 
 	<function pattern = "GeneralModels::*"          />
 	<function pattern = "PTResModels::*"            />

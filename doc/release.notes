@@ -4,6 +4,9 @@
 ! Purpose     : RooFit-based fitters for B -> D X
 !-----------------------------------------------------------------------------
 
+! 2013-11-05 - Manuel Tobias Schiller
+ - remove a couple of (apparently) unused dictionary entries
+
 ! 2013-11-02 - Manuel Tobias Schiller
  - add possibility to classify output tagging decision of a combination of
    taggers according to which input taggers "fired"
