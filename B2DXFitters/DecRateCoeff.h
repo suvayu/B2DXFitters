@@ -376,6 +376,27 @@ class DecRateCoeff : public RooAbsReal
 	/// hash the contents of a RooArgSet
 	UInt_t hash(const RooArgSet& s) const;
 
+	/** @brief consistency check to be used in constructor
+	 *
+	 * @param obs		set of observables
+	 * @param params	set of other parameters
+	 * @param etaobs	mistag observable (if set)
+	 * @param etas		calibrated mistags (if non-empty)
+	 *
+	 * @returns true if sets valid input for construction of DecRateCoeff
+	 *
+	 * observables must not overlap with one another, and parameters must
+	 * not overlap with observables, be constant or inherit from
+	 * TaggingCat.
+	 *
+	 * tagging calibrations may (obviously) depend on the mistag
+	 * observables.
+	 */
+	bool checkDepsForConsistency(
+		const RooArgSet& obs, const RooArgSet& params,
+		const RooAbsArg* etaobs = 0,
+		const RooArgSet& etas = RooArgSet()) const;
+
     private:
 	static RooArgSet s_emptyset;	///< empty RooArgSet
 	RooCategoryProxy m_qf;		///< final state charge

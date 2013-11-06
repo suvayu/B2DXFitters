@@ -47,146 +47,11 @@ DecRateCoeff::DecRateCoeff(
     m_atageff("atageff", "atageff", this, atageff),
     m_cacheMgr(this), m_nset(0), m_nsethash(0), m_flags(flags)
 {
-    // make sure there are no crazy dependencies which would make analytic
-    // integrals impossible
-    if (!qf.isConstant()) {
-	assert(!qf.overlaps(qt) || qt.isConstant());
-	assert(!qf.overlaps(Cf) || Cf.isConstant());
-	assert(!qf.overlaps(Cfbar) || Cfbar.isConstant());
-	assert(!qf.overlaps(etaobs) || etaobs.isConstant());
-	assert(!qf.overlaps(etapdf) || etapdf.isConstant());
-	assert(!qf.overlaps(tageff) || tageff.isConstant());
-	assert(!qf.overlaps(eta) || eta.isConstant());
-	assert(!qf.overlaps(aprod) || aprod.isConstant());
-	assert(!qf.overlaps(adet) || adet.isConstant());
-	assert(!qf.overlaps(atageff) || atageff.isConstant());
-    }
-
-    if (!qt.isConstant()) {
-	assert(!qt.overlaps(qf) || qf.isConstant());
-	assert(!qt.overlaps(Cf) || Cf.isConstant());
-	assert(!qt.overlaps(Cfbar) || Cfbar.isConstant());
-	assert(!qt.overlaps(etaobs) || etaobs.isConstant());
-	assert(!qt.overlaps(etapdf) || etapdf.isConstant());
-	assert(!qt.overlaps(tageff) || tageff.isConstant());
-	assert(!qt.overlaps(eta) || eta.isConstant());
-	assert(!qt.overlaps(aprod) || aprod.isConstant());
-	assert(!qt.overlaps(adet) || adet.isConstant());
-	assert(!qt.overlaps(atageff) || atageff.isConstant());
-    }
-
-    if (!Cf.isConstant()) {
-	assert(!Cf.overlaps(qf) || qf.isConstant());
-	assert(!Cf.overlaps(qt) || qt.isConstant());
-	assert(!Cf.overlaps(etaobs) || etaobs.isConstant());
-	assert(!Cf.overlaps(etapdf) || etapdf.isConstant());
-	assert(!Cf.overlaps(tageff) || tageff.isConstant());
-	assert(!Cf.overlaps(eta) || eta.isConstant());
-	assert(!Cf.overlaps(aprod) || aprod.isConstant());
-	assert(!Cf.overlaps(adet) || adet.isConstant());
-	assert(!Cf.overlaps(atageff) || atageff.isConstant());
-    }
-
-    if (!Cfbar.isConstant()) {
-	assert(!Cfbar.overlaps(qf) || qf.isConstant());
-	assert(!Cfbar.overlaps(qt) || qt.isConstant());
-	assert(!Cfbar.overlaps(etaobs) || etaobs.isConstant());
-	assert(!Cfbar.overlaps(etapdf) || etapdf.isConstant());
-	assert(!Cfbar.overlaps(tageff) || tageff.isConstant());
-	assert(!Cfbar.overlaps(eta) || eta.isConstant());
-	assert(!Cfbar.overlaps(aprod) || aprod.isConstant());
-	assert(!Cfbar.overlaps(adet) || adet.isConstant());
-	assert(!Cfbar.overlaps(atageff) || atageff.isConstant());
-    }
-
-    if (!etaobs.isConstant()) {
-	assert(!etaobs.overlaps(qf) || qf.isConstant());
-	assert(!etaobs.overlaps(qt) || qt.isConstant());
-	assert(!etaobs.overlaps(Cf) || Cf.isConstant());
-	assert(!etaobs.overlaps(Cfbar) || Cfbar.isConstant());
-	assert(etaobs.overlaps(etapdf));
-	assert(!etaobs.overlaps(tageff) || tageff.isConstant());
-	assert(etaobs.overlaps(eta));
-	assert(!etaobs.overlaps(aprod) || aprod.isConstant());
-	assert(!etaobs.overlaps(adet) || adet.isConstant());
-	assert(!etaobs.overlaps(atageff) || atageff.isConstant());
-    }
-
-    if (!etapdf.isConstant()) {
-	assert(!etapdf.overlaps(qf) || qf.isConstant());
-	assert(!etapdf.overlaps(qt) || qt.isConstant());
-	assert(!etapdf.overlaps(Cf) || Cf.isConstant());
-	assert(!etapdf.overlaps(Cfbar) || Cfbar.isConstant());
-	assert(etapdf.overlaps(etaobs));
-	assert(!etapdf.overlaps(tageff) || tageff.isConstant());
-	assert(!etapdf.overlaps(aprod) || aprod.isConstant());
-	assert(!etapdf.overlaps(adet) || adet.isConstant());
-	assert(!etapdf.overlaps(atageff) || atageff.isConstant());
-    }
-
-    if (!tageff.isConstant()) {
-	assert(!tageff.overlaps(qf) || qf.isConstant());
-	assert(!tageff.overlaps(qt) || qt.isConstant());
-	assert(!tageff.overlaps(Cf) || Cf.isConstant());
-	assert(!tageff.overlaps(Cfbar) || Cfbar.isConstant());
-	assert(!tageff.overlaps(etaobs) || etaobs.isConstant());
-	assert(!tageff.overlaps(etapdf) || etapdf.isConstant());
-	assert(!tageff.overlaps(eta) || eta.isConstant());
-	assert(!tageff.overlaps(aprod) || aprod.isConstant());
-	assert(!tageff.overlaps(adet) || adet.isConstant());
-	assert(!tageff.overlaps(atageff) || atageff.isConstant());
-    }
-
-    if (!eta.isConstant()) {
-	assert(!eta.overlaps(qf) || qf.isConstant());
-	assert(!eta.overlaps(qt) || qt.isConstant());
-	assert(!eta.overlaps(Cf) || Cf.isConstant());
-	assert(!eta.overlaps(Cfbar) || Cfbar.isConstant());
-	assert(eta.overlaps(etaobs));
-	assert(!eta.overlaps(tageff) || tageff.isConstant());
-	assert(!eta.overlaps(aprod) || aprod.isConstant());
-	assert(!eta.overlaps(adet) || adet.isConstant());
-	assert(!eta.overlaps(atageff) || atageff.isConstant());
-    }
-
-    if (!aprod.isConstant()) {
-	assert(!aprod.overlaps(qf) || qf.isConstant());
-	assert(!aprod.overlaps(qt) || qt.isConstant());
-	assert(!aprod.overlaps(Cf) || Cf.isConstant());
-	assert(!aprod.overlaps(Cfbar) || Cfbar.isConstant());
-	assert(!aprod.overlaps(etaobs) || etaobs.isConstant());
-	assert(!aprod.overlaps(etapdf) || etapdf.isConstant());
-	assert(!aprod.overlaps(tageff) || tageff.isConstant());
-	assert(!aprod.overlaps(eta) || eta.isConstant());
-	assert(!aprod.overlaps(adet) || adet.isConstant());
-	assert(!aprod.overlaps(atageff) || atageff.isConstant());
-    }
-
-    if (!adet.isConstant()) {
-	assert(!adet.overlaps(qf) || qf.isConstant());
-	assert(!adet.overlaps(qt) || qt.isConstant());
-	assert(!adet.overlaps(Cf) || Cf.isConstant());
-	assert(!adet.overlaps(Cfbar) || Cfbar.isConstant());
-	assert(!adet.overlaps(etaobs) || etaobs.isConstant());
-	assert(!adet.overlaps(etapdf) || etapdf.isConstant());
-	assert(!adet.overlaps(tageff) || tageff.isConstant());
-	assert(!adet.overlaps(eta) || eta.isConstant());
-	assert(!adet.overlaps(aprod) || aprod.isConstant());
-	assert(!adet.overlaps(atageff) || atageff.isConstant());
-    }
-
-    if (!atageff.isConstant()) {
-	assert(!atageff.overlaps(qf) || qf.isConstant());
-	assert(!atageff.overlaps(qt) || qt.isConstant());
-	assert(!atageff.overlaps(Cf) || Cf.isConstant());
-	assert(!atageff.overlaps(Cfbar) || Cfbar.isConstant());
-	assert(!atageff.overlaps(etaobs) || etaobs.isConstant());
-	assert(!atageff.overlaps(etapdf) || etapdf.isConstant());
-	assert(!atageff.overlaps(tageff) || tageff.isConstant());
-	assert(!atageff.overlaps(eta) || eta.isConstant());
-	assert(!atageff.overlaps(aprod) || aprod.isConstant());
-	assert(!atageff.overlaps(adet) || adet.isConstant());
-    }
+    assert(checkDepsForConsistency(
+		RooArgSet(qf, qt, etaobs),
+		RooArgSet(Cf, Cfbar, etapdf, tageff,
+		    eta, aprod, adet, atageff),
+		&etaobs, RooArgSet(eta, etapdf)));
 } 
 
 DecRateCoeff::DecRateCoeff(
@@ -214,167 +79,11 @@ DecRateCoeff::DecRateCoeff(
     m_atageff("atageff", "atageff", this, atageff),
     m_cacheMgr(this), m_nset(0), m_nsethash(0), m_flags(flags)
 {
-    // make sure there are no crazy dependencies which would make analytic
-    // integrals impossible
-    if (!qf.isConstant()) {
-	assert(!qf.overlaps(qt) || qt.isConstant());
-	assert(!qf.overlaps(Cf) || Cf.isConstant());
-	assert(!qf.overlaps(Cfbar) || Cfbar.isConstant());
-	assert(!qf.overlaps(etaobs) || etaobs.isConstant());
-	assert(!qf.overlaps(etapdf) || etapdf.isConstant());
-	assert(!qf.overlaps(tageff) || tageff.isConstant());
-	assert(!qf.overlaps(eta) || eta.isConstant());
-	assert(!qf.overlaps(etabar) || etabar.isConstant());
-	assert(!qf.overlaps(aprod) || aprod.isConstant());
-	assert(!qf.overlaps(adet) || adet.isConstant());
-	assert(!qf.overlaps(atageff) || atageff.isConstant());
-    }
-
-    if (!qt.isConstant()) {
-	assert(!qt.overlaps(qf) || qf.isConstant());
-	assert(!qt.overlaps(Cf) || Cf.isConstant());
-	assert(!qt.overlaps(Cfbar) || Cfbar.isConstant());
-	assert(!qt.overlaps(etaobs) || etaobs.isConstant());
-	assert(!qt.overlaps(etapdf) || etapdf.isConstant());
-	assert(!qt.overlaps(tageff) || tageff.isConstant());
-	assert(!qt.overlaps(eta) || eta.isConstant());
-	assert(!qt.overlaps(etabar) || etabar.isConstant());
-	assert(!qt.overlaps(aprod) || aprod.isConstant());
-	assert(!qt.overlaps(adet) || adet.isConstant());
-	assert(!qt.overlaps(atageff) || atageff.isConstant());
-    }
-
-    if (!Cf.isConstant()) {
-	assert(!Cf.overlaps(qf) || qf.isConstant());
-	assert(!Cf.overlaps(qt) || qt.isConstant());
-	assert(!Cf.overlaps(etaobs) || etaobs.isConstant());
-	assert(!Cf.overlaps(etapdf) || etapdf.isConstant());
-	assert(!Cf.overlaps(tageff) || tageff.isConstant());
-	assert(!Cf.overlaps(eta) || eta.isConstant());
-	assert(!Cf.overlaps(etabar) || etabar.isConstant());
-	assert(!Cf.overlaps(aprod) || aprod.isConstant());
-	assert(!Cf.overlaps(adet) || adet.isConstant());
-	assert(!Cf.overlaps(atageff) || atageff.isConstant());
-    }
-
-    if (!Cfbar.isConstant()) {
-	assert(!Cfbar.overlaps(qf) || qf.isConstant());
-	assert(!Cfbar.overlaps(qt) || qt.isConstant());
-	assert(!Cfbar.overlaps(etaobs) || etaobs.isConstant());
-	assert(!Cfbar.overlaps(etapdf) || etapdf.isConstant());
-	assert(!Cfbar.overlaps(tageff) || tageff.isConstant());
-	assert(!Cfbar.overlaps(eta) || eta.isConstant());
-	assert(!Cfbar.overlaps(etabar) || etabar.isConstant());
-	assert(!Cfbar.overlaps(aprod) || aprod.isConstant());
-	assert(!Cfbar.overlaps(adet) || adet.isConstant());
-	assert(!Cfbar.overlaps(atageff) || atageff.isConstant());
-    }
-
-    if (!etaobs.isConstant()) {
-	assert(!etaobs.overlaps(qf) || qf.isConstant());
-	assert(!etaobs.overlaps(qt) || qt.isConstant());
-	assert(!etaobs.overlaps(Cf) || Cf.isConstant());
-	assert(!etaobs.overlaps(Cfbar) || Cfbar.isConstant());
-	assert(etaobs.overlaps(etapdf));
-	assert(!etaobs.overlaps(tageff) || tageff.isConstant());
-	assert(etaobs.overlaps(eta));
-	assert(etaobs.overlaps(etabar));
-	assert(!etaobs.overlaps(aprod) || aprod.isConstant());
-	assert(!etaobs.overlaps(adet) || adet.isConstant());
-	assert(!etaobs.overlaps(atageff) || atageff.isConstant());
-    }
-
-    if (!etapdf.isConstant()) {
-	assert(!etapdf.overlaps(qf) || qf.isConstant());
-	assert(!etapdf.overlaps(qt) || qt.isConstant());
-	assert(!etapdf.overlaps(Cf) || Cf.isConstant());
-	assert(!etapdf.overlaps(Cfbar) || Cfbar.isConstant());
-	assert(etapdf.overlaps(etaobs));
-	assert(!etapdf.overlaps(tageff) || tageff.isConstant());
-	assert(!etapdf.overlaps(aprod) || aprod.isConstant());
-	assert(!etapdf.overlaps(adet) || adet.isConstant());
-	assert(!etapdf.overlaps(atageff) || atageff.isConstant());
-    }
-
-    if (!tageff.isConstant()) {
-	assert(!tageff.overlaps(qf) || qf.isConstant());
-	assert(!tageff.overlaps(qt) || qt.isConstant());
-	assert(!tageff.overlaps(Cf) || Cf.isConstant());
-	assert(!tageff.overlaps(Cfbar) || Cfbar.isConstant());
-	assert(!tageff.overlaps(etaobs) || etaobs.isConstant());
-	assert(!tageff.overlaps(etapdf) || etapdf.isConstant());
-	assert(!tageff.overlaps(eta) || eta.isConstant());
-	assert(!tageff.overlaps(etabar) || etabar.isConstant());
-	assert(!tageff.overlaps(aprod) || aprod.isConstant());
-	assert(!tageff.overlaps(adet) || adet.isConstant());
-	assert(!tageff.overlaps(atageff) || atageff.isConstant());
-    }
-
-    if (!eta.isConstant()) {
-	assert(!eta.overlaps(qf) || qf.isConstant());
-	assert(!eta.overlaps(qt) || qt.isConstant());
-	assert(!eta.overlaps(Cf) || Cf.isConstant());
-	assert(!eta.overlaps(Cfbar) || Cfbar.isConstant());
-	assert(eta.overlaps(etaobs));
-	assert(!eta.overlaps(tageff) || tageff.isConstant());
-	assert(!eta.overlaps(aprod) || aprod.isConstant());
-	assert(!eta.overlaps(adet) || adet.isConstant());
-	assert(!eta.overlaps(atageff) || atageff.isConstant());
-    }
-
-    if (!etabar.isConstant()) {
-	assert(!etabar.overlaps(qf) || qf.isConstant());
-	assert(!etabar.overlaps(qt) || qt.isConstant());
-	assert(!etabar.overlaps(Cf) || Cf.isConstant());
-	assert(!etabar.overlaps(Cfbar) || Cfbar.isConstant());
-	assert(etabar.overlaps(etaobs));
-	assert(!etabar.overlaps(tageff) || tageff.isConstant());
-	assert(!etabar.overlaps(aprod) || aprod.isConstant());
-	assert(!etabar.overlaps(adet) || adet.isConstant());
-	assert(!etabar.overlaps(atageff) || atageff.isConstant());
-    }
-
-    if (!aprod.isConstant()) {
-	assert(!aprod.overlaps(qf) || qf.isConstant());
-	assert(!aprod.overlaps(qt) || qt.isConstant());
-	assert(!aprod.overlaps(Cf) || Cf.isConstant());
-	assert(!aprod.overlaps(Cfbar) || Cfbar.isConstant());
-	assert(!aprod.overlaps(etaobs) || etaobs.isConstant());
-	assert(!aprod.overlaps(etapdf) || etapdf.isConstant());
-	assert(!aprod.overlaps(tageff) || tageff.isConstant());
-	assert(!aprod.overlaps(eta) || eta.isConstant());
-	assert(!aprod.overlaps(etabar) || etabar.isConstant());
-	assert(!aprod.overlaps(adet) || adet.isConstant());
-	assert(!aprod.overlaps(atageff) || atageff.isConstant());
-    }
-
-    if (!adet.isConstant()) {
-	assert(!adet.overlaps(qf) || qf.isConstant());
-	assert(!adet.overlaps(qt) || qt.isConstant());
-	assert(!adet.overlaps(Cf) || Cf.isConstant());
-	assert(!adet.overlaps(Cfbar) || Cfbar.isConstant());
-	assert(!adet.overlaps(etaobs) || etaobs.isConstant());
-	assert(!adet.overlaps(etapdf) || etapdf.isConstant());
-	assert(!adet.overlaps(tageff) || tageff.isConstant());
-	assert(!adet.overlaps(eta) || eta.isConstant());
-	assert(!adet.overlaps(etabar) || etabar.isConstant());
-	assert(!adet.overlaps(aprod) || aprod.isConstant());
-	assert(!adet.overlaps(atageff) || atageff.isConstant());
-    }
-
-    if (!atageff.isConstant()) {
-	assert(!atageff.overlaps(qf) || qf.isConstant());
-	assert(!atageff.overlaps(qt) || qt.isConstant());
-	assert(!atageff.overlaps(Cf) || Cf.isConstant());
-	assert(!atageff.overlaps(Cfbar) || Cfbar.isConstant());
-	assert(!atageff.overlaps(etaobs) || etaobs.isConstant());
-	assert(!atageff.overlaps(etapdf) || etapdf.isConstant());
-	assert(!atageff.overlaps(tageff) || tageff.isConstant());
-	assert(!atageff.overlaps(eta) || eta.isConstant());
-	assert(!atageff.overlaps(etabar) || etabar.isConstant());
-	assert(!atageff.overlaps(aprod) || aprod.isConstant());
-	assert(!atageff.overlaps(adet) || adet.isConstant());
-    }
+    assert(checkDepsForConsistency(
+		RooArgSet(qf, qt, etaobs),
+		RooArgSet(Cf, Cfbar, etapdf, tageff,
+		    eta, etabar, aprod, adet, atageff),
+		&etaobs, RooArgSet(eta, etabar, etapdf)));
 } 
 
 DecRateCoeff::DecRateCoeff(
@@ -394,112 +103,9 @@ DecRateCoeff::DecRateCoeff(
     m_atageff("atageff", "atageff", this, atageff),
     m_cacheMgr(this), m_nset(0), m_nsethash(0), m_flags(flags)
 {
-    // make sure there are no crazy dependencies which would make analytic
-    // integrals impossible
-    if (!qf.isConstant()) {
-	assert(!qf.overlaps(qt) || qt.isConstant());
-	assert(!qf.overlaps(Cf) || Cf.isConstant());
-	assert(!qf.overlaps(Cfbar) || Cfbar.isConstant());
-	assert(!qf.overlaps(tageff) || tageff.isConstant());
-	assert(!qf.overlaps(eta) || eta.isConstant());
-	assert(!qf.overlaps(aprod) || aprod.isConstant());
-	assert(!qf.overlaps(adet) || adet.isConstant());
-	assert(!qf.overlaps(atageff) || atageff.isConstant());
-    }
-
-    if (!qt.isConstant()) {
-	assert(!qt.overlaps(qf) || qf.isConstant());
-	assert(!qt.overlaps(Cf) || Cf.isConstant());
-	assert(!qt.overlaps(Cfbar) || Cfbar.isConstant());
-	assert(!qt.overlaps(tageff) || tageff.isConstant() ||
-		tageff.InheritsFrom("TaggingCat"));
-	assert(!qt.overlaps(eta) || eta.isConstant() ||
-		eta.InheritsFrom("TaggingCat"));
-	assert(!qt.overlaps(aprod) || aprod.isConstant());
-	assert(!qt.overlaps(adet) || adet.isConstant());
-	assert(!qt.overlaps(atageff) || atageff.isConstant());
-    }
-
-    if (!Cf.isConstant()) {
-	assert(!Cf.overlaps(qf) || qf.isConstant());
-	assert(!Cf.overlaps(qt) || qt.isConstant());
-	assert(!Cf.overlaps(tageff) || tageff.isConstant());
-	assert(!Cf.overlaps(eta) || eta.isConstant());
-	assert(!Cf.overlaps(aprod) || aprod.isConstant());
-	assert(!Cf.overlaps(adet) || adet.isConstant());
-	assert(!Cf.overlaps(atageff) || atageff.isConstant());
-    }
-
-    if (!Cfbar.isConstant()) {
-	assert(!Cfbar.overlaps(qf) || qf.isConstant());
-	assert(!Cfbar.overlaps(qt) || qt.isConstant());
-	assert(!Cfbar.overlaps(tageff) || tageff.isConstant());
-	assert(!Cfbar.overlaps(eta) || eta.isConstant());
-	assert(!Cfbar.overlaps(aprod) || aprod.isConstant());
-	assert(!Cfbar.overlaps(adet) || adet.isConstant());
-	assert(!Cfbar.overlaps(atageff) || atageff.isConstant());
-    }
-
-    if (!tageff.isConstant()) {
-	assert(!tageff.overlaps(qf) || qf.isConstant());
-	assert(!tageff.overlaps(qt) || qt.isConstant() ||
-		tageff.InheritsFrom("TaggingCat"));
-	assert(!tageff.overlaps(Cf) || Cf.isConstant());
-	assert(!tageff.overlaps(Cfbar) || Cfbar.isConstant());
-	assert(!tageff.overlaps(eta) || eta.isConstant() ||
-		(eta.InheritsFrom("TaggingCat") &&
-		 tageff.InheritsFrom("TaggingCat")));
-	assert(!tageff.overlaps(aprod) || aprod.isConstant());
-	assert(!tageff.overlaps(adet) || adet.isConstant());
-	assert(!tageff.overlaps(atageff) || atageff.isConstant());
-    }
-
-    if (!eta.isConstant()) {
-	assert(!eta.overlaps(qf) || qf.isConstant());
-	assert(!eta.overlaps(qt) || qt.isConstant() ||
-		eta.InheritsFrom("TaggingCat"));
-	assert(!eta.overlaps(Cf) || Cf.isConstant());
-	assert(!eta.overlaps(Cfbar) || Cfbar.isConstant());
-	assert(!eta.overlaps(tageff) || tageff.isConstant() ||
-		(eta.InheritsFrom("TaggingCat") &&
-		 tageff.InheritsFrom("TaggingCat")));
-	assert(!eta.overlaps(aprod) || aprod.isConstant());
-	assert(!eta.overlaps(adet) || adet.isConstant());
-	assert(!eta.overlaps(atageff) || atageff.isConstant());
-    }
-
-    if (!aprod.isConstant()) {
-	assert(!aprod.overlaps(qf) || qf.isConstant());
-	assert(!aprod.overlaps(qt) || qt.isConstant());
-	assert(!aprod.overlaps(Cf) || Cf.isConstant());
-	assert(!aprod.overlaps(Cfbar) || Cfbar.isConstant());
-	assert(!aprod.overlaps(tageff) || tageff.isConstant());
-	assert(!aprod.overlaps(eta) || eta.isConstant());
-	assert(!aprod.overlaps(adet) || adet.isConstant());
-	assert(!aprod.overlaps(atageff) || atageff.isConstant());
-    }
-
-    if (!adet.isConstant()) {
-	assert(!adet.overlaps(qf) || qf.isConstant());
-	assert(!adet.overlaps(qt) || qt.isConstant());
-	assert(!adet.overlaps(Cf) || Cf.isConstant());
-	assert(!adet.overlaps(Cfbar) || Cfbar.isConstant());
-	assert(!adet.overlaps(tageff) || tageff.isConstant());
-	assert(!adet.overlaps(eta) || eta.isConstant());
-	assert(!adet.overlaps(aprod) || aprod.isConstant());
-	assert(!adet.overlaps(atageff) || atageff.isConstant());
-    }
-
-    if (!atageff.isConstant()) {
-	assert(!atageff.overlaps(qf) || qf.isConstant());
-	assert(!atageff.overlaps(qt) || qt.isConstant());
-	assert(!atageff.overlaps(Cf) || Cf.isConstant());
-	assert(!atageff.overlaps(Cfbar) || Cfbar.isConstant());
-	assert(!atageff.overlaps(tageff) || tageff.isConstant());
-	assert(!atageff.overlaps(eta) || eta.isConstant());
-	assert(!atageff.overlaps(aprod) || aprod.isConstant());
-	assert(!atageff.overlaps(adet) || adet.isConstant());
-    }
+    assert(checkDepsForConsistency(
+		RooArgSet(qf, qt),
+		RooArgSet(Cf, Cfbar, tageff, eta, aprod, adet, atageff)));
 }
 
 DecRateCoeff::DecRateCoeff(
@@ -519,138 +125,43 @@ DecRateCoeff::DecRateCoeff(
     m_atageff("atageff", "atageff", this, atageff),
     m_cacheMgr(this), m_nset(0), m_nsethash(0), m_flags(flags)
 {
-    // make sure there are no crazy dependencies which would make analytic
-    // integrals impossible
-    if (!qf.isConstant()) {
-	assert(!qf.overlaps(qt) || qt.isConstant());
-	assert(!qf.overlaps(Cf) || Cf.isConstant());
-	assert(!qf.overlaps(Cfbar) || Cfbar.isConstant());
-	assert(!qf.overlaps(tageff) || tageff.isConstant());
-	assert(!qf.overlaps(eta) || eta.isConstant());
-	assert(!qf.overlaps(etabar) || etabar.isConstant());
-	assert(!qf.overlaps(aprod) || aprod.isConstant());
-	assert(!qf.overlaps(adet) || adet.isConstant());
-	assert(!qf.overlaps(atageff) || atageff.isConstant());
-    }
-
-    if (!qt.isConstant()) {
-	assert(!qt.overlaps(qf) || qf.isConstant());
-	assert(!qt.overlaps(Cf) || Cf.isConstant());
-	assert(!qt.overlaps(Cfbar) || Cfbar.isConstant());
-	assert(!qt.overlaps(tageff) || tageff.isConstant() ||
-		tageff.InheritsFrom("TaggingCat"));
-	assert(!qt.overlaps(eta) || eta.isConstant() ||
-		eta.InheritsFrom("TaggingCat"));
-	assert(!qt.overlaps(etabar) || etabar.isConstant() ||
-		etabar.InheritsFrom("TaggingCat"));
-	assert(!qt.overlaps(aprod) || aprod.isConstant());
-	assert(!qt.overlaps(adet) || adet.isConstant());
-	assert(!qt.overlaps(atageff) || atageff.isConstant());
-    }
-
-    if (!Cf.isConstant()) {
-	assert(!Cf.overlaps(qf) || qf.isConstant());
-	assert(!Cf.overlaps(qt) || qt.isConstant());
-	assert(!Cf.overlaps(tageff) || tageff.isConstant());
-	assert(!Cf.overlaps(eta) || eta.isConstant());
-	assert(!Cf.overlaps(etabar) || etabar.isConstant());
-	assert(!Cf.overlaps(aprod) || aprod.isConstant());
-	assert(!Cf.overlaps(adet) || adet.isConstant());
-	assert(!Cf.overlaps(atageff) || atageff.isConstant());
-    }
-
-    if (!Cfbar.isConstant()) {
-	assert(!Cfbar.overlaps(qf) || qf.isConstant());
-	assert(!Cfbar.overlaps(qt) || qt.isConstant());
-	assert(!Cfbar.overlaps(tageff) || tageff.isConstant());
-	assert(!Cfbar.overlaps(eta) || eta.isConstant());
-	assert(!Cfbar.overlaps(etabar) || etabar.isConstant());
-	assert(!Cfbar.overlaps(aprod) || aprod.isConstant());
-	assert(!Cfbar.overlaps(adet) || adet.isConstant());
-	assert(!Cfbar.overlaps(atageff) || atageff.isConstant());
-    }
-
-    if (!tageff.isConstant()) {
-	assert(!tageff.overlaps(qf) || qf.isConstant());
-	assert(!tageff.overlaps(qt) || qt.isConstant() ||
-		tageff.InheritsFrom("TaggingCat"));
-	assert(!tageff.overlaps(Cf) || Cf.isConstant());
-	assert(!tageff.overlaps(Cfbar) || Cfbar.isConstant());
-	assert(!tageff.overlaps(eta) || eta.isConstant() ||
-		(eta.InheritsFrom("TaggingCat") &&
-		 tageff.InheritsFrom("TaggingCat")));
-	assert(!tageff.overlaps(eta) || etabar.isConstant() ||
-		(etabar.InheritsFrom("TaggingCat") &&
-		 tageff.InheritsFrom("TaggingCat")));
-	assert(!tageff.overlaps(aprod) || aprod.isConstant());
-	assert(!tageff.overlaps(adet) || adet.isConstant());
-	assert(!tageff.overlaps(atageff) || atageff.isConstant());
-    }
-
-    if (!eta.isConstant()) {
-	assert(!eta.overlaps(qf) || qf.isConstant());
-	assert(!eta.overlaps(qt) || qt.isConstant() ||
-		eta.InheritsFrom("TaggingCat"));
-	assert(!eta.overlaps(Cf) || Cf.isConstant());
-	assert(!eta.overlaps(Cfbar) || Cfbar.isConstant());
-	assert(!eta.overlaps(tageff) || tageff.isConstant() ||
-		(eta.InheritsFrom("TaggingCat") &&
-		 tageff.InheritsFrom("TaggingCat")));
-	assert(!eta.overlaps(aprod) || aprod.isConstant());
-	assert(!eta.overlaps(adet) || adet.isConstant());
-	assert(!eta.overlaps(atageff) || atageff.isConstant());
-    }
-
-    if (!etabar.isConstant()) {
-	assert(!etabar.overlaps(qf) || qf.isConstant());
-	assert(!etabar.overlaps(qt) || qt.isConstant() ||
-		etabar.InheritsFrom("TaggingCat"));
-	assert(!etabar.overlaps(Cf) || Cf.isConstant());
-	assert(!etabar.overlaps(Cfbar) || Cfbar.isConstant());
-	assert(!etabar.overlaps(tageff) || tageff.isConstant() ||
-		(etabar.InheritsFrom("TaggingCat") &&
-		 tageff.InheritsFrom("TaggingCat")));
-	assert(!etabar.overlaps(aprod) || aprod.isConstant());
-	assert(!etabar.overlaps(adet) || adet.isConstant());
-	assert(!etabar.overlaps(atageff) || atageff.isConstant());
-    }
-
-    if (!aprod.isConstant()) {
-	assert(!aprod.overlaps(qf) || qf.isConstant());
-	assert(!aprod.overlaps(qt) || qt.isConstant());
-	assert(!aprod.overlaps(Cf) || Cf.isConstant());
-	assert(!aprod.overlaps(Cfbar) || Cfbar.isConstant());
-	assert(!aprod.overlaps(tageff) || tageff.isConstant());
-	assert(!aprod.overlaps(eta) || eta.isConstant());
-	assert(!aprod.overlaps(etabar) || etabar.isConstant());
-	assert(!aprod.overlaps(adet) || adet.isConstant());
-	assert(!aprod.overlaps(atageff) || atageff.isConstant());
-    }
-
-    if (!adet.isConstant()) {
-	assert(!adet.overlaps(qf) || qf.isConstant());
-	assert(!adet.overlaps(qt) || qt.isConstant());
-	assert(!adet.overlaps(Cf) || Cf.isConstant());
-	assert(!adet.overlaps(Cfbar) || Cfbar.isConstant());
-	assert(!adet.overlaps(tageff) || tageff.isConstant());
-	assert(!adet.overlaps(eta) || eta.isConstant());
-	assert(!adet.overlaps(etabar) || etabar.isConstant());
-	assert(!adet.overlaps(aprod) || aprod.isConstant());
-	assert(!adet.overlaps(atageff) || atageff.isConstant());
-    }
-
-    if (!atageff.isConstant()) {
-	assert(!atageff.overlaps(qf) || qf.isConstant());
-	assert(!atageff.overlaps(qt) || qt.isConstant());
-	assert(!atageff.overlaps(Cf) || Cf.isConstant());
-	assert(!atageff.overlaps(Cfbar) || Cfbar.isConstant());
-	assert(!atageff.overlaps(tageff) || tageff.isConstant());
-	assert(!atageff.overlaps(eta) || eta.isConstant());
-	assert(!atageff.overlaps(etabar) || etabar.isConstant());
-	assert(!atageff.overlaps(aprod) || aprod.isConstant());
-	assert(!atageff.overlaps(adet) || adet.isConstant());
-    }
+    assert(checkDepsForConsistency(
+		RooArgSet(qf, qt),
+		RooArgSet(Cf, Cfbar, tageff,
+		    eta, etabar, aprod, adet, atageff)));
 } 
+
+bool DecRateCoeff::checkDepsForConsistency(
+	const RooArgSet& obs, const RooArgSet& params,
+	const RooAbsArg* etaobs, const RooArgSet& etas) const
+{
+    // observables must not overlap with one another, or be constant
+    RooFIter it = obs.fwdIterator();
+    for (RooAbsArg* o1 = it.next(); o1; o1 = it.next()) {
+	if (o1->isConstant()) continue;
+	RooFIter jt = it;
+	for (RooAbsArg* o2 = jt.next(); o2; o2 = jt.next()) {
+	    if (o1->overlaps(*o2) && !o2->isConstant()) return false;
+	}
+    }
+
+    // paramers must not overlap with observables, be constant or inherit from
+    // TaggingCat
+    it = params.fwdIterator();
+    for (RooAbsArg* o1 = it.next(); o1; o1 = it.next()) {
+	if (o1->isConstant()) continue;
+	if (o1->InheritsFrom("TaggingCat")) continue;
+	const bool isMistag = (0 != etas.find(*o1));
+	// check out overlap with observables
+	RooFIter jt = obs.fwdIterator();
+	for (RooAbsArg* o2 = jt.next(); o2; o2 = jt.next()) {
+	    if (isMistag && o2 == etaobs) continue;
+	    if (o1->overlaps(*o2) && !o2->isConstant()) return false;
+	}
+    }
+
+    return true;
+}
 
 DecRateCoeff::DecRateCoeff(
 	const DecRateCoeff& other, const char* name) : 

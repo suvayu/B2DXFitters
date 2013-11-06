@@ -4,6 +4,10 @@
 ! Purpose     : RooFit-based fitters for B -> D X
 !-----------------------------------------------------------------------------
 
+! 2013-11-06 - Manuel Tobias Schiller
+ - DecRateCoeff: some code refactoring to ease transition to multiple mistag
+   categories in the near future
+
 ! 2013-11-05 - Manuel Tobias Schiller
  - remove a couple of (apparently) unused dictionary entries
 
