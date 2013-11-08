@@ -11,6 +11,7 @@
 #include <limits>
 #include <memory>
 #include <cstdio>
+#include <sstream>
 #include <cassert>
 #include <algorithm>
  
@@ -408,7 +409,12 @@ DecRateCoeff::CacheElem::CacheElem(const DecRateCoeff& parent,
 	    m_nset.add(m_parent.m_etaobs.arg());
 	    m_flags = static_cast<Flags>(m_flags | NormEta);
 	}
-	const std::string newname(std::string(parent.GetName()) + "_prod_eta");
+	std::ostringstream os;
+	os << parent.GetName() << "_" << parent.hash(RooArgSet(parent)) <<
+	    "_INT" << parent.hash(iset) <<
+	    "_NORM" << parent.hash(nset ? *nset : parent.s_emptyset) <<
+	    "_RANGE" << m_rangeName;
+	const std::string newname(os.str() + "_prod_eta");
 	RooAbsReal* prod = new RooProduct(newname.c_str(), newname.c_str(),
 		RooArgList(parent.m_etapdf.arg(), parent.m_eta.arg()));
 	assert(prod);
@@ -513,7 +519,7 @@ void DecRateCoeff::CacheElem::setupBinnedProductIntegral(
     // we need to operate on a clone of etaobs with our custom binning, or
     // things die a horrible death when using more than one CPU
     RooRealVar* etaobs = dynamic_cast<RooRealVar*>(
-	    m_parent.m_etaobs.arg().clone(0));
+	    m_parent.m_etaobs.arg().clone((m_workRangeName[idx] + "_eta").c_str()));
     assert(etaobs);
     etaobs->setRange(
 	    m_workRangeName[idx].c_str(),
@@ -817,8 +823,9 @@ double DecRateCoeff::CacheElem::etaintprodpdfmistagtagged(int qt) const
 	return prodint->getValV(nset);
     // use binned approximation to integral
     if (m_prodcachedval[cacheidx] == m_prodcachedval[cacheidx] &&
-	    !prodint->isValueOrShapeDirtyAndClear())
+	    !prodint->isValueOrShapeDirtyAndClear()) {
 	return m_prodcachedval[cacheidx];
+    }
     double retVal = 0.;
     for (std::vector<double>::const_iterator it = m_etabins.begin() + 1;
 	    m_etabins.end() != it; ++it) {
