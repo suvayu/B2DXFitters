@@ -18,6 +18,27 @@ def getconfig() :
     configdict["Terr"]       = [0.01,    0.1     ]
     configdict["BachCharge"] = [-1000.0, 1000.0  ]
     configdict["BDTG"]       = [0.3,     1.0     ]
+
+    configdict["AdditionalVariables"] = [ "lab0_SS_Kaon_PROB", "lab0_SS_Kaon_DEC", "lab0_SS_nnetKaon_PROB", "lab0_SS_nnetKaon_DEC",
+                                          "lab0_OS_Muon_PROB" , "lab0_OS_Muon_DEC", "lab0_OS_Electron_PROB", "lab0_OS_Electron_DEC",
+                                          "lab0_OS_Kaon_PROB",  "lab0_OS_Kaon_DEC", "lab0_OS_nnetKaon_PROB", "lab0_OS_nnetKaon_DEC",
+                                          "lab0_VtxCharge_PROB", "lab0_VtxCharge_DEC" ]
+
+    configdict["lab0_SS_Kaon_PROB"]      = [ -3.0, 1,0 ]
+    configdict["lab0_SS_Kaon_DEC"]       = [ -2.0, 2.0 ]
+    configdict["lab0_SS_nnetKaon_PROB"]  = [ -3.0, 1.0 ]
+    configdict["lab0_SS_nnetKaon_DEC"]   = [ -2.0, 2.0 ]
+    configdict["lab0_OS_Muon_PROB"]      = [ -3.0, 1.0 ]
+    configdict["lab0_OS_Muon_DEC"]       = [ -2.0, 2.0 ]
+    configdict["lab0_OS_Electron_PROB"]  = [-3.0, 1.0 ]
+    configdict["lab0_OS_Electron_DEC"]   = [ -2.0, 2.0 ]
+    configdict["lab0_OS_Kaon_PROB"]      = [ -3.0, 1.0 ]
+    configdict["lab0_OS_Kaon_DEC"]       = [ -2.0, 2.0 ]
+    configdict["lab0_OS_nnetKaon_PROB"]  = [ -3.0, 1.0 ]
+    configdict["lab0_OS_nnetKaon_DEC"]   = [ -2.0, 2.0 ]
+    configdict["lab0_VtxCharge_PROB"]    = [-3.0, 1.0 ]
+    configdict["lab0_VtxCharge_DEC"]     = [-2.0, 2.0 ]
+    
     
     configdict["Bin1"]      = 20
     configdict["Bin2"]      = 20
@@ -41,7 +62,7 @@ def getconfig() :
     configdict["fileCalibProtonUp"]  = "/afs/cern.ch/work/a/adudziak/public/workspace/work_lblcpi_up_sw.root"
     configdict["fileCalibProtonDown"]  = "/afs/cern.ch/work/a/adudziak/public/workspace/work_lblcpi_down_sw.root"
     configdict["workCalibProton"]  = "workspace"
-    configdict["pathFileLcPi"]  = "/afs/cern.ch/work/a/adudziak/public/workspace/sWeights_LbLcPi_both_PIDK10.root"
+    configdict["pathFileLcPi"]  = "/afs/cern.ch/work/a/adudziak/public/workspace/sWeights_LbLcPi_both_PID10.root"
     configdict["treeNameLcPi"] = "merged"
 
     configdict["lumRatioDown"] =  0.59

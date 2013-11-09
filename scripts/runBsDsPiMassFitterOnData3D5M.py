@@ -150,8 +150,9 @@ def runBsDsKMassFitterOnData( debug, sample,
     MDSettings.SetTagOmegaVar(TString(tagOmegaVar))
     MDSettings.SetIDVar(TString(idVar))
     
-        
+           
     workNameTS = TString(workName)
+    #workData = GeneralUtils.LoadWorkspace(TString("work_dspi_ntracks.root"),workNameTS,debug)
     workspace = []
     workspace.append(GeneralUtils.LoadWorkspace(TString(fileNameAll),workNameTS,debug))
     #workspaceID = GeneralUtils.LoadWorkspace(TString(fileNameAllID),workNameTS,debug)
@@ -176,6 +177,9 @@ def runBsDsKMassFitterOnData( debug, sample,
         tagomegavar = GeneralUtils.GetObservable(workspace[0],TString(tagOmegaVar), debug)
         tagvar      = GeneralUtils.GetObservable(workspace[0],TString(tagVar), debug)
         idvar       = GeneralUtils.GetObservable(workspace[0],TString(idVar), debug)
+        nTrvar      = GeneralUtils.GetObservable(workspace[0],TString("nTracks"), debug)
+        ptvar       = GeneralUtils.GetObservable(workspace[0],TString("lab1_PT"), debug)
+                
     else:
         mass        = GeneralUtils.GetObservable(workspaceToys,obsTS, debug)
         massDs      = GeneralUtils.GetObservable(workspaceToys,TString(mdVar), debug)
@@ -186,11 +190,14 @@ def runBsDsKMassFitterOnData( debug, sample,
         tagvar      = GeneralUtils.GetObservable(workspaceToys,TString(tagVar)+TString("_idx"), debug)
         idvar       = GeneralUtils.GetObservable(workspaceToys,TString(idVar)+TString("_idx"), debug)
         trueidvar   = GeneralUtils.GetObservable(workspaceToys,TString("lab0_TRUEID"), debug)
-
-        
+                
     observables = RooArgSet( mass,massDs, PIDK, tvar, terrvar, tagvar,tagomegavar,idvar )
+    
     if toys :
         observables.add(trueidvar)
+    else:
+        observables.add(nTrvar)
+        observables.add(ptvar)
         
     if MDSettings.CheckAddVar() == true:
         for i in range(0,MDSettings.GetNumAddVar()):

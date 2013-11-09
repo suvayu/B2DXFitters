@@ -226,7 +226,7 @@ namespace GeneralUtils {
     style->SetPalette(1);
     rat->SetFillColor(0);
     rat->cd();
-    hist->Draw("CONT4Z");
+    hist->Draw("COLZ");
     rat->Update();
     rat->SaveAs(save.Data());
   }
@@ -1290,19 +1290,20 @@ namespace GeneralUtils {
     
     if( check.Contains("CombPi") == true ) { TString s1 = "CombPi"; TString s2 = ""; check.ReplaceAll(s1,s2); }
     if( check.Contains("CombK") == true ) { TString s1 = "CombK"; TString s2 = ""; check.ReplaceAll(s1,s2); }
-
-    if( check.Contains("pion") == true || check.Contains("Pion") == true || check.Contains("Pi") == true || check.Contains("pi") == true)
+    if( check.Contains("MC BsDsK") == true ) { TString s1 = "BsDsK"; TString s2 = ""; check.ReplaceAll(s1,s2); }
+    if( check.Contains("MC BsDsPi") == true ) { TString s1 = "BsDsPi"; TString s2 = ""; check.ReplaceAll(s1,s2); }
+ 
+    if( check.Contains("pion") == true || check.Contains("Pion") == true ) 
 	
       {
 	bachelor = "Pi";
       }
-    else if ( check.Contains("kaon") == true || check.Contains("Kaon") == true || check.Contains("K") == true )
+    else if ( check.Contains("kaon") == true || check.Contains("Kaon") == true)  
+      
       {
 	bachelor = "K";
       }
-    else if ( (check.Contains("p") == true && check.Contains("pi") == false ) || 
-	      (check.Contains("P") == true && check.Contains("Pi") == false ) ||
-	      check.Contains("proton") == true || check.Contains("Proton") == true )
+    else if ( check.Contains("proton") == true || check.Contains("Proton") == true )
       {
 	bachelor = "P";
       }

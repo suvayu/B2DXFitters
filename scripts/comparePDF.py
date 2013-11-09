@@ -104,6 +104,8 @@ from optparse import OptionParser
 from math     import pi, log
 import os, sys, gc
 
+gROOT.SetBatch()
+
 #------------------------------------------------------------------------------
 def runComparePDF( debug, name1, file1, work1, text1, name2, file2, work2, text2, obs, data ) :
 
@@ -191,7 +193,7 @@ def runComparePDF( debug, name1, file1, work1, text1, name2, file2, work2, text2
     legend.Draw("same")
     #frame.GetYaxis().SetRangeUser(0.1,250.)
     #canv.GetPad(0).SetLogy()
-    canv.Print("comparePDF.pdf")
+    canv.Print("comparison.pdf")
                                                                                     
 
 #------------------------------------------------------------------------------

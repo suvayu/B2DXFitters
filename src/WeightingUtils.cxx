@@ -44,6 +44,8 @@
 #include "RooCategory.h"
 #include "TGraphErrors.h"
 #include "TLegend.h"
+#include "TLatex.h"
+
 // B2DXFitters includes
 #include "B2DXFitters/GeneralUtils.h"
 #include "B2DXFitters/WeightingUtils.h"
@@ -345,22 +347,28 @@ namespace WeightingUtils {
     }
 
     RooDataSet*  dataMC = GetDataSet(work,name,debug);
+    RooDataSet*  dataMCNW = GetDataSet(work,name,debug);
+    if ( label1.Contains("MC") == true )
+      { dataMC = new RooDataSet(dataMC->GetName(), dataMC->GetTitle(), *(dataMC->get()), RooFit::Import(*dataMC), RooFit::WeightVar("weights"));}
+
 
     double scaleA = dataCalib->sumEntries()/dataMC->sumEntries();
-    double scaleB = dataCalibRW->sumEntries()/dataCalib->sumEntries();
+    double scaleB = dataCalib->sumEntries()/dataCalibRW->sumEntries();
+    double scaleC = dataCalib->sumEntries()/dataMCNW->sumEntries();
+  
 
     std::cout<<" scaleA: "<<scaleA<<" = "<<dataMC->sumEntries()<<"/"<<dataCalib->sumEntries()<<std::endl;
     std::cout<<" scaleA: "<<scaleB<<" = "<<dataCalibRW->sumEntries()<<"/"<<dataCalib->sumEntries()<<std::endl;
+    std::cout<<" scaleC: "<<scaleC<<" = "<<dataMC->sumEntries()<<"/"<<dataMCNW->sumEntries()<<std::endl;
 
-    TLegend* legend = new TLegend( 0.11, 0.66, 0.30, 0.88 );
-    legend->SetTextSize(0.05);
+    TLegend* legend = new TLegend( 0.12, 0.66, 0.30, 0.88 );
+    legend->SetTextSize(0.045);
     legend->SetTextFont(12);
     legend->SetFillColor(4000);
     legend->SetShadowColor(0);
     legend->SetBorderSize(0);
     legend->SetTextFont(132);
-    legend->SetHeader("LHCb");
-    
+            
     TLegend* legend2 = NULL;
     if ( legendBool == kTRUE )
       {
@@ -376,44 +384,66 @@ namespace WeightingUtils {
     legend2->SetShadowColor(0);
     legend2->SetBorderSize(0);
     legend2->SetTextFont(132);
-    legend2->SetHeader("LHCb");
-
+    
 
     TGraphErrors* gr = new TGraphErrors(10);
     gr->SetName("gr");
     gr->SetLineColor(kBlack);
-    gr->SetLineWidth(2);
-    gr->SetMarkerStyle(20);
-    gr->SetMarkerSize(1.3);
-    gr->SetMarkerColor(plotSet->GetColorData(0));
+    gr->SetLineWidth(1);
+    gr->SetMarkerStyle(22);
+    gr->SetMarkerSize(3);
+    gr->SetMarkerColor(plotSet->GetColorData(1));
     gr->Draw("P");
 
     TGraphErrors* grMC = new TGraphErrors(10);
     grMC->SetName("grMC");
     grMC->SetLineColor(kBlack);
-    grMC->SetLineWidth(2);
+    grMC->SetLineWidth(1);
     grMC->SetMarkerStyle(20);
-    grMC->SetMarkerSize(1.3);
-    grMC->SetMarkerColor(plotSet->GetColorData(1));
+    grMC->SetMarkerSize(3);
+    grMC->SetMarkerColor(plotSet->GetColorData(2));
     grMC->Draw("P");
 
     TGraphErrors* grMCRW = new TGraphErrors(10);
     grMCRW->SetName("grMCRW");
     grMCRW->SetLineColor(kBlack);
-    grMCRW->SetLineWidth(2);
-    grMCRW->SetMarkerStyle(20);
-    grMCRW->SetMarkerSize(1.3);
-    grMCRW->SetMarkerColor(plotSet->GetColorData(2));
+    grMCRW->SetLineWidth(1);
+    grMCRW->SetMarkerStyle(21);
+    grMCRW->SetMarkerSize(3);
+    grMCRW->SetMarkerColor(plotSet->GetColorData(0));
     grMCRW->Draw("P");
+    
+    TGraphErrors* grMCNW = new TGraphErrors(10);
+    grMCNW->SetName("grMCNW");
+    grMCNW->SetLineColor(kBlack);
+    grMCNW->SetLineWidth(1);
+    grMCNW->SetMarkerStyle(23);
+    grMCNW->SetMarkerSize(3);
+    grMCNW->SetMarkerColor(plotSet->GetColorData(3));
+    grMCNW->Draw("P");
 
     TString labelMode = GetLabel(nm, debug);
 
     legend->AddEntry("gr",label3.Data(),"lep");
+    if ( label1.Contains("MC") == true )
+      {
+	legend->AddEntry("grMCRW","MC weighted","lep");
+      }
+    else
+      {
+	legend->AddEntry("grMCRW","Data","lep");
+      }
     legend->AddEntry("grMC",label2.Data(),"lep");
-    legend->AddEntry("grMCRW",labelMode.Data(),"lep");
+    if ( label1.Contains("MC") == true )
+      {
+	legend->AddEntry("grMCNW","MC","lep");
+      }
+    legend->SetHeader(labelMode.Data()); 
     
     legend2->AddEntry("gr",label3.Data(),"lep");
     legend2->AddEntry("grMCRW",labelMode.Data(),"lep");
+    
+
 
     TString l1, l2;
     TString nameVar1 = Var1->GetName();
@@ -422,24 +452,60 @@ namespace WeightingUtils {
     l2 = CheckWeightLabel(nameVar2,debug);
 
     RooPlot* mframe_Var1 = Var1->frame();
-    dataCalib->plotOn(mframe_Var1,RooFit::MarkerColor(plotSet->GetColorData(1)), RooFit::Binning(bin1)); //, RooFit::Rescale(1/scaleA));
-    dataMC->plotOn(mframe_Var1,RooFit::MarkerColor(plotSet->GetColorData(2)), RooFit::Binning(bin1), RooFit::Rescale(scaleA));
-    dataCalibRW->plotOn(mframe_Var1, RooFit::MarkerColor(plotSet->GetColorData(0)),  RooFit::Binning(bin1));     
+    dataCalib->plotOn(mframe_Var1,RooFit::MarkerColor(plotSet->GetColorData(2)), 
+		      RooFit::Binning(bin1), RooFit::MarkerStyle(20), RooFit::MarkerSize(2.75)); //, RooFit::Rescale(1/scaleA));
+    if ( label1.Contains("MC") == true )
+      {
+	dataMCNW->plotOn(mframe_Var1,RooFit::MarkerColor(plotSet->GetColorData(3)), RooFit::Binning(bin1),
+			 RooFit::Rescale(scaleC),RooFit::MarkerStyle(23), RooFit::MarkerSize(2.75));
+      }
+    dataMC->plotOn(mframe_Var1,RooFit::MarkerColor(plotSet->GetColorData(0)), 
+		   RooFit::Binning(bin1), RooFit::Rescale(scaleA), RooFit::MarkerStyle(21), RooFit::MarkerSize(2.75));
+    dataCalibRW->plotOn(mframe_Var1, RooFit::MarkerColor(plotSet->GetColorData(1)),  
+			RooFit::Binning(bin1), RooFit::MarkerStyle(22), RooFit::MarkerSize(2.75), RooFit::Rescale(scaleB));     
+        
     mframe_Var1->GetXaxis()->SetTitle(l1.Data());
-    //mframe_Var1->GetXaxis()->SetRangeUser(0.0, Double_t ulast)
-    TString Title = "";
-    mframe_Var1->SetTitle(Title.Data());
     mframe_Var1->SetLabelFont(132);
     mframe_Var1->SetTitleFont(132);
+    mframe_Var1->GetXaxis()->SetTitleFont(132);
+    mframe_Var1->GetXaxis()->SetLabelFont(132);
+    mframe_Var1->GetYaxis()->SetTitleFont(132);
+    mframe_Var1->GetYaxis()->SetLabelFont(132);
+    mframe_Var1->GetYaxis()->SetTitleSize(0.05);
+    mframe_Var1->GetYaxis()->SetLabelSize(0.05);
+    mframe_Var1->GetXaxis()->SetTitleSize(0.05);
+    mframe_Var1->GetXaxis()->SetLabelSize(0.05);
+    TString Title = "";
+    mframe_Var1->GetYaxis()->SetTitle(Title.Data());
+    mframe_Var1->SetTitle(Title.Data());
+
 
     RooPlot* mframe_Var2 = Var2->frame();
-    dataCalib->plotOn(mframe_Var2,RooFit::MarkerColor(plotSet->GetColorData(1)), RooFit::Binning(bin2)); //, RooFit::Rescale(1/scaleA));
-    dataMC->plotOn(mframe_Var2,RooFit::MarkerColor(plotSet->GetColorData(2)), RooFit::Binning(bin2), RooFit::Rescale(scaleA));
-    dataCalibRW->plotOn(mframe_Var2,RooFit::MarkerColor(plotSet->GetColorData(0)), RooFit::Binning(bin2)); //RooFit::Rescale(1.0/scaleB), RooFit::Binning(bin1));
+    dataCalib->plotOn(mframe_Var2,RooFit::MarkerColor(plotSet->GetColorData(2)), 
+		      RooFit::Binning(bin2), RooFit::MarkerStyle(20), RooFit::MarkerSize(2.75)); //, RooFit::Rescale(1/scaleA));
+    if ( label1.Contains("MC") == true )
+      {
+	dataMCNW->plotOn(mframe_Var2,RooFit::MarkerColor(plotSet->GetColorData(3)), RooFit::Binning(bin1),
+			 RooFit::Rescale(scaleC), RooFit::MarkerStyle(23),RooFit::MarkerSize(2.75));
+      }    
+    dataMC->plotOn(mframe_Var2,RooFit::MarkerColor(plotSet->GetColorData(0)), RooFit::Binning(bin2), 
+		   RooFit::Rescale(scaleA), RooFit::MarkerStyle(21), RooFit::MarkerSize(2.75));
+    dataCalibRW->plotOn(mframe_Var2,RooFit::MarkerColor(plotSet->GetColorData(1)), RooFit::Binning(bin2),
+			RooFit::MarkerStyle(22), RooFit::MarkerSize(2.75),RooFit::Rescale(scaleB)); 
+       
     mframe_Var2->GetXaxis()->SetTitle(l2.Data());
-    mframe_Var2->SetTitle(Title.Data());
     mframe_Var2->SetLabelFont(132);
     mframe_Var2->SetTitleFont(132);
+    mframe_Var2->GetXaxis()->SetTitleFont(132);
+    mframe_Var2->GetXaxis()->SetLabelFont(132);
+    mframe_Var2->GetYaxis()->SetTitleFont(132);
+    mframe_Var2->GetYaxis()->SetLabelFont(132);
+    mframe_Var2->GetYaxis()->SetTitleSize(0.05);
+    mframe_Var2->GetYaxis()->SetLabelSize(0.05);
+    mframe_Var2->GetXaxis()->SetTitleSize(0.05);
+    mframe_Var2->GetXaxis()->SetLabelSize(0.05);
+    mframe_Var2->GetYaxis()->SetTitle(Title.Data());
+    mframe_Var2->SetTitle(Title.Data());
 
     RooPlot* mframe_PID = PID->frame();
     dataCalibRW->plotOn(mframe_PID,RooFit::MarkerColor(plotSet->GetColorData(0)), RooFit::Binning(bin3));
@@ -452,20 +518,40 @@ namespace WeightingUtils {
     mframe_PID->SetLabelFont(132);
     mframe_PID->SetTitleFont(132);
 
+    mframe_Var1->GetYaxis()->SetRangeUser(0,mframe_Var1->GetMaximum()*1.2);
+    mframe_Var2->GetYaxis()->SetRangeUser(0,mframe_Var2->GetMaximum()*1.2);
+    
+    TLatex* lhcbtext = new TLatex();
+    lhcbtext->SetTextFont(132);
+    lhcbtext->SetTextColor(1);
+    lhcbtext->SetTextSize(0.07);
+    lhcbtext->SetTextAlign(12);
+
+    TText* tit = new TText();
+    tit->SetTextFont(132);
+    tit->SetTextColor(1);
+    tit->SetTextSize(0.06);
+    tit->SetTextAlign(32);
+
+    
+
     TString save1 = dataCalibRW->GetName();
     TString save = dir+"/"+save1+"."+ext;
-    TCanvas *ch_RW = new TCanvas("c2h_RW","",10,10,1800,600);
+    TCanvas *ch_RW = new TCanvas("c2h_RW","",10,10,2400,1200);
     ch_RW->SetFillColor(0);
-    ch_RW->Divide(3,1);
+    ch_RW->Divide(2,1);
     ch_RW->cd(1);
     mframe_Var1->Draw();
     legend->Draw("same");
+    lhcbtext->DrawTextNDC( 0.72 , 0.80, "LHCb");
+    //tit->DrawTextNDC( 0.6, 0.85, labelMode.Data()); 
     ch_RW->cd(2);
     mframe_Var2->Draw();
     legend->Draw("same");
-    ch_RW->cd(3);
-    mframe_PID->Draw();
-    legend2->Draw("same");
+    lhcbtext->DrawTextNDC( 0.72 , 0.80, "LHCb");
+    //ch_RW->cd(3);
+    //mframe_PID->Draw();
+    //legend2->Draw("same");
     ch_RW->Update();
     ch_RW->SaveAs(save.Data());
     
@@ -514,6 +600,9 @@ namespace WeightingUtils {
     }
 
     RooDataSet*  dataMC = GetDataSet(work,name,debug);
+    if ( label1.Contains("MC") == true )
+      { dataMC = new RooDataSet(dataMC->GetName(), dataMC->GetTitle(), *(dataMC->get()), RooFit::Import(*dataMC), RooFit::WeightVar("weights"));}
+
 
     Double_t scaleA = dataCalib->sumEntries()/dataMC->sumEntries();
     Double_t scaleB = dataCalib->sumEntries()/dataCalibRW->sumEntries();
@@ -1398,8 +1487,11 @@ namespace WeightingUtils {
         pdfPID->plotOn(frame, RooFit::LineColor(plotSet->GetColorPdf(3)),  RooFit::LineStyle(plotSet->GetStylePdf(3)),RooFit::Components(nameVar.Data()));
 
 	
-	TString save ="PlotBsDsK2D/template_PID_"+samplemode+".pdf";
-	TString saveR = "PlotBsDsK2D/template_PID_"+samplemode+".root";
+	TString ext = plotSet->GetExt();
+        TString dir = plotSet->GetDir();
+        TString varName = Var->GetName();
+        TString save = dir +"/template_"+ varName+"_"+samplemode+"."+ext;
+
 	TCanvas *pidCan= new TCanvas("pidCan","",10,10,800,600);
 	pidCan->SetFillColor(0);
 	pidCan->cd();
@@ -1407,7 +1499,6 @@ namespace WeightingUtils {
 	legend->Draw("same");
 	pidCan->Update();
 	pidCan->SaveAs(save.Data());
-	pidCan->SaveAs(saveR.Data());
       }
 
     return pdfPID;
@@ -1478,7 +1569,7 @@ namespace WeightingUtils {
       }
     else { if( debug == true) std::cout<<"[ERROR] Wrong sample andmode"<<std::endl; }
     
-    std::vector<TString> smp(size);
+    std::vector<TString> smp(size); 
     if ( type.Contains("MC") == true )
       {
 	for(int i = 0; i< size; i++ )
@@ -1636,7 +1727,7 @@ namespace WeightingUtils {
       }
     else { if( debug == true) { std::cout<<"[ERROR] Wrong sample and mode"<<std::endl;} return NULL; }
 
-    std::vector<TString> smp(size);
+    std::vector<TString> smp(size); 
 
     if ( type.Contains("MC") == true )
       {
@@ -1879,7 +1970,7 @@ namespace WeightingUtils {
       }
     else { if( debug == true) {std::cout<<"[ERROR] Wrong sample andmode"<<std::endl;} return NULL; }
 
-    std::vector<TString> smp(size);
+    std::vector<TString> smp(size); 
     if ( type.Contains("MC") == true )
       {
         for(int i = 0; i< size; i++ )
@@ -1909,7 +2000,7 @@ namespace WeightingUtils {
 
     workC = LoadWorkspace(fileCalib, workCalib, debug);
     dataC = GetDataSet(workC, dataName, debug );
-    
+    dataC->Print("v");
     const TTree* treeConst = dataC->tree();
     TTree* treeC = new TTree("name","name"); 
     treeC = treeConst->GetTree();
@@ -1934,7 +2025,7 @@ namespace WeightingUtils {
 	treeC->SetBranchAddress(nameVar1.Data(), &Var13);
 	treeC->SetBranchAddress(nameVar2.Data(), &Var23);
       }
-    treeC->Print();
+    //treeC->Print();
     Double_t wRW(0), wA(0);
     TH2F* histRW;
 
@@ -2194,7 +2285,7 @@ namespace WeightingUtils {
       }
     else { if( debug == true) {std::cout<<"[ERROR] Wrong sample andmode"<<std::endl;} return NULL; }
 
-    std::vector<TString> smp(size);
+    std::vector<TString> smp(size); 
     
     if ( type.Contains("MC") == true )
       {

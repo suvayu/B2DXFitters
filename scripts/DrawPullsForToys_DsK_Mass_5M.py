@@ -99,7 +99,7 @@ sys.path.append("../data/")
 
 debug = True
 largeToys = False
-drawGeneratedYields = True
+drawGeneratedYields = False
 
 ntoys               = 5000
 toysdir             = '/afs/cern.ch/work/a/adudziak/public/Bs2DsKToys/Gamma70_5M/'
@@ -139,14 +139,14 @@ numfitted["Signal3"] = ntoys*[(0,0)]
 numfitted["Signal4"] = ntoys*[(0,0)]
 numfitted["Signal5"] = ntoys*[(0,0)]
 
-numgenevt["Combo"] = ntoys*[3968.0] #3967.0] #3970]
+numgenevt["Combo"] = ntoys*[3966.0] #3967.0] #3970]
 numfitted["Combo1"] = ntoys*[(0,0)]
 numfitted["Combo2"] = ntoys*[(0,0)]
 numfitted["Combo3"] = ntoys*[(0,0)]
 numfitted["Combo4"] = ntoys*[(0,0)]
 numfitted["Combo5"] = ntoys*[(0,0)]
 
-numgenevt["LMK"] = ntoys*[148.3] #150.3] #149.2] #149.5]
+numgenevt["LMK"] = ntoys*[148.9] #150.3] #149.2] #149.5]
 numfitted["LMK1"] = ntoys*[(0,0)]
 numfitted["LMK2"] = ntoys*[(0,0)]
 numfitted["LMK3"] = ntoys*[(0,0)]

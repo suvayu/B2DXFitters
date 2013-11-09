@@ -112,7 +112,7 @@ namespace SFitUtils {
 
     
     //RooRealVar* lab1_ID = new RooRealVar(idVar.Data(),idVar.Data(),1.,-1.,1.);           
-    //RooRealVar* nTracks = new RooRealVar("nTracks","nTracks",0,1000);
+    //RooRealVar* nTracks = new RooRealVar("nTracks","nTracks",15,1000);
     //RooRealVar* lab1_P = new RooRealVar("lab1_P","lab1_P",0,650000);
     //RooRealVar* lab1_PIDK = new RooRealVar("lab1_PIDK","lab1_PIDK",log(5), log(150)); //-150,150);
     //RooRealVar* lab1_PIDp = new RooRealVar("lab1_PIDp","lab1_PIDp",-150,150);
@@ -210,7 +210,8 @@ namespace SFitUtils {
       {
 	treeSW->SetBranchAddress("lab0_TRUEID", &trueid);
       }
-      
+    
+    // Double_t nTr;
     //treeSW->SetBranchAddress("lab1_P", &p);
     //treeSW->SetBranchAddress("nTracks",&nTr);
     //treeSW->SetBranchAddress("lab1_PIDK",&PIDK);

@@ -189,11 +189,15 @@ MDFitterSettings::MDFitterSettings(const TString& name, const TString& title, TS
 	    }
 	  if( line.find("PIDK") != std::string::npos )      
 	    {  
+	      //std::cout<<line<<std::endl;
 	      getline(myfile, line, ',');
+	      //std::cout<<line<<std::endl;
               l1 = line.find_first_of("[");
               line = line.substr(l1+1,line.size());
-              _PIDRange[0] = (Double_t)atof(line.c_str());
+	      //std::cout<<line<<std::endl;
+	      _PIDRange[0] = (Double_t)atof(line.c_str());
               getline(myfile, line, ']');
+	      //std::cout<<line<<std::endl;
               _PIDRange[1] = (Double_t)atof(line.c_str());
  
 	    } 
@@ -381,7 +385,7 @@ MDFitterSettings::MDFitterSettings(const MDFitterSettings& other) :
 
 MDFitterSettings::~MDFitterSettings() { }
 
-std::ostream & operator<< (std::ostream &out, const MDFitterSettings &s)
+std::ostream & operator<< (ostream &out, const MDFitterSettings &s)
 {
   out<<"MDFitterSettings("<<s.GetName()<<","<<s.GetTitle()<<")"<<std::endl;
   out<<"B(s) mass range: ("<<s._massBRange[0]<<","<<s._massBRange[1]<<"), variable name: "<<s._mVar<<std::endl;

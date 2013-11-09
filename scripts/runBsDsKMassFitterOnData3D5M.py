@@ -164,6 +164,7 @@ def runBsDsKMassFitterOnData( debug, sample, mVar, mdVar, tVar, terrVar, tagVar,
             exit(0)
 
     workspace = []
+    #workData = GeneralUtils.LoadWorkspace(TString("work_dsk_ntracks.root"),workNameTS,debug)
     workspace.append(GeneralUtils.LoadWorkspace(TString(fileNameAll),workNameTS, debug))
          
     obsTS = TString(mVar)
@@ -176,7 +177,10 @@ def runBsDsKMassFitterOnData( debug, sample, mVar, mdVar, tVar, terrVar, tagVar,
         terrvar     = GeneralUtils.GetObservable(workspace[0],TString(terrVar), debug)
         tagomegavar = GeneralUtils.GetObservable(workspace[0],TString(tagOmegaVar), debug)
         tagvar      = GeneralUtils.GetObservable(workspace[0],TString(tagVar), debug)
-        idvar       = GeneralUtils.GetObservable(workspace[0],TString(idVar), debug) 
+        idvar       = GeneralUtils.GetObservable(workspace[0],TString(idVar), debug)
+        nTrvar      = GeneralUtils.GetObservable(workspace[0],TString("nTracks"), debug)
+        ptvar       = GeneralUtils.GetObservable(workspace[0],TString("lab1_PT"), debug)
+                
     else:
         mass        = GeneralUtils.GetObservable(workspaceToys,obsTS, debug)
         massDs      = GeneralUtils.GetObservable(workspaceToys,TString(mdVar), debug)
@@ -187,11 +191,15 @@ def runBsDsKMassFitterOnData( debug, sample, mVar, mdVar, tVar, terrVar, tagVar,
         tagvar      = GeneralUtils.GetObservable(workspaceToys,TString(tagVar)+TString("_idx"), debug)
         idvar       = GeneralUtils.GetObservable(workspaceToys,TString(idVar)+TString("_idx"), debug)
         trueidvar   = GeneralUtils.GetObservable(workspaceToys,TString("lab0_TRUEID"), debug)
+        
                 
     observables = RooArgSet( mass,massDs, PIDK, tvar, terrvar, tagvar,tagomegavar,idvar )
     if toys :
         observables.add(trueidvar) 
-
+    else:
+        observables.add(nTrvar)
+        observables.add(ptvar)
+                        
     if MDSettings.CheckAddVar() == true:
         for i in range(0,MDSettings.GetNumAddVar()):
             addVar = GeneralUtils.GetObservable(workspace[0], MDSettings.GetAddVarName(i), debug)
@@ -1096,12 +1104,12 @@ parser.add_option( '--terrvar',
                    )
 parser.add_option( '--tagvar',
                    dest = 'tagvar',       
-                   default = 'lab0_BsTaggingTool_TAGDECISION_OS',
+                   default = 'lab0_TAGDECISION_OS',
                    help = 'set observable '
                    )
 parser.add_option( '--tagomegavar',
                    dest = 'tagomegavar',
-                   default = 'lab0_BsTaggingTool_TAGOMEGA_OS',
+                   default = 'lab0_TAGOMEGA_OS',
                    help = 'set observable '
                    )
 parser.add_option( '--idvar',

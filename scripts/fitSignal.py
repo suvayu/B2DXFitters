@@ -147,7 +147,7 @@ def fitSignal( debug, var , mode, modeDs,  reweight, veto, merge, BDTG) :
 
     RooAbsData.setDefaultStorageType(RooAbsData.Tree)
     
-    plotSettings = PlotSettings("plotSettings","plotSettings", "PlotSignal", "pdf", 100, true, false, true)
+    plotSettings = PlotSettings("plotSettings","plotSettings", "PlotLbLcPi", "pdf", 100, true, false, true)
     plotSettings.Print()
         
     MDSettings = MDFitterSettings("MDSettings","MDFSettings")

@@ -872,9 +872,12 @@ if __name__ == '__main__' :
     if plotModel : plotFitModel( modelPDF, frame_m, sam, mVarTS, mod, merge )
     if plotData : plotDataSet( dataset, frame_m, sam, mod, ty, merge, Bin )
 
-    if ( mVarTS == "lab0_MassFitConsD_M"): # or mVarTS == "lab1_PIDK"):
+    if ( mVarTS == "lab0_MassFitConsD_M" or mVarTS == "lab1_PIDK"):
         gStyle.SetOptLogy(1)
-        frame_m.GetYaxis().SetRangeUser(10,frame_m.GetMaximum()*1.35)
+        if (mod == "all" and mVarTS == "lab0_MassFitConsD_M"):
+            frame_m.GetYaxis().SetRangeUser(10,frame_m.GetMaximum()*1.35)
+        else:
+            frame_m.GetYaxis().SetRangeUser(1.5,frame_m.GetMaximum()*1.35)
     else:
         frame_m.GetYaxis().SetRangeUser(1,frame_m.GetMaximum()*1.1)
                                
@@ -997,7 +1000,7 @@ if __name__ == '__main__' :
     frame_p.GetXaxis().SetTitleSize(0.15)
     frame_p.GetXaxis().SetTitleFont(132)
     frame_p.GetXaxis().SetTitleOffset(0.85)
-    frame_p.GetXaxis().SetNdivisions(512)
+    frame_p.GetXaxis().SetNdivisions(5)
     frame_p.GetYaxis().SetNdivisions(5)
     frame_p.GetXaxis().SetLabelSize(0.12)
     frame_p.GetXaxis().SetLabelFont( 132 )

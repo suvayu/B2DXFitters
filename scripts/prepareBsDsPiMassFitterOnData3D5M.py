@@ -112,6 +112,8 @@ from math     import pi, log
 from  os.path import exists
 import os, sys, gc
 
+gROOT.SetBatch()
+
 # -----------------------------------------------------------------------------
 # Configuration settings
 # -----------------------------------------------------------------------------
@@ -142,8 +144,8 @@ def prepareBsDsPiMassFitterOnData( debug,
     saveNameTS = TString(saveName)+TString(save)+TString(".root")
 
     #plot settings:
-    plotSettings = PlotSettings("plotSettings","plotSettings", "PlotBs2DsPi3DBDTG3", "pdf", 100, true, false, true)
-    plotSettings.Print()
+    plotSettings = PlotSettings("plotSettings","plotSettings", "PlotBs2DsPi3DBDTGA", "pdf", 100, true, false, true)
+    plotSettings.Print("v")
 
     config = TString("../data/")+TString(configName)+TString(".py")
     MDSettings = MDFitterSettings("MDSettings","MDFSettings",config)
@@ -179,8 +181,8 @@ def prepareBsDsPiMassFitterOnData( debug,
     MDRatio= 1.0-myconfigfile["lumRatio"]
     MURatio= myconfigfile["lumRatio"]
 
-    MDSettings.Print()
-    MDSettingsMC.Print()
+    MDSettings.Print("v")
+    MDSettingsMC.Print("v")
         
     tagTool = TagTool
  

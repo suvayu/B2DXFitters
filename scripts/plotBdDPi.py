@@ -122,11 +122,6 @@ plotModel =  True
 debug = True
 bName = 'B_{d}'
 
-Dmass_dw = 1830
-Dmass_up = 1910
-
-Bmass_dw = 5000
-Bmass_up = 6000
 
 bin = 200
 #------------------------------------------------------------------------------
@@ -161,13 +156,17 @@ parser.add_option( '--merge',
                    help = 'save the model PDF parameters before the fit (default: after the fit)'
                    )
 
+                                                                                               
+
 parser.add_option( '-s', '--sufix',
                    dest = 'sufix',
                    metavar = 'SUFIX',
                    default = '',
                    help = 'Add sufix to output'
                    )
+                   
 
+                                                                                               
 
 #------------------------------------------------------------------------------
 def plotDataSet( dataset, frame, sample, merge ) :
@@ -424,7 +423,9 @@ if __name__ == '__main__' :
     if sufixTS != "":
         sufixTS = TString("_")+sufixTS
                 
-
+    range_dw = mass.getMin()
+    range_up = mass.getMax()
+        
     
     w.Print('v')
     #exit(0)
@@ -465,47 +466,78 @@ if __name__ == '__main__' :
         exit( 0 )
     #w.Print('v')
     #exit(0)
+
+    if mVarTS != "lab1_PIDK":
+        unit = "[MeV/c^{2}]"
+    else:
+        unit = ""
+                
     
     frame_m = mass.frame()
        
     frame_m.SetTitle("") #'Fit in reconstructed %s mass' % bName )
     
-    frame_m.GetXaxis().SetLabelSize( 0.03 )
-    frame_m.GetYaxis().SetLabelSize( 0.03 )
+    frame_m.GetXaxis().SetLabelSize( 0.05 )
+    frame_m.GetYaxis().SetLabelSize( 0.05 )
+    frame_m.GetXaxis().SetLabelFont( 132 )
+    frame_m.GetYaxis().SetLabelFont( 132 )
+    frame_m.GetXaxis().SetLabelOffset( 0.005 )
+    frame_m.GetYaxis().SetLabelOffset( 0.005 )
+    frame_m.GetXaxis().SetLabelColor( kWhite)
+    
+    frame_m.GetXaxis().SetTitleSize( 0.05 )
+    frame_m.GetYaxis().SetTitleSize( 0.05 )
+    frame_m.GetYaxis().SetNdivisions(512)
+    
+    frame_m.GetXaxis().SetTitleOffset( 1.00 )
+    frame_m.GetYaxis().SetTitleOffset( 1.0 )
+    frame_m.GetYaxis().SetTitle((TString.Format("#font[12]{Candidates / ( " +
+                                                str((mass.getBinWidth(1)))+" "+
+                                                unit+")}") ).Data())
+    
+                                                
     if ( mVarTS == "lab0_MassFitConsD_M"):
         frame_m.GetXaxis().SetTitle("m(B_{d}) [MeV/c^{2}]")
     else:
         frame_m.GetXaxis().SetTitle("m(D) [MeV/c^{2}]")
-    frame_m.GetYaxis().SetTitleFont( 132 )
-    frame_m.GetYaxis().SetLabelFont( 132 )
-    frame_m.SetLabelFont(132)
-    frame_m.SetTitleFont(132)
-                 
+                     
            
     if plotModel : plotFitModel( modelPDF, frame_m, sam, mVarTS, merge )
     if plotData : plotDataSet( dataset, frame_m, sam, merge )
 
     if ( mVarTS == "lab0_MassFitConsD_M"):
         gStyle.SetOptLogy(1)
+
         
     canvas = TCanvas("canvas", "canvas",1200, 1000)
     canvas.SetTitle( 'Fit in mass' )
     canvas.cd()
 
-    pad1 =  TPad("pad1","pad1",0.01,0.21,0.99,0.99)
-    pad2 =  TPad("pad2","pad2",0.01,0.01,0.99,0.20)
+    pad1 = TPad("upperPad", "upperPad", .050, .22, 1.0, 1.0)
+    pad1.SetBorderMode(0)
+    pad1.SetBorderSize(-1)
+    pad1.SetFillStyle(0)
+    pad1.SetTickx(0);
     pad1.Draw()
-    pad2.Draw()
-
+    pad1.cd()
+    
     if ( mVarTS == "lab0_MassFitConsD_M"):
-        legend = TLegend( 0.60, 0.50, 0.85, 0.85 )
+        legend = TLegend( 0.60, 0.45, 0.85, 0.85 )
     else:
-        legend = TLegend( 0.12, 0.50, 0.35, 0.85 )
-    legend.SetTextSize(0.03)
+        legend = TLegend( 0.12, 0.45, 0.35, 0.85 )
+    legend.SetTextSize(0.05)
     legend.SetTextFont(12)
     legend.SetFillColor(4000)
-    legend.SetHeader("LHCb L_{int}=1fb^{-1}")
-
+    legend.SetShadowColor(0)
+    legend.SetBorderSize(0)
+    legend.SetTextFont(132)
+                        
+    lhcbtext = TLatex()
+    lhcbtext.SetTextFont(132)
+    lhcbtext.SetTextColor(1)
+    lhcbtext.SetTextSize(0.07)
+    lhcbtext.SetTextAlign(12)
+    
 
     l1 = TLine()
     l1.SetLineColor(kRed-4)
@@ -552,25 +584,61 @@ if __name__ == '__main__' :
     pad1.cd()
     frame_m.Draw()
     legend.Draw("same")
+    if mVarTS == "lab2_MM":
+        lhcbtext.DrawTextNDC(0.75,0.82,"LHCb")
+    else:
+        lhcbtext.DrawTextNDC(0.48,0.85,"LHCb")
+        
     pad1.Update()
     
+    canvas.cd()
+    pad2 = TPad("lowerPad", "lowerPad", .050, .005, 1.0, .3275)
+    pad2.SetBorderMode(0)
+    pad2.SetBorderSize(-1)
+    pad2.SetFillStyle(0)
+    pad2.SetBottomMargin(0.35)
+    pad2.SetTickx(0);
+    pad2.Draw()
     pad2.SetLogy(0)
     pad2.cd()
+                                       
     gStyle.SetOptLogy(0)
-            
-    
+       
     frame_m.Print("v")
+
+    frame_p = mass.frame(RooFit.Title("pull_frame"))
+    frame_p.Print("v")
+    frame_p.SetTitle("")
+    frame_p.GetYaxis().SetTitle("")
+    frame_p.GetYaxis().SetTitleSize(0.09)
+    frame_p.GetYaxis().SetTitleOffset(0.26)
+    frame_p.GetYaxis().SetTitleFont(62)
+    frame_p.GetYaxis().SetLabelSize(0.12)
+    frame_p.GetYaxis().SetLabelOffset(0.006)
+    frame_p.GetXaxis().SetTitleSize(0.15)
+    frame_p.GetXaxis().SetTitleFont(132)
+    frame_p.GetXaxis().SetTitleOffset(0.85)
+    frame_p.GetXaxis().SetNdivisions(5)
+    frame_p.GetYaxis().SetNdivisions(5)
+    frame_p.GetXaxis().SetLabelSize(0.12)
+    frame_p.GetXaxis().SetLabelFont( 132 )
+    frame_p.GetYaxis().SetLabelFont( 132 )
+    
+    if ( mVarTS == "lab0_MassFitConsD_M"):
+        frame_p.GetXaxis().SetTitle("m(B_{d}) [MeV/c^{2}]")
+    else:
+        frame_p.GetXaxis().SetTitle("m(D) [MeV/c^{2}]")
+        
     pullnameTS = TString("FullPdf_Norm[")+mVarTS+TString("]_Comp[FullPdf]")
     pullHist  = frame_m.pullHist(pullname2TS.Data(),pullnameTS.Data())
     pullHist.SetTitle("")
-    
-    #pullHist.SetMaximum(5800.00)
-    #pullHist.SetMinimum(5100.00)
+
+    frame_p.addPlotable(pullHist,"P")
+    frame_p.Draw()
+       
     axisX = pullHist.GetXaxis()
-    if ( mVarTS == "lab0_MassFitConsD_M"):
-        axisX.Set(bin,Bmass_dw,Bmass_up)
-    else:
-        axisX.Set(bin,Dmass_dw,Dmass_up)
+    axisX.Set(bin,range_dw,range_up)
+    
     axisY = pullHist.GetYaxis()
     max = axisY.GetXmax()
     min = axisY.GetXmin()
@@ -581,35 +649,26 @@ if __name__ == '__main__' :
     graph = TGraph(2)
     graph.SetMaximum(max)
     graph.SetMinimum(min)
-    if ( mVarTS == "lab0_MassFitConsD_M"):
-        graph.SetPoint(1,Bmass_dw,0)
-        graph.SetPoint(2,Bmass_up,0)
-    else:
-        graph.SetPoint(1,Dmass_dw,0)
-        graph.SetPoint(2,Dmass_up,0)
+    graph.SetPoint(1,range_dw,0)
+    graph.SetPoint(2,range_up,0)
+    
     graph2 = TGraph(2)
     graph2.SetMaximum(max)
     graph2.SetMinimum(min)
-    if ( mVarTS == "lab0_MassFitConsD_M"):
-        graph2.SetPoint(1,Bmass_dw,-3)
-        graph2.SetPoint(2,Bmass_up,-3)
-    else:
-        graph2.SetPoint(1,Dmass_dw,-3)
-        graph2.SetPoint(2,Dmass_up,-3)
+    graph2.SetPoint(1,range_dw,-3)
+    graph2.SetPoint(2,range_up,-3)
+    
     graph2.SetLineColor(kRed)
     graph3 = TGraph(2)
     graph3.SetMaximum(max)
     graph3.SetMinimum(min)
-    if ( mVarTS == "lab0_MassFitConsD_M"):
-        graph3.SetPoint(1,Bmass_dw,3)
-        graph3.SetPoint(2,Bmass_up,3)
-    else:
-        graph3.SetPoint(1,Dmass_dw,3)
-        graph3.SetPoint(2,Dmass_up,3)
+    graph3.SetPoint(1,range_dw,3)
+    graph3.SetPoint(2,range_up,3)
     graph3.SetLineColor(kRed)
                                             
     
-    pullHist.Draw("ap")
+    frame_p.Draw()
+    
     graph.Draw("same")
     graph2.Draw("same")
     graph3.Draw("same")
@@ -632,7 +691,105 @@ if __name__ == '__main__' :
     canvas.SaveAs(canNamePng.Data())
     canNameROOT = TString("mass_BDPi_")+mVarTS+TString("_")+sam+sufixTS+TString(".root")
     canvas.SaveAs(canNameROOT.Data())
+
+    templates = true
+    if templates == true:
+        canvasBkg = TCanvas("canvasBkg", "canvas",1200, 1000)
+        canvasBkg.SetTitle('')
+        canvasBkg.cd()
         
-    
+        nameBkg = [TString("bkgProdBDKPDF_both"), TString("bkgProdBsDsPiPDF_both"), TString("bkgProdLbLcPiPDF_both"),
+                TString("bkgProdBdRhoPDF_both"), TString("bkgProdBdDstPiPDF_both")]
+
+        nameLtx = ["B_{d}#rightarrow DK", "B_{s}#rightarrow D_{s}#pi", "#Lambda_{b}#rightarrow #Lambda_{c}#pi",
+                   "B_{d}#rightarrow D#rho", "B_{d}#rightarrow D^{*}#pi"]
+        
+        color = [kOrange, kBlue-10, kRed, kGreen+3, kBlue+3 ]
+        style = [1,1,1,1,1,2,3,6,9]
+        
+        frame_b = mass.frame()
+        
+        frame_b.SetTitle("") #'Fit in reconstructed %s mass' % bName )
+        
+        frame_b.GetXaxis().SetLabelSize( 0.05 )
+        frame_b.GetYaxis().SetLabelSize( 0.05 )
+        frame_b.GetXaxis().SetLabelFont( 132 )
+        frame_b.GetYaxis().SetLabelFont( 132 )
+        frame_b.GetXaxis().SetLabelOffset( 0.005 )
+        frame_b.GetYaxis().SetLabelOffset( 0.005 )
+                
+        frame_b.GetXaxis().SetTitleSize( 0.05 )
+        frame_b.GetYaxis().SetTitleSize( 0.05 )
+        frame_b.GetXaxis().SetTitleFont( 132 )
+        frame_b.GetYaxis().SetTitleFont( 132 )
+                
+        frame_b.GetXaxis().SetNdivisions(5)
+        frame_b.GetYaxis().SetNdivisions(5)
+               
+        frame_b.GetXaxis().SetTitleOffset( 1.00 )
+        frame_b.GetYaxis().SetTitleOffset( 1.0 )
+
+        if ( mVarTS == "lab0_MassFitConsD_M"):
+            frame_b.GetXaxis().SetTitle("m(B_{d}) [MeV/c^{2}]")
+        else:
+            frame_b.GetXaxis().SetTitle("m(D) [MeV/c^{2}]")
+        frame_b.GetYaxis().SetTitle("")                        
+
+        if ( mVarTS == "lab0_MassFitConsD_M"):
+            legend_bkg = TLegend( 0.60, 0.45, 0.85, 0.80 )
+        else:
+            legend_bkg = TLegend( 0.12, 0.12, 0.35, 0.30 )
+
+        legend_bkg.SetTextSize(0.05)
+        legend_bkg.SetTextFont(12)
+        legend_bkg.SetFillColor(4000)
+        legend_bkg.SetShadowColor(0)
+        legend_bkg.SetBorderSize(0)
+        legend_bkg.SetTextFont(132)
+        
+        lhcbtext_bkg = TLatex()
+        lhcbtext_bkg.SetTextFont(132)
+        lhcbtext_bkg.SetTextColor(1)
+        lhcbtext_bkg.SetTextSize(0.07)
+        lhcbtext_bkg.SetTextAlign(12)
+                                                                            
+        line = []
+        pdfBkg = []
+        r = [0,1,2,3,4]
+        for i in r:
+            line.append(TLine())
+            line[i].SetLineColor(color[i])
+            line[i].SetLineWidth(5)
+            line[i].SetLineStyle(style[i])
+            print nameBkg[i]
+            pdfBkg.append(w.pdf( nameBkg[i].Data() ))
+            if pdfBkg[i] == NULL:
+                print "Cannot read"
+                                            
+        for i in r:
+            print i
+            print pdfBkg[i].GetName()
+            if  mVarTS == "lab2_MM" and ( i==1 or i == 2):
+                print i
+                pdfBkg[i].plotOn(frame_b, RooFit.LineColor(color[i]), RooFit.LineStyle(style[i]),  RooFit.LineWidth(5) )
+                legend_bkg.AddEntry(line[i], nameLtx[i] , "L")
+            elif mVarTS == "lab0_MassFitConsD_M":
+                pdfBkg[i].plotOn(frame_b, RooFit.LineColor(color[i]), RooFit.LineStyle(style[i]),  RooFit.LineWidth(5) )
+                legend_bkg.AddEntry(line[i], nameLtx[i] , "L")
+                                
+        frame_b.GetYaxis().SetTitle('')    
+        frame_b.Draw()
+        legend_bkg.Draw("same")
+        if ( mVarTS == "lab2_MM"):
+            lhcbtext_bkg.DrawTextNDC( 0.12 , 0.35, "LHCb")
+        else:
+            lhcbtext_bkg.DrawTextNDC( 0.60 , 0.85, "LHCb")
+        nameSavePdf = TString("templateBkg_BDPi_")+mVarTS+TString("_")+sam+sufixTS+TString(".pdf")
+        nameSaveRoot = TString("templateBkg_BDPi_")+mVarTS+TString("_")+sam+sufixTS+TString(".root")
+        canvasBkg.Print(nameSavePdf.Data())
+        canvasBkg.Print(nameSaveRoot.Data())
+                                                                                                                                                                
+                
+            
         
 #------------------------------------------------------------------------------

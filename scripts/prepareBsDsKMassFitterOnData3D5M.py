@@ -110,6 +110,7 @@ from math     import pi, log
 from  os.path import exists
 import os, sys, gc
 
+gROOT.SetBatch()
 
 # -----------------------------------------------------------------------------
 # Configuration settings
@@ -143,8 +144,8 @@ def prepareBsDsKMassFitterOnData( debug,
     saveNameTS = TString(saveName)+TString(save)+TString(".root")
 
     #plot settings:
-    plotSettings = PlotSettings("plotSettings","plotSettings", "PlotBs2DsK3DBDTGC", "pdf", 100, true, false, true)
-    plotSettings.Print()
+    plotSettings = PlotSettings("plotSettings","plotSettings", "PlotBs2DsK3DBDTGA", "pdf", 100, true, false, true)
+    plotSettings.Print("v")
     
     config = TString("../data/")+TString(configName)+TString(".py")
     MDSettings = MDFitterSettings("MDSettings","MDFSettings",config)
@@ -179,8 +180,8 @@ def prepareBsDsKMassFitterOnData( debug,
     MDRatio= 1.0-myconfigfile["lumRatio"]
     MURatio= myconfigfile["lumRatio"]
     
-    MDSettings.Print()
-    MDSettingsMC.Print()
+    MDSettings.Print("v")
+    MDSettingsMC.Print("v")
         
     if ( OmegaPdf == "no" ):
         tagOmega = false
@@ -278,7 +279,8 @@ def prepareBsDsKMassFitterOnData( debug,
     GeneralUtils.SaveWorkspace(workspace,saveNameTS, debug)
     workspace.Print()
     '''
-          
+
+        
     if MCPID:
 
         MCDownNames = [TString("MC BsDsK Kaon Down"),
@@ -308,6 +310,24 @@ def prepareBsDsKMassFitterOnData( debug,
             
             workspace.Print()
             GeneralUtils.SaveWorkspace(workspace,saveNameTS, debug)
+
+            workspace.Print()
+            GeneralUtils.SaveWorkspace(workspace,saveNameTS, debug)
+
+            workspace = WeightingUtils.ObtainPIDShapeFromCalibSample(TString(myconfigfile["dataName"]), TString("#MC FileName MD"),
+                                                                     MDSettingsMC, MCDownNames[i], workspace, plotSettings, debug)
+            
+            workspace = WeightingUtils.ObtainPIDShapeFromCalibSample(TString(myconfigfile["dataName"]), TString("#MC FileName MU"),
+                                                                     MDSettingsMC, MCUpNames[i], workspace, plotSettings, debug)
+            
+            workspace.Print()
+            GeneralUtils.SaveWorkspace(workspace,saveNameTS, debug)
+            
+            workspace = WeightingUtils.ObtainPIDShapeFromCalibSample(TString(myconfigfile["dataName"]), TString("#MC FileName MD"),
+                                                                     MDSettingsMC, MCDownNames[i], workspace, plotSettings, debug)
+            
+            workspace = WeightingUtils.ObtainPIDShapeFromCalibSample(TString(myconfigfile["dataName"]), TString("#MC FileName MU"),
+                                                                     MDSettingsMC, MCUpNames[i], workspace, plotSettings, debug)
             
       
     
@@ -320,7 +340,7 @@ def prepareBsDsKMassFitterOnData( debug,
 
         for i in range(0,5):
             workspace = MassFitUtils.ObtainSignal(TString(myconfigfile["dataName"]), signalNames[i],
-                                                  MDSettingsMC, TString("BsDsK"), true, false, workspace, false,
+                                                  MDSettingsMC, TString("BsDsK"), false, false, workspace, false,
                                                   MDSettingsMC.GetLumDown(), MDSettingsMC.GetLumUp(), plotSettings, debug)
 
         workspace.Print()
@@ -409,12 +429,12 @@ parser.add_option( '--terrvar',
                    )
 parser.add_option( '--tagvar',
                    dest = 'tagvar',
-                   default = 'lab0_BsTaggingTool_TAGDECISION_OS',
+                   default = 'lab0_TAGDECISION_OS',
                    help = 'set observable '
                    )   
 parser.add_option( '--tagomegavar',
                    dest = 'tagomegavar',
-                   default = 'lab0_BsTaggingTool_TAGOMEGA_OS',
+                   default = 'lab0_TAGOMEGA_OS',
                    help = 'set observable '
                    )   
 parser.add_option( '--idvar',

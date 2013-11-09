@@ -353,11 +353,33 @@ if __name__ == '__main__' :
     else:
         mass.setRange(Bmass_down,Bmass_up)
     frame_m = mass.frame()
+
+    if mVarTS != "lab1_PIDK":
+        unit = "[MeV/c^{2}]"
+    else:
+        unit = ""
+         
     
     frame_m.SetTitle('') 
     
-    frame_m.GetXaxis().SetLabelSize( 0.03 )
-    frame_m.GetYaxis().SetLabelSize( 0.03 )
+    frame_m.GetXaxis().SetLabelSize( 0.05 )
+    frame_m.GetYaxis().SetLabelSize( 0.05 )
+    frame_m.GetXaxis().SetLabelFont( 132 )
+    frame_m.GetYaxis().SetLabelFont( 132 )
+    frame_m.GetXaxis().SetLabelOffset( 0.005 )
+    frame_m.GetYaxis().SetLabelOffset( 0.005 )
+    frame_m.GetXaxis().SetLabelColor( kWhite)
+
+    frame_m.GetXaxis().SetTitleSize( 0.05 )
+    frame_m.GetYaxis().SetTitleSize( 0.05 )
+    frame_m.GetYaxis().SetNdivisions(512)
+    
+    frame_m.GetXaxis().SetTitleOffset( 1.00 )
+    frame_m.GetYaxis().SetTitleOffset( 1.09 )
+    frame_m.GetYaxis().SetTitle((TString.Format("#font[12]{Candidates / ( " +
+                                                str((mass.getBinWidth(1)))+" "+
+                                                unit+")}") ).Data())
+                                                    
     if ( mVarTS == "lab2_MM" ):
         if ( mode == "BDPi" ):
             frame_m.GetXaxis().SetTitle("m(D) [MeV/c^{2}]")
@@ -369,19 +391,28 @@ if __name__ == '__main__' :
        else:
            frame_m.GetXaxis().SetTitle("m(B_{s}) [MeV/c^{2}]")
            
-    frame_m.GetYaxis().SetTitleFont( 132 )
-    frame_m.GetYaxis().SetLabelFont( 132 ) 
-    frame_m.SetLabelFont(132)
-    frame_m.SetTitleFont(132)
-           
+               
     if plotModel : plotFitModel( modelPDF, frame_m, sam, mVarTS, merge )
     if plotData : plotDataSet( dataset, frame_m, sam, merge )
 
-    legend = TLegend( 0.15, 0.70, 0.40, 0.85 ) 
-    legend.SetTextSize(0.03)
+    if ( mVarTS == "lab2_MM" ):
+        frame_m.GetYaxis().SetRangeUser(0.01,frame_m.GetMaximum()*1.1)
+    
+    lhcbtext = TLatex()
+    lhcbtext.SetTextFont(132)
+    lhcbtext.SetTextColor(1)
+    lhcbtext.SetTextSize(0.07)
+    lhcbtext.SetTextAlign(12)
+    
+    legend = TLegend( 0.12, 0.70, 0.40, 0.80 ) 
+    legend.SetTextSize(0.05)
     legend.SetTextFont(12)
     legend.SetFillColor(4000)
-    legend.SetHeader("LHCb L_{int}=1fb^{-1}")
+    legend.SetShadowColor(0)
+    legend.SetBorderSize(0)
+    legend.SetTextFont(132)
+    
+    #legend.SetHeader("LHCb L_{int}=1fb^{-1}")
    
     l1 = TLine()
     l1.SetLineColor(kBlue+2)
@@ -392,19 +423,74 @@ if __name__ == '__main__' :
     if ( mVarTS == "lab0_MassFitConsD_M" ):
         gStyle.SetOptLogy(1)
     canvas = TCanvas("canvas", "canvas", 600, 700)
-    pad1 =  TPad("pad1","pad1",0.01,0.21,0.99,0.99)
-    pad2 =  TPad("pad2","pad2",0.01,0.01,0.99,0.20)
+    canvas.cd()
+    pad1 = TPad("upperPad", "upperPad", .050, .22, 1.0, 1.0)
+    pad1.SetBorderMode(0)
+    pad1.SetBorderSize(-1)
+    pad1.SetFillStyle(0)
+    pad1.SetTickx(0);
     pad1.Draw()
-    pad2.Draw()
     pad1.cd()
+                            
+    
     frame_m.Draw()
     legend.Draw("same")
+    lhcbtext.DrawTextNDC(0.12,0.82,"LHCb")
+    
+        
     pad1.Update()
 
     frame_m.Print("v")
+
+    canvas.cd()
+    pad2 = TPad("lowerPad", "lowerPad", .050, .005, 1.0, .3275)
+    pad2.SetBorderMode(0)
+    pad2.SetBorderSize(-1)
+    pad2.SetFillStyle(0)
+    pad2.SetBottomMargin(0.35)
+    pad2.SetTickx(0);
+    pad2.Draw()
+    pad2.SetLogy(0)
+    pad2.cd()
+
+    frame_p = mass.frame(RooFit.Title("pull_frame"))
+    frame_p.Print("v")
+    frame_p.SetTitle("")
+    frame_p.GetYaxis().SetTitle("")
+    frame_p.GetYaxis().SetTitleSize(0.09)
+    frame_p.GetYaxis().SetTitleOffset(0.26)
+    frame_p.GetYaxis().SetTitleFont(62)
+    frame_p.GetYaxis().SetLabelSize(0.12)
+    frame_p.GetYaxis().SetLabelOffset(0.006)
+    frame_p.GetXaxis().SetTitleSize(0.15)
+    frame_p.GetXaxis().SetTitleFont(132)
+    frame_p.GetXaxis().SetTitleOffset(0.85)
+    frame_p.GetXaxis().SetNdivisions(5)
+    frame_p.GetYaxis().SetNdivisions(5)
+    frame_p.GetXaxis().SetLabelSize(0.12)
+    frame_p.GetXaxis().SetLabelFont( 132 )
+    frame_p.GetYaxis().SetLabelFont( 132 )
+
+    if ( mVarTS == "lab2_MM" ):
+        if ( mode == "BDPi" ):
+            frame_p.GetXaxis().SetTitle("m(D) [MeV/c^{2}]")
+        else:
+            frame_p.GetXaxis().SetTitle("m(D_{s}) [MeV/c^{2}]")
+    else:
+        if ( mode == "BDPi" ):
+            frame_p.GetXaxis().SetTitle("m(B_{d}) [MeV/c^{2}]")
+        else:
+            frame_p.GetXaxis().SetTitle("m(B_{s}) [MeV/c^{2}]")
+            
+    
+    
     pullnameTS = TString("FullPdf_Norm[")+mVarTS+TString("]_Comp[")+pullname3TS+TString("]")
     pullHist  = frame_m.pullHist(pullname2TS.Data(),pullnameTS.Data())
     pullHist.SetTitle("")
+
+    frame_p.addPlotable(pullHist,"P")
+    frame_p.Draw()
+       
     
     pad2.SetLogy(0)
     pad2.cd()
@@ -456,7 +542,8 @@ if __name__ == '__main__' :
     graph3.SetLineColor(kRed)
                                                                  
 
-    pullHist.Draw("ap")
+    frame_p.Draw()
+    
     graph.Draw("same")
     graph2.Draw("same")
     graph3.Draw("same")

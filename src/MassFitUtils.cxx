@@ -269,6 +269,7 @@ namespace MassFitUtils {
 		  else
 		    {     lab1_PIDK->setVal(log(lab1_PIDK3)); }
 		  nTracks->setVal(log(nTracks3));
+		  //nTracks->setVal(nTracks3);
 		  if( mdSet->CheckAddVar() == true )
 		    {
 		      for(int k = 0; k<mdSet->GetNumAddVar(); k++)
@@ -395,7 +396,7 @@ namespace MassFitUtils {
     for (int i=1; i<3; i++){
       smp[i-1] = CheckPolarity(FileName[i], debug);
       md[i-1] = CheckDMode(FileName[i], debug);
-      if ( md[i-1] == "kkpi" ){ md[i-1] = CheckKKPiMode(FileName[i], debug);}
+      if ( md[i-1] == "kkpi" || md[i-1] == "" ){ md[i-1] = CheckKKPiMode(FileName[i], debug);}
     }
 
     //Read necessary misID histograms from file// 
@@ -880,7 +881,7 @@ namespace MassFitUtils {
 	}
 
       //Create RooKeysPdf for misID background//
-            
+                  
       name="PhysBkgBd2DPiPdf_m_"+s;
       pdfDataMiss[i] = new RooKeysPdf(name.Data(),name.Data(),*lab0_MM,*dataSet[i],RooKeysPdf::MirrorBoth,1.5);
       
@@ -909,6 +910,7 @@ namespace MassFitUtils {
 	}
       
       work->import(*dataSet[i]);
+      
       work->import(*pdfDataMiss[i]);
       work->import(*pdfDataDMiss[i]);
       
@@ -928,6 +930,7 @@ namespace MassFitUtils {
 	    }
 	  work->import(*pdf);
 	}
+      
     }
     return work;
   }
@@ -1172,7 +1175,7 @@ namespace MassFitUtils {
       }
     
     // Read sample (means down or up)  from path //
-    std::vector<TString> smp(size1);
+    std::vector<TString> smp(size1); 
 
     if (debug == true) { std::cout<<"Polarities of MC samples:"<<std::endl;}
     for (int i=0; i<size1; i++){
@@ -1358,9 +1361,20 @@ namespace MassFitUtils {
 	    {
 	      dataSetMC[i]->add(*obs); //,wMC*wRW*globalWeight,0);
 	      ag_shifted_counter++;
-	      if ( log(PIDK2) > log(mdSet->GetPIDBach()))
+
+	      if (hypo.Contains("Pi"))
 		{
-		  dataSetMCtmp[i]->add(*obs,wMC*wRW*globalWeight,0);
+		  if ( -PIDK2 > mdSet->GetPIDBach())
+                    {
+                      dataSetMCtmp[i]->add(*obs,wMC*wRW*globalWeight,0);
+                    }
+		}
+	      else if ( hypo.Contains("K") == true )
+		{
+		  if ( log(PIDK2) > log(mdSet->GetPIDBach()))
+		    {
+		      dataSetMCtmp[i]->add(*obs,wMC*wRW*globalWeight,0);
+		    }
 		}
 	    }
 	  
@@ -1383,6 +1397,9 @@ namespace MassFitUtils {
 	    corrBsVsDs[i]->SetName(corrName.Data());
 	    corrBsVsDs[i]->GetXaxis()->SetTitle("m(B_{s}) [MeV/c^2]");
 	    corrBsVsDs[i]->GetYaxis()->SetTitle("m(D_{s}) [MeV/c^2]");
+	    Double_t corr1 = corrBsVsDs[i]->GetCorrelationFactor();
+	    std::cout<<"[INFO] Covariance of Bs vs Ds: "<<corr1<<std::endl;
+
 	    //corrBsVsDs[i]->SetBinContent(0, 0.0);
 	    TString ext ="pdf";
 	    Save2DHist(corrBsVsDs[i],plotSet);
@@ -1392,6 +1409,8 @@ namespace MassFitUtils {
 	    corrBsVsPIDK[i]->SetName(corrName.Data());
 	    corrBsVsPIDK[i]->GetXaxis()->SetTitle("m(B_{s}) [MeV/c^2]");
 	    corrBsVsPIDK[i]->GetYaxis()->SetTitle("PIDK [1]");
+	    Double_t corr2 = corrBsVsPIDK[i]->GetCorrelationFactor();
+	    std::cout<<"[INFO] Covariance of Bs vs PIDK: "<<corr2<<std::endl;
 	    
 	    Save2DHist(corrBsVsPIDK[i],plotSet);
 	    
@@ -1400,7 +1419,10 @@ namespace MassFitUtils {
 	    corrDsVsPIDK[i]->SetName(corrName.Data());
 	    corrDsVsPIDK[i]->GetXaxis()->SetTitle("m(D_{s}) [MeV/c^2]");
 	    corrDsVsPIDK[i]->GetYaxis()->SetTitle("PIDK [1]");
-	    
+	    Double_t corr3 = corrDsVsPIDK[i]->GetCorrelationFactor();
+	    std::cout<<"[INFO] Covariance of Ds vs PIDK: "<<corr3<<std::endl;
+
+
 	    Save2DHist(corrDsVsPIDK[i],plotSet);
 	    
 	  }
@@ -1517,7 +1539,6 @@ namespace MassFitUtils {
 
       heffmiss[i]=NULL;
       heffmiss[i]=WeightHist(heffmiss1[i],  heffmiss2[i]);
-      
       smpmiss[i] = CheckPolarity(FileNamePID[i+1], debug);
 
       heffProton[i] = NULL;
@@ -1533,7 +1554,7 @@ namespace MassFitUtils {
     } // end of for loop
 
     //Read sample (means down or up) from path//
-    std::vector<TString> smp(ndsets);
+    std::vector<TString> smp(ndsets); 
     for (unsigned i = 0; i< ndsets; i++) {
       smp[i] = CheckPolarity(MCFileName[i], debug);
     }
@@ -2273,7 +2294,8 @@ namespace MassFitUtils {
 
     TString namehist    = histNamePre+histNameSuf;
     HistPID1D heff(namehist, namehist, filesDir, PID, PID2);  
-    
+    std::cout<<heff<<std::endl;
+
     // Read sample (down,up) from path//
     TString smp[2], md[2];
     for (int i=1; i<3; i++){
@@ -2398,11 +2420,20 @@ namespace MassFitUtils {
 	if (reweight == true) { dataSetMC[i]->add(*obs,wRW*wE*globalWeight,0); }
 	else { dataSetMC[i]->add(*obs); }
 	
-	if( log(lab1_PIDK3) > log(mdSet->GetPIDBach()) )
+	if (mode.Contains("Pi"))
 	  {
-	    dataSetMCtmp[i]->add(*obs,wRW*wE*globalWeight,0);
+	    if ( -lab1_PIDK3 > mdSet->GetPIDBach())
+	      {
+		dataSetMCtmp[i]->add(*obs,wE*wRW*globalWeight,0);
+	      }
 	  }
-      
+	else if ( mode.Contains("K") == true )
+	  {
+	    if ( log(lab1_PIDK3) > log(mdSet->GetPIDBach()))
+	      {
+		dataSetMCtmp[i]->add(*obs,wE*wRW*globalWeight,0);
+	      }
+	  }
 	
       }
       
@@ -2420,41 +2451,48 @@ namespace MassFitUtils {
       outfile->Close();
       
       if( debug == true ) {  std::cout<<"[INFO] Close file: "<<nameFile<<std::endl; }
-
-
       if ( debug == true) std::cout<<"Number of entries: "<<dataSetMC[i]->numEntries()<<std::endl;
+      TString s = smp[i]+"_"+md[i];
       
       if (plotSet->GetStatus() == true )
 	{
 	  SaveDataSet(dataSetMC[i],lab1_PT, smp[i], mode, plotSet, debug);
 	  	  
-	  TString corrName = "corrBsVsDs_"+mode+"_"+smp[i];
+	  TString corrName = "corrBsVsDs_"+mode+"_"+s;
 	  Int_t bin1 = 40;
 	  Int_t bin2 = 40;
 	  corrBsVsDs[i] = dataSetMC[i]->createHistogram(*lab0_MM, *lab2_MM, bin1, bin2, "", corrName.Data());
 	  corrBsVsDs[i]->SetName(corrName.Data());
 	  corrBsVsDs[i]->GetXaxis()->SetTitle("m(B_{s}) [MeV/c^2]");
 	  corrBsVsDs[i]->GetYaxis()->SetTitle("m(D_{s}) [MeV/c^2]");
+	  Double_t corr1 = corrBsVsDs[i]->GetCorrelationFactor();
+	  std::cout<<"[INFO] Covariance of Bs vs Ds: "<<corr1<<std::endl;
 	  
 	  TString ext ="pdf";
 	  Save2DHist(corrBsVsDs[i],plotSet);
 	  
-	  corrName = "corrBsVsPIDK_"+mode+"_"+smp[i];;
+	  corrName = "corrBsVsPIDK_"+mode+"_"+s;
 	  corrBsVsPIDK[i] = dataSetMCtmp[i]->createHistogram(*lab0_MM, *lab1_PIDK, bin1, bin2, "", corrName.Data());
 	  corrBsVsPIDK[i]->SetName(corrName.Data());
 	  corrBsVsPIDK[i]->GetXaxis()->SetTitle("m(B_{s}) [MeV/c^2]");
 	  corrBsVsPIDK[i]->GetYaxis()->SetTitle("PIDK [1]");
+	  Double_t corr2 = corrBsVsPIDK[i]->GetCorrelationFactor();
+	  std::cout<<"[INFO] Covariance of Bs vs PIDK: "<<corr2<<std::endl;
+
 	  Save2DHist(corrBsVsPIDK[i],plotSet);
 	  
-	  corrName = "corrDsVsPIDK_"+mode+"_"+smp[i];;
+	  corrName = "corrDsVsPIDK_"+mode+"_"+s;
 	  corrDsVsPIDK[i] = dataSetMCtmp[i]->createHistogram(*lab2_MM, *lab1_PIDK, bin1, bin2, "", corrName.Data());
 	  corrDsVsPIDK[i]->SetName(corrName.Data());
 	  corrDsVsPIDK[i]->GetXaxis()->SetTitle("m(D_{s}) [MeV/c^2]");
 	  corrDsVsPIDK[i]->GetYaxis()->SetTitle("PIDK [1]");
+	  Double_t corr3 = corrDsVsPIDK[i]->GetCorrelationFactor();
+	  std::cout<<"[INFO] Covariance of Ds vs PIDK: "<<corr3<<std::endl;
+
 	  Save2DHist(corrDsVsPIDK[i],plotSet);
 	}
 
-      TString s = smp[i]+"_"+md[i];
+      
       TString m = mode+"MC";
 
       if ( plotSet->GetStatus()  == true )
@@ -2541,7 +2579,7 @@ namespace MassFitUtils {
     Int_t sizeMD = modeMD.size();
     Int_t sizeMU = modeMU.size();
 
-    std::vector<TString> smpMD(sizeMD);
+    std::vector<TString> smpMD(sizeMD); 
 
     // Read sample (down.up) from paths for MD// 
     for(int i = 0; i< sizeMD; i++ )
@@ -2551,7 +2589,7 @@ namespace MassFitUtils {
       }
 
     //Read sample (down,up) from path for MU// 
-    std::vector<TString> smpMU(sizeMU);
+    std::vector<TString> smpMU(sizeMU); 
     for(int i = 0; i< sizeMU; i++ )
       {
 	smpMU[i] = CheckPolarity(MCFileNameMU[i], debug);

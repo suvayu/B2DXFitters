@@ -44,7 +44,7 @@ def getconfig() :
     configdict["workCalibProton"]  = "workspace"
     
     configdict["workCalibProton"]  = "workspace"
-    configdict["pathFileLcPi"]  = "/afs/cern.ch/work/a/adudziak/public/workspace/sWeights_LbLcPi_both_PIDK10.root"
+    configdict["pathFileLcPi"]  = "/afs/cern.ch/work/a/adudziak/public/workspace/sWeights_LbLcPi_both_PID10.root"
     configdict["treeNameLcPi"] = "merged"
 
     configdict["lumRatioDown"] =  0.59

@@ -19,8 +19,26 @@ def getconfig() :
     configdict["BachCharge"] = [-1000.0, 1000.0  ]
     configdict["BDTG"]       = [0.3,     1.0     ]
         
-                            
-    
+    configdict["AdditionalVariables"] = [ "lab0_SS_Kaon_PROB", "lab0_SS_Kaon_DEC", "lab0_SS_nnetKaon_PROB", "lab0_SS_nnetKaon_DEC",
+                                          "lab0_OS_Muon_PROB" , "lab0_OS_Muon_DEC", "lab0_OS_Electron_PROB", "lab0_OS_Electron_DEC",
+                                          "lab0_OS_Kaon_PROB",  "lab0_OS_Kaon_DEC", "lab0_OS_nnetKaon_PROB", "lab0_OS_nnetKaon_DEC",
+                                          "lab0_VtxCharge_PROB", "lab0_VtxCharge_DEC" ]
+
+    configdict["lab0_SS_Kaon_PROB"]      = [ -3.0, 1,0 ]
+    configdict["lab0_SS_Kaon_DEC"]       = [ -2.0, 2.0 ]
+    configdict["lab0_SS_nnetKaon_PROB"]  = [ -3.0, 1.0 ]
+    configdict["lab0_SS_nnetKaon_DEC"]   = [ -2.0, 2.0 ]
+    configdict["lab0_OS_Muon_PROB"]      = [ -3.0, 1.0 ]
+    configdict["lab0_OS_Muon_DEC"]       = [ -2.0, 2.0 ]
+    configdict["lab0_OS_Electron_PROB"]  = [-3.0, 1.0 ]
+    configdict["lab0_OS_Electron_DEC"]   = [ -2.0, 2.0 ]
+    configdict["lab0_OS_Kaon_PROB"]      = [ -3.0, 1.0 ]
+    configdict["lab0_OS_Kaon_DEC"]       = [ -2.0, 2.0 ]
+    configdict["lab0_OS_nnetKaon_PROB"]  = [ -3.0, 1.0 ]
+    configdict["lab0_OS_nnetKaon_DEC"]   = [ -2.0, 2.0 ]
+    configdict["lab0_VtxCharge_PROB"]    = [-3.0, 1.0 ]
+    configdict["lab0_VtxCharge_DEC"]     = [-2.0, 2.0 ]
+        
     configdict["Bin1"]       = 20
     configdict["Bin2"]       = 20
     configdict["Bin3"]       = 10

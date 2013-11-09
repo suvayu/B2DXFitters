@@ -248,7 +248,8 @@ def runBdGammaFitterOnData(debug, wsname,
     tag = obs.find("qt")
     weight = obs.find("sWeights")
     observables = RooArgSet(time,tag,id)
-
+    #nTr = obs.find("nTracks")
+    
     if debug:
         frame = time.frame()
         sliceData_1 = dataWA.reduce(RooArgSet(time,id,tag),"(qt == 0)")
@@ -269,13 +270,23 @@ def runBdGammaFitterOnData(debug, wsname,
         canvas.GetPad(0).SetLogy()
         canvas.SaveAs('data_time_DsPi.pdf')
 
+        #name = "nTracksPdf_signal_BDTGA"
+        #nTrPdf = GeneralUtils.CreateHistPDF(dataWA, nTr, TString(name), 197, debug)
+        #framenTr = nTr.frame()
+        #dataWA.plotOn(framenTr)
+        #nTrPdf.plotOn(framenTr) 
+        #canvas2 = TCanvas("canvas2", "canvas2", 1200, 1000)
+        #canvas2.cd()
+        #framenTr.Draw()
+        #canvas2.SaveAs('data_nTracks_DsPi.pdf')
         
         
     #workout = RooWorkspace("workspace","workspace")
-    #getattr(workout,'import')(dataW)
-    #saveNameTS = TString("data_time_dspi_bdtg123.root")
+    #getattr(workout,'import')(nTrPdf)
+    #saveNameTS = TString("template_nTracks_DsPi.root")
     #workout.Print()
     #GeneralUtils.SaveWorkspace(workout,saveNameTS, debug)
+    #exit(0)
 
     sum1 = 0.0
     sum2 = 0.0
@@ -660,12 +671,12 @@ parser.add_option( '--terrvar',
 
 parser.add_option( '--tagvar',
                    dest = 'tagvar',
-                   default = 'lab0_BsTaggingTool_TAGDECISION_OS',
+                   default = 'lab0_TAGDECISION_OS',
                    help = 'set observable '
                    )
 parser.add_option( '--tagomegavar',
                    dest = 'tagomegavar',
-                   default = 'lab0_BsTaggingTool_TAGOMEGA_OS',
+                   default = 'lab0_TAGOMEGA_OS',
                    help = 'set observable '
                    )
 

@@ -741,10 +741,15 @@ if __name__ == '__main__' :
     
     frame_m.GetXaxis().SetTitleOffset( 1.0 )
     frame_m.GetYaxis().SetTitleOffset( 1.05 )
-    frame_m.GetYaxis().SetTitle((TString.Format("#font[12]{Candidates / ( " +
-                                                str(mass.getBinWidth(1))+" "+
-                                                unit+")}") ).Data())
-    
+    if mVarTS != "lab1_PIDK":
+        
+        frame_m.GetYaxis().SetTitle((TString.Format("#font[12]{Candidates / ( " +
+                                                    str(mass.getBinWidth(1))+" "+
+                                                    unit+")}") ).Data())
+    else:
+        frame_m.GetYaxis().SetTitle((TString.Format("#font[12]{Candidates / ( 0.3 " +
+                                                    unit+")}") ).Data())
+        
     
     if mVarTS == "lab1_PIDK":
         frame_m.GetXaxis().SetTitle('#font[12]{ln(PIDK) [1]}')
@@ -972,5 +977,111 @@ if __name__ == '__main__' :
     canvas.Print(canName.Data())
     canName = TString("mass_BsDsK_")+mVarTS+TString("_")+sam+TString("_")+mod+sufixTS+TString(".root")
     canvas.Print(canName.Data())
+
+    templates = false
+    if templates == true:
+        canvasBkg = TCanvas("canvasBkg", "canvas",1200, 1000)
+        canvasBkg.SetTitle('')
+        canvasBkg.cd()
+
+        nameSig = [TString("SigProdPDF_both_nonres"),TString("SigProdPDF_both_phipi"),TString("SigProdPDF_both_kstk"),
+                   TString("SigProdPDF_both_kpipi"),TString("SigProdPDF_both_pipipi")]
+        
+               
+        nameBkg = [TString(""), TString(""), TString(""),
+                   TString(""), TString("")]
+        
+        nameLtx = ["B_{d}#rightarrow DK", "B_{s}#rightarrow D_{s}#pi", "#Lambda_{b}#rightarrow #Lambda_{c}#pi",
+                   "B_{d}#rightarrow D#rho", "B_{d}#rightarrow D^{*}#pi"]
+        
+        color = [kOrange, kBlue-10, kRed, kGreen+3, kBlue+3 ]
+        style = [1,1,1,1,1,2,3,6,9]
+        
+        frame_b = mass.frame()
+
+        frame_b.SetTitle("") #'Fit in reconstructed %s mass' % bName )
+
+        frame_b.GetXaxis().SetLabelSize( 0.05 )
+        frame_b.GetYaxis().SetLabelSize( 0.05 )
+        frame_b.GetXaxis().SetLabelFont( 132 )
+        frame_b.GetYaxis().SetLabelFont( 132 )
+        frame_b.GetXaxis().SetLabelOffset( 0.005 )
+        frame_b.GetYaxis().SetLabelOffset( 0.005 )
+        
+        frame_b.GetXaxis().SetTitleSize( 0.05 )
+        frame_b.GetYaxis().SetTitleSize( 0.05 )
+        frame_b.GetXaxis().SetTitleFont( 132 )
+        frame_b.GetYaxis().SetTitleFont( 132 )
+        
+        frame_b.GetXaxis().SetNdivisions(5)
+        frame_b.GetYaxis().SetNdivisions(5)
+        
+        frame_b.GetXaxis().SetTitleOffset( 1.00 )
+        frame_b.GetYaxis().SetTitleOffset( 1.0 )
+        
+        if mVarTS == "lab1_PIDK":
+            frame_p.GetXaxis().SetTitle('#font[12]{bachelor log(PIDK) [1]}')
+        elif mVarTS == "lab2_MM":
+            frame_p.GetXaxis().SetTitle('#font[12]{m(D_{s}) [MeV/c^{2}]}')
+        else:
+            frame_p.GetXaxis().SetTitle('#font[12]{m(B_{s} #rightarrow D_{s}K) [MeV/c^{2}]}')
+                                            
+        frame_b.GetYaxis().SetTitle("")
+        
+        if ( mVarTS == "lab0_MassFitConsD_M"):
+            legend_bkg = TLegend( 0.60, 0.45, 0.85, 0.80 )
+        else:
+            legend_bkg = TLegend( 0.12, 0.12, 0.35, 0.30 )
+            
+        legend_bkg.SetTextSize(0.05)
+        legend_bkg.SetTextFont(12)
+        legend_bkg.SetFillColor(4000)
+        legend_bkg.SetShadowColor(0)
+        legend_bkg.SetBorderSize(0)
+        legend_bkg.SetTextFont(132)
+                                                                                                                                
+        lhcbtext_bkg = TLatex()
+        lhcbtext_bkg.SetTextFont(132)
+        lhcbtext_bkg.SetTextColor(1)
+        lhcbtext_bkg.SetTextSize(0.07)
+        lhcbtext_bkg.SetTextAlign(12)
+        
+        line = []
+        pdfBkg = []
+        r = [0,1,2,3,4]
+        for i in r:
+            line.append(TLine())
+            line[i].SetLineColor(color[i])
+            line[i].SetLineWidth(5)
+            line[i].SetLineStyle(style[i])
+            print nameBkg[i]
+            pdfBkg.append(w.pdf( nameBkg[i].Data() ))
+            if pdfBkg[i] == NULL:
+                print "Cannot read"
+                                                                                                                                                        
+        for i in r:
+            print i
+            print pdfBkg[i].GetName()
+            if  mVarTS == "lab2_MM" and ( i==1 or i == 2):
+                print i
+                pdfBkg[i].plotOn(frame_b, RooFit.LineColor(color[i]), RooFit.LineStyle(style[i]),  RooFit.LineWidth(5) )
+                legend_bkg.AddEntry(line[i], nameLtx[i] , "L")
+            elif mVarTS == "lab0_MassFitConsD_M":
+                pdfBkg[i].plotOn(frame_b, RooFit.LineColor(color[i]), RooFit.LineStyle(style[i]),  RooFit.LineWidth(5) )
+                legend_bkg.AddEntry(line[i], nameLtx[i] , "L")
+                
+            frame_b.GetYaxis().SetTitle('')
+            frame_b.Draw()
+            legend_bkg.Draw("same")
+            if ( mVarTS == "lab2_MM"):
+                lhcbtext_bkg.DrawTextNDC( 0.12 , 0.35, "LHCb")
+            else:
+                lhcbtext_bkg.DrawTextNDC( 0.60 , 0.85, "LHCb")
+
+        nameSavePdf = TString("templateBkg_BDPi_")+mVarTS+TString("_")+sam+sufixTS+TString(".pdf")
+        nameSaveRoot = TString("templateBkg_BDPi_")+mVarTS+TString("_")+sam+sufixTS+TString(".root")
+        canvasBkg.Print(nameSavePdf.Data())
+        canvasBkg.Print(nameSaveRoot.Data())
+                                                                                                                                                            
         
 #------------------------------------------------------------------------------

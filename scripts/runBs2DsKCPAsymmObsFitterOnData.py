@@ -278,6 +278,7 @@ def runBdGammaFitterOnData(debug, wsname,
     terr = obs.find(terrVar)
     weight = obs.find("sWeights")
     observables = RooArgSet(time,bTagMap,fChargeMap)
+    #nTr = obs.find("nTracks")
 
     if debug:
         frame = time.frame()
@@ -298,6 +299,25 @@ def runBdGammaFitterOnData(debug, wsname,
         canvas.GetPad(0).SetLogy()
         canvas.SaveAs('data_time_DsK.pdf')
 
+        '''
+        name = "nTracksPdf_signal_BDTGA"
+        nTrPdf = GeneralUtils.CreateHistPDF(dataWA, nTr, TString(name), 197, debug)
+        framenTr = nTr.frame()
+        dataWA.plotOn(framenTr)
+        nTrPdf.plotOn(framenTr)
+        canvas2 = TCanvas("canvas2", "canvas2", 1200, 1000)
+        canvas2.cd()
+        framenTr.Draw()
+        canvas2.SaveAs('data_nTracks_DsK.pdf')
+        
+        workout = RooWorkspace("workspace","workspace")
+        getattr(workout,'import')(nTrPdf)
+        saveNameTS = TString("template_nTracks_DsK.root")
+        workout.Print()
+        GeneralUtils.SaveWorkspace(workout,saveNameTS, debug)
+        exit(0)
+        '''
+        
     templateWorkspacePi = GeneralUtils.LoadWorkspace(TString(myconfigfile["TemplateFilePi"]), TString(myconfigfile["TemplateWorkspace"]), debug)
     templateWorkspaceK = GeneralUtils.LoadWorkspace(TString(myconfigfile["TemplateFileK"]), TString(myconfigfile["TemplateWorkspace"]), debug)
 

@@ -103,6 +103,8 @@ __doc__ = """ real docstring """
 # -----------------------------------------------------------------------------
 import B2DXFitters
 import ROOT
+from ROOT import *
+from B2DXFitters import *
 from ROOT import RooFit
 from optparse import OptionParser
 from math     import pi, log
@@ -124,14 +126,16 @@ n1 = 0.01
 n2 = 5.0
 frac = 0.50
                         
-Pcut_down = 0.0
-Pcut_up = 650000000.0
+P_down = 0.0
+P_up = 650000000.0
 Time_down = 0.0
 Time_up = 15.0
 PT_down  = 500.0
 PT_up = 45000.0
 nTr_down = 1.0
 nTr_up = 1000.0
+Terr_down = 0.01
+Terr_up = 0.1
 
 dataName      = '../data/config_LbLcPi.txt'
 
@@ -142,6 +146,33 @@ bName = 'B_{s}'
 
 #------------------------------------------------------------------------------
 def fitCombBkg( debug, var , mode, modeDs, merge, BDTG, configName, WS) :
+
+    RooAbsData.setDefaultStorageType(RooAbsData.Tree)
+    
+    plotSettings = PlotSettings("plotSettings","plotSettings", "PlotSignal", "pdf", 100, true, false, true)
+    plotSettings.Print()
+    
+    MDSettings = MDFitterSettings("MDSettings","MDFSettings")
+
+    modeTSDs=TString(modeDs)
+    mVarTS = TString("lab0_MassHypo_LcPi_LambdaFav")
+    if modeTSDs == "KPiPi":
+        mVarTS = TString("lab0_MassHypo_LcPi_LambdaSup")
+
+        
+    MDSettings.SetMassBVar(TString(mVarTS))
+    MDSettings.SetMassDVar(TString("lab2_MM"))
+    MDSettings.SetTimeVar(TString("lab0_LifetimeFit_ctau"))
+    MDSettings.SetTerrVar(TString("lab0_LifetimeFit_ctauErr"))
+    MDSettings.SetTagVar(TString("lab0_BsTaggingTool_TAGDECISION_OS"))
+    MDSettings.SetTagOmegaVar(TString("lab0_BsTaggingTool_TAGOMEGA_OS"))
+    MDSettings.SetIDVar(TString("lab1_ID"))
+    MDSettings.SetPIDKVar(TString("lab1_PIDK"))
+    MDSettings.SetBDTGVar(TString("BDTGResponse_1"))
+    MDSettings.SetMomVar(TString("lab1_P"))
+    MDSettings.SetTrMomVar(TString("lab1_PT"))
+    MDSettings.SetTracksVar(TString("nTracks"))
+                                                    
 
     BDTGTS = TString(BDTG)
     if  BDTGTS == "BDTGA":
@@ -171,19 +202,8 @@ def fitCombBkg( debug, var , mode, modeDs, merge, BDTG, configName, WS) :
     RooAbsData.setDefaultStorageType(RooAbsData.Tree)
     
     dataTS = TString(dataName)
-    mVarTS = TString("lab0_MassHypo_LcPi_LambdaFav")
-    mdVarTS = TString("lab2_MM")
-    tVarTS = TString("lab0_LifetimeFit_ctau")
-    tagVarTS = TString("lab0_BsTaggingTool_TAGDECISION_OS")
-    tagOmegaVarTS = TString("lab0_BsTaggingTool_TAGOMEGA_OS")
-    idVarTS = TString("lab1_ID")
     modeTS = TString(mode)
-    mProbVarTS = TString("lab1_PIDK")
-    modeTSDs = TString(modeDs)
-    
-    if modeTSDs == "KPiPi":
-        mVarTS = TString("lab0_MassHypo_LcPi_LambdaSup")
-
+       
     print mVarTS
 
     BDTGTS = TString(BDTG)
@@ -214,6 +234,25 @@ def fitCombBkg( debug, var , mode, modeDs, merge, BDTG, configName, WS) :
     Bmass_down = 5500
     Bmass_up = 6000
 
+    MDSettings.SetMassBRange(Bmass_down, Bmass_up)
+    MDSettings.SetMassDRange(Dmass_down, Dmass_up)
+    MDSettings.SetTimeRange(Time_down,  Time_up )
+    MDSettings.SetMomRange(P_down, P_up  )
+    MDSettings.SetTrMomRange(PT_down, PT_up  )
+    MDSettings.SetTracksRange(nTr_down, nTr_up  )
+    MDSettings.SetBDTGRange( BDTG_down, BDTG_up  )
+    MDSettings.SetPIDKRange(-PIDcut,150)
+    MDSettings.SetPIDBach(PIDcut)
+    MDSettings.SetTerrRange(Terr_down, Terr_up  )
+    MDSettings.SetTagRange(-2.0, 2.0  )
+    MDSettings.SetTagOmegaRange(0.0, 1.0  )
+    MDSettings.SetIDRange( -1000.0, 1000.0 )
+    
+    MDSettings.SetLumDown(0.59)
+    MDSettings.SetLumUp(0.44)
+    MDSettings.SetLumRatio()
+                                                            
+    
     if ( modeDsTS == "NonRes" or modeDsTS == "KstK" or modeDsTS == "PhiPi" or modeDsTS == "All"):
         if WS:
             nameTS = TString("#")+modeTS+TString(" KKPi ")+modeDsTS+ TString(" WS")
@@ -266,18 +305,8 @@ def fitCombBkg( debug, var , mode, modeDs, merge, BDTG, configName, WS) :
     print alpha2Name
     print fracName
     
-    workspace = MassFitUtils.ObtainData(dataTS, nameTS,
-                                        PIDcut,
-                                        Pcut_down, Pcut_up,
-                                        BDTG_down, BDTG_up,
-                                        Dmass_down, Dmass_up,
-                                        Bmass_down, Bmass_up,
-                                        Time_down, Time_up,
-                                        mVarTS, mdVarTS, tVarTS, tagVarTS,
-                                        tagOmegaVarTS, idVarTS,
-                                        mProbVarTS,
-                                        modeTS, false, NULL, debug)
-    
+    workspace = MassFitUtils.ObtainData(dataTS, nameTS,  MDSettings, TString("BsDsPi"), plotSettings, NULL, debug)
+       
     workspace.Print("v")
     mass = GeneralUtils.GetObservable(workspace,obsTS, debug)
     observables = RooArgSet( mass )
@@ -293,7 +322,7 @@ def fitCombBkg( debug, var , mode, modeDs, merge, BDTG, configName, WS) :
         
         
     for i in range(0,2):
-        datasetTS = TString("dataSet")+modeTS+TString("_")+sample[i]+TString("_")+modeDsTS2
+        datasetTS = TString("dataSetBsDsPi_")+sample[i]+TString("_")+modeDsTS2
         data.append(GeneralUtils.GetDataSet(workspace,datasetTS, debug))
         nEntries.append(data[i].numEntries())
         print "Data set: %s with number of events: %s"%(data[i].GetName(),nEntries[i])
@@ -541,7 +570,7 @@ parser.add_option( '-i', '--initial-vars',
                    )
 parser.add_option( '-v', '--variable',
                    dest = 'var',
-                   default = 'lab0_MassFitConsD_M',
+                   default = 'lab0_MassHypo_LcPi_LambdaFav',
                    help = 'set observable '
                    )
 

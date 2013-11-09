@@ -1,1 +1,1 @@
-python prepareBsDsPiMassFitterOnData3D5M.py -s dspi_pid_53005800_PIDK0_5M_BDTGA --debug --Data --DPi --DPiPID --MC --MCPID --Signal --SignalPID --CombPID --configName Bs2DsPiConfigForNominalMassFitBDTGA 
+python prepareBsDsPiMassFitterOnData3D5M.py -s dspi_pid_53005800_PIDK0_5M_BDTGA_2 --debug --Data --DPi --DPiPID --MC --MCPID --Signal --SignalPID --CombPID --configName Bs2DsPiConfigForNominalMassFitBDTGA 

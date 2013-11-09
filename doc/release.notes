@@ -4,6 +4,14 @@
 ! Purpose     : RooFit-based fitters for B -> D X
 !-----------------------------------------------------------------------------
 
+! 2013-11-09 - Agnieszka Dziurda
+ - update workspaces in data/workspaces/
+ - update all plot scripts
+ - update some old scripts (fitting signal, comb bkg, etc)
+ - fix bug in WeighthingUtils.cxx
+ - fix bug in MDFitterSettings
+ - some small changes
+ 
 ! 2013-11-08 - Manuel Tobias Schiller
  - DecRateCoeff: fixed a technical issue
 
