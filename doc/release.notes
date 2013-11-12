@@ -4,6 +4,10 @@
 ! Purpose     : RooFit-based fitters for B -> D X
 !-----------------------------------------------------------------------------
 
+! 2013-11-12 - Manuel Tobias Schiller
+ - restore the old CONF workspaces which accidentally got overwritten in the
+   last commit
+
 ! 2013-11-09 - Agnieszka Dziurda
  - update workspaces in data/workspaces/
  - update all plot scripts
