@@ -16,8 +16,6 @@
 #include <numeric>
 
 #include "Math/SVector.h"
-#include "Math/SMatrix.h"
-#include "Math/CholeskyDecomp.h"
 
 /// tools for tagging combinations
 namespace TagTools {
@@ -156,11 +154,8 @@ namespace TagTools {
 	    typedef ROOT::Math::SVector<double, N> DLLVector;
 
 	    /** @brief constructor
-	     *
-	     * @param decorrel	decorrelation matrix
-	     *
-	     * if decorrelation matrix is not supplied, no decorrelation of
-	     * tagging inputs is performed
+	     * 
+	     * combine a number of uncorrelated taggers
 	     */
 	    TagCombiner() { }
 

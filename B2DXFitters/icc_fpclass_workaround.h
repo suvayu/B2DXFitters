@@ -1,4 +1,4 @@
-/** @file B2DXFitters.icc_fpclass_workaround.h
+/** @file B2DXFitters/icc_fpclass_workaround.h
  *
  * @author Manuel Schiller <manuel.schiller@nikhef.nl>
  * @date 2013-02-14

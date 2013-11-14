@@ -29,8 +29,8 @@ public:
   TaggingCat() {} ; 
   /** @brief constructor
    *
-   * @param _name	name of variable
-   * @param _title	title of variable
+   * @param name	name of variable
+   * @param title	title of variable
    * @param _qt		tagged Bbar (-1), untagged (0), tagged B (+1)
    * @param _cat	tagging category (0, 1, ..., N)
    * @param _vars	list of per-category mistags

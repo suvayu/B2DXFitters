@@ -51,7 +51,8 @@ if not __initialised:
             )
         pid = os.getpid()
         while pid in proclist:
-            if 'gdb' in proclist[pid][1]: return True
+            for dbgname in ('gdb', 'lldb'):
+                if dbgname in proclist[pid][1]: return True
             pid = proclist[pid][0]
         return False
     

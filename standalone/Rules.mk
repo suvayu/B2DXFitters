@@ -63,6 +63,8 @@
 # 	get the rootcint rules to work with ROOT 6 (i.e. 5.99/...)
 # v0.18 2013-10-25 Manuel Schiller <manuel.schiller@nikhef.nl>
 # 	add some FreeBSD/NetBSD compatibility code
+# v0.19 2013-11-14 Manuel Schiller <manuel.schiller@nikhef.nl>
+#	better clang support, nicer formatting of error messages
 #######################################################################
 
 #######################################################################
@@ -275,6 +277,7 @@ HEAD = head
 TAIL = tail
 GREP = grep
 CAT = cat
+CUT = cut
 TR = tr
 
 # get compiler version(s) used to compile ROOT
@@ -332,6 +335,15 @@ ROOTCFLAGS = $(shell $(ROOTCONFIG) --auxcflags)
 # some versions of ROOT have libGenVector, others libMathCore
 LIBGENVECTOR = $(shell $(TEST) -e $(ROOTLIBDIR)/libGenVector.so && \
 		$(ECHO) '-lGenVector' || $(ECHO) '-lMathCore')
+
+# nice error message formatting - need to know how many columns the terminal
+# has
+COLUMNS = $(shell test -x `which stty` && stty size | $(CUT) -d' ' -f2)
+ifeq ($(COLUMNS),)
+# assume 80 characters if we don't know better
+COLUMNS = 80
+endif
+WARNWIDTH = $(shell $(ECHO) $$(($(COLUMNS) - 2)) )
 endif
 else
 # nothing to do if toolchain is set up
@@ -380,6 +392,7 @@ HEAD := $(HEAD)
 TAIL := $(TAIL)
 GREP := $(GREP)
 CAT := $(CAT)
+CUT := $(CUT)
 TR := $(TR)
 TUNEFLAGS := $(TUNEFLAGS)
 ROOTLIBDIR := $(ROOTLIBDIR)
@@ -391,6 +404,7 @@ GCCXML := $(GCCXML)
 GCCXMLDIR := $(GCCXMLDIR)
 GENREFLEX := $(GENREFLEX)
 ROOTCINT := $(ROOTCINT)
+WARNWIDTH := $(WARNWIDTH)
 
 #######################################################################
 # detect OS/compiler flavour
@@ -467,10 +481,10 @@ PIPEFLAG.Intel ?= -pipe
 PIPEFLAG.Clang ?= -pipe
 PIPEFLAG.GNU ?= -pipe
 # turn on warnings
-WARNFLAGS.GNU ?= -Wall -Wextra -Wshadow -fmessage-length=78
-WARNFLAGS.Clang ?= -Wall -Wextra -fmessage-length=78
-WARNFLAGS.Intel ?= -Wall -Wextra -Wshadow -fmessage-length=78
-WARNFLAGS.Open64 ?= -Wall -Wextra -fmessage-length=78
+WARNFLAGS.GNU ?= -Wall -Wextra -Wshadow -fmessage-length=$(WARNWIDTH)
+WARNFLAGS.Clang ?= -Wall -Wextra -Wshadow -fmessage-length=$(WARNWIDTH)
+WARNFLAGS.Intel ?= -Wall -Wextra -Wshadow -fmessage-length=$(WARNWIDTH)
+WARNFLAGS.Open64 ?= -Wall -Wextra -fmessage-length=$(WARNWIDTH)
 WARNFLAGS.PathScale ?= -Wall -Wshadow
 WARNFLAGS.SunPro ?= +w +w2
 WARNFLAGS.Unknown ?=
@@ -658,9 +672,10 @@ export ROOTCONFIG ROOTLIBS ROOTLIBDIR ROOTINCLUDES ROOTCFLAGS LIBGENVECTOR \
     ROOT_VERSION_CODE ROOTCONFIG_ROOT56
 # *nix like tools for text processing, copying/moving files etc.
 export AWK SED CPP CP MV MKDIR RMDIR TEST ECHO TRUE FALSE TOUCH UNAME \
-    HEAD TAIL GREP
+    HEAD TAIL GREP CAT CUT
 # communicate make(1) related options to subprocesses
 export MAKEFLAGS COLORMAKE UNAME_SYS CC_FLAVOUR CXX_FLAVOUR FC_FLAVOUR
+export WARNWIDTH
 
 #######################################################################
 # collect source files in current directory
