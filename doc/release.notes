@@ -4,6 +4,9 @@
 ! Purpose     : RooFit-based fitters for B -> D X
 !-----------------------------------------------------------------------------
 
+! 2013-11-15 - Manuel Tobias Schiller
+ - fix error in MassFitUtils (wrong return type assumed for TString::Contains)
+
 ! 2013-11-15 - Agnieszka Dziurda
  - Fix a bug (wrong cutting on lifetime) in MDFitter
  - Add new stuff for acceptance:

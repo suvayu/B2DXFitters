@@ -4102,7 +4102,7 @@ namespace MassFitUtils {
 
 	TCut MCCut, MCCut1;
 	
-	if ( (mode.Contains("Bs") != -1) || ( (mode.Contains("Ds") != -1) && (mode.Contains("Dst") == -1))) {
+	if (mode.Contains("Bs") || (mode.Contains("Ds") && !mode.Contains("Dst"))) {
 	  MCCut1 = "(lab2_BKGCAT < 30 || lab2_BKGCAT == 50)";
 	}
 	else { MCCut1 = "lab2_BKGCAT == 30"; }
