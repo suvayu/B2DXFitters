@@ -36,6 +36,10 @@
 #include "RooCategory.h"
 #include "RooAbsRealLValue.h"
 #include "PlotSettings.h"
+#include "RooBinning.h"
+#include "RooAbsBinning.h"
+#include "RooArgList.h"
+
 
 namespace GeneralUtils {
 
@@ -283,7 +287,14 @@ namespace GeneralUtils {
   
   TString CheckObservable(TString& check, bool debug = false);
   TString CheckBachelor(TString check, bool debug);
-} // end of namespace
+
+  //===========================================================================
+  // Get coefficient for acceptance
+  //==========================================================================
+  RooArgList* GetCoeffFromBinning(RooBinning* binning, RooRealVar* time, bool debug = false);
+    
+}
+// end of namespace
 
 //=============================================================================
 

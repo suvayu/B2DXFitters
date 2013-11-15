@@ -45,8 +45,11 @@
 #include "TStyle.h"
 #include "TLatex.h"
 #include "RooBinning.h"
+#include "RooAbsBinning.h"
 #include "RooAbsRealLValue.h"
-
+#include "RooArgList.h"
+#include "RooConstVar.h"
+ 
 // B2DXFitters includes
 #include "B2DXFitters/GeneralUtils.h"
 #include "B2DXFitters/KinHack.h"
@@ -1313,4 +1316,41 @@ namespace GeneralUtils {
     return bachelor; 
   }
 
+  //===========================================================================
+  // Get coefficient for acceptance
+  //==========================================================================
+
+  RooArgList* GetCoeffFromBinning(RooBinning* binning, RooRealVar* time, bool debug)
+  {
+    RooArgList* list=NULL;
+    Double_t max = time->getMax();
+    Double_t min = time->getMin(); 
+    std::cout<<"Min of time: "<<min<<" max of time: "<<max<<std::endl; 
+    
+    Int_t numB = binning->numBins();
+    Double_t x2(0.0), x1(0.0);
+    
+    if(max > binning->binHigh(numB-1) )
+      {
+	x2 = binning->binHigh(numB-1);
+	x1 = binning->binHigh(numB-2);
+      }
+    else
+      {
+	return NULL;
+      }
+
+    Double_t c2(0.0), c1(0.0);
+    c2 = 1 - (max - x2)/(x1-x2);
+    c1 = (max - x2)/(x1-x2);
+    
+    std::cout<<"xN = "<<max<<" xN-1 = "<<x2<<" xN-2 = "<<x1<<std::endl;
+    std::cout<<"cN-1 = "<<c2<<" cN-2 = "<<c1<<std::endl;
+
+    RooConstVar* c2Var = new RooConstVar("c2Var", "c2Var", c2);
+    RooConstVar* c1Var = new RooConstVar("c1Var", "c1Var", c1);
+    
+    list = new RooArgList(*c1Var,*c2Var);
+    return list;
+  }
 } //end of namespace

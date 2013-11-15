@@ -21,7 +21,8 @@
 // ROOT and RooFit includes
 #include "RooRealVar.h"
 #include "RooResolutionModel.h"
-
+#include "RooAbsGaussModelEfficiency.h"
+#include "RooGaussEfficiencyModel.h"
 
 namespace PTResModels {
   
@@ -83,6 +84,21 @@ namespace PTResModels {
 						 bool debug = false
                                                  );
 
+  //=============================================================================
+  //
+  //=============================================================================
+
+  RooResolutionModel* tripleGausEffModel( RooRealVar& time,
+					  RooAbsGaussModelEfficiency& spline,
+					  double scalingfactor,
+					  double biasonmean,
+					  double sigma1,
+					  double sigma2,
+					  double sigma3,
+					  double frac1,
+					  double frac2,
+					  bool debug
+					  );
 
 }
 

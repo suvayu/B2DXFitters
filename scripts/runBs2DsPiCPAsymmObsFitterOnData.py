@@ -243,6 +243,7 @@ def runBdGammaFitterOnData(debug, wsname,
     dataWA.Print("v")
     obs = dataWA.get()
     time = obs.find(tVar)
+    terr = obs.find(terrVar)
     mistag = obs.find(tagOmegaVar)
     id = obs.find("qf")
     tag = obs.find("qt")
@@ -451,9 +452,9 @@ def runBdGammaFitterOnData(debug, wsname,
         name = TString("sigMistagPdf")
         if debug:
             print "[INFO] Set binning for mistag: %d"%(myconfigfile['nBinsMistag'])
-        #mistagPDF = GeneralUtils.CreateHistPDF(dataW, mistag, name, myconfigfile["nBinsMistag"], debug)
+        mistagPDF = GeneralUtils.CreateHistPDF(dataWA, mistag, name, myconfigfile["nBinsMistag"], debug)
         #mistagPDF = GeneralUtils.CreateBinnedPDF(dataW, mistag, name, myconfigfile["nBinsMistag"], debug)
-        mistagPDF  = Bs2Dsh2011TDAnaModels.GetRooHistPdfFromWorkspace(templateWorkspace, TString(myconfigfile["MistagTemplateName"]), debug)
+        #mistagPDF  = Bs2Dsh2011TDAnaModels.GetRooHistPdfFromWorkspace(templateWorkspace, TString(myconfigfile["MistagTemplateName"]), debug)
     else:
         mistagHistPdf = None 
         mistagCalibrated =  mistag 

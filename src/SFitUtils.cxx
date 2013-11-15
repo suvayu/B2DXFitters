@@ -260,8 +260,8 @@ namespace SFitUtils {
 	}
       else
 	{
-	  m =tau*1e9/c;   
-	  merr = tauerr*1e9/c;
+	  m =tau;   
+	  merr = tauerr;
 	}
       
       //if ( m < 0.2 ) continue; 

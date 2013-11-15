@@ -149,15 +149,16 @@ def getDecayTimeErrorTemplate(
     from ROOT import ( TFile, RooWorkspace, RooKeysPdf, RooHistPdf,
         RooArgList, RooDataHist, RooArgSet )
     import os
-    fromfile = os.environ['B2DXFITTERSROOT']+'/data/workspace/MDFitter/templates_BsDsPi.root'
+    #fromfile = os.environ['B2DXFITTERSROOT']+'/data/workspace/MDFitter/templates_BsDsPi.root'
     #fromfile = "/afs/cern.ch/work/a/adudziak/public/workspace/MDFitter/templates_BsDsK.root"
+    fromfile = "/afs/cern.ch/user/a/adudziak/cmtuser/Urania_v2r1/PhysFit/B2DXFitters/scripts/template_MC_Terr_BsDsPi.root"
     fromws = 'workspace'
     fromvarname = 'lab0_LifetimeFit_ctauErr'
     fromfile = TFile(fromfile, 'READ')
     workspace = fromfile.Get(fromws)
     ROOT.SetOwnership(workspace, True)
     var = workspace.var(fromvarname)
-    pdf = workspace.pdf('TimeErrorPdf_signal_BDTGA')
+    pdf = workspace.pdf('sigTimeErrorPdf_BsDsPi')
     # we need to jump through a few hoops to rename the dataset and variables
     # get underlying histogram
     hist = pdf.dataHist().createHistogram(var.GetName())
@@ -200,7 +201,7 @@ f=sigma_t.frame()
 ds.plotOn(f)
 pdf.plotOn(f)
 f.Draw()
-gPad.Print('AvgResModel-sigma_t.pdf')
+gPad.Print('AvgResModel-BsDsPi-sigma_t.pdf')
 
 a=RooArgSet(t)
 ds2=ds.reduce(RooFit.SelectVars(a))
@@ -222,4 +223,4 @@ gpdf.plotOn(f,RooFit.Components('g1'),RooFit.LineWidth(2),RooFit.LineStyle(ROOT.
 gpdf.plotOn(f,RooFit.Components('g2'),RooFit.LineWidth(2),RooFit.LineStyle(ROOT.kDashed),RooFit.LineColor(ROOT.kCyan+1))
 f.Draw()
 gPad.SetLogy()
-gPad.Print('AvgResModel-t.pdf')
+gPad.Print('AvgResModel-BsDsPi-t.pdf')

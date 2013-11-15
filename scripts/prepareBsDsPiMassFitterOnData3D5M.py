@@ -282,8 +282,8 @@ def prepareBsDsPiMassFitterOnData( debug,
 
         for i in range(0,5):
             workspace = MassFitUtils.ObtainSignal(TString(myconfigfile["dataName"]), signalNames[i],
-                                                  MDSettingsMC, TString("BsDsPi"), true, false, workspace, false,
-                                                  MDSettingsMC.GetLumDown(), MDSettingsMC.GetLumUp(), plotSettings, debug)
+                                                  MDSettingsMC, TString("BsDsPi"), false, false, workspace, false,
+                                                  1.0, 1.0, plotSettings, debug)
             
         
         workspace.Print()

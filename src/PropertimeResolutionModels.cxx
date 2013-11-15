@@ -19,6 +19,8 @@
 #include "RooAddModel.h"
 #include "RooGaussModel.h"
 #include "RooWorkspace.h"
+#include "B2DXFitters/RooGaussEfficiencyModel.h"
+#include "B2DXFitters/RooAbsGaussModelEfficiency.h"
 
 // B2DXFitters includes
 #include "B2DXFitters/PropertimeResolutionModels.h"
@@ -266,6 +268,66 @@ namespace PTResModels {
 						RooArgList(*FractionGaus1, *FractionGaus2, *FractionGaus3)
 						);
     return tripleGausModelResolution;
+  }
+  
+  //=============================================================================
+  //
+  //=============================================================================
+
+  RooResolutionModel* tripleGausEffModel( RooRealVar& time,
+					       RooAbsGaussModelEfficiency& spline,
+					       double scalingfactor,
+					       double biasonmean,
+					       double sigma1,
+					       double sigma2,
+					       double sigma3,
+					       double frac1,
+					       double frac2,
+					       bool debug
+					       )
+  {
+    if ( debug == true )
+      {
+        printf( "==> PTResModels::tripleGausEffModel( .)\n" );
+	std::cout<<"[INFO] Scaling factor: "<<scalingfactor<<std::endl;
+	std::cout<<"[INFO] Bias on mean: "<<biasonmean<<std::endl;
+	std::cout<<"[INFO] Sigma1: "<<sigma1<<std::endl;
+	std::cout<<"[INFO] Sigma2: "<<sigma2<<std::endl;
+	std::cout<<"[INFO] Sigma3: "<<sigma3<<std::endl;
+	std::cout<<"[INFO] Frac1: "<<frac1<<std::endl;
+	std::cout<<"[INFO] Frac2: "<<frac2<<std::endl;
+      }
+    
+    RooRealVar *bias;
+    RooRealVar *FractionGaus1;
+    RooRealVar *FractionGaus2;
+    RooRealVar *WidthGaus1;
+    RooRealVar *WidthGaus2;
+    RooRealVar *WidthGaus3;
+    RooAddModel * tripleGausModelResolution;
+
+    FractionGaus1= new RooRealVar("FractionGaus1",   "FractionGaus1",  frac1);
+    FractionGaus2= new RooRealVar("FractionGaus2",   "FractionGaus2",  frac2);
+    
+    bias      = new RooRealVar(      "bias",            "bias",  biasonmean);
+    WidthGaus1= new RooRealVar("WidthGaus1",      "WidthGaus1",  sigma1*scalingfactor);
+    WidthGaus2= new RooRealVar("WidthGaus2",      "WidthGaus2",  sigma2*scalingfactor);
+    WidthGaus3= new RooRealVar("WidthGaus3",      "WidthGaus3",  sigma3*scalingfactor);
+
+    RooGaussEfficiencyModel *timeGausModel1 = new RooGaussEfficiencyModel("timeGausEffModel1","timeGausModel1",time, spline,
+									  *bias,*WidthGaus1);
+    RooGaussEfficiencyModel *timeGausModel2 = new RooGaussEfficiencyModel("timeGausEffModel2","timeGausModel2",time, spline,
+									  *bias,*WidthGaus2);
+    RooGaussEfficiencyModel *timeGausModel3 = new RooGaussEfficiencyModel("timeGausEffModel3","timeGausModel3",time, spline,
+									  *bias,*WidthGaus3);
+
+    tripleGausModelResolution = new RooAddModel("tripleGausEffModel","tripleGausEffModel",
+                                                RooArgList(*timeGausModel1 , *timeGausModel2, *timeGausModel3),
+                                                RooArgList(*FractionGaus1, *FractionGaus2)
+                                                );
+    return tripleGausModelResolution;
+
+    
   }
 
 }

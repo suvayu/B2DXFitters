@@ -184,10 +184,14 @@ namespace MassFitUtils {
     TCut BDTG_cut   = mdSet->GetCut(mdSet->GetBDTGVar()); 
     TCut mass_cut   = mdSet->GetCut(mdSet->GetMassBVar()); 
     TCut massD_cut  = mdSet->GetCut(mdSet->GetMassDVar()); 
-    TCut Time_cut   = mdSet->GetCut(mdSet->GetTimeVar()); 
-   
+    Float_t c = 299792458.0;
+    Float_t corr = c/1e9;
+    TCut Time_cut = Form("%s > %f && %s < %f", mdSet->GetTimeVar().Data(), mdSet->GetTimeRangeDown()*corr,
+			 mdSet->GetTimeVar().Data(), mdSet->GetTimeRangeUp()*corr);
+    TCut Terr_cut = Form("%s > %f && %s < %f", mdSet->GetTerrVar().Data(), mdSet->GetTerrRangeDown()*corr,
+			 mdSet->GetTerrVar().Data(), mdSet->GetTerrRangeUp()*corr);  
+    
     TCut FDCHI2 = "";
-
     if( md[0] == "kkpi" || md[0] == "nonres" || md[0] == "kstk" || md[0] == "phipi" ) 
       {
 	FDCHI2 = "lab2_FDCHI2_ORIVX > 2";
@@ -198,11 +202,11 @@ namespace MassFitUtils {
       }
 
 
-    TCut All_cut = PID_cut&&P_cut&&BDTG_cut&&mass_cut&&massD_cut&&FDCHI2&&PT_cut&&nTr_cut&&Time_cut;
+    TCut All_cut = PID_cut&&P_cut&&BDTG_cut&&mass_cut&&massD_cut&&FDCHI2&&PT_cut&&nTr_cut&&Time_cut&&Terr_cut;
     if( debug == true) std::cout<<All_cut<<std::endl;
 
     RooDataSet*  dataSet[2];
-    
+        
     // Create Data Set //
     for (int i = 0; i< 2; i++){
 		TString name = "dataSet"+mode+"_"+smp[i]+"_"+md[i];
@@ -256,8 +260,8 @@ namespace MassFitUtils {
 		for (Long64_t jentry=0; jentry<treetmp->GetEntries(); jentry++) {
 		  treetmp->GetEntry(jentry);
 		  lab0_MM->setVal(lab0_MM3);
-		  lab0_TAU->setVal(lab0_TAU3);
-		  lab0_TAUERR->setVal(lab0_TAUERR3);
+		  lab0_TAU->setVal(lab0_TAU3/corr);
+		  lab0_TAUERR->setVal(lab0_TAUERR3/corr);
 		  lab0_TAG->setVal(lab0_TAG3);
 		  lab0_TAGOMEGA->setVal(lab0_TAGOMEGA3);
 		  lab1_ID->setVal(lab1_ID3);
@@ -433,6 +437,9 @@ namespace MassFitUtils {
     weights = new RooRealVar(namew.Data(), namew.Data(), 0.0, 1.0 );  // create weights //
     obs->add(*weights);
 
+    Float_t c = 299792458.0;
+    Float_t corr = 1e9/c;
+
     for (int i = 0; i<2; i++){
       
       TString s = smp[i]+"_"+md[i];
@@ -508,9 +515,9 @@ namespace MassFitUtils {
 	    
 	    if( mistag == true )
 	      {
-		lab0_TAUERR->setVal(lab0_TAUERR3);
-	      lab0_TAG->setVal(lab0_TAG3);
-	      lab0_TAGOMEGA->setVal(lab0_TAGOMEGA3);
+		lab0_TAUERR->setVal(lab0_TAUERR3*corr);
+		lab0_TAG->setVal(lab0_TAG3);
+		lab0_TAGOMEGA->setVal(lab0_TAGOMEGA3);
 	      }
 	    
 	    dataSet[i]->add(*obs,wA,0);
@@ -701,6 +708,9 @@ namespace MassFitUtils {
     
     Double_t tmpc[2];
     Float_t w=0.0;
+
+    Float_t c = 299792458.0;
+    Float_t corr = 1e9/c;
     
     for (int i = 0; i<2; i++){
       tmpc[i]=0;
@@ -858,7 +868,7 @@ namespace MassFitUtils {
 
 		  if( mistag == true )
 		    {
-		      lab0_TAUERR->setVal(lab0_TAUERR3);
+		      lab0_TAUERR->setVal(lab0_TAUERR3*corr);
 		      lab0_TAG->setVal(lab0_TAG3);
 		      lab0_TAGOMEGA->setVal(lab0_TAGOMEGA3);
 		    }
@@ -1205,6 +1215,9 @@ namespace MassFitUtils {
     weight = new RooRealVar(namew.Data(), namew.Data(), 0.0, 5.0);  // create new data set //
     obs->add(*weight);
     
+    Float_t c = 299792458.0;
+    Float_t corr = 1e9/c;
+    
     for(int i = 0; i< size1; i++ )
       {
 	
@@ -1217,7 +1230,7 @@ namespace MassFitUtils {
 	
 	//load from tree all necessary variable (which have to be reweighted) and observable // 
 	Float_t lab0_MM2;
-	Double_t  lab1_P2, lab4_P2, lab0_TAGOMEGA2, lab2_MM2, lab1_PT2, lab5_P2;
+	Double_t  lab1_P2, lab4_P2, lab0_TAGOMEGA2, lab2_MM2, lab1_PT2, lab5_P2, lab0_TAUERR3;
 	Int_t tag;
 	Int_t nTr;
 	Double_t PIDK2;  
@@ -1232,6 +1245,7 @@ namespace MassFitUtils {
 	treetmp[i]->SetBranchAddress(mdSet->GetPIDKVar().Data(),     &PIDK2);
 	treetmp[i]->SetBranchAddress(mdSet->GetTagOmegaVar().Data(), &lab0_TAGOMEGA2);
 	treetmp[i]->SetBranchAddress(mdSet->GetTagVar().Data(),      &tag);
+	treetmp[i]->SetBranchAddress(mdSet->GetTerrVar().Data(),      &lab0_TAUERR3);
 	
 	nentriesMC[i] = treetmp[i]->GetEntries();
 	
@@ -1355,10 +1369,16 @@ namespace MassFitUtils {
 
 	  if (5320 < lab0_MM2 and lab0_MM2 < 5420) sa_counter++;
 	  if (mdSet->GetMassBRangeDown() < lab0_MM2 and lab0_MM2 < mdSet->GetMassBRangeUp()) ag_counter++;
-	  
+  
 	  if ( mMC > mdSet->GetMassBRangeDown() && mMC < mdSet->GetMassBRangeUp() 
 	       && mDMC > mdSet->GetMassDRangeDown()  && mDMC < mdSet->GetMassDRangeUp()  )
 	    {
+	      if( mistag == true )
+		{
+		  lab0_TAUERR->setVal(lab0_TAUERR3*corr);
+		  lab0_TAG->setVal(tag);
+		  lab0_TAGOMEGA->setVal(lab0_TAGOMEGA2);
+		}
 	      dataSetMC[i]->add(*obs); //,wMC*wRW*globalWeight,0);
 	      ag_shifted_counter++;
 
@@ -2135,7 +2155,12 @@ namespace MassFitUtils {
     TCut BDTG_cut   = mdSet->GetCut(mdSet->GetBDTGVar());
     TCut MCB        = mdSet->GetCut(mdSet->GetMassBVar());
     TCut MCD        = mdSet->GetCut(mdSet->GetMassDVar());
-    TCut Time_cut   = mdSet->GetCut(mdSet->GetTimeVar());
+    Float_t c = 299792458.0;
+    Float_t corr = c/1e9;
+    TCut Time_cut = Form("%s > %f && %s < %f", mdSet->GetTimeVar().Data(), mdSet->GetTimeRangeDown()*corr,
+                         mdSet->GetTimeVar().Data(), mdSet->GetTimeRangeUp()*corr);
+
+
 
     TCut FDCHI2 = "";
     if ( modeD.Contains("kkpi") == true || 
@@ -2182,7 +2207,7 @@ namespace MassFitUtils {
     MCBsTRUEIDCut = Form("abs(lab1_TRUEID)==%d && abs(lab5_TRUEID)==%d && abs(lab3_TRUEID)==%d && abs(lab4_TRUEID)==%d",
 			 id_lab1, id_lab5, id_lab3, id_lab4);
 
-    cut = MCBsIDCut&&MCTriggerCut&&MCD&&MCB&&Time_cut&&P_cut&&BDTG_cut&&FDCHI2&&BachHypo&&DHypo&&MCBsTRUEIDCut&&BkgCAT;
+    cut = MCBsIDCut&&MCTriggerCut&&MCD&&MCB&&P_cut&&BDTG_cut&&FDCHI2&&BachHypo&&DHypo&&MCBsTRUEIDCut&&BkgCAT&&Time_cut;
 
     if (debug == true )
       {
@@ -2414,17 +2439,17 @@ namespace MassFitUtils {
 	Float_t nTr3F = nTr3; 
 	wRW = hRDM.GetWeight(log(lab1_PT3F),log(nTr3F), smp[i]); 
 	wE = heff.GetWeight(lab1_P3, smp[i]); 
-	
-	weight->setVal(wRW*wE*globalWeight);
-	
+	if ( mode.Contains("Pi") ) { weight->setVal(wE*globalWeight); }
+	else{ weight->setVal(wRW*wE*globalWeight); }
+
 	if (reweight == true) { dataSetMC[i]->add(*obs,wRW*wE*globalWeight,0); }
 	else { dataSetMC[i]->add(*obs); }
-	
+	    
 	if (mode.Contains("Pi"))
 	  {
 	    if ( -lab1_PIDK3 > mdSet->GetPIDBach())
 	      {
-		dataSetMCtmp[i]->add(*obs,wE*wRW*globalWeight,0);
+		dataSetMCtmp[i]->add(*obs,wE*globalWeight,0);
 	      }
 	  }
 	else if ( mode.Contains("K") == true )
@@ -2434,6 +2459,7 @@ namespace MassFitUtils {
 		dataSetMCtmp[i]->add(*obs,wE*wRW*globalWeight,0);
 	      }
 	  }
+	
 	
       }
       
