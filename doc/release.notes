@@ -4,6 +4,21 @@
 ! Purpose     : RooFit-based fitters for B -> D X
 !-----------------------------------------------------------------------------
 
+! 2013-11-15 - Manuel Tobias Schiller
+ - DecRateCoeff changes:
+   * major code refactoring to allow to switch between different taggers                                                                                                                                          
+     depending on the value of qt                                                                                                                                                                                 
+   * the new version of the class is source compatible with the old version -                                                                                                                                     
+     existing code need to be changed to get the old functionality                                                                                                                                                
+   * however, the persistent form of the class is incompatible with the old                                                                                                                                       
+     version, so that old RooFit workspaces which contain DecRateCoeff                                                                                                                                            
+     instances can no longer be read                                                                                                                                                                              
+   * put in the necessary ground work to extend the functionality of the class                                                                                                                                    
+     to do the combination of taggers inside the DecRateCoeff class at some                                                                                                                                       
+     point in the future without breaking persistency again 
+ - there may be more to come for NonOscTaggingPdf (and potentially other
+   classes), to be seen
+
 ! 2013-11-14 - Manuel Tobias Schiller
  - standalone/Doxyfile: remove obsolete config directives
  - standalone/Rules.mk: better clang support, better formatting of error
