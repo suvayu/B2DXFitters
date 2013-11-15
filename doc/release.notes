@@ -6,16 +6,16 @@
 
 ! 2013-11-15 - Manuel Tobias Schiller
  - DecRateCoeff changes:
-   * major code refactoring to allow to switch between different taggers                                                                                                                                          
-     depending on the value of qt                                                                                                                                                                                 
-   * the new version of the class is source compatible with the old version -                                                                                                                                     
-     existing code need to be changed to get the old functionality                                                                                                                                                
-   * however, the persistent form of the class is incompatible with the old                                                                                                                                       
-     version, so that old RooFit workspaces which contain DecRateCoeff                                                                                                                                            
-     instances can no longer be read                                                                                                                                                                              
-   * put in the necessary ground work to extend the functionality of the class                                                                                                                                    
-     to do the combination of taggers inside the DecRateCoeff class at some                                                                                                                                       
-     point in the future without breaking persistency again 
+   * major code refactoring to allow to switch between different taggers
+     depending on the value of qt
+   * the new version of the class is source compatible with the old version -
+     existing code need to be changed to get the old functionality
+   * however, the persistent form of the class is incompatible with the old
+     version, so that old RooFit workspaces which contain DecRateCoeff
+     instances can no longer be read
+   * put in the necessary ground work to extend the functionality of the class
+     to do the combination of taggers inside the DecRateCoeff class at some
+     point in the future without breaking persistency again
  - there may be more to come for NonOscTaggingPdf (and potentially other
    classes), to be seen
 
@@ -39,7 +39,7 @@
  - fix bug in WeighthingUtils.cxx
  - fix bug in MDFitterSettings
  - some small changes
- 
+
 ! 2013-11-08 - Manuel Tobias Schiller
  - DecRateCoeff: fixed a technical issue
 
@@ -82,52 +82,52 @@
  - All scripts connected to MDFitter and sFit work for Urania v2r1.
  - I have switched to proper MC files, which are here:
      /afs/cern.ch/work/a/adudziak/public/MCMarch2013/
- - New classes: PlotSettings, MDFitterSettings, HistPID1D, HistPID2D 
-   . PlotSettings is a class contains configuration for plotting as directory, 
-     extension, color/style of data/pdfs, log scale etc. It helps control 
+ - New classes: PlotSettings, MDFitterSettings, HistPID1D, HistPID2D
+   . PlotSettings is a class contains configuration for plotting as directory,
+     extension, color/style of data/pdfs, log scale etc. It helps control
      plotting style from python script for C++ code.
-   . MDFitterSettings class translates python config file to cxx, 
-     which helps to control all of the namespaces *Utils.cxx. 
-     It contains variables names, ranges, everything what is needed for obtaining 
+   . MDFitterSettings class translates python config file to cxx,
+     which helps to control all of the namespaces *Utils.cxx.
+     It contains variables names, ranges, everything what is needed for obtaining
      PID shapes etc. Moreover it is possible to put into config file structure as:
         configdict["AdditionalVariables"] = [ "lab0_SS_Kaon_PROB", "lab0_SS_Kaon_DEC"]
         configdict["lab0_SS_Kaon_PROB"]    = [ -3.0, 1,0 ]
         configdict["lab0_SS_Kaon_DEC"]       = [ -2.0, 2.0 ]
-     MDFitterSettings will add additional variable to the data sets and in both steps: 
-     preparing workspaces and fitting MDFitter. By definition variables which are read 
-     by MDFitter from config file are: 
-          massB, massD, PIDK, Time, Time errors, Charge bachelor, 
-          tag, mistag, p, pt, ntracks, BDTG. 
+     MDFitterSettings will add additional variable to the data sets and in both steps:
+     preparing workspaces and fitting MDFitter. By definition variables which are read
+     by MDFitter from config file are:
+          massB, massD, PIDK, Time, Time errors, Charge bachelor,
+          tag, mistag, p, pt, ntracks, BDTG.
      Any other variable has to be added as "Additional Variables".
    . HistPID1D, it helps control 1D PID histograms.
      HistPID2D, it helps control ratio Data/MC.
      Example of using:
         HistPID1D hEff(nameHistEff, nameHistEff, filesDir, PID);
         wE = hEff.GetWeight(lab1_P3, smp[i]);
-     where filesDir is a config.txt with paths to histograms and PID is the signature 
-     of PID histograms in file.  Please be aware that some PID histograms are splitted 
-     by calibration samples, and the class takes care of correct weighting and adding 
-     them together. Moreover getting correct weight is simplified by function 
+     where filesDir is a config.txt with paths to histograms and PID is the signature
+     of PID histograms in file.  Please be aware that some PID histograms are splitted
+     by calibration samples, and the class takes care of correct weighting and adding
+     them together. Moreover getting correct weight is simplified by function
      GetWeight(var,polarity);
  - New functions in MassFitUtils:
      for example which return correct TCut for background or signal MC sample.
- - Correction of strategy fitting for DsPi: firstly the RooProdPdf 
+ - Correction of strategy fitting for DsPi: firstly the RooProdPdf
      are created for each background and then they are added in group.
  - Tagging calibration update (for Gulia).
-     Added updated version of calibration tagging script: 
+     Added updated version of calibration tagging script:
         runBs2DsPiCPAsymmObsFitterOnData_forTaggingCalib.py
      and new configuration files:
-     data/Bs2DsPiConfigForNominalMassFitForTagCalib.py 
+     data/Bs2DsPiConfigForNominalMassFitForTagCalib.py
         (which contains "additional variables" defined in config script)
-     data/Bs2DsPiConfigForTagCalib.py 
+     data/Bs2DsPiConfigForTagCalib.py
         (her old Bs2DsPiConfigForNominalDMSFitPowLawFloatAcc.py with correct delta Ms)
- - Changed code in sFit, to avoid any stupid cut on sWeighted data now when You run 
+ - Changed code in sFit, to avoid any stupid cut on sWeighted data now when You run
      a code it is necessary to put new option: config file for MDFitter, example:
      --configNameMD  Bs2DsPiConfigForNominalMassFitForTagCalib
-     and MDFitterSetting willl read ranges of your variables 
+     and MDFitterSetting willl read ranges of your variables
      (which were set up before creation sWeights).
- - Update default plotting. 
- - Some other minor changes. 
+ - Update default plotting.
+ - Some other minor changes.
 
 ! 2013-10-23 - Manuel Tobias Schiller
  - some first preparations towards ROOT 6 - package builds standalone,
@@ -226,7 +226,7 @@
  - cFit: add functionality for tagging calibration fits
 
 ! 2013-09-16 - Agnieszka Dziurda (on behalf of Giulia Tellarini)
- - update tagTool option for MDFitter and current samples 
+ - update tagTool option for MDFitter and current samples
 
 ! 2013-09-05 - V. Gligorov
  - Update p0/p1 systematics config files in order to have both positive and
@@ -234,28 +234,28 @@
  - Update SFitUtils to remove the obsolete function used to read toys, migrate
    the kFactor smearing functionality into the main function which reads data, now controlled
    by a switch which defaults to ``do nothing'' (i.e. this is transparent).
- - Related to the above update the 
-   
-   runBs2DsKCPAsymmObsFitterOnData.py 
- 
+ - Related to the above update the
+
+   runBs2DsKCPAsymmObsFitterOnData.py
+
    script to use this new functionality and remove some obsolete and commented
    out options.
  - Simplify sending of sFit systematics jobs. They can now be controlled from
-   the following script 
-   
+   the following script
+
    runBsDsK_sFit_Toys_Time_Syst_SendInParallel.csh
-   
+
    which then launches the specified systematic over the specified toy numbers.
    Each systematic still has an individual csh script which defines input and
    output directories at present, and this should be streamlined further
  - Slighly modify the logic of
 
    DrawPullsForToys_DsK_Time.py
-  
+
    to take the toy-by-toy results from separate directories (or at least allow
-   the possibility of separate directories). This script needs to be made 
+   the possibility of separate directories). This script needs to be made
    configurable via an optionsParser instance.
- - Remove a whole bunch of obsolete .csh scripts in scripts/Csh   
+ - Remove a whole bunch of obsolete .csh scripts in scripts/Csh
 
 ! 2013-09-04 - Manuel Tobias Schiller
  - cFit: make personalities work both at Nikhef and in places where AFS is
@@ -360,10 +360,10 @@
    RooFit may cache and what not
 
 ! 2013-08-20 - Agnieszka Dziurda
- - change logic in MDFitter for DsK 
+ - change logic in MDFitter for DsK
    . # Group 1: Bd->DsK, Bs->DsK*: (g1_f1)*Bd->DsK + (1-g1_f1)*Bs->DsK*
-   . # Group 2: Bs->DsPi, Bs->DsstPi, Bs->DsRho: 
-               (g2_f1)*DsPi + (1-g2_f1)*[ (g2_f2)*DsstPi+(1-g2_f2)*DsRho] 
+   . # Group 2: Bs->DsPi, Bs->DsstPi, Bs->DsRho:
+               (g2_f1)*DsPi + (1-g2_f1)*[ (g2_f2)*DsstPi+(1-g2_f2)*DsRho]
    . # Group 3: g3_f1*Lb->Dsp + (1-g3_f1)Lb->Ds*p
    . # Global fraction: (g5_f1)*Bs2DsDsstPiRho + (1-g5_f1)*Lb2DsDsstp
    . changes in src/Bs2Dsh2011TDAnaModels.{cxx,h}
@@ -376,7 +376,7 @@
    . data/Bs2DsKConfigForNominalGammaFitToys5M.py
    . data/Bs2DsKConfigForNominalMassFitToys5M.py
  - some cleans up
- - update workspace to the last result: 
+ - update workspace to the last result:
    . data/workspace/MDFitter/WS_Mass_DsK_5M_BDTGA.root
 
 ! 2013-08-14 - Manuel Tobias Schiller
@@ -398,7 +398,7 @@
 
 ! 2013-08-12 - Agnieszka Dziurda
  - fix DsPi and DsK generators
- - update toys tools   
+ - update toys tools
 
 ! 2013-08-11 - Manuel Tobias Schiller
  - first version of the cFit which can run DsPi toys, too (still has some
@@ -416,12 +416,12 @@
   . scripts/Csh/runBsDsPi_sFit_Toys_Time.csh - update for new toys
   . scripts/Csh/runBsDsPi_sFit_Toys_Mass.csh - update for new toys
   . scripts/DrawPullsForToys_DsK_Mass.py - allow to draw Dsp
-  . scripts/runBs2DsKCPAsymmObsFitterOnData.py 
+  . scripts/runBs2DsKCPAsymmObsFitterOnData.py
     - allow to fit different acceptance for each BDTG bin
   . scripts/runBsDsPiMassFitterOnData3D5M.py - allow to run toys
-  . scripts/runBs2DsPiCPAsymmObsFitterOnData.py - 
+  . scripts/runBs2DsPiCPAsymmObsFitterOnData.py -
     - allow to fit different acceptance for each BDTG bin
-  . scripts/DrawPullsForToys_DsPi_Mass.py - update for new toys 
+  . scripts/DrawPullsForToys_DsPi_Mass.py - update for new toys
   . scripts/comparePDF.py  - nothing important
   . scripts/createTemplates.py - nothing important
  - update in config files:
@@ -463,7 +463,7 @@
    versions of the cFit running side by side, allowing comparisons and the like)
 
 ! 2013-08-04 - V. Gligorov
- - Update pull plotting scripts for toys to work with the new toy generator  
+ - Update pull plotting scripts for toys to work with the new toy generator
 
 ! 2013-08-02 - Agnieszka Dziurda
  - fix bug in obtain data set: src/MassFitUtils.cxx
@@ -481,8 +481,8 @@
  - allow to fit toys and to have different acceptance for BDTG123 in each bin:
    .  scripts/runBs2DsKCPAsymmObsFitterOnData.py
  - minor changes: scripts/plotBs2DsPiTimeModelsOnData.py
- - allow to have different acceptance for BDTG123 in each bin: 
-   . scripts/runBs2DsPiCPAsymmObsFitterOnData.py 
+ - allow to have different acceptance for BDTG123 in each bin:
+   . scripts/runBs2DsPiCPAsymmObsFitterOnData.py
  - minor changes in config files:
    . data/Bs2DsKConfigForNominalGammaFitBDTG123.py
    . data/Bs2DsPiConfigForNominalDMSFitPowLawFloatAccBDTG123.py
@@ -509,7 +509,7 @@
    . scripts/Csh/run_fit_time_dspi_bdtg123.csh
    . scripts/Csh/run_fit_time_dspi_bdtga.csh
 
- 
+
 ! 2013-07-31 - Agnieszka Dziurda
  - minor changes in:
    . B2DXFitters/SFitUtils.h, src/SFitUtils.cxx
@@ -518,9 +518,9 @@
  - small upate generators scripts: GenerateToySWeights_Ds{K,Pi}.py:
    . fix minor bug and make possible generate a lot of data sets
  - change scripts/runBsDsKMassFitterOnData3D5M.py to run for toys
- - update and fix plotting for time sFit: 
+ - update and fix plotting for time sFit:
    . scripts/plotBs2Ds{K,Pi}TimeModelsOnData.py
- - add script for plotting with categories: 
+ - add script for plotting with categories:
    .scripts/plotBs2Ds{K,Pi}TimeModelsOnDataCat.py
  - make scripts/comparePDF.py more flexible
  - allow scripts/createTemplates.py to run on MC and plotted sWeights
@@ -531,7 +531,7 @@
    . data/Bs2DsKConfigForNominalMassFitToys.py
  - add two new config files for BDTG splitting:
    . data/Bs2DsKConfigForNominalGammaFitBDTG123.py
-   . data/Bs2DsPiConfigForNominalDMSFitPowLawFloatAccBDTG123.py 
+   . data/Bs2DsPiConfigForNominalDMSFitPowLawFloatAccBDTG123.py
  - add csh files for running time sFit:
    . scripts/Csh/run_fit_time_dsk_bdtg123_3m.csh
    . scripts/Csh/run_fit_time_dsk_bdtg123_5m.csh
@@ -540,8 +540,8 @@
    . scripts/Csh/run_fit_time_dspi_bdtga.csh
  - update time sFit:
    . scripts/runBs2DsPiCPAsymmObsFitterOnData.py
-   . scripts/runBs2DsKCPAsymmObsFitterOnData.py 
- 
+   . scripts/runBs2DsKCPAsymmObsFitterOnData.py
+
 
 ! 2013-07-30 - Manuel Tobias Schiller
  - make it easier to run with a recent ROOT version at CERN in the standalone
@@ -584,7 +584,7 @@
  - update both toy generators: GenerateToySWeights_{DsK,DsPi}.py
    . apply MDFitter
    . apply per-event time errors
-   . apply Manuels' DecRateCoeff   
+   . apply Manuels' DecRateCoeff
  - changes in:
    . GeneralUtils.{h,cxx}
    . Bs2Dsh2011TDAnaModels.{h,cxx}
@@ -596,11 +596,11 @@
      from sWeighted data or MC
  . minor changes in: prepareBsDs{K,Pi}MassFitterOnData3D5M.py
    . makes code easier to read
- . modification in plotBs2DsPiTimeModelsOnData.py  
+ . modification in plotBs2DsPiTimeModelsOnData.py
  . update fitSignal.py to per-event time errors
- . modifications in csh scripts 
+ . modifications in csh scripts
  . update some config files in data directory
-    
+
 
 ! 2013-07-02 - Manuel Tobias Schiller
  - fix two small bugs in standalone/Rules.mk
@@ -611,15 +611,15 @@
  - clean up Bs2Dsh2011TDAnaModels.{h,cxx}
  - update and clean up scripts:
    . runBsDsPiMassFitterOnData3D5M.py
-   . runBsDsKMassFitterOnData3D5M.py      
- - update generator toys for DsPi: 
+   . runBsDsKMassFitterOnData3D5M.py
+ - update generator toys for DsPi:
    . GenerateToySWeights_DsPi.py (work in progress)
    . data/Bs2DsPiConfigForGenerator.py - add variables for MDFitter
    . SFitUtils.{h,cxx} - add variables for MDFitter
  - minor updates in WeightingUtils.cxx (change names of PIDK pdf)
  - minor changes in GeneralUtils.cxx and MassFitUtils.cxx
- - update scripts in scripts/Csh/ for preparing workspace and fitting            
-   
+ - update scripts in scripts/Csh/ for preparing workspace and fitting
+
 ! 2013-06-04 - Manuel Tobias Schiller
  - make Agnieszka's fitter run in the standalone environment
  - fits must start at 0.2 ps in time where the trigger cuts, or the binned
@@ -654,8 +654,8 @@
    . Move to RooBinned1DQuinticBase for signal PID shapes
      . for DsPi change strategy: fit -PIDK
    . final version of MassFitUtils::ExpectedEvents(...)
-   . Small others improvements    
- - update 1D DsPi fitter possible to use 
+   . Small others improvements
+ - update 1D DsPi fitter possible to use
 
 ! 2013-05-21 - Manuel Tobias Schiller
  - fix yet another bug in RooBinned1DQuinticBase
@@ -676,10 +676,10 @@
 
 ! 2013-05-10 - Agnieszka Dziurda
  - changes in MassFitUtils::ObtainSpecBack(...) (clean up, and fix small bugs)
- - updates in MassFitUtils::ExpectedEvents(...) 
+ - updates in MassFitUtils::ExpectedEvents(...)
  - updates in expectedEvents.py
  - updates in data/B2DPiConfigForNominalMassFit.py
- 
+
 ! 2013-05-09 - Manuel Tobias Schiller
  - standalone/setup.sh: set LD_LIBRARY_PATH as well
 
@@ -699,12 +699,12 @@
  - Improvements for MDFitter
    - switch to double Crystal Ball for Ds signal shape
    - add config files for fitting BDPi and CombBkg
-   - change shape for combinatorial backgroun in Ds: signal + exponential    
+   - change shape for combinatorial backgroun in Ds: signal + exponential
    - change parametrisation of signals
    - change in expectedEvents.py file and in function from MassFitUtils
    - fix small bug in obtain signal
-   - set new ratio Data/MC for signal shapes from BDPi fits in BDTG bins 
-   - add .csh scripts to run and plot BDTGC for DsK and DsPi 
+   - set new ratio Data/MC for signal shapes from BDPi fits in BDTG bins
+   - add .csh scripts to run and plot BDTGC for DsK and DsPi
 
 ! 2013-04-23 - Agnieszka Dziurda
  - Huge update for last half year of work
@@ -807,7 +807,7 @@
  - DecRateCoeff: Instead of fitting for Cf/Cfbar, the class can optionally
    interpret the given coefficients as <C>=(Cf+Cfbar)/2 and
    DeltaC=(Cf-Cfbar)/2; this typically gives less correlated fit results in
-   the parameters of interest. 
+   the parameters of interest.
 
 ! 2013-03-20 - Manuel Tobias Schiller
  - runBs2DsKCPAsymmObsFitter-cFit.py: fix to run on older ROOT versions: make
@@ -874,7 +874,7 @@
 
 
 ! 2013-02-04 - Manuel Tobias Schiller
- - some more cleanups in RooEffResModel, RooBinnedPdf 
+ - some more cleanups in RooEffResModel, RooBinnedPdf
 
 ! 2012-11-26 - Manuel Tobias Schiller
  - runBs2DsKCPAsymmObsFitter-cFit.py: adapt to new classes (DecRateCoeff,
@@ -962,31 +962,31 @@
        ReadOneMode, ReadMode, TreeCut, SaveTemplate, SaveTemplateHist, SaveDataSet, CreatePDFMC
        GetObservable, GetDataSet, GetDataHist, SaveWorkspace, SaveWorkspace, CheckPolarity, CheckDMode
    . MassFitUtils:
-     . ObtainData, ObtainMissForBsDsK, ObtainMissForBsDsPi, ObtainSpecBack, getSpecBkg4kfactor, 
+     . ObtainData, ObtainMissForBsDsK, ObtainMissForBsDsPi, ObtainSpecBack, getSpecBkg4kfactor,
        ObtainSignal, CreatePdfSpecBackground, ExpectedYield, Blabla
    . SFitUtiles:
-     . ReadDataFromSWeights, ReadDataFromSWeightsToys, CopyDataForToys  
+     . ReadDataFromSWeights, ReadDataFromSWeightsToys, CopyDataForToys
 
 ! 2012-10-08 - Agnieszka Dziurda
  - Modify scripts GenerateToySWeights_Ds{Pi,K}.py
    . add options
    . add confing files
-   . clean up 
+   . clean up
 
 ! 2012-10-05 - Agnieszka Dziurda
  - clean up mass and sFit fitters
- - add to all functions in GeneralUtils and Bs2Dsh2011TDAnaModels 
+ - add to all functions in GeneralUtils and Bs2Dsh2011TDAnaModels
    bool variable "debug" as the last argument (especially for Vava ;-)) which suppress all couts
  - deal with annoying WARNING in sPlot creation (finally suppressed!)
  - add config files for mass fits
- - remove .txt Vava's files with configuration time fit   
+ - remove .txt Vava's files with configuration time fit
  - change mass fit: now all scripts using confing python files
  - delate some options in scirpts (sorry if somebody (Vava?) is surprised)
- - change read sweights: 
+ - change read sweights:
    now for both MC and data are loaded directly from path (--pathName) with tree (--treeName)
- - add some new functions to GeneralUtils       
+ - add some new functions to GeneralUtils
  - move .csh script to scripts/Csh
- 
+
 ! 2012-10-04 - Manuel Tobias Schiller
  - adapt fitting/plotting scripts for cFit to changes committed today
  - rearrange PDF somewhat to save about a factor of 3 in RAM
@@ -1011,15 +1011,15 @@
    LHCb-CONF-2012-029 produced for CKM 2012
 
 ! 2012-10-02 - Agnieszka Dziurda
- - update GeneralUtils (ReadDataFromsWeights, ObtainSignal)  
+ - update GeneralUtils (ReadDataFromsWeights, ObtainSignal)
  - add script for plotting time with contributions
 
 ! 2012-09-20 - Manuel Tobias Schiller
  - fix bug in analytical integral of MistagDistribution (toy mock-distribution
    of per event mistag); spotted by Chiara Farinelli - thanks!
 
-! 2012-09-15 - Agnieszka Dziurda 
- - modify sFit for signal MC  
+! 2012-09-15 - Agnieszka Dziurda
+ - modify sFit for signal MC
 
 ! 2012-09-15 - Agnieszka Dziurda
  - update plotting scripts for mass model
@@ -1037,7 +1037,7 @@
  - CPObservable: fix bug in formulae, now in line with LHCb-INT-2011-051
 
 ! 2012-09-12 - Agnieszka Dziurda
- - update BsDsPi time sFit scripts 
+ - update BsDsPi time sFit scripts
 
 ! 2012-09-12 - Manuel Tobias Schiller
  - NonOscTaggingPdf: remove analytical integral which was disabled because it
@@ -1116,9 +1116,9 @@
  - helper class for interpolation classes: SharedArray, a copy-on-write array
    implementation (lots of interpolation coefficients, and RooFit loves
    cloning, so we better make sure we only have to clone a pointer ;)
- 
+
  - make it possible for the cFit to use this interpolation as an option
- 
+
  - cFit: work around yet another ownership issue between ROOT, Python and
    FitMeTool
 
@@ -1187,7 +1187,7 @@
 
 ! 2012-09-04 - Manuel Tobias Schiller
  - standalone builds are possible now; here's how:
-   
+
    1. cd to the standalone subdirectory
    2. source setup.sh in that directory
    3. type "make distclean; make" in standalone
@@ -1213,14 +1213,14 @@
 
 ! 2012-09-01 - Agnieszka Dziurda
  - mass fit: add script dsdsstpirho.py and file conf_dsdsstpirho.txt
- 
+
 ! 2012-08-30 - Agnieszka Dziurda
  - mass fit: new result in data/workspace for BsDsK
  - mass fit: change DsDsstPiRho fractions in BsDsK mass fit
 
 ! 2012-08-29 - Agnieszka Dziurda
- - mass fit: add data/workspace repository with mass fit workspace before and after fit. 
- - mass fit: change BdRho yield to be 1/3.5 of BdDPi 
+ - mass fit: add data/workspace repository with mass fit workspace before and after fit.
+ - mass fit: change BdRho yield to be 1/3.5 of BdDPi
 
 ! 2012-08-28 - Agnieszka Dziurda
  - mass fit: fix tiny bug in BsDsK, Down, KPiPi plotting
@@ -1256,7 +1256,7 @@
 ! 2012-08-26 - Manuel Tobias Schiller
  - runBs2DsKCPAsymmObsFitterToyMC, runBs2DsKCPAsymmObsFitter-cFit:
    - update to include changes to calling conventions in last few commits
-   - seems we can run at Optimize(1) after all 
+   - seems we can run at Optimize(1) after all
    - retune integrator settings
    - take advantage of RooEffResModel, binned cache evaluation in k-factor
      smearing
@@ -1309,12 +1309,12 @@
  - update combinatorial bakcground slopes
 
 ! 2012-08-09 - V. Gligorov
- - Update PropertimeResolutionModels to take a bias on the propertime as a 
+ - Update PropertimeResolutionModels to take a bias on the propertime as a
    paramter
  - Update sFit scripts to be configured even more fully from the configuration
    files in the data directory
  - Update these configuration files to inherit from the nominal configuration
- - Make many new configuration files for the systematics  
+ - Make many new configuration files for the systematics
 
 ! 2012-08-08 - Manuel Tobias Schiller
  - cFit: further stabilise fit (and improve fitting time) by parametrising the
@@ -1338,26 +1338,26 @@
    * do not float Delta m_s (gives biases on CP parameters if I float it)
    * better description of Lb BG in time
  - old fitting scripts (runBs2DsKCPAsymmObsFitterToyMC): allow to constrain
-   C from magnitude of lambda 
+   C from magnitude of lambda
 
 ! 2012-08-04 - Agnieszka Dziurda
- - fix bug in PID histos 
+ - fix bug in PID histos
  - changes in all plotting scripts (time and mass)
  - small changes in run Bs->DsK time script -> add workspace
  - add scripts to fit Bd->DPi from data
  - changes in data/config.. files for DsK and DsPi
- 
+
 ! 2012-08-02 - V. Gligorov
  - Change the PropertimeResolutionModels.cxx code to return a single Gaussian
    model which can be used outside the FitMeTool framework as well as inside
    it when asked to do so. This change effectively makes the returning of the
    single and triple Gaussian models consistent.
- - Make the type of resolution model a command line option. 
+ - Make the type of resolution model a command line option.
  - Major rewrite of the sFit time fitting scripts. All parameter configuration
    is now done via python dictionaries placed in the "/data" directory of this
    package. The fitters for DsPi and DsK then take the name of the configuration
-   file to run with from which the options are read. 
- - Three configurations have been added so far 
+   file to run with from which the options are read.
+ - Three configurations have been added so far
    . Bs2DsPiConfigForNominalDMSFit
    . Bs2DsPiConfigForDMSFitWithFloatingTAcc
    . Bs2DsKConfigForNominalGammaFit
@@ -1370,7 +1370,7 @@
    the sFitters now print only the parameter uncertainties.
  - Update triple Gaussian resolution model code so it can be used in the fits.
  - Many other small updates on the sFit side to the fitting interface. Can
-   now choose to use fitMeTool or not on the command line.  
+   now choose to use fitMeTool or not on the command line.
 
 ! 2012-08-01 - Manuel Tobias Schiller
  - add RangeAcceptance class: function to return 1 if some variable is within
@@ -1422,10 +1422,10 @@
    K* to pion mass, in Ds* case, autodetect photon/pion and constrain
    accordingly
 
-! 2012-07-28 - V. Gligorov 
+! 2012-07-28 - V. Gligorov
  - Lots of commits all over the place for sFit and similar. Some highlights
    of what was added/changed
-   . DrawPullsFor* are scripts to scan logfiles and produce pull plots for 
+   . DrawPullsFor* are scripts to scan logfiles and produce pull plots for
      toy studies
    . runBsDsK_sFit_* are scripts to run toys on a large scale
    . Changes to toy generators to generate with correct Lb and combo lifetimes
@@ -1458,7 +1458,7 @@
  - in runBs2DsKCPAsymmObsFitterToyMC.py: go back to the somewhat safer
    integrator settings
 
-! 2012-07-27 Suvayu Ali 
+! 2012-07-27 Suvayu Ali
  - Bug fix plotting script
  - Rewrite for clarity, include "shifted" modes
  - Add more MC samples for partially reco'd bkg modes
@@ -1471,7 +1471,7 @@
    studies
 
 ! 2012-07-25 - Agnieszka Dziurda
- - fix small bug for option --tagOmegaPdf in GeneralUtils.cxx 
+ - fix small bug for option --tagOmegaPdf in GeneralUtils.cxx
 
 ! 2012-07-25 - Manuel Tobias Schiller
  - fix bug in IfThreeWay and IfThreeWayPdf classes: when truncating the
@@ -1483,7 +1483,7 @@
 
 ! 2012-07-24 - Agnieszka Dziurda
  - add lab1_PT to observables for --tagTool option
- 
+
 ! 2012-07-24 - Manuel Tobias Schiller
  - update runBs2DsKCPAsymmObsFitterToyMC.py: make acceptance parameters
    tunable via configuration dictionary
@@ -1492,7 +1492,7 @@
  - make DecayTreeTupleSucksFitter fail if it converges to unphysical values
    when constraining particles to a completely wrong mass
 
-! 2012-07-22 - Suvayu Ali 
+! 2012-07-22 - Suvayu Ali
  - K-factor distributions for partially reconstructed backgrounds.
    Also account for wrong mass hypothesis for mis-id'd bachelor.
  - Experimental kinematics hack (class Bdecaytree) for partially
@@ -1504,7 +1504,7 @@
 
 ! 2012-07-20 - Agnieszka Dziurda
  - fix minor bug in GenerateToySWeights_DsX.py X={K,Pi}
- - add option --tagTool (for Matt) to 
+ - add option --tagTool (for Matt) to
    prepareBsDs{K,Pi}MassFitterOnData.py and runBsDs{K,Pi}MassFitterOnData.py
    Option add to RooDataSet variables:
    lab0_BsTaggingTool_SS_Kaon_PROB
@@ -1513,7 +1513,7 @@
    lab0_BsTaggingTool_OS_Kaon_PROB
    lab0_BsTaggingTool_VtxCharge_PROB
    lab1_P
-   
+
 ! 2012-07-20 - Manuel Tobias Schiller
  - polish DecayTreeTupleSucksFitter somewhat so it can constrain zero mass
    particles
@@ -1601,8 +1601,8 @@
  - toys update:
    . in scripts "run" (time and mass model) add new option - toys (yes/no)
    . add new functions to GeneralUtils.{cxx,h}
-   . modify "Generate" scripts  
-  
+   . modify "Generate" scripts
+
 ! 2012-07-05 - Manuel Tobias Schiller
  - fix src/GeneralModels.cxx which got polluted with some local debugging
    changes by reverting it to the previous version. I'm terribly sorry for the
@@ -1635,7 +1635,7 @@
 ! 2012-07-01 - Agnieszka Dziurda
  - Clean up campaign
  - Add function GetRooKeysPdfFromWorkspace to Bs2Dsh2011TDAnaModels.h
- - small changes in "prepare" and "run" scripts (mass model)   
+ - small changes in "prepare" and "run" scripts (mass model)
 
 
 ! 2012-06-30 - Agnieszka Dziurda
@@ -1643,13 +1643,13 @@
  - changed slopes in combinatorial background description corespond to BDTGResponse>0.5
  - changed expected yield of Lb->LcK corespond to BDTGResponse>0.5
  - toys
-   - added two scripts: GenerateToySWeights_DsPi.py and GenerateToySWeights_DsK.py (wrote by Vava&myself)   
+   - added two scripts: GenerateToySWeights_DsPi.py and GenerateToySWeights_DsK.py (wrote by Vava&myself)
    - we needed RooKeysPdf for TagOmega, because of that:
-     . added new bool argument in GeneralUtils function: 
-   CreatePDFMC, ObtainMissForBsDsK, ObtainMissForBsDsPi, ObtainSpecBack  
+     . added new bool argument in GeneralUtils function:
+   CreatePDFMC, ObtainMissForBsDsK, ObtainMissForBsDsPi, ObtainSpecBack
        and changed prepareBsDsPiMassFitterOnData.py, prepareBsDsKMassFitterOnData.py
-   - added to GeneralUtils function: generateFlavProd 
-       
+   - added to GeneralUtils function: generateFlavProd
+
 ! 2012-06-26 - Manuel Tobias Schiller
  - remove the bogus mistag parameter from the buildRooBDecayPDF family of
    functions in GeneralModels.cxx/.h
@@ -1669,7 +1669,7 @@
    do so in job options)
 
 ! 2012-18-06 - Agnieszka Dziurda
- - changed reading data for TD model;  
+ - changed reading data for TD model;
 
 ! 2012-17-06 - V. Gligorov
  - commit some changes for Agnieszka and Eduardo to fix parameters before making
@@ -1678,7 +1678,7 @@
    in order to make time fitting simpler (no longer need to read separate sweights
    and ntuple files)
  - change the parameters in the DsPi fit which were RooFormulaVar governed (i.e. the
-   Bd->DsPi backgrounds and similar) to fixed values 
+   Bd->DsPi backgrounds and similar) to fixed values
 
 ! 2012-08-06 - Agnieszka Dziurda
 - the mass fitter:
@@ -1689,19 +1689,19 @@
    Lb->Dsp, Dsstp under Bs->DsK
    Bs->DsRho, DsstPi, DsstRho with respect to Bs->DsPi in Bs->DsK fitter
    add option "constr", by default "yes"
-  . change slope for combinatorial backgrounds 
+  . change slope for combinatorial backgrounds
   . change shift data-MC
-  . change signal line shapes 
+  . change signal line shapes
 - add script for fitting signal lineshapes: fitSignal.py
-- add script for ploting signal: plotSignal.py 
+- add script for ploting signal: plotSignal.py
 - add script for expected yields: expectedEvents.py
 - the time fitter:
   . add script to run time fitter on data for Bs->DsK and Bs->DsPi
-   runBs2DsKCPAsymmObsFitterOnData.py and runBs2DsPiCPAsymmObsFitterOnData.py      
+   runBs2DsKCPAsymmObsFitterOnData.py and runBs2DsPiCPAsymmObsFitterOnData.py
    run: python runBs2DsKCPAsymmObsFitterOnData.py -s name_of_workspace
   . add script to run plotting on data for Bs->DsK and Bs->DsPi
    plotBs2DsKTimeModelsOnData.py and plotBs2DsPiTimeModelsOnData.py
-   run: python  plotBs2DsKTimeModelsOnData.py WS_name_of_workspace.root 
+   run: python  plotBs2DsKTimeModelsOnData.py WS_name_of_workspace.root
 - some minor changes
 
 
@@ -1711,21 +1711,21 @@
   . divide preparing workspace, code is flexible
   . add simultaneous mass fit for Bs->DsPi
   . add Monte Carlo for both polarity
-  . a lot of small changes    
+  . a lot of small changes
 
 ! 2012-04-30 - Agnieszka Dziurda
 - the mass fitter:
-  . prepareBsDsPiMassFitterOnData.py and prepareBsDsKMassFitterOnData.py- 
+  . prepareBsDsPiMassFitterOnData.py and prepareBsDsKMassFitterOnData.py-
     added new option -c --cutvariable for PID cut, by default: lab1_PIDK
     fixed small bug for option -v
   . runBsDsPiMassFitterOnData.py and runBsDsKMassFitterOnData.py
     fixed small bug for option -v and fitter.printYieldsInRange() function
   . runBsDsKMassFitterOnData.py and config_Bs2Dsh2011TDAna_Bs2DsK.txt
-    created template for Bd->DsK, took it from MC sample 
+    created template for Bd->DsK, took it from MC sample
   . plotBs2DsPiMassModels.py
     fixed small bug in plotting signal
   . GeneralUtils
-    added function setSignal   
+    added function setSignal
 
 ! 2012-04-28 - Agnieszka Dziurda
  - the mass fitter for Bs -> DsK:
@@ -1737,14 +1737,14 @@
    . script plotBs2DsKMassModels.py was modified
      new option   -o: "all", "kkpi", "kpipi", "pipipi"
      all mixing options -o and -m work well
-   . in Bs2Dsh2011TDAnaModels.cxx fixed some small bugs            
+   . in Bs2Dsh2011TDAnaModels.cxx fixed some small bugs
 
 ! 2012-04-27 - Eduardo Rodrigues
  - Tiny fix to GeneralModels
 
 ! 2012-04-26 - Agnieszka Dziurda
  - Added savesWeights function to FitMeTool
- - Added the simultaneous fit for BsDsK 
+ - Added the simultaneous fit for BsDsK
 
 ! 2012-04-23 - Eduardo Rodrigues
  - Added more models to GeneralModels and more functionality to FitMeTool
@@ -1765,10 +1765,10 @@
    . Script scripts/runBsDsKMassFitterOnData.py added to plot the Bs -> Ds pi
      mass models
    . Configuration file data/config_Bs2Dsh2011TDAna_Bs2DsK.txt added.
-     It contains config info the the mass fit 
+     It contains config info the the mass fit
    . Script scripts/plotBs2DsKMassModels.py updated
    . Class GeneralUtils extended with a bunch of code for the new scripts above
- - modify python scripts for Bs -> DsPi mass fit for several additional options      
+ - modify python scripts for Bs -> DsPi mass fit for several additional options
 
 ! 2012-04-18 - Manuel Tobias Schiller
  - replace RooFormulaVars with compiled C++ classes to speed up computations
@@ -1787,8 +1787,8 @@
 
 ! 2012-04-18 - Agnieszka Dziurda
 - Fixed a few bugs in GeneralUtils (in function SetBsDsPi)
-- Changed file data/config_Bs2Dsh2011TDAna_Bs2DsPi.txt. 
-  Bs->DsPi data are taken from Sajan's public area.    
+- Changed file data/config_Bs2Dsh2011TDAna_Bs2DsPi.txt.
+  Bs->DsPi data are taken from Sajan's public area.
 
 ! 2012-04-17 - Agnieszka Dziurda, Eduardo Rodrigues
  - A variety of new things for the 2011 Bs -> Ds pi mass fit part of the
