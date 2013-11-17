@@ -29,11 +29,11 @@
  - Add new stuff for acceptance:
    . PropertimeResolutionModels.h - add possibility to build triple gaussian
      using RooGaussEfficiencyModel.h
-   . GeneralUtils.h - add new function GetCoeffFromBinning(...) which 
+   . GeneralUtils.h - add new function GetCoeffFromBinning(...) which
      help in setting correct variables to acceptance
    . fitSplineAcc.py - add script for fitting acceptance using
      pow law or splines
- - some other small things like update time plot script etc   
+ - some other small things like update time plot script etc
 
 ! 2013-11-15 - Manuel Tobias Schiller
  - DecRateCoeff changes:
