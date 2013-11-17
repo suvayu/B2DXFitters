@@ -25,7 +25,6 @@
 
 RooArgSet DecRateCoeff::s_emptyset;
 RooConstVar DecRateCoeff::s_one("one", "1.0", 1.0);
-RooConstVar DecRateCoeff::s_minusone("minusone", "-1.0", -1.0);
 
 DecRateCoeff::DecRateCoeff(
 	const char* name, const char* title, Flags flags,

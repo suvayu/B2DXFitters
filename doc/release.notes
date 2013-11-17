@@ -5,6 +5,20 @@
 !-----------------------------------------------------------------------------
 
 ! 2013-11-17 - Manuel Tobias Schiller
+ - DecRateCoeff: remove a static member which was not used
+ - NonOscTaggingPdf changes:
+   * major code refactoring to allow to switch between different taggers
+     depending on the value of qt
+   * the new version of the class is source compatible with the old version -
+     existing code need to be changed to get the old functionality
+   * however, the persistent form of the class is incompatible with the old
+     version, so that old RooFit workspaces which contain NonOscTaggingPdf
+     instances can no longer be read
+   * put in the necessary ground work to extend the functionality of the class
+     to do the combination of taggers inside the NonOscTaggingPdf class at
+     some point in the future without breaking persistency again
+
+! 2013-11-17 - Manuel Tobias Schiller
  - fix small bug in TagDLLToTagDec.cxx
 
 ! 2013-11-15 - Manuel Tobias Schiller

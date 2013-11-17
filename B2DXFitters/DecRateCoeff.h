@@ -629,7 +629,6 @@ class DecRateCoeff : public RooAbsReal
     private:
 	static RooArgSet s_emptyset;	///< empty RooArgSet
 	static RooConstVar s_one;	///< +1 (constant)
-	static RooConstVar s_minusone;	///< -1 (constant)
 	RooCategoryProxy m_qf;		///< final state charge
 	RooListProxy m_qts;		///< tagging decision(s)
 	RooRealProxy m_Cf;		///< coefficient for qf = +1

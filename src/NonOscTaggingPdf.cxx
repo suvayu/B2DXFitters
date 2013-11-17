@@ -12,6 +12,7 @@
 #include "B2DXFitters/NonOscTaggingPdf.h"
 
 RooArgSet NonOscTaggingPdf::s_emptyset;
+RooConstVar NonOscTaggingPdf::s_one("one", "1.0", 1.0);
 
 NonOscTaggingPdf::NonOscTaggingPdf(const char* name, const char* title,
 	RooAbsCategory& qf, RooAbsCategory& qt,
@@ -19,92 +20,26 @@ NonOscTaggingPdf::NonOscTaggingPdf(const char* name, const char* title,
 	RooAbsReal& epsilon, RooAbsReal& adet,
 	RooAbsReal& atageff_f, RooAbsReal& atageff_t) :
     RooAbsPdf(name, title),
-    m_qf("qf", "qf", this, qf), m_qt("qt", "qt", this, qt),
+    m_qf("qf", "qf", this, qf), m_qts("qts", "qts", this),
     m_etaobs("etaobs", "etaobs", this, etaobs),
-    m_etapdf("etapdf", "etapdf", this, etapdf),
+    m_etapdfs("etapdfs", "etapdfs", this),
     m_etapdfutinstance(
 	    (std::string(GetName()) + "_untagged").c_str(),
 	    (std::string(GetName()) + "_untagged").c_str(),
 	    RooArgSet(etaobs)),
-    m_etapdfut("etapdfut", "etapdfut", this, m_etapdfutinstance),
-    m_epsilon("epsilon", "epsilon", this, epsilon),
+    m_epsilons("epsilons", "epsilons", this),
     m_adet("adet", "adet", this, adet),
-    m_atageff_f("atageff_f", "atageff_f", this, atageff_f),
-    m_atageff_t("atageff_t", "atageff_t", this, atageff_t),
+    m_atageffs_f("atageffs_f", "atageffs_f", this),
+    m_atageffs_t("atageffs_t", "atageffs_t", this),
     m_cacheMgr(this)
 {
-    if (!qf.isConstant()) {
-	assert(!qf.overlaps(qt) || qt.isConstant());
-	assert(!qf.overlaps(etaobs) || etaobs.isConstant());
-	assert(!qf.overlaps(etapdf) || etapdf.isConstant());
-	assert(!qf.overlaps(epsilon) || epsilon.isConstant());
-	assert(!qf.overlaps(adet) || adet.isConstant());
-	assert(!qf.overlaps(atageff_f) || atageff_f.isConstant());
-	assert(!qf.overlaps(atageff_t) || atageff_t.isConstant());
-    }
-    if (!qt.isConstant()) {
-	assert(!qt.overlaps(qf) || qf.isConstant());
-	assert(!qt.overlaps(etaobs) || etaobs.isConstant());
-	assert(!qt.overlaps(etapdf) || etapdf.isConstant());
-	assert(!qt.overlaps(epsilon) || epsilon.isConstant());
-	assert(!qt.overlaps(adet) || adet.isConstant());
-	assert(!qt.overlaps(atageff_f) || atageff_f.isConstant());
-	assert(!qt.overlaps(atageff_t) || atageff_t.isConstant());
-    }
-    if (!etaobs.isConstant()) {
-	assert(!etaobs.overlaps(qf) || qf.isConstant());
-	assert(!etaobs.overlaps(qt) || qt.isConstant());
-	assert(etaobs.overlaps(etapdf));
-	assert(!etaobs.overlaps(epsilon) || epsilon.isConstant());
-	assert(!etaobs.overlaps(adet) || adet.isConstant());
-	assert(!etaobs.overlaps(atageff_f) || atageff_f.isConstant());
-	assert(!etaobs.overlaps(atageff_t) || atageff_t.isConstant());
-    }
-    if (!etapdf.isConstant()) {
-	assert(!etapdf.overlaps(qf) || qf.isConstant());
-	assert(!etapdf.overlaps(qt) || qt.isConstant());
-	assert(etapdf.overlaps(etaobs));
-	assert(!etapdf.overlaps(epsilon) || epsilon.isConstant());
-	assert(!etapdf.overlaps(adet) || adet.isConstant());
-	assert(!etapdf.overlaps(atageff_f) || atageff_f.isConstant());
-	assert(!etapdf.overlaps(atageff_t) || atageff_t.isConstant());
-    }
-    if (!epsilon.isConstant()) {
-	assert(!epsilon.overlaps(qf) || qf.isConstant());
-	assert(!epsilon.overlaps(qt) || qt.isConstant());
-	assert(!epsilon.overlaps(etaobs) || etaobs.isConstant());
-	assert(!epsilon.overlaps(etapdf) || etapdf.isConstant());
-	assert(!epsilon.overlaps(adet) || adet.isConstant());
-	assert(!epsilon.overlaps(atageff_f) || atageff_f.isConstant());
-	assert(!epsilon.overlaps(atageff_t) || atageff_t.isConstant());
-    }
-    if (!adet.isConstant()) {
-	assert(!adet.overlaps(qf) || qf.isConstant());
-	assert(!adet.overlaps(qt) || qt.isConstant());
-	assert(!adet.overlaps(etaobs) || etaobs.isConstant());
-	assert(!adet.overlaps(etapdf) || etapdf.isConstant());
-	assert(!adet.overlaps(epsilon) || epsilon.isConstant());
-	assert(!adet.overlaps(atageff_f) || atageff_f.isConstant());
-	assert(!adet.overlaps(atageff_t) || atageff_t.isConstant());
-    }
-    if (!atageff_f.isConstant()) {
-	assert(!atageff_f.overlaps(qf) || qf.isConstant());
-	assert(!atageff_f.overlaps(qt) || qt.isConstant());
-	assert(!atageff_f.overlaps(etaobs) || etaobs.isConstant());
-	assert(!atageff_f.overlaps(etapdf) || etapdf.isConstant());
-	assert(!atageff_f.overlaps(epsilon) || epsilon.isConstant());
-	assert(!atageff_f.overlaps(adet) || adet.isConstant());
-	assert(!atageff_f.overlaps(atageff_t) || atageff_t.isConstant());
-    }
-    if (!atageff_t.isConstant()) {
-	assert(!atageff_t.overlaps(qf) || qf.isConstant());
-	assert(!atageff_t.overlaps(qt) || qt.isConstant());
-	assert(!atageff_t.overlaps(etaobs) || etaobs.isConstant());
-	assert(!atageff_t.overlaps(etapdf) || etapdf.isConstant());
-	assert(!atageff_t.overlaps(epsilon) || epsilon.isConstant());
-	assert(!atageff_t.overlaps(adet) || adet.isConstant());
-	assert(!atageff_t.overlaps(atageff_f) || atageff_f.isConstant());
-    }
+    assert(checkDepsForConsistency(
+		RooArgSet(qf, qt, etaobs),
+		RooArgSet(etapdf, epsilon, adet, atageff_f, atageff_t),
+		&etaobs, RooArgSet(etapdf)));
+    m_qts.add(qt);
+    initListProxies(RooArgList(epsilon),
+	    RooArgList(atageff_f), RooArgList(atageff_t), RooArgList(etapdf));
 }
 
 NonOscTaggingPdf::NonOscTaggingPdf(const char* name, const char* title,
@@ -112,73 +47,94 @@ NonOscTaggingPdf::NonOscTaggingPdf(const char* name, const char* title,
 	RooAbsReal& epsilon, RooAbsReal& adet,
 	RooAbsReal& atageff_f, RooAbsReal& atageff_t) :
     RooAbsPdf(name, title),
-    m_qf("qf", "qf", this, qf), m_qt("qt", "qt", this, qt),
-    m_epsilon("epsilon", "epsilon", this, epsilon),
+    m_qf("qf", "qf", this, qf), m_qts("qts", "qts", this),
+    m_epsilons("epsilons", "epsilons", this),
     m_adet("adet", "adet", this, adet),
-    m_atageff_f("atageff_f", "atageff_f", this, atageff_f),
-    m_atageff_t("atageff_t", "atageff_t", this, atageff_t),
+    m_atageffs_f("atageffs_f", "atageffs_f", this),
+    m_atageffs_t("atageffs_t", "atageffs_t", this),
     m_cacheMgr(this)
 {
-    if (!qf.isConstant()) {
-	assert(!qf.overlaps(qt) || qt.isConstant());
-	assert(!qf.overlaps(epsilon) || epsilon.isConstant());
-	assert(!qf.overlaps(adet) || adet.isConstant());
-	assert(!qf.overlaps(atageff_f) || atageff_f.isConstant());
-	assert(!qf.overlaps(atageff_t) || atageff_t.isConstant());
-    }
-    if (!qt.isConstant()) {
-	assert(!qt.overlaps(qf) || qf.isConstant());
-	assert(!qt.overlaps(epsilon) || epsilon.isConstant());
-	assert(!qt.overlaps(adet) || adet.isConstant());
-	assert(!qt.overlaps(atageff_f) || atageff_f.isConstant());
-	assert(!qt.overlaps(atageff_t) || atageff_t.isConstant());
-    }
-    if (!epsilon.isConstant()) {
-	assert(!epsilon.overlaps(qf) || qf.isConstant());
-	assert(!epsilon.overlaps(qt) || qt.isConstant());
-	assert(!epsilon.overlaps(adet) || adet.isConstant());
-	assert(!epsilon.overlaps(atageff_f) || atageff_f.isConstant());
-	assert(!epsilon.overlaps(atageff_t) || atageff_t.isConstant());
-    }
-    if (!adet.isConstant()) {
-	assert(!adet.overlaps(qf) || qf.isConstant());
-	assert(!adet.overlaps(qt) || qt.isConstant());
-	assert(!adet.overlaps(epsilon) || epsilon.isConstant());
-	assert(!adet.overlaps(atageff_f) || atageff_f.isConstant());
-	assert(!adet.overlaps(atageff_t) || atageff_t.isConstant());
-    }
-    if (!atageff_f.isConstant()) {
-	assert(!atageff_f.overlaps(qf) || qf.isConstant());
-	assert(!atageff_f.overlaps(qt) || qt.isConstant());
-	assert(!atageff_f.overlaps(epsilon) || epsilon.isConstant());
-	assert(!atageff_f.overlaps(adet) || adet.isConstant());
-	assert(!atageff_f.overlaps(atageff_t) || atageff_t.isConstant());
-    }
-    if (!atageff_t.isConstant()) {
-	assert(!atageff_t.overlaps(qf) || qf.isConstant());
-	assert(!atageff_t.overlaps(qt) || qt.isConstant());
-	assert(!atageff_t.overlaps(epsilon) || epsilon.isConstant());
-	assert(!atageff_t.overlaps(adet) || adet.isConstant());
-	assert(!atageff_t.overlaps(atageff_f) || atageff_f.isConstant());
-    }
+    assert(checkDepsForConsistency(
+		RooArgSet(qf, qt),
+		RooArgSet(epsilon, adet, atageff_f, atageff_t)));
+    m_qts.add(qt);
+    initListProxies(RooArgList(epsilon),
+	    RooArgList(atageff_f), RooArgList(atageff_t));
+}
+
+NonOscTaggingPdf::NonOscTaggingPdf(const char* name, const char* title,
+	RooAbsCategory& qf, RooAbsCategory& qt,
+	RooAbsRealLValue& etaobs, RooArgList& etapdfs,
+	RooArgList& epsilons, RooAbsReal& adet,
+	RooArgList& atageffs_f, RooArgList& atageffs_t) :
+    RooAbsPdf(name, title),
+    m_qf("qf", "qf", this, qf), m_qts("qts", "qts", this),
+    m_etaobs("etaobs", "etaobs", this, etaobs),
+    m_etapdfs("etapdfs", "etapdfs", this),
+    m_etapdfutinstance(
+	    (std::string(GetName()) + "_untagged").c_str(),
+	    (std::string(GetName()) + "_untagged").c_str(),
+	    RooArgSet(etaobs)),
+    m_epsilons("epsilons", "epsilons", this),
+    m_adet("adet", "adet", this, adet),
+    m_atageffs_f("atageffs_f", "atageffs_f", this),
+    m_atageffs_t("atageffs_t", "atageffs_t", this),
+    m_cacheMgr(this)
+{
+    RooArgSet params(adet);
+    params.add(etapdfs);
+    params.add(epsilons);
+    params.add(atageffs_f);
+    params.add(atageffs_t);
+    assert(checkDepsForConsistency(
+		RooArgSet(qf, qt, etaobs), params, &etaobs, etapdfs));
+    m_qts.add(qt);
+    initListProxies(epsilons, atageffs_f, atageffs_t, etapdfs);
+}
+
+NonOscTaggingPdf::NonOscTaggingPdf(const char* name, const char* title,
+	RooAbsCategory& qf, RooAbsCategory& qt,
+	RooArgList& epsilons, RooAbsReal& adet,
+	RooArgList& atageffs_f, RooArgList& atageffs_t) :
+    RooAbsPdf(name, title),
+    m_qf("qf", "qf", this, qf), m_qts("qts", "qts", this),
+    m_epsilons("epsilons", "epsilons", this),
+    m_adet("adet", "adet", this, adet),
+    m_atageffs_f("atageffs_f", "atageffs_f", this),
+    m_atageffs_t("atageffs_t", "atageffs_t", this),
+    m_cacheMgr(this)
+{
+    RooArgSet params(adet);
+    params.add(epsilons);
+    params.add(atageffs_f);
+    params.add(atageffs_t);
+    assert(checkDepsForConsistency(RooArgSet(qf, qt), params));
+    m_qts.add(qt);
+    initListProxies(epsilons, atageffs_f, atageffs_t);
 }
 
 NonOscTaggingPdf::NonOscTaggingPdf(
 	const NonOscTaggingPdf& other, const char* name) :
     RooAbsPdf(other, name),
-    m_qf("qf", this, other.m_qf), m_qt("qt", this, other.m_qt),
+    m_qf("qf", this, other.m_qf), m_qts("qts", this, other.m_qts),
     m_etaobs("etaobs", this, other.m_etaobs),
-    m_etapdf("etapdf", this, other.m_etapdf),
+    m_etapdfs("etapdfs", "etapdfs", this),
     m_etapdfutinstance(other.m_etapdfutinstance),
-    m_etapdfut("etapdfut", this, other.m_etapdfut),
-    m_epsilon("epsilon", this, other.m_epsilon),
+    m_epsilons("epsilons", this, other.m_epsilons),
     m_adet("adet", this, other.m_adet),
-    m_atageff_f("atageff_f", this, other.m_atageff_f),
-    m_atageff_t("atageff_t", this, other.m_atageff_t),
+    m_atageffs_f("atageffs_f", this, other.m_atageffs_f),
+    m_atageffs_t("atageffs_t", this, other.m_atageffs_t),
     m_cacheMgr(other.m_cacheMgr, this)
 {
+    // no need to verify constraints as in other constructors - we make a copy
+    // of something that has already been verified
     if (m_etaobs.absArg()) {
-	m_etapdfut.setArg(m_etapdfutinstance);
+	RooFIter it = other.m_etapdfs.fwdIterator();
+	// skip other.m_etapdfutinstance;
+	it.next();
+	m_etapdfs.add(m_etapdfutinstance);
+	for (RooAbsArg* arg = it.next(); arg; arg = it.next())
+	    m_etapdfs.add(*arg);
     }
 }
 
@@ -186,6 +142,90 @@ NonOscTaggingPdf::~NonOscTaggingPdf() { }
 
 TObject* NonOscTaggingPdf::clone(const char* newname) const
 { return new NonOscTaggingPdf(*this, newname); }
+
+bool NonOscTaggingPdf::checkDepsForConsistency(
+	const RooArgSet& obs, const RooArgSet& params,
+	const RooAbsArg* etaobs, const RooArgSet& etas) const
+{
+    // observables must not overlap with one another, or be constant
+    RooFIter it = obs.fwdIterator();
+    for (RooAbsArg* o1 = it.next(); o1; o1 = it.next()) {
+	if (o1->isConstant()) continue;
+	RooFIter jt = it;
+	for (RooAbsArg* o2 = jt.next(); o2; o2 = jt.next()) {
+	    if (o1->overlaps(*o2) && !o2->isConstant()) return false;
+	}
+    }
+
+    // paramers must not overlap with observables, be constant or inherit from
+    // TaggingCat
+    it = params.fwdIterator();
+    for (RooAbsArg* o1 = it.next(); o1; o1 = it.next()) {
+	if (o1->isConstant()) continue;
+	if (o1->InheritsFrom("TaggingCat")) continue;
+	const bool isMistag = (0 != etas.find(*o1));
+	// check out overlap with observables
+	RooFIter jt = obs.fwdIterator();
+	for (RooAbsArg* o2 = jt.next(); o2; o2 = jt.next()) {
+	    if (isMistag && o2 == etaobs) continue;
+	    if (o1->overlaps(*o2) && !o2->isConstant()) return false;
+	}
+    }
+
+    return true;
+}
+
+unsigned NonOscTaggingPdf::getMaxQt() const
+{
+    assert(1 == m_qts.getSize());
+    TIterator *it =
+	dynamic_cast<const RooAbsCategory&>(*m_qts.at(0)).typeIterator();
+    unsigned maxqt = 0u;
+    for (RooCatType* cat = dynamic_cast<RooCatType*>(it->Next()); cat;
+	    cat = dynamic_cast<RooCatType*>(it->Next())) {
+	const unsigned idx = std::abs(cat->getVal());
+	if (idx > maxqt) maxqt = idx;
+    }
+    delete it;
+    return maxqt;
+}
+
+void NonOscTaggingPdf::fillListProxy(RooListProxy& proxy,
+	const RooArgList& list, const RooArgList& listbar,
+	const RooAbsArg& zeroelem) const
+{
+    const unsigned idxend = 1u + (2u * getMaxQt());
+    for (unsigned idx = 0; idx < idxend; ++idx) {
+	const int qt = qtFromIdx(idx);
+	const int absqt = std::abs(qt);
+	if (!qt) {
+	    proxy.add(zeroelem);
+	} else if (qt < 0) {
+	    const int listidx = std::min(absqt - 1, listbar.getSize() - 1);
+	    proxy.add(*listbar.at(listidx));
+	} else {
+	    const int listidx = std::min(absqt - 1, list.getSize() - 1);
+	    proxy.add(*list.at(listidx));
+	}
+    }
+}
+
+void NonOscTaggingPdf::initListProxies(
+	const RooArgList& tageffs,
+	const RooArgList& atageffs_f,
+	const RooArgList& atageffs_t,
+	const RooArgList& etapdfs)
+{
+   // nothing in slot for (qt = 0), so put dummy value there
+   fillListProxy(m_epsilons, tageffs, tageffs, s_one);
+   // last one is dummy (tagging efficiency asymmetry makes no sense for
+   // qt = 0)
+   fillListProxy(m_atageffs_f, atageffs_f, atageffs_f, s_one);
+   fillListProxy(m_atageffs_t, atageffs_t, atageffs_t, s_one);
+   if (etapdfs.getSize()) {
+       fillListProxy(m_etapdfs, etapdfs, etapdfs, m_etapdfutinstance);
+   }
+}
 
 Bool_t NonOscTaggingPdf::selfNormalized() const
 { return kTRUE; }
@@ -209,8 +249,9 @@ Double_t NonOscTaggingPdf::evaluate() const
 
 Bool_t NonOscTaggingPdf::forceAnalyticalInt(const RooAbsArg& dep) const
 {
+    assert(1 == m_qts.getSize());
     if (&dep == m_qf.absArg()) return kTRUE;
-    if (&dep == m_qt.absArg()) return kTRUE;
+    if (&dep == m_qts.at(0)) return kTRUE;
     if (&dep == m_etaobs.absArg()) return kTRUE;
     return kFALSE;
 }
@@ -229,12 +270,13 @@ Int_t NonOscTaggingPdf::getAnalyticalIntegralWN(
 	const RooArgSet* nset, const char* rangeName) const
 {
     // perform analytical integrals
+    assert(1 == m_qts.getSize());
     // we know how to integrate over etaobs, qf, qt
     if (m_etaobs.absArg()) {
 	matchArgs(allVars, anaIntVars, m_etaobs);
     }
     matchArgs(allVars, anaIntVars, m_qf);
-    matchArgs(allVars, anaIntVars, m_qt);
+    matchArgs(allVars, anaIntVars, *m_qts.at(0));
     // create the integral object
     unsigned icode = 1 + getCache(
 	    anaIntVars, nset, RooNameReg::ptr(rangeName)).second;
@@ -298,13 +340,15 @@ NonOscTaggingPdf::CacheElemPair NonOscTaggingPdf::getCache(
 NonOscTaggingPdf::CacheElem::CacheElem(const NonOscTaggingPdf& parent,
 	const RooArgSet& iset, const RooArgSet* nset,
 	const TNamed* rangeName) :
-    m_parent(parent), m_etapdfint(0), m_etapdfintut(0),
-    m_rangeName(rangeName ? rangeName->GetName() : 0), m_flags(None)
+    m_parent(parent), m_etapdfint(1u + 2u * parent.getMaxQt(), 0),
+    m_rangeName(rangeName ? rangeName->GetName() : 0),
+    m_qtmax(parent.getMaxQt()), m_flags(None)
 {
+    assert(1 == parent.m_qts.getSize());
     // set flag for qf/qt integration
     if (iset.find(parent.m_qf.arg()))
         m_flags = static_cast<Flags>(m_flags | IntQf);
-    if (iset.find(parent.m_qt.arg()))
+    if (iset.find(*parent.m_qts.at(0)))
         m_flags = static_cast<Flags>(m_flags | IntQt);
 
     if (parent.m_etaobs.absArg()) {
@@ -317,18 +361,19 @@ NonOscTaggingPdf::CacheElem::CacheElem(const NonOscTaggingPdf& parent,
 	    m_nset.add(m_parent.m_etaobs.arg());
 	    m_flags = static_cast<Flags>(m_flags | NormEta);
 	}
-	if (m_flags & IntEta) {
-	    // we really integrate over eta
-	    RooArgSet etaiset(parent.m_etaobs.arg());
-	    RooArgSet* etanset = nset ? &m_nset : 0;
-	    m_etapdfint = parent.m_etapdf.arg().createIntegral(
-		    etaiset, etanset, 0, m_rangeName);
-	    m_etapdfintut = parent.m_etapdfut.arg().createIntegral(
-		    etaiset, etanset, 0, m_rangeName);
-	} else {
-	    // do not integrate over eta
-	    m_etapdfint = const_cast<RooAbsReal*>(&parent.m_etapdf.arg());
-	    m_etapdfintut = const_cast<RooAbsReal*>(&parent.m_etapdfut.arg());
+	for (int qt = -m_qtmax; qt <= int(m_qtmax); ++qt) {
+	    const unsigned idx = NonOscTaggingPdf::idxFromQt(qt);
+	    RooAbsPdf* etapdf = dynamic_cast<RooAbsPdf*>(
+		    parent.m_etapdfs.at(idx));
+	    if (m_flags & IntEta) {
+		// we really integrate over eta
+		RooArgSet etaiset(parent.m_etaobs.arg());
+		RooArgSet* etanset = nset ? &m_nset : 0;
+		m_etapdfint[idx] = etapdf->createIntegral(
+			etaiset, etanset, 0, m_rangeName);
+	    } else {
+		m_etapdfint[idx] = etapdf;
+	    }
 	}
     }
 }
@@ -336,53 +381,89 @@ NonOscTaggingPdf::CacheElem::CacheElem(const NonOscTaggingPdf& parent,
 NonOscTaggingPdf::CacheElem::~CacheElem()
 {
     if (m_flags & IntEta) {
-	delete m_etapdfint;
-	delete m_etapdfintut;
+	for (unsigned i = 0; i < m_etapdfint.size(); ++i)
+	    delete m_etapdfint[i];
     }
 }
 
 RooArgList NonOscTaggingPdf::CacheElem::containedArgs(Action)
 {
+    assert(1 == m_parent.m_qts.getSize());
     RooArgList retVal;
-    if (m_etapdfint) retVal.add(*m_etapdfint);
-    if (m_etapdfintut) retVal.add(*m_etapdfintut);
     if (!(m_flags & IntQf)) retVal.add(m_parent.m_qf.arg());
-    if (!(m_flags & IntQt)) retVal.add(m_parent.m_qt.arg());
-    if (!(m_flags & IntEta)) {
-	if (m_parent.m_etaobs.absArg()) retVal.add(m_parent.m_etaobs.arg());
-	if (m_parent.m_etapdf.absArg()) retVal.add(m_parent.m_etapdf.arg());
-	if (m_parent.m_etapdfut.absArg()) retVal.add(m_parent.m_etapdfut.arg());
+    if (!(m_flags & IntQt)) retVal.add(*m_parent.m_qts.at(0));
+    for (unsigned i = 0; i < m_etapdfint.size(); ++i) {
+	if (!m_etapdfint[i]) continue;
+	if (retVal.find(*m_etapdfint[i])) continue;
+	retVal.add(*m_etapdfint[i]);
     }
-    retVal.add(m_parent.m_epsilon.arg());
+    if (!(m_flags & IntEta)) {
+	if (m_parent.m_etaobs.absArg()) {
+	    retVal.add(m_parent.m_etaobs.arg());
+	    RooFIter it = m_parent.m_etapdfs.fwdIterator();
+	    for (RooAbsArg *obj = it.next(); obj; obj = it.next()) {
+		if (retVal.find(*obj)) continue;
+		retVal.add(*obj);
+	    }
+	}
+    }
     retVal.add(m_parent.m_adet.arg());
-    retVal.add(m_parent.m_atageff_f.arg());
-    retVal.add(m_parent.m_atageff_t.arg());
+    RooFIter it = m_parent.m_epsilons.fwdIterator();
+    for (RooAbsArg *obj = it.next(); obj; obj = it.next()) {
+	if (retVal.find(*obj)) continue;
+	retVal.add(*obj);
+    }
+    it = m_parent.m_atageffs_f.fwdIterator();
+    for (RooAbsArg *obj = it.next(); obj; obj = it.next()) {
+	if (retVal.find(*obj)) continue;
+	retVal.add(*obj);
+    }
+    it = m_parent.m_atageffs_t.fwdIterator();
+    for (RooAbsArg *obj = it.next(); obj; obj = it.next()) {
+	if (retVal.find(*obj)) continue;
+	retVal.add(*obj);
+    }
     return retVal;
 }
-double NonOscTaggingPdf::CacheElem::etapdfint() const
-{
-    return !m_etapdfint ? 1. :
-	m_etapdfint->getVal((m_flags & NormEta) ? &m_nset : 0);
-}
 
-double NonOscTaggingPdf::CacheElem::etapdfintut() const
+double NonOscTaggingPdf::CacheElem::etapdfint(const int qt) const
 {
-    return !m_etapdfintut ? 1. :
-	m_etapdfintut->getVal((m_flags & NormEta) ? &m_nset : 0);
+    const unsigned idx = NonOscTaggingPdf::idxFromQt(qt);
+    return (m_etapdfint.empty() || !m_etapdfint[idx]) ? 1. :
+	m_etapdfint[idx]->getVal((m_flags & NormEta) ? &m_nset : 0);
 }
 
 double NonOscTaggingPdf::CacheElem::qfpdf(const int qf) const
-{ return .5 * (1. + double(qf) * double(m_parent.m_adet)); }
+{
+    assert(1 == std::abs(qf));
+    return .5 * (1. + double(qf) * double(m_parent.m_adet));
+}
 
 double NonOscTaggingPdf::CacheElem::qtetapdf(const int qf, const int qt) const
 {
+    assert(1 == std::abs(qf));
+    assert(unsigned(std::abs(qt)) <= m_qtmax);
     if (qt) {
-	return 0.25 * etapdfint() * double(m_parent.m_epsilon) *
-	    (1. + double(qf) * double(m_parent.m_atageff_f)) *
-	    (1. + double(qt) * double(m_parent.m_atageff_t));
+	const unsigned idx = NonOscTaggingPdf::idxFromQt(qt);
+	const double atf(((RooAbsReal*) m_parent.m_atageffs_f.at(idx))->getVal());
+	const double att(((RooAbsReal*) m_parent.m_atageffs_t.at(idx))->getVal());
+	const double eps(((RooAbsReal*) m_parent.m_epsilons.at(idx))->getVal());
+	const int sqt = (qt < 0) ? -1 : 1;
+	return 0.25 * etapdfint(qt) * eps *
+	    (1. + double(qf) * atf) * (1. + double(sqt) * att);
     } else {
-	return 0.5 * etapdfintut() * (1. - double(m_parent.m_epsilon)) *
-	    (1. + double(qf) * double(m_parent.m_atageff_f));
+	// sum up the contribution of tagged events for both qf = -1 and qf =
+	// 1; what's left is the efficiency of qt = 0 events, and half of it
+	// goes to qf = -1 and half to qf = 1. (that way, asymmetries in
+	// detection are handled completely by the detection asymmetry)
+	double eps = 1.;
+	for (unsigned iqt = 1; iqt <= m_qtmax; ++iqt) {
+	    const unsigned idx = NonOscTaggingPdf::idxFromQt(iqt);
+	    const double e(((RooAbsReal*)
+			m_parent.m_epsilons.at(idx))->getVal());
+	    eps -= e;
+	}
+	return 0.5 * etapdfint(qt) * eps;
     }
     // must never get here
     assert(1 == 0);
@@ -390,20 +471,24 @@ double NonOscTaggingPdf::CacheElem::qtetapdf(const int qf, const int qt) const
 }
 
 double NonOscTaggingPdf::CacheElem::eval(const int qf, const int qt) const
-{
-    assert(std::abs(qf) == 1);
-    assert(std::abs(qt) <= 1);
-    return qfpdf(qf) * qtetapdf(qf, qt);
-}
+{ return qfpdf(qf) * qtetapdf(qf, qt); }
 
 double NonOscTaggingPdf::CacheElem::eval() const
 {
+    assert(1 == m_parent.m_qts.getSize());
     if (!(m_flags & (IntQf | IntQt))) {
+	const int iqt(dynamic_cast<RooAbsCategory&>(
+		    *m_parent.m_qts.at(0)).getIndex());
 	// no qf or qt integration
-	return eval(int(m_parent.m_qf), int(m_parent.m_qt));
+	return eval(int(m_parent.m_qf), iqt);
     } else if ((m_flags & IntQf) && !(m_flags & IntQt)) {
 	// integrate over qf
-	if (0. == std::abs(double(m_parent.m_atageff_f))) {
+	const int iqt(dynamic_cast<RooAbsCategory&>(
+		    *m_parent.m_qts.at(0)).getIndex());
+	const double atf = (!iqt) ? 0. :
+	    dynamic_cast<RooAbsReal&>(*m_parent.m_atageffs_f.at(
+			NonOscTaggingPdf::idxFromQt(iqt))).getVal();
+	if (0. == std::abs(atf)) {
 	    // optimisation: integral factorises in this case
 	    // loop over qf states
 	    const RooCategory& qf(
@@ -420,13 +505,12 @@ double NonOscTaggingPdf::CacheElem::eval() const
 		    continue;
 		qfint += qfpdf(qfty->getVal());
 	    }
-	    return qfint * qtetapdf(1, int(m_parent.m_qt));
+	    return qfint * qtetapdf(1, iqt);
 	} else {
 	    // loop over qf states
 	    const RooCategory& qf(
 		    dynamic_cast<const RooCategory&>(m_parent.m_qf.arg()));
 	    std::auto_ptr<TIterator> qfit(qf.typeIterator());
-	    const int iqt(m_parent.m_qt);
 	    double retVal = 0.;
 	    while (RooCatType* qfty =
 		    reinterpret_cast<RooCatType*>(qfit->Next())) {
@@ -443,7 +527,7 @@ double NonOscTaggingPdf::CacheElem::eval() const
     } else if (!(m_flags & IntQf) && (m_flags & IntQt)) {
 	// loop over qt states
         const RooCategory& qt(
-                dynamic_cast<const RooCategory&>(m_parent.m_qt.arg()));
+                dynamic_cast<const RooCategory&>(*m_parent.m_qts.at(0)));
         std::auto_ptr<TIterator> qtit(qt.typeIterator());
 	const int iqf(m_parent.m_qf);
 	double retVal = 0.;
@@ -459,13 +543,26 @@ double NonOscTaggingPdf::CacheElem::eval() const
 	}
 	return qfpdf(iqf) * retVal;
     } else if ((m_flags & IntQf) && (m_flags & IntQt)) {
-	if (0. == std::abs(double(m_parent.m_atageff_f))) {
-	    // optimisation: integral factorises in this case
-	    // loop over qf states
+	// check if we can optimise by factorising the integrals
+	bool factorises = true;
+	for (int qt = -m_qtmax; qt <= int(m_qtmax); ++qt) {
+	    if (!qt) continue;
+	    const unsigned idx = NonOscTaggingPdf::idxFromQt(qt);
+	    const double att(((RooAbsReal*)
+			m_parent.m_atageffs_t.at(idx))->getVal());
+	    const double atf(((RooAbsReal*)
+			m_parent.m_atageffs_f.at(idx))->getVal());
+	    if (0. != std::abs(att) || 0. != std::abs(atf)) {
+		factorises = false;
+		break;
+	    }
+	}
+	if (factorises) {
+	    double qfint = 0., qtint = 0.;
+	    // loop over qf states in range
 	    const RooCategory& qf(
 		    dynamic_cast<const RooCategory&>(m_parent.m_qf.arg()));
 	    std::auto_ptr<TIterator> qfit(qf.typeIterator());
-	    double qfint = 0.;
 	    while (RooCatType* qfty =
 		    reinterpret_cast<RooCatType*>(qfit->Next())) {
 		// skip qf states not in range if the category has a range of that
@@ -476,11 +573,10 @@ double NonOscTaggingPdf::CacheElem::eval() const
 		    continue;
 		qfint += qfpdf(qfty->getVal());
 	    }
-	    // loop over qt states
+	    // loop over qt states in range
 	    const RooCategory& qt(
-		    dynamic_cast<const RooCategory&>(m_parent.m_qt.arg()));
+		    dynamic_cast<const RooCategory&>(*m_parent.m_qts.at(0)));
 	    std::auto_ptr<TIterator> qtit(qt.typeIterator());
-	    double qtint = 0.;
 	    while (RooCatType* qtty =
 		    reinterpret_cast<RooCatType*>(qtit->Next())) {
 		// skip qt states not in range if the category has a range of that
@@ -509,7 +605,7 @@ double NonOscTaggingPdf::CacheElem::eval() const
 		const int iqf = qfty->getVal();
 		// loop over qt states
 		const RooCategory& qt(
-			dynamic_cast<const RooCategory&>(m_parent.m_qt.arg()));
+			dynamic_cast<const RooCategory&>(*m_parent.m_qts.at(0)));
 		std::auto_ptr<TIterator> qtit(qt.typeIterator());
 		while (RooCatType* qtty =
 			reinterpret_cast<RooCatType*>(qtit->Next())) {
