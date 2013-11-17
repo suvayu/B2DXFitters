@@ -36,6 +36,7 @@ TagDLLToTagDec::TagDLLToTagDec(const char *name, const char *title,
 	defineType(Form("B%d", i), +i);
 	defineType(Form("Bbar%d", i), -i);
     }
+    indecisions.add(_indecisions);
 } 
 
 
