@@ -4,6 +4,9 @@
 ! Purpose     : RooFit-based fitters for B -> D X
 !-----------------------------------------------------------------------------
 
+! 2013-11-17 - Manuel Tobias Schiller
+ - fix small bug in TagDLLToTagDec.cxx
+
 ! 2013-11-15 - Manuel Tobias Schiller
  - fix error in MassFitUtils (wrong return type assumed for TString::Contains)
 
