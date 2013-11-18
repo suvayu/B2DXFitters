@@ -5,6 +5,12 @@
 !-----------------------------------------------------------------------------
 
 ! 2013-11-18 - Manuel Tobias Schiller
+ - add new class RooSimultaneousResModel which will (one day) allow to switch
+   resolution models depending on the value of a category variable; for now
+   it's just a copy of the RooKEffResModel class (because that class has
+   roughly the right interface)
+
+! 2013-11-18 - Manuel Tobias Schiller
  - DLLTagCombiner: add better type correctness protection in constructor
 
 ! 2013-11-18 - Manuel Tobias Schiller
