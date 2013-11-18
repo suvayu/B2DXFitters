@@ -10,6 +10,10 @@
 #ifndef ROOSIMULTANEOUSMODEL_H
 #define ROOSIMULTANEOUSMODEL_H
 
+#include <map>
+#include <vector>
+#include <string>
+
 #include "RooListProxy.h"
 #include "RooCategoryProxy.h"
 #include "RooResolutionModel.h"
@@ -32,11 +36,36 @@ class RooSimultaneousResModel : public RooResolutionModel
 	 *
 	 * @param name		name
 	 * @param title		title
-	 * @param cat		category (index = 0, 1, ..., N)
-	 * @param resmodels	resolution models to switch between
+	 * @param cat		category
+	 * @param map		map: index -> resolution models to switch between
 	 */
 	RooSimultaneousResModel(const char *name, const char *title,
-		RooAbsCategory& cat, RooArgList& resmodels);
+		RooAbsCategory& cat,
+		const std::map<Int_t, RooResolutionModel*>& map);
+
+	/** @brief constructor
+	 *
+	 * @param name		name
+	 * @param title		title
+	 * @param cat		category
+	 * @param map		map: label -> resolution models to switch between
+	 */
+	RooSimultaneousResModel(const char *name, const char *title,
+		RooAbsCategory& cat,
+		const std::map<std::string, RooResolutionModel*>& map);
+
+	/** @brief constructor
+	 *
+	 * @param name		name
+	 * @param title		title
+	 * @param cat		category
+	 * @param resmodels	resolution models to switch between
+	 *
+	 * resolution models in resmodels must appear in the same order as the
+	 * states in the type iterator of cat
+	 */
+	RooSimultaneousResModel(const char *name, const char *title,
+		RooAbsCategory& cat, const RooArgList& resmodels);
 	
 	/** @brief copy constructor
 	 *
@@ -185,15 +214,26 @@ class RooSimultaneousResModel : public RooResolutionModel
 	/** @brief get or create CacheElem object associated with iset and
 	 * rangeName.
 	 *
-	 * @brief iset		variables over which to integrate (if any)
-	 * @brief rangeName	integration range
+	 * @param iset		variables over which to integrate (if any)
+	 * @param rangeName	integration range
 	 *
 	 * @returns corresponding CacheElem object, owned by _cacheMgr
 	 */
 	CacheElem* getCache(const RooArgSet* iset, const TNamed* rangeName = 0) const;
 
-	RooCategoryProxy m_cat;		///< category
-	RooListProxy m_resmodels;	///< resolution models
+	/** @brief fill resolution models and corresponding category indices
+	 *
+	 * @param map mapping index -> resolution model
+	 */
+	void fillResModelsAndIndices(
+		const std::map<Int_t, RooResolutionModel*>& map);
+
+	/// category
+	RooCategoryProxy m_cat;	
+	/// resolution models
+	RooListProxy m_resmodels;
+	/// category index labels to go with elements in m_resmodels
+	std::vector<Int_t> m_indices;
 	/// cache manager
 	mutable RooObjCacheManager _cacheMgr;	//! transient object
 

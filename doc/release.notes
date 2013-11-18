@@ -5,6 +5,11 @@
 !-----------------------------------------------------------------------------
 
 ! 2013-11-18 - Manuel Tobias Schiller
+ - RooSimultaneousResModel: slight refinement, class can now accept different
+   mappings from category index or label to resolution model to use; still
+   some more work needed before we can start testing
+
+! 2013-11-18 - Manuel Tobias Schiller
  - RooSimultaneousResModel: very first rough version of the class, untested,
    and with a couple of assumptions in the code which make it unsuitable for
    the application we have in mind (to be fixed in the very near future)
