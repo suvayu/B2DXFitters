@@ -30,13 +30,13 @@ TagDLLToTagDec::TagDLLToTagDec(const char *name, const char *title,
     dll("dll","dll",this,_dll),
     indecisions("indecisions", "indecisions", this)
 { 
+    indecisions.add(_indecisions);
     defineType("Untagged", 0);
     for (int i = 1; i < (1 << _indecisions.getSize()); ++i) {
 	assert(dynamic_cast<RooAbsCategory*>(indecisions.at(i)));
 	defineType(Form("B%d", i), +i);
 	defineType(Form("Bbar%d", i), -i);
     }
-    indecisions.add(_indecisions);
 } 
 
 
