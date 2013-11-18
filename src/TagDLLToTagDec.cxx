@@ -31,9 +31,13 @@ TagDLLToTagDec::TagDLLToTagDec(const char *name, const char *title,
     indecisions("indecisions", "indecisions", this)
 { 
     indecisions.add(_indecisions);
+    // check that all input decisions are in fact categories
+    for (int i = 0; i < _indecisions.getSize(); ++i) {
+	assert(dynamic_cast<RooAbsCategory*>(indecisions.at(i)));
+    }
+    // synthesize output category labels
     defineType("Untagged", 0);
     for (int i = 1; i < (1 << _indecisions.getSize()); ++i) {
-	assert(dynamic_cast<RooAbsCategory*>(indecisions.at(i)));
 	defineType(Form("B%d", i), +i);
 	defineType(Form("Bbar%d", i), -i);
     }
