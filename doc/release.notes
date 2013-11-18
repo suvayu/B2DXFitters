@@ -5,6 +5,11 @@
 !-----------------------------------------------------------------------------
 
 ! 2013-11-18 - Manuel Tobias Schiller
+ - RooSimultaneousResModel: very first rough version of the class, untested,
+   and with a couple of assumptions in the code which make it unsuitable for
+   the application we have in mind (to be fixed in the very near future)
+
+! 2013-11-18 - Manuel Tobias Schiller
  - add new class RooSimultaneousResModel which will (one day) allow to switch
    resolution models depending on the value of a category variable; for now
    it's just a copy of the RooKEffResModel class (because that class has

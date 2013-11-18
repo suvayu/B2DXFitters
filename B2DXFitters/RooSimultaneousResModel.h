@@ -1,52 +1,29 @@
 /**
- * @file   RooSimultaneousResModel.h
- * @author Suvayu Ali <Suvayu.Ali@cern.ch>
- * @date   Fri Aug 30 15:18:23 2013
+ * @file RooSimultaneousResModel.h
+ *
  * @author Manuel Schiller <manuelsr@nikhef.nl>
- * @date   Tue Oct 22 2013
+ * @date Mon Nov 19 2013
  *
- * @brief  RooSimultaneousResModel definition.
- *         Started from a copy of RooEffResModel.
- *
+ * @brief header for RooSimultaneousResModel class
  */
 
 #ifndef ROOSIMULTANEOUSMODEL_H
 #define ROOSIMULTANEOUSMODEL_H
 
-#include "RooRealProxy.h"
-#include "RooSetProxy.h"
+#include "RooListProxy.h"
+#include "RooCategoryProxy.h"
 #include "RooResolutionModel.h"
 #include "RooAbsCacheElement.h"
 
-class RooHistPdf;
-class RooRealVar;
 class RooArgSet;
 
-/** @brief resolution model to apply a k-factor smearing
+/** @brief simultaneous resolution model
  *
- * This class performs a substitution q_i -> k * q_i for a given set of
- * quantities q_i in an underlying resolution model R(x); given a distribution
- * P(k) of k, the class proceeds to calculate a "smeared" resolution model
- * R'(x):
- *
- * @f[ R'(x, q_1, \ldots) = \int dk P(k) R(x, k * q_1, \ldots) k @f]
- *
- * The factor @f$k@f$ in the formula above undoes the effect k has on the
- * normalisation of the resulting pdf, effectively yielding a class that
- * integrates out a (conditional) per-event observable.
- *
- * @author Suvayu Ali <Suvayu.Ali@cern.ch>
- * @date   Fri Aug 30 15:18:23 2013
- * 	- initial implementation, debugging and testing
+ * This class allows to switch between different resolution models depending on
+ * the value of a category variable.
  *
  * @author Manuel Schiller <manuelsr@nikhef.nl>
- * @date   Tue Oct 22 2013
- * 	- speedups in evaluate() through caching / interpolation to avoid a
- * 	  timing behaviour that scales linearly with the number of bins in k
- * 	  (can be up to O(10) times speed increase)
- * 	- better numerical robustness (avoid division by zero etc)
- * 	- const correctness
- *	- more documentation
+ * @date   Mon Nov 18 2013
  */
 class RooSimultaneousResModel : public RooResolutionModel
 {
@@ -55,20 +32,11 @@ class RooSimultaneousResModel : public RooResolutionModel
 	 *
 	 * @param name		name
 	 * @param title		title
-	 * @param res_model	underlying resolution model
-	 * @param kfactor_pdf	k-factor distribution
-	 * @param kfactor_var	k-factor variable
-	 * @param substTargets	quantities q_i that need substituting k * q_i
-	 * @param evalInterpVars
-	 * 			if non-empty, variables in which to
-	 * 			interpolate evaluation
+	 * @param cat		category (index = 0, 1, ..., N)
+	 * @param resmodels	resolution models to switch between
 	 */
 	RooSimultaneousResModel(const char *name, const char *title,
-		RooResolutionModel& res_model,
-		RooHistPdf& kfactor_pdf,
-		RooAbsRealLValue& kfactor_var,
-		const RooArgSet& substTargets,
-		const RooArgSet& evalInterpVars = RooArgSet());
+		RooAbsCategory& cat, RooArgList& resmodels);
 	
 	/** @brief copy constructor
 	 *
@@ -108,6 +76,7 @@ class RooSimultaneousResModel : public RooResolutionModel
 	virtual Int_t getAnalyticalIntegral(RooArgSet& allVars,
 		RooArgSet& analVars,
 		const char* rangeName=0) const;
+
 	/** @brief perform analytical integral
 	 *
 	 * @param code		integration code returned by
@@ -139,13 +108,6 @@ class RooSimultaneousResModel : public RooResolutionModel
 	// 					    const RooArgSet* auxProto = 0,
 	// 					    Bool_t verbose= kFALSE) const;
 
-	/// return underlying resolution model
-	const RooResolutionModel& resmodel() const;
-	/// return k-factor distribution
-	const RooHistPdf& kpdf() const;
-	/// return k-factor variable
-	const RooAbsRealLValue& kvar() const;
-
     protected:
 	/** @brief evaluate the resolution model
 	 *
@@ -167,29 +129,15 @@ class RooSimultaneousResModel : public RooResolutionModel
     private:
 	/** @brief class to do all the actual (hard) work
 	 *
-	 * This class does the calculation needed when applying a k-factor.
-	 * Since the k-factor smearing process is virtually identical for
-	 * evaluating the resolution mode and for evaluating its integrals, the
-	 * code and methods can be shared.
+	 * @author Manuel Schiller <manuelsr@nikhef.nl>
+	 * @date   Mon Nov 18 2013
 	 *
-	 * The class creates the integral object for the underlying resolution
-	 * model (if needed), performs the desired substitutions of quantities
-	 * q_i -> k * q_i, and keeps the resulting objects around for
-	 * evaluation. With the underlying resolution model (or its integral)
-	 * denoted @f$F(x, k)@f$ (x stands generically for all the other
-	 * variables the expression depends on) and the k-factor distribution
-	 * @f$P(k)@f$, the class computes:
-	 *
-	 * @f[ \sum_{i=1}^N P(\frac{k_{i-1} + k{i}}{2}) \cdot (k_{i}-k_{i-1})
-	 * \cdot F(x, k) \cdot \frac{k_{i-1} + k{i}}{2} @f]
-	 *
-	 * This is essentially a sum over the bins of the k-factor
-	 * distribution, with the last term applying a normalisation correction
-	 * needed to undo the partial normalisation that occurs in the
-	 * underlying resolution model. (RooSimultaneousResModel itself will normalise
-	 * correctly.)
+	 * This class creates the necessary customisations of the underlying
+	 * resolutions models, integrates them (if needed), and performs the
+	 * sum over the category used to switch between resolution models (if
+	 * applicable).
 	 */
-	class DeceptiveCache : public RooAbsCacheElement {
+	class CacheElem : public RooAbsCacheElement {
 	    public:
 		/** @brief constructor
 		 *
@@ -197,10 +145,11 @@ class RooSimultaneousResModel : public RooResolutionModel
 		 * @param iset		variables to integrate over (if any)
 		 * @param rangeName	integration range (if any)
 		 */
-		DeceptiveCache(const RooSimultaneousResModel& parent, const RooArgSet& iset,
-			const char* rangeName);
+		CacheElem(const RooSimultaneousResModel& parent,
+			const RooArgSet& iset, const char* rangeName);
+
 		/// destructor
-		virtual ~DeceptiveCache();
+		virtual ~CacheElem();
 
 		/** @brief return contained objects
 		 *
@@ -209,6 +158,7 @@ class RooSimultaneousResModel : public RooResolutionModel
 		 * on a RooSimultaneousResModel)
 		 */
 		virtual RooArgList containedArgs(RooAbsCacheElement::Action);
+
 		/** @brief return value
 		 *
 		 * @param nset	variables over which to normalise
@@ -217,37 +167,33 @@ class RooSimultaneousResModel : public RooResolutionModel
 		double getVal(const RooArgSet* nset = 0) const;
 
 	    private:
-		mutable double _cval;	/**< cached value */
-		RooRealVar* _kvar;	/**< k-factor variable */
-		RooHistPdf* _kpdf;	/**< k-factor pdf */
-		RooAbsReal* _val;       /**< value */
-		/// reference to parent for logging
-		const RooSimultaneousResModel& _parent;
-		/// normalisation set with only _kvar
-		RooArgSet _knset;
-		/// k-factor bin boundaries
-		std::vector<double> _kbins;
+		/// parent object
+		const RooSimultaneousResModel& m_parent;
+		/// resolution models (or their integrals)
+		std::vector<RooAbsReal*> m_resmodels;
+		/// categories (constant index specialisations)
+		std::vector<RooCategory*> m_cats;
+		/// flags
+		enum Flags {
+		    None = 0, ///< nothing special
+		    IntCat = 1, ///< integrate over category
+		} m_flags;
 	};
 
-	friend class RooSimultaneousResModel::DeceptiveCache;
+	friend class RooSimultaneousResModel::CacheElem;
 
-	/** @brief get or create DeceptiveCache object associated with iset and
+	/** @brief get or create CacheElem object associated with iset and
 	 * rangeName.
 	 *
 	 * @brief iset		variables over which to integrate (if any)
 	 * @brief rangeName	integration range
 	 *
-	 * @returns corresponding DeceptiveCache object, owned by _cacheMgr
+	 * @returns corresponding CacheElem object, owned by _cacheMgr
 	 */
-	DeceptiveCache* getCache(const RooArgSet* iset, const TNamed* rangeName = 0) const;
+	CacheElem* getCache(const RooArgSet* iset, const TNamed* rangeName = 0) const;
 
-	RooRealProxy _resmodel;    /**< resolution model (RooResolutionModel) */
-	RooRealProxy _kfactor_pdf; /**< k-factor distribution (RooHistPdf) */
-	RooRealProxy _kfactor_var; /**< k-factor variable (RooRealVar) */
-	RooSetProxy _substTargets; ///< substitution targets
-	RooSetProxy _evalInterpVars; ///< variables in which to interpolate in evaluate()
-	/// interpolation for use in evaluate()
-	mutable RooRealProxy _interpolation; //! transient object
+	RooCategoryProxy m_cat;		///< category
+	RooListProxy m_resmodels;	///< resolution models
 	/// cache manager
 	mutable RooObjCacheManager _cacheMgr;	//! transient object
 
@@ -257,3 +203,5 @@ class RooSimultaneousResModel : public RooResolutionModel
 };
 
 #endif	// ROOSIMULTANEOUSMODEL_H
+
+// vim: sw=4:ft=cpp:tw=78

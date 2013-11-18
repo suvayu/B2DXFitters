@@ -1,7 +1,7 @@
 /**
  * @file   RooSimultaneousResModel.cxx
- * @author Suvayu Ali <Suvayu.Ali@cern.ch>
- * @date   Fri Aug 30 15:19:15 2013
+ * @author Manuel Schiller <manuel.schiller@nikhef.nl>
+ * @date   Mon Nov 19 2013
  *
  * @brief  Implementation file for RooSimultaneousResModel.
  *
@@ -10,10 +10,9 @@
 //////////////////////////////////////////////////////////////////////////////
 //
 // BEGIN_HTML
-// Class RooSimultaneousResModel implements a RooResolutionModel that models an
-// internal k-factor correction for other resolution models.  Object
-// of class RooSimultaneousResModel can be used for analytical convolutions with
-// classes inheriting from RooAbsAnaConvPdf
+// Class RooSimultaneousResModel implements a RooResolutionModel that switches
+// between different resolution models depending on the index state of a
+// category.
 // END_HTML
 //
 
@@ -23,6 +22,7 @@
 #include <memory>
 #include <limits>
 #include <cassert>
+#include <sstream>
 
 #include "RooProduct.h"
 #include "RooCustomizer.h"
@@ -32,191 +32,149 @@
 #include "RooHistPdf.h"
 #include "RooRealVar.h"
 #include "RooCachedReal.h"
+#include "RooCategory.h"
 
 #include "TPad.h"
 #include "RooPlot.h"
 
 RooArgSet RooSimultaneousResModel::s_emptyset;
 
-///////////////////////////////////
-// DeceptiveCache implementation //
-///////////////////////////////////
-
-RooSimultaneousResModel::DeceptiveCache::DeceptiveCache(const RooSimultaneousResModel& parent,
-	const RooArgSet& iset,
-	const char* rangeName) :
-    _cval(std::numeric_limits<double>::quiet_NaN()),
-    _kvar(0), _kpdf(0), _val(0), _parent(parent)
+RooSimultaneousResModel::CacheElem::CacheElem(
+	const RooSimultaneousResModel& parent,
+	const RooArgSet& iset, const char* rangeName) :
+    m_parent(parent), m_flags(None)
 {
-    // build a (hopefully unique) suffix for objects we have to clone/modify
-    std::string sfx = "_DeceptiveCache_";
-    sfx += RooNameSet(iset).content();
-    if (rangeName && std::strlen(rangeName)) {
-	    sfx += "_";
-	    sfx += rangeName;
-    }
-
-    const RooAbsRealLValue& kvar = parent.kvar();
-    const RooHistPdf& kpdf = parent.kpdf();
-    // get k-bin boundaries
-    {
-	const double kmin = kvar.getMin();
-	const double kmax = kvar.getMax();
-	std::auto_ptr<std::list<Double_t> > kbins(kpdf.binBoundaries(
-		    const_cast<RooAbsRealLValue&>(kvar), kmin, kmax));
-	assert(kbins.get());
-	assert(kbins->size() > 1);	// at least 2 bins
-	for (std::list<Double_t>::const_iterator lo = kbins->begin(),
-		hi = ++(kbins->begin()); hi != kbins->end(); ++lo, ++hi) {
-	    // check interval
-	    if (*lo > kmax) break;    // past interval
-	    if (*hi < kmin) continue; // before interval
-	    if (_kbins.empty()) _kbins.push_back(std::max(*lo, kmin));
-	    _kbins.push_back(std::min(*hi, kmax));
+    const RooAbsCategory& cat = dynamic_cast<const RooAbsCategory&>(
+	    parent.m_cat.arg());
+    RooArgSet myiset(iset);
+    if (!iset.find(cat)) {
+	// do not integrate over cat, so just copy the resmodels from parent
+	m_resmodels.reserve(parent.m_resmodels.getSize());
+	RooFIter it = parent.m_resmodels.fwdIterator();
+	for (RooAbsReal* obj = static_cast<RooAbsReal*>(it.next()); obj;
+		obj = static_cast<RooAbsReal*>(it.next())) {
+	    m_resmodels.push_back(obj);
 	}
-    }
-
-    _kvar = dynamic_cast<RooRealVar*>(kvar.clone((std::string(kvar.GetName()) + sfx).c_str()));
-    assert(_kvar);
-    _knset.add(*_kvar);
-    {
-	RooCustomizer c(kpdf, sfx.c_str());
-	c.replaceArg(kvar, *_kvar);
-	_kpdf = dynamic_cast<RooHistPdf*>(c.build());
-    }
-
-    const RooResolutionModel& resmodel = parent.resmodel();
-    // check if we need to integrate the resmodel
-    const RooAbsReal* cache = &resmodel;
-    if (iset.getSize()) {
-	cache = resmodel.createIntegral(iset, rangeName);
-    }
-    assert(cache);
-
-    // customise resolution model
-    {
-	RooCustomizer c(*cache, sfx.c_str());
-	// get list of terms t in resmodel that may need replacement t -> k * t
-	RooArgSet params;
-	resmodel.treeNodeServerList(&params);
-
-	RooArgSet new_paramset;
-	RooFIter it = params.fwdIterator();
-	for (RooAbsReal* param = dynamic_cast<RooAbsReal*>(it.next()); param;
-		param = dynamic_cast<RooAbsReal*>(it.next())) {
-	    if (!parent._substTargets.find(*param)) continue;
-	    std::string parname(param->GetName());
-	    parname += "_x_"; parname += _kvar->GetName();
-	    RooProduct *new_param = new RooProduct(parname.c_str(), parname.c_str(),
-		    RooArgList(*param, *_kvar));
-	    assert(new_param);
-	    c.replaceArg(*param, *new_param);
-	    new_paramset.add(*new_param);
-	}
-	// build copy of resolution model with substitutions applied
-	_val = dynamic_cast<RooAbsReal*>(c.build());
-	assert(_val);
-	_val->addOwnedComponents(new_paramset); // new resmodel owns params (k*old)
-    }
-    _val->setValueDirty();
-    _val->setShapeDirty();
-
-    if (cache != &resmodel) delete cache;	  // clean-up when integral
-}
-
-RooSimultaneousResModel::DeceptiveCache::~DeceptiveCache()
-{
-    delete _val;
-    delete _kpdf;
-    _knset.removeAll();
-    delete _kvar;
-}
-
-RooArgList RooSimultaneousResModel::DeceptiveCache::containedArgs(RooAbsCacheElement::Action)
-{
-    // Return list of all RooAbsArgs in cache element
-    return RooArgList(*_val, *_kpdf, *_kvar);
-}
-
-double RooSimultaneousResModel::DeceptiveCache::getVal(const RooArgSet* nset) const
-{
-    // see if our cached value needs recalculating
-    if (_cval != _cval || _val->isValueOrShapeDirtyAndClear()) {
-	// evaluate: calculate _val
-	const unsigned nbins = _kbins.size() - 1;
-	_cval = 0.;
-	for (unsigned bin = 0; bin < nbins; ++bin) {
-	    const Double_t bincentre = 0.5 * (_kbins[bin] + _kbins[bin + 1]);
-	    const Double_t binwidth = _kbins[bin + 1] - _kbins[bin];
-	    _kvar->setVal(bincentre);
-	    // ok, get value of kpdf (times bin width)
-	    const Double_t tmp1 = _kpdf->getVal(_knset) * binwidth;
-	    if (std::isnan(tmp1) || std::isinf(tmp1)) {
-		// NaN or Inf - should never happen
-		oocoutE(&_parent, Eval) << "In " << __func__ << "(" << __FILE__ <<
-		    ", line " << __LINE__ << "), object " << this << " (_kpdf = " <<
-		    _kpdf << " _val = " << _val << "): got " << tmp1 << " for "
-		    "_kpdf * binwidth!" << std::endl;
-		// break return value deliberately
-		return (_cval = std::numeric_limits<Double_t>::quiet_NaN());
-	    } else if (0. == tmp1) {
-		// bin cannot contribute, so that's fine...
-		continue;
+    } else {
+	// integrate over cat - this is more work
+	myiset.remove(cat);
+	m_flags = static_cast<Flags>(m_flags | IntCat);
+	// loop over parent resmodels, and customise them with a constant
+	// category
+	m_resmodels.reserve(parent.m_resmodels.getSize());
+	RooFIter it = parent.m_resmodels.fwdIterator();
+	unsigned idx = 0;
+	for (RooAbsReal* obj = static_cast<RooAbsReal*>(it.next()); obj;
+		obj = static_cast<RooAbsReal*>(it.next()), ++idx) {
+	    // build a (hopefully unique) suffix for objects we have to clone/modify
+	    std::ostringstream sfx;
+	    sfx << parent.GetName() << "_CacheElem_" << RooNameSet(iset).content();
+	    if (rangeName && std::strlen(rangeName)) sfx << "_" << rangeName;
+	    sfx << "_IDX_" << idx;
+	    // create a clone of our category
+	    const std::string catname(sfx.str());
+	    RooCategory *newcat = new RooCategory(
+		    catname.c_str(), catname.c_str());
+	    // loop over states of cat, duplicate them
+	    std::auto_ptr<TIterator> tyit(cat.typeIterator());
+	    while (RooCatType* type =
+		    reinterpret_cast<RooCatType*>(tyit->Next())) {
+		newcat->defineType(type->GetName(), type->getVal());
 	    }
-	    // get value of _val for this k
-	    const Double_t tmp2 = _val->getVal(nset);
-	    if (std::isnan(tmp2) || std::isinf(tmp2)) {
-		// NaN or Inf - should never happen
-		oocoutE(&_parent, Eval) << "In " << __func__ << "(" << __FILE__ <<
-		    ", line " << __LINE__ << "), object " << this << " (_kpdf = " <<
-		    _kpdf << " _val = " << _val << "): got " << tmp2 << " for "
-		    "_val - are you trying to divide something by zero?!" << std::endl;
-		// break return value deliberately
-		return (_cval = std::numeric_limits<Double_t>::quiet_NaN());
-	    } else if (0. == tmp2) {
-		// bin cannot contribute, so that's fine...
-		continue;
-	    }
-	    _cval += tmp1 * tmp2 * bincentre;
+	    // set current index
+	    newcat->setIndex(idx);
+	    newcat->setConstant(true);
+	    m_cats.push_back(newcat);
+	    sfx << "_custobj";
+	    const std::string objname(sfx.str());
+	    RooCustomizer c(*obj, objname.c_str());
+	    c.replaceArg(cat, *newcat);
+	    obj = dynamic_cast<RooAbsReal*>(c.build());
+	    assert(obj);
+	    m_resmodels.push_back(obj);
 	}
     }
-    return _cval;
+    // do we need to integrate anything other than (potentially) cat?
+    if (myiset.getSize()) {
+	// yes, create those integrals
+	for (std::vector<RooAbsReal*>::iterator it = m_resmodels.begin();
+		m_resmodels.end() != it; ++it) {
+	    RooAbsReal* rm = *it;
+	    *it = rm->createIntegral(myiset, rangeName);
+	    (*it)->addOwnedComponents(RooArgSet(*rm));
+	}
+    }
 }
 
+RooSimultaneousResModel::CacheElem::~CacheElem()
+{
+    if (dynamic_cast<RooAbsReal*>(m_parent.m_resmodels.at(0)) !=
+	    m_resmodels.front()) {
+	for (std::vector<RooAbsReal*>::const_iterator it = m_resmodels.begin();
+		m_resmodels.end() != it; ++it) delete *it;
+    }
+    if (m_flags & IntCat) {
+	for (std::vector<RooCategory*>::const_iterator it = m_cats.begin();
+		m_cats.end() != it; ++it) delete *it;
+    }
+}
 
-//////////////////
-// RooSimultaneousResModel //
-//////////////////
+RooArgList RooSimultaneousResModel::CacheElem::containedArgs(RooAbsCacheElement::Action)
+{
+    RooArgList retVal;
+    for (std::vector<RooAbsReal*>::const_iterator it = m_resmodels.begin();
+	    m_resmodels.end() != it; ++it) retVal.add(**it);
+    if (m_flags & IntCat) {
+	for (std::vector<RooCategory*>::const_iterator it = m_cats.begin();
+		m_cats.end() != it; ++it) retVal.add(**it);
+    } else {
+	retVal.add(m_parent.m_cat.arg());
+    }
+    return retVal;
+}
+
+double RooSimultaneousResModel::CacheElem::getVal(const RooArgSet* nset) const
+{
+    if (m_flags & IntCat) {
+	double sum = 0.;
+	for (std::vector<RooAbsReal*>::const_iterator it = m_resmodels.begin();
+		m_resmodels.end() != it; ++it) {
+	    sum += (*it)->getVal(nset);
+	}
+	return sum;
+    } else {
+	unsigned cat = Int_t(m_parent.m_cat);
+	assert(cat < m_resmodels.size());
+	return m_resmodels[cat]->getVal(nset);
+    }
+    // must not reach this point
+    assert(false);
+    return std::numeric_limits<double>::quiet_NaN();
+}
 
 RooSimultaneousResModel::RooSimultaneousResModel(const char *name, const char *title,
-	RooResolutionModel& res_model,
-	RooHistPdf& kfactor_pdf,
-	RooAbsRealLValue& kfactor_var,
-	const RooArgSet& substTargets,
-	const RooArgSet& evalInterpVars) :
-    RooResolutionModel(name, title, res_model.convVar()),
-    _resmodel("resmodel", "resolution model", this, res_model),
-    _kfactor_pdf("kfactor_pdf", "k-factor distribution", this, kfactor_pdf),
-    _kfactor_var("kfactor_var", "k-factor variable", this, kfactor_var),
-    _substTargets("substTargets", "substitution targets", this),
-    _evalInterpVars("evalInterpVars", "variables in which to interpolate", this),
-    _interpolation("interpolation", "interpolation for use in evaluate()",
-	    this, kTRUE, kFALSE, kTRUE),
+	RooAbsCategory& cat, RooArgList& resmodels) :
+    RooResolutionModel(name, title,
+	    dynamic_cast<RooResolutionModel&>(*resmodels.at(0)).convVar()),
+    m_cat("cat", "cat", this, cat),
+    m_resmodels("resmodels", "resmodels", this),
     _cacheMgr(this)
 {
-    _substTargets.add(substTargets);
-    _evalInterpVars.add(evalInterpVars);
+    // add the other resolution models to the RooListProxy
+    m_resmodels.add(resmodels);
+    // make sure they all have the same convolution variable
+    RooFIter it = resmodels.fwdIterator();
+    for (RooAbsArg* obj = it.next(); obj; obj = it.next()) {
+	RooResolutionModel& resmodel =
+	    dynamic_cast<RooResolutionModel&>(*obj);
+	assert(&convVar() == &resmodel.convVar());
+    }
 }
 
 RooSimultaneousResModel::RooSimultaneousResModel(const RooSimultaneousResModel& other, const char* name) :
     RooResolutionModel(other, name),
-    _resmodel("resmodel", this, other._resmodel),
-    _kfactor_pdf("kfactor_pdf", this, other._kfactor_pdf),
-    _kfactor_var("kfactor_var", this, other._kfactor_var),
-    _substTargets("substTargets", this, other._substTargets),
-    _evalInterpVars("evalInterpVars", this, other._evalInterpVars),
-    _interpolation("interpolation", "interpolation for use in evaluate()",
-	    this, kTRUE, kFALSE, kTRUE),
+    m_cat("cat", this, other.m_cat),
+    m_resmodels("resmodels", this, other.m_resmodels),
     _cacheMgr(other._cacheMgr, this)
 {
 }
@@ -229,51 +187,31 @@ TObject* RooSimultaneousResModel::clone(const char* newname) const
 { return new RooSimultaneousResModel(*this, newname); }
 
 Int_t RooSimultaneousResModel::basisCode(const char* name) const
-{ return resmodel().basisCode(name); }
-
-const RooResolutionModel& RooSimultaneousResModel::resmodel() const
-{ return dynamic_cast<RooResolutionModel&>(*_resmodel.absArg()); }
-
-const RooHistPdf& RooSimultaneousResModel::kpdf() const
-{ return dynamic_cast<RooHistPdf&>(*_kfactor_pdf.absArg()); }
-
-const RooAbsRealLValue& RooSimultaneousResModel::kvar() const
-{ return dynamic_cast<RooAbsRealLValue&>(*_kfactor_var.absArg()); }
+{
+    // return basis function code for underlying resolution models,
+    // make sure that codes agree
+    bool filled = false;
+    Int_t code = 0;
+    RooFIter it = m_resmodels.fwdIterator();
+    for (RooAbsArg* obj = it.next(); obj; obj = it.next()) {
+	RooResolutionModel& resmodel =
+	    dynamic_cast<RooResolutionModel&>(*obj);
+	Int_t tmpcode = resmodel.basisCode(name);
+	if (!filled) {
+	    code = tmpcode, filled = true;
+	} else if (code != tmpcode) {
+	    assert(code != tmpcode);
+	}
+    }
+    assert(filled);
+    return code;
+}
 
 Double_t RooSimultaneousResModel::evaluate() const
 {
-    if (!_evalInterpVars.getSize()) {
-	// if we're not interpolating, we get the cache element and evaluate
-	// that
-	DeceptiveCache *cache = getCache(&s_emptyset, 0);
-	assert(cache);
-	return cache->getVal();
-    } else {
-	// ok, we are to interpolate...
-	if (!_interpolation.absArg()) {
-	    // interpolation object not valid, so create one
-	    // first, clone ourselves, but disable the interpolation in the
-	    // clone
-	    RooSimultaneousResModel* tmp = new RooSimultaneousResModel(*this,
-		    (std::string(GetName()) + "_interpolation_source").c_str());
-	    assert(tmp);
-	    // second, disable interpolation in the clone in tmp
-	    tmp->_evalInterpVars.removeAll();
-	    // third, create interpolation object
-	    RooCachedReal *cache = new RooCachedReal(
-		    (std::string(GetName()) + "_interpolation").c_str(),
-		    GetTitle(), *tmp, _evalInterpVars);
-	    assert(cache);
-	    cache->setInterpolationOrder(2);
-	    cache->addOwnedComponents(RooArgSet(*tmp));
-	    cache->setCacheSource(kTRUE);
-	    if (ADirty == tmp->operMode())
-		cache->setOperMode(ADirty);
-	    // _interpolation owns its contents
-	    _interpolation.setArg(*cache);
-	}
-	return Double_t(_interpolation);
-    }
+    CacheElem *cache = getCache(&s_emptyset, 0);
+    assert(cache);
+    return cache->getVal();
 }
 
 RooSimultaneousResModel* RooSimultaneousResModel::convolution(RooFormulaVar* inBasis,
@@ -319,29 +257,37 @@ RooSimultaneousResModel* RooSimultaneousResModel::convolution(RooFormulaVar* inB
     newName += owner->GetName();
     newName += "]";
 
-    RooResolutionModel *conv = resmodel().convolution(inBasis, owner);
+    RooArgList convs;
+    RooFIter it = m_resmodels.fwdIterator();
+    for (RooAbsArg* obj = it.next(); obj; obj = it.next()) {
+	RooResolutionModel& resmodel =
+	    dynamic_cast<RooResolutionModel&>(*obj);
+	RooResolutionModel *conv = resmodel.convolution(inBasis, owner);
 
-    std::string newTitle(conv->GetTitle());
+	std::string newTitle(conv->GetTitle());
+	newTitle += " convoluted with basis function ";
+	newTitle += inBasis->GetName();
+	conv->SetTitle(newTitle.c_str());
+	convs.add(*conv);
+    }
+
+    std::string newTitle(GetTitle());
     newTitle += " convoluted with basis function ";
     newTitle += inBasis->GetName();
-    conv->SetTitle(newTitle.c_str());
-
-    RooSimultaneousResModel *kfactor_conv =
-	new RooSimultaneousResModel(newName.c_str(), newTitle.c_str(), *conv,
-		const_cast<RooHistPdf&>(kpdf()),
-		const_cast<RooAbsRealLValue&>(kvar()),
-		static_cast<const RooArgSet&>(_substTargets),
-		static_cast<const RooArgSet&>(_evalInterpVars));
-    kfactor_conv->addOwnedComponents(*conv);
-    kfactor_conv->changeBasis(inBasis);
+    RooSimultaneousResModel *myclone =
+	new RooSimultaneousResModel(newName.c_str(), newTitle.c_str(),
+		const_cast<RooAbsCategory&>(
+		    static_cast<const RooAbsCategory&>(m_cat.arg())), convs);
+    myclone->addOwnedComponents(convs);
+    myclone->changeBasis(inBasis);
 
     // interpolation
     const char* cacheParamsStr = getStringAttribute("CACHEPARAMINT");
     if (cacheParamsStr && std::strlen(cacheParamsStr)) {
-	kfactor_conv->setStringAttribute("CACHEPARAMINT", cacheParamsStr);
+	myclone->setStringAttribute("CACHEPARAMINT", cacheParamsStr);
     }
 
-    return kfactor_conv;
+    return myclone;
 }
 
 Int_t RooSimultaneousResModel::getAnalyticalIntegral(RooArgSet& allVars,
@@ -358,8 +304,8 @@ Double_t RooSimultaneousResModel::analyticalIntegral(Int_t code,
 	const char* rangeName) const
 {
     assert(code > 0);
-    DeceptiveCache* cache =
-	static_cast<DeceptiveCache*>(_cacheMgr.getObjByIndex(code - 1));
+    CacheElem* cache =
+	static_cast<CacheElem*>(_cacheMgr.getObjByIndex(code - 1));
     if (!cache) {
 	std::auto_ptr<RooArgSet> vars(getParameters(RooArgSet()));
 	std::auto_ptr<RooArgSet>
@@ -373,16 +319,16 @@ Double_t RooSimultaneousResModel::analyticalIntegral(Int_t code,
 Bool_t RooSimultaneousResModel::forceAnalyticalInt(const RooAbsArg& /*dep*/) const
 { return true; }
 
-RooSimultaneousResModel::DeceptiveCache* RooSimultaneousResModel::getCache(const RooArgSet *iset,
+RooSimultaneousResModel::CacheElem* RooSimultaneousResModel::getCache(const RooArgSet *iset,
 	const TNamed *rangeName) const
 {
     int sterileIndex(-1);
-    DeceptiveCache* cache = static_cast<DeceptiveCache*>
+    CacheElem* cache = static_cast<CacheElem*>
 	(_cacheMgr.getObj(0, iset, &sterileIndex, rangeName));
-    // if we have the DeceptiveCache in the cache manager, we return
+    // if we have the CacheElem in the cache manager, we return
     if (cache) return cache;
     // if not, we create it...
-    cache = new DeceptiveCache(*this, *iset,
+    cache = new CacheElem(*this, *iset,
 	    RooNameReg::str(rangeName));
     assert(cache);
     _cacheMgr.setObj(0, iset, cache, rangeName);
@@ -390,3 +336,5 @@ RooSimultaneousResModel::DeceptiveCache* RooSimultaneousResModel::getCache(const
     // the right index...
     return getCache(iset, rangeName);
 }
+
+// vim: sw=4:ft=cpp:tw=78

@@ -82,6 +82,7 @@ template class std::pair<std::string,RooAbsData*>;
 #include "B2DXFitters/RooGaussEfficiencyModel.h"
 #include "B2DXFitters/RooComplementCoef.h"
 #include "B2DXFitters/RooKResModel.h"
+#include "B2DXFitters/RooSimultaneousResModel.h"
 #include "B2DXFitters/DLLTagCombiner.h"
 #include "B2DXFitters/TagDLLToTagDec.h"
 #include "B2DXFitters/TagDLLToTagEta.h"

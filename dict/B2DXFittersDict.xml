@@ -86,6 +86,9 @@
 	    <field name = "_interpolation" transient = "true" />
 	    <field name = "_cacheMgr" transient = "true" />
 	</class>
+	<class name="RooSimultaneousResModel">
+	    <field name = "_cacheMgr" transient = "true" />
+	</class>
 	<class name="DLLTagCombiner">
 	    <field name = "combiner" transient = "true" />
 	</class>
