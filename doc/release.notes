@@ -5,6 +5,9 @@
 !-----------------------------------------------------------------------------
 
 ! 2013-11-18 - Manuel Tobias Schiller
+ - DLLTagCombiner: add better type correctness protection in constructor
+
+! 2013-11-18 - Manuel Tobias Schiller
  - and another small bug in TagDLLToTagDec
 
 ! 2013-11-18 - Manuel Tobias Schiller

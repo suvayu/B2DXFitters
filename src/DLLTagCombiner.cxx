@@ -22,11 +22,19 @@ DLLTagCombiner::DLLTagCombiner(const char *name, const char *title,
     assert(_tagdecisions.getSize() == _tagomegas.getSize());
     assert(_tagdecisions.getSize() <= NMAX);
     RooFIter it = _tagdecisions.fwdIterator();
-    for (RooAbsArg* obj = it.next(); obj; obj = it.next())
+    for (RooAbsArg* obj = it.next(); obj; obj = it.next()) {
+	assert(dynamic_cast<RooAbsCategory*>(obj));
+	obj->Print("v");
 	tagdecisions.add(*obj);
+    }
     it = _tagomegas.fwdIterator();
-    for (RooAbsArg* obj = it.next(); obj; obj = it.next())
+    for (RooAbsArg* obj = it.next(); obj; obj = it.next()) {
+	assert(dynamic_cast<RooAbsReal*>(obj));
+	obj->Print("v");
 	tagomegas.add(*obj);
+    }
+    printf("constructor: ");
+    Print("v");
 } 
 
 
@@ -38,6 +46,8 @@ DLLTagCombiner::DLLTagCombiner(const DLLTagCombiner& other, const char* name) :
 { 
     assert(tagdecisions.getSize() == tagomegas.getSize());
     assert(tagdecisions.getSize() <= NMAX);
+    printf("copy constructor: ");
+    Print("v");
 } 
 
 DLLTagCombiner::~DLLTagCombiner() { }
