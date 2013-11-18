@@ -5,6 +5,12 @@
 !-----------------------------------------------------------------------------
 
 ! 2013-11-18 - Manuel Tobias Schiller
+ - RooSimultaneousResModel: check which category states fall into the
+   integration range; this was the last piece missing before I can start
+   testing the code (or, to be precise, the last missing piece I can think of
+   right now)
+
+! 2013-11-18 - Manuel Tobias Schiller
  - RooSimultaneousResModel: slight refinement, class can now accept different
    mappings from category index or label to resolution model to use; still
    some more work needed before we can start testing

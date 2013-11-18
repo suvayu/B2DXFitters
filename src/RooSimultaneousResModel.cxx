@@ -42,7 +42,7 @@ RooArgSet RooSimultaneousResModel::s_emptyset;
 RooSimultaneousResModel::CacheElem::CacheElem(
 	const RooSimultaneousResModel& parent,
 	const RooArgSet& iset, const char* rangeName) :
-    m_parent(parent), m_flags(None)
+    m_parent(parent), m_catlv(0), m_rangeName(rangeName), m_flags(None)
 {
     const RooAbsCategory& cat = dynamic_cast<const RooAbsCategory&>(
 	    parent.m_cat.arg());
@@ -59,6 +59,21 @@ RooSimultaneousResModel::CacheElem::CacheElem(
 	// integrate over cat - this is more work
 	myiset.remove(cat);
 	m_flags = static_cast<Flags>(m_flags | IntCat);
+	// check if cat is an lvalue
+	const RooAbsCategoryLValue* catlv =
+	    dynamic_cast<const RooAbsCategoryLValue*>(&cat);
+	if (catlv) {
+	    // yes, clone it, so we can do with it as we please without
+	    // upsetting the rest of the world...
+	    std::ostringstream sfx;
+	    sfx << parent.GetName() << "_CacheElem_" << RooNameSet(iset).content();
+	    if (rangeName && std::strlen(rangeName)) sfx << "_" << rangeName;
+	    sfx << "_catclone";
+	    const std::string clonename(sfx.str());
+	    m_catlv = static_cast<RooAbsCategoryLValue*>(
+		    catlv->clone(clonename.c_str()));
+	    assert(m_catlv);
+	}
 	// loop over parent resmodels, and customise them with a constant
 	// category
 	m_resmodels.reserve(parent.m_resmodels.getSize());
@@ -130,6 +145,7 @@ RooArgList RooSimultaneousResModel::CacheElem::containedArgs(RooAbsCacheElement:
     } else {
 	retVal.add(m_parent.m_cat.arg());
     }
+    if (m_catlv) retVal.add(*m_catlv);
     return retVal;
 }
 
@@ -142,7 +158,11 @@ double RooSimultaneousResModel::CacheElem::getVal(const RooArgSet* nset) const
 	std::auto_ptr<TIterator> tyit(cat.typeIterator());
 	while (RooCatType* type =
 		reinterpret_cast<RooCatType*>(tyit->Next())) {
-	    // TODO: check if this is in integration range
+	    if (m_catlv && m_rangeName && *m_rangeName &&
+		    m_catlv->hasRange(m_rangeName)) {
+		m_catlv->setIndex(type->getVal());
+		if (!m_catlv->inRange(m_rangeName)) continue;
+	    }
 	    std::vector<Int_t>::const_iterator it =
 		std::lower_bound(m_parent.m_indices.begin(),
 			m_parent.m_indices.end(), type->getVal());

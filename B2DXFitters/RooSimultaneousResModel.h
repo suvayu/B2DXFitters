@@ -202,6 +202,10 @@ class RooSimultaneousResModel : public RooResolutionModel
 		std::vector<RooAbsReal*> m_resmodels;
 		/// categories (constant index specialisations)
 		std::vector<RooCategory*> m_cats;
+		/// category clone (if it's an lvalue) for in-range detection
+		RooAbsCategoryLValue* m_catlv;
+		/// name of the integration range
+		const char* m_rangeName;
 		/// flags
 		enum Flags {
 		    None = 0, ///< nothing special
