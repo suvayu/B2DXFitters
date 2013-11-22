@@ -20,6 +20,7 @@
 // ROOT and RooFit includes
 #include "TFile.h"
 #include "TString.h"
+#include "TH1.h"
 #include "TH1F.h"
 #include "TH2F.h"
 #include "TH3F.h"
@@ -224,7 +225,15 @@ namespace WeightingUtils {
                                                        RooWorkspace* work = NULL,
                                                        PlotSettings* plotSet = NULL,
 						       bool debug = false);
+  
+  TH1* GetHist(RooDataSet* data, RooRealVar* obs, Int_t bin, bool debug);
 
+  TH1* GetHistRatio(RooDataSet* data1,RooDataSet* data2, RooRealVar* obs, 
+		    TString name, Int_t bin, bool debug = false);
+  
+  TH1* GetHistRatio(TH1* hist1, TH1* hist2, RooRealVar* obs, TString histName,bool debug  = false);
+  
+  TH1* MultiplyHist(TH1* hist1, TH1* hist2, RooRealVar* obs, TString histName,bool debug);
 
 
 } // end of namespace
