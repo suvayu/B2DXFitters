@@ -5,6 +5,9 @@
 !-----------------------------------------------------------------------------
 
 ! 2013-11-22 - Manuel Tobias Schiller
+ - cFit: implement machinery for spline acceptance
+
+! 2013-11-22 - Manuel Tobias Schiller
  - RooSimultaneousResModel: some fixes, still does not quite work yet, to be
    fixed in the future
  - DecRateCoeff: fix bug when calibrated mistag is equal to mistag observable

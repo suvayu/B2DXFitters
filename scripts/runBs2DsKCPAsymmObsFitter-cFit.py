@@ -248,7 +248,7 @@ defaultConfig = {
     'DecayTimeResolutionModel':         'TripleGaussian',
     'DecayTimeResolutionBias':          0.,
     'DecayTimeResolutionScaleFactor':   1.15,
-    # None/BdPTAcceptance/DTAcceptanceLHCbNote2007041,PowLawAcceptance
+    # None/BdPTAcceptance/DTAcceptanceLHCbNote2007041,PowLawAcceptance,Spline
     'AcceptanceFunction':		'PowLawAcceptance',
     'AcceptanceCorrectionFile':         os.environ['B2DXFITTERSROOT']+'/data/acceptance-ratio-hists.root',
     'AcceptanceCorrectionHistName':	'haccratio_cpowerlaw',
@@ -265,6 +265,18 @@ defaultConfig = {
     'PowLawAcceptance_offset':	0.0373,
     'PowLawAcceptance_expo':	1.849,
     'PowLawAcceptance_beta':	0.0363,
+    # spline acceptance parameters
+    'AcceptanceSplineKnots':    [ 0.25, 0.5, 1.0, 2.0, 3.0, 12.0 ],
+    'AcceptanceSplineCoeffs':   {
+            'MC': {
+                'Bs2DsK':       [ 0.19, 0.28, 0.72, 1.19, 1.34, 1.33 ],
+                'Bs2DsPi':      [ 0.19, 0.34, 0.74, 1.16, 1.30, 1.32 ],
+                },
+            'DATA': {
+                'Bs2DsK':       None, # FIXME: to be defined
+                'Bs2DsPi':      None, # FIXME: to be defined
+                }
+            },
 
     'PerEventMistag': 		True,
 
@@ -1666,10 +1678,32 @@ def applyBinnedAcceptance(config, ws, time, timeresmodel, acceptance):
             time, 'acceptanceBinning', acceptance))
         acceptance.setForceUnitIntegral(True)
     # create the acceptance-corrected resolution model
-    return WS(ws, RooEffResModel(
+    effresmodel = WS(ws, RooEffResModel(
         '%s_timeacc_%s' % (timeresmodel.GetName(), acceptance.GetName()),
         '%s plus time acceptance %s' % (timeresmodel.GetTitle(),
             acceptance.GetTitle()), timeresmodel, acceptance))
+    return effresmodel
+    # FIXME: the code below does not quite work yet, to be debugged at some
+    # point in the future
+    #from ROOT import RooSimultaneousResModel, RooArgList
+    #statemap = { -1: effresmodel, 0: effresmodel, 1: effresmodel }
+    #states = RooArgList()
+    #tit = ws.cat('qt').typeIterator()
+    #ROOT.SetOwnership(tit, True)
+    #while True:
+    #    obj = tit.Next()
+    #    if None == obj: break
+    #    idx = obj.getVal()
+    #    resmodel = statemap[idx]
+    #    resmodel = resmodel.clone('%s_IDX%d' % (resmodel.GetName(), idx))
+    #    states.add(resmodel)
+    #del obj
+    #del tit
+    #simresmodel = WS(ws, RooSimultaneousResModel(
+    #    '%s_simresmodel' % effresmodel.GetName(),
+    #    '%s_simresmodel' % effresmodel.GetName(),
+    #    ws.cat('qt'), states))
+    #return simresmodel
 
 # apply the acceptance to the time pdf (unbinned)
 def applyUnbinnedAcceptance(config, name, ws, pdf, acceptance):
@@ -1684,7 +1718,7 @@ def applyUnbinnedAcceptance(config, name, ws, pdf, acceptance):
 # speed up the fit by parameterising integrals of the resolution model over
 # time in the (per-event) time error (builds a table if integral values and
 # interpolates)
-def parameteriseResModelIntegrals(config, timeerrpdf, timeerr, timeresmodel):
+def parameteriseResModelIntegrals(config, ws, timeerrpdf, timeerr, timeresmodel):
     if None == timeerrpdf or 0 == config['NBinsProperTimeErr']:
         return
     from ROOT import RooArgSet
@@ -1815,9 +1849,8 @@ def buildNonOscDecayTimePdf(
     # apply acceptance (if needed)
     timeresmodel = applyBinnedAcceptance(
         config, ws, time, timeresmodel, acceptance)
-    # FIXME: understand why this breaks at Optimize > 2
     if config['ParameteriseIntegral']:
-        parameteriseResModelIntegrals(config, timeerrpdf, timeerr, timeresmodel)
+        parameteriseResModelIntegrals(config, ws, timeerrpdf, timeerr, timeresmodel)
 
     # perform the actual k-factor smearing integral (if needed)
     # if we have to perform k-factor smearing, we need "smeared" variants of
@@ -1952,16 +1985,16 @@ def buildBDecayTimePdf(
     timeresmodel = applyBinnedAcceptance(
             config, ws, time, timeresmodel, acceptance)
     if config['ParameteriseIntegral']:
-        parameteriseResModelIntegrals(config, timeerrpdf, timeerr, timeresmodel)
+        parameteriseResModelIntegrals(config, ws, timeerrpdf, timeerr, timeresmodel)
 
     # if there is a per-event mistag distributions and we need to do things
     # correctly
     if None != mistagpdf:
-        otherargs = [ mistagobs, mistagpdf, tageff ]
+        otherargs = [ mistagobs, RooArgList(mistagpdf), RooArgList(tageff) ]
     else:
-        otherargs = [ tageff ]
-    otherargs += mistag
-    otherargs += [ aprod, adet, atageff ]
+        otherargs = [ RooArgList(tageff) ]
+    otherargs += [ RooArgList(o) for o in mistag ]
+    otherargs += [ aprod, adet, RooArgList(atageff) ]
     flag = 0
     if 'Bs2DsK' == name and 'CADDADS' == config['Bs2DsKCPObs']:
         flag = DecRateCoeff.AvgDelta
@@ -2700,72 +2733,6 @@ def getMasterPDF(config, name, debug = False):
 
     timepdfs = { }
 
-    # Decay time resolution model
-    # ---------------------------
-    if type(config['DecayTimeResolutionModel']) == type([]):
-        # ok, we got a list of: [sigma_0,sigma_1, ...] and [f0,f1,...]
-        # build specified resolution model on the fly
-        from ROOT import ( RooArgList, RooRealVar, RooGaussModel, RooAddModel )
-        if 2 != len(config['DecayTimeResolutionModel']):
-            raise TypeError('Unknown type of resolution model')
-        ncomp = len(config['DecayTimeResolutionModel'][0])
-        if ncomp < 1:
-            raise TypeError('Unknown type of resolution model')
-        if ncomp != len(config['DecayTimeResolutionModel'][1]) and \
-                ncomp - 1 != len(config['DecayTimeResolutionModel'][1]):
-            raise TypeError('Unknown type of resolution model')
-        pdfs = RooArgList()
-        fracs = RooArgList()
-        i = 0
-        for s in config['DecayTimeResolutionModel'][0]:
-            sigma = WS(ws, RooRealVar('resmodel%02d_sigma' % i,
-                'resmodel%02d_sigma' % i, s, 'ps'))
-            bias = WS(ws, RooRealVar('timeerr_bias',
-                'timeerr_bias', config['DecayTimeResolutionBias']))
-            sf = WS(ws, RooRealVar('timeerr_scalefactor',
-                'timeerr_scalefactor',
-                config['DecayTimeResolutionScaleFactor'], .5, 2.))
-            pdfs.add(WS(ws, RooGaussModel('resmodel%02d' % i, 'resmodel%02d' % i,
-                time, bias, sigma, sf)))
-            del sf
-            del bias
-            i += 1
-        i = 0
-        for s in config['DecayTimeResolutionModel'][1]:
-            fracs.add(WS(ws, RooRealVar('resmodel%02d_frac' % i,
-                'resmodel%02d_frac' % i, s, 'ps')))
-            i += 1
-        del s
-        del i
-        trm = WS(ws, RooAddModel('resmodel', 'resmodel', pdfs, fracs))
-        del pdfs
-        del fracs
-        del ncomp
-    elif type(config['DecayTimeResolutionModel']) == type(''):
-        if 'PEDTE' not in config['DecayTimeResolutionModel']:
-            PTResModels = ROOT.PTResModels
-            trm = WS(ws, PTResModels.getPTResolutionModel(
-                config['DecayTimeResolutionModel'],
-                time, 'Bs', debug,
-                config['DecayTimeResolutionScaleFactor'],
-                config['DecayTimeResolutionBias']))
-        else :
-            from ROOT import RooRealVar, RooGaussModel
-            # the decay time error is an extra observable!
-            observables.append(timeerr)
-            # time, mean, timeerr, scale
-            bias = WS(ws, RooRealVar('timeerr_bias',
-                'timeerr_bias', config['DecayTimeResolutionBias']))
-            sf = WS(ws, RooRealVar('timeerr_scalefactor',
-                'timeerr_scalefactor',
-                config['DecayTimeResolutionScaleFactor'], .5, 2.))
-            trm = WS(ws, RooGaussModel('GaussianWithPEDTE',
-                'GaussianWithPEDTE', time, bias, timeerr, sf))
-            del bias
-            del sf
-    else:
-        raise TypeError('Unknown type of resolution model')
-
     # Decay time acceptance function
     # ------------------------------
     if (config['AcceptanceFunction'] and not (
@@ -2799,10 +2766,89 @@ def getMasterPDF(config, name, debug = False):
                 tacc = WS(ws, PowLawAcceptance('PowLawAcceptance',
                     'decay time acceptance', tacc_turnon, time, tacc_offset,
                     tacc_expo, tacc_beta))
+        elif 'Spline' == config['AcceptanceFunction']:
+            from ROOT import (RooBinning, RooArgList, RooPolyVar,
+                    RooCubicSplineFun)
+            knots = config['AcceptanceSplineKnots']
+            mode = config['Modes'][0]
+            sampletype = 'MC' if config['IsToy'] else 'DATA'
+            coeffs = config['AcceptanceSplineCoeffs'][sampletype][mode]
+            del mode
+            del sampletype
+            if (len(knots) != len(coeffs) or 0 >= min(len(knots),
+                len(coeffs))):
+                print ('ERROR: Spline knot position list and/or coefficient'
+                        'list mismatch')
+                return None
+            # create the knot binning
+            knotbinning = RooBinning(
+                    time.getMin(), time.getMax(), 'knotbinning')
+            for v in knots:
+                knotbinning.addBoundary(v)
+            knotbinning.removeBoundary(time.getMin())
+            knotbinning.removeBoundary(time.getMin())
+            knotbinning.removeBoundary(time.getMax())
+            knotbinning.removeBoundary(time.getMax())
+            oldbinning = time.getBinning()
+            lo, hi = time.getMin(), time.getMax()
+            time.setBinning(knotbinning, 'knotbinning')
+            time.setBinning(oldbinning)
+            time.setRange(lo, hi)
+            del knotbinning
+            del oldbinning
+            del lo
+            del hi
+            # create the knot coefficients
+            coefflist = RooArgList()
+            i = 0
+            for v in coeffs:
+                coefflist.add(WS(ws, RooRealVar(
+                    'SplineAccCoeff%u' % i, 'SplineAccCoeff%u' % i, v)))
+                i = i + 1
+            del coeffs
+            coefflist.add(one)
+            i = i + 1
+            knots.append(time.getMax())
+            knots.reverse()
+            fudge = (knots[0] - knots[1]) / (knots[2] - knots[1])
+            lastcoeffs = RooArgList(
+                    WS(ws, RooConstVar('SplineAccCoeff%u_coeff0' % i,
+                        'SplineAccCoeff%u_coeff1' % i, 1. - fudge)),
+                    WS(ws, RooConstVar('SplineAccCoeff%u_coeff0' % i,
+                        'SplineAccCoeff%u_coeff1' % i, fudge)))
+            del knots
+            coefflist.add(WS(ws, RooPolyVar(
+                'SplineAccCoeff%u' % i, 'SplineAccCoeff%u' % i,
+                coefflist.at(coefflist.getSize() - 1), lastcoeffs)))
+            del i
+            # create the spline itself
+            tacc = WS(ws, RooCubicSplineFun('SplineAcceptance',
+                'SplineAcceptance', time, 'knotbinning', coefflist))
+            if 'GEN' in config['Context']:
+                # make sure the acceptance is <= 1 for generation
+                it = coefflist.fwdIterator()
+                m = 0.
+                while True:
+                    obj = it.next()
+                    if None == obj: break
+                    if obj.getVal() > m:
+                        m = obj.getVal()
+                from ROOT import RooProduct
+                c = WS(ws, RooConstVar('SplineAccNormCoeff',
+                    'SplineAccNormCoeff', 1. / m))
+                tacc = WS(ws, RooProduct('SplineAcceptanceNormalised',
+                    'SplineAcceptanceNormalised', RooArgList(tacc, c)))
+                del c
+                del m
+                del obj
+                del it
+            del lastcoeffs
+            del coefflist
         else:
             print 'ERROR: unknown acceptance function: ' + config['AcceptanceFunction']
             sys.exit(1)
-        if 0 < config['NBinsAcceptance']:
+        if (0 < config['NBinsAcceptance'] and
+                'Spline' != config['AcceptanceFunction']):
             if config['StaticAcceptance']:
                 from ROOT import RooDataHist, RooHistPdf
                 dhist = WS(ws, RooDataHist(
@@ -2827,7 +2873,96 @@ def getMasterPDF(config, name, debug = False):
                 time.setBins(obins)
     else:
         tacc = None
-    
+
+    # Decay time resolution model
+    # ---------------------------
+    if type(config['DecayTimeResolutionModel']) == type([]):
+        # ok, we got a list of: [sigma_0,sigma_1, ...] and [f0,f1,...]
+        # build specified resolution model on the fly
+        from ROOT import ( RooArgList, RooRealVar, RooGaussModel,
+                RooGaussEfficiencyModel, RooAddModel )
+        if 2 != len(config['DecayTimeResolutionModel']):
+            raise TypeError('Unknown type of resolution model')
+        ncomp = len(config['DecayTimeResolutionModel'][0])
+        if ncomp < 1:
+            raise TypeError('Unknown type of resolution model')
+        if ncomp != len(config['DecayTimeResolutionModel'][1]) and \
+                ncomp - 1 != len(config['DecayTimeResolutionModel'][1]):
+            raise TypeError('Unknown type of resolution model')
+        pdfs = RooArgList()
+        fracs = RooArgList()
+        i = 0
+        for s in config['DecayTimeResolutionModel'][0]:
+            sigma = WS(ws, RooRealVar('resmodel%02d_sigma' % i,
+                'resmodel%02d_sigma' % i, s, 'ps'))
+            bias = WS(ws, RooRealVar('timeerr_bias',
+                'timeerr_bias', config['DecayTimeResolutionBias']))
+            sf = WS(ws, RooRealVar('timeerr_scalefactor',
+                'timeerr_scalefactor',
+                config['DecayTimeResolutionScaleFactor'], .5, 2.))
+            if 'Spline' != config['AcceptanceFunction'] or 'GEN' in config['Context']:
+                pdfs.add(WS(ws, RooGaussModel('resmodel%02d' % i, 'resmodel%02d' % i,
+                    time, bias, sigma, sf)))
+            else:
+                # spline acceptance
+                pdfs.add(WS(ws, RooGaussEfficiencyModel(
+                    'resmodel%02d' % i, 'resmodel%02d' % i,
+                    time, tacc, bias, sigma, sf, sf)))
+            del sf
+            del bias
+            i += 1
+        i = 0
+        for s in config['DecayTimeResolutionModel'][1]:
+            fracs.add(WS(ws, RooRealVar('resmodel%02d_frac' % i,
+                'resmodel%02d_frac' % i, s, 'ps')))
+            i += 1
+        del s
+        del i
+        trm = WS(ws, RooAddModel('resmodel', 'resmodel', pdfs, fracs))
+        del pdfs
+        del fracs
+        del ncomp
+        if ('Spline' == config['AcceptanceFunction'] and
+                not 'GEN' in config['Context']):
+            # if we're using a spline acceptance, we're done
+            tacc = None
+    elif type(config['DecayTimeResolutionModel']) == type(''):
+        if 'PEDTE' not in config['DecayTimeResolutionModel']:
+            if 'Spline' == config['AcceptanceFunction']:
+                print ('ERROR: decay time resolution model %s'
+                        'incompatible with spline acceptance') % (
+                                config['DecayTimeResolutionModel'])
+                return None
+            PTResModels = ROOT.PTResModels
+            trm = WS(ws, PTResModels.getPTResolutionModel(
+                config['DecayTimeResolutionModel'],
+                time, 'Bs', debug,
+                config['DecayTimeResolutionScaleFactor'],
+                config['DecayTimeResolutionBias']))
+        else :
+            from ROOT import RooRealVar, RooGaussModel, RooGaussEfficiencyModel
+            # the decay time error is an extra observable!
+            observables.append(timeerr)
+            # time, mean, timeerr, scale
+            bias = WS(ws, RooRealVar('timeerr_bias',
+                'timeerr_bias', config['DecayTimeResolutionBias']))
+            sf = WS(ws, RooRealVar('timeerr_scalefactor',
+                'timeerr_scalefactor',
+                config['DecayTimeResolutionScaleFactor'], .5, 2.))
+            if ('Spline' != config['AcceptanceFunction'] or
+                    'GEN' in config['Context']):
+                trm = WS(ws, RooGaussModel('GaussianWithPEDTE',
+                    'GaussianWithPEDTE', time, bias, timeerr, sf))
+            else:
+                trm = WS(ws, RooGaussEfficiencyModel('GaussianWithPEDTE',
+                    'GaussianWithPEDTE', time, tacc, bias, timeerr, sf, sf))
+                # if we're using a spline acceptance, we're done
+                tacc = None
+            del bias
+            del sf
+    else:
+        raise TypeError('Unknown type of resolution model')
+ 
     # Decay time error distribution
     # -----------------------------
     if 'PEDTE' in config['DecayTimeResolutionModel']:
