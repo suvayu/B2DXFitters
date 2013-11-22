@@ -13,6 +13,7 @@
 #include "TNamed.h"
 #include "TString.h"
 #include "TH1F.h"
+#include "B2DXFitters/PlotSettings.h"
  
 #include <vector>
 
@@ -60,6 +61,8 @@ public:
   void SetHist( int i, TH1F* hist, TString pol, TString fileName ) { _hist[i] = hist; _polarity[i] = pol; _fileName[i] = fileName;  }
   void SetPolarity(std::vector <TString> pol) { _polarity = pol; }
   void SetFileName(std::vector <TString> fileName) { _fileName = fileName; }
+  void SavePlot(PlotSettings* plotSet = NULL);
+  void ShowContent(TString& pol);
 
   TString GetPolarity(int i ) { return _polarity[i]; }
 
