@@ -40,7 +40,7 @@ class RooSimultaneousResModel : public RooResolutionModel
 	 * @param map		map: index -> resolution models to switch between
 	 */
 	RooSimultaneousResModel(const char *name, const char *title,
-		RooAbsCategory& cat,
+		RooAbsCategoryLValue& cat,
 		const std::map<Int_t, RooResolutionModel*>& map);
 
 	/** @brief constructor
@@ -51,7 +51,7 @@ class RooSimultaneousResModel : public RooResolutionModel
 	 * @param map		map: label -> resolution models to switch between
 	 */
 	RooSimultaneousResModel(const char *name, const char *title,
-		RooAbsCategory& cat,
+		RooAbsCategoryLValue& cat,
 		const std::map<std::string, RooResolutionModel*>& map);
 
 	/** @brief constructor
@@ -65,7 +65,7 @@ class RooSimultaneousResModel : public RooResolutionModel
 	 * states in the type iterator of cat
 	 */
 	RooSimultaneousResModel(const char *name, const char *title,
-		RooAbsCategory& cat, const RooArgList& resmodels);
+		RooAbsCategoryLValue& cat, const RooArgList& resmodels);
 	
 	/** @brief copy constructor
 	 *
@@ -200,17 +200,8 @@ class RooSimultaneousResModel : public RooResolutionModel
 		const RooSimultaneousResModel& m_parent;
 		/// resolution models (or their integrals)
 		std::vector<RooAbsReal*> m_resmodels;
-		/// categories (constant index specialisations)
-		std::vector<RooCategory*> m_cats;
-		/// category clone (if it's an lvalue) for in-range detection
-		RooAbsCategoryLValue* m_catlv;
-		/// name of the integration range
-		const char* m_rangeName;
-		/// flags
-		enum Flags {
-		    None = 0, ///< nothing special
-		    IntCat = 1, ///< integrate over category
-		} m_flags;
+		/// mapping category index to index in m_resmodels
+		std::map<Int_t, unsigned> m_idxmap;
 	};
 
 	friend class RooSimultaneousResModel::CacheElem;
@@ -236,8 +227,6 @@ class RooSimultaneousResModel : public RooResolutionModel
 	RooCategoryProxy m_cat;	
 	/// resolution models
 	RooListProxy m_resmodels;
-	/// category index labels to go with elements in m_resmodels
-	std::vector<Int_t> m_indices;
 	/// cache manager
 	mutable RooObjCacheManager _cacheMgr;	//! transient object
 

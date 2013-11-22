@@ -4,6 +4,11 @@
 ! Purpose     : RooFit-based fitters for B -> D X
 !-----------------------------------------------------------------------------
 
+! 2013-11-22 - Manuel Tobias Schiller
+ - RooSimultaneousResModel: some fixes, still does not quite work yet, to be
+   fixed in the future
+ - DecRateCoeff: fix bug when calibrated mistag is equal to mistag observable
+
 ! 2013-11-18 - Manuel Tobias Schiller
  - RooSimultaneousResModel: check which category states fall into the
    integration range; this was the last piece missing before I can start

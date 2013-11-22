@@ -42,95 +42,44 @@ RooArgSet RooSimultaneousResModel::s_emptyset;
 RooSimultaneousResModel::CacheElem::CacheElem(
 	const RooSimultaneousResModel& parent,
 	const RooArgSet& iset, const char* rangeName) :
-    m_parent(parent), m_catlv(0), m_rangeName(rangeName), m_flags(None)
+    m_parent(parent)
 {
-    const RooAbsCategory& cat = dynamic_cast<const RooAbsCategory&>(
-	    parent.m_cat.arg());
-    RooArgSet myiset(iset);
-    if (!iset.find(cat)) {
-	// do not integrate over cat, so just copy the resmodels from parent
-	m_resmodels.reserve(parent.m_resmodels.getSize());
-	RooFIter it = parent.m_resmodels.fwdIterator();
-	for (RooAbsReal* obj = static_cast<RooAbsReal*>(it.next()); obj;
-		obj = static_cast<RooAbsReal*>(it.next())) {
-	    m_resmodels.push_back(obj);
-	}
-    } else {
-	// integrate over cat - this is more work
-	myiset.remove(cat);
-	m_flags = static_cast<Flags>(m_flags | IntCat);
-	// check if cat is an lvalue
-	const RooAbsCategoryLValue* catlv =
-	    dynamic_cast<const RooAbsCategoryLValue*>(&cat);
-	if (catlv) {
-	    // yes, clone it, so we can do with it as we please without
-	    // upsetting the rest of the world...
-	    std::ostringstream sfx;
-	    sfx << parent.GetName() << "_CacheElem_" << RooNameSet(iset).content();
-	    if (rangeName && std::strlen(rangeName)) sfx << "_" << rangeName;
-	    sfx << "_catclone";
-	    const std::string clonename(sfx.str());
-	    m_catlv = static_cast<RooAbsCategoryLValue*>(
-		    catlv->clone(clonename.c_str()));
-	    assert(m_catlv);
-	}
-	// loop over parent resmodels, and customise them with a constant
-	// category
-	m_resmodels.reserve(parent.m_resmodels.getSize());
-	RooFIter it = parent.m_resmodels.fwdIterator();
-	unsigned i = 0;
-	for (RooAbsReal* obj = static_cast<RooAbsReal*>(it.next()); obj;
-		obj = static_cast<RooAbsReal*>(it.next()), ++i) {
-	    // build a (hopefully unique) suffix for objects we have to clone/modify
-	    std::ostringstream sfx;
-	    sfx << parent.GetName() << "_CacheElem_" << RooNameSet(iset).content();
-	    if (rangeName && std::strlen(rangeName)) sfx << "_" << rangeName;
-	    sfx << "_IDX_" << parent.m_indices[i];
-	    // create a clone of our category
-	    const std::string catname(sfx.str());
-	    RooCategory *newcat = new RooCategory(
-		    catname.c_str(), catname.c_str());
-	    // loop over states of cat, duplicate them
-	    std::auto_ptr<TIterator> tyit(cat.typeIterator());
-	    while (RooCatType* type =
-		    reinterpret_cast<RooCatType*>(tyit->Next())) {
-		newcat->defineType(type->GetName(), type->getVal());
-	    }
-	    // set current index
-	    newcat->setIndex(parent.m_indices[i]);
-	    newcat->setConstant(true);
-	    m_cats.push_back(newcat);
-	    sfx << "_custobj";
-	    const std::string objname(sfx.str());
-	    RooCustomizer c(*obj, objname.c_str());
-	    c.replaceArg(cat, *newcat);
-	    obj = dynamic_cast<RooAbsReal*>(c.build());
-	    assert(obj);
-	    m_resmodels.push_back(obj);
-	}
+    //printf("DEBUG: In %s (%s, line %u)\n", __func__, __FILE__, __LINE__);
+    const RooAbsCategoryLValue& cat =
+	dynamic_cast<const RooAbsCategoryLValue&>(parent.m_cat.arg());
+    m_resmodels.reserve(parent.m_resmodels.getSize());
+    // loop over parent resmodels, and keep those which are in range
+    {
+    RooFIter it = parent.m_resmodels.fwdIterator();
+    unsigned i = 0;
+    std::auto_ptr<TIterator> tyit(cat.typeIterator());
+    for (RooAbsReal* obj = static_cast<RooAbsReal*>(it.next()); obj;
+	    obj = static_cast<RooAbsReal*>(it.next()), ++i) {
+	RooCatType* type = reinterpret_cast<RooCatType*>(tyit->Next());
+	m_resmodels.push_back(obj);
+	m_idxmap[type->getVal()] = i;
+	//printf("DEBUG: In %s (%s, line %u): obj %s\n", __func__, __FILE__, __LINE__, obj->GetName());
+    }
     }
     // do we need to integrate anything other than (potentially) cat?
-    if (myiset.getSize()) {
+    if (iset.getSize()) {
 	// yes, create those integrals
 	for (std::vector<RooAbsReal*>::iterator it = m_resmodels.begin();
 		m_resmodels.end() != it; ++it) {
 	    RooAbsReal* rm = *it;
-	    *it = rm->createIntegral(myiset, rangeName);
+	    *it = rm->createIntegral(iset, rangeName);
 	    (*it)->addOwnedComponents(RooArgSet(*rm));
+	    //printf("DEBUG: In %s (%s, line %u): iobj %s\n", __func__, __FILE__, __LINE__, (*it)->GetName());
 	}
     }
+    //printf("DEBUG: In %s (%s, line %u)\n", __func__, __FILE__, __LINE__);
 }
 
 RooSimultaneousResModel::CacheElem::~CacheElem()
 {
-    if (dynamic_cast<RooAbsReal*>(m_parent.m_resmodels.at(0)) !=
-	    m_resmodels.front()) {
+    if (!m_parent.m_resmodels.find(*m_resmodels.front())) {
 	for (std::vector<RooAbsReal*>::const_iterator it = m_resmodels.begin();
 		m_resmodels.end() != it; ++it) delete *it;
-    }
-    if (m_flags & IntCat) {
-	for (std::vector<RooCategory*>::const_iterator it = m_cats.begin();
-		m_cats.end() != it; ++it) delete *it;
     }
 }
 
@@ -138,80 +87,37 @@ RooArgList RooSimultaneousResModel::CacheElem::containedArgs(RooAbsCacheElement:
 {
     RooArgList retVal;
     for (std::vector<RooAbsReal*>::const_iterator it = m_resmodels.begin();
-	    m_resmodels.end() != it; ++it) retVal.add(**it);
-    if (m_flags & IntCat) {
-	for (std::vector<RooCategory*>::const_iterator it = m_cats.begin();
-		m_cats.end() != it; ++it) retVal.add(**it);
-    } else {
-	retVal.add(m_parent.m_cat.arg());
+	    m_resmodels.end() != it; ++it) {
+	retVal.add(**it);
+	//(*it)->treeNodeServerList(&retVal);
     }
-    if (m_catlv) retVal.add(*m_catlv);
+    retVal.add(m_parent.m_cat.arg());
     return retVal;
 }
 
 double RooSimultaneousResModel::CacheElem::getVal(const RooArgSet* nset) const
 {
-    if (m_flags & IntCat) {
-	const RooAbsCategory& cat = dynamic_cast<const RooAbsCategory&>(
-		m_parent.m_cat.arg());
-	double sum = 0.;
-	std::auto_ptr<TIterator> tyit(cat.typeIterator());
-	while (RooCatType* type =
-		reinterpret_cast<RooCatType*>(tyit->Next())) {
-	    if (m_catlv && m_rangeName && *m_rangeName &&
-		    m_catlv->hasRange(m_rangeName)) {
-		m_catlv->setIndex(type->getVal());
-		if (!m_catlv->inRange(m_rangeName)) continue;
-	    }
-	    std::vector<Int_t>::const_iterator it =
-		std::lower_bound(m_parent.m_indices.begin(),
-			m_parent.m_indices.end(), type->getVal());
-	    // we must find the correct element here by construction
-	    assert(m_parent.m_indices.end() != it && type->getVal() == *it);
-	    const unsigned idx = it - m_parent.m_indices.begin();
-	    assert(unsigned(idx) < m_resmodels.size());
-	    sum += m_resmodels[idx]->getVal(nset);
-	}
-	return sum;
-    } else {
-	const Int_t catidx = Int_t(m_parent.m_cat);
-	std::vector<Int_t>::const_iterator it =
-	    std::lower_bound(m_parent.m_indices.begin(),
-		    m_parent.m_indices.end(), catidx);
-	// we must find the correct element here by construction
-	assert(m_parent.m_indices.end() != it && catidx == *it);
-	const unsigned idx = it - m_parent.m_indices.begin();
-	assert(idx < m_resmodels.size());
-	return m_resmodels[idx]->getVal(nset);
-    }
-    // must not reach this point
-    assert(false);
-    return std::numeric_limits<double>::quiet_NaN();
+    const Int_t catidx = Int_t(m_parent.m_cat);
+    return m_resmodels[const_cast<std::map<Int_t, unsigned>&>(m_idxmap)[catidx]]->getVal(nset);
 }
 
 void RooSimultaneousResModel::fillResModelsAndIndices(
 	const std::map<Int_t, RooResolutionModel*>& map)
 {
-    m_indices.reserve(map.size());
     for (std::map<Int_t, RooResolutionModel*>::const_iterator it =
 	    map.begin(); map.end() != it; ++it) {
 	// make sure all resolution models have same convolution variable
 	assert(&convVar() == &(it->second->convVar()));
-	m_indices.push_back(it->first);
+	assert(!it->second->overlaps(m_cat.arg()));
 	m_resmodels.add(*(it->second));
-	// map should be sorted by key - make sure that is the case (we will
-	// make use of that assumption elsewhere in the code)
-	assert(m_indices.size() <= 1 ||
-		(*(m_indices.rbegin() + 1)) < (m_indices.back()));
     }
-    const RooAbsCategory& cat(
-	    dynamic_cast<const RooAbsCategory&>(m_cat.arg()));
+    const RooAbsCategoryLValue& cat(
+	    dynamic_cast<const RooAbsCategoryLValue&>(m_cat.arg()));
     assert(m_resmodels.getSize() == cat.numTypes());
-    assert(m_indices.size() == unsigned(cat.numTypes()));
 }
 
 RooSimultaneousResModel::RooSimultaneousResModel(
-	const char *name, const char *title, RooAbsCategory& cat,
+	const char *name, const char *title, RooAbsCategoryLValue& cat,
 	const std::map<Int_t, RooResolutionModel*>& map) :
     RooResolutionModel(name, title, map.begin()->second->convVar()),
     m_cat("cat", "cat", this, cat),
@@ -222,7 +128,7 @@ RooSimultaneousResModel::RooSimultaneousResModel(
 }
 
 RooSimultaneousResModel::RooSimultaneousResModel(
-	const char *name, const char *title, RooAbsCategory& cat,
+	const char *name, const char *title, RooAbsCategoryLValue& cat,
 	const std::map<std::string, RooResolutionModel*>& map) :
     RooResolutionModel(name, title, map.begin()->second->convVar()),
     m_cat("cat", "cat", this, cat),
@@ -243,7 +149,7 @@ RooSimultaneousResModel::RooSimultaneousResModel(
 }
 
 RooSimultaneousResModel::RooSimultaneousResModel(
-	const char *name, const char *title, RooAbsCategory& cat,
+	const char *name, const char *title, RooAbsCategoryLValue& cat,
 	const RooArgList& resmodels) :
     RooResolutionModel(name, title,
 	    dynamic_cast<RooResolutionModel&>(*resmodels.at(0)).convVar()),
@@ -267,13 +173,12 @@ RooSimultaneousResModel::RooSimultaneousResModel(const RooSimultaneousResModel& 
     RooResolutionModel(other, name),
     m_cat("cat", this, other.m_cat),
     m_resmodels("resmodels", this, other.m_resmodels),
-    m_indices(other.m_indices),
     _cacheMgr(other._cacheMgr, this)
 {
 }
 
 RooSimultaneousResModel::~RooSimultaneousResModel()
-{ 
+{
 }
 
 TObject* RooSimultaneousResModel::clone(const char* newname) const
@@ -350,11 +255,9 @@ RooSimultaneousResModel* RooSimultaneousResModel::convolution(RooFormulaVar* inB
     newName += owner->GetName();
     newName += "]";
 
-    std::map<Int_t, RooResolutionModel*> convs;
     RooArgList convlist;
     RooFIter it = m_resmodels.fwdIterator();
-    unsigned i = 0;
-    for (RooAbsArg* obj = it.next(); obj; obj = it.next(), ++i) {
+    for (RooAbsArg* obj = it.next(); obj; obj = it.next()) {
 	RooResolutionModel& resmodel =
 	    dynamic_cast<RooResolutionModel&>(*obj);
 	RooResolutionModel *conv = resmodel.convolution(inBasis, owner);
@@ -363,8 +266,13 @@ RooSimultaneousResModel* RooSimultaneousResModel::convolution(RooFormulaVar* inB
 	newTitle += " convoluted with basis function ";
 	newTitle += inBasis->GetName();
 	conv->SetTitle(newTitle.c_str());
-	convs.insert(std::make_pair(m_indices[i], conv));
 	convlist.add(*conv);
+    // interpolation
+    const char* cacheParamsStr = getStringAttribute("CACHEPARAMINT");
+    if (cacheParamsStr && std::strlen(cacheParamsStr)) {
+	conv->setStringAttribute("CACHEPARAMINT", cacheParamsStr);
+    }
+
     }
 
     std::string newTitle(GetTitle());
@@ -372,27 +280,21 @@ RooSimultaneousResModel* RooSimultaneousResModel::convolution(RooFormulaVar* inB
     newTitle += inBasis->GetName();
     RooSimultaneousResModel *myclone =
 	new RooSimultaneousResModel(newName.c_str(), newTitle.c_str(),
-		const_cast<RooAbsCategory&>(
-		    static_cast<const RooAbsCategory&>(m_cat.arg())), convs);
+		const_cast<RooAbsCategoryLValue&>(
+		    static_cast<const RooAbsCategoryLValue&>(m_cat.arg())), convlist);
     myclone->addOwnedComponents(convlist);
     myclone->changeBasis(inBasis);
-
-    // interpolation
-    const char* cacheParamsStr = getStringAttribute("CACHEPARAMINT");
-    if (cacheParamsStr && std::strlen(cacheParamsStr)) {
-	myclone->setStringAttribute("CACHEPARAMINT", cacheParamsStr);
-    }
 
     return myclone;
 }
 
 Int_t RooSimultaneousResModel::getAnalyticalIntegral(RooArgSet& allVars,
-	RooArgSet& analVars,
-	const char* rangeName) const
+	RooArgSet& analVars, const char* rangeName) const
 {
     if (_forceNumInt) return 0;
     analVars.add(allVars);
-    getCache(&allVars, RooNameReg::ptr(rangeName));
+    if (analVars.find(m_cat.arg())) analVars.remove(m_cat.arg());
+    getCache(&analVars, RooNameReg::ptr(rangeName));
     return 1 + _cacheMgr.lastIndex();
 }
 
