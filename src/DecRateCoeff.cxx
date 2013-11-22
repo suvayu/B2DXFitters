@@ -664,7 +664,6 @@ void DecRateCoeff::CacheElem::setupForPerEventEta(const RooArgSet& iset,
 	    assert(m_etapdfs[idx]);
 	}
 	if (0 == qt) continue;
-	m_parent.m_etas.at(idx)->Print();
 	RooAbsReal* eta = dynamic_cast<RooAbsReal*>(m_parent.m_etas.at(idx));
 	assert(eta);
 	RooAbsReal* prod = new RooProduct(newname.c_str(), newname.c_str(),
