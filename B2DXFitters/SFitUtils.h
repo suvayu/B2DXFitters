@@ -55,24 +55,12 @@ namespace SFitUtils {
 				     );
   
   //===========================================================================
-  // Read observables tVar, tagVar, tagOmegaVar, idVar from sWeights file
-  // Name of file is read from filesDirand signature sig
-  // time_{up,down} - range for tVar
-  // part means mode (DsPi, DsKand so on)
+  // Create Mistag templates
   //===========================================================================
-
-  RooWorkspace* ReadDataFromSWeights2(TString& part,
-				      TString& pathFile,
-				      TString& treeName,
-				      double time_down, double time_up,
-				      TString& tVar,
-				      TString& terrVar,
-				      TString& tagName,
-				      TString& tagOmegaVar,
-				      TString& idVar,
-				      bool weighted,
-				      bool        debug = false
-				      );
+  RooArgList* CreateMistagTemplates(RooDataSet* data, MDFitterSettings* mdSet, 
+				    Int_t bins,
+				    bool save = false, bool debug=false);
+  
 
   //===========================================================================
   // Copy Data for Toys, change RooCategory to RooRealVar
