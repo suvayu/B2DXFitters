@@ -664,6 +664,7 @@ void DecRateCoeff::CacheElem::setupForPerEventEta(const RooArgSet& iset,
 	    assert(m_etapdfs[idx]);
 	}
 	if (0 == qt) continue;
+	m_parent.m_etas.at(idx)->Print();
 	RooAbsReal* eta = dynamic_cast<RooAbsReal*>(m_parent.m_etas.at(idx));
 	assert(eta);
 	RooAbsReal* prod = new RooProduct(newname.c_str(), newname.c_str(),
@@ -789,7 +790,7 @@ void DecRateCoeff::CacheElem::setupBinnedProductIntegral(
     prod->addOwnedComponents(*pdf);
     prod->addOwnedComponents(*etai);
     prod->addOwnedComponents(*myetapdf);
-    prod->addOwnedComponents(*etaa);
+    if (etaa != m_parent.m_etaobs.absArg()) prod->addOwnedComponents(*etaa);
     prod->addOwnedComponents(*etaobs);
     // all done
 }
