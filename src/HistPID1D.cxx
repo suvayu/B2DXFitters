@@ -17,7 +17,13 @@
 #include "TH1F.h"
 #include "TFile.h"
 #include "TAxis.h"
+#include "TCanvas.h"
 #include "RooBinning.h"
+#include "TGraphErrors.h"
+#include "TLegend.h"
+#include "TLatex.h"
+#include "B2DXFitters/PlotSettings.h"
+
 
 HistPID1D::HistPID1D(const TString& name, const TString& title)
 {
@@ -229,7 +235,7 @@ HistPID1D::HistPID1D(const TString& name, const TString& title, const TString& f
 	  TAxis* axis=histA1->GetXaxis();
 	  Double_t max = axis->GetXmax();
 	  Double_t min = axis->GetXmin();;
-	  //std::cout<<"min: "<<min<<" max: "<<max<<std::endl;
+	  std::cout<<"min: "<<min<<" max: "<<max<<std::endl;
 	  RooBinning* Bin = new RooBinning(min,max,"P");
 	  for (int k = 1; k < numbin; k++ )
 	    {
@@ -244,7 +250,10 @@ HistPID1D::HistPID1D(const TString& name, const TString& title, const TString& f
 	  TString namehist1 = histA1->GetName();
 	  TString nameHist = namehist1+"_"+_polarity[i]+"_weighted";
 	  _hist[i] = new TH1F(nameHist.Data(), histA1->GetTitle(), Bin->numBins(), Bin->array());
-	  
+	  _hist[i]->SetTitle(histA1->GetTitle());
+	  _hist[i]->GetXaxis()->SetTitle(histA1->GetXaxis()->GetTitle());
+	  _hist[i]->GetYaxis()->SetTitle(histA1->GetYaxis()->GetTitle());
+
 	  for(int j=0; j<numbin; j++)
 	    {
 	      Double_t bin1 = histA1->GetBinContent(j);
@@ -252,6 +261,12 @@ HistPID1D::HistPID1D(const TString& name, const TString& title, const TString& f
 	      Double_t bin = (bin1*w1+bin2*w2)/w;
 	      //std::cout<<"i: "<<i<<" bin1: "<<bin1<<" bin2: "<<bin2<<" bin: "<<bin<<std::endl;
 	      _hist[i]->SetBinContent(j,bin);
+
+	      Double_t err1 = histA1->GetBinError(j);
+	      Double_t err2 = histA2->GetBinError(j);
+	      Double_t err = sqrt( w1/w*err1*err1+w2/w*err2*err2);
+	      _hist[i]->SetBinError(j,err);
+	      //std::cout<<"i: "<<j<<" err: "<<err1<<" err2: "<<err2<<" err: "<<err<<std::endl;
 	    }
 	  _fileName[i]= fN1+" weighted with "+fN2;
 	}
@@ -306,6 +321,167 @@ std::ostream & operator<< (ostream &out, const HistPID1D &s)
   return out;
 }
 
+void HistPID1D::ShowContent(TString& pol)
+{
+  TH1F* hist = NULL;
+
+  if ( _polarity[0] == pol ) { hist = _hist[0]; }
+  else if ( _polarity[1] == pol ) { hist =  _hist[1]; }
+  Int_t numbin = hist -> GetNbinsX();
+  for(int i = 0; i<numbin; i++)
+    {
+      Double_t bin1 = hist->GetBinContent(i);
+      Double_t err1 = hist->GetBinError(i);
+      std::cout<<"bin: "<<i<<" content: "<<bin1<<" with error: "<<err1<<std::endl;
+    }
+  
+}
+
+
+void HistPID1D::SavePlot(PlotSettings* plotSet)
+{
+  TH1F* histMD = NULL;
+  TH1F* histMU = NULL;
+
+  if ( _polarity[0] == "down" ) { histMD = _hist[0]; }
+  else if ( _polarity[1] == "down" ) { histMD =  _hist[1]; }
+  
+  if ( _polarity[0] == "up" ) { histMU = _hist[0]; }
+  else if ( _polarity[1] == "up" ) { histMU =  _hist[1]; }
+
+  if ( plotSet == NULL ) { plotSet = new PlotSettings("plotSet","plotSet"); }
+  /*
+  Int_t numbinMD = histMD -> GetNbinsX();
+  for(int i = 0; i<numbinMD; i++)
+    {
+      Double_t bin1 = histMD->GetBinContent(i);
+      Double_t err1 = histMD->GetBinError(i);
+      std::cout<<"bin: "<<i<<" content: "<<bin1<<" with error: "<<err1<<std::endl;
+    }
+  Int_t numbinMU = histMU -> GetNbinsX();
+  for(int i = 0; i<numbinMU; i++)
+    {
+      Double_t bin1 = histMU->GetBinContent(i);
+      Double_t err1 = histMD->GetBinError(i);
+      std::cout<<"bin: "<<i<<" content: "<< bin1<<" with error: "<<err1<<std::endl;
+    }
+  */
+  
+  TString nameHist = histMD->GetName();
+  TString remove = "";
+  
+  if( nameHist.Contains("weighted") == true ) { remove = "_down_weighted"; }
+  else { remove = "_down"; }
+
+  nameHist.ReplaceAll(remove, ""); 
+  TString dir = plotSet->GetDir();
+  TString ext = plotSet->GetExt();
+  TString save = dir+"/"+nameHist+"."+ext;
+
+  TCanvas *rat = new TCanvas("can","",10,10,800,600);
+  
+  histMD->SetMarkerStyle(20);
+  histMU->SetMarkerStyle(26);
+  //histMD->SetMarkerSize(1.2);
+  //histMU->SetMarkerSize(1.2);
+  histMD->SetMarkerColor(kOrange);
+  histMU->SetMarkerColor(kRed);
+
+  histMD->SetLabelFont(132,"X");
+  histMD->SetLabelFont(132,"Y");
+  histMU->SetLabelFont(132,"X");
+  histMU->SetLabelFont(132,"Y");
+
+  TString title = histMD->GetTitle();
+  histMD->SetTitle("");
+  histMU->SetTitle("");
+
+  histMD->GetXaxis()->SetTitle("Track Momentum [MeV/c]");
+  histMU->GetXaxis()->SetTitle("Track Momentum [MeV/c]");
+
+  histMD->SetStats(false);
+  histMU->SetStats(false);
+
+  TString YTitle;
+
+  if ( title != "")
+    {
+      if( nameHist.Contains("Eff") == true)
+	{
+	  YTitle = "Efficiency for "+title;
+	}
+      else
+	{
+	  YTitle = "MisID for "+title;
+	}
+      histMD->GetYaxis()->SetTitle(YTitle.Data());
+      histMU->GetYaxis()->SetTitle(YTitle.Data());
+    }
+
+  TLegend* legend = NULL;
+  if ( nameHist.Contains("Eff") == true )
+    {
+      legend = new TLegend( 0.68, 0.76, 0.88, 0.88 );
+    }
+  else
+    {
+      legend = new TLegend( 0.68, 0.12, 0.88, 0.24 );
+    }
+  legend->SetTextSize(0.04);
+  legend->SetTextFont(12);
+  legend->SetFillColor(4000);
+  legend->SetShadowColor(0);
+  legend->SetBorderSize(0);
+  legend->SetTextFont(132);
+
+  TGraphErrors* grMD = new TGraphErrors(5);
+  grMD->SetName("grMD");
+  grMD->SetLineColor(kBlack);
+  grMD->SetLineWidth(1);
+  grMD->SetMarkerStyle(20);
+  grMD->SetMarkerSize(1.5);
+  grMD->SetMarkerColor(kOrange);
+  grMD->Draw("P");
+
+  TGraphErrors* grMU = new TGraphErrors(5);
+  grMU->SetName("grMU");
+  grMU->SetLineColor(kBlack);
+  grMU->SetLineWidth(1);
+  grMU->SetMarkerStyle(26);
+  grMU->SetMarkerSize(1.5);
+  grMU->SetMarkerColor(kRed);
+  grMU->Draw("P");
+
+  legend->AddEntry("grMD","magnet down","lep");
+  legend->AddEntry("grMU","magnet up","lep");
+
+  TLatex* lhcbtext = new TLatex();
+  lhcbtext->SetTextFont(132);
+  lhcbtext->SetTextColor(1);
+  lhcbtext->SetTextSize(0.05);
+  lhcbtext->SetTextAlign(12);
+
+  histMD->Draw("E1");
+  histMU->Draw("same E1");
+  legend->Draw("same");
+  if ( nameHist.Contains("Eff") == true )
+    {
+      lhcbtext->DrawTextNDC( 0.78, 0.72, "LHCb");
+    }
+  else
+    {
+      lhcbtext->DrawTextNDC( 0.78 , 0.27, "LHCb");
+    }
+  /*
+  TString nameMD = "histMD_"+nameHist+".root";
+  TString nameMU = "histMU_"+nameHist+".root";
+  histMD->SaveAs(nameMD.Data());
+  histMU->SaveAs(nameMU.Data());
+  */
+  rat->Update();
+  rat->SaveAs(save.Data());
+ 
+}
 
 HistPID1D::~HistPID1D() { }
 
