@@ -44,8 +44,6 @@ MDFitterSettings::MDFitterSettings(const TString& name, const TString& title)
       _nTracksRange.push_back(0.0);
       _BDTGRange.push_back(0.0);
       _terrRange.push_back(0.0);
-      _tagRange.push_back(0.0);
-      _tagOmegaRange.push_back(0.0);
       _idRange.push_back(0.0);
     }
 
@@ -63,8 +61,6 @@ MDFitterSettings::MDFitterSettings(const TString& name, const TString& title)
   _mDVar = "";
   _tVar = "";
   _terrVar = "";
-  _tagVar = "";
-  _tagOmegaVar = "";
   _idVar = "";
   _PIDVar = "";
   _BDTGVar = "";
@@ -73,6 +69,8 @@ MDFitterSettings::MDFitterSettings(const TString& name, const TString& title)
   _ptVar = "";
   
   _addVar = false;
+  _tagVar = false;
+  _tagOmegaVar = false;
 }
 
 
@@ -106,8 +104,6 @@ MDFitterSettings::MDFitterSettings(const TString& name, const TString& title, TS
       _nTracksRange.push_back(0.0);
       _BDTGRange.push_back(0.0);
       _terrRange.push_back(0.0);
-      _tagRange.push_back(0.0);
-      _tagOmegaRange.push_back(0.0);
       _idRange.push_back(0.0);
     }
 
@@ -125,8 +121,6 @@ MDFitterSettings::MDFitterSettings(const TString& name, const TString& title, TS
   _mDVar = "";
   _tVar = "";
   _terrVar = "";
-  _tagVar = "";
-  _tagOmegaVar = "";
   _idVar = "";
   _PIDVar = "";
   _BDTGVar = "";
@@ -135,7 +129,9 @@ MDFitterSettings::MDFitterSettings(const TString& name, const TString& title, TS
   _ptVar = "";
 
   _addVar = false;
-  
+  _tagVar = false;
+  _tagOmegaVar = false;
+
   if (myfile.is_open())
     {
       while(myfile.good())
@@ -219,24 +215,7 @@ MDFitterSettings::MDFitterSettings(const TString& name, const TString& title, TS
               getline(myfile, line, ']');
               _BDTGRange[1] = (Double_t)atof(line.c_str());
 	    }
-	  if( line.find("TagDec") != std::string::npos )       
-	    { 
-	      getline(myfile, line, ',');
-              l1 = line.find_first_of("[");
-              line = line.substr(l1+1,line.size());
-              _tagRange[0] = (Double_t)atof(line.c_str());
-              getline(myfile, line, ']');
-              _tagRange[1] = (Double_t)atof(line.c_str());
-	    }
-	  if( line.find("TagOmega") != std::string::npos )  
-	    {  
-	      getline(myfile, line, ',');
-              l1 = line.find_first_of("[");
-              line = line.substr(l1+1,line.size());
-              _tagOmegaRange[0] = (Double_t)atof(line.c_str());
-              getline(myfile, line, ']');
-              _tagOmegaRange[1] = (Double_t)atof(line.c_str());
-	    }
+	  
           if( line.find("Terr") != std::string::npos )      
 	    { 
 	      getline(myfile, line, ',');
@@ -326,6 +305,94 @@ MDFitterSettings::MDFitterSettings(const TString& name, const TString& title, TS
 		    }
 		}
 	    }
+	  
+	  if ( line.find("TagDec") != std::string::npos )
+            {
+              getline (myfile,line,']');
+              while ( line.find_first_of("\"") < line.size() && line.find_first_of("\"") != 0 )
+                {
+                  l1 = line.find_first_of("\"");
+                  tmp = line.substr(l1+1, line.size());
+                  l2 = tmp.find_first_of("\"");
+                  tmp = line.substr(l1+1,l2);
+                  _tagVarNames.push_back(tmp);
+                  line = line.substr(l1+l2+2,line.size());
+                }
+              if(_tagVarNames.size() != 0 ) { _tagVar = true; }
+            }
+          if ( _tagVar == true )
+            {
+              for( unsigned int i = 0; i < _tagVarNames.size(); i++ )
+                {
+                  if ( line.find(_tagVarNames[i].Data()) != std::string::npos )
+                    {
+                      getline(myfile, line, ',');
+                      l1 = line.find_first_of("[");
+                      line = line.substr(l1+1,line.size());
+                      _tagVarRD.push_back((Double_t)atof(line.c_str()));
+                      getline(myfile, line, ']');
+                      _tagVarRU.push_back((Double_t)atof(line.c_str()));
+                    }
+                }
+            }
+
+	  if ( line.find("TagOmega") != std::string::npos )
+            {
+              getline (myfile,line,']');
+              while ( line.find_first_of("\"") < line.size() && line.find_first_of("\"") != 0 )
+                {
+                  l1 = line.find_first_of("\"");
+                  tmp = line.substr(l1+1, line.size());
+                  l2 = tmp.find_first_of("\"");
+                  tmp = line.substr(l1+1,l2);
+                  _tagOmegaVarNames.push_back(tmp);
+                  line = line.substr(l1+l2+2,line.size());
+                }
+              if(_tagOmegaVarNames.size() != 0 ) { _tagOmegaVar = true; }
+            }
+	  if ( _tagVar == true )
+            {
+              for( unsigned int i = 0; i < _tagOmegaVarNames.size(); i++ )
+                {
+                  if ( line.find(_tagOmegaVarNames[i].Data()) != std::string::npos )
+                    {
+                      getline(myfile, line, ',');
+                      l1 = line.find_first_of("[");
+                      line = line.substr(l1+1,line.size());
+                      _tagOmegaVarRD.push_back((Double_t)atof(line.c_str()));
+                      getline(myfile, line, ']');
+                      _tagOmegaVarRU.push_back((Double_t)atof(line.c_str()));
+                    }
+		}
+	      if ( line.find("calibration_p0") != std::string::npos )
+		{
+		  getline(myfile, line, ',');
+		  l1 = line.find_first_of("[");
+		  line = line.substr(l1+1,line.size());
+		  _p0.push_back((Double_t)atof(line.c_str()));
+		  getline(myfile, line, ']');
+		  _p0.push_back((Double_t)atof(line.c_str()));
+		}
+	      if ( line.find("calibration_p1") != std::string::npos )
+		{
+		  getline(myfile, line, ',');
+		  l1 = line.find_first_of("[");
+		  line = line.substr(l1+1,line.size());
+		  _p1.push_back((Double_t)atof(line.c_str()));
+		  getline(myfile, line, ']');
+		  _p1.push_back((Double_t)atof(line.c_str()));
+		}
+	      if ( line.find("calibration_av") != std::string::npos )
+                {
+                  getline(myfile, line, ',');
+                  l1 = line.find_first_of("[");
+                  line = line.substr(l1+1,line.size());
+                  _av.push_back((Double_t)atof(line.c_str()));
+                  getline(myfile, line, ']');
+                  _av.push_back((Double_t)atof(line.c_str()));
+                }
+              
+            }
 	}
     }
   if( _lumRatio[0] != 0 || _lumRatio[0] != 1) { _lumRatio[2] = _lumRatio[2] = _lumRatio[0]/(_lumRatio[1]+_lumRatio[0]);}
@@ -339,9 +406,7 @@ MDFitterSettings::MDFitterSettings(const MDFitterSettings& other) :
   _massBRange   = other._massBRange;
   _massDRange   = other._massDRange;
   _timeRange    = other._timeRange;
-  _tagRange     = other._tagRange;
   _terrRange    = other._terrRange;
-  _tagOmegaRange= other._tagOmegaRange;
   _pRange       = other._pRange;
   _ptRange      = other._ptRange;
   _nTracksRange = other._nTracksRange;
@@ -380,7 +445,19 @@ MDFitterSettings::MDFitterSettings(const MDFitterSettings& other) :
   _addVarRD = other._addVarRD;
   _addVar  = other._addVar;
 
-
+  _tagVarNames = other._tagVarNames;
+  _tagVarRU = other._tagVarRU;
+  _tagVarRD = other._tagVarRD;
+  _tagVar  = other._tagVar;
+  
+  _tagOmegaVarNames = other._tagOmegaVarNames;
+  _tagOmegaVarRU = other._tagOmegaVarRU;
+  _tagOmegaVarRD = other._tagOmegaVarRD;
+  _tagOmegaVar  = other._tagOmegaVar;
+ 
+  _p0 = other._p0;
+  _p1 = other._p1;
+  _av = other._av;
 }
 
 MDFitterSettings::~MDFitterSettings() { }
@@ -393,16 +470,41 @@ std::ostream & operator<< (ostream &out, const MDFitterSettings &s)
   out<<"PIDK range: ("<<s._PIDRange[0]<<","<<s._PIDRange[1]<<"),  variable name: "<<s._PIDVar<<std::endl;
   out<<"BDTG range: ("<<s._BDTGRange[0]<<","<<s._BDTGRange[1]<<"), variable name: "<<s._BDTGVar<<std::endl;
   out<<"Time range: ("<<s._timeRange[0]<<","<<s._timeRange[1]<<"), variable name: "<<s._tVar<<std::endl;
+  out<<"Time range: ("<<s._terrRange[0]<<","<<s._terrRange[1]<<"), variable name: "<<s._terrVar<<std::endl;
   out<<"Charge range: ("<<s._idRange[0]<<","<<s._idRange[1]<<"), variable name: "<<s._idVar<<std::endl;
-  out<<"Tag range: ("<<s._tagRange[0]<<","<<s._tagRange[1]<<"), variable name: "<<s._tagVar<<std::endl;
-  out<<"Tag omega range: ("<<s._tagOmegaRange[0]<<","<<s._tagOmegaRange[1]<<"), variable name: "<<s._tagOmegaVar<<std::endl;
   out<<"Momentum range: ("<<s._pRange[0]<<","<<s._pRange[1]<<"),  variable name: "<<s._pVar<<std::endl;
   out<<"Transverse momentum range: ("<<s._ptRange[0]<<","<<s._ptRange[1]<<"),  variable name: "<<s._ptVar<<std::endl;
   out<<"nTracks range: ("<<s._nTracksRange[0]<<","<<s._nTracksRange[1]<<"),  variable name: "<<s._nTracksVar<<std::endl;
 
+  if( s._tagVar == true )
+    {
+      out<<"Tag variables"<<std::endl;
+      for( unsigned int i = 0; i < s._tagVarNames.size(); i++ )
+        {
+          out<<"Range: ("<<s._tagVarRD[i]<<","<<s._tagVarRU[i]<<"), variable name: "<<s._tagVarNames[i]<<std::endl;
+        }
+    }
+
+  if( s._tagOmegaVar == true )
+    {
+      out<<"TagOmega variables"<<std::endl;
+      for( unsigned int i = 0; i < s._tagOmegaVarNames.size(); i++ )
+        {
+          out<<"Range: ("<<s._tagOmegaVarRD[i]<<","<<s._tagOmegaVarRU[i]<<"), variable name: "<<s._tagOmegaVarNames[i]<<std::endl;
+        }
+    }
+  if ( s._tagVar == true )
+    {
+      out<<"Calibration:"<<std::endl;
+      for( unsigned int i = 0; i < s._tagVarNames.size(); i++ )
+        {
+          out<<"p0: "<<s._p0[i]<<", p1: "<<s._p1[i]<<", average: "<<s._av[i]<<std::endl;
+        }
+    }
+  
   if( s._addVar == true )
     {
-      out<<"Additional variable"<<std::endl;
+      out<<"Additional variables"<<std::endl;
       for( unsigned int i = 0; i < s._addVarNames.size(); i++ )
 	{
 	  out<<"Range: ("<<s._addVarRD[i]<<","<<s._addVarRU[i]<<"), variable name: "<<s._addVarNames[i]<<std::endl;
@@ -443,8 +545,6 @@ Double_t MDFitterSettings::GetRangeUp(TString var)
   if( var == _mDVar)       { return _massDRange[1];    }
   if( var == _tVar)        { return _timeRange[1];     } 
   if( var == _terrVar)     { return _terrRange[1];     }
-  if( var == _tagVar)      { return _tagRange[1];      } 
-  if( var == _tagOmegaVar) { return _tagOmegaRange[1]; }
   if( var == _idVar)       { return _idRange[1];       }
   if( var == _PIDVar)      { return _PIDRange[1];      }
   if( var == _BDTGVar)     { return _BDTGRange[1];     }
@@ -455,6 +555,15 @@ Double_t MDFitterSettings::GetRangeUp(TString var)
     {
       if( var == _addVarNames[i]) { return _addVarRU[i]; }
     }
+  for ( unsigned int i = 0; i <_tagVarNames.size(); i++ )
+    {
+      if( var == _tagVarNames[i]) { return _tagVarRU[i]; }
+    }
+  for ( unsigned int i = 0; i <_tagOmegaVarNames.size(); i++ )
+    {
+      if( var == _tagOmegaVarNames[i]) { return _tagOmegaVarRU[i]; }
+    }
+  
   return range;
 }
 
@@ -465,8 +574,6 @@ Double_t MDFitterSettings::GetRangeDown(TString var)
   if( var == _mDVar)       { return _massDRange[0];    }
   if( var == _tVar)        { return _timeRange[0];     }
   if( var == _terrVar)     { return _terrRange[0];     } 
-  if( var == _tagVar)      { return _tagRange[0];      }
-  if( var == _tagOmegaVar) { return _tagOmegaRange[0]; }
   if( var == _idVar)       { return _idRange[0];       }
   if( var == _PIDVar)      { return _PIDRange[0];      }
   if( var == _BDTGVar)     { return _BDTGRange[0];     }
@@ -477,7 +584,16 @@ Double_t MDFitterSettings::GetRangeDown(TString var)
     {
       if( var == _addVarNames[i]) { return _addVarRD[i]; }
     }
+  for ( unsigned int i =0; i <_tagVarNames.size(); i++ )
+    {
+      if( var == _tagVarNames[i]) { return _tagVarRD[i]; }
+    }
+  for ( unsigned int i =0; i <_tagOmegaVarNames.size(); i++ )
+    {
+      if( var == _tagOmegaVarNames[i]) { return _tagOmegaVarRD[i]; }
+    }
 
+  
   return range;
 }
 
@@ -491,8 +607,6 @@ std::vector <Double_t> MDFitterSettings::GetRange(TString var)
   if( var == _mDVar)       { return _massDRange;    }
   if( var == _tVar)        { return _timeRange;     }
   if( var == _terrVar)     { return _terrRange;     }
-  if( var == _tagVar)      { return _tagRange;      }
-  if( var == _tagOmegaVar) { return _tagOmegaRange; }
   if( var == _idVar)       { return _idRange;       }
   if( var == _PIDVar)      { return _PIDRange;      }
   if( var == _BDTGVar)     { return _BDTGRange;     }
@@ -507,7 +621,22 @@ std::vector <Double_t> MDFitterSettings::GetRange(TString var)
 	  range[1] = _addVarRU[i];
 	}
     }
-
+  for (unsigned int i =0; i <_tagVarNames.size(); i++ )
+    {
+      if( var == _tagVarNames[i])
+        {
+          range[0] = _tagVarRD[i];
+          range[1] = _tagVarRU[i];
+        }
+    }
+  for (unsigned int i =0; i <_tagOmegaVarNames.size(); i++ )
+    {
+      if( var == _tagVarNames[i])
+        {
+          range[0] = _tagOmegaVarRD[i];
+          range[1] = _tagOmegaVarRU[i];
+        }
+    }
 
   return range;
   
@@ -564,12 +693,10 @@ TCut MDFitterSettings::GetCut(bool sideband)
   TCut nTr_cut = GetCut(_nTracksVar, sideband);
   TCut p_cut = GetCut(_pVar, sideband);
   TCut pt_cut = GetCut(_ptVar, sideband);
-  TCut tag_cut = GetCut(_tagVar, sideband);
-  TCut tagOmega_cut = GetCut(_tagOmegaVar, sideband);
   TCut id_cut = GetCut(_idVar, sideband);
   TCut pidk_cut = GetCut(_PIDVar, sideband);
  
-  all_cut = massB_cut&&massD_cut&&time_cut&&terr_cut&&BDTG_cut&&nTr_cut&&p_cut&&pt_cut&&tag_cut&&tagOmega_cut&&id_cut&&pidk_cut; 
+  all_cut = massB_cut&&massD_cut&&time_cut&&terr_cut&&BDTG_cut&&nTr_cut&&p_cut&&pt_cut&&id_cut&&pidk_cut; 
 
   return all_cut;
 }
@@ -581,8 +708,6 @@ Bool_t MDFitterSettings::CheckVarName( TString name ) {
   if( name == _mDVar) { check = true;  }
   if( name == _tVar) { check = true; }
   if( name == _terrVar) { check = true; }
-  if( name == _tagVar) { check = true; }
-  if( name == _tagOmegaVar) { check = true; }
   if( name == _idVar) { check = true; }
   if( name == _PIDVar) { check = true; }
   if( name == _BDTGVar) { check = true; }
@@ -594,6 +719,16 @@ Bool_t MDFitterSettings::CheckVarName( TString name ) {
     {
       if( _addVarNames[i] == name) { check = true; }
     }
+  for(unsigned int i = 0; i<_tagVarNames.size(); i++ )
+    {
+      if( _tagVarNames[i] == name) { check = true; }
+    }
+  for(unsigned int i = 0; i<_tagOmegaVarNames.size(); i++ )
+    {
+      if( _tagOmegaVarNames[i] == name) { check = true; }
+    }
+
+  
   return check;
 }
 
@@ -632,8 +767,6 @@ std::vector <TString> MDFitterSettings::GetVarNames()
   names.push_back(_PIDVar);
   names.push_back(_tVar);
   names.push_back(_terrVar);
-  names.push_back(_tagVar);
-  names.push_back(_tagOmegaVar);
   names.push_back(_BDTGVar);
   names.push_back(_pVar);
   names.push_back(_ptVar);
@@ -643,6 +776,16 @@ std::vector <TString> MDFitterSettings::GetVarNames()
   for ( unsigned int i =0; i <_addVarNames.size(); i++ )
     {
       names.push_back(_addVarNames[i]);
+    }
+  
+  for ( unsigned int i =0; i <_tagVarNames.size(); i++ )
+    {
+      names.push_back(_tagVarNames[i]);
+    }
+
+  for ( unsigned int i =0; i <_tagOmegaVarNames.size(); i++ )
+    {
+      names.push_back(_tagOmegaVarNames[i]);
     }
 
   
