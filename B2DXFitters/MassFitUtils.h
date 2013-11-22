@@ -82,7 +82,6 @@ namespace MassFitUtils {
 				   MDFitterSettings* mdSet,
 				   TString& mode,
 				   RooWorkspace* workspace = NULL, 
-				   Bool_t mistag = false,
 				   PlotSettings* plotSet = NULL,
 				   bool        debug = false);
 
@@ -105,7 +104,6 @@ namespace MassFitUtils {
 				    MDFitterSettings* mdSet,
 				    TString& mode,
 				    RooWorkspace* workspace = NULL, 
-				    Bool_t mistag = false, 
 				    PlotSettings* plotSet = NULL,
 				    bool        debug = false);
 
