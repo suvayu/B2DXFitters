@@ -13,7 +13,7 @@
 #include "TNamed.h"
 #include "TString.h"
 #include "TH1F.h"
-#include "B2DXFitters/PlotSettings.h"
+#include "PlotSettings.h"
  
 #include <vector>
 
