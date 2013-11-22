@@ -3472,6 +3472,153 @@ namespace WeightingUtils {
     return work;
     
   }
+  
+  TH1* GetHist(RooDataSet* data, RooRealVar* obs, Int_t bin, bool debug)
+  {
+    TH1* hist = NULL;
+    TString dataName = data->GetName();
+    TString nameHist = "hist_"+dataName;
+    
+    hist = data->createHistogram(nameHist.Data(), *obs, RooFit::Binning(bin));
+    hist->SetName(nameHist); 
+
+    for (int i = 1; i< bin+1; i++)
+      {
+	Double_t c1 = hist->GetBinContent(i);
+	if (c1 < 1e-37)
+          {
+            hist->SetBinContent(i, 1e-37);
+          }
+      }
+
+    return hist;
+  }
+
+  TH1* GetHistRatio(RooDataSet* data1, RooDataSet* data2, RooRealVar* obs, TString histName, Int_t bin, bool debug)
+  {
+    TH1* hist1 = NULL;
+    TH1* hist2 = NULL;
+    TString nameHist1 = "hist1";
+    TString nameHist2 = "hist2";
+
+    hist1 = data1->createHistogram(nameHist1.Data(), *obs, RooFit::Binning(bin));
+    hist1->SetName(nameHist1.Data());
+    hist1->SaveAs("hist1.root");
+    hist2 = data2->createHistogram(nameHist2.Data(), *obs, RooFit::Binning(bin));
+    hist2->SetName(nameHist2.Data());
+    hist2->SaveAs("hist2.root");
+
+    for (int i = 1; i< bin+1; i++)
+      {
+        Double_t c1 = hist1->GetBinContent(i);
+	if (c1 < 1e-37)
+          {
+            hist1->SetBinContent(i, 1e-37);
+          }
+	Double_t c2 = hist2->GetBinContent(i);
+        if (c2 < 1e-37)
+          {
+            hist2->SetBinContent(i, 1e-37);
+          }
+      }
+    TH1* hist = new TH1F(histName.Data(), histName.Data(), bin, obs->getMin(), obs->getMax());
+    Double_t scaleA = data2->sumEntries()/data1->sumEntries();
+    
+    for (int i = 1; i<bin; i++)
+      {
+	Float_t binH1 = hist1->GetBinContent(i);
+	Float_t binH2 = hist2->GetBinContent(i);
+	Float_t errH1 = hist1->GetBinError(i);
+	Float_t errH2 = hist2->GetBinError(i);
+	
+	Float_t binRatio = 0;
+	Float_t errRatio = 0; 
+
+	if ( binH1 <= 0 || binH2 <= 0 ) { binRatio = 0; errRatio=0; }
+	else {
+	  binRatio = binH1/binH2*scaleA;
+	  errRatio = binRatio*sqrt((errH1*errH1)/(binH1*binH1)+(errH2+errH2)/(binH2*binH2));
+	}
+	std::cout<<"i: "<<i<<" binH1: "<<binH1<<" binH2: "<<binH2<<" bin: "<<binRatio<<std::endl;
+	hist->SetBinContent(i,binRatio);
+	hist->SetBinError(i,errRatio);
+      }
+    
+    return hist;
+  }
+
+  
+  
+  TH1* GetHistRatio(TH1* hist1, TH1* hist2, RooRealVar* obs, TString histName,bool debug)
+  {
+    
+    Int_t bin1 = hist1->GetNbinsX();
+    Int_t bin2 = hist2->GetNbinsX();
+    Int_t bin;
+    
+    if( bin1 == bin2 ) { bin = bin1; }
+    else{ std::cout<<"[ERROR] Not the same number of bins: "<<bin1<<" != "<<bin2<<std::endl; return NULL; }
+
+    TH1* hist = new TH1F(histName.Data(), histName.Data(), bin, obs->getMin(), obs->getMax());
+    Double_t scaleA = hist2->GetSumOfWeights()/hist1->GetSumOfWeights() ;
+
+    for (int i = 1; i<bin; i++)
+      {
+        Float_t binH1 = hist1->GetBinContent(i);
+	Float_t binH2 = hist2->GetBinContent(i);
+        Float_t errH1 = hist1->GetBinError(i);
+        Float_t errH2 = hist2->GetBinError(i);
+
+        Float_t binRatio = 0;
+        Float_t errRatio = 0;
+
+        if ( binH1 <= 0 || binH2 <= 0 ) { binRatio = 0; errRatio=0; }
+        else {
+          binRatio = binH1/binH2*scaleA;
+          errRatio = binRatio*sqrt((errH1*errH1)/(binH1*binH1)+(errH2+errH2)/(binH2*binH2));
+        }
+	std::cout<<"i: "<<i<<" binH1: "<<binH1<<" binH2: "<<binH2<<" bin: "<<binRatio<<std::endl;
+
+        hist->SetBinContent(i,binRatio);
+        hist->SetBinError(i,errRatio);
+      }
+
+    return hist;
+  }
+
+  TH1* MultiplyHist(TH1* hist1, TH1* hist2, RooRealVar* obs, TString histName,bool debug)
+  {
+    Int_t bin1 = hist1->GetNbinsX();
+    Int_t bin2 = hist2->GetNbinsX();
+    Int_t bin;
+
+    if( bin1 == bin2 ) { bin = bin1; }
+    else{ std::cout<<"[ERROR] Not the same number of bins: "<<bin1<<" != "<<bin2<<std::endl; return NULL; }
+
+    TH1* hist = new TH1F(histName.Data(), histName.Data(), bin, obs->getMin(), obs->getMax());
+    Double_t scaleA = hist2->GetSumOfWeights()/hist1->GetSumOfWeights() ;
+
+    for (int i = 1; i<bin; i++)
+      {
+	Float_t binH1 = hist1->GetBinContent(i);
+        Float_t binH2 = hist2->GetBinContent(i);
+        Float_t errH1 = hist1->GetBinError(i);
+	Float_t errH2 = hist2->GetBinError(i);
+
+	Float_t binRatio = 0;
+        Float_t errRatio = 0;
+	
+	binRatio = binH1*binH2*scaleA; 
+	errRatio = binRatio*sqrt((errH1*errH1)/(binH1*binH1)+(errH2+errH2)/(binH2*binH2));
+	std::cout<<"i: "<<i<<" binH1: "<<binH1<<" binH2: "<<binH2<<" bin: "<<binRatio<<std::endl;
+
+        hist->SetBinContent(i,binRatio);
+	hist->SetBinError(i,errRatio);
+      }
+
+    return hist;
+
+  }
 
 }
 // end of namespace
