@@ -1,51 +1,51 @@
 #PIDp
-/home/jallad/codebaby/ntuples/histos/
+../../ntuples/histos/
 EffHistos_Reco12_39Mom_Proton_MagDown_TightCuts.root
 EffHistos_Reco12_39Mom_Proton_MagUp_TightCuts.root
 ###
 
 #PID
-/home/jallad/codebaby/ntuples/histos/
+../../ntuples/histos/
 EffHistos_Reco12_39Mom_MagDown_0123.root
 EffHistos_Reco12_39Mom_MagUp_012.root
 ###
 
 #PID2
-/home/jallad/codebaby/ntuples/histos/
+../../ntuples/histos/
 EffHistos_Reco12_39Mom_MagDown_45678.root
 EffHistos_Reco12_39Mom_MagUp_3456.root
 ###
 
 #PIDp3
-/home/jallad/codebaby/ntuples/histos/
+../../ntuples/histos/
 EffHistos_Reco12_39Mom_MagDown_Proton_DLLKDLLpK.root
 EffHistos_Reco12_39Mom_MagUp_Proton_DLLKDLLpK.root
 ###
 
 #RatioDataMC2D
-/home/jallad/codebaby/ntuples/histos/
+../../ntuples/histos/
 MomVsnTr_Comp_DPi_Down_hist.root
 MomVsnTr_Comp_DPi_Up_hist.root
 ###
 
 #Kfactor MC FileName MD
-/home/jallad/codebaby/ntuples/MC/MCMarch2013/MergedTree_Bd2DK_D2KPiPi_BsHypo_BDTG.root
-/home/jallad/codebaby/ntuples/MC/MCMarch2013/MergedTree_Lb2LcK_Lc2pKPi_BsHypo_BDTG.root
-/home/jallad/codebaby/ntuples/MC/MCMarch2013/MergedTree_Lb2Dsstp_Ds2KKPi_BsHypo_BDTG.root
-/home/jallad/codebaby/ntuples/MC/MCMarch2013/MergedTree_Lb2Dsp_Ds2KKPi_BsHypo_BDTG.root
-/home/jallad/codebaby/ntuples/MC/MCMarch2013/MergedTree_Bs2DsstPi_Ds2KKPi_BsHypo_BDTG.root
-/home/jallad/codebaby/ntuples/MC/MCMarch2013/MergedTree_Bs2DsRho_Ds2KKPi_BsHypo_BDTG.root
-/home/jallad/codebaby/ntuples/MC/MCMarch2013/MergedTree_Bs2DsPi_Ds2KKPi_BsHypo_BDTG.root
+../../ntuples/MC/MCMarch2013/MergedTree_Bd2DK_D2KPiPi_BsHypo_BDTG.root
+../../ntuples/MC/MCMarch2013/MergedTree_Lb2LcK_Lc2pKPi_BsHypo_BDTG.root
+../../ntuples/MC/MCMarch2013/MergedTree_Lb2Dsstp_Ds2KKPi_BsHypo_BDTG.root
+../../ntuples/MC/MCMarch2013/MergedTree_Lb2Dsp_Ds2KKPi_BsHypo_BDTG.root
+../../ntuples/MC/MCMarch2013/MergedTree_Bs2DsstPi_Ds2KKPi_BsHypo_BDTG.root
+../../ntuples/MC/MCMarch2013/MergedTree_Bs2DsRho_Ds2KKPi_BsHypo_BDTG.root
+../../ntuples/MC/MCMarch2013/MergedTree_Bs2DsPi_Ds2KKPi_BsHypo_BDTG.root
 ###
 
 #Kfactor MC FileName MU
-/home/jallad/codebaby/ntuples/MC/MCMarch2013/MergedTree_Bd2DK_D2KPiPi_BsHypo_BDTG.root
-/home/jallad/codebaby/ntuples/MC/MCMarch2013/MergedTree_Lb2LcK_Lc2pKPi_BsHypo_BDTG.root
-/home/jallad/codebaby/ntuples/MC/MCMarch2013/MergedTree_Lb2Dsstp_Ds2KKPi_BsHypo_BDTG.root
-/home/jallad/codebaby/ntuples/MC/MCMarch2013/MergedTree_Lb2Dsp_Ds2KKPi_BsHypo_BDTG.root
-/home/jallad/codebaby/ntuples/MC/MCMarch2013/MergedTree_Bs2DsstPi_Ds2KKPi_BsHypo_BDTG.root
-/home/jallad/codebaby/ntuples/MC/MCMarch2013/MergedTree_Bs2DsRho_Ds2KKPi_BsHypo_BDTG.root
-/home/jallad/codebaby/ntuples/MC/MCMarch2013/MergedTree_Bs2DsPi_Ds2KKPi_BsHypo_BDTG.root
+../../ntuples/MC/MCMarch2013/MergedTree_Bd2DK_D2KPiPi_BsHypo_BDTG.root
+../../ntuples/MC/MCMarch2013/MergedTree_Lb2LcK_Lc2pKPi_BsHypo_BDTG.root
+../../ntuples/MC/MCMarch2013/MergedTree_Lb2Dsstp_Ds2KKPi_BsHypo_BDTG.root
+../../ntuples/MC/MCMarch2013/MergedTree_Lb2Dsp_Ds2KKPi_BsHypo_BDTG.root
+../../ntuples/MC/MCMarch2013/MergedTree_Bs2DsstPi_Ds2KKPi_BsHypo_BDTG.root
+../../ntuples/MC/MCMarch2013/MergedTree_Bs2DsRho_Ds2KKPi_BsHypo_BDTG.root
+../../ntuples/MC/MCMarch2013/MergedTree_Bs2DsPi_Ds2KKPi_BsHypo_BDTG.root
 ###
 
 #Kfactor MC TreeName
