@@ -119,7 +119,7 @@ RooAbsReal.defaultIntegratorConfig().getConfigSection('RooAdaptiveGaussKronrodIn
 
 
 #------------------------------------------------------------------------------
-def runBsDsKGenerator( debug, single, configName, rangeDown, rangeUp, numberOfEvents, seed , size) :
+def runBsDsKGenerator( debug, single, configName, rangeDown, rangeUp, numberOfEvents, seed , size, dir) :
 
     # Get the configuration file
     myconfigfilegrabber = __import__(configName,fromlist=['getconfig']).getconfig
@@ -157,7 +157,8 @@ def runBsDsKGenerator( debug, single, configName, rangeDown, rangeUp, numberOfEv
     TauInvCombo  = Inverse( "TauInvCombo","TauInvCombo", GammaCombo)
         
     #TauRes       = RooRealVar('TauRes','TauRes',myconfigfile["TauRes"])
-        
+
+    half     = RooConstVar('half','0.5',0.5)    
     zero     = RooConstVar('zero', '0', 0.)
     one      = RooConstVar('one', '1', 1.)
     minusone = RooConstVar('minusone', '-1', -1.)
@@ -260,7 +261,12 @@ def runBsDsKGenerator( debug, single, configName, rangeDown, rangeUp, numberOfEv
     tagOmegaComb = GeneralUtils.GetObservable(workspaceData,TString("tagOmegaComb"), debug)
     tagOmegaComb.setRange(0,0.5)
     tagOmegaList   = RooArgList(tagOmegaComb, tagOmegaComb, tagOmegaComb)
-    tagOmegaListBd = RooArgList(tagOmegaComb, RooConstVar('half','half', 0.5,), tagOmegaComb)
+        
+    calibHalf = MistagCalibration('calibHalf', 'calibHalf', tagOmegaComb, half, zero)
+    tagOmegaListBd = RooArgList()
+    tagOmegaListBd.add(tagOmegaComb)
+    tagOmegaListBd.add(tagOmegaComb)
+    tagOmegaListBd.add(tagOmegaComb)
 
     mistagBs = []
     mistagBsPDFList = RooArgList()
@@ -281,9 +287,12 @@ def runBsDsKGenerator( debug, single, configName, rangeDown, rangeUp, numberOfEv
         #mistagBdPDFList.add(mistagBd[i])
         mistagCombPDFList.add(mistagComb[i])
 
-    mistagBdPDFList(mistagBd[0])
-    mistagBdPDFList(mistagBd[1])
-    mistagBdPDFList(mistagBd[0])
+    mistagBdPDFList.add(mistagBd[0])
+    mistagBdPDFList.add(mistagBd[1])
+    mistagBdPDFList.add(mistagBd[0])
+    print 'name',mistagBd[0].GetName()
+    print 'name',mistagBd[1].GetName()
+    #exit(0)
     
     # Acceptance
     binName = TString("splineBinning")
@@ -1554,18 +1563,12 @@ def runBsDsKGenerator( debug, single, configName, rangeDown, rangeUp, numberOfEv
             frame_Btime.Draw()
             canv_Btime.Print("DsK_Toys_Btime.pdf")
         if not single :
-            #workout.writeToFile("/afs/cern.ch/work/g/gligorov/public/Bs2DsKToys/sWeightToys/DsKToys_Full_2ksample_140912/DsK_Toys_Full_Work_2kSample_"+str(i)+".root")
-            workout.writeToFile("/afs/cern.ch/work/a/adudziak/public/Bs2DsKToys/Gamma70_5M_2T/DsK_Toys_Work_"+str(i)+".root")
-            #outfile  = TFile("/afs/cern.ch/work/g/gligorov/public/Bs2DsKToys/sWeightToys/DsKToys_Full_2ksample_140912/DsK_Toys_Full_Tree_2kSample_"+str(i)+".root","RECREATE")
+            workout.writeToFile(dir+"DsK_Toys_Work_"+str(i)+".root")
         else :
             workout.writeToFile("Data_Toys_Single_Work_DsK.root")
-            outfile  = TFile("Data_Toys_Single_Tree_DsK.root","RECREATE")
+
         del workout
-        #del gendata
-        #del data
-        #del tree 
-        #tree.Write()
-        #outfile.Close()
+        
     
 #------------------------------------------------------------------------------
 _usage = '%prog [options]'
@@ -1584,11 +1587,11 @@ parser.add_option( '--single',
                    action = 'store_true',
                    default = False,
                                       )
-parser.add_option( '-s','--rangeDown',
+parser.add_option( '-s','--start',
                    dest = 'rangeDown',
                    default = 0)
 
-parser.add_option( '-e','--rangeUp',
+parser.add_option( '-e','--end',
                    dest = 'rangeUp',
                    default = 1)
 
@@ -1609,6 +1612,11 @@ parser.add_option( '--size',
                    dest = 'size',
                    default = 1)
 
+parser.add_option( '--dir',
+                   dest = 'dir',
+                   default = '/afs/cern.ch/work/a/adudziak/public/Bs2DsKToys/Gamma70_5M_2T/')
+
+
 # -----------------------------------------------------------------------------
 if __name__ == '__main__' :
     ( options, args ) = parser.parse_args()
@@ -1623,7 +1631,7 @@ if __name__ == '__main__' :
     
     runBsDsKGenerator( options.debug,  options.single , options.configName,
                        options.rangeDown, options.rangeUp, options.numberOfEvents,
-                       options.seed, options.size)
+                       options.seed, options.size, options.dir)
     
 # -----------------------------------------------------------------------------
                                 
