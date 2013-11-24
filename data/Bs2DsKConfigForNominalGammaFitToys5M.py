@@ -16,11 +16,10 @@ def getconfig() :
     configdict["ArgLbarfbar"] = configdict["StrongPhase"] + configdict["WeakPhase"]
     configdict["ModLf"]       = 0.372
     
-    configdict["tacc_exponent"] = 1.8627e+00 #1.849
-    configdict["tacc_offset"]   = 1.6710e-02 #0.0373
-    configdict["tacc_beta"]     = 3.4938e-02 #0.0363
-    configdict["tacc_turnon"]   = 1.3291e+00 #1.215
-                
+    configdict["calibration_p0"]  = [0.3927, 0.4244]
+    configdict["calibration_p1"]  = [0.9818, 1.2550]
+    configdict["calibration_av"]  = [0.3919, 0.4097]
+                    
     configdict["resolutionScaleFactor"] = 1.37 
     configdict["resolutionMeanBias"]    = 0.
     configdict["DecayTimeResolutionModel"] = "PEDTETripleGaussian"
@@ -30,11 +29,18 @@ def getconfig() :
     configdict["resolutionSigma3"] = 6.37859e-02
     configdict["resolutionFrac1"]  = 3.62689e-01
     configdict["resolutionFrac2"]  = 5.65100e-01
-    
 
-    configdict["calibration_p1"] = 1.035 #1.035
-    configdict["calibration_p0"] = 0.392 #-0.013
-        
+    configdict["tacc_values"] = [1.86413e-01, 2.83214e-01, 7.24952e-01, 1.18847e+00, 1.33798e+00, 1.32593e+00]
+
+    configdict["tagEff_OS"] = 0.387
+    configdict["tagEff_SS"] = 0.4772
+    
+    configdict["TagEffSig"]    = [configdict["tagEff_OS"] - configdict["tagEff_OS"]*configdict["tagEff_SS"],
+                                  configdict["tagEff_SS"] - configdict["tagEff_OS"]*configdict["tagEff_SS"],
+                                  configdict["tagEff_OS"]*configdict["tagEff_SS"]]
+    
+    configdict["aTagEffSig"]    = [0.0, 0.0, 0.0]
+                
     configdict["TimeDown"] = 0.2
     configdict["TimeUp"] = 15.0
         

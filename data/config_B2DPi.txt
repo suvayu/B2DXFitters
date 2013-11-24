@@ -7,9 +7,9 @@ DecayTree;1
 ###
 
 #BdPi
-/afs/cern.ch/work/g/gligorov/public/Bs2DsKFitTuples/DV_v33r1/SmallTuples/
-DPi_KPiPi_MD_BDTG_MINI.root
-DPi_KPiPi_MU_BDTG_MINI.root
+/afs/cern.ch/work/a/adudziak/public/Bs2DsKFitTuple/
+MergedTree_Bd2DPi_KPiPi_MD_OFFLINE.root
+MergedTree_Bd2DPi_KPiPi_MU_OFFLINE.root
 DecayTree
 DecayTree
 ###

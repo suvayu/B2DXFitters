@@ -13,8 +13,19 @@ def getconfig() :
     configdict["TrMom"]      = [400.0,   45000.0 ]
     configdict["PIDK"]       = [0.0,     150.0   ]
     configdict["nTracks"]    = [15.0,    1000.0  ]
-    configdict["TagDec"]     = [-1.0,    1.0     ]
-    configdict["TagOmega"]   = [0.0,     0.5     ]
+
+    configdict["TagDec"]     = ["lab0_TAGDECISION_OS","lab0_SS_nnetKaon_DEC"]
+    configdict["lab0_TAGDECISION_OS"]  = [-1.0, 1.0]
+    configdict["lab0_SS_nnetKaon_DEC"] = [-1.0, 1.0]
+    
+    configdict["TagOmega"]   = ["lab0_TAGOMEGA_OS","lab0_SS_nnetKaon_PROB"]
+    configdict["lab0_TAGOMEGA_OS"]  = [0.0, 0.5]
+    configdict["lab0_SS_nnetKaon_PROB"] = [0.0, 0.5]
+    
+    configdict["calibration_p0"]  = [0.3927, 0.4244]
+    configdict["calibration_p1"]  = [0.9818, 1.2550]
+    configdict["calibration_av"]  = [0.3919, 0.4097]
+        
     configdict["Terr"]       = [0.01,    0.1     ]
     configdict["BachCharge"] = [-1000.0, 1000.0  ]
     configdict["BDTG"]       = [0.3,     1.0     ]

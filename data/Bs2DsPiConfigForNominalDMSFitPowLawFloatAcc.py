@@ -49,7 +49,7 @@ def getconfig() :
     
     configdict["resolutionScaleFactor"] = 1.37 
     configdict["resolutionMeanBias"]    = 0.0
-    configdict["DecayTimeResolutionModel"] = "TripleGaussian"
+    configdict["DecayTimeResolutionModel"] = "PEDTETripleGaussian"
     configdict["DecayTimeErrInterpolation"] = True
 
     configdict["resolutionSigma1"] = 2.14946e-02

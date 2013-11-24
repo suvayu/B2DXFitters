@@ -29,10 +29,10 @@ def getconfig() :
     configdict["ArgLbarfbar_s"] = configdict["StrongPhase_s"] + configdict["WeakPhase"]
     configdict["ModLf_s"]       = 0.372
 
-    configdict["calibration_p1"] = 1.035 #1.035
-    configdict["calibration_p0"] = 0.392 #-0.013
-    configdict["TagOmegaSig"]   = 0.391
-
+    configdict["calibration_p0"]  = [0.3927, 0.4244]
+    configdict["calibration_p1"]  = [0.9818, 1.2550]
+    configdict["calibration_av"]  = [0.3919, 0.4097]
+       
     configdict["resolutionScaleFactor"] = 1.37
     configdict["resolutionMeanBias"]    = 0.0
     
@@ -43,15 +43,39 @@ def getconfig() :
     configdict["lumRatio"] =  0.44/(0.59+0.44)
     configdict["timeRange"] = [0.2, 15]
 
-    configdict["tagEff_signal"]    = 0.403
-    configdict["tagEff_dk"]        = 0.403
-    configdict["tagEff_dsk"]       = 0.403
-    configdict["tagEff_dspi"]      = 0.403
-    configdict["tagEff_lck"]       = 0.403
-    configdict["tagEff_combo"]     = 0.403
-    configdict["tagEff_dsdsstp"]   = 0.403
-    configdict["tagEff_lm1"]       = 0.403
-    configdict["tagEff_lm2"]       = 0.403
+    configdict["tacc_values"] = [1.86413e-01, 2.83214e-01, 7.24952e-01, 1.18847e+00, 1.33798e+00, 1.32593e+00] 
+
+    configdict["tagEff_OS"] = 0.387
+    configdict["tagEff_SS"] = 0.4772
+
+    configdict["tagEff_signal"]    = [configdict["tagEff_OS"] - configdict["tagEff_OS"]*configdict["tagEff_SS"],
+                                      configdict["tagEff_SS"] - configdict["tagEff_OS"]*configdict["tagEff_SS"],
+                                      configdict["tagEff_OS"]*configdict["tagEff_SS"]]
+    configdict["tagEff_dk"]        = [configdict["tagEff_OS"] - configdict["tagEff_OS"]*configdict["tagEff_SS"],
+                                      configdict["tagEff_SS"] - configdict["tagEff_OS"]*configdict["tagEff_SS"],
+                                      configdict["tagEff_OS"]*configdict["tagEff_SS"]]
+    configdict["tagEff_dsk"]       = [configdict["tagEff_OS"] - configdict["tagEff_OS"]*configdict["tagEff_SS"],
+                                      configdict["tagEff_SS"] - configdict["tagEff_OS"]*configdict["tagEff_SS"],
+                                      configdict["tagEff_OS"]*configdict["tagEff_SS"]]
+    configdict["tagEff_dspi"]      = [configdict["tagEff_OS"] - configdict["tagEff_OS"]*configdict["tagEff_SS"],
+                                      configdict["tagEff_SS"] - configdict["tagEff_OS"]*configdict["tagEff_SS"],
+                                      configdict["tagEff_OS"]*configdict["tagEff_SS"]]
+    configdict["tagEff_lck"]       = [configdict["tagEff_OS"] - configdict["tagEff_OS"]*configdict["tagEff_SS"],
+                                      configdict["tagEff_SS"] - configdict["tagEff_OS"]*configdict["tagEff_SS"],
+                                      configdict["tagEff_OS"]*configdict["tagEff_SS"]]
+    configdict["tagEff_combo"]     = [configdict["tagEff_OS"] - configdict["tagEff_OS"]*configdict["tagEff_SS"],
+                                      configdict["tagEff_SS"] - configdict["tagEff_OS"]*configdict["tagEff_SS"],
+                                      configdict["tagEff_OS"]*configdict["tagEff_SS"]]
+    configdict["tagEff_dsdsstp"]   = [configdict["tagEff_OS"] - configdict["tagEff_OS"]*configdict["tagEff_SS"],
+                                      configdict["tagEff_SS"] - configdict["tagEff_OS"]*configdict["tagEff_SS"],
+                                      configdict["tagEff_OS"]*configdict["tagEff_SS"]]
+    configdict["tagEff_lm1"]       = [configdict["tagEff_OS"] - configdict["tagEff_OS"]*configdict["tagEff_SS"],
+                                      configdict["tagEff_SS"] - configdict["tagEff_OS"]*configdict["tagEff_SS"],
+                                      configdict["tagEff_OS"]*configdict["tagEff_SS"]]
+    configdict["tagEff_lm2"]       = [configdict["tagEff_OS"] - configdict["tagEff_OS"]*configdict["tagEff_SS"],
+                                      configdict["tagEff_SS"] - configdict["tagEff_OS"]*configdict["tagEff_SS"],
+                                      configdict["tagEff_OS"]*configdict["tagEff_SS"]]
+    
 
     configdict["aprod_signal"]    = 0.0 #0.03
     configdict["aprod_dk"]        = 0.0 #0.03
@@ -63,15 +87,15 @@ def getconfig() :
     configdict["aprod_lm1"]       = 0.0 #3
     configdict["aprod_lm2"]       = 0.0 #3
                                     
-    configdict["atageff_signal"]    = 0.0 #1
-    configdict["atageff_dk"]        = 0.0 #2
-    configdict["atageff_dsk"]       = 0.0 #1
-    configdict["atageff_dspi"]      = 0.0 #1
-    configdict["atageff_lck"]       = 0.0 #3
-    configdict["atageff_combo"]     = 0.0 #1
-    configdict["atageff_dsdsstp"]   = 0.0 #3
-    configdict["atageff_lm1"]       = 0.0 #1
-    configdict["atageff_lm2"]       = 0.0 #1
+    configdict["atageff_signal"]    = [0.0, 0.0, 0.0]
+    configdict["atageff_dk"]        = [0.0, 0.0, 0.0]
+    configdict["atageff_dsk"]       = [0.0, 0.0, 0.0]
+    configdict["atageff_dspi"]      = [0.0, 0.0, 0.0]
+    configdict["atageff_lck"]       = [0.0, 0.0, 0.0]
+    configdict["atageff_combo"]     = [0.0, 0.0, 0.0]
+    configdict["atageff_dsdsstp"]   = [0.0, 0.0, 0.0]
+    configdict["atageff_lm1"]       = [0.0, 0.0, 0.0]
+    configdict["atageff_lm2"]       = [0.0, 0.0, 0.0]
 
     configdict["adet_signal"]    = 0.0
     configdict["adet_dk"]        = 0.0
@@ -116,13 +140,7 @@ def getconfig() :
     configdict["n1Ds"]      = [2.8434,  1.4224,  48.516,  1.8532,  69.861 ]
     configdict["n2Ds"]      = [1.5942,  0.36197, 0.25888, 65.824,  1.0790 ]
     configdict["fracDs"]    = [0.50702, 0.36627, 0.84549, 0.29362, 0.46289]
-        
-                                        
-    configdict["tacc_exponent_pl"] = 1.8627e+00 #1.849
-    configdict["tacc_offset_pl"]   = 1.6710e-02 #0.0373
-    configdict["tacc_beta_pl"]     = 3.4938e-02 #0.0363
-    configdict["tacc_turnon_pl"]   = 1.3291e+00 #1.215
-    
+           
     configdict["cB"] = [-3.3787e-03, -2.1411e-03, -2.9391e-03, -1.5331e-03, -2.1068e-03]
     configdict["cD"] = [-1.5285e-03, -2.0302e-03, -5.4197e-03, -2.7012e-04, -3.5133e-03]
     configdict["fracDsComb"] = [9.4632e-01, 5.2072e-01, 7.5645e-01,  1.0, 1.0]

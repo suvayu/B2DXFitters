@@ -25,9 +25,9 @@ DecayTree
 
 
 #BsDsPi KKPi All
-/afs/cern.ch/work/g/gligorov/public/Bs2DsKFitTuples/DV_v33r1/SmallTuples/
-DsPi_KKPi_MD_BDTG_MINI.root
-DsPi_KKPi_MU_BDTG_MINI.root
+/afs/cern.ch/work/a/adudziak/public/Bs2DsKFitTuple/
+MergedTree_Bs2DsX_MD_OFFLINE_DsPi.root
+MergedTree_Bs2DsX_MU_OFFLINE_DsPi.root
 DecayTree
 DecayTree
 ###
@@ -73,7 +73,7 @@ DecayTree
 DecayTree
 ###
 
-#BsDsK KKPi All
+#BsDsK All
 /afs/cern.ch/work/a/adudziak/public/Bs2DsKFitTuple/
 DsK_All_MD_BDTG_MINI.root
 DsK_All_MU_BDTG_MINI.root
@@ -82,10 +82,10 @@ DecayTree
 ###
 
 
-#BsDsK All
-/afs/cern.ch/work/g/gligorov/public/Bs2DsKFitTuples/DV_v33r1/SmallTuples/
-DsK_KKPi_MD_BDTG_MINI.root
-DsK_KKPi_MU_BDTG_MINI.root
+#BsDsK KKPi All
+/afs/cern.ch/work/a/adudziak/public/Bs2DsKFitTuple/
+MergedTree_Bs2DsX_MD_OFFLINE_DsK.root
+MergedTree_Bs2DsX_MU_OFFLINE_DsK.root
 DecayTree
 DecayTree
 ###
