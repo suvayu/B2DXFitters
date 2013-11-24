@@ -1,5 +1,5 @@
-set dirinput =  '/afs/cern.ch/work/a/adudziak/public/Bs2DsKToys/Gamma70_5M/'
-set diroutput = '/afs/cern.ch/work/a/adudziak/public/Bs2DsKToys/Gamma70_5M/tagEff_PETE/'
+set dirinput =  '/afs/cern.ch/work/a/adudziak/public/Bs2DsKToys/Gamma70_5M_2T/'
+set diroutput = '/afs/cern.ch/work/a/adudziak/public/Bs2DsKToys/Gamma70_5M_2T/'
 
 
 set outputprefix = 'DsK_Toys_TimeFitResult_'
@@ -16,7 +16,7 @@ while ($thissample < $2)
     set thissamplestr = `echo $thissample`
     rm $diroutput$outputprefix$thissamplestr$outputsuffix
     rm $diroutput$outputprefix$thissamplestr$outputsuffix.gz
-    python runBs2DsKCPAsymmObsFitterOnData.py --debug --pereventmistag --configName Bs2DsKConfigForNominalGammaFitToys5M --toys --configNameMD Bs2DsKConfigForNominalMassFitToys5M --cat --idvar lab1_ID_idx --tagvar lab0_BsTaggingTool_TAGDECISION_OS_idx --pathName $dirinput$inputprefix$thissamplestr$inputsuffix --save $diroutput$timeplotprefix$thissamplestr$inputsuffix >& $diroutput$outputprefix$thissamplestr$outputsuffix
+    python runBs2DsKCPAsymmObsFitterOnData2.py --debug --pereventmistag --configName Bs2DsKConfigForNominalGammaFitToys5M --toys --configNameMD Bs2DsKConfigForNominalMassFitToys5M --pathName $dirinput$inputprefix$thissamplestr$inputsuffix --save $diroutput$timeplotprefix$thissamplestr$inputsuffix >& $diroutput$outputprefix$thissamplestr$outputsuffix
     gzip $diroutput$outputprefix$thissamplestr$outputsuffix
     @ thissample++
     echo $thissample
