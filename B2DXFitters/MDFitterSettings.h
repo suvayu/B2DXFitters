@@ -296,12 +296,12 @@ public:
     _tagVarNames.push_back(name);
     _tagVarRU.push_back(up);
     _tagVarRD.push_back(dw);
-    if ( _tagVar == false ) { _tagOmegaVar = true; }
+    if ( _tagVar == false ) { _tagVar = true; }
   }
 
   Bool_t CheckTagOmegaVar() { return _tagOmegaVar; }
   Int_t GetNumTagOmegaVar() { return _tagOmegaVarNames.size(); }
-  void AddTagOmegVar(TString name, Double_t dw, Double_t up ) {
+  void AddTagOmegaVar(TString name, Double_t dw, Double_t up ) {
     _tagOmegaVarNames.push_back(name);
     _tagOmegaVarRU.push_back(up);
     _tagOmegaVarRD.push_back(dw);
@@ -317,6 +317,7 @@ public:
   void SetCalibAv(std::vector <Double_t> val){ _av = val;}
   
   void SetCalibration(Int_t i, Double_t p0, Double_t p1, Double_t av) { _p0[i] = p0; _p1[i] = p1; _av[i] = av; }
+  void AddCalibration(Double_t p0, Double_t p1, Double_t av) { _p0.push_back(p0); _p1.push_back(p1); _av.push_back(av); }
   
   Double_t GetCalibp0(Int_t i) { return _p0[i]; }
   Double_t GetCalibp1(Int_t i) { return _p1[i];}
