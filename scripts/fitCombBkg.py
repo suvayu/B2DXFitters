@@ -101,8 +101,8 @@ __doc__ = """ real docstring """
 # -----------------------------------------------------------------------------
 # Load necessary libraries
 # -----------------------------------------------------------------------------
-import B2DXFitters
-import ROOT
+from B2DXFitters import *
+from ROOT import *
 from ROOT import RooFit
 from optparse import OptionParser
 from math     import pi, log
@@ -165,7 +165,7 @@ def fitCombBkg( debug, var , mode, modeDs, merge, BDTG, configName, WS) :
     modeTS = TString(mode)
     
     plotSettings = PlotSettings("plotSettings","plotSettings", "PlotSignal", "pdf", 100, true, false, true)
-    plotSettings.Print()
+    plotSettings.Print("v")
     
     MDSettings = MDFitterSettings("MDSettings","MDFSettings")
     
@@ -173,16 +173,19 @@ def fitCombBkg( debug, var , mode, modeDs, merge, BDTG, configName, WS) :
     MDSettings.SetMassDVar(TString("lab2_MM"))
     MDSettings.SetTimeVar(TString("lab0_LifetimeFit_ctau"))
     MDSettings.SetTerrVar(TString("lab0_LifetimeFit_ctauErr"))
-    MDSettings.SetTagVar(TString("lab0_BsTaggingTool_TAGDECISION_OS"))
-    MDSettings.SetTagOmegaVar(TString("lab0_BsTaggingTool_TAGOMEGA_OS"))
+    MDSettings.AddTagVar(TString("lab0_TAGDECISION_OS"), -1.0, 1.0 )
+    MDSettings.AddTagVar(TString("lab0_SS_nnetKaon_DEC"), -1.0, 1.0 )
+    MDSettings.AddTagOmegaVar(TString("lab0_TAGOMEGA_OS"), 0.0, 0.5 )
+    MDSettings.AddTagOmegaVar(TString("lab0_SS_nnetKaon_PROB"), 0.0, 0.5 )
+    MDSettings.AddCalibration(0.3927, 0.9818, 0.3919)
+    MDSettings.AddCalibration(0.4244, 1.2550, 0.4097)
     MDSettings.SetIDVar(TString("lab1_ID"))
     MDSettings.SetPIDKVar(TString("lab1_PIDK"))
     MDSettings.SetBDTGVar(TString("BDTGResponse_1"))
     MDSettings.SetMomVar(TString("lab1_P"))
     MDSettings.SetTrMomVar(TString("lab1_PT"))
     MDSettings.SetTracksVar(TString("nTracks"))
-    
-    
+        
     BDTGTS = TString(BDTG)
     if  BDTGTS == "BDTGA":
         BDTG_down = 0.3
@@ -222,7 +225,7 @@ def fitCombBkg( debug, var , mode, modeDs, merge, BDTG, configName, WS) :
         modeDsTS=TString(modeDs)
         Dmass_down = 1930
         Dmass_up = 2015
-        Bmass_down = 5600
+        Bmass_down = 5800
         Bmass_up = 7000
 
     MDSettings.SetMassBRange(Bmass_down, Bmass_up)
@@ -234,15 +237,13 @@ def fitCombBkg( debug, var , mode, modeDs, merge, BDTG, configName, WS) :
     MDSettings.SetBDTGRange( BDTG_down, BDTG_up  )
     MDSettings.SetPIDBach(PIDcut)
     MDSettings.SetTerrRange(Terr_down, Terr_up  )
-    MDSettings.SetTagRange(-2.0, 2.0  )
-    MDSettings.SetTagOmegaRange(0.0, 1.0  )
     MDSettings.SetIDRange( -1000.0, 1000.0 )
     
     MDSettings.SetLumDown(0.59)
     MDSettings.SetLumUp(0.44)
     MDSettings.SetLumRatio()
 
-    MDSettings.Print()
+    MDSettings.Print("v")
     
 
     if obsTS == "lab1_PIDK":
@@ -302,7 +303,7 @@ def fitCombBkg( debug, var , mode, modeDs, merge, BDTG, configName, WS) :
     print alpha2Name
     print fracName
     
-    workspace = MassFitUtils.ObtainData(dataTS, nameTS, MDSettings, modeTS, false, plotSettings, NULL, debug)
+    workspace = MassFitUtils.ObtainData(dataTS, nameTS, MDSettings, modeTS, plotSettings, NULL, debug)
     
     workspace.Print("v")
     mass = GeneralUtils.GetObservable(workspace,obsTS, debug)
@@ -324,6 +325,12 @@ def fitCombBkg( debug, var , mode, modeDs, merge, BDTG, configName, WS) :
         nEntries.append(data[i].numEntries())
         print "Data set: %s with number of events: %s"%(data[i].GetName(),nEntries[i])
 
+    data[0].append(data[1])
+    workOut = RooWorkspace("workspace","workspace")
+    getattr(workOut,'import')(data[0])
+    workOut.SaveAs("work_dspi_combbkg.root")
+    exit(0)
+    
     if merge:
         bound = 1
         sample = [TString("both"),TString("both")]
