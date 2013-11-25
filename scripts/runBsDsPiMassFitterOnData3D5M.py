@@ -146,13 +146,11 @@ def runBsDsKMassFitterOnData( debug, sample,
     MDSettings.SetMassDVar(TString(mdVar))
     MDSettings.SetTimeVar(TString(tVar))
     MDSettings.SetTerrVar(TString(terrVar))
-    MDSettings.SetTagVar(TString(tagVar))
-    MDSettings.SetTagOmegaVar(TString(tagOmegaVar))
     MDSettings.SetIDVar(TString(idVar))
     
            
     workNameTS = TString(workName)
-    #workData = GeneralUtils.LoadWorkspace(TString("work_dspi_ntracks.root"),workNameTS,debug)
+    workData = GeneralUtils.LoadWorkspace(TString("work_dspi_pid_53005800_PIDK0_5M_BDTGA_4.root"),workNameTS,debug)
     workspace = []
     workspace.append(GeneralUtils.LoadWorkspace(TString(fileNameAll),workNameTS,debug))
     #workspaceID = GeneralUtils.LoadWorkspace(TString(fileNameAllID),workNameTS,debug)
@@ -174,9 +172,7 @@ def runBsDsKMassFitterOnData( debug, sample,
         PIDK        = GeneralUtils.GetObservable(workspace[0],TString("lab1_PIDK"), debug)
         tvar        = GeneralUtils.GetObservable(workspace[0],TString(tVar), debug)
         terrvar     = GeneralUtils.GetObservable(workspace[0],TString(terrVar), debug)
-        tagomegavar = GeneralUtils.GetObservable(workspace[0],TString(tagOmegaVar), debug)
-        tagvar      = GeneralUtils.GetObservable(workspace[0],TString(tagVar), debug)
-        idvar       = GeneralUtils.GetObservable(workspace[0],TString(idVar), debug)
+        idvar       = GeneralUtils.GetCategory(workspace[0],TString(idVar), debug)
         nTrvar      = GeneralUtils.GetObservable(workspace[0],TString("nTracks"), debug)
         ptvar       = GeneralUtils.GetObservable(workspace[0],TString("lab1_PT"), debug)
                 
@@ -191,7 +187,7 @@ def runBsDsKMassFitterOnData( debug, sample,
         idvar       = GeneralUtils.GetObservable(workspaceToys,TString(idVar)+TString("_idx"), debug)
         trueidvar   = GeneralUtils.GetObservable(workspaceToys,TString("lab0_TRUEID"), debug)
                 
-    observables = RooArgSet( mass,massDs, PIDK, tvar, terrvar, tagvar,tagomegavar,idvar )
+    observables = RooArgSet( mass,massDs, PIDK, tvar, terrvar, idvar )
     
     if toys :
         observables.add(trueidvar)
@@ -203,8 +199,32 @@ def runBsDsKMassFitterOnData( debug, sample,
         for i in range(0,MDSettings.GetNumAddVar()):
             addVar = GeneralUtils.GetObservable(workspace[0], MDSettings.GetAddVarName(i), debug)
             observables.add(addVar)
-                   
-             
+
+    tagVar = []
+    if MDSettings.CheckTagVar() == true:
+        for i in range(0,MDSettings.GetNumTagVar()):
+            tagVar.append(GeneralUtils.GetCategory(workspace[0], MDSettings.GetTagVar(i), debug))
+            observables.add(tagVar[i])
+                        
+    tagOmegaVar = []
+    tagOmegaVarCalib = []
+    if MDSettings.CheckTagOmegaVar() == true:
+        for i in range(0,MDSettings.GetNumTagOmegaVar()):
+            tagOmegaVar.append(GeneralUtils.GetObservable(workspace[0], MDSettings.GetTagOmegaVar(i), debug))
+            nameCalib = MDSettings.GetTagOmegaVar(i) + TString("_calib")
+            tagOmegaVarCalib.append(GeneralUtils.GetObservable(workData, nameCalib, debug))
+            observables.add(tagOmegaVar[i])
+            observables.add(tagOmegaVarCalib[i])
+            
+    tagDecCombName = TString("tagDecComb")         
+    tagDecComb = GeneralUtils.GetCategory(workData, tagDecCombName, debug)
+    tagOmegaCombName= TString("tagOmegaComb")
+    tagOmegaComb = GeneralUtils.GetObservable(workData, tagOmegaCombName, debug) 
+
+    observables.add(tagDecComb)
+    observables.add(tagOmegaComb)
+               
+            
  ###------------------------------------------------------------------------------------------------------------------------------------###
     ###------------------------------------------------------------------------------------------------------------------------------###
  ###------------------------------------------------------------------------------------------------------------------------------------###   
@@ -247,7 +267,7 @@ def runBsDsKMassFitterOnData( debug, sample,
                     for j in range(0,2):
                         sm.append(s[j]+t+m[i])
                         #sam.defineType(sm[i*2+j].Data())
-                        data.append(GeneralUtils.GetDataSet(workspace[0],datasetTS+sm[2*i+j], debug))
+                        data.append(GeneralUtils.GetDataSet(workData,datasetTS+sm[2*i+j], debug))
                         nEntries.append(data[i*2+j].numEntries())
                         
                 if debug:
@@ -286,6 +306,7 @@ def runBsDsKMassFitterOnData( debug, sample,
                                           RooFit.Import(sm[2].Data(),data[4]),
                                           RooFit.Import(sm[3].Data(),data[6]),
                                           RooFit.Import(sm[4].Data(),data[8]))
+                    
                 else:
                     for i in range(0,5):
                         for j in range(0,2):
@@ -454,7 +475,7 @@ def runBsDsKMassFitterOnData( debug, sample,
                 print "[ERROR] Wrong sample. Possibilities: both, up, down "
                 exit(0)
                   
-
+           
     # Create the background PDF in mass
     
     nSig = []
