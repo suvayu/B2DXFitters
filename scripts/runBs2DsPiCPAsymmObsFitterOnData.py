@@ -214,7 +214,7 @@ def runBdGammaFitterOnData(debug, wsname,
     
     for i in range(0, bound):
         data.append(GeneralUtils.GetDataSet(workspace[i],   nameData, debug))
-        dataW.append(GeneralUtils.GetDataSet(workspace[i],   nameData, debug))
+        dataW.append(GeneralUtils.GetDataSet(workspaceW[i],   nameData, debug))
         
     dataWA = dataW[0]
     if BDTGbins:
@@ -420,9 +420,9 @@ def runBdGammaFitterOnData(debug, wsname,
                                  cosh, sinh, cos, sin,
                                  deltaMs, trm, RooBDecay.SingleSided)) #timeresmodel[i], RooBDecay.SingleSided))
         
-        if debug:
-            print '[INFO] %s created '%(timePDF[i].GetName())
-            timePDF[i].Print("v")
+        #if debug:
+        #    print '[INFO] %s created '%(timePDF[i].GetName())
+        #    timePDF[i].Print("v")
             
     if pereventterr:
         noncondset = RooArgSet(time, id, tag)
@@ -440,7 +440,7 @@ def runBdGammaFitterOnData(debug, wsname,
         for i in range(0,bound):
             print i
             totPDF.append(timePDF[i])
-            totPDF[i].Print("v")    
+            #totPDF[i].Print("v")    
                 
             
     #totPDF.SetName("sigTotPDF")    
