@@ -146,7 +146,8 @@ def handler(signum, frame):
 #------------------------------------------------------------------------------
 def runBdGammaFitterOnData(debug, wsname, 
                            tVar, terrVar, tagVar, tagOmegaVar, idVar, mVar,
-                           pereventmistag, toys,pathName,
+                           pereventmistag, pereventterr,
+                           toys,pathName,
                            treeName, configName, configNameMD, nokfactcorr,
                            smearaccept, accsmearfile, accsmearhist,
                            BDTGbins, pathName2, pathName3, Cat) :
@@ -263,9 +264,6 @@ def runBdGammaFitterOnData(debug, wsname,
     weight = obs.find("sWeights")
     observables = RooArgSet(time,tag,id)
         
-    templateWorkspacePi = GeneralUtils.LoadWorkspace(TString(myconfigfile["TemplateFilePi"]), TString(myconfigfile["TemplateWorkspace"]), debug)
-    templateWorkspaceK = GeneralUtils.LoadWorkspace(TString(myconfigfile["TemplateFileK"]), TString(myconfigfile["TemplateWorkspace"]), debug)
-
     # Physical parameters
     #-----------------------
     
@@ -286,12 +284,9 @@ def runBdGammaFitterOnData(debug, wsname,
          
     binName = TString("splineBinning")
     TimeBin = RooBinning(0.2,15,binName.Data())
-    TimeBin.addBoundary(0.25)
-    TimeBin.addBoundary(0.5)
-    TimeBin.addBoundary(1.0)
-    TimeBin.addBoundary(2.0)
-    TimeBin.addBoundary(3.0)
-    TimeBin.addBoundary(12.0)
+    for i in range(0, myconfigfile["tacc_size"]):
+        TimeBin.addBoundary(myconfigfile["tacc_knots"][i])
+                
     
     TimeBin.removeBoundary(0.2)
     TimeBin.removeBoundary(15.0)
@@ -304,16 +299,17 @@ def runBdGammaFitterOnData(debug, wsname,
        
     tacc_list = RooArgList()
     tacc_var = []
-    for i in range(0,6):
+    for i in range(0,myconfigfile["tacc_size"]):
         tacc_var.append(RooRealVar("var"+str(i+1), "var"+str(i+1), myconfigfile["tacc_values"][i]))
         print tacc_var[i].GetName()
         tacc_list.add(tacc_var[i])
-    tacc_var.append(RooRealVar("var7", "var7", 1.0))
+    tacc_var.append(RooRealVar("var"+str(myconfigfile["tacc_size"]+1), "var"+str(myconfigfile["tacc_size"]+1), 1.0))
     len = tacc_var.__len__()
     tacc_list.add(tacc_var[len-1])
     print "n-2: ",tacc_var[len-2].GetName()
     print "n-1: ",tacc_var[len-1].GetName()
-    tacc_var.append(RooAddition("var8","var8", RooArgList(tacc_var[len-2],tacc_var[len-1]), listCoeff))
+    tacc_var.append(RooAddition("var"+str(myconfigfile["tacc_size"]+2), "var"+str(myconfigfile["tacc_size"]+2),
+                                RooArgList(tacc_var[len-2],tacc_var[len-1]), listCoeff))
     tacc_list.add(tacc_var[len])
     print "n: ",tacc_var[len].GetName()
                                                             
@@ -322,7 +318,7 @@ def runBdGammaFitterOnData(debug, wsname,
            
     # Decay time resolution model
     # ---------------------------
-    if 'PEDTE' not in myconfigfile["DecayTimeResolutionModel"] :
+    if not pereventterr:
         trm = PTResModels.tripleGausEffModel( time,
                                               spl,
                                               myconfigfile["resolutionScaleFactor"],
@@ -345,11 +341,11 @@ def runBdGammaFitterOnData(debug, wsname,
         trm_scale = RooRealVar( 'trm_scale', 'Gaussian resolution model scale factor', myconfigfile["resolutionScaleFactor"])
         trm = RooGaussEfficiencyModel("resmodel", "resmodel", time, spl, trm_mean, terr, trm_scale, trm_scale )
          
+        terrWork = GeneralUtils.LoadWorkspace(TString(myconfigfile["TerrFile"]), TString(myconfigfile["TerrWork"]), debug)
         terrpdf = []
         for i in range(0,bound):
-            name = TString("sigTimeErrorPdf_%s")+Bin[i]
-            terrpdf.append(Bs2Dsh2011TDAnaModels.GetRooHistPdfFromWorkspace(templateWorkspaceK,
-                                                                            TString(myconfigfile["TimeErrorTemplateBDTGA"]),debug))
+            terrpdf.append(Bs2Dsh2011TDAnaModels.GetRooHistPdfFromWorkspace(terrWork, TString(myconfigfile["TerrTempName"]), debug))
+            
 
     # Tagging
     # -------
@@ -370,19 +366,13 @@ def runBdGammaFitterOnData(debug, wsname,
             mistagCalibList.add(mistag)
             
         #mistagPDF = SFitUtils.CreateMistagTemplates(dataWA,MDSettings,50,true, debug)
-        fileNameMistag = "../data/workspace/MDFitter/template_Data_Mistag_BsDsPi.root"
-        workName = 'workspace'
-        workMistag = GeneralUtils.LoadWorkspace(TString(fileNameMistag),TString(workName), debug)
-                
-        mistagBs = []
-        mistagPDF = RooArgList()
+        mistagWork = GeneralUtils.LoadWorkspace(TString(myconfigfile["MistagFile"]), TString(myconfigfile["MistagWork"]), debug)
+        mistagPDF = []
+        mistagPDFList = RooArgList()
         for i in range(0,3):
-            namePDF = TString("sigMistagPdf_")+TString(str(i+1))
-            print namePDF
-            mistagBs.append(Bs2Dsh2011TDAnaModels.GetRooKeysPdfFromWorkspace(workMistag, namePDF, debug))
-            mistagPDF.add(mistagBs[i])
-            
-                                                                            
+            mistagPDF.append(Bs2Dsh2011TDAnaModels.GetRooHistPdfFromWorkspace(mistagWork, TString(myconfigfile["MistagTempName"][i]), debug))
+            mistagPDFList.add(mistagPDF[i])
+                                                                                  
         observables.add( mistag )
                                 
         # we need calibrated mistag
@@ -449,9 +439,9 @@ def runBdGammaFitterOnData(debug, wsname,
     one2 = RooConstVar('one2', '1', 1.)
         
     if pereventmistag:
-        otherargs = [ mistag, mistagPDF, tagEffSigList ]
+        otherargs = [ mistag, mistagPDFList, tagEffSigList ]
     else:
-        otherargs = [ tagEffSig ]
+        otherargs = [ tagEffSigList ]
     otherargs.append(mistagCalibList)
     otherargs.append(aProd)
     otherargs.append(aDet)
@@ -495,7 +485,7 @@ def runBdGammaFitterOnData(debug, wsname,
                                  deltaMs, trm, RooBDecay.SingleSided))
         
         
-    if 'PEDTE' in myconfigfile["DecayTimeResolutionModel"]:
+    if pereventterr:
         noncondset = RooArgSet(time, id, tag)
         if pereventmistag:
             noncondset.add(mistag)
@@ -663,7 +653,14 @@ parser.add_option( '--pereventmistag',
                    default = False,
                    action = 'store_true',
                    help = 'Use the per-event mistag?'
-                   ) 
+                   )
+
+parser.add_option( '--pereventterr',
+                   dest = 'pereventterr',
+                   default = False,
+                   action = 'store_true',
+                   help = 'Use the per-event time errors?'
+                   )
 
 parser.add_option( '-t','--toys',
                    dest = 'toys',
@@ -760,6 +757,7 @@ if __name__ == '__main__' :
                                      options.idvar,
                                      options.mvar,
                                      options.pereventmistag,
+                                     options.pereventterr,
                                      options.toys,
                                      options.pathName,
                                      options.treeName,
