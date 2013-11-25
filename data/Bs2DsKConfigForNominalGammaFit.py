@@ -17,6 +17,9 @@ def getconfig() :
     configdict["calibration_p0"]  = [0.3927, 0.4244]
     configdict["calibration_p1"]  = [0.9818, 1.2550]
     configdict["calibration_av"]  = [0.3919, 0.4097]
+
+    configdict["tacc_size"]   = 6
+    configdict["tacc_knots"]  = [0.25, 0.5, 1.0, 2.0, 3.0, 12.0]
     
     configdict["tacc_values"] = [1.4525e-01*1.86413e-01/1.93184e-01,
                                  2.0995e-01*2.83214e-01/3.35302e-01,
@@ -36,28 +39,21 @@ def getconfig() :
     
     configdict["resolutionScaleFactor"] = 1.37 
     configdict["resolutionMeanBias"]    = 0.
-    configdict["DecayTimeResolutionModel"] = "PEDTETripleGaussian"
-    configdict["DecayTimeErrInterpolation"] = True
-
+    
     configdict["resolutionSigma1"] = 2.21465e-02
     configdict["resolutionSigma2"] = 3.72057e-02
     configdict["resolutionSigma3"] = 6.37859e-02
     configdict["resolutionFrac1"]  = 3.62689e-01
     configdict["resolutionFrac2"]  = 5.65100e-01
-               
-    configdict["nBinsMistag"]   = 50
-    configdict["nBinsProperTimeErr"]   = 50
-    configdict["nBinsAcceptance"]   = 740
-
-    configdict["TemplateFilePi"]      = "/afs/cern.ch/work/a/adudziak/public/workspace/MDFitter/templates_BsDsPi.root"
-    configdict["TemplateFileK"]      = "/afs/cern.ch/work/a/adudziak/public/workspace/MDFitter/templates_BsDsK.root"
+        
+    configdict["MistagFile"]     = "../data/workspace/MDFitter/template_Data_Mistag_BsDsPi.root"
+    configdict["MistagWork"]     = "workspace"
+    configdict["MistagTempName"] = ["sigMistagPdf_1", "sigMistagPdf_2", "sigMistagPdf_3"]
     
-    configdict["TemplateWorkspace"]       = "workspace"
-    configdict["MistagTemplateName"]      = "MistagPdf_signal_BDTGA"
-    configdict["MistagVarName"]           = "lab0_BsTaggingTool_TAGOMEGA_OS"
-    configdict["MistagInterpolation"]     =   False
-    configdict["TimeErrorTemplateBDTGA"]  = "TimeErrorPdf_signal_BDTGA"
-    
+    configdict["TerrFile"]     = "../data/workspace/MDFitter/template_Data_Terr_BsDsK.root"
+    configdict["TerrWork"]     = "workspace"
+    configdict["TerrTempName"] = "TimeErrorPdf_Bs2DsK"
+        
     configdict["constParams"] = []
     configdict["constParams"].append('Gammas')
     configdict["constParams"].append('deltaGammas')

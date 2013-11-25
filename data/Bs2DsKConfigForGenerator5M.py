@@ -43,6 +43,8 @@ def getconfig() :
     configdict["lumRatio"] =  0.44/(0.59+0.44)
     configdict["timeRange"] = [0.2, 15]
 
+    configdict["tacc_size"]   = 6
+    configdict["tacc_knots"]  = [0.25, 0.5, 1.0, 2.0, 3.0, 12.0]
     configdict["tacc_values"] = [1.86413e-01, 2.83214e-01, 7.24952e-01, 1.18847e+00, 1.33798e+00, 1.32593e+00] 
 
     configdict["tagEff_OS"] = 0.387
