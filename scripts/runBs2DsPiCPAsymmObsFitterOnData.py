@@ -127,7 +127,8 @@ def setConstantIfSoConfigured(var,myconfigfile) :
 #------------------------------------------------------------------------------
 def runBdGammaFitterOnData(debug, wsname,
                            tVar, terrVar, tagVar, tagOmegaVar, idVar, mVar,
-                           pereventmistag, toys, pathName, treeName,
+                           pereventmistag, pereventterr, 
+                           toys, pathName, treeName,
                            configName, configNameMD, scan, 
                            BDTGbins, pathName2, pathName3, Cat ) :
 
@@ -252,13 +253,9 @@ def runBdGammaFitterOnData(debug, wsname,
         
     binName = TString("splineBinning")
     TimeBin = RooBinning(0.2,15,binName.Data())
-    TimeBin.addBoundary(0.25)
-    TimeBin.addBoundary(0.5)
-    TimeBin.addBoundary(1.0)
-    TimeBin.addBoundary(2.0)
-    TimeBin.addBoundary(3.0)
-    TimeBin.addBoundary(12.0)
-    
+    for i in range(0, myconfigfile["tacc_size"]):
+        TimeBin.addBoundary(myconfigfile["tacc_knots"][i])
+            
     TimeBin.removeBoundary(0.2)
     TimeBin.removeBoundary(15.0)
     TimeBin.removeBoundary(0.2)
@@ -270,16 +267,17 @@ def runBdGammaFitterOnData(debug, wsname,
     
     tacc_list = RooArgList()
     tacc_var = []
-    for i in range(0,6):
+    for i in range(0,myconfigfile["tacc_size"]):
         tacc_var.append(RooRealVar("var"+str(i+1), "var"+str(i+1), myconfigfile["tacc_values"][i], 0.0, 2.0))
         print tacc_var[i].GetName()
         tacc_list.add(tacc_var[i])
-    tacc_var.append(RooRealVar("var7", "var7", 1.0))
+    tacc_var.append(RooRealVar("var"+str(myconfigfile["tacc_size"]+1), "var"+str(myconfigfile["tacc_size"]+1), 1.0))
     len = tacc_var.__len__()
     tacc_list.add(tacc_var[len-1])
     print "n-2: ",tacc_var[len-2].GetName()
     print "n-1: ",tacc_var[len-1].GetName()
-    tacc_var.append(RooAddition("var8","var8", RooArgList(tacc_var[len-2],tacc_var[len-1]), listCoeff))
+    tacc_var.append(RooAddition("var"+str(myconfigfile["tacc_size"]+2), "var"+str(myconfigfile["tacc_size"]+2),
+                                RooArgList(tacc_var[len-2],tacc_var[len-1]), listCoeff))
     tacc_list.add(tacc_var[len])
     print "n: ",tacc_var[len].GetName()
     
@@ -288,7 +286,7 @@ def runBdGammaFitterOnData(debug, wsname,
        
     # Decay time resolution model
     # ---------------------------
-    if 'PEDTE' not in myconfigfile["DecayTimeResolutionModel"] :
+    if not pereventterr:
         print 'Triple gaussian model'
         trm = PTResModels.tripleGausEffModel( time,
                                               spl,
@@ -426,7 +424,7 @@ def runBdGammaFitterOnData(debug, wsname,
             print '[INFO] %s created '%(timePDF[i].GetName())
             timePDF[i].Print("v")
             
-    if 'PEDTE' in myconfigfile["DecayTimeResolutionModel"]:
+    if pereventterr:
         noncondset = RooArgSet(time, id, tag)
         if pereventmistag:
             noncondset.add(mistag)
@@ -621,6 +619,13 @@ parser.add_option( '--pereventmistag',
                    help = 'Use the per-event mistag?'
                    )
 
+parser.add_option( '--pereventterr',
+                   dest = 'pereventterr',
+                   default = False,
+                   action = 'store_true',
+                   help = 'Use the per-event time errors?'
+                   )
+
 parser.add_option( '-t','--toys',
                    dest = 'toys',
                    action = 'store_true', 
@@ -703,6 +708,7 @@ if __name__ == '__main__' :
                             options.idvar,
                             options.mvar,
                             options.pereventmistag,
+                            options.pereventterr,
                             options.toys,
                             options.pathName,
                             options.treeName,
