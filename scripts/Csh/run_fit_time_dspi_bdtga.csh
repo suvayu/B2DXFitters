@@ -1,1 +1,1 @@
-python runBs2DsPiCPAsymmObsFitterOnData.py --debug --pereventmistag --configName Bs2DsPiConfigForNominalDMSFitPowLawFloatAcc --pathName /afs/cern.ch/work/a/adudziak/public/sWeights-PAPER-1fb/sWeights_BsDsPi_all_both_BDTGA.root --save WS_Time_DsPi_BDTGA.root 
+python runBs2DsPiCPAsymmObsFitterOnData.py --debug --pereventmistag --pereventterr --configName Bs2DsPiConfigForNominalDMSFitSplinesFloatAcc --pathName /afs/cern.ch/work/a/adudziak/public/sWeights-PAPER-1fb/sWeights_BsDsPi_all_both_BDTGA.root --save WS_Time_DsPi_BDTGA.root 
