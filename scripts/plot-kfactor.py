@@ -7,6 +7,27 @@ scripts makes the plots from a dumped out tree in treedump.root.
 
 """
 
+# option parsing
+import argparse
+optparser = argparse.ArgumentParser(description=__doc__)
+optparser.add_argument('rfile', help='ROOT file with tree dump')
+optparser.add_argument('-o', '--output', dest='plotfile',
+                       help='Output file basename (w/o extension)')
+optparser.add_argument('-nw', '--noweights', dest='noweights',
+                       action='store_true', default=False,
+                       help='Make plots without weights')
+options = optparser.parse_args()
+rfile = options.rfile
+plotfile = options.plotfile
+noweights = options.noweights
+
+if not len(plotfile):
+    plotfile = fname
+
+if noweights:
+    plotfile += '_wo_weights'
+
+
 def cpp_to_pylist(cpplist):
     """Convert a C++ list (from PyROOT) to a Python list.
 
@@ -25,11 +46,11 @@ from ROOT import gPad, gStyle, kRed, kBlue, kAzure, kGreen
 
 gStyle.SetOptStat('nemrou')
 
-ffile = TFile.Open('treedump.root', 'update')
+ffile = TFile.Open(rfile, 'update')
 klist = ffile.GetListOfKeys()
 
 canvas = TCanvas('canvas', 'canvas', 800, 600)
-canvas.Print('.pdf[')
+canvas.Print('%s.pdf[' % plotfile)
 
 modes = {}
 for item in klist:
@@ -56,7 +77,10 @@ for mode in modes:
     if tree.GetEntries() > 0:
         for var in vardict:
             hname = 'h%s_%s' % (var, tname)
-            tree.Draw('%s>>%s' % (var, hname), 'wMC*wRW', 'hist')
+            if noweights:
+                tree.Draw('%s>>%s' % (var, hname), '', 'hist')
+            else:
+                tree.Draw('%s>>%s' % (var, hname), 'wMC*wRW', 'hist')
             # adjust labels and styles
             hist = gPad.FindObject(hname)
             hist.SetTitle('%s - %s' % (vardict[var], tname))
@@ -67,8 +91,8 @@ for mode in modes:
 
             # Debug
             print 'MSG: Tree %s with %d: %s' % (tname, tree.GetEntries(), var)
-            canvas.Print('.pdf')
+            canvas.Print('%s.pdf' % plotfile)
     else:
         print 'MSG: Tree %s has no entries!' % (tree.GetName())
 
-canvas.Print('.pdf]')
+canvas.Print('%s.pdf]' % plotfile)
