@@ -1814,6 +1814,7 @@ namespace MassFitUtils {
         // SocksFitterArgs[1] = DMASS;
         // SocksFitterArgs[2] = KMASS;
         Ds_hypo = false;
+        h_hypo = true;
       } else if ("Lb2LcK" == sanemode) {
         current_mode = Lb2LcK;
         // SocksFitterArgs[0] = LBMASS;
