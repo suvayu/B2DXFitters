@@ -1608,33 +1608,19 @@ namespace MassFitUtils {
    *
    */
 
-  RooWorkspace* getSpecBkg4kfactor(TString& filesDir, TString& sig,
-				   TString& sigtree, int PIDcut,
-				   int PIDmisscut, int pPIDcut,
-				   double Pcut_down, double Pcut_up,
-				   double BDTGCut, double Dmass_down,
-				   double Dmass_up, TString& mVar,
-				   TString& hypo, RooWorkspace* workspace,
+  RooWorkspace* getSpecBkg4kfactor(TString& filesDir, TString& sig, TString& sigtree,
+				   MDFitterSettings* mdSet,
+				   TString& hypo,
+				   RooWorkspace* workspace,
 				   TFile &ffile, bool mass_win, bool debug)
   {
     long gmsg_count(0), gerr_count(0);
 
     if ( debug == true)
       {
-	std::cout << "[INFO] ==> GeneralUtils::getSpecBkg4kfactor(...)."
-		  << " Obtain dataSets for partially reconstructed backgrounds"
-		  << std::endl;
-	std::cout << "name of config file: " << filesDir << std::endl;
-	std::cout << "PID cut: "<< PIDcut << std::endl;
-	std::cout << "PIDmiss cut: "<< PIDmisscut << std::endl;
-	std::cout << "PIDp cut: "<< pPIDcut << std::endl;
-	std::cout << "BDTGResponse cut: " << BDTGCut << std::endl;
-	std::cout << "Bachelor momentum range: (" << Pcut_down << ","
-		  << Pcut_up << ")" << std::endl;
-	std::cout << "D(s) mass range: (" << Dmass_down << "," << Dmass_up
-	      << ")" << std::endl;
-	std::cout << "Name of observable: " << mVar << std::endl;
-	std::cout << "Data mode: " << hypo << std::endl;
+	std::cout<<"[INFO] ==> GeneralUtils::getSpecBkg4kfactor(...)"<<std::endl;
+	std::cout<<"name of config file: "<<filesDir<<std::endl;
+	std::cout<<"Data mode: "<<hypo<<std::endl;
       }
 
     double BMassRange[2] = {5100, 5800};
@@ -1664,104 +1650,41 @@ namespace MassFitUtils {
     ReadMode(MCFileName, mode, true, debug);
 
     // Read all necessary histogram for misID
-    std::vector <std::string> FileNamePID;
-    std::vector <std::string> FileNamePID2;
-    std::vector <std::string> FileNamePIDp;
     TString PID = "#PID";
     TString PID2 = "#PID2";
-    TString PIDp = "#PIDp";
-    ReadOneName(filesDir, FileNamePID, PID, debug);
-    ReadOneName(filesDir, FileNamePID2, PID2, debug);
-    ReadOneName(filesDir, FileNamePIDp, PIDp, debug);
+    TString PIDp = "";
+    if ( hypo.Contains("Bd") == true) {
+      PIDp = "#PIDp";
+    } else {
+      PIDp = "#PIDp3";
+    }
 
-    TH1F* heff[2];
-    TH1F* heffmiss[2];
-    TH1F* heff1[2];
-    TH1F* heffmiss1[2];
-    TH1F* heff2[2];
-    TH1F* heffmiss2[2];
-    TH1F* heffProton[2];
+    TString RDM = "#RatioDataMC2D";
+    TString nameHistBach = GetHistNameBachPIDBkgMC(mdSet,hypo,debug);
+    TString nameHistMiss = GetHistNameChildPIDBkgMC(mdSet,hypo,debug);
+    TString nameHistEff  = GetHistNameBachPIDEffBkgMC(mdSet,hypo,debug);
+    TString nameHistProton = GetHistNameProtonPIDBkgMC(mdSet,hypo,debug);
+    TString nameHistRatio = "histRatio";
 
-    TString namehist;
-    TString smpmiss[2];
-    TString smpProton[2];
-
-    for (int i = 0; i < 2; i++) {
-      heff1[i]=NULL;
-      namehist = Form("MyPionMisID_%d;1",PIDcut);
-      heff1[i] = ReadPIDHist(FileNamePID,namehist,i);
-
-      heff2[i]=NULL;
-      heff2[i] = ReadPIDHist(FileNamePID2,namehist,i);
-
-      heff[i]=NULL;
-      heff[i]=WeightHist(heff1[i],  heff2[i]);
-
-      heffmiss1[i]=NULL;
-      namehist = Form("MyPionMisID_%d;1",PIDmisscut);
-      heffmiss1[i] = ReadPIDHist(FileNamePID,namehist,i);
-
-      heffmiss2[i]=NULL;
-      heffmiss2[i] = ReadPIDHist(FileNamePID2,namehist,i);
-
-      heffmiss[i]=NULL;
-      heffmiss[i]=WeightHist(heffmiss1[i],  heffmiss2[i]);
-      smpmiss[i] = CheckPolarity(FileNamePID[i+1], debug);
-
-      heffProton[i] = NULL;
-      namehist = Form("MyProtonMisID_pK%d;1", pPIDcut);
-      heffProton[i] = ReadPIDHist(FileNamePIDp, namehist, i, debug);
-      
-      smpProton[i] = CheckPolarity(FileNamePIDp[i+1], debug);
-    
-      if (heff[i]) {}; // hush up compiler warning
-      if (heffmiss[i]) {}; // hush up compiler warning
-      if (heffProton[i]) {}; // hush up compiler warning
-      
-    } // end of for loop
+    HistPID1D hBach(nameHistBach, nameHistBach, filesDir, PID, PID2);
+    HistPID1D hChild(nameHistMiss, nameHistMiss, filesDir, PID, PID2);
+    HistPID1D hBachEff(nameHistEff, nameHistEff, filesDir, PID, PID2);
+    HistPID1D hProton(nameHistProton, nameHistProton, filesDir, PIDp);
+    HistPID2D hRDM(nameHistRatio, nameHistRatio, filesDir, RDM);
+    if ( debug == true )
+      {
+	std::cout<<hBach<<std::endl;
+	std::cout<<hChild<<std::endl;
+	std::cout<<hBachEff<<std::endl;
+	std::cout<<hProton<<std::endl;
+	std::cout<<hRDM<<std::endl;
+      }
 
     //Read sample (means down or up) from path//
     std::vector<TString> smp(ndsets); 
     for (unsigned i = 0; i< ndsets; i++) {
-      smp[i] = CheckPolarity(MCFileName[i], debug);
+      smp[i] = CheckPolarity(sig, debug);
     }
-
-    //Set id for bachelor //
-    int id_lab1=0;
-    if (hypo.Contains("Pi")) {
-      id_lab1=211;
-      if ( debug == true) std::cout << " Hypo with Pi" << std::endl;
-    } else if (hypo.Contains("K")) {
-      id_lab1=321;
-      if ( debug == true) std::cout << "Hypo with K" << std::endl;
-    }
-
-    // Set id for D child //
-    int id_lab4=0;
-    if (hypo.Contains("Ds") == true) {
-      id_lab4 = 321;
-      if ( debug == true) std::cout << "Hypo with Ds" << std::endl;
-    } else if (hypo.Contains("D") == true &&
-	       hypo.Contains("Ds") == false) {
-      id_lab4=211;
-      if ( debug == true) std::cout << "Hypo with D" << std::endl;
-    }
-
-    // Set other cuts//
-    TCut P_cut = Form("lab1_P > %f && lab1_P < %f", Pcut_down, Pcut_up);
-    TCut BDTG_cut = Form("BDTGResponse_1 > %f", BDTGCut);
-    TCut MCTriggerCut = "lab0Hlt1TrackAllL0Decision_TOS && (lab0Hlt2Topo2BodyBBDTDecision_TOS || lab0Hlt2Topo3BodyBBDTDecision_TOS || lab0Hlt2Topo4BodyBBDTDecision_TOS)";
-
-    TCut MCBsIDCut =
-      Form("abs(lab1_ID)==%d && abs(lab5_ID)==321 && abs(lab3_ID)==211 && abs(lab4_ID)==%d && (lab5_ID/abs(lab5_ID)) != (lab1_ID/abs(lab1_ID)) && lab0_BKGCAT < 60",
-	   id_lab1, id_lab4);
-
-    TCut MCCut, MCCut1;
-    TCut MCD = Form("lab2_MM > %f && lab2_MM < %f", Dmass_down, Dmass_up);
-    TCut MCB = Form("%s > %f && %s < %f", mVar.Data(), BMassRange[0],
-		    mVar.Data(), BMassRange[1]);
-    TCut hypoKaon = "lab1_M > 200";  // hypo Kaon //
-    TCut hypoPion = "lab1_M < 200";  // hypo Pion //
 
     // some constants
     const double BSMASS(5366.3), DSMASS(1968.49), KMASS(493.677),
@@ -1815,41 +1738,15 @@ namespace MassFitUtils {
       // 	       or sanemode == "Bs2DsKst"))
       // 	continue;
 
-      TString md= mode[i];
-      if (((mode[i].find("Ds") != std::string::npos) and
-	   (mode[i].find("Dst") == std::string::npos)) or
-	  (mode[i].find("Bs") != std::string::npos)) {
-	MCCut1 = "lab2_BKGCAT < 30";
-      } else {
-	MCCut1 = "lab2_BKGCAT == 30";
-      }
-
-      if (mode[i] == "Bs2DsstKst" or // mode[i] == "Bs2DsKst" or
-	  mode[i] == "Bd2DsKst") {
-	MCCut1 = "lab2_BKGCAT == 30";
-      }  // because in fact this is Bd2DKst sample
-      if (mode[i] == "Bd2DsstPi" ) {
-	MCCut1 = "lab2_BKGCAT < 30";
-      } // because in fact this is Bs2DsstPi sample
-      if (mode[i] == "Bd2DsstK" ) {
-	MCCut1 = "lab2_BKGCAT < 30";
-      } // because in fact this is Bs2DsstK sample
-
-      if (hypo.Contains("K")) { // consider PartReco backgrounds for BsDsK
-	MCCut = MCBsIDCut && MCCut1 && MCTriggerCut && MCD && P_cut &&
-	  BDTG_cut && hypoKaon;
-      } else { // consider PartReco backgrounds for BsDsPi
-	MCCut = MCBsIDCut && MCCut1 && MCTriggerCut && MCD && P_cut &&
-	  BDTG_cut && hypoPion;
-      }
-
       /**
        * Calculate and return a dataset with correction factors for
        * partially reconstructed backgrounds.
        *
        */
 
-      // create new tree after applied all cuts
+      // create new tree after appling all cuts
+      TString md(mode[i]);
+      TCut MCCut = GetCutMCBkg(mdSet, md, hypo);
       TTree *ftree = TreeCut(treeMC[i], MCCut, smp[i], md, debug);
 
       int BPID(0), DPID(0), hPID(0);

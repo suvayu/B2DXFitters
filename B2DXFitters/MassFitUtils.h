@@ -158,7 +158,7 @@ namespace MassFitUtils {
 			       bool        debug = false);
 
 
-  /**
+  /** 
    * Get a workspace with correction factors from MC.
    *
    * Calculates and returns correction factors for the B lifetime of
@@ -169,30 +169,20 @@ namespace MassFitUtils {
    * @param filesDir Directory with text file with list of samples
    * @param sig Token to read file names
    * @param sigtree Token to read tree names
-   * @param PIDcut
-   * @param PIDmisscut
-   * @param pPIDcut
-   * @param Pcut_down
-   * @param Pcut_up
-   * @param BDTGCut
-   * @param Dmass_down
-   * @param Dmass_up
-   * @param mVar
-   * @param hypo
-   * @param workspace
-   * @param ffile
+   * @param mdSet MD fitter settings
+   * @param hypo Mass hypothesis
+   * @param workspace Workspace to save templates
+   * @param ffile Dump file
+   * @param mass_win Apply mass window (default: true)
+   * @param debug Debug mode (default: falsex)
    *
-   * @return workspace
+   * @return Return filled workspace
    */
-  RooWorkspace* getSpecBkg4kfactor(TString& filesDir, TString& sig,
-				   TString& sigtree, int PIDcut,
-				   int PIDmisscut, int pPIDcut,
-				   double Pcut_down, double Pcut_up,
-				   double BDTGCut, double Dmass_down,
-				   double Dmass_up, TString& mVar,
-				   TString& hypo, RooWorkspace* workspace,
-				   TFile &ffile, bool mass_win=true,
-				   bool debug = false);
+  RooWorkspace* getSpecBkg4kfactor(TString& filesDir, TString& sig, TString& sigtree,
+				   MDFitterSettings* mdSet,
+				   TString& hypo,
+				   RooWorkspace* workspace,
+				   TFile &ffile, bool mass_win=true, bool debug=true);
 
 
   //===========================================================================
