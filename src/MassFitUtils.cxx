@@ -1796,9 +1796,10 @@ namespace MassFitUtils {
       TTree mBresn(std::string("mBresn"+hname).c_str(),
 		   std::string("mBresn"+hname).c_str());
 
-      double mBdiff(0.0), kfactor(0.0), kfactorp(0.0);
+      double mBdiff(0.0), kfactor(0.0), kfactorm(0.0), kfactorp(0.0);
       mBresn.Branch("mBdiff", &mBdiff, "mBdiff/D");
       mBresn.Branch("kfactor", &kfactor, "kfactor/D");
+      mBresn.Branch("kfactorm", &kfactorm, "kfactorm/D");
       mBresn.Branch("kfactorp", &kfactorp, "kfactorp/D");
 
       unsigned long fill_counter(0), loop_counter(0);
@@ -2066,7 +2067,8 @@ namespace MassFitUtils {
 
 	Bs_rec = Ds + bach;
 	kfactorp = Bs_rec.P() / Bs.P();
-	kfactor = kfactorp * Bs.M() / Bs_rec.M();
+	kfactorm = Bs.M() / Bs_rec.M();
+	kfactor = kfactorp * kfactorm;
 
 	if (std::isnan(kfactor) || std::isinf(kfactor) || kfactor <= 0. ||
 	    std::isnan(kfactorp) || std::isinf(kfactorp) || kfactorp <= 0.) {

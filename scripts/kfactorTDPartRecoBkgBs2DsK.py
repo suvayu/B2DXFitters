@@ -123,8 +123,7 @@ parser.add_option('--nomasswin', dest='mass_win',
                   action='store_false', default=True,
                   help='Filename with saved workspace')
 parser.add_option('-d', '--debug', dest='debug',
-                  action='store_true', default=False,
-                  help='Filename with saved workspace')
+                  action='store_true', default=False)
 
 
 if __name__ == "__main__":
