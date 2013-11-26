@@ -1639,7 +1639,8 @@ namespace MassFitUtils {
     const unsigned ndsets(MCFileName.size());
 
     if(MCTreeName.size() != ndsets) {
-      ERROR(gerr_count, "Incompatible file list size: MCTreeName and MCFileName");
+      ERROR(gerr_count, "Incompatible file list size: MCTreeName("
+	    << MCTreeName.size() << ") and MCFileName(" << ndsets <<")");
       return NULL;
     }
 
@@ -1647,6 +1648,7 @@ namespace MassFitUtils {
     std::vector <std::string> mode;
     for( unsigned i =0; i < ndsets; i++) {
       treeMC[i] = ReadTreeMC(MCFileName[i].c_str(), MCTreeName[i].c_str(), debug);
+      assert(treeMC[i]);
     }
     ReadMode(MCFileName, mode, true, debug);
 
@@ -1682,20 +1684,10 @@ namespace MassFitUtils {
       }
 
     //Read sample (means down or up) from path//
-    std::vector<TString> smp(ndsets); 
+    std::vector<TString> smp(ndsets);
     for (unsigned i = 0; i< ndsets; i++) {
       smp[i] = CheckPolarity(sig, debug);
     }
-
-    // some constants
-    const double BSMASS(5366.3), DSMASS(1968.49), KMASS(493.677),
-      BDMASS(5279.53), DMASS(1869.62), PIMASS(139.57018),
-      DSSTMASS(2112.34), KSTMASS(891.66), LBMASS(5620.2),
-      LCMASS(2286.46), PMASS(938.27203)/*, RHOMASS(775.49),
-      DSTMASS(2010.25), DSTMASS2(2460.1)*/;
-
-    long veto_counter(0);
-    const double pgratio_cut(5E-3), gratio_cut(5E-2);
 
     // std::string nratio("hratio_"), nratiop("hratiop_"), sample;
     // if (sig.Contains("MU")) {
@@ -1717,42 +1709,33 @@ namespace MassFitUtils {
     // TH1D hpzratiop((nratiop+"Pz"+sample).c_str(), "", 100, 0, 0.1);
     // TH1D hgratiop((nratiop+"global"+sample).c_str(), "", 100, 0, 0.1);
 
+    /**
+     * Calculate and return datasets with k-factors for partially
+     * reconstructed backgrounds.
+     *
+     */
+
+    // some constants
+    const double BSMASS(5366.3), DSMASS(1968.49), KMASS(493.677),
+      BDMASS(5279.53), DMASS(1869.62), PIMASS(139.57018),
+      DSSTMASS(2112.34), KSTMASS(891.66), LBMASS(5620.2),
+      LCMASS(2286.46), PMASS(938.27203)/*, RHOMASS(775.49),
+      DSTMASS(2010.25), DSTMASS2(2460.1)*/;
+
+    long veto_counter(0);
+    const double pgratio_cut(5E-3), gratio_cut(5E-2);
+
     for (unsigned i = 0; i < ndsets; i++) {
-      std::string sanemode(mode[i].substr(0, mode[i].find("_")));
-
-      // debug: Skip over Bs › DsK*, no MC
-      // Skip over Bs › Ds*K*, no MC
-      if ("Bs2DsstKst" == sanemode
-	  // or "Bd2DsstK" == sanemode
-	  // or "Bd2DsKst" == sanemode
-	  // or "Bs2DsKst" == sanemode
-	  ) {
-      	continue;
-      }
-
-      // // debug: run over only noMC
-      // if (not ("Bd2DsstK" == sanemode
-      // 	       or "Bd2DsKst" == sanemode
-      // 	       or "Bs2DsKst" == sanemode))
-      // 	continue;
-      // if (not (sanemode == "Bs2DsRho"
-      // 	       or sanemode == "Bs2DsKst"))
-      // 	continue;
-
-      /**
-       * Calculate and return a dataset with correction factors for
-       * partially reconstructed backgrounds.
-       *
-       */
-
       // create new tree after appling all cuts
       TString md(mode[i]);
       TCut MCCut = GetCutMCBkg(mdSet, md, hypo);
       TTree *ftree = TreeCut(treeMC[i], MCCut, smp[i], md, debug);
+      assert(ftree);
 
+      std::string sanemode(mode[i].substr(0, mode[i].find("_")));
+
+      // variables to read from tree
       int BPID(0), DPID(0), hPID(0);
-
-      // Read variables from tree
       float Bmom(0.), Bmass(0.),
 	B_tru_PE(0.), B_tru_PX(0.), B_tru_PY(0.), B_tru_PZ(0.),
 	D_tru_PE(0.), D_tru_PX(0.), D_tru_PY(0.), D_tru_PZ(0.),
@@ -1820,72 +1803,16 @@ namespace MassFitUtils {
       double SocksFitterArgs[5] = {BSMASS, DSMASS, PIMASS, -1.0, -1.0};
 
       bool Ds_hypo(true), h_hypo(false),
-	noMC(false);
+	noMC(false);		// noMC is redundant now that we have
+				// all MC.  keep for reference.
 
+      // ordered in increasing yields under DsK
       if ("Bd2DK" == sanemode) {
 	current_mode = Bd2DK;
 	SocksFitterArgs[0] = BDMASS;
 	SocksFitterArgs[1] = DMASS;
 	SocksFitterArgs[2] = KMASS;
 	Ds_hypo = false;
-      } else if ("Bd2DsK" == sanemode) {
-	// FIXME: Is it because of low stats (only 5,3)?
-	current_mode = Bd2DsK;
-	SocksFitterArgs[0] = BDMASS;
-	SocksFitterArgs[2] = KMASS;
-	h_hypo = true;
-      } else if ("Bd2DsKst" == sanemode) {
-	// FIXME: it is actually Bd2DKst, fix with proper MC
-	current_mode = Bd2DsKst;
-	SocksFitterArgs[0] = BDMASS;
-	SocksFitterArgs[1] = DMASS;
-	SocksFitterArgs[2] = KMASS;
-	SocksFitterArgs[3] = KSTMASS;
-	SocksFitterArgs[4] = PIMASS;
-	noMC = true;
-	h_hypo = true;
-      } else if ("Bd2DsstK" == sanemode) {
-	// FIXME: it is actually Bs2DsstK, fix with proper MC
-	current_mode = Bd2DsstK;
-	SocksFitterArgs[2] = KMASS;
-	SocksFitterArgs[3] = DSSTMASS;
-	noMC = true;
-	h_hypo = true;
-      } else if ("Bs2DsKst" == sanemode) { // Not in PDG?
-	// FIXME: it is actually Bs2DsRho, fix with proper MC
-	current_mode = Bs2DsKst;
-	SocksFitterArgs[4] = PIMASS;
-	noMC = true;
-	h_hypo = true;		// should not have any effect either way
-      } else if ("Bs2DsRho" == sanemode) {
-	// FIXME: Only high statistics sample with large ?mB (~20
-	// MeV). The ? decays quickly, so it is reconstructed as a
-	// ? and the other ? is missed! This should be considered
-	// as a partially reconstructed decay with a ?
-	// intermediate state.
-	current_mode = Bs2DsRho;
-	SocksFitterArgs[4] = PIMASS;
-      } else if ("Bs2DsstK" == sanemode) {
-	// FIXME: Is it because of low stats (only 4,5)?
-	current_mode = Bs2DsstK;
-	SocksFitterArgs[2] = KMASS;
-	SocksFitterArgs[3] = DSSTMASS;
-	h_hypo = true;
-      } else if ("Bs2DsstPi" == sanemode) {
-	current_mode = Bs2DsstPi;
-	SocksFitterArgs[3] = DSSTMASS;
-      } else if ("Bs2DsstRho" == sanemode) {
-	// FIXME: Is it because of low stats (only 3,11)?
-	current_mode = Bs2DsstRho;
-      } else if ("Lb2Dsp" == sanemode) {
-	current_mode = Lb2Dsp;
-	SocksFitterArgs[0] = LBMASS;
-	SocksFitterArgs[2] = PMASS;
-      } else if ("Lb2Dsstp" == sanemode) {
-	current_mode = Lb2Dsstp;
-	SocksFitterArgs[0] = LBMASS;
-	SocksFitterArgs[2] = PMASS;
-	SocksFitterArgs[3] = DSSTMASS;
       } else if ("Lb2LcK" == sanemode) {
 	current_mode = Lb2LcK;
 	SocksFitterArgs[0] = LBMASS;
@@ -1893,9 +1820,39 @@ namespace MassFitUtils {
 	SocksFitterArgs[2] = KMASS;
 	Ds_hypo = false;
 	h_hypo = true;
+      } else if ("Lb2Dsstp" == sanemode) {
+	current_mode = Lb2Dsstp;
+	SocksFitterArgs[0] = LBMASS;
+	// SocksFitterArgs[1] = DSMASS;
+	SocksFitterArgs[2] = PMASS;
+	SocksFitterArgs[3] = DSSTMASS;
+      } else if ("Lb2Dsp" == sanemode) {
+	current_mode = Lb2Dsp;
+	SocksFitterArgs[0] = LBMASS;
+	// SocksFitterArgs[1] = DSMASS;
+	SocksFitterArgs[2] = PMASS;
+      } else if ("Bs2DsstPi" == sanemode) {
+	current_mode = Bs2DsstPi;
+	// SocksFitterArgs[0] = BSMASS;
+	// SocksFitterArgs[1] = DSMASS;
+	// SocksFitterArgs[2] = PIMASS;
+	SocksFitterArgs[3] = DSSTMASS;
+      } else if ("Bs2DsRho" == sanemode) {
+	// FIXME: Only high statistics sample with large delta mB (~20
+	// MeV). The Rho decays quickly, so it is reconstructed as a
+	// Pi?  and the other Pi is missed! This should be considered
+	// as a partially reconstructed decay with a Rho intermediate
+	// state.
+	current_mode = Bs2DsRho;
+	// SocksFitterArgs[0] = BSMASS;
+	// SocksFitterArgs[1] = DSMASS;
+	// SocksFitterArgs[2] = PIMASS;
+	SocksFitterArgs[4] = PIMASS;
       } else if ("Bs2DsPi" == sanemode) {
 	current_mode = Bs2DsPi;
       }
+
+      // FIXME: need to add DsPi background modes
 
       for (Long64_t jentry=0; jentry < nentries; jentry++) {
 	long msg_count(0), err_count(0);
