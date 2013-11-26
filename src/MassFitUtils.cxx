@@ -2076,7 +2076,7 @@ namespace MassFitUtils {
 
 	if (in_mass_win) {
 	  mBdiff = Bs_rec.M() - Bs_ref.M();
-	  DEBUG(msg_count, "mBdiff = " << mBdiff << "k(m/p) = "
+	  DEBUG(msg_count, "mBdiff = " << mBdiff << ", k(m/p) = "
 		<< kfactor << ", k(p) = " << kfactorp);
 	  // DEBUG(msg_count, "pass: (" << loop_counter << ") My B mass: "
 	  // 	<< Bs_mass << ", LHCb mass: " << Bmass);
