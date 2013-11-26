@@ -14,9 +14,6 @@ import os
 import sys
 from optparse import OptionParser
 
-# for B2DXFitters C++ classes
-if 'CMTCONFIG' in os.environ:
-    import GaudiPython
 # ROOT globals
 import ROOT
 from ROOT import gROOT
@@ -39,17 +36,12 @@ from ROOT import RooDecay, RooGaussModel, TString, TLorentzVector
 # if required, but PyROOT does not do what it thinks best without our knowing
 # what it does
 ROOT.SetMemoryPolicy(ROOT.kMemoryStrict)
-if not 'CMTCONFIG' in os.environ:
-    # enable ROOT to understand Reflex dictionaries
-    ROOT.gSystem.Load('libCintex')
-    ROOT.Cintex.Enable()
-# load our own B2DXFitters library
-if 'CMTCONFIG' in os.environ:
-    GaudiPython.loaddict('B2DXFittersDict')
-else:
-    # running in standalone mode, we have to load things ourselves
-    ROOT.gSystem.Load(os.environ['B2DXFITTERSROOT'] +
-	    '/standalone/libB2DXFitters')
+# enable ROOT to understand Reflex dictionaries
+ROOT.gSystem.Load('libCintex')
+ROOT.Cintex.Enable()
+# running in standalone mode, we have to load things ourselves
+ROOT.gSystem.Load(os.environ['B2DXFITTERSROOT'] +
+        '/standalone/libB2DXFitters')
 
 from ROOT import MDFitterSettings
 getSpecBkg4kfactor = ROOT.MassFitUtils.getSpecBkg4kfactor
