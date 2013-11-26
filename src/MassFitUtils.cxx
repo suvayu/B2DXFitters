@@ -1736,7 +1736,8 @@ namespace MassFitUtils {
 
       // variables to read from tree
       int BPID(0), DPID(0), hPID(0);
-      float Bmom(0.), Bmass(0.),
+      float Bmass(0.);
+      double Bmom(0.),
 	B_tru_PE(0.), B_tru_PX(0.), B_tru_PY(0.), B_tru_PZ(0.),
 	D_tru_PE(0.), D_tru_PX(0.), D_tru_PY(0.), D_tru_PZ(0.),
 	h_tru_PE(0.), h_tru_PX(0.), h_tru_PY(0.), h_tru_PZ(0.),
@@ -1933,7 +1934,14 @@ namespace MassFitUtils {
 	  fit_status = fitter.fit(Blv, Dlv, hlv);
 
 	if (not fit_status) {
-	  ERROR(err_count, "DecayTreeTupleSucksFitter::fit(..) failed");
+	  ERROR(gerr_count, "DecayTreeTupleSucksFitter::fit(..) failed\n"
+		<< mode[i] << "_" << smp[i] << " 4-momenta after fit\n"
+		<< "Bs(t,x,y,z) = " << Blv[0] << "," << Blv[1] << ","
+		<< Blv[2] << "," << Blv[3] << std::endl
+		<< "Ds(t,x,y,z) = " << Dlv[0] << "," << Dlv[1] << ","
+		<< Dlv[2] << "," << Dlv[3] << std::endl
+		<< "h(t,x,y,z) = " << hlv[0] << "," << hlv[1] << ","
+		<< hlv[2] << "," << hlv[3] << std::endl);
 	  continue;
 	}
 
@@ -1949,81 +1957,84 @@ namespace MassFitUtils {
 	fbach.Print();
 	if (ispartial) fmiss.Print();
 
-	switch (current_mode) {
-	case Bd2DsKst:	// MC from Bd2DKst
-	  {
-	    fstarred = fmiss + fbach;
+	// No need to shift 4-momenta, no missing MC anymore
 
-	    TwoBodyDecay dmissing(fmiss);
-	    TwoBodyDecay dDs(fDs);
-	    TwoBodyDecay dbach(fbach);
-	    TwoBodyDecay dKst(fstarred, &dbach, &dmissing);
-	    TwoBodyDecay dBs(fBs, &dKst, &dDs);
+	// switch (current_mode) {
+	// case Bd2DsKst:	// MC from Bd2DKst
+	//   {
+	//     fstarred = fmiss + fbach;
 
-	    DEBUG(msg_count, "Bd2DsKst before");
-	    dBs.Print();
-	    dBs.toRestFrame();
-	    dDs.setMass(DSMASS);
-	    dBs.update_momenta();
-	    dBs.toParentFrame();
-	    DEBUG(msg_count, "Bd2DsKst after");
-	    dBs.Print();
-	  }
-	  break;
+	//     TwoBodyDecay dmissing(fmiss);
+	//     TwoBodyDecay dDs(fDs);
+	//     TwoBodyDecay dbach(fbach);
+	//     TwoBodyDecay dKst(fstarred, &dbach, &dmissing);
+	//     TwoBodyDecay dBs(fBs, &dKst, &dDs);
 
-	case Bd2DsstK:	// MC from Bs2DsstK
-	  {
-	    fstarred = fmiss + fDs;
+	//     DEBUG(msg_count, "Bd2DsKst before");
+	//     // dBs.Print();
+	//     dBs.toRestFrame();
+	//     dDs.setMass(DSMASS);
+	//     dBs.update_momenta();
+	//     dBs.toParentFrame();
+	//     DEBUG(msg_count, "Bd2DsKst after");
+	//     // dBs.Print();
+	//   }
+	//   break;
 
-	    TwoBodyDecay dmissing(fmiss);
-	    TwoBodyDecay dDs(fDs);
-	    TwoBodyDecay dbach(fbach);
-	    TwoBodyDecay dDsstar(fstarred, &dDs, &dmissing);
-	    TwoBodyDecay dBs(fBs, &dDsstar, &dbach);
+	// case Bd2DsstK:	// MC from Bs2DsstK
+	//   {
+	//     fstarred = fmiss + fDs;
 
-	    DEBUG(msg_count, "Bd2DsstK before");
-	    dBs.Print();
-	    dBs.toRestFrame();
-	    dBs.setMass(BDMASS);
-	    dBs.update_momenta();
-	    dBs.toParentFrame();
-	    DEBUG(msg_count, "Bd2DsstK after");
-	    dBs.Print();
-	  }
-	  break;
+	//     TwoBodyDecay dmissing(fmiss);
+	//     TwoBodyDecay dDs(fDs);
+	//     TwoBodyDecay dbach(fbach);
+	//     TwoBodyDecay dDsstar(fstarred, &dDs, &dmissing);
+	//     TwoBodyDecay dBs(fBs, &dDsstar, &dbach);
 
-	case Bs2DsKst:	// MC from Bs2DsRho
-	  {
-	    fstarred = fmiss + fbach;
+	//     DEBUG(msg_count, "Bd2DsstK before");
+	//     // dBs.Print();
+	//     dBs.toRestFrame();
+	//     dBs.setMass(BDMASS);
+	//     dBs.update_momenta();
+	//     dBs.toParentFrame();
+	//     DEBUG(msg_count, "Bd2DsstK after");
+	//     // dBs.Print();
+	//   }
+	//   break;
 
-	    TwoBodyDecay dmissing(fmiss);
-	    TwoBodyDecay dDs(fDs);
-	    TwoBodyDecay dbach(fbach);
-	    TwoBodyDecay dKst(fstarred, &dbach, &dmissing);
-	    TwoBodyDecay dBs(fBs, &dKst, &dDs);
+	// case Bs2DsKst:	// MC from Bs2DsRho
+	//   {
+	//     fstarred = fmiss + fbach;
 
-	    DEBUG(msg_count, "Bs2DsKst before");
-	    dBs.Print();
-	    dBs.toRestFrame();
-	    dbach.setMass(KMASS);
-	    dKst.setMass(KSTMASS);
-	    dBs.update_momenta();
-	    dBs.toParentFrame();
-	    DEBUG(msg_count, "Bs2DsKst after");
-	    dBs.Print();
-	  }
-	  break;
-	default:
-	  break;
-	}
+	//     TwoBodyDecay dmissing(fmiss);
+	//     TwoBodyDecay dDs(fDs);
+	//     TwoBodyDecay dbach(fbach);
+	//     TwoBodyDecay dKst(fstarred, &dbach, &dmissing);
+	//     TwoBodyDecay dBs(fBs, &dKst, &dDs);
 
+	//     DEBUG(msg_count, "Bs2DsKst before");
+	//     // dBs.Print();
+	//     dBs.toRestFrame();
+	//     dbach.setMass(KMASS);
+	//     dKst.setMass(KSTMASS);
+	//     dBs.update_momenta();
+	//     dBs.toParentFrame();
+	//     DEBUG(msg_count, "Bs2DsKst after");
+	//     // dBs.Print();
+	//   }
+	//   break;
+	// default:
+	//   break;
+	// }
+
+	// emulating mis-reconstruction
 	Bs = fBs;
 	if (Ds_hypo == false) Ds.SetVectM(fDs.Vect(), DSMASS);
 	else Ds = fDs;
 	if (h_hypo == false) bach.SetVectM(fbach.Vect(), KMASS);
 	else bach = fbach;
-
 	Bs_rec = Ds + bach;
+
 	kfactorp = Bs_rec.P() / Bs.P();
 	kfactorm = Bs.M() / Bs_rec.M();
 	kfactor = kfactorp * kfactorm;
@@ -2031,13 +2042,16 @@ namespace MassFitUtils {
 	if (std::isnan(kfactor) || std::isinf(kfactor) || kfactor <= 0. ||
 	    std::isnan(kfactorp) || std::isinf(kfactorp) || kfactorp <= 0.) {
 	  DEBUG(msg_count, "K-factor is invalid: " << kfactor);
-	  if ("Bd2DsstK" == sanemode or "Bd2DsKst" == sanemode
-	      or "Bs2DsKst" == sanemode) {
-	    DEBUG(msg_count, sanemode << "Bs_ref.M() = " << Bs_ref.M()
-		  << " Bmass (LHCb) = " << Bmass);
-	    DEBUG(msg_count, sanemode << "K-factor (m/p) = " << kfactor
-		  << " K-factor (p) = " << kfactorp);
-	  }
+
+	  // not considered anymore
+
+	  // if ("Bd2DsstK" == sanemode or "Bd2DsKst" == sanemode
+	  //     or "Bs2DsKst" == sanemode) {
+	  //   DEBUG(msg_count, sanemode << "Bs_ref.M() = " << Bs_ref.M()
+	  // 	  << " Bmass (LHCb) = " << Bmass);
+	  //   DEBUG(msg_count, sanemode << "K-factor (m/p) = " << kfactor
+	  // 	  << " K-factor (p) = " << kfactorp);
+	  // }
 	  continue;
 	}
 
