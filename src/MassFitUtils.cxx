@@ -1612,7 +1612,6 @@ namespace MassFitUtils {
 				   MDFitterSettings* mdSet,
 				   TString& hypo,
 				   RooWorkspace* workspace,
-				   double mass_lo, double mass_hi,
 				   TFile &ffile,  bool debug)
   {
     long gmsg_count(0), gerr_count(0);
@@ -1738,7 +1737,7 @@ namespace MassFitUtils {
       // variables to read from tree
       int BPID(0), DPID(0), hPID(0), nTr(0);
       float Bmass(0.);
-      double Bmom(0.),
+      double Bmom(0.), Dmass(0.),
 	B_tru_PE(0.), B_tru_PX(0.), B_tru_PY(0.), B_tru_PZ(0.),
 	D_tru_PE(0.), D_tru_PX(0.), D_tru_PY(0.), D_tru_PZ(0.),
 	h_tru_PE(0.), h_tru_PX(0.), h_tru_PY(0.), h_tru_PZ(0.),
@@ -1755,7 +1754,8 @@ namespace MassFitUtils {
       ftree->SetBranchAddress("lab4_P",                     &lab4_P2);
 
       ftree->SetBranchAddress("lab0_P", &Bmom);
-      ftree->SetBranchAddress("lab0_MassFitConsD_M", &Bmass);
+      ftree->SetBranchAddress(mdSet->GetMassBVar().Data(),  &Bmass);
+      ftree->SetBranchAddress(mdSet->GetMassDVar().Data(),  &Dmass);
 
       ftree->SetBranchAddress("lab0_TRUEP_E", &B_tru_PE);
       ftree->SetBranchAddress("lab0_TRUEP_X", &B_tru_PX);
@@ -2094,20 +2094,21 @@ namespace MassFitUtils {
 	  continue;
 	}
 
-	double Bs_mass(Bs_rec.M());
 	bool in_mass_win(false);
 
-	if (mass_lo <= 0 or mass_hi <= 0 or mass_lo == mass_hi) {
+	if (mdSet->GetMassBRangeDown() <= 0
+	    or mdSet->GetMassBRangeUp() <= 0
+	    or mdSet->GetMassBRangeUp() == mdSet->GetMassBRangeDown()
+	    or mdSet->GetMassDRangeDown() <= 0
+	    or mdSet->GetMassDRangeUp() <= 0
+	    or mdSet->GetMassDRangeUp() == mdSet->GetMassDRangeDown()) {
 	  in_mass_win = true; 	// no mass window
 	} else {
-	  if (noMC) {
-	    if (mass_lo < Bs_mass && Bs_mass < mass_hi) { // Bs my reco mass window
-	      in_mass_win = true;
-	    }
-	  } else {
-	    if (mass_lo < Bmass && Bmass < mass_hi) { // Bs LHCb reco mass window
-	      in_mass_win = true;
-	    }
+	  if (Bmass > mdSet->GetMassBRangeDown()
+	      and Bmass < mdSet->GetMassBRangeUp()
+	      and Dmass > mdSet->GetMassDRangeDown()
+	      and Dmass < mdSet->GetMassDRangeUp()) { // Bs LHCb reco mass window
+	    in_mass_win = true;
 	  }
 	}
 
@@ -2115,8 +2116,6 @@ namespace MassFitUtils {
 	  mBdiff = Bs_rec.M() - Bs_ref.M();
 	  DEBUG(msg_count, "mBdiff = " << mBdiff << ", k(m/p) = "
 		<< kfactor << ", k(p) = " << kfactorp);
-	  // DEBUG(msg_count, "pass: (" << loop_counter << ") My B mass: "
-	  // 	<< Bs_mass << ", LHCb mass: " << Bmass);
 
 	  // if (std::fabs(mBdiff) > 100) { // debug
 	  //   double moverp_tru(Bs.M() / Bs.P()),
@@ -2159,10 +2158,7 @@ namespace MassFitUtils {
 	  weight.setVal(wMC*wRW);
 	  dataset.add(RooArgSet(kfactorVar, weight), weight.getVal());
 	  fill_counter++;
-	}//  else if (current_mode == Bs2DsKst) {
-	//   DEBUG(msg_count, "fail: (" << loop_counter << ") My B mass: "
-	// 	<< Bs_mass << ", LHCb mass: " << Bmass);
-	// }
+	}
 	loop_counter++;
       }	// end of loop over tree entries
 

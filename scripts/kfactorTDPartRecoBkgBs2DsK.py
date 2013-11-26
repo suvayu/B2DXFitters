@@ -105,6 +105,8 @@ def get_workspace(configname, varnames, masslo, masshi, debug):
     MDSettingsMC.SetMomVar(TString(varnames['pvar']))
     MDSettingsMC.SetTrMomVar(TString(varnames['ptvar']))
     MDSettingsMC.SetTracksVar(TString(varnames['ntracksvar']))
+    MDSettingsMC.SetMassBRange(mass_lo, mass_hi)
+    # MDSettingsMC.SetMassDRange()
     MDSettingsMC.Print("v")
 
     ffile = TFile('treedump.root', 'recreate')
@@ -113,14 +115,12 @@ def get_workspace(configname, varnames, masslo, masshi, debug):
                                    TString('#Kfactor MC FileName MU'),
                                    TString('#Kfactor MC TreeName'),
                                    MDSettingsMC, TString("BsDsK"),
-                                   workspace, masslo, masshi,
-                                   ffile, debug)
+                                   workspace, ffile, debug)
     workspace = getSpecBkg4kfactor(TString(myconfigfile["dataName"]),
                                    TString('#Kfactor MC FileName MD'),
                                    TString('#Kfactor MC TreeName'),
                                    MDSettingsMC, TString("BsDsK"),
-                                   workspace, masslo, masshi,
-                                   ffile, debug)
+                                   workspace, ffile, debug)
     ffile.Close()
 
     if debug:
