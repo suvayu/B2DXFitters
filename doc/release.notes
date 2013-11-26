@@ -215,7 +215,7 @@
  - cFit: make calibration fits a little more robust
 
 ! 2013-10-22 - Manuel Tobias Schiller, Suvayu Ali
- - new class RooKEffResModel to do the k-factor smearing
+ - new class RooKResModel to do the k-factor smearing
  - remove old class for the same purpose (it never worked quite right anyway)
 
 ! 2013-10-9 Diego Martinez Santos
