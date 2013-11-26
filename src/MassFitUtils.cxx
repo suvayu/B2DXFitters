@@ -2176,6 +2176,11 @@ namespace MassFitUtils {
 
       workspace->import(dataset);
       ffile.WriteObject(&mBresn, mBresn.GetName());
+
+      // house cleaning
+      TFile * treefile = ftree->GetCurrentFile();
+      delete ftree;
+      delete treefile;
     } // end of loop on datasets/modes
 
     // ffile.WriteObject(&hderatio, hderatio.GetName());
