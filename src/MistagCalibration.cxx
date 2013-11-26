@@ -120,7 +120,7 @@ Double_t MistagCalibration::evalIntEta(
 	const double etalo, const double etahi) const
 {
     // mistag integral with calibration (if needed)
-    const double etaavg(m_etaavg);
+    const double etaavg(m_etaavg.absArg() ? double(m_etaavg) : 0.);
     const double detalo = etalo - etaavg;
     const double detahi = etahi - etaavg;
     double petalo = 1., petahi = 1., isum = 0.;

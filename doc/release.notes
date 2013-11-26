@@ -4,6 +4,9 @@
 ! Purpose     : RooFit-based fitters for B -> D X
 !-----------------------------------------------------------------------------
 
+! 2013-11-26 - Manuel Tobias Schiller
+ - MistagCalibration: fix a bug in the integration routine
+
 ! 2013-11-22 - Agnieszka Dziurda
  - sFit update for splines and two taggers
  - update toy generator for DsK 
