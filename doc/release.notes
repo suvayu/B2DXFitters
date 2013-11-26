@@ -4,6 +4,10 @@
 ! Purpose     : RooFit-based fitters for B -> D X
 !-----------------------------------------------------------------------------
 
+! 2013-11-26 - Suvayu Ali
+ - Tests for k-factor class RooKResModel
+ - Update for k-factor templates
+
 ! 2013-11-26 - Manuel Tobias Schiller
  - MistagCalibration: fix a bug in the integration routine
 
