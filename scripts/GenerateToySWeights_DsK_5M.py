@@ -111,10 +111,10 @@ gROOT.SetBatch()
 
 from B2DXFitters import taggingutils, cpobservables
 RooAbsData.setDefaultStorageType(RooAbsData.Tree)
-RooAbsReal.defaultIntegratorConfig().setEpsAbs(1e-4)
-RooAbsReal.defaultIntegratorConfig().setEpsRel(1e-4)
+RooAbsReal.defaultIntegratorConfig().setEpsAbs(1e-9)
+RooAbsReal.defaultIntegratorConfig().setEpsRel(1e-9)
 RooAbsReal.defaultIntegratorConfig().method1D().setLabel('RooAdaptiveGaussKronrodIntegrator1D')
-RooAbsReal.defaultIntegratorConfig().getConfigSection('RooAdaptiveGaussKronrodIntegrator1D').setCatLabel('method','20Points')
+RooAbsReal.defaultIntegratorConfig().getConfigSection('RooAdaptiveGaussKronrodIntegrator1D').setCatLabel('method','15Points')
 RooAbsReal.defaultIntegratorConfig().getConfigSection('RooAdaptiveGaussKronrodIntegrator1D').setRealValue('maxSeg', 10000)
 
 
@@ -259,14 +259,14 @@ def runBsDsKGenerator( debug, single, configName, rangeDown, rangeUp, numberOfEv
         
     tagDecComb   = GeneralUtils.GetCategory(workspaceData,TString("tagDecComb"), debug)
     tagOmegaComb = GeneralUtils.GetObservable(workspaceData,TString("tagOmegaComb"), debug)
+    tagOmegaComb.setConstant(False)
+    tagDecComb.setConstant(False)
     tagOmegaComb.setRange(0,0.5)
-    tagOmegaList   = RooArgList(tagOmegaComb, tagOmegaComb, tagOmegaComb)
         
     calibHalf = MistagCalibration('calibHalf', 'calibHalf', tagOmegaComb, half, zero)
-    tagOmegaListBd = RooArgList()
-    tagOmegaListBd.add(tagOmegaComb)
-    tagOmegaListBd.add(tagOmegaComb)
-    tagOmegaListBd.add(tagOmegaComb)
+    calibIdentity = MistagCalibration('calibIdentity', 'calibIdentity', tagOmegaComb, zero, one)
+    tagOmegaList = RooArgList(calibIdentity, calibIdentity, calibIdentity)
+    tagOmegaListBd = RooArgList(calibIdentity, calibHalf, calibIdentity)
 
     mistagBs = []
     mistagBsPDFList = RooArgList()
