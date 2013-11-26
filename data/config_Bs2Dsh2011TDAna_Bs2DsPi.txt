@@ -170,6 +170,27 @@ DecayTree;1
 DecayTree;1
 ###
 
+#Kfactor MC FileName MD
+/afs/cern.ch/work/a/adudziak/public/MCMarch2013/MergedTree_Bs2DsstPi_Ds2KKPi_BsHypo_BDTG.root
+/afs/cern.ch/work/a/adudziak/public/MCMarch2013/MergedTree_Bs2DsK_Ds2KKPi_BsHypo_BDTG.root
+/afs/cern.ch/work/a/adudziak/public/MCMarch2013/MergedTree_Lb2LcPi_Lc2pKPi_BsHypo_BDTG.root
+/afs/cern.ch/work/a/adudziak/public/MCMarch2013/MergedTree_Bd2DPi_D2KPiPi_BsHypo_BDTG.root
+###
+
+#Kfactor MC FileName MU
+/afs/cern.ch/work/a/adudziak/public/MCMarch2013/MergedTree_Bs2DsstPi_Ds2KKPi_BsHypo_BDTG.root
+/afs/cern.ch/work/a/adudziak/public/MCMarch2013/MergedTree_Bs2DsK_Ds2KKPi_BsHypo_BDTG.root
+/afs/cern.ch/work/a/adudziak/public/MCMarch2013/MergedTree_Lb2LcPi_Lc2pKPi_BsHypo_BDTG.root
+/afs/cern.ch/work/a/adudziak/public/MCMarch2013/MergedTree_Bd2DPi_D2KPiPi_BsHypo_BDTG.root
+###
+
+#Kfactor MC TreeName
+DecayTree;1
+DecayTree;1
+DecayTree;1
+DecayTree;1
+###
+
 #Signal BsDsPi KstK
 /afs/cern.ch/work/g/gligorov/public/Bs2DsKFitTuples/DV_v33r1/MC11a/AfterOfflineSel/
 Bs2DsPi_Ds2KKPi_BsHypo_DsPi_KKPi_KstK_OffSel_BDTG.root
