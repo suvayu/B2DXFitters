@@ -56,7 +56,7 @@ for mode in modes:
     if tree.GetEntries() > 0:
         for var in vardict:
             hname = 'h%s_%s' % (var, tname)
-            tree.Draw('%s>>%s' % (var, hname), '', 'hist')
+            tree.Draw('%s>>%s' % (var, hname), 'wMC*wRW', 'hist')
             # adjust labels and styles
             hist = gPad.FindObject(hname)
             hist.SetTitle('%s - %s' % (vardict[var], tname))
