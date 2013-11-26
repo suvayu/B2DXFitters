@@ -105,7 +105,7 @@ def get_workspace(configname, varnames, masslo, masshi, debug):
     MDSettingsMC.SetMomVar(TString(varnames['pvar']))
     MDSettingsMC.SetTrMomVar(TString(varnames['ptvar']))
     MDSettingsMC.SetTracksVar(TString(varnames['ntracksvar']))
-    MDSettingsMC.SetMassBRange(mass_lo, mass_hi)
+    MDSettingsMC.SetMassBRange(masslo, masshi)
     # MDSettingsMC.SetMassDRange()
     MDSettingsMC.Print("v")
 
