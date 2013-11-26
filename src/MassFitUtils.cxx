@@ -1624,8 +1624,6 @@ namespace MassFitUtils {
 	std::cout<<"Data mode: "<<hypo<<std::endl;
       }
 
-    double BMassRange[2] = {5100, 5800};
-    //BMassRange[0] = 5320; BMassRange[1]=5980;
     if (workspace == NULL)
       workspace = new RooWorkspace("workspace","workspace");
 
@@ -1716,16 +1714,18 @@ namespace MassFitUtils {
      */
 
     // some constants
-    const double BSMASS(5366.3), DSMASS(1968.49), KMASS(493.677),
+    const double DSMASS(1968.49), KMASS(493.677)/*, BSMASS(5366.3), 
       BDMASS(5279.53), DMASS(1869.62), PIMASS(139.57018),
       DSSTMASS(2112.34), KSTMASS(891.66), LBMASS(5620.2),
-      LCMASS(2286.46), PMASS(938.27203)/*, RHOMASS(775.49),
+      LCMASS(2286.46), PMASS(938.27203), RHOMASS(775.49),
       DSTMASS(2010.25), DSTMASS2(2460.1)*/;
 
     long veto_counter(0);
     const double pgratio_cut(5E-3), gratio_cut(5E-2);
 
     for (unsigned i = 0; i < ndsets; i++) {
+      // if (i > 2) break;
+
       // create new tree after appling all cuts
       TString md(mode[i]);
       TCut MCCut = GetCutMCBkg(mdSet, md, hypo);
@@ -1807,53 +1807,53 @@ namespace MassFitUtils {
 	noMC(false);		// noMC is redundant now that we have
 				// all MC.  keep for reference.
 
-      // // ordered in increasing yields under DsK
-      // if ("Bd2DK" == sanemode) {
-      // 	current_mode = Bd2DK;
-      // 	SocksFitterArgs[0] = BDMASS;
-      // 	SocksFitterArgs[1] = DMASS;
-      // 	SocksFitterArgs[2] = KMASS;
-      // 	Ds_hypo = false;
-      // } else if ("Lb2LcK" == sanemode) {
-      // 	current_mode = Lb2LcK;
-      // 	SocksFitterArgs[0] = LBMASS;
-      // 	SocksFitterArgs[1] = LCMASS;
-      // 	SocksFitterArgs[2] = KMASS;
-      // 	Ds_hypo = false;
-      // 	h_hypo = true;
-      // } else if ("Lb2Dsstp" == sanemode) {
-      // 	current_mode = Lb2Dsstp;
-      // 	SocksFitterArgs[0] = LBMASS;
-      // 	// SocksFitterArgs[1] = DSMASS;
-      // 	SocksFitterArgs[2] = PMASS;
-      // 	SocksFitterArgs[3] = DSSTMASS;
-      // } else if ("Lb2Dsp" == sanemode) {
-      // 	current_mode = Lb2Dsp;
-      // 	SocksFitterArgs[0] = LBMASS;
-      // 	// SocksFitterArgs[1] = DSMASS;
-      // 	SocksFitterArgs[2] = PMASS;
-      // } else if ("Bs2DsstPi" == sanemode) {
-      // 	current_mode = Bs2DsstPi;
-      // 	// SocksFitterArgs[0] = BSMASS;
-      // 	// SocksFitterArgs[1] = DSMASS;
-      // 	// SocksFitterArgs[2] = PIMASS;
-      // 	SocksFitterArgs[3] = DSSTMASS;
-      // } else if ("Bs2DsRho" == sanemode) {
-      // 	// FIXME: Only high statistics sample with large delta mB (~20
-      // 	// MeV). The Rho decays quickly, so it is reconstructed as a
-      // 	// Pi?  and the other Pi is missed! This should be considered
-      // 	// as a partially reconstructed decay with a Rho intermediate
-      // 	// state.
-      // 	current_mode = Bs2DsRho;
-      // 	// SocksFitterArgs[0] = BSMASS;
-      // 	// SocksFitterArgs[1] = DSMASS;
-      // 	// SocksFitterArgs[2] = PIMASS;
-      // 	SocksFitterArgs[4] = PIMASS;
-      // } else if ("Bs2DsPi" == sanemode) {
-      // 	current_mode = Bs2DsPi;
-      // }
+      // ordered in increasing yields under DsK
+      if ("Bd2DK" == sanemode) {
+        current_mode = Bd2DK;
+        // SocksFitterArgs[0] = BDMASS;
+        // SocksFitterArgs[1] = DMASS;
+        // SocksFitterArgs[2] = KMASS;
+        Ds_hypo = false;
+      } else if ("Lb2LcK" == sanemode) {
+        current_mode = Lb2LcK;
+        // SocksFitterArgs[0] = LBMASS;
+        // SocksFitterArgs[1] = LCMASS;
+        // SocksFitterArgs[2] = KMASS;
+        Ds_hypo = false;
+        h_hypo = true;
+      } else if ("Lb2Dsstp" == sanemode) {
+        current_mode = Lb2Dsstp;
+        // SocksFitterArgs[0] = LBMASS;
+        // // SocksFitterArgs[1] = DSMASS;
+        // SocksFitterArgs[2] = PMASS;
+        // SocksFitterArgs[3] = DSSTMASS;
+      } else if ("Lb2Dsp" == sanemode) {
+        current_mode = Lb2Dsp;
+        // SocksFitterArgs[0] = LBMASS;
+        // // SocksFitterArgs[1] = DSMASS;
+        // SocksFitterArgs[2] = PMASS;
+      } else if ("Bs2DsstPi" == sanemode) {
+        current_mode = Bs2DsstPi;
+        // // SocksFitterArgs[0] = BSMASS;
+        // // SocksFitterArgs[1] = DSMASS;
+        // // SocksFitterArgs[2] = PIMASS;
+        // SocksFitterArgs[3] = DSSTMASS;
+      } else if ("Bs2DsRho" == sanemode) {
+        // FIXME: Only high statistics sample with large delta mB (~20
+        // MeV). The Rho decays quickly, so it is reconstructed as a
+        // Pi?  and the other Pi is missed! This should be considered
+        // as a partially reconstructed decay with a Rho intermediate
+        // state.
+        current_mode = Bs2DsRho;
+        // // SocksFitterArgs[0] = BSMASS;
+        // // SocksFitterArgs[1] = DSMASS;
+        // // SocksFitterArgs[2] = PIMASS;
+        // SocksFitterArgs[4] = PIMASS;
+      } else if ("Bs2DsPi" == sanemode) {
+        current_mode = Bs2DsPi;
+      }
 
-      // // FIXME: need to add DsPi background modes
+      // FIXME: need to add DsPi background modes
 
       for (Long64_t jentry=0; jentry < nentries; jentry++) {
 	long msg_count(0), err_count(0);
