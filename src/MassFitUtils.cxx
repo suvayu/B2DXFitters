@@ -1743,7 +1743,7 @@ namespace MassFitUtils {
 	D_tru_PE(0.), D_tru_PX(0.), D_tru_PY(0.), D_tru_PZ(0.),
 	h_tru_PE(0.), h_tru_PX(0.), h_tru_PY(0.), h_tru_PZ(0.),
 	B_PE(0.), B_PX(0.), B_PY(0.), B_PZ(0.),
-	lab4_P2(0), lab1_P2(0), lab1_PT2(0), PIDK2(0);
+	lab4_P2(0), lab1_P2(0), lab1_PT2(0);
 
       ftree->SetBranchAddress("lab0_TRUEID", &BPID);
       ftree->SetBranchAddress("lab2_TRUEID", &DPID);
@@ -1753,7 +1753,6 @@ namespace MassFitUtils {
       ftree->SetBranchAddress(mdSet->GetMomVar().Data(),    &lab1_P2);
       ftree->SetBranchAddress(mdSet->GetTrMomVar().Data(),  &lab1_PT2);
       ftree->SetBranchAddress("lab4_P",                     &lab4_P2);
-      ftree->SetBranchAddress(mdSet->GetPIDKVar().Data(),   &PIDK2);
 
       ftree->SetBranchAddress("lab0_P", &Bmom);
       ftree->SetBranchAddress("lab0_MassFitConsD_M", &Bmass);
@@ -2096,7 +2095,7 @@ namespace MassFitUtils {
 	}
 
 	double Bs_mass(Bs_rec.M());
-	bool in_mass_win(false), pidpass(false);
+	bool in_mass_win(false);
 
 	if (mass_lo <= 0 or mass_hi <= 0 or mass_lo == mass_hi) {
 	  in_mass_win = true; 	// no mass window
@@ -2112,11 +2111,7 @@ namespace MassFitUtils {
 	  }
 	}
 
-	if (std::log(PIDK2) > log(mdSet->GetPIDBach())) {
-	  pidpass = true;
-	}
-
-	if (in_mass_win and pidpass) {
+	if (in_mass_win) {
 	  mBdiff = Bs_rec.M() - Bs_ref.M();
 	  DEBUG(msg_count, "mBdiff = " << mBdiff << ", k(m/p) = "
 		<< kfactor << ", k(p) = " << kfactorp);
