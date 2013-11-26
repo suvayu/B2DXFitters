@@ -1722,6 +1722,7 @@ namespace MassFitUtils {
 
     long veto_counter(0);
     const double pgratio_cut(5E-3), gratio_cut(5E-2);
+    double wMC(0), wRW(0);
 
     for (unsigned i = 0; i < ndsets; i++) {
       // if (i > 2) break;
@@ -1735,17 +1736,24 @@ namespace MassFitUtils {
       std::string sanemode(mode[i].substr(0, mode[i].find("_")));
 
       // variables to read from tree
-      int BPID(0), DPID(0), hPID(0);
+      int BPID(0), DPID(0), hPID(0), nTr(0);
       float Bmass(0.);
       double Bmom(0.),
 	B_tru_PE(0.), B_tru_PX(0.), B_tru_PY(0.), B_tru_PZ(0.),
 	D_tru_PE(0.), D_tru_PX(0.), D_tru_PY(0.), D_tru_PZ(0.),
 	h_tru_PE(0.), h_tru_PX(0.), h_tru_PY(0.), h_tru_PZ(0.),
-	B_PE(0.), B_PX(0.), B_PY(0.), B_PZ(0.);
+	B_PE(0.), B_PX(0.), B_PY(0.), B_PZ(0.),
+	lab4_P2(0), lab1_P2(0), lab1_PT2(0), PIDK2(0);
 
       ftree->SetBranchAddress("lab0_TRUEID", &BPID);
       ftree->SetBranchAddress("lab2_TRUEID", &DPID);
       ftree->SetBranchAddress("lab1_TRUEID", &hPID);
+
+      ftree->SetBranchAddress(mdSet->GetTracksVar().Data(), &nTr);
+      ftree->SetBranchAddress(mdSet->GetMomVar().Data(),    &lab1_P2);
+      ftree->SetBranchAddress(mdSet->GetTrMomVar().Data(),  &lab1_PT2);
+      ftree->SetBranchAddress("lab4_P",                     &lab4_P2);
+      ftree->SetBranchAddress(mdSet->GetPIDKVar().Data(),   &PIDK2);
 
       ftree->SetBranchAddress("lab0_P", &Bmom);
       ftree->SetBranchAddress("lab0_MassFitConsD_M", &Bmass);
@@ -1774,7 +1782,9 @@ namespace MassFitUtils {
 
       std::string dname ("kfactor_dataset_" + mode[i] + "_" + smp[i]);
       RooRealVar kfactorVar("kfactorVar", "Correction factor", 0.5, 1.5);
-      RooDataSet dataset(dname.c_str(), dname.c_str(), RooArgSet(kfactorVar));
+      RooRealVar weight("weight", "Event weight", 0., 500.0);
+      RooDataSet dataset(dname.c_str(), dname.c_str(),
+			 RooArgSet(kfactorVar, weight), "weight");
 
       ffile.cd();
       std::string hname("_"+mode[i]+"_"+smp[i]);
@@ -1786,6 +1796,8 @@ namespace MassFitUtils {
       mBresn.Branch("kfactor", &kfactor, "kfactor/D");
       mBresn.Branch("kfactorm", &kfactorm, "kfactorm/D");
       mBresn.Branch("kfactorp", &kfactorp, "kfactorp/D");
+      mBresn.Branch("wMC", &wMC, "wMC/D");
+      mBresn.Branch("wRW", &wRW, "wRW/D");
 
       unsigned long fill_counter(0), loop_counter(0);
 
@@ -2030,6 +2042,31 @@ namespace MassFitUtils {
 	//   break;
 	// }
 
+	// weights for Bs2DsK
+	switch (current_mode) {
+	case Bd2DK:
+	  {
+	    wMC = hChild.GetWeight(lab4_P2,smp[i]);
+	  }
+	  break;
+	case Lb2LcK:
+	  {
+	    wMC = hBachEff.GetWeight(lab1_P2,smp[i]);
+	  }
+	  break;
+	// case Lb2Dsstp:		// common weight for all non-K modes
+	// case Lb2Dsp:
+	// case Bs2DsstPi:
+	// case Bs2DsRho:
+	// case Bs2DsPi:
+	default:
+	  wMC = hBach.GetWeight(lab1_P2,smp[i]);
+	  break;
+	}
+	wRW = hRDM.GetWeight(log(lab1_PT2),log(nTr), smp[i]);
+
+	// FIXME: weights for Bs2DsPi
+
 	// emulating mis-reconstruction
 	Bs = fBs;
 	if (Ds_hypo == false) Ds.SetVectM(fDs.Vect(), DSMASS);
@@ -2059,7 +2096,7 @@ namespace MassFitUtils {
 	}
 
 	double Bs_mass(Bs_rec.M());
-	bool in_mass_win(false);
+	bool in_mass_win(false), pidpass(false);
 
 	if (mass_lo <= 0 or mass_hi <= 0 or mass_lo == mass_hi) {
 	  in_mass_win = true; 	// no mass window
@@ -2075,7 +2112,11 @@ namespace MassFitUtils {
 	  }
 	}
 
-	if (in_mass_win) {
+	if (std::log(PIDK2) > log(mdSet->GetPIDBach())) {
+	  pidpass = true;
+	}
+
+	if (in_mass_win and pidpass) {
 	  mBdiff = Bs_rec.M() - Bs_ref.M();
 	  DEBUG(msg_count, "mBdiff = " << mBdiff << ", k(m/p) = "
 		<< kfactor << ", k(p) = " << kfactorp);
@@ -2120,7 +2161,8 @@ namespace MassFitUtils {
 	  // Fill selected events
 	  mBresn.Fill();
 	  kfactorVar.setVal(kfactor);
-	  dataset.add(RooArgSet(kfactorVar));
+	  weight.setVal(wMC*wRW);
+	  dataset.add(RooArgSet(kfactorVar, weight), weight.getVal());
 	  fill_counter++;
 	}//  else if (current_mode == Bs2DsKst) {
 	//   DEBUG(msg_count, "fail: (" << loop_counter << ") My B mass: "
