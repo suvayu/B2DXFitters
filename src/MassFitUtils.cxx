@@ -1612,7 +1612,8 @@ namespace MassFitUtils {
 				   MDFitterSettings* mdSet,
 				   TString& hypo,
 				   RooWorkspace* workspace,
-				   TFile &ffile, bool mass_win, bool debug)
+				   double mass_lo, double mass_hi,
+				   TFile &ffile,  bool debug)
   {
     long gmsg_count(0), gerr_count(0);
 
@@ -2086,17 +2087,19 @@ namespace MassFitUtils {
 	double Bs_mass(Bs_rec.M());
 	bool in_mass_win(false);
 
-	if (noMC) {
-	  if (5320.0 < Bs_mass && Bs_mass < 5420.0) { // Bs my reco mass window
-	    in_mass_win = true;
-	  }
+	if (mass_lo <= 0 or mass_hi <= 0 or mass_lo == mass_hi) {
+	  in_mass_win = true; 	// no mass window
 	} else {
-	  if (5320.0 < Bmass && Bmass < 5420.0) { // Bs LHCb reco mass window
-	    in_mass_win = true;
+	  if (noMC) {
+	    if (mass_lo < Bs_mass && Bs_mass < mass_hi) { // Bs my reco mass window
+	      in_mass_win = true;
+	    }
+	  } else {
+	    if (mass_lo < Bmass && Bmass < mass_hi) { // Bs LHCb reco mass window
+	      in_mass_win = true;
+	    }
 	  }
 	}
-
-	if (not mass_win) in_mass_win = true; 	// when no mass window
 
 	if (in_mass_win) {
 	  mBdiff = Bs_rec.M() - Bs_ref.M();
