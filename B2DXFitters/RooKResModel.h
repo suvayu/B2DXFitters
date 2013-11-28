@@ -15,8 +15,11 @@
 
 #include "RooRealProxy.h"
 #include "RooSetProxy.h"
-#include "RooResolutionModel.h"
 #include "RooAbsCacheElement.h"
+
+#define RooConvGenContext RooConvGenContext; friend class RooKResModel
+#include "RooResolutionModel.h"
+#undef RooConvGenContext
 
 class RooHistPdf;
 class RooRealVar;
@@ -127,17 +130,50 @@ class RooKResModel : public RooResolutionModel
 	 */
 	virtual Bool_t forceAnalyticalInt(const RooAbsArg& dep) const;
 
-	// virtual Int_t getGenerator(const RooArgSet& directVars,
-	// 			     RooArgSet &generateVars,
-	// 			     Bool_t staticInitOK = kTRUE) const;
-	// virtual void initGenerator(Int_t code);
-	// virtual void generateEvent(Int_t code);
+	/** @brief create generator context
+	 *
+	 * @param convPdf	pdf which should be smeared with a k-factor
+	 * 			distribution
+	 * @param vars		which variables to generate
+	 * @param prototype	prototype dataset
+	 * @param auxProto	auxiliary prototype data
+	 * @param verbose	be verbose
+	 *
+	 * @returns generator context
+	 */
+	virtual RooAbsGenContext* modelGenContext(
+		const RooAbsAnaConvPdf& convPdf, const RooArgSet &vars,
+		const RooDataSet *prototype = 0,
+		const RooArgSet* auxProto = 0, Bool_t verbose= kFALSE) const;
+	/** @brief check if direct generation is safe
+	 *
+	 * @param arg	variable to generate
+	 *
+	 * @returns true if arg is safe to generate directly
+	 */
+	virtual Bool_t isDirectGenSafe(const RooAbsArg& arg) const;
 
-	// virtual RooAbsGenContext* modelGenContext(const RooAbsAnaConvPdf& convPdf,
-	// 					    const RooArgSet &vars,
-	// 					    const RooDataSet *prototype = 0,
-	// 					    const RooArgSet* auxProto = 0,
-	// 					    Bool_t verbose= kFALSE) const;
+	/** @brief announce capability to generate directly
+	 *
+	 * @param directVars	desired generation variables
+	 * @param generateVars	variables which this class can generate
+	 * @param staticInitOK  ?
+	 *
+	 * @returns code > 0 if direct generation is supported over a
+	 *          subset of variables
+	 */
+	virtual Int_t getGenerator(const RooArgSet& directVars,
+		RooArgSet &generateVars, Bool_t staticInitOK) const;
+
+	/** @brief direct generation of a single event
+	 *
+	 * @param code	generation code returned by getGenerator
+	 *
+	 * due to the way RooAbsAnaConvPdf works, this is a dummy
+	 * implementation which should never get called (and will abort the
+	 * program); RooAbsAnaConvPdf will prefer modelGenContext
+	 */
+	virtual void generateEvent(Int_t code);
 
 	/// return underlying resolution model
 	const RooResolutionModel& resmodel() const;
@@ -196,9 +232,21 @@ class RooKResModel : public RooResolutionModel
 		 * @param parent	parent object (RooKResModel instance)
 		 * @param iset		variables to integrate over (if any)
 		 * @param rangeName	integration range (if any)
+		 *
+		 * evaluate
 		 */
 		DeceptiveCache(const RooKResModel& parent, const RooArgSet& iset,
 			const char* rangeName);
+
+		/** @brief constructor
+		 *
+		 * @param parent	parent object (RooKResModel instance)
+		 * @param interp	interpolation object
+		 *
+		 * store interpolation object
+		 */
+		DeceptiveCache(const RooKResModel& parent, RooAbsReal* interp);
+
 		/// destructor
 		virtual ~DeceptiveCache();
 
@@ -236,18 +284,21 @@ class RooKResModel : public RooResolutionModel
 	 *
 	 * @brief iset		variables over which to integrate (if any)
 	 * @brief rangeName	integration range
+	 * @brief interp	create interpolating cache element
+	 *
+	 * if interp is true, create an interpolating cache element to speed
+	 * evaluation - this will only work if nothing is integrated over
 	 *
 	 * @returns corresponding DeceptiveCache object, owned by _cacheMgr
 	 */
-	DeceptiveCache* getCache(const RooArgSet* iset, const TNamed* rangeName = 0) const;
+	DeceptiveCache* getCache(const RooArgSet* iset,
+		const TNamed* rangeName = 0, bool interp = false) const;
 
 	RooRealProxy _resmodel;    /**< resolution model (RooResolutionModel) */
 	RooRealProxy _kfactor_pdf; /**< k-factor distribution (RooHistPdf) */
 	RooRealProxy _kfactor_var; /**< k-factor variable (RooRealVar) */
 	RooSetProxy _substTargets; ///< substitution targets
 	RooSetProxy _evalInterpVars; ///< variables in which to interpolate in evaluate()
-	/// interpolation for use in evaluate()
-	mutable RooRealProxy _interpolation; //! transient object
 	/// cache manager
 	mutable RooObjCacheManager _cacheMgr;	//! transient object
 

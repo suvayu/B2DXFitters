@@ -28,10 +28,19 @@
 #include "RooCustomizer.h"
 #include "RooFormulaVar.h"
 #include "RooNameSet.h"
-#include "B2DXFitters/RooKResModel.h"
 #include "RooHistPdf.h"
 #include "RooRealVar.h"
 #include "RooCachedReal.h"
+
+// code injection into RooAbsAnaConvPdf.h: make RooKResModel RooAbsAnaConvPdf's
+// friend
+#define changeModel(x) changeModel(x); friend class RooKResModel
+#include "RooAbsAnaConvPdf.h"
+#undef changeModel
+
+#include "B2DXFitters/RooKResModel.h"
+#include "B2DXFitters/RooKConvGenContext.h"
+#include "RooTruthModel.h"
 
 #include "TPad.h"
 #include "RooPlot.h"
@@ -124,6 +133,13 @@ RooKResModel::DeceptiveCache::DeceptiveCache(const RooKResModel& parent,
     if (cache != &resmodel) delete cache;	  // clean-up when integral
 }
 
+RooKResModel::DeceptiveCache::DeceptiveCache(const RooKResModel& parent,
+	RooAbsReal* interp) :
+    _cval(std::numeric_limits<double>::quiet_NaN()),
+    _kvar(0), _kpdf(0), _val(interp), _parent(parent)
+{
+}
+
 RooKResModel::DeceptiveCache::~DeceptiveCache()
 {
     delete _val;
@@ -135,11 +151,13 @@ RooKResModel::DeceptiveCache::~DeceptiveCache()
 RooArgList RooKResModel::DeceptiveCache::containedArgs(RooAbsCacheElement::Action)
 {
     // Return list of all RooAbsArgs in cache element
+    if (!_kpdf) RooArgList(_parent, *_val);
     return RooArgList(*_val, *_kpdf, *_kvar);
 }
 
 double RooKResModel::DeceptiveCache::getVal(const RooArgSet* nset) const
 {
+    if (!_kpdf) return _val->getVal();
     // see if our cached value needs recalculating
     if (_cval != _cval || _val->isValueOrShapeDirtyAndClear()) {
 	// evaluate: calculate _val
@@ -200,8 +218,6 @@ RooKResModel::RooKResModel(const char *name, const char *title,
     _kfactor_var("kfactor_var", "k-factor variable", this, kfactor_var),
     _substTargets("substTargets", "substitution targets", this),
     _evalInterpVars("evalInterpVars", "variables in which to interpolate", this),
-    _interpolation("interpolation", "interpolation for use in evaluate()",
-	    this, kTRUE, kFALSE, kTRUE),
     _cacheMgr(this)
 {
     _substTargets.add(substTargets);
@@ -215,15 +231,11 @@ RooKResModel::RooKResModel(const RooKResModel& other, const char* name) :
     _kfactor_var("kfactor_var", this, other._kfactor_var),
     _substTargets("substTargets", this, other._substTargets),
     _evalInterpVars("evalInterpVars", this, other._evalInterpVars),
-    _interpolation("interpolation", "interpolation for use in evaluate()",
-	    this, kTRUE, kFALSE, kTRUE),
     _cacheMgr(other._cacheMgr, this)
-{
-}
+{ }
 
 RooKResModel::~RooKResModel()
-{ 
-}
+{ }
 
 TObject* RooKResModel::clone(const char* newname) const
 { return new RooKResModel(*this, newname); }
@@ -242,38 +254,10 @@ const RooAbsRealLValue& RooKResModel::kvar() const
 
 Double_t RooKResModel::evaluate() const
 {
-    if (!_evalInterpVars.getSize()) {
-	// if we're not interpolating, we get the cache element and evaluate
-	// that
-	DeceptiveCache *cache = getCache(&s_emptyset, 0);
-	assert(cache);
-	return cache->getVal();
-    } else {
-	// ok, we are to interpolate...
-	if (!_interpolation.absArg()) {
-	    // interpolation object not valid, so create one
-	    // first, clone ourselves, but disable the interpolation in the
-	    // clone
-	    RooKResModel* tmp = new RooKResModel(*this,
-		    (std::string(GetName()) + "_interpolation_source").c_str());
-	    assert(tmp);
-	    // second, disable interpolation in the clone in tmp
-	    tmp->_evalInterpVars.removeAll();
-	    // third, create interpolation object
-	    RooCachedReal *cache = new RooCachedReal(
-		    (std::string(GetName()) + "_interpolation").c_str(),
-		    GetTitle(), *tmp, _evalInterpVars);
-	    assert(cache);
-	    cache->setInterpolationOrder(2);
-	    cache->addOwnedComponents(RooArgSet(*tmp));
-	    cache->setCacheSource(kTRUE);
-	    if (ADirty == tmp->operMode())
-		cache->setOperMode(ADirty);
-	    // _interpolation owns its contents
-	    _interpolation.setArg(*cache);
-	}
-	return Double_t(_interpolation);
-    }
+    const bool interpolate = 0 >= _evalInterpVars.getSize();
+    DeceptiveCache *cache = getCache(&s_emptyset, 0, interpolate);
+    assert(cache);
+    return cache->getVal();
 }
 
 RooKResModel* RooKResModel::convolution(RooFormulaVar* inBasis,
@@ -345,8 +329,7 @@ RooKResModel* RooKResModel::convolution(RooFormulaVar* inBasis,
 }
 
 Int_t RooKResModel::getAnalyticalIntegral(RooArgSet& allVars,
-	RooArgSet& analVars,
-	const char* rangeName) const
+	RooArgSet& analVars, const char* rangeName) const
 {
     if (_forceNumInt) return 0;
     analVars.add(allVars);
@@ -374,7 +357,7 @@ Bool_t RooKResModel::forceAnalyticalInt(const RooAbsArg& /*dep*/) const
 { return true; }
 
 RooKResModel::DeceptiveCache* RooKResModel::getCache(const RooArgSet *iset,
-	const TNamed *rangeName) const
+	const TNamed *rangeName, bool interp) const
 {
     int sterileIndex(-1);
     DeceptiveCache* cache = static_cast<DeceptiveCache*>
@@ -382,11 +365,128 @@ RooKResModel::DeceptiveCache* RooKResModel::getCache(const RooArgSet *iset,
     // if we have the DeceptiveCache in the cache manager, we return
     if (cache) return cache;
     // if not, we create it...
-    cache = new DeceptiveCache(*this, *iset,
-	    RooNameReg::str(rangeName));
+    if (interp) {
+	// interpolation object not valid, so create one
+	// first, clone ourselves, but disable the interpolation in the
+	// clone
+	RooKResModel* tmp = new RooKResModel(*this,
+		(std::string(GetName()) + "_interpolation_source").c_str());
+	assert(tmp);
+	// second, disable interpolation in the clone in tmp
+	tmp->_evalInterpVars.removeAll();
+	// third, create interpolation object
+	RooCachedReal *ecache = new RooCachedReal(
+		(std::string(GetName()) + "_interpolation").c_str(),
+		GetTitle(), *tmp, _evalInterpVars);
+	assert(ecache);
+	ecache->setInterpolationOrder(2);
+	ecache->addOwnedComponents(RooArgSet(*tmp));
+	ecache->setCacheSource(kTRUE);
+	if (ADirty == tmp->operMode())
+	    ecache->setOperMode(ADirty);
+
+	cache = new DeceptiveCache(*this, ecache);
+    } else {
+	cache = new DeceptiveCache(*this, *iset, RooNameReg::str(rangeName));
+    }
     assert(cache);
     _cacheMgr.setObj(0, iset, cache, rangeName);
     // and then we call getCache again so that _cacheMgr.lastIndex() returns
     // the right index...
     return getCache(iset, rangeName);
 }
+
+RooAbsGenContext* RooKResModel::modelGenContext(
+	const RooAbsAnaConvPdf& convPdf, const RooArgSet &vars,
+	const RooDataSet *prototype, const RooArgSet* auxProto,
+	Bool_t verbose) const                                                                                                                                                                 
+{
+    std::string kname(kvar().GetName());
+    kname += "_GenContext";
+    // clone the k-factor variable
+    RooRealVar* newkvar = dynamic_cast<RooRealVar*>(
+	    kvar().clone(kname.c_str()));
+    assert(newkvar);
+    // get k-factor distribution in terms of new variable
+    RooAbsPdf* newkpdf = 0;
+    {
+	RooCustomizer c(kpdf(), "GenContext");
+	c.replaceArg(kvar(), *newkvar);
+	newkpdf = dynamic_cast<RooAbsPdf*>(c.build());
+	assert(newkpdf);
+    }
+
+    RooAbsAnaConvPdf* newpdf = 0;
+    {
+	// get pdf in terms of underlying resolution model
+	std::string pdfname(convPdf.GetName());
+	pdfname += "_GenContext";
+	RooAbsAnaConvPdf* tmppdf = dynamic_cast<RooAbsAnaConvPdf*>(
+		convPdf.clone(pdfname.c_str()));
+	assert(tmppdf);
+	const RooResolutionModel& resmodel =
+	    dynamic_cast<const RooResolutionModel&>(_resmodel.arg());
+	std::string resmodelname(resmodel.GetName());
+	resmodelname += "_GenContext";
+	RooResolutionModel* newresmodel = dynamic_cast<RooResolutionModel*>(
+		resmodel.clone(resmodelname.c_str()));
+	newresmodel->changeBasis(0);
+	tmppdf->changeModel(*newresmodel);
+	// substitute q -> k * q for all q in _substTargets
+	RooCustomizer c(*tmppdf, "GenContext");
+	RooArgSet params;
+	convPdf.treeNodeServerList(&params);
+	RooArgSet new_paramset(*newresmodel);
+	RooFIter it = params.fwdIterator();
+	for (RooAbsArg* param = it.next(); param; param = it.next()) {
+	    if (!_substTargets.find(*param)) continue;
+	    std::string parname(param->GetName());
+	    parname += "_x_"; parname += newkvar->GetName();
+	    RooProduct *new_param = new RooProduct(parname.c_str(), parname.c_str(),
+		    RooArgList(*param, *newkvar));
+	    assert(new_param);
+	    c.replaceArg(*param, *new_param);
+	    new_paramset.add(*new_param);
+	}
+	newpdf = dynamic_cast<RooAbsAnaConvPdf*>(c.build());
+	assert(newpdf);
+	// make sure we do not leak
+	newpdf->addOwnedComponents(new_paramset);
+	// clean up the temporaries
+	delete tmppdf;
+    }
+
+    // get a context for the underlying pdf with k-factors substituted in
+    RooAbsGenContext* retVal = new RooKConvGenContext(
+    	    *newpdf, *newkvar, *newkpdf, vars, prototype, auxProto, verbose);
+    assert(retVal);
+    // clean up the temporaries
+    delete newpdf;
+    delete newkpdf;
+    delete newkvar;
+
+    return retVal;
+}
+
+Bool_t RooKResModel::isDirectGenSafe(const RooAbsArg& arg) const
+{
+    bool retVal = (!std::strcmp(x.arg().GetName(), arg.GetName()) ||
+	RooResolutionModel::isDirectGenSafe(arg)) &&
+	dynamic_cast<const RooAbsPdf&>(_resmodel.arg()).isDirectGenSafe(arg);
+    return retVal;
+}
+
+Int_t RooKResModel::getGenerator(const RooArgSet& directVars,
+	RooArgSet &generateVars, Bool_t staticInitOK) const
+{
+    Int_t code = dynamic_cast<const RooAbsPdf&>(_resmodel.arg()).getGenerator(
+	    directVars, generateVars, staticInitOK);
+    return code;
+}
+
+void RooKResModel::generateEvent(Int_t /* code */)
+{
+    // this should never be called in proper operation
+    std::abort();
+}
+
