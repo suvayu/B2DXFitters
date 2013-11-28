@@ -18,6 +18,7 @@
 //
 
 #include <cstring>
+#include <cstdlib>
 #include <cmath>
 #include <string>
 #include <memory>
