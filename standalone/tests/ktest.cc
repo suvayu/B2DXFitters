@@ -39,7 +39,7 @@ int main()
 {
   RooRealVar xvar("xvar", "Time [ps]", 0.0, 15.0);
   xvar.setBins(500);
-  // xvar.setBins(1500, "cache");
+  xvar.setBins(1500, "cache");
 
   RooRealVar kvar("kvar", "K-factor", 0.01, 2.);
   RooRealVar kvar2("kvar2", "K-factor", 0.01, 2.);
@@ -141,9 +141,15 @@ int main()
     RooHistPdf histpdf("histpdf", "", RooArgSet(kvar), datahist);
 
     RooKResModel ktres("ktres", "", tres, histpdf, kvar,
-		       RooArgSet(gamma, dM, dGamma)); // RooArgSet(xvar)
+		       RooArgSet(gamma, dM, dGamma), RooArgSet(xvar));
     RooBDecay phys2a("phys2a", "k-factor smeared model", xvar, tau, dGamma,
 		     one, zero, C, zero, dM, ktres, RooBDecay::SingleSided);
+    delete dataset2;
+    std::cout << "GENERATION NOT QUITE DONE." << std::endl;
+    dataset2 = phys2a.generate(RooArgSet(xvar), RooFit::NumEvents(nevents),
+    	    RooFit::Verbose());
+    dataset2->Print("v");
+    std::cout << "GENERATION REALLY DONE." << std::endl;
 
     // phys1t.fitTo(*dataset1, RooFit::Timer(), RooFit::Verbose(),
     // 	      RooFit::Strategy(2), RooFit::Offset());
@@ -173,6 +179,8 @@ int main()
     delete dataset2;
   }
 
+  canvas.Print((fname+"]").c_str());
+  return 0;
   std::cout << "===== With Gaussian resolution: =====" << std::endl;
   for (unsigned i = 0; i < fns.size(); ++i) {
     TF1 func("func", fns[i].c_str(), 0, 2);
@@ -291,8 +299,8 @@ void plot_w_pull(TCanvas &canvas, std::string fname, RooRealVar &xvar, TH1 &hist
   xframe_pull->GetYaxis()->SetNdivisions(208);
 
   canvas.Print(fname.c_str());
-  mainpl.SetLogy();
-  canvas.Print(fname.c_str());
+  //mainpl.SetLogy();
+  //canvas.Print(fname.c_str());
   return;
 }
 

@@ -7,5 +7,6 @@
 
 #pragma link C++ class Inverse+;
 #pragma link C++ class RooKResModel+;
+#pragma link C++ class RooKConvGenContext+;
 
 #endif

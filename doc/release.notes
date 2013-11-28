@@ -4,6 +4,13 @@
 ! Purpose     : RooFit-based fitters for B -> D X
 !-----------------------------------------------------------------------------
 
+! 2013-11-28 - Manuel Tobias Schiller
+ - RooKResModel: add support for direct generation; fix interpolation
+ - RooKConvGenContext: class to support direct generation of k-factor smeared
+   PDFs; this class will require some major cleanup at some point in the
+   future, for now it's an ugly hack that happens to work (correctly), but
+   it's far from beautiful
+
 ! 2013-11-26 - Suvayu Ali
  - Tests for k-factor class RooKResModel
  - Update for k-factor templates

@@ -7,8 +7,8 @@ TUNEFLAGS.GNU   =
 
 include ../Rules.mk
 
-ktest: ktest.o MyDict.o RooKResModel.o Inverse.o
+ktest: ktest.o MyDict.o RooKResModel.o RooKConvGenContext.o Inverse.o
 
-MyDict.cxx: RooKResModel.h Inverse.h LinkDef.h
+MyDict.cxx: B2DXFitters/RooKResModel.h B2DXFitters/Inverse.h B2DXFitters/RooKConvGenContext.h LinkDef.h
 
 ktest: LDLIBS+=-lstdc++ $(ROOTLIBS) -lRooFitCore -lRooFit
