@@ -145,37 +145,37 @@
                 },
         'KFactorTemplates': {
                 'Bs2DsPi': {
-                    'File': os.environ['B2DXFITTERSROOT']+'/data/workspace/MDFitter/template_MC_KFactor_BsDsK.root',
+                    'File': os.environ['B2DXFITTERSROOT']+'/data/workspace/MDFitter/template_MC_KFactor_BsDsK_5300_5800.root',
                     'Workspace': 'workspace',
                     'TemplateName': 'kFactor_Bs2DsPi_both',
                     'VarName': 'kfactorVar', },
                 'Bs2DsstPi': {
-                    'File': os.environ['B2DXFITTERSROOT']+'/data/workspace/MDFitter/template_MC_KFactor_BsDsK.root',
+                    'File': os.environ['B2DXFITTERSROOT']+'/data/workspace/MDFitter/template_MC_KFactor_BsDsK_5300_5800.root',
                     'Workspace': 'workspace',
                     'TemplateName': 'kFactor_Bs2DsstPi_both',
                     'VarName': 'kfactorVar', },
                 'Bs2DsRho': {
-                    'File': os.environ['B2DXFITTERSROOT']+'/data/workspace/MDFitter/template_MC_KFactor_BsDsK.root',
+                    'File': os.environ['B2DXFITTERSROOT']+'/data/workspace/MDFitter/template_MC_KFactor_BsDsK_5300_5800.root',
                     'Workspace': 'workspace',
                     'TemplateName': 'kFactor_Bs2DsRho_both',
                     'VarName': 'kfactorVar', },
                 'Lb2LcK': {
-                    'File': os.environ['B2DXFITTERSROOT']+'/data/workspace/MDFitter/template_MC_KFactor_BsDsK.root',
+                    'File': os.environ['B2DXFITTERSROOT']+'/data/workspace/MDFitter/template_MC_KFactor_BsDsK_5300_5800.root',
                     'Workspace': 'workspace',
                     'TemplateName': 'kFactor_Lb2LcK_both',
                     'VarName': 'kfactorVar', },
                 'Lb2Dsp': {
-                    'File': os.environ['B2DXFITTERSROOT']+'/data/workspace/MDFitter/template_MC_KFactor_BsDsK.root',
+                    'File': os.environ['B2DXFITTERSROOT']+'/data/workspace/MDFitter/template_MC_KFactor_BsDsK_5300_5800.root',
                     'Workspace': 'workspace',
                     'TemplateName': 'kFactor_Lb2Dsp_both',
                     'VarName': 'kfactorVar', },
                 'Lb2Dsstp': {
-                    'File': os.environ['B2DXFITTERSROOT']+'/data/workspace/MDFitter/template_MC_KFactor_BsDsK.root',
+                    'File': os.environ['B2DXFITTERSROOT']+'/data/workspace/MDFitter/template_MC_KFactor_BsDsK_5300_5800.root',
                     'Workspace': 'workspace',
                     'TemplateName': 'kFactor_Lb2Dsstp_both',
                     'VarName': 'kfactorVar', },
                 'Bd2DK': {
-                    'File': os.environ['B2DXFITTERSROOT']+'/data/workspace/MDFitter/template_MC_KFactor_BsDsK.root',
+                    'File': os.environ['B2DXFITTERSROOT']+'/data/workspace/MDFitter/template_MC_KFactor_BsDsK_5300_5800.root',
                     'Workspace': 'workspace',
                     'TemplateName': 'kFactor_Bd2DK_both',
                     'VarName': 'kfactorVar', },
