@@ -5,6 +5,14 @@
 !-----------------------------------------------------------------------------
 
 ! 2013-12-02 - Manuel Tobias Schiller
+ - cFit:
+   * put in modifications for multiple taggers
+   * put in modifications for k-factor smearing
+   * update the DsK fitback loop personality to be compatible with the changes
+   * other personality files are to follow at some later time (as needed); if
+     you need the old version of the fit, go back in svn revision number
+
+! 2013-12-02 - Manuel Tobias Schiller
  - RooKResModel: some more fixes to make it run in the cFit, this should not
    change the outcome
 
