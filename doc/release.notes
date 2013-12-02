@@ -4,6 +4,10 @@
 ! Purpose     : RooFit-based fitters for B -> D X
 !-----------------------------------------------------------------------------
 
+! 2013-12-02 - Manuel Tobias Schiller
+ - RooKResModel: some more fixes to make it run in the cFit, this should not
+   change the outcome
+
 ! 2013-11-28 - Manuel Tobias Schiller
  - RooKResModel: add support for direct generation; fix interpolation
  - RooKConvGenContext: class to support direct generation of k-factor smeared

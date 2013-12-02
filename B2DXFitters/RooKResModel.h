@@ -54,6 +54,9 @@ class RooArgSet;
 class RooKResModel : public RooResolutionModel
 {
     public:
+	/// constructor for ROOT I/O
+	RooKResModel();
+
 	/** @brief constructor
 	 *
 	 * @param name		name
@@ -241,11 +244,10 @@ class RooKResModel : public RooResolutionModel
 		/** @brief constructor
 		 *
 		 * @param parent	parent object (RooKResModel instance)
-		 * @param interp	interpolation object
 		 *
-		 * store interpolation object
+		 * create and store interpolation object
 		 */
-		DeceptiveCache(const RooKResModel& parent, RooAbsReal* interp);
+		DeceptiveCache(const RooKResModel& parent);
 
 		/// destructor
 		virtual ~DeceptiveCache();
