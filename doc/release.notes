@@ -4,6 +4,10 @@
 ! Purpose     : RooFit-based fitters for B -> D X
 !-----------------------------------------------------------------------------
 
+! 2013-12-03 - Manuel Tobias Schiller
+ - cFit: some small changes to run at Nikhef
+ - cFit: update personality files for Agnieszka's gamma=70 DsK toys
+
 ! 2013-12-02 - Manuel Tobias Schiller
  - cFit:
    * put in modifications for multiple taggers
