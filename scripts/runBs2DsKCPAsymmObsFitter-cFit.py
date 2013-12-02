@@ -977,6 +977,11 @@ def readTemplate1D(
             print ('ERROR: Utterly unable to find any kind of %s '
                     'variable/data in %s') % (variable.GetName(), fromfile)
             return None
+    variable.setRange(
+	    max(variable.getMin(),
+		hist.GetXaxis().GetBinLowEdge(1)),
+	    min(variable.getMax(),
+		hist.GetXaxis().GetBinUpEdge(hist.GetNbinsX())))
     variable.setBins(hist.GetNbinsX())
     ROOT.SetOwnership(hist, True)
     hist.SetNameTitle('%sPdf_hist' % pfx, '%sPdf_hist' % pfx)
