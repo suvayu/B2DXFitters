@@ -30,7 +30,8 @@
         'AcceptanceCorrectionFile': None,
         'CombineModesForEffCPObs': [ ],
         'NEvents':			[ 3474. ],
-        'DataFileName': '/afs/cern.ch/work/a/adudziak/public/Bs2DsKToys/Gamma70_5M_2T/DsK_Toys_sWeights_ForTimeFit_%d.root' % TOY_NUMBER,
+        'DataFileName': ('/afs/cern.ch/work/a/adudziak/public/Bs2DsKToys/Gamma70_5M_2T/DsK_Toys_sWeights_ForTimeFit_%d.root' if haveAFS else
+		os.environ['B2DXFITTERSROOT']+'/scripts/paper-dsk-agn70-nominal/sfit/DsK_Toys_sWeights_ForTimeFit_%d.root')% TOY_NUMBER,
         'FitMode': 'sFit',
         'DataWorkSpaceName':    'FitMeToolWS',
         'DataSetNames': 'merged',
@@ -47,7 +48,7 @@
             'weight':   'nSig_both_nonres_Evts_sw+nSig_both_phipi_Evts_sw+nSig_both_kstk_Evts_sw+nSig_both_kpipi_Evts_sw+nSig_both_pipipi_Evts_sw'
             },
         'MassTemplateFile':             ('/afs/cern.ch/work/a/adudziak/public/Bs2DsKToys/Gamma70_5M_2T/DsK_Toys_Work_ForMassPlot_%d.root' if haveAFS else
-            os.environ['B2DXFITTERSROOT']+'/scripts/mdfit-003/data/DsK_Toys_Work_ForMassPlot_%d.root') % TOY_NUMBER,
+            os.environ['B2DXFITTERSROOT']+'/scripts/paper-dsk-agn70-nominal/data/DsK_Toys_Work_ForMassPlot_%d.root') % TOY_NUMBER,
         'MassTemplateWorkspace':	'FitMeToolWS',
         'MassInterpolation':		False,
         'NTaggers':                     3,
