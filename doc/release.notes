@@ -5,6 +5,10 @@
 !-----------------------------------------------------------------------------
 
 ! 2013-12-03 - Manuel Tobias Schiller
+ - cFit: adapt to read data again
+ - cFit: update 2011PaperDsKDATA personality
+
+! 2013-12-03 - Manuel Tobias Schiller
  - cFit: some small changes to run at Nikhef
  - cFit: update personality files for Agnieszka's gamma=70 DsK toys
 

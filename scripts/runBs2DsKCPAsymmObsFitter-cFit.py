@@ -731,8 +731,9 @@ def readDataSet(
         # figure out which time conversion factor to use
         timeConvFactor = 1e9 / 2.99792458e8
         meantime = sdata.mean(smap['time'])
-        if (dmap['time'].getMin() <= meantime and
-                meantime <= dmap['time'].getMax() and config['IsToy']):
+        if ((dmap['time'].getMin() <= meantime and
+                meantime <= dmap['time'].getMax() and config['IsToy']) or
+                not config['IsToy']):
             timeConvFactor = 1.
         # loop over all entries of data set
         ninwindow = 0
