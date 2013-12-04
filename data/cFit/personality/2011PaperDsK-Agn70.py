@@ -51,8 +51,11 @@
         'MassTemplateWorkspace':	'FitMeToolWS',
         'MassInterpolation':		False,
         'NTaggers':                     3,
-        'TagEffSig':                    [ 0.3870 * (1. - 0.4772), 0.4772 * (1. - 0.3870), 0.3870 * 0.4772 ],
-        'TagEffBkg':                    [ 0.3870 * (1. - 0.4772), 0.4772 * (1. - 0.3870), 0.3870 * 0.4772 ],
+        'TagEff':                    {
+            'Bs2DsK': [ 0.3870 * (1. - 0.4772), 0.4772 * (1. - 0.3870), 0.3870 * 0.4772 ],
+            'Lb': [ 0.3870, 0.4772 ],
+            'Bd': [ 0.3870, 0.4772 ],
+            },
         'MistagTemplates': {
             'Bs2DsK': [
                 {   'File': os.environ['B2DXFITTERSROOT']+'/data/workspace/MDFitter/template_Data_Mistag_BsDsPi.root',

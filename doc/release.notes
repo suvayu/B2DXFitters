@@ -4,6 +4,14 @@
 ! Purpose     : RooFit-based fitters for B -> D X
 !-----------------------------------------------------------------------------
 
+! 2013-12-04 - Manuel Tobias Schiller
+ - cFit: change handling of tagging efficiencies: now, we can assume that
+   taggers tag in an uncorrelated manner, i.e. eps_{tag i and tag j} =
+   eps{tag i} * eps_{tag j}, for low stats modes where it's difficult to
+   disentangle the different taggers anyway (Bd, Lb come to mind - for Lb, the
+   only distinguishing feature is the difference in mistag templates, and for
+   the Bd, the situation is almost as bad)
+
 ! 2013-12-03 - Manuel Tobias Schiller
  - cFit: adapt to read data again
  - cFit: update 2011PaperDsKDATA personality

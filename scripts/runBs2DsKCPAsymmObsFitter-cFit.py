@@ -236,9 +236,10 @@ defaultConfig = {
             },
     # Tagging
     'NTaggers':                         1, # 1 - only one tagger (e.g. OS), 2 - e.g. OS + SSK
-    'TagEffSig':			[ 0.403 ], # one per tagger
+    'TagEff':			{
+            'Bs2DsK': [ 0.403 ], # one per tagger
+            },
     'TagOmegaSig':			0.396,
-    'TagEffBkg':			[ 0.403 ], # one per tagger
     'MistagCalibrationParams':	{
             # format:
             # 'mode1': [ [ [p0, p1, <eta>] ]_tagger1, ... ],
@@ -2318,16 +2319,56 @@ def makeTagEff(
     from math import sqrt
     if (config['PerEventMistag'] or None == config['NMistagCategories']):
         effs = []
-        for i in xrange(0, config['NTaggers']):
-            eff = WS(ws, RooRealVar(
-                '%s_TagEff%u' % (modename, i), '%s_TagEff%u' % (modename, i),
-                config['TagEffSig'][i], 0., 1.))
-            if (1. < yieldhint):
-                err = sqrt(config['TagEffSig'][i]*(1. - config['TagEffSig'][i]) / yieldhint)
-            else:
-                err = sqrt(1. / yieldhint)
-            eff.setError(err)
-            effs.append(eff)
+        tmpeffs = None
+        for k in (modename, modename[0:2], config['Modes'][0]):
+            if k in config['TagEff']:
+                tmpeffs = config['TagEff'][k]
+                break
+        if None == tmpeffs: return None
+        if len(tmpeffs) == config['NTaggers']:
+            # independent effs for all taggers
+            for i in xrange(0, config['NTaggers']):
+                eff = WS(ws, RooRealVar(
+                    '%s_TagEff%u' % (modename, i), '%s_TagEff%u' % (modename, i),
+                    tmpeffs[i], 0., 1.))
+                if (1. < yieldhint):
+                    err = sqrt(tmpeffs[i]*(1. - tmpeffs[i]) / yieldhint)
+                else:
+                    err = sqrt(1. / yieldhint)
+                eff.setError(err)
+                effs.append(eff)
+        elif (2 == len(tmpeffs) and 3 == config['NTaggers']):
+            # two taggers, assume P(tag1) * P(tag2) == P(tag1, tag2)
+            for i in xrange(0, 2):
+                eff = WS(ws, RooRealVar(
+                    '%s_TagEff%u_tot' % (modename, i),
+                    '%s_TagEff%u_tot' % (modename, i),
+                    tmpeffs[i], 0., 1.))
+                if (1. < yieldhint):
+                    err = sqrt(tmpeffs[i]*(1. - tmpeffs[i]) / yieldhint)
+                else:
+                    err = sqrt(1. / yieldhint)
+                eff.setError(err)
+                effs.append(eff)
+            tmpeffs = effs
+            # put together the three tag effs. to be used
+            one = ws.obj('one')
+            minusone = ws.obj('minusone')
+            effs = [ None, None, None ]
+            from ROOT import RooProduct, RooAddition
+            effs[2] = WS(ws, RooProduct('%s_TagEff%u' % (modename, 2),
+                '%s_TagEff%u' % (modename, 2),
+                RooArgList(tmpeffs[0], tmpeffs[1])))
+            effs[0] = WS(ws, RooAddition('%s_TagEff%u' % (modename, 0),
+                '%s_TagEff%u' % (modename, 0),
+                RooArgList(tmpeffs[0], effs[2]),
+                RooArgList(one, minusone)))
+            effs[1] = WS(ws, RooAddition('%s_TagEff%u' % (modename, 1),
+                '%s_TagEff%u' % (modename, 1),
+                RooArgList(tmpeffs[1], effs[2]),
+                RooArgList(one, minusone)))
+        else:
+            return None
         return effs
     # ok, we're using mistag categories
     effs = config['MistagCategoryTagEffs']
@@ -2432,6 +2473,7 @@ def getMasterPDF(config, name, debug = False):
 
     zero = WS(ws, RooConstVar('zero', '0', 0.))
     one = WS(ws, RooConstVar('one', '1', 1.))
+    minusone = WS(ws, RooConstVar('minusone', '-1', -1.))
 
     # create weight variable, if we need one
     if config['FitMode'] in ('cFitWithWeights', 'sFit'):
@@ -3284,12 +3326,10 @@ def getMasterPDF(config, name, debug = False):
             modenick = 'Lb'
             gamma = WS(ws, RooConstVar('GammaLb', '#Gamma_{#Lambda_{b}}',
                 config['GammaLb']))
-            tageff = config['TagEffSig']
         else:
             modenick = mode
             gamma = WS(ws, RooConstVar('GammaCombBkg', '#Gamma_{CombBkg}',
                 config['GammaCombBkg']))
-            tageff = config['TagEffBkg']
         # figure out asymmetries to use
         # FIXME: Det is not per tagger, the other two are...
         asyms = { 'Det': None, 'TagEff_f': None, 'TagEff_t': None }
