@@ -4,6 +4,10 @@
 ! Purpose     : RooFit-based fitters for B -> D X
 !-----------------------------------------------------------------------------
 
+! 2013-12-05 - Manuel Tobias Schiller
+ - add code which allows toying with propagating tagging calibration
+   uncertainties through the combination of taggers
+
 ! 2013-12-04 - Manuel Tobias Schiller
  - cFit: change handling of tagging efficiencies: now, we can assume that
    taggers tag in an uncorrelated manner, i.e. eps_{tag i and tag j} =

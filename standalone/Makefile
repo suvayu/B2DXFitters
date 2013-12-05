@@ -1,7 +1,7 @@
 TARGETS = B2DXFittersRflx.cxx libB2DXFitters.so
 alldicts += B2DXFittersRflx.cxx
 
-SUBDIRS = readTree
+SUBDIRS = readTree taggingtoy
 
 include Rules.mk
 
