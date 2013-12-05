@@ -64,45 +64,89 @@ DLLVector genUncorrTaggers(const DLLVector& tageffs,
 	const Calibration applycalib[N],
 	TagTools::TagDec* trueDec = 0)
 {
+    assert(2 == N);
+    // strategy:
+    //
+    // - we want this code to produce the same observables (tagging decisions
+    //   and mistags) for the same random seed, independent of the true
+    //   calibration of the taggers
+    // - that means we have to throw the dice for the tagging decisions and the
+    //   mistags first
+    // - then, we generate the true flavour of the B in such a way that it's
+    //   consistent with the observables (and the true calibration)
+    //
+    // that's the opposite of what you would normally do (decide the true B
+    // flavour first, and then throw the dice to get tagging decisions for
+    // given mistags). the reason to do it this way is purely that the
+    // generated observables (mistags and tagging decisions) will only depend
+    // on the seed for the generator (and the reference calibration), a
+    // desirable thing when you have to compare results for different true
+    // calibrations afterwards. still, the code respects all constraints
+    // (tagging efficiencies, the events are tagged wrong in the right fraction
+    // of cases...), so this is merely a trick to make the rest of the work
+    // more convenient.
     using TagTools::evalCalibPoly;
-    DLLVector tmp, tmp2, eta;
     // we need a bunch of uniformly distributed random numbers
-    gen->RndmArray(N, tmp.Array());
-    gen->RndmArray(N, tmp2.Array());
+    double tmp[2 * N + 1];
+    gen->RndmArray(2 * N + 1, tmp);
+    double *tmp2 = &tmp[N], *tmp3 = &tmp[2 * N];
+    // throw tagging decisions
+    for (unsigned i = 0; i < N; ++i) tmp2[i] = (tmp2[i] > 0.5) ? 1.0 : -1.0;
     // mistags distributed according to their respective distributions
+    double eta[N];
     for (unsigned i = 0; i < N; ++i) eta[i] = mistagpdfs[i]->GetRandom();
-    // true B flavour
-    TagTools::TagDec truth = (gen->Rndm() > 0.5) ? TagTools::B : TagTools::Bbar;
+    // work out true etas (apply true calibration)
+    double etatrue[N];
+    for (unsigned i = 0; i < N; ++i) {
+	if (tmp[i] > tageffs[i]) {
+	    etatrue[i] = 0.5;
+	} else {
+	    etatrue[i] = evalCalibPoly<2>(eta[i], truecalib[i].aveta,
+		    truecalib[i].calibparams);
+	}
+    }
+    // ok, synthesize true flavour of the B
+    TagTools::TagDec truth = TagTools::Untagged;
+    if (tmp2[0] * tmp2[1] > 0.) {
+	// taggers agree in their decision
+	const double cc = (1. - etatrue[0]) * (1. - etatrue[1]);
+	const double ii = etatrue[0] * etatrue[1];
+	if (*tmp3 > ii / (cc + ii)) {
+	    // both taggers got it right
+	    truth = static_cast<TagTools::TagDec>(+int(tmp2[0]));
+	} else {
+	    // both taggers got it wrong
+	    truth = static_cast<TagTools::TagDec>(-int(tmp2[0]));
+	}
+    } else {
+	// taggers disagree in their decision
+	const double ci = (1. - etatrue[0]) * etatrue[1];
+	const double ic = etatrue[0] * (1. - etatrue[1]);
+	if (*tmp3 > ic / (ic + ci)) {
+	    // first tagger got it right, second one wrong
+	    truth = static_cast<TagTools::TagDec>(+int(tmp2[0]));
+	} else {
+	    // first tagger got it wrong, second one right
+	    truth = static_cast<TagTools::TagDec>(-int(tmp2[0]));
+	}
+    }
+    assert(TagTools::Untagged != truth);
+    // save true B flavour (if so desired)
     if (trueDec) *trueDec = truth;
+    // ok, write output (apply reference calibration in applycalib on the
+    // way...)
     DLLVector retVal;
     for (unsigned i = 0; i < N; ++i) {
 	if (tmp[i] > tageffs[i]) {
 	    // untagged event - easy
 	    retVal[i] = TagTools::tagDLL(TagTools::Untagged, 0.5);
 	} else {
-	    // tagged event - did we mistag?
-	    // (apply the true calibration here to decide if we tagged
-	    // correctly or not)
-	    if (tmp2[i] <= evalCalibPoly<2>(eta[i], truecalib[i].aveta,
-			truecalib[i].calibparams)) {
-		// incorrect tag
-		// (apply calibration - this is not the true calibration,
-		// because we have to allow for the fact that the true
-		// calibration is not precisely known)
-		retVal[i] = TagTools::tagDLL(
-			static_cast<TagTools::TagDec>(int(-truth)),
-			evalCalibPoly<2>(eta[i], applycalib[i].aveta,
-			    applycalib[i].calibparams));
-	    } else {
-		// correct tag
-		// (apply calibration - this is not the true calibration,
-		// because we have to allow for the fact that the true
-		// calibration is not precisely known)
-		retVal[i] = TagTools::tagDLL(
-			static_cast<TagTools::TagDec>(int(+truth)),
-			evalCalibPoly<2>(eta[i], applycalib[i].aveta,
-			    applycalib[i].calibparams));
-	    }
+	    // tagged event - use tagging decision, and apply the reference
+	    // calibration in applycalib
+	    retVal[i] = TagTools::tagDLL(
+		    static_cast<TagTools::TagDec>(int(tmp2[i])),
+		    evalCalibPoly<2>(eta[i], applycalib[i].aveta,
+			applycalib[i].calibparams));
 	}
     }
     return retVal;
@@ -168,6 +212,7 @@ int main(int argc, char* argv[])
     const std::string labels[3] = { " OS only", "SSK only", "  OS+SSK" };
     // run for OS only, SSK only, both OS and SSK
     for (unsigned irun = 1; irun < 4; ++irun) {
+	gen->SetSeed(42);
 	const DLLVector tageffs(1.0 * bool(irun & 1), 1.0 * bool(irun & 2));
 	std::cout << "Simulating " << labels[irun - 1] << " events" << std::endl;
 
@@ -215,5 +260,6 @@ int main(int argc, char* argv[])
 	std::cout << "Post-calibration for " << labels[i - 1] << ": " <<
 	    postcalib[i - 1] << std::endl;
     }
+    std::cout << std::endl;
     return 0;
 }

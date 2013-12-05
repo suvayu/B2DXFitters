@@ -4,6 +4,11 @@
 ! Purpose     : RooFit-based fitters for B -> D X
 !-----------------------------------------------------------------------------
 
+! 2013-12-05 - Manuel Tobias Schiller
+ - tagging calibration toy: make things more convenient by changing the
+   generator slightly, so it produces the same observables (mistags and
+   tagging decisions) for the same generator seed
+
 ! 2013-12-05 - V. Gligorov
  - Update makefoldedasy.py script to make folded and unfolded DsK
    asymmetry plots, for now from the toys, later will be improved
