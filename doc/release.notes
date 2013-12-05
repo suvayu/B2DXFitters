@@ -4,6 +4,12 @@
 ! Purpose     : RooFit-based fitters for B -> D X
 !-----------------------------------------------------------------------------
 
+! 2013-12-05 - V. Gligorov
+ - Update makefoldedasy.py script to make folded and unfolded DsK
+   asymmetry plots, for now from the toys, later will be improved
+   to be able to do it on data also.
+ - Remove now obsolete makefoldedasysigmc.py
+
 ! 2013-12-05 - Manuel Tobias Schiller
  - add code which allows toying with propagating tagging calibration
    uncertainties through the combination of taggers
