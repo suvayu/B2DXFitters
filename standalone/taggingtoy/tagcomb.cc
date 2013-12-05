@@ -7,7 +7,6 @@
 #include "TRandom3.h"
 #include "TFile.h"
 #include "Math/SVector.h"
-#include "Math/SMatrix.h"
 
 #include "TH1D.h"
 #include "TF1.h"
