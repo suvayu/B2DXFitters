@@ -101,15 +101,27 @@
             },
         'MistagCalibrationParams': {
                 'Bs2DsK': [
-                    [ [ 0., 1., 0. ] ],
-                    [ [ 0., 1., 0. ] ],
-                    [ [ 0., 1., 0. ] ],
+                    [ [ 0.3823, 1., 0.3823 ] ],
+                    [ [ 0.4244, 1., 0.4244 ] ],
+                    [ [ 0.3610, 1., 0.3610 ] ],
                     ],
                 'Bd': [
-                    [ [ 0., 1., 0. ] ],
+                    [ [ 0.3823, 1., 0.3823 ] ],
                     [ [ 0.5, 0., 0. ] ],
-                    [ [ 0., 1., 0. ] ],
+                    [ [ 0.3610, 1., 0.3610 ] ],
                     ],
+                },
+        'Constraints': {
+                'Bs2DsK_Mistag0CalibB_p0': 0.0014,
+                'Bs2DsK_Mistag0CalibB_p1': 0.0173,
+                'Bs2DsK_Mistag1CalibB_p0': 0.0086,
+                'Bs2DsK_Mistag1CalibB_p1': 0.1110,
+                'Bs2DsK_Mistag2CalibB_p0': 0.0026,
+                'Bs2DsK_Mistag2CalibB_p1': 0.0285,
+                'Bd_Mistag0CalibB_p0': 0.0014,
+                'Bd_Mistag0CalibB_p1': 0.0173,
+                'Bd_Mistag2CalibB_p0': 0.0026,
+                'Bd_Mistag2CalibB_p1': 0.0285,
                 },
         'Asymmetries': {
                 'Prod': {}, 'Det': { }, 'TagEff': {}, 'TagEff_t': {}, 'TagEff_f': {},

@@ -322,6 +322,13 @@ defaultConfig = {
             'mistag', 'timeerr_bias', 'timeerr_scalefactor',
             '.+_Mistag[0-9]+Calib(B|Bbar)_p[0-9]+'
             ],
+    # dictionary of constrained parameters
+    'Constraints': {
+            # format is 'paramname': error
+            # the parameter's value is taken to be the central value, and a
+            # Gaussian constraint with that central value and the given error
+            # is applied
+            },
 
     # mass templates
     'MassTemplateFile':		os.environ['B2DXFITTERSROOT']+'/data/workspace/WS_Mass_DsK.root',
@@ -3357,9 +3364,6 @@ def getMasterPDF(config, name, debug = False):
     condobs = RooArgSet('condobservables')
     for o in condobservables:
         condobs.add(WS(ws, o))
-    constr = RooArgSet('constraints')
-    for c in constraints:
-        constr.add(WS(ws, c))
     
     # Create the total PDF/EPDF
     # ---------------------
@@ -3429,6 +3433,29 @@ def getMasterPDF(config, name, debug = False):
             RooArgList()))
     # set variables constant if they are supposed to be constant
     setConstantIfSoConfigured(config, totEPDF)
+    # apply any additional constraints
+    if 'FIT' in config['Context']:
+        for vname in config['Constraints']:
+            v = ws.obj(vname)
+            if (None == v or not v.InheritsFrom('RooAbsReal') or
+                    v.InheritsFrom('RooConstVar')):
+                print 'ERROR: Variable %s to constrain not found' % vname
+                return None
+            mean = WS(ws, RooConstVar('%s_mean' % vname, '%s_mean' % vname,
+                v.getVal()))
+            err = WS(ws, RooConstVar('%s_err' % vname, '%s_err' % vname,
+                config['Constraints'][vname]))
+            # re-float v (if v was set constant)
+            v.setConstant(False)
+            v.setError(err.getVal())
+            # append to list of constraints
+            constraints.append(WS(ws, RooGaussian(
+                '%s_constraint' % vname, '%s_constraint' % vname,
+                v, mean, err)))
+
+    constr = RooArgSet('constraints')
+    for c in constraints:
+        constr.add(WS(ws, c))
 
     print 72 * '#'
     print 'Configured master pdf %s' % totEPDF.GetName()

@@ -4,6 +4,10 @@
 ! Purpose     : RooFit-based fitters for B -> D X
 !-----------------------------------------------------------------------------
 
+! 2013-12-06 - Manuel Tobias Schiller
+ - cFit: make it possible to constrain fit parameters with Gaussian constraints
+ - cFit: put constraints on the tagging calibration parameters in the data fit
+
 ! 2013-12-05 - Manuel Tobias Schiller
  - tagging calibration toy: make things more convenient by changing the
    generator slightly, so it produces the same observables (mistags and
