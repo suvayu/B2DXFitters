@@ -1025,6 +1025,7 @@ def getMistagTemplate(
                 'Lb2LcK': 'Bd2DPi',
                 'Lb2Dsp': 'Bd2DPi',
                 'Lb2Dsstp': 'Bd2DPi',
+                'Lb2LcPi': 'Bd2DPi',
                 }
         if mode in modenicks:
             mode = modenicks[mode]
