@@ -526,7 +526,7 @@ def printResult(config, result, blind = False):
 
 #------------------------------------------------------------------------------
 def setConstantIfSoConfigured(config, obj, recache = {}):
-    from ROOT import RooAbsArg, RooRealVar, RooConstVar
+    from ROOT import RooAbsArg, RooRealVar, RooConstVar, RooArgSet
     if 0 == len(recache):
         import re
         for rexp in config['constParams']:
@@ -543,7 +543,9 @@ def setConstantIfSoConfigured(config, obj, recache = {}):
     elif obj.InheritsFrom(RooAbsArg.Class()):
         # for everything else, descend hierarchy of RooFit objects to find
         # RooRealVars which might need to be set to constant
-        v = obj.getVariables()
+        v = RooArgSet()
+        obj.treeNodeServerList(v)
+        v.remove(obj)
         it = v.fwdIterator()
         while True:
             o = it.next()
