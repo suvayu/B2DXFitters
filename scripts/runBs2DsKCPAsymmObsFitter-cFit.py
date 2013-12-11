@@ -3072,7 +3072,9 @@ def getMasterPDF(config, name, debug = False):
             del obins
             del nbins
     else:
-        terrpdfs = None
+        terrpdfs = { }
+        for mode in config['Modes']:
+            terrpdfs[mode] = None
     
     if config['PerEventMistag']:
         observables.append(mistag)
