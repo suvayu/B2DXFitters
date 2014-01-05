@@ -109,17 +109,25 @@ def get_workspace(configname, varnames, masslo, masshi, debug):
     # MDSettingsMC.SetMassDRange()
     MDSettingsMC.Print("v")
 
+    if configname.startswith('Bs2DsK'):
+        hypo = TString("BsDsK")
+    else if configname.startswith('Bs2DsPi'):
+        hypo = TString("BsDsPi")
+    else:
+        print 'Unknown mass hypothesis; job will crash.'
+        return None
+
     ffile = TFile('treedump.root', 'recreate')
     workspace = 0
     workspace = getSpecBkg4kfactor(TString(myconfigfile["dataName"]),
                                    TString('#Kfactor MC FileName MU'),
                                    TString('#Kfactor MC TreeName'),
-                                   MDSettingsMC, TString("BsDsK"),
+                                   MDSettingsMC, hypo,
                                    workspace, ffile, debug)
     workspace = getSpecBkg4kfactor(TString(myconfigfile["dataName"]),
                                    TString('#Kfactor MC FileName MD'),
                                    TString('#Kfactor MC TreeName'),
-                                   MDSettingsMC, TString("BsDsK"),
+                                   MDSettingsMC, hypo,
                                    workspace, ffile, debug)
     ffile.Close()
 

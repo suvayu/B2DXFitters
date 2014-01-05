@@ -1712,6 +1712,8 @@ namespace MassFitUtils {
      *
      */
 
+    bool isDsK(hypo.Contains("K"));
+
     // some constants
     const double DSMASS(1968.49), KMASS(493.677)/*, BSMASS(5366.3), 
       BDMASS(5279.53), DMASS(1869.62), PIMASS(139.57018),
@@ -1742,7 +1744,7 @@ namespace MassFitUtils {
 	D_tru_PE(0.), D_tru_PX(0.), D_tru_PY(0.), D_tru_PZ(0.),
 	h_tru_PE(0.), h_tru_PX(0.), h_tru_PY(0.), h_tru_PZ(0.),
 	B_PE(0.), B_PX(0.), B_PY(0.), B_PZ(0.),
-	lab4_P2(0), lab1_P2(0), lab1_PT2(0);
+	lab4_P2(0), lab1_P2(0), lab1_PT2(0), lab5_P2(0);
 
       ftree->SetBranchAddress("lab0_TRUEID", &BPID);
       ftree->SetBranchAddress("lab2_TRUEID", &DPID);
@@ -1752,6 +1754,7 @@ namespace MassFitUtils {
       ftree->SetBranchAddress(mdSet->GetMomVar().Data(),    &lab1_P2);
       ftree->SetBranchAddress(mdSet->GetTrMomVar().Data(),  &lab1_PT2);
       ftree->SetBranchAddress("lab4_P",                     &lab4_P2);
+      ftree->SetBranchAddress("lab5_P",                     &lab5_P2);
 
       ftree->SetBranchAddress("lab0_P", &Bmom);
       ftree->SetBranchAddress(mdSet->GetMassBVar().Data(),  &Bmass);
@@ -1810,7 +1813,8 @@ namespace MassFitUtils {
       // mo-cos ... mode codes
       enum mode_t { Bd2DK, Bd2DsK, Bd2DsKst, Bd2DsstK, Bs2DsKst,
 		    Bs2DsRho, Bs2DsstK, Bs2DsstPi, Bs2DsstRho,
-		    Lb2Dsp, Lb2Dsstp, Lb2LcK, Bs2DsPi } current_mode=Bd2DK;
+		    Lb2Dsp, Lb2Dsstp, Lb2LcK, Bs2DsPi, Bd2DsPi,
+		    Lb2LcPi, Bd2DPi, Bs2DsK} current_mode=Bd2DK;
 
       // double SocksFitterArgs[5] = {BSMASS, DSMASS, PIMASS, -1.0, -1.0};
 
@@ -1818,54 +1822,110 @@ namespace MassFitUtils {
 	noMC(false);		// noMC is redundant now that we have
 				// all MC.  keep for reference.
 
-      // ordered in increasing yields under DsK
-      if ("Bd2DK" == sanemode) {
-        current_mode = Bd2DK;
-        // SocksFitterArgs[0] = BDMASS;
-        // SocksFitterArgs[1] = DMASS;
-        // SocksFitterArgs[2] = KMASS;
-        Ds_hypo = false;
-        h_hypo = true;
-      } else if ("Lb2LcK" == sanemode) {
-        current_mode = Lb2LcK;
-        // SocksFitterArgs[0] = LBMASS;
-        // SocksFitterArgs[1] = LCMASS;
-        // SocksFitterArgs[2] = KMASS;
-        Ds_hypo = false;
-        h_hypo = true;
-      } else if ("Lb2Dsstp" == sanemode) {
-        current_mode = Lb2Dsstp;
-        // SocksFitterArgs[0] = LBMASS;
-        // // SocksFitterArgs[1] = DSMASS;
-        // SocksFitterArgs[2] = PMASS;
-        // SocksFitterArgs[3] = DSSTMASS;
-      } else if ("Lb2Dsp" == sanemode) {
-        current_mode = Lb2Dsp;
-        // SocksFitterArgs[0] = LBMASS;
-        // // SocksFitterArgs[1] = DSMASS;
-        // SocksFitterArgs[2] = PMASS;
-      } else if ("Bs2DsstPi" == sanemode) {
-        current_mode = Bs2DsstPi;
-        // // SocksFitterArgs[0] = BSMASS;
-        // // SocksFitterArgs[1] = DSMASS;
-        // // SocksFitterArgs[2] = PIMASS;
-        // SocksFitterArgs[3] = DSSTMASS;
-      } else if ("Bs2DsRho" == sanemode) {
-        // FIXME: Only high statistics sample with large delta mB (~20
-        // MeV). The Rho decays quickly, so it is reconstructed as a
-        // Pi?  and the other Pi is missed! This should be considered
-        // as a partially reconstructed decay with a Rho intermediate
-        // state.
-        current_mode = Bs2DsRho;
-        // // SocksFitterArgs[0] = BSMASS;
-        // // SocksFitterArgs[1] = DSMASS;
-        // // SocksFitterArgs[2] = PIMASS;
-        // SocksFitterArgs[4] = PIMASS;
-      } else if ("Bs2DsPi" == sanemode) {
-        current_mode = Bs2DsPi;
+      if (isDsK) {
+	// ordered in increasing yields under DsK
+	if ("Bd2DK" == sanemode) {
+	  current_mode = Bd2DK;
+	  // SocksFitterArgs[0] = BDMASS;
+	  // SocksFitterArgs[1] = DMASS;
+	  // SocksFitterArgs[2] = KMASS;
+	  Ds_hypo = false;
+	  h_hypo = true;
+	} else if ("Lb2LcK" == sanemode) {
+	  current_mode = Lb2LcK;
+	  // SocksFitterArgs[0] = LBMASS;
+	  // SocksFitterArgs[1] = LCMASS;
+	  // SocksFitterArgs[2] = KMASS;
+	  Ds_hypo = false;
+	  h_hypo = true;
+	} else if ("Lb2Dsstp" == sanemode) {
+	  current_mode = Lb2Dsstp;
+	  // SocksFitterArgs[0] = LBMASS;
+	  // // SocksFitterArgs[1] = DSMASS;
+	  // SocksFitterArgs[2] = PMASS;
+	  // SocksFitterArgs[3] = DSSTMASS;
+	} else if ("Lb2Dsp" == sanemode) {
+	  current_mode = Lb2Dsp;
+	  // SocksFitterArgs[0] = LBMASS;
+	  // // SocksFitterArgs[1] = DSMASS;
+	  // SocksFitterArgs[2] = PMASS;
+	} else if ("Bs2DsstPi" == sanemode) {
+	  current_mode = Bs2DsstPi;
+	  // // SocksFitterArgs[0] = BSMASS;
+	  // // SocksFitterArgs[1] = DSMASS;
+	  // // SocksFitterArgs[2] = PIMASS;
+	  // SocksFitterArgs[3] = DSSTMASS;
+	} else if ("Bs2DsRho" == sanemode) {
+	  // FIXME: Only high statistics sample with large delta mB (~20
+	  // MeV). The Rho decays quickly, so it is reconstructed as a
+	  // Pi?  and the other Pi is missed! This should be considered
+	  // as a partially reconstructed decay with a Rho intermediate
+	  // state.
+	  current_mode = Bs2DsRho;
+	  // // SocksFitterArgs[0] = BSMASS;
+	  // // SocksFitterArgs[1] = DSMASS;
+	  // // SocksFitterArgs[2] = PIMASS;
+	  // SocksFitterArgs[4] = PIMASS;
+	} else if ("Bs2DsPi" == sanemode) {
+	  current_mode = Bs2DsPi;
+	}
+      } else {
+	// FIXME: need to add DsPi background modes
+	if ("Bd2DsPi" == sanemode) {
+	  current_mode = Bd2DsPi;
+	  // SocksFitterArgs[0] = BDMASS;
+	  // // SocksFitterArgs[1] = DSMASS;
+	  // // SocksFitterArgs[2] = PIMASS;
+	  Ds_hypo = true;
+	  h_hypo = true;
+	} else if ("Bs2DsstPi" == sanemode) {
+	  current_mode = Bs2DsstPi;
+	  // // SocksFitterArgs[0] = BSMASS;
+	  // // SocksFitterArgs[1] = DSMASS;
+	  // // SocksFitterArgs[2] = PIMASS;
+	  // SocksFitterArgs[3] = DSSTMASS;
+	  Ds_hypo = true;
+	  h_hypo = true;
+	} else	if ("Bs2DsK" == sanemode) {
+	  current_mode = Bs2DsK;
+	  // // SocksFitterArgs[0] = BSMASS;
+	  // // SocksFitterArgs[1] = DSMASS;
+	  // SocksFitterArgs[2] = KMASS;
+	  Ds_hypo = true;
+	  h_hypo = false;
+	} else if ("Lb2LcPi" == sanemode) {
+	  current_mode = Lb2LcPi;
+	  // SocksFitterArgs[0] = LBMASS;
+	  // SocksFitterArgs[1] = LCMASS;
+	  // // SocksFitterArgs[2] = PIMASS;
+	  Ds_hypo = false;
+	  h_hypo = true;
+	} else if ("Bd2DPi" == sanemode) {
+	  current_mode = Bd2DPi;
+	  // SocksFitterArgs[0] = BDMASS;
+	  // SocksFitterArgs[1] = DMASS;
+	  // // SocksFitterArgs[2] = PIMASS;
+	  Ds_hypo = false;
+	  h_hypo = true;
+	}
       }
 
-      // FIXME: need to add DsPi background modes
+      TH1D * hmass_ref = NULL;
+      TH1D * hmass_rec = NULL;
+      TH1D * hmass_no_corr = NULL;
+      if (Bs2DsPi == current_mode) {
+	hmass_no_corr = new TH1D("hmass_no_corr", "", 100, 5300, 5500);
+	hmass_ref = new TH1D("hmass_ref", "", 100, 5300, 5500);
+	hmass_rec = new TH1D("hmass_rec", "", 100, 5300, 5500);
+      }
+
+      TH1D * hdm_Bd2DK_Lb2LcK = NULL;
+      if (Bd2DK == current_mode) {
+	hdm_Bd2DK_Lb2LcK = new TH1D("hdm_Bd2DK", "", 100, -300, 300);
+      }
+      if (Lb2LcK == current_mode) {
+	hdm_Bd2DK_Lb2LcK = new TH1D("hdm_Lb2LcK", "", 100, -300, 300);
+      }
 
       for (Long64_t jentry=0; jentry < nentries; jentry++) {
 	long msg_count(0), err_count(0);
@@ -2041,30 +2101,53 @@ namespace MassFitUtils {
 	//   break;
 	// }
 
-	// weights for Bs2DsK
-	switch (current_mode) {
-	case Bd2DK:
-	  {
-	    wMC = hChild.GetWeight(lab4_P2,smp[i]);
+	// PID reweighting
+	if (isDsK) {
+	  // weights for Bs2DsK
+	  switch (current_mode) {
+	  case Bd2DK:
+	    {
+	      wMC = hChild.GetWeight(lab4_P2,smp[i]);
+	    }
+	    break;
+	  case Lb2LcK:
+	    {
+	      wMC = hBachEff.GetWeight(lab1_P2,smp[i]);
+	    }
+	    break;
+	    // case Lb2Dsstp:		// common weight for all non-K modes
+	    // case Lb2Dsp:
+	    // case Bs2DsstPi:
+	    // case Bs2DsRho:
+	    // case Bs2DsPi:
+	  default:
+	    wMC = hBach.GetWeight(lab1_P2,smp[i]);
+	    break;
 	  }
-	  break;
-	case Lb2LcK:
-	  {
+	} else {
+	  // weights for Bs2DsPi
+	  switch (current_mode) {
+	  case Lb2LcPi:
+	    {
+	      wMC = hProton.GetWeight(lab5_P2,smp[i])*hBachEff.GetWeight(lab1_P2,smp[i]);
+	    }
+	    break;
+	  case Bd2DPi:
+	    {
+	      wMC = hChild.GetWeight(lab4_P2,smp[i])*hBachEff.GetWeight(lab1_P2,smp[i]);
+	    }
+	    break;
+	  // case Bs2DsK:   // what is the weight for Bs2DsK?
+	  // case Bd2DsPi:  // nothing done, mode with Pi
+	  // case Bs2DsstPi:
+	  default:
 	    wMC = hBachEff.GetWeight(lab1_P2,smp[i]);
+	    break;
 	  }
-	  break;
-	// case Lb2Dsstp:		// common weight for all non-K modes
-	// case Lb2Dsp:
-	// case Bs2DsstPi:
-	// case Bs2DsRho:
-	// case Bs2DsPi:
-	default:
-	  wMC = hBach.GetWeight(lab1_P2,smp[i]);
-	  break;
 	}
-	wRW = hRDM.GetWeight(log(lab1_PT2),log(nTr), smp[i]);
 
-	// FIXME: weights for Bs2DsPi
+	// data-MC reweighting
+	wRW = hRDM.GetWeight(log(lab1_PT2),log(nTr), smp[i]);
 
 	// emulating mis-reconstruction
 	Bs = fBs;
