@@ -4,6 +4,11 @@
 ! Purpose     : RooFit-based fitters for B -> D X
 !-----------------------------------------------------------------------------
 
+! 2014-01-13 - Manuel Tobias Schiller
+ - small changes to Suvayu's new k-factor template code:
+   * fix typo ("else if" -> "elif"
+   * use standard shell/python trampoline code to get the environment right
+
 ! 2013-12-10 - Manuel Tobias Schiller
  - cFit: start modifying DsPi fit personalities
 
