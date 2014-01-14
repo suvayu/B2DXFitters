@@ -64,7 +64,7 @@ def getconfig() :
     configdict["PIDBach"]    = 5
     configdict["PIDChild"]   = 0
     configdict["PIDProton"]  = 5    
-    configdict["dataName"]   = "../data/local_data.txt"
+    configdict["dataName"]   = "../data/local_data_Bs2DsK.txt"
 
     configdict["fileCalibPionUp"]  = "/afs/cern.ch/work/a/adudziak/public/workspace/CalibDStUpPi_DsK.root"
     configdict["fileCalibPionDown"]  = "/afs/cern.ch/work/a/adudziak/public/workspace/CalibDStDownPi_DsK.root"
