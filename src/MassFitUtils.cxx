@@ -1715,11 +1715,11 @@ namespace MassFitUtils {
     bool isDsK(hypo.Contains("K"));
 
     // some constants
-    const double DSMASS(1968.49), KMASS(493.677)/*, BSMASS(5366.3), 
+    const double DSMASS(1968.49), KMASS(493.677), BSMASS(5366.3), 
       BDMASS(5279.53), DMASS(1869.62), PIMASS(139.57018),
       DSSTMASS(2112.34), KSTMASS(891.66), LBMASS(5620.2),
       LCMASS(2286.46), PMASS(938.27203), RHOMASS(775.49),
-      DSTMASS(2010.25), DSTMASS2(2460.1)*/;
+      DSTMASS(2010.25), DSTMASS2(2460.1);
 
     long veto_counter(0);
     const double pgratio_cut(5E-3), gratio_cut(5E-2);
