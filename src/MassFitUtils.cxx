@@ -2153,7 +2153,10 @@ namespace MassFitUtils {
 	Bs = fBs;
 	if (Ds_hypo == false) Ds.SetVectM(fDs.Vect(), DSMASS);
 	else Ds = fDs;
-	if (h_hypo == false) bach.SetVectM(fbach.Vect(), KMASS);
+	if (h_hypo == false) {
+	  if (isDsK) bach.SetVectM(fbach.Vect(), KMASS);
+	  else bach.SetVectM(fbach.Vect(), PIMASS);
+	}
 	else bach = fbach;
 	Bs_rec = Ds + bach;
 
