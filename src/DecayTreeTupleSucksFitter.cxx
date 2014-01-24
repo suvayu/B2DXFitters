@@ -134,8 +134,8 @@ bool DecayTreeTupleSucksFitter::doFit(
 		// constrain q to measured momenta p withing float precision
 		if (d < 3) {
 		    const double s2 = p[d][i] * p[d][i] *
-			std::numeric_limits<float>::epsilon() *
-			std::numeric_limits<float>::epsilon();
+			std::numeric_limits<double>::epsilon() *
+			std::numeric_limits<double>::epsilon();
 		    dq[4 * d + i] += (q[d][i] - p[d][i]) / s2;
 		    mat[4 * d + i][4 * d + i] += 1. / s2;
 		}
