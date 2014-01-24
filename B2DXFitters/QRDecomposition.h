@@ -367,7 +367,7 @@ class QRDecomposition
 	for (unsigned i = 0; i < nn; ++i) {
 	    for (unsigned j = 0; j < nn; ++j)
 		if (abs(a[pr[i] + j]) > max)
-		    max = abs(a[pr[i] * nn + j]);
+		    max = abs(a[pr[i] + j]);
 	}
 	if (FBASE(0) == max) max = 1;
 

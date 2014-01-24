@@ -4,9 +4,13 @@
 ! Purpose     : RooFit-based fitters for B -> D X
 !-----------------------------------------------------------------------------
 
+! 2014-01-24 - Manuel Tobias Schiller
+ - QRDecomposition: fix stupid bug affecting mass constraints for k-factors
+
 !============================================== v2r4 2014-1-20 ==============================
 ! 2014-1-20 Diego Martinez Santos
 	 Make version v2r4
+
 ! 2014-01-13 - Manuel Tobias Schiller
  - small changes to Suvayu's new k-factor template code:
    * fix typo ("else if" -> "elif"
