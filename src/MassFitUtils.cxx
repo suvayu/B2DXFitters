@@ -2107,6 +2107,10 @@ TCut GetCutMCBkg( MDFitterSettings* mdSet, TString mode, TString hypo, TString D
       mBresn.Branch("wRW", &wRW, "wRW/D");
       mBresn.Branch("globalWeight", &globalWeight, "globalWeight/D");
 
+      double mDdiff(0.0), mhdiff(0.0);
+      mBresn.Branch("mDdiff", &mDdiff, "mDdiff/D");
+      mBresn.Branch("mhdiff", &mhdiff, "mhdiff/D");
+
       unsigned long fill_counter(0), loop_counter(0);
 
       DEBUG(gmsg_count, "decay mode " << mode[i] << "_" << smp[i]
@@ -2125,6 +2129,8 @@ TCut GetCutMCBkg( MDFitterSettings* mdSet, TString mode, TString hypo, TString D
 	  bach(h_tru_PX, h_tru_PY, h_tru_PZ, h_tru_PE),
 	  Bs_rec(0.0, 0.0, 0.0, 0.0), Bs_ref(B_PX, B_PY, B_PZ, B_PE);
 	TLorentzVector Bs_tru(Bs);
+
+	TLorentzVector Ds_ref(D_PX, D_PY, D_PZ, D_PE), bach_ref(h_PX, h_PY, h_PZ, h_PE);
 
 	// VETO:
 	if (std::fabs(hPID) == 13) { // no pesky bachelor muons
@@ -2389,6 +2395,8 @@ TCut GetCutMCBkg( MDFitterSettings* mdSet, TString mode, TString hypo, TString D
 
 	if (in_mass_win) {
 	  mBdiff = Bs_rec.M() - Bs_ref.M();
+	  mDdiff = Ds.M() - Ds_ref.M();
+	  mhdiff = bach.M() - bach_ref.M();
 
 	  // Fill selected events
 	  mBresn.Fill();
