@@ -236,17 +236,24 @@ namespace MassFitUtils {
 			 mdSet->GetTerrVar().Data(), mdSet->GetTerrRangeUp()*corr);  
     
     TCut FDCHI2 = "";
-    if( md[0] == "kkpi" || md[0] == "nonres" || md[0] == "kstk" || md[0] == "phipi" ) 
+    TString DsPrefix = "";
+    std::cout<<"notation: "<<mdSet->GetNotation()<<std::endl;
+
+    if ( mdSet->GetNotation() == 0 ) { DsPrefix = "Ds_"; }
+    else if ( mdSet->GetNotation() == 1 ) { DsPrefix = "lab2_"; }
+
+    if( md[0] == "kkpi" || md[0] == "nonres" || md[0] == "kstk" || md[0] == "phipi" || md[0] == "hhhpi0") 
       {
-	FDCHI2 = "lab2_FDCHI2_ORIVX > 2";
+	FDCHI2 = DsPrefix+"FDCHI2_ORIVX > 2";
       }
-    else
+    else if ( md[0] == "kpipi" || md[0] == "pipipi" )
       {
-	FDCHI2 = "lab2_FDCHI2_ORIVX > 9";
+	FDCHI2 = DsPrefix+"FDCHI2_ORIVX > 9";
       }
 
+    TCut addCuts = (TCut)mdSet->GetAddDataCuts(); 
 
-    TCut All_cut = PID_cut&&P_cut&&BDTG_cut&&mass_cut&&massD_cut&&FDCHI2&&PT_cut&&nTr_cut&&Time_cut&&Terr_cut;
+    TCut All_cut = PID_cut&&P_cut&&BDTG_cut&&mass_cut&&massD_cut&&FDCHI2&&PT_cut&&nTr_cut&&Time_cut&&Terr_cut&&addCuts;
     if( debug == true) std::cout<<All_cut<<std::endl;
 
     RooDataSet*  dataSet[2];
@@ -1043,6 +1050,24 @@ namespace MassFitUtils {
   {
     TCut MCCut= ""; 
 
+    //Set prefixs
+    TString DsPrefix    = "";
+    TString DsCh1Prefix = "";
+    TString DsCh2Prefix = "";
+    TString DsCh3Prefix = "";
+    TString BachPrefix  = "";
+    TString BsPrefix    = ""; 
+
+    if ( mdSet->GetNotation() == 0 ) 
+      { 
+	DsPrefix = "Ds"; BachPrefix = "Bac"; DsCh1Prefix ="Pi"; DsCh2Prefix = "Km";DsCh3Prefix = "Kp"; BsPrefix = "Bs";
+      }
+    else if ( mdSet->GetNotation() == 1 ) 
+      { 
+	DsPrefix = "lab2"; BachPrefix = "lab1"; DsCh1Prefix = "lab3"; DsCh2Prefix = "lab4"; DsCh3Prefix = "lab5"; BsPrefix = "lab0"; 
+      }
+
+
     //Set id for bachelor //
     int id_lab1=0;
     if( hypo.Contains("Pi") ) { id_lab1=211; if ( debug == true) std::cout<<" Hypo with Pi"<<std::endl;}
@@ -1059,43 +1084,57 @@ namespace MassFitUtils {
     TCut nTr_cut    = mdSet->GetCut(mdSet->GetTracksVar());
     TCut BDTG_cut   = mdSet->GetCut(mdSet->GetBDTGVar());
     
-    TCut MCTriggerCut="lab0_Hlt1TrackAllL0Decision_TOS && (lab0_Hlt2Topo2BodyBBDTDecision_TOS || lab0_Hlt2Topo3BodyBBDTDecision_TOS || lab0_Hlt2Topo4BodyBBDTDecision_TOS)";
+    //TCut MCTriggerCut="lab0_Hlt1TrackAllL0Decision_TOS && (lab0_Hlt2Topo2BodyBBDTDecision_TOS || lab0_Hlt2Topo3BodyBBDTDecision_TOS || lab0_Hlt2Topo4BodyBBDTDecision_TOS)";
 
-    TCut MCBsIDCut = Form("abs(lab1_ID)==%d && abs(lab5_ID)==321 && abs(lab3_ID)==211 && abs(lab4_ID)==%d",id_lab1, id_lab4);
+    TCut MCBsIDCut = Form("abs(%s_ID)==%d && abs(%s_ID)==321 && abs(%s_ID)==211 && abs(%s_ID)==%d",
+			  BachPrefix.Data(), id_lab1, DsCh3Prefix.Data(), DsCh1Prefix.Data(), DsCh2Prefix.Data(), id_lab4);
 
-    TCut MCCut1, MCCut2;
-    TCut hypoKaon = "lab1_M > 200";  // hypo Kaon //
-    TCut hypoPion = "lab1_M < 200";  // hypo Pion //
 
-    if ( (mode.Contains("Bs") == true) || ( (mode.Contains("Ds") == true) && (mode.Contains("Dst") != true))) 
+    TCut MCCut1="";
+    TCut MCCut2="";
+    TCut hypoKaon = Form("%s_M > 200",BachPrefix.Data());  // hypo Kaon //
+    TCut hypoPion = Form("%s_M < 200",BachPrefix.Data());  // hypo Pion //
+    
+    TString Dmode = CheckDMode(hypo, debug);
+    TCut FD_cut = "";
+    if (Dmode != "hhhpi0" )
       {
-	MCCut1 = "lab2_BKGCAT < 30 || lab2_BKGCAT == 50";
-      }
-    else { MCCut1 = "lab2_BKGCAT == 30"; }
-    MCCut2 = "lab0_BKGCAT < 60";
 
-    if ( mode == "Bs2DsstKst" || mode == "Bs2DsKst") { MCCut1 = "lab2_BKGCAT == 30";}  // because in fact this is Bd2DKst sample //
-    if ( mode == "Bd2DsstPi" ){ MCCut1 = "lab2_BKGCAT < 30";} // bacause in fact this is Bs2DsstPi sample //
-    if ( debug == true) std::cout<<"mode: "<<mode<<std::endl;
-    if ( hypo.Contains("Bd"))
-      {
-	if ( ( (mode.Contains("D") == true) && (mode.Contains("Ds") != true) )
-	     || (mode.Contains("Dst") == true))
+	if ( (mode.Contains("Bs") == true) || ( (mode.Contains("Ds") == true) && (mode.Contains("Dst") != true)))
 	  {
-	    MCCut1 = "(lab2_BKGCAT < 30 || lab2_BKGCAT == 50 )&& lab2_FDCHI2_ORIVX > 9";
+	    MCCut1 = Form("%s_BKGCAT < 30 || %s_BKGCAT == 50",DsPrefix.Data(), DsPrefix.Data());
 	  }
-	else {
-	  MCCut1 = "(lab2_BKGCAT == 30) && lab2_FDCHI2_ORIVX > 9";
-	}
+	else { MCCut1 = Form("%s_BKGCAT == 30",DsPrefix.Data()); }
+	MCCut2 = Form("%s_BKGCAT < 60",BsPrefix.Data());
+
+	if ( mode == "Bs2DsstKst" || mode == "Bs2DsKst") { MCCut1 = Form("%s_BKGCAT == 30",DsPrefix.Data());}  // because in fact this is Bd2DKst sample //
+	if ( mode == "Bd2DsstPi" ){ MCCut1 = "lab2_BKGCAT < 30";} // bacause in fact this is Bs2DsstPi sample //
+	FD_cut = "lab2_FDCHI2_ORIVX > 9";
+      
+    
+	if ( debug == true) std::cout<<"mode: "<<mode<<std::endl;
+	if ( hypo.Contains("Bd"))
+	  {
+	    if ( ( (mode.Contains("D") == true) && (mode.Contains("Ds") != true) )
+		 || (mode.Contains("Dst") == true))
+	      {
+		MCCut1 = Form("(%s_BKGCAT < 30 || %s_BKGCAT == 50 )",DsPrefix.Data(),DsPrefix.Data());
+	      }
+	    else {
+	      MCCut1 = Form("(%s_BKGCAT == 30)",DsPrefix.Data()); 
+	    }
+	  }
       }
+
+    TCut addCuts = (TCut)mdSet->GetAddMCCuts();
 
     if (hypo.Contains("K"))  // consider PartReco backgrounds for BsDsK
       {
-	MCCut = MCBsIDCut&&MCCut1&&MCCut2&&MCTriggerCut&&P_cut&&BDTG_cut&&hypoKaon&&PT_cut&&nTr_cut;
+	MCCut = MCBsIDCut&&MCCut1&&MCCut2&&P_cut&&BDTG_cut&&hypoKaon&&PT_cut&&nTr_cut&&FD_cut&&addCuts;
       }
     else //consider PartReco backgrounds for BsDsPi//
       {
-	MCCut = MCBsIDCut&&MCCut1&&MCCut2&&MCTriggerCut&&P_cut&&BDTG_cut&&hypoPion&&PT_cut&&nTr_cut;
+	MCCut = MCBsIDCut&&MCCut1&&MCCut2&&P_cut&&BDTG_cut&&hypoPion&&PT_cut&&nTr_cut&&FD_cut&&addCuts;
       }
 
     if (debug == true )
@@ -1331,6 +1370,22 @@ namespace MassFitUtils {
     
     Float_t c = 299792458.0;
     Float_t corr = 1e9/c;
+
+    TString DsPrefix    = "";
+    TString DsCh1Prefix = "";
+    TString DsCh2Prefix = "";
+    TString DsCh3Prefix = "";
+    TString BachPrefix  = "";
+    TString BsPrefix    = "";
+
+    if ( mdSet->GetNotation() == 0 )
+      {
+        DsPrefix = "Ds"; BachPrefix = "Bac"; DsCh1Prefix ="Pi"; DsCh2Prefix = "Km";DsCh3Prefix = "Kp"; BsPrefix = "Bs";
+      }
+    else if ( mdSet->GetNotation() == 1 )
+      {
+        DsPrefix = "lab2"; BachPrefix = "lab1"; DsCh1Prefix = "lab3"; DsCh2Prefix = "lab4"; DsCh3Prefix = "lab5"; BsPrefix = "lab0";
+      }
     
     for(int i = 0; i< size1; i++ )
       {
@@ -1350,13 +1405,13 @@ namespace MassFitUtils {
 	
 	treetmp[i]->SetBranchAddress(mdSet->GetMomVar().Data(),      &lab1_P2);
 	treetmp[i]->SetBranchAddress(mdSet->GetMassBVar().Data(),    &lab0_MM2);
-	treetmp[i]->SetBranchAddress("lab4_P",                       &lab4_P2);
-	treetmp[i]->SetBranchAddress("lab5_P",                       &lab5_P2);
+	treetmp[i]->SetBranchAddress(Form("%s_P",DsCh2Prefix.Data()),&lab4_P2);
+	treetmp[i]->SetBranchAddress(Form("%s_P",DsCh3Prefix.Data()), &lab5_P2);
 	treetmp[i]->SetBranchAddress(mdSet->GetMassDVar().Data(),    &lab2_MM2);
 	treetmp[i]->SetBranchAddress(mdSet->GetTrMomVar().Data(),    &lab1_PT2);
 	treetmp[i]->SetBranchAddress(mdSet->GetTracksVar().Data(),   &nTr);
 	treetmp[i]->SetBranchAddress(mdSet->GetPIDKVar().Data(),     &PIDK2);
-	treetmp[i]->SetBranchAddress(mdSet->GetTerrVar().Data(),      &lab0_TAUERR3);
+	treetmp[i]->SetBranchAddress(mdSet->GetTerrVar().Data(),     &lab0_TAUERR3);
 	
 	Int_t lab0_TAG3[mdSet->GetNumTagVar()];
 	Double_t lab0_TAGOMEGA3[mdSet->GetNumTagOmegaVar()];
@@ -1451,14 +1506,14 @@ namespace MassFitUtils {
 	    if ( hypo.Contains("Bd") == true )
 	      {
 		mMC = lab0_MM2+3.75;
-		if( mode[i] == "Lb2LcPi"){ // Lc child has to be reweighted
+		if( mode[i] == "Lb2LcPi" || mode[i] == "Lb2Lambdacpi"){ // Lc child has to be reweighted
 		  wMC = hProton.GetWeight(lab4_P2,smp[i])*hBachEff.GetWeight(lab1_P2,smp[i]);
 		}
-		else if( mode[i] == "Bs2DsPi")
+		else if( mode[i] == "Bs2DsPi" || mode[i] == "Bs2Dspi")
 		  {
 		    wMC = hChild.GetWeight(lab5_P2,smp[i])*hBachEff.GetWeight(lab1_P2,smp[i]);
 		  }
-		else if( mode[i] == "Bd2DK")
+		else if( mode[i] == "Bd2DK" )
 		  {
 		    wMC = hBach.GetWeight(lab1_P2,smp[i]);
 		  }
@@ -1470,14 +1525,14 @@ namespace MassFitUtils {
 	    else
 	      {
 		mMC = lab0_MM2-sh;
-		if( mode[i] == "Lb2LcPi"){ // Lc child has to be reweighted
+		if( mode[i] == "Lb2LcPi" || mode[i] == "Lb2Lambdacpi"){ // Lc child has to be reweighted
 		  wMC = hProton.GetWeight(lab5_P2,smp[i])*hBachEff.GetWeight(lab1_P2,smp[i]);
 		}
-		else if ( mode[i] == "Bd2DsstPi") { // this is in fact Bs2DsstPi and we shift this 86.6 downward //
-		  wMC = hBachEff.GetWeight(lab1_P2,smp[i]);
-		  mMC = mMC-86.6;
-		}
-		else if (mode[i] == "Bd2DRho" || mode[i] == "Bd2DstPi" || mode[i] == "Bd2DPi")
+		//else if ( mode[i] == "Bd2DsstPi" || mode[i] == "Bd2Dsstpi" ) { // this is in fact Bs2DsstPi and we shift this 86.6 downward //
+		//  wMC = hBachEff.GetWeight(lab1_P2,smp[i]);
+		//  mMC = mMC-86.6;
+		//}
+		else if (mode[i].find("Bd") != std::string::npos )
 		  {
 		    wMC = hChild.GetWeight(lab4_P2,smp[i])*hBachEff.GetWeight(lab1_P2,smp[i]);
 		  }
@@ -2282,17 +2337,33 @@ namespace MassFitUtils {
     TCut PID_cut="";
     int id_lab1=0;
 
+    TString DsPrefix    = "";
+    TString DsCh1Prefix = "";
+    TString DsCh2Prefix = "";
+    TString DsCh3Prefix = "";
+    TString BachPrefix  = "";
+    TString BsPrefix    = "";
+
+    if ( mdSet->GetNotation() == 0 )
+      {
+        DsPrefix = "Ds"; BachPrefix = "Bac"; DsCh1Prefix ="Pi"; DsCh2Prefix = "Km";DsCh3Prefix = "Kp"; BsPrefix = "Bs";
+      }
+    else if ( mdSet->GetNotation() == 1 )
+      {
+        DsPrefix = "lab2"; BachPrefix = "lab1"; DsCh1Prefix = "lab3"; DsCh2Prefix = "lab4"; DsCh3Prefix = "lab5"; BsPrefix = "lab0";
+      }
+
     TCut BachHypo;
-    if( modeB.Contains("Pi") ) {
+    if( modeB.Contains("Pi") == true || modeB.Contains("pi") == true) {
       PID_cut = Form("%s < %d", mdSet->GetPIDKVar().Data(), mdSet->GetPIDBach());
       id_lab1=211;
-      BachHypo = "lab1_M < 200";
+      BachHypo = Form("%s_M < 200",BachPrefix.Data());
       if ( debug == true) std::cout<<"Mode with Pi"<<std::endl;
     }
     else if (modeB.Contains("K")) {
       PID_cut = Form("%s > %d", mdSet->GetPIDKVar().Data(), mdSet->GetPIDBach());
       id_lab1=321;
-      BachHypo = "lab1_M > 200";
+      BachHypo = Form("%s_M > 200",BachPrefix.Data());
       if ( debug == true) std::cout<<"Mode with K"<<std::endl;
     }
 
@@ -2313,48 +2384,56 @@ namespace MassFitUtils {
     if ( modeD.Contains("kkpi") == true || 
 	 modeD.Contains("nonres") == true || 
 	 modeD.Contains("kstk") == true  || 
-	 modeD.Contains("phipi") == true ) 
-      { FDCHI2 = "lab2_FDCHI2_ORIVX > 2";}
+	 modeD.Contains("phipi") == true ||
+	 modeD.Contains("hhhpi0") == true ) 
+      { FDCHI2 = Form("%s_FDCHI2_ORIVX > 2",DsPrefix.Data());}
     else
-      { FDCHI2 = "lab2_FDCHI2_ORIVX > 9"; }
+      { FDCHI2 = Form("%s_FDCHI2_ORIVX > 9",DsPrefix.Data()); }
 
-    TCut MCTriggerCut="lab0_Hlt1TrackAllL0Decision_TOS && (lab0_Hlt2Topo2BodyBBDTDecision_TOS || lab0_Hlt2Topo3BodyBBDTDecision_TOS || lab0_Hlt2Topo4BodyBBDTDecision_TOS)";
+    //TCut MCTriggerCut="lab0_Hlt1TrackAllL0Decision_TOS && (lab0_Hlt2Topo2BodyBBDTDecision_TOS || lab0_Hlt2Topo3BodyBBDTDecision_TOS || lab0_Hlt2Topo4BodyBBDTDecision_TOS)";
 
     TCut DHypo = "";
     TCut MCBsIDCut = "";
     TCut MCBsTRUEIDCut = "";
-    TCut Charge = "(lab5_ID/abs(lab5_ID)) != (lab1_ID/abs(lab1_ID))";
-    TCut BkgCAT = "(lab0_BKGCAT < 30 || lab0_BKGCAT == 50) && (lab2_BKGCAT<30 || lab2_BKGCAT == 50)";
+    //TCut Charge = "(lab5_ID/abs(lab5_ID)) != (lab1_ID/abs(lab1_ID))";
+    TCut BkgCAT = "";
 
+    if ( modeD != "hhhpi0" )
+      {
+	BkgCAT = Form("(%s_BKGCAT < 30 || %s_BKGCAT == 50) && (%s_BKGCAT<30 || %s_BKGCAT == 50)",
+		      BsPrefix.Data(),BsPrefix.Data(), DsPrefix.Data(), DsPrefix.Data());
+      }
     TCut MCCut;
     
     int id_lab4(0), id_lab3(0), id_lab5(0);
     if ( modeD.Contains("kkpi") == true || modeD.Contains("nonres") == true ||
-	 modeD.Contains("kstk") == true || modeD.Contains("phipi") == true)
+	 modeD.Contains("kstk") == true || modeD.Contains("phipi") == true || modeD.Contains("hhhpi0") == true)
       {
 	id_lab3=211; id_lab4=321; id_lab5 = 321;
-	DHypo = "lab3_M < 200 && lab4_M > 200 && lab5_M > 200";
+	DHypo = Form("%s_M < 200 && %s_M > 200 && %s_M > 200",DsCh1Prefix.Data(), DsCh2Prefix.Data(), DsCh3Prefix.Data());
 	if ( debug == true) std::cout<<"Mode with KKPi"<<std::endl;
       }
     else if (modeD.Contains("kpipi") == true )
       {
 	id_lab3=211; id_lab4=211; id_lab5 = 321;
-	DHypo = "lab3_M < 200 && lab4_M < 200 && lab5_M > 200";
+	DHypo = Form("%s_M < 200 && %s_M < 200 && %s_M > 200",DsCh1Prefix.Data(), DsCh2Prefix.Data(), DsCh3Prefix.Data());
 	if ( debug == true) std::cout<<"Mode with KPiPi"<<std::endl;
       }
     else if (modeD.Contains("pipipi") == true )
       {
 	id_lab3=211; id_lab4=211; id_lab5 = 211;
-	DHypo = "lab3_M < 200 && lab4_M < 200 && lab5_M < 200";
+	DHypo = Form("%s_M < 200 && %s_M < 200 && %s_M < 200",DsCh1Prefix.Data(), DsCh2Prefix.Data(), DsCh3Prefix.Data());
 	if ( debug == true) std::cout<<"Mode with PiPiPi"<<std::endl;
       }
 
-    MCBsIDCut = Form("abs(lab1_ID)==%d && abs(lab5_ID)==%d && abs(lab3_ID)==%d && abs(lab4_ID)==%d",
-		     id_lab1, id_lab5, id_lab3, id_lab4);
-    MCBsTRUEIDCut = Form("abs(lab1_TRUEID)==%d && abs(lab5_TRUEID)==%d && abs(lab3_TRUEID)==%d && abs(lab4_TRUEID)==%d",
-			 id_lab1, id_lab5, id_lab3, id_lab4);
+    MCBsIDCut = Form("abs(%s_ID)==%d && abs(%s_ID)==%d && abs(%s_ID)==%d && abs(%s_ID)==%d",
+		     BachPrefix.Data(), id_lab1, DsCh3Prefix.Data(), id_lab5, DsCh1Prefix.Data(), id_lab3, DsCh2Prefix.Data(), id_lab4);
+    MCBsTRUEIDCut = Form("abs(%s_TRUEID)==%d && abs(%s_TRUEID)==%d && abs(%s_TRUEID)==%d && abs(%s_TRUEID)==%d",
+			 BachPrefix.Data(), id_lab1, DsCh3Prefix.Data(), id_lab5, DsCh1Prefix.Data(), id_lab3, DsCh2Prefix.Data(), id_lab4);
 
-    cut = MCBsIDCut&&MCTriggerCut&&MCD&&MCB&&P_cut&&BDTG_cut&&FDCHI2&&BachHypo&&DHypo&&MCBsTRUEIDCut&&BkgCAT&&Time_cut;
+    TCut addCuts = (TCut)mdSet->GetAddMCCuts();
+
+    cut = MCBsIDCut&&MCD&&MCB&&P_cut&&BDTG_cut&&FDCHI2&&BachHypo&&DHypo&&MCBsTRUEIDCut&&BkgCAT&&Time_cut&&addCuts;
 
     if (debug == true )
       {
@@ -2430,26 +2509,40 @@ namespace MassFitUtils {
 
     std::vector <RooRealVar*> lab0_TAG;
     std::vector <RooRealVar*> lab0_TAGOMEGA;
-    if ( mistag == true )
+    if( mdSet->CheckTagVar() == true )
       {
-        if( mdSet->CheckTagVar() == true )
-          {
-            for(int i = 0; i<mdSet->GetNumTagVar(); i++)
-              {
-                lab0_TAG.push_back(mdSet->GetObs(mdSet->GetTagVar(i)));
-                obs->add(*lab0_TAG[i]);
-              }
-          }
-        if( mdSet->CheckTagOmegaVar() == true )
-          {
-            for(int i = 0; i<mdSet->GetNumTagOmegaVar(); i++)
-              {
+	for(int i = 0; i<mdSet->GetNumTagVar(); i++)
+	  {
+	    lab0_TAG.push_back(mdSet->GetObs(mdSet->GetTagVar(i)));
+	    obs->add(*lab0_TAG[i]);
+	  }
+      }
+    if( mdSet->CheckTagOmegaVar() == true )
+      {
+	for(int i = 0; i<mdSet->GetNumTagOmegaVar(); i++)
+	  {
                 lab0_TAGOMEGA.push_back(mdSet->GetObs(mdSet->GetTagOmegaVar(i)));
                 obs->add(*lab0_TAGOMEGA[i]);
-              }
 	  }
+      }
+    
+    obs->add(*lab0_TAUERR);
+  
 
-        obs->add(*lab0_TAUERR);
+    TString DsPrefix    = "";
+    TString DsCh1Prefix = "";
+    TString DsCh2Prefix = "";
+    TString DsCh3Prefix = "";
+    TString BachPrefix  = "";
+    TString BsPrefix    = "";
+
+    if ( mdSet->GetNotation() == 0 )
+      {
+        DsPrefix = "Ds"; BachPrefix = "Bac"; DsCh1Prefix ="Pi"; DsCh2Prefix = "Km";DsCh3Prefix = "Kp"; BsPrefix = "Bs";
+      }
+    else if ( mdSet->GetNotation() == 1 )
+      {
+        DsPrefix = "lab2"; BachPrefix = "lab1"; DsCh1Prefix = "lab3"; DsCh2Prefix = "lab4"; DsCh3Prefix = "lab5"; BsPrefix = "lab0";
       }
 
     RooRealVar* weight;
@@ -2483,7 +2576,7 @@ namespace MassFitUtils {
     if( mdSet->GetPIDBach() == -5) { histNameSuf = "Minus5";}
     else { histNameSuf = Form("%d",mdSet->GetPIDBach()); }
 
-    if ( mode.Contains("Pi") == true ){histNamePre = "MyPionEff_"; }
+    if ( mode.Contains("Pi") == true || mode.Contains("pi") == true){histNamePre = "MyPionEff_"; }
     else{ histNamePre = "MyKaonEff_";}
 
     TString namehist    = histNamePre+histNameSuf;
@@ -2509,7 +2602,7 @@ namespace MassFitUtils {
 	Veto = LambdaVeto1&&LambdaVeto2&&DVeto1&&DVeto2&&FDCHI2;
       }
 
-        
+    
     if ( debug == true) std::cout<<"mode: "<<mode<<std::endl;
     
     TTree* treetmp = NULL;
@@ -2546,28 +2639,25 @@ namespace MassFitUtils {
       treetmp->SetBranchAddress(mdSet->GetTracksVar().Data(),   &nTr3);
       treetmp->SetBranchAddress(mdSet->GetMomVar().Data(),      &lab1_P3);
       treetmp->SetBranchAddress(mdSet->GetTrMomVar().Data(),    &lab1_PT3);
-      treetmp->SetBranchAddress("lab0_TRUETAU", &lab0_TRUETAU3);
+      treetmp->SetBranchAddress(Form("%s_TRUETAU",BsPrefix.Data()), &lab0_TRUETAU3);
       
       Int_t lab0_TAG3[mdSet->GetNumTagVar()];
       Double_t lab0_TAGOMEGA3[mdSet->GetNumTagOmegaVar()];
-      if (mistag == true )
-        {
-          if( mdSet->CheckTagVar() == true )
-            {
-              for(int k = 0; k<mdSet->GetNumTagVar(); k++)
-                {
-		  treetmp->SetBranchAddress(mdSet->GetTagVar(k).Data(), &lab0_TAG3[k]);
-                }
-            }
-          if( mdSet->CheckTagOmegaVar() == true )
-            {
-              for(int k = 0; k<mdSet->GetNumTagOmegaVar(); k++)
-                {
-		  treetmp->SetBranchAddress(mdSet->GetTagOmegaVar(k).Data(), &lab0_TAGOMEGA3[k]);
-                }
-            }
-
-        }
+      
+      if( mdSet->CheckTagVar() == true )
+	{
+	  for(int k = 0; k<mdSet->GetNumTagVar(); k++)
+	    {
+	      treetmp->SetBranchAddress(mdSet->GetTagVar(k).Data(), &lab0_TAG3[k]);
+	    }
+	}
+      if( mdSet->CheckTagOmegaVar() == true )
+	{
+	  for(int k = 0; k<mdSet->GetNumTagOmegaVar(); k++)
+	    {
+	      treetmp->SetBranchAddress(mdSet->GetTagOmegaVar(k).Data(), &lab0_TAGOMEGA3[k]);
+	    }
+	} 
 
 
       if( smp[i] == "both" ){ smp[i] = hRDM.GetPolarity(i); }
@@ -2610,11 +2700,13 @@ namespace MassFitUtils {
 	lab1_PT->setVal(log(lab1_PT3));
 	nTracks->setVal(log(nTr3));
 	lab0_TRUETAU->setVal(lab0_TRUETAU3[0]*1000);
-	//std::cout<<"tau: "<<lab0_TRUETAU3[0]*1000<<std::endl;
+	//std::cout<<"tau: "<<lab0_TRUE<<std::endl;
+	
 	if(  mdSet->CheckTagVar() == true )
 	  {
 	    for(int k = 0; k<mdSet->GetNumTagVar(); k++)
 	      {
+		std::cout<<lab0_TAG3[k]<<std::endl; 
 		if ( (double)lab0_TAG3[k] > 0.5 ) { lab0_TAG3[k] = 1.0; }
 		else if ((double)lab0_TAG3[k] < -0.5 ) {lab0_TAG3[k] = -1.0; }
 		else { lab0_TAG3[k]= 0;}
@@ -2631,8 +2723,8 @@ namespace MassFitUtils {
 		lab0_TAGOMEGA[k]->setVal(lab0_TAGOMEGA3[k]);
 	      }
 	  }
-
-	if ( mode.Contains("Pi") )
+	
+	if ( mode.Contains("Pi") == true || mode.Contains("pi") == true )
 	  {
 	    lab1_PIDK->setVal(-lab1_PIDK3);
 	  }
@@ -2989,7 +3081,7 @@ namespace MassFitUtils {
 		     double Pcut_down, double Pcut_up,
 		     double BDTG_down, double BDTG_up,
 		     double Dmass_down, double Dmass_up,
-		     TString &mVar, TString& /*mProbVar*/,
+		     TString &mVar, TString& mProbVar,
 		     TString& mode,TString &mode2)
   {
     
@@ -3052,13 +3144,13 @@ namespace MassFitUtils {
         TString sigPID2_2=sigPID_2+"2";
         ReadOneName(filesDir,FileNamePID2_2,sigPID2_2, true);
       }
-
+    
     if( sigPID_3 == "#PID" || sigPID_3 == "#PID2m2")
       {
         TString sigPID3_2=sigPID_3+"2";
         ReadOneName(filesDir,FileNamePID2_3,sigPID3_2, true);
       }
-
+    
     TH1F* h_1[2];
     TH1F* h_2[2];
     TH1F* h_3[2];
@@ -3125,7 +3217,7 @@ namespace MassFitUtils {
 	h_22[0] = NULL; h_22[1] = NULL;
 	h_2[0]=NULL; h_2[1]=NULL;
       }
-
+    
     if( mode != "BsDsPi" && mode != "BDK")
       {
 	for( int i = 0; i<2; i++ )
@@ -3155,7 +3247,7 @@ namespace MassFitUtils {
         h_32[0] = NULL; h_32[1] = NULL;
         h_3[0]=NULL; h_3[1]=NULL;
       }
-
+    
     ///h_1[0] -> SaveAs("Plot/h_10.root");
     //h_1[1] -> SaveAs("Plot/h_11.root");
     //h_2[0] -> SaveAs("Plot/h_20.root");
@@ -3345,6 +3437,7 @@ namespace MassFitUtils {
     Double_t nE_lab45[2];   // number of events after weighting
     Double_t nE_lab1[2];
     Double_t nE_RAW[2];
+    Double_t nE_lab1MisID[2];
 
     Long_t n_events_Hypo[2];
     Long_t n_events_Own[2];
@@ -3354,7 +3447,7 @@ namespace MassFitUtils {
     TString h_hist2D_2_name;
     TString heff10_name;
     TString heff0_name;
-
+    TString hmisID5_name;
     
     Double_t nE_RDM[2];
     
@@ -3426,17 +3519,23 @@ namespace MassFitUtils {
 	//Read MyKaonEff_5(10) and MyPionEff_0 for counting BDK and LcK under BsDsK 
 	TH1F* heff0_1 = NULL;
 	TH1F* heff10_1 = NULL;
+	TH1F* hmisID5_1 = NULL;
 	TH1F* heff0_2 = NULL;
 	TH1F* heff10_2 = NULL;
+	TH1F* hmisID5_2 = NULL;
 	TH1F* heff0 = NULL;
         TH1F* heff10 = NULL;
+	TH1F* hmisID5 = NULL;
 
 	if ( heff0_1 ){}
 	if ( heff10_1 ) {}
+	if ( hmisID5_1) {}
 	if ( heff0_2 ) {}
 	if ( heff10_2 ) {}
+	if ( hmisID5_2 ) {}
 	if ( heff0  ) {}
 	if ( heff10 ) {}
+	if ( hmisID5 ) {}
 
 	std::vector <std::string> FileNamePID2;
 	TString sig2 = "#PID";
@@ -3457,7 +3556,15 @@ namespace MassFitUtils {
 	
 	heff0=WeightHist(heff0_1,  heff10_2, true);   // add both MyPionEff_0 histograms
 	heff10=WeightHist(heff10_1,  heff10_2, true); // add both MyKaonEff_5 histograms 
-	
+
+	name = "MyPionMisID_5";
+	hmisID5_1 = ReadPIDHist(FileNamePID2,name,i, true); // read the first part of MyKaonEff_5                                                    
+        hmisID5_2 = ReadPIDHist(FileNamePID3,name,i, true); // read the seconf part of MyKaonEff_5                                             
+	hmisID5_name = hmisID5_1->GetName();
+	hmisID5=WeightHist(hmisID5_1, hmisID5_2, true); // add both MyKaonEff_5 histograms       
+
+	hmisID5->SaveAs("hmisID5.root");
+
 	TH1F* hpeff1 =NULL ;
 	if ( hpeff1 ) {}
 		
@@ -3570,13 +3677,19 @@ namespace MassFitUtils {
 		bin1 = heff0->FindBin(lab1_P2*wRW);
 		Double_t weff = heff0->GetBinContent(bin1);
 		Double_t weff2 = 1.0;
-		if ( mode  == "BsDsPi") { bin1 = heff10->FindBin(lab1_P2*wRW); weff2 = heff10->GetBinContent(bin1);}
+
+		if ( mode  == "BsDsPi") 
+		  { 
+		    bin1 = heff10->FindBin(lab1_P2*wRW); 
+		    weff2 = heff10->GetBinContent(bin1); 
+		  }
 		if ( mode  == "BsDsK")  { weff = 1.0;}
                 Double_t y = 0; 
 		if ( weff != 0.0 ) { y = w1/weff*weff2;}
-                
+
 		nE_lab1[i] = nE_lab1[i]+y;
 		nE_RAW[i] = nE_RAW[i]+w1;
+
               }
 	  }
 	
@@ -3631,19 +3744,28 @@ namespace MassFitUtils {
 		
 		bin1 = heff10->FindBin(lab1_P2*wRW);
                 Double_t weff10 = heff10->GetBinContent(bin1);
+
+		bin1 = hmisID5->FindBin(lab1_P2*wRW);
+                Double_t wmisID5 = hmisID5->GetBinContent(bin1);
                 
 		Double_t y=0;
-		if ( weff0 != 0 ) { y = w1/weff0*weff10;}
-                
+		if ( weff0 != 0 && weff10 !=0) { y = w1/weff0*weff10;}
+
+		Double_t y2=0;
+		if ( weff0 != 0 && wmisID5 !=0) { y2 = w1/weff0*wmisID5;}
+		
 		nE_lab1[i] = nE_lab1[i]+y;
+		nE_lab1MisID[i] = nE_lab1MisID[i]+y2;
 		//std::cout<<"jentry: "<<jentry<<" "<<w1<<" "<<weff0<<" ";
-		//std::cout<<weff10<<" "<<y<<std::endl;
+		//std::cout<<weff10<<" "<<y<<td::endl;
 
               }
 	    std::cout<<"----------------------------------------------------------------"<<std::endl;
 	    std::cout<<"For bachelor K "<<mode2<<" sample"<<smpOwn[i]<<std::endl;
 	    std::cout<<"eff1: "<<nE_lab1[i]<<" procent: "<<nE_lab1[i]/n_events_Hypo[i]*100<<"%"<<std::endl;
+	    std::cout<<"misID1: "<<nE_lab1MisID[i]<<" procent: "<<nE_lab1MisID[i]/n_events_Hypo[i]*100<<"%"<<std::endl;
 	    std::cout<<"All_misID: "<<all_misID*nE_lab1[i]/n_events_Hypo[i]*100<<"%"<<std::endl;
+	    std::cout<<"All_misID2: "<<all_misID*nE_lab1MisID[i]/n_events_Hypo[i]*100<<"%"<<std::endl;
 	    std::cout<<"----------------------------------------------------------------"<<std::endl;
 	    
 	  }
@@ -4095,6 +4217,43 @@ namespace MassFitUtils {
 	std::cout<<"----------------------------------------------------"<<std::endl;
 	std::cout<<"DOWN: ("<<NK_ev_1<<" +/- "<<NK_ev_1_u<<")"<<std::endl;
 	std::cout<<"UP: ("<<NK_ev_2<<" +/- "<<NK_ev_2_u<<")"<<std::endl;
+	std::cout<<"----------------------------------------------------"<<std::endl;
+
+	//---- DPi under DsK ---//
+	Float_t misID_lab1_m1, misID_lab1_m2;
+        misID_lab1_m1 = nE_lab1MisID[0]/n_events_Hypo[0]; //*nE_lab1_Eff2[0]/n_events_Hypo[0];                                                          
+        misID_lab1_m2 = nE_lab1MisID[1]/n_events_Hypo[1]; //*nE_lab1_Eff2[0]/n_events_Hypo[0];;  
+	std::cout<<"DOWN: "<<misID_lab1_m1<<" UP: "<<misID_lab1_m2<<std::endl;
+
+        Float_t misID_lab1_mav, misID_lab1_mu;
+        misID_lab1_mav = (misID_lab1_m1+misID_lab1_m2)/2;
+        misID_lab1_mu = std::sqrt((std::pow(misID_lab1_m1-misID_lab1_mav,2)+std::pow(misID_lab1_m2-misID_lab1_mav,2))/2)*1.414214;
+
+	std::cout<<"= ("<<misID_lab1_mav*100<<" +/- "<<misID_lab1_mu*100<<")%"<<std::endl;
+
+	std::cout<<std::endl;
+	std::cout<<"===> misID for K mode"<<std::endl;
+	std::cout<<"result_K_misID = result*nE_lab1MisID/NOE_cut"<<std::endl;
+
+        Float_t misID_lab1_mall, misID_lab1_mall_u;
+        misID_lab1_mall = misID_lab1_mav*misID_av;
+        misID_lab1_mall_u = misID_lab1_mall*std::sqrt( std::pow(misID_lab1_mu/misID_lab1_mav,2)  +  std::pow(misID_u/misID_av,2));
+
+	std::cout<<"= ("<<misID_lab1_mall*100<<" +/- "<<misID_lab1_mall_u*100<<")%"<<std::endl;
+	
+	std::cout<<"===> Number of expected events for K mode"<<std::endl;
+	std::cout<<"First method: "<<std::endl;
+	std::cout<<"N_events_K_misID = result_K_misID*fitted_yield_BdPi"<<std::endl;
+
+        Float_t NK_mev_1, NK_mev_1_u, NK_mev_2, NK_mev_2_u;
+        NK_mev_1 = fitted_BdDPi_1*misID_lab1_mall;
+        NK_mev_1_u = NK_mev_1*std::sqrt( std::pow(misID_lab1_mall_u/misID_lab1_mall,2) + std::pow(fitted_BdDPi_1_u/fitted_BdDPi_1,2));
+	NK_mev_2 = fitted_BdDPi_2*misID_lab1_mall;
+        NK_mev_2_u = NK_mev_2*std::sqrt( std::pow(misID_lab1_mall_u/misID_lab1_mall,2) + std::pow(fitted_BdDPi_2_u/fitted_BdDPi_2,2));
+
+	std::cout<<"----------------------------------------------------"<<std::endl;
+	std::cout<<"DOWN: ("<<NK_mev_1<<" +/- "<<NK_mev_1_u<<")"<<std::endl;
+	std::cout<<"UP: ("<<NK_mev_2<<" +/- "<<NK_mev_2_u<<")"<<std::endl;
 	std::cout<<"----------------------------------------------------"<<std::endl;
 	
 	std::cout<<std::endl;

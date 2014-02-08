@@ -107,6 +107,8 @@ __doc__ = """ real docstring """
 # -----------------------------------------------------------------------------
 import B2DXFitters
 import ROOT
+from B2DXFitters import *
+from ROOT import *
 from ROOT import RooFit
 from optparse import OptionParser
 from math     import pi, log
@@ -175,7 +177,7 @@ def runBsDsPiMassFitterOnData( debug, mVar, mProbVar, save, BDTG, mode ) :
         number = MassFitUtils.ExpectedYield(dataTS, TString("#BdDPi BsHypo PhiPi"), TString("#BdDPi BdHypo"),
                                             TString("#PID2m2"), TString("MyPionMisID_m2"),
                                             TString("#PID2m2"), TString("MyKaonEff_m2"),
-                                            #//TString("#PID2m2"), TString("MyPionMisID_m2"),
+                                            TString("#PID2m2"), TString("MyPionMisID_m2"),
                                             Pcut_down, Pcut_up,
                                             BDTG_down, BDTG_up,
                                             Dmass_down, Dmass_up,
@@ -185,7 +187,7 @@ def runBsDsPiMassFitterOnData( debug, mVar, mProbVar, save, BDTG, mode ) :
         number = MassFitUtils.ExpectedYield(dataTS, TString("#BdDPi BsHypo KstK"), TString("#BdDPi BdHypo"),
                                             TString("#PID"), TString("MyPionMisID_5"),
                                             TString("#PID2m2"), TString("MyKaonEff_m2"),
-                                            #//TString("#PID"), TString("MyPionMisID_5"),
+                                            TString("#PID"), TString("MyPionMisID_5"),
                                             Pcut_down, Pcut_up,
                                             BDTG_down, BDTG_up,
                                             Dmass_down, Dmass_up,
@@ -195,7 +197,7 @@ def runBsDsPiMassFitterOnData( debug, mVar, mProbVar, save, BDTG, mode ) :
         number = MassFitUtils.ExpectedYield(dataTS, TString("#BdDPi BsHypo NonRes"), TString("#BdDPi BdHypo"),
                                             TString("#PID"), TString("MyPionMisID_5"),
                                             TString("#PID"), TString("MyKaonEff_5"),
-                                            #TString("#PID"), TString("MyPionMisID_5"),
+                                            TString("#PID"), TString("MyPionMisID_5"),
                                             Pcut_down, Pcut_up,
                                             BDTG_down, BDTG_up,
                                             Dmass_down, Dmass_up,
@@ -205,6 +207,7 @@ def runBsDsPiMassFitterOnData( debug, mVar, mProbVar, save, BDTG, mode ) :
         number = MassFitUtils.ExpectedYield(dataTS, TString("#BdDPi BsHypo KPiPi"), TString("#BdDPi BdHypo"),
                                             TString("#PID"), TString("MyKaonMisID_5"),
                                             TString("#PID"), TString("MyPionMisID_10"),
+                                            TString("#PID"), TString("MyKaonMisID_5"),
                                             Pcut_down, Pcut_up,
                                             BDTG_down, BDTG_up,
                                             Dmass_down, Dmass_up,

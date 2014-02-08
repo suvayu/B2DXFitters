@@ -71,6 +71,11 @@ MDFitterSettings::MDFitterSettings(const TString& name, const TString& title)
   _addVar = false;
   _tagVar = false;
   _tagOmegaVar = false;
+
+  _labX = 1;
+  _addDataCuts = ""; 
+  _addMCCuts = "";
+
 }
 
 
@@ -131,6 +136,10 @@ MDFitterSettings::MDFitterSettings(const TString& name, const TString& title, TS
   _addVar = false;
   _tagVar = false;
   _tagOmegaVar = false;
+
+  _labX = 1;
+  _addDataCuts = "";
+  _addMCCuts = "";
 
   if (myfile.is_open())
     {
@@ -238,6 +247,7 @@ MDFitterSettings::MDFitterSettings(const TString& name, const TString& title, TS
 	  if( line.find("Bin1") != std::string::npos )        {  myfile>>iD; _bin[0] = iD; }
           if( line.find("Bin2") != std::string::npos )        {  myfile>>iD; _bin[1] = iD; }
           if( line.find("Bin3") != std::string::npos )        {  myfile>>iD; _bin[2] = iD; }
+	  if( line.find("labX") != std::string::npos )        {  myfile>>iD; _labX = iD; }
 
 	  if( line.find("Var1") != std::string::npos )       
 	    {  myfile>>tD; l=tD.find_last_of("\""); f=tD.find_first_of("\""); _var[0] = tD.substr(f+1,l-1);   }
@@ -245,6 +255,10 @@ MDFitterSettings::MDFitterSettings(const TString& name, const TString& title, TS
 	    {  myfile>>tD; l=tD.find_last_of("\""); f=tD.find_first_of("\""); _var[1] = tD.substr(f+1,l-1); }
           if( line.find("Var3") != std::string::npos )       
 	    {  myfile>>tD; l=tD.find_last_of("\""); f=tD.find_first_of("\""); _var[2] = tD.substr(f+1,l-1); }
+	  if( line.find("AdditionalDataCuts") != std::string::npos )
+            {  myfile>>tD; l=tD.find_last_of("\""); f=tD.find_first_of("\""); _addDataCuts = tD.substr(f+1,l-1);   }
+	  if( line.find("AdditionalMCCuts") != std::string::npos )
+            {  myfile>>tD; l=tD.find_last_of("\""); f=tD.find_first_of("\""); _addMCCuts = tD.substr(f+1,l-1);   }
 
 	  if( line.find("PIDBach") != std::string::npos )   {  myfile>>iD; _PIDBach = iD; }
           if( line.find("PIDChild") != std::string::npos )  {  myfile>>iD; _PIDChild = iD; }
@@ -510,11 +524,14 @@ std::ostream & operator<< (ostream &out, const MDFitterSettings &s)
 	  out<<"Range: ("<<s._addVarRD[i]<<","<<s._addVarRU[i]<<"), variable name: "<<s._addVarNames[i]<<std::endl;
 	}
     }
-  
+
+  out<<"labX notation: "<<s._labX<<std::endl;
   out<<"PIDK bachelor: "<<s._PIDBach<<std::endl;
   out<<"PIDK child: "<<s._PIDChild<<std::endl;
   out<<"PIDK proton: "<<s._PIDProton<<std::endl;
-  
+  out<<"Additional data cuts: "<<s._addDataCuts<<std::endl;
+  out<<"Additional MC cuts: "<<s._addMCCuts<<std::endl;
+
   out<<"luminosity: magnet up: "<<s._lumRatio[0]<<" ,magnet down: "<<s._lumRatio[1]<<" ,ratio: "<<s._lumRatio[2]<<std::endl;
   out<<"weighting dimensions: "<<s._weightDim<<std::endl;
   out<<"Bin: [ "<<s._bin[0]<<" , "<<s._bin[1]<<" , "<<s._bin[2]<<" ]"<<std::endl;
@@ -541,6 +558,7 @@ std::ostream & operator<< (ostream &out, const MDFitterSettings &s)
 Double_t MDFitterSettings::GetRangeUp(TString var)
 {
   Double_t range = 1234.456;
+  if( var == "" )          { return range;             }
   if( var == _mVar)        { return _massBRange[1];    }
   if( var == _mDVar)       { return _massDRange[1];    }
   if( var == _tVar)        { return _timeRange[1];     } 
@@ -563,13 +581,14 @@ Double_t MDFitterSettings::GetRangeUp(TString var)
     {
       if( var == _tagOmegaVarNames[i]) { return _tagOmegaVarRU[i]; }
     }
-  
+  std::cout<<"range: "<<range<<std::endl;
   return range;
 }
 
 Double_t MDFitterSettings::GetRangeDown(TString var)
 {
   Double_t range = 1234.456;
+  if( var == "" )          { return range;             }
   if( var == _mVar)        { return _massBRange[0];    }
   if( var == _mDVar)       { return _massDRange[0];    }
   if( var == _tVar)        { return _timeRange[0];     }
@@ -591,9 +610,8 @@ Double_t MDFitterSettings::GetRangeDown(TString var)
   for ( unsigned int i =0; i <_tagOmegaVarNames.size(); i++ )
     {
       if( var == _tagOmegaVarNames[i]) { return _tagOmegaVarRD[i]; }
-    }
-
-  
+    }  
+  std::cout<<"range: "<<range<<std::endl;
   return range;
 }
 
@@ -603,6 +621,7 @@ std::vector <Double_t> MDFitterSettings::GetRange(TString var)
   range.push_back(1234.456);
   range.push_back(1234.456);
 
+  if( var == "" )          { return range;          }
   if( var == _mVar)        { return _massBRange;    }
   if( var == _mDVar)       { return _massDRange;    }
   if( var == _tVar)        { return _timeRange;     }
@@ -650,6 +669,8 @@ TCut MDFitterSettings::GetCut(TString var, bool sideband)
 
   Double_t range0 = GetRangeDown(var);
   Double_t range1 = GetRangeUp(var);
+  std::cout<<"range = ("<<range0<<","<<range1<<")"<<std::endl;
+  std::cout<<"var: "<<var<<std::endl;
 
   if ( sideband == false )
     {
@@ -787,7 +808,6 @@ std::vector <TString> MDFitterSettings::GetVarNames()
     {
       names.push_back(_tagOmegaVarNames[i]);
     }
-
   
   return names;
 }

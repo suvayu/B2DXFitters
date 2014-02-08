@@ -1081,6 +1081,11 @@ namespace GeneralUtils {
       {
         dmode = "pipipi";
       }
+    else if ( check.find("hhhpi0") != std::string::npos || check.find("HHHPi0") != std::string::npos ||
+              check.find("hhhPi0") != std::string::npos || check.find("HHHpi0") != std::string::npos)
+      {
+        dmode = "hhhpi0";
+      }
     else 
       {
         dmode = "";
@@ -1103,6 +1108,11 @@ namespace GeneralUtils {
     else if ( check.Contains("pipipi") == true || check.Contains("PiPiPi") == true)
       {
         dmode = "pipipi";
+      }
+    else if ( check.Contains("hhhpi0") == true || check.Contains("HHHPi0") == true ||
+              check.Contains("hhhPi0") == true || check.Contains("HHHpi0") == true)
+      {
+        dmode ="hhhpi0";
       }
     else
       {
@@ -1130,6 +1140,11 @@ namespace GeneralUtils {
       {
         dmode = "kstk";
       }
+    else if ( check.find("hhhpi0") != std::string::npos || check.find("HHHPi0") != std::string::npos ||
+              check.find("hhhPi0") != std::string::npos || check.find("HHHpi0") != std::string::npos)
+      {
+	dmode = "hhhpi0";
+      }
     else
       {
         dmode = "";
@@ -1153,6 +1168,11 @@ namespace GeneralUtils {
     else if ( check.Contains("kstk") == true || check.Contains("KstK") == true || check.Contains("kstK") == true || check.Contains("Kstk") == true)
       {
         kkpimode = "kstk";
+      }
+    else if ( check.Contains("hhhpi0") == true || check.Contains("HHHPi0") == true || 
+	      check.Contains("hhhPi0") == true || check.Contains("HHHpi0") == true)
+      {
+	kkpimode ="hhhpi0";
       }
     else
       {
@@ -1179,21 +1199,21 @@ namespace GeneralUtils {
     if ( DsState == "" || DsState == "kkpi" ) { DsState = CheckKKPiMode(mode, debug); } 
 
     if( mode.Contains("Bs") == true) { Bs = "B_{s}"; }
-    else if ( mode.Contains("Bd") == true || mode.Contains("DPi") == true){ Bs="B_{d}"; }
+    else if ( mode.Contains("Bd") == true || mode.Contains("DPi") == true || mode.Contains("Dpi") == true){ Bs="B_{d}"; }
     else if ( mode.Contains("Lb") == true){ Bs="#Lambda_{b}";}
     else { Bs="Comb";}
 
     if ( mode.Contains("Ds") == true  && mode.Contains("Dsst") != true) { Ds = "D_{s}";}
     else if (mode.Contains("Dsst") == true ) { Ds ="D^{*}_{s}";}
     else if (mode.Contains("D")==true && mode.Contains("Ds") != true) {Ds = "D";}
-    else if (mode.Contains("Lc") == true ) { Ds = "#Lambda_{c}";}
+    else if (mode.Contains("Lc") == true || mode.Contains("Lambdac") == true) { Ds = "#Lambda_{c}";}
     else { Ds ="bkg";}
 
-    if ( mode.Contains("Pi") == true ) { Bach = "#pi"; }
+    if ( mode.Contains("Pi") == true || mode.Contains("pi") == true ) { Bach = "#pi"; }
     else if( mode.Contains("p") == true ) {Bach = "p";}
     else if( mode.Contains("K") == true && mode.Contains("Kst")!=true ) {Bach = "K";}
     else if( mode.Contains("Kst") == true) {Bach ="K^{*}";}
-    else if( mode.Contains("Rho") == true) {Bach = "#rho";}
+    else if( mode.Contains("Rho") == true || mode.Contains("rho") == true ) {Bach = "#rho";}
     else { Bach ="";}
 
     if ( DsState.Contains("kkpi") == true ) { DsStateTex = Ds+ar+" KK#pi"; }
@@ -1202,6 +1222,7 @@ namespace GeneralUtils {
     else if ( DsState.Contains("nonres") == true ) { DsStateTex = Ds+ar+"KK#pi (Non Resonant)";}
     else if ( DsState.Contains("kpipi") == true ) { DsStateTex = Ds+ar+" K#pi#pi";}
     else if ( DsState.Contains("pipipi") == true ) { DsStateTex = Ds+ar+" #pi#pi#pi";}
+    else if ( DsState.Contains("hhhpi0") == true ) { DsStateTex = Ds+ar+" hhh#pi^{0}"; }
     else { DsStateTex = ""; }
     
     TString tex = "";
