@@ -64,7 +64,7 @@ def makeParticleFromPositionAndThreeMomentum( position, threeMomentum, pid="pi+"
         trackCovariance[4,4] = 1./(.004*threeMomentum.Mag())**2# (q/p)^2
     st.setCovariance(trackCovariance)
     track = LHCb.Track()
-    objectKeeper.add(st)
+    objectKeeper.add(track)
     track.addToStates(st)
     proto = LHCb.ProtoParticle()
     objectKeeper.add(proto)
