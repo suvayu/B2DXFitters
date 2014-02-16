@@ -123,7 +123,7 @@ debug = True
 bName = 'B_{d}'
 
 
-bin = 200
+bin = 300
 #------------------------------------------------------------------------------
 _usage = '%prog [options] <filename>'
 
@@ -506,7 +506,7 @@ if __name__ == '__main__' :
     if plotData : plotDataSet( dataset, frame_m, sam, merge )
 
     if ( mVarTS == "lab0_MassFitConsD_M"):
-        gStyle.SetOptLogy(1)
+	    gStyle.SetOptLogy(1)
 
         
     canvas = TCanvas("canvas", "canvas",1200, 1000)

@@ -337,8 +337,12 @@ public:
 
 
   Int_t GetNotation() { return _labX; }
+
+  void SetNotation( Int_t notation ) { _labX = notation; }
+  
   TString GetAddDataCuts() { return _addDataCuts; }
   TString GetAddMCCuts() {return _addMCCuts; }
+  
   void SetAddDataCuts( TString cut ) { _addDataCuts = cut; }
   void SetAddMCCuts( TString cut ) {  _addMCCuts = cut; }
 

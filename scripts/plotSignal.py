@@ -164,9 +164,8 @@ parser.add_option( '-s', '--sufix',
 
 
 #------------------------------------------------------------------------------
-def plotDataSet( dataset, frame, sample, merge ) :
+def plotDataSet( dataset, frame, sample, merge, bin ) :
 
-    bin = 100
     if sample == "both":
         if merge == True:
             dataset.plotOn( frame,
@@ -302,15 +301,33 @@ if __name__ == '__main__' :
                 
     
     if mode == "BDPi":
-        Bmass_down = 5000
-        Bmass_up = 5400
-        Dmass_down = 1830 
-        Dmass_up = 1920         
+        if ( mVarTS == "lab0_MassFitConsD_M" or  mVarTS == "Bs_MassConsDs_M"):
+            range_down = 5000
+            range_up = 5400
+        else:
+            range_down = 1830 
+            range_up = 1920         
     else:
-        Bmass_down = 5000
-        Bmass_up = 5600
-        Dmass_down = 1930
-        Dmass_up = 2015
+        if ( mVarTS == "lab0_MassFitConsD_M" or  mVarTS == "Bs_MassConsDs_M"):
+            range_down = 5100
+            range_up = 5500
+            bin = 120
+            Bin = RooBinning(range_down,range_up,'P')
+            Bin.addUniform(bin, range_down, range_up)
+            #Bin.addUniform(12, range_down, 5200)
+            #Bin.addUniform(20, 5200, 5320)
+            #Bin.addUniform(50, 5320, 5420)
+            #Bin.addUniform(5, 5420, range_up)
+        else:    
+            range_down = 1930
+            range_up = 2015
+            bin = 120
+            Bin = RooBinning(range_down,range_up,'P')
+            Bin.addUniform(bin,range_down, range_up)
+            #Bin.addUniform(5, range_down, 1950)
+            #Bin.addUniform(50, 1950, 1990)
+            #Bin.addUniform(5, 1990, range_up)
+
 
     if sam == "up":
         print "Sample up"
@@ -348,13 +365,11 @@ if __name__ == '__main__' :
         w.Print( 'v' )
         exit( 0 )
     
-    if ( mVarTS == "lab2_MM" ):
-        mass.setRange(Dmass_down,Dmass_up)
-    else:
-        mass.setRange(Bmass_down,Bmass_up)
+    
+    mass.setRange(range_down,range_up)
     frame_m = mass.frame()
 
-    if mVarTS != "lab1_PIDK":
+    if mVarTS != "lab1_PIDK" or mVarTS != "Bac_PIDK":
         unit = "[MeV/c^{2}]"
     else:
         unit = ""
@@ -380,7 +395,7 @@ if __name__ == '__main__' :
                                                 str((mass.getBinWidth(1)))+" "+
                                                 unit+")}") ).Data())
                                                     
-    if ( mVarTS == "lab2_MM" ):
+    if ( mVarTS == "lab2_MM" or mVarTS == "Ds_MM" ):
         if ( mode == "BDPi" ):
             frame_m.GetXaxis().SetTitle("m(D) [MeV/c^{2}]")
         else:
@@ -393,9 +408,9 @@ if __name__ == '__main__' :
            
                
     if plotModel : plotFitModel( modelPDF, frame_m, sam, mVarTS, merge )
-    if plotData : plotDataSet( dataset, frame_m, sam, merge )
+    if plotData : plotDataSet( dataset, frame_m, sam, merge, Bin )
 
-    if ( mVarTS == "lab2_MM" ):
+    if ( mVarTS == "lab2_MM" or mVarTS == "Ds_MM" ):
         frame_m.GetYaxis().SetRangeUser(0.01,frame_m.GetMaximum()*1.1)
     
     lhcbtext = TLatex()
@@ -420,8 +435,9 @@ if __name__ == '__main__' :
     l1.SetLineStyle(kSolid)
     legend.AddEntry(l1, "Signal", "L")
         
-    if ( mVarTS == "lab0_MassFitConsD_M" ):
+    if ( mVarTS == "lab0_MassFitConsD_M" or  mVarTS == "Bs_MassConsDs_M"):
         gStyle.SetOptLogy(1)
+    
     canvas = TCanvas("canvas", "canvas", 600, 700)
     canvas.cd()
     pad1 = TPad("upperPad", "upperPad", .050, .22, 1.0, 1.0)
@@ -471,7 +487,7 @@ if __name__ == '__main__' :
     frame_p.GetXaxis().SetLabelFont( 132 )
     frame_p.GetYaxis().SetLabelFont( 132 )
 
-    if ( mVarTS == "lab2_MM" ):
+    if ( mVarTS == "lab2_MM" or mVarTS == "Ds_MM" ):
         if ( mode == "BDPi" ):
             frame_p.GetXaxis().SetTitle("m(D) [MeV/c^{2}]")
         else:
@@ -491,59 +507,45 @@ if __name__ == '__main__' :
     frame_p.addPlotable(pullHist,"P")
     frame_p.Draw()
        
-    
+    axisX = pullHist.GetXaxis()
+    axisX.Set(Bin.numBins(), Bin.array())
+
     pad2.SetLogy(0)
     pad2.cd()
 
-    if ( mVarTS == "lab0_MassFitConsD_M" ):
+    if ( mVarTS == "lab0_MassFitConsD_M" or mVarTS == "Bs_MassConsDs_M" ):
         gStyle.SetOptLogy(0)
-            
-    axisX = pullHist.GetXaxis()
-    if ( mVarTS == "lab0_MassFitConsD_M" ):
-        axisX.Set(100,Bmass_down,Bmass_up)
-    else:
-        axisX.Set(100,Dmass_down,Dmass_up)
     
     axisY = pullHist.GetYaxis()
+    pullHist.SetMaximum(5.00)
+    pullHist.SetMinimum(-5.00)
     max = axisY.GetXmax()
     min = axisY.GetXmin()
                 
     graph = TGraph(2)
     graph.SetMaximum(max)
     graph.SetMinimum(min)
-    if ( mVarTS == "lab0_MassFitConsD_M" ):
-        graph.SetPoint(1,Bmass_down,0)
-        graph.SetPoint(2,Bmass_up,0)
-    else:    
-        graph.SetPoint(1,Dmass_down,0)
-        graph.SetPoint(2,Dmass_up,0)
+    graph.SetPoint(1,range_down,0)
+    graph.SetPoint(2,range_up,0) 
         
     graph2 = TGraph(2)
     graph2.SetMaximum(max)
     graph2.SetMinimum(min)
-    if ( mVarTS == "lab0_MassFitConsD_M" ):
-        graph2.SetPoint(1,Bmass_down,-3)
-        graph2.SetPoint(2,Bmass_up,-3)
-    else:    
-        graph2.SetPoint(1,Dmass_down,-3)
-        graph2.SetPoint(2,Dmass_up,-3)
+    graph2.SetPoint(1,range_down,-3)
+    graph2.SetPoint(2,range_up,-3)
+    
         
     graph2.SetLineColor(kRed)
     graph3 = TGraph(2)
     graph3.SetMaximum(max)
     graph3.SetMinimum(min)
-    if ( mVarTS == "lab0_MassFitConsD_M" ):
-        graph3.SetPoint(1,Bmass_down,3)
-        graph3.SetPoint(2,Bmass_up,3)
-    else:
-        graph3.SetPoint(1,Dmass_down,3)
-        graph3.SetPoint(2,Dmass_up,3)
-        
+    graph3.SetPoint(1,range_down,3)
+    graph3.SetPoint(2,range_up,3)
     graph3.SetLineColor(kRed)
                                                                  
 
     frame_p.Draw()
-    
+    frame_p.GetYaxis().SetRangeUser(-5.0,5.0)
     graph.Draw("same")
     graph2.Draw("same")
     graph3.Draw("same")

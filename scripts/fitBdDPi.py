@@ -103,6 +103,8 @@ __doc__ = """ real docstring """
 # -----------------------------------------------------------------------------
 import B2DXFitters
 import ROOT
+from B2DXFitters import *
+from ROOT import * 
 from ROOT import RooFit
 from optparse import OptionParser
 from math     import pi, log
@@ -126,8 +128,20 @@ Pcut_up = 650000.0
 Dmass_down = 1830
 Dmass_up = 1910 #900
 Bmass_down = 5000
-Bmass_up = 5600
+Bmass_up = 6000
 tagOmega = false
+
+P_down = 0.0
+P_up = 650000000.0
+Time_down = 0.2
+Time_up = 15.0
+PT_down  = 500.0
+PT_up = 45000.0
+nTr_down = 1.0
+nTr_up = 1000.0
+Terr_down = 0.01
+Terr_up = 0.1
+
 
 dataName      = '../data/config_B2DPi.txt'
 
@@ -155,7 +169,22 @@ def fitB2DPi( debug, var,
     print "=========================================================="
             
     RooAbsData.setDefaultStorageType(RooAbsData.Tree)
-                                              
+
+    plotSettings = PlotSettings("plotSettings","plotSettings", "PlotSignal", "pdf", 100, true, false, true)
+    plotSettings.Print("v")
+
+    MDSettings = MDFitterSettings("MDSettings","MDFSettings")
+
+    MDSettings.SetMassBVar(TString("lab0_MassFitConsD_M"))
+    MDSettings.SetMassDVar(TString("lab2_MM"))
+    MDSettings.SetTimeVar(TString("lab0_LifetimeFit_ctau"))
+    MDSettings.SetTerrVar(TString("lab0_LifetimeFit_ctauErr"))
+    MDSettings.SetIDVar(TString("lab1_ID"))
+    MDSettings.SetPIDKVar(TString("lab1_PIDK"))
+    MDSettings.SetBDTGVar(TString("BDTGResponse_1"))
+    MDSettings.SetMomVar(TString("lab1_P"))
+    MDSettings.SetTrMomVar(TString("lab1_PT"))
+    MDSettings.SetTracksVar(TString("nTracks"))
     
     dataTS = TString(dataName)
     mVarTS = TString("lab0_MassFitConsD_M")
@@ -181,7 +210,23 @@ def fitB2DPi( debug, var,
                        
                         
     print "BDTG Range: (%f,%f)"%(BDTG_down,BDTG_up)
-    
+
+    MDSettings.SetMassBRange(Bmass_down, Bmass_up)
+    MDSettings.SetMassDRange(Dmass_down, Dmass_up)
+    MDSettings.SetTimeRange(Time_down,  Time_up )
+    MDSettings.SetMomRange(P_down, P_up  )
+    MDSettings.SetTrMomRange(PT_down, PT_up  )
+    MDSettings.SetTracksRange(nTr_down, nTr_up  )
+    MDSettings.SetBDTGRange( BDTG_down, BDTG_up  )
+    MDSettings.SetPIDBach(PIDcut)
+    MDSettings.SetTerrRange(Terr_down, Terr_up  )
+    #MDSettings.SetTagRange(-2.0, 2.0  )                                                                                                                        
+    #MDSettings.SetTagOmegaRange(0.0, 1.0  )                                                                                                                    
+    MDSettings.SetIDRange( -1000.0, 1000.0 )
+    MDSettings.SetLumDown(0.59)
+    MDSettings.SetLumUp(0.44)
+    MDSettings.SetLumRatio()
+
     
     workspace = MassFitUtils.ObtainBDPi(dataTS, TString("#BdPi"),
                                         PIDcut,
@@ -192,49 +237,32 @@ def fitB2DPi( debug, var,
                                         mVarTS, TString("lab1_PIDK"),
                                         TString("BdDPi"),false, TString("DsPi")) #TString("BdDPi"))
     
-    workspace.Print()
-    
+    #workspace.Print()
+    '''
+    #workspace = RooWorkspace("workspace","workspace") 
+
     #saveNameTS = TString("work_dpi_")+BDTGTS+TString(".root")
     #GeneralUtils.SaveWorkspace(workspace,saveNameTS, debug)
     #exit(0)
-    
+    MCFileMD = TString("#MC FileName MD")
+    MCFileMU = TString("#MC FileName MU") 
+
     workspace = MassFitUtils.ObtainSpecBack(dataTS, TString("#MC FileName MD"), TString("#MC TreeName"),
-                                            PIDcut, PIDchild, PIDproton,
-                                            Pcut_down,Pcut_up,
-                                            BDTG_down,BDTG_up,
-                                            Dmass_down, Dmass_up,
-                                            Bmass_down, Bmass_up,
-                                            mVarTS, TString("lab2_MM"), TString("lab1_PIDK"),
-                                            TString("BdDPi"),
-                                            workspace, false, tagOmega, debug)
+                                            MDSettings, TString("BdDPi"), workspace, true, MDSettings.GetLumDown(), plotSettings, debug)
     
     workspace = MassFitUtils.ObtainSpecBack(dataTS, TString("#MC FileName MU"), TString("#MC TreeName"),
-                                            PIDcut, PIDchild, PIDproton,
-                                            Pcut_down,Pcut_up,
-                                            BDTG_down,BDTG_up,
-                                            Dmass_down, Dmass_up,
-                                            Bmass_down, Bmass_up,
-                                            mVarTS, TString("lab2_MM"), TString("lab1_PIDK"),
-                                            TString("BdDPi"),
-                                            workspace, false, tagOmega, debug)
+                                            MDSettings, TString("BdDPi"), workspace, true, MDSettings.GetLumUp(), plotSettings, debug)
+
     
-    
-    workspace = MassFitUtils.CreatePdfSpecBackground(dataTS, TString("#MC FileName MD"),
-                                                     dataTS, TString("#MC FileName MU"),
-                                                     mVarTS, TString("lab2_MM"),
-                                                     Bmass_down, Bmass_up,
-                                                     Dmass_down, Dmass_up,
-                                                     workspace, tagOmega, debug)
-                
-                                                     
+    workspace = MassFitUtils.CreatePdfSpecBackground(dataTS, MCFileMD, dataTS, MCFileMU, MDSettings, workspace, false, plotSettings, debug)
                                                      
     workspace.Print()
-    saveNameTS = TString("work_dpi_")+BDTGTS+TString("_5600.root")
+    saveNameTS = TString("work_dpi_")+BDTGTS+TString("_weighting.root")
     GeneralUtils.SaveWorkspace(workspace,saveNameTS, debug)
-    #exit(0)
+    exit(0)
+    '''
     
-    
-    loadNameTS = TString("work_dpi_")+BDTGTS+TString("_5600.root")
+    loadNameTS = TString("work_dpi_")+BDTGTS+TString("_weighting.root")
     workDK = GeneralUtils.LoadWorkspace(loadNameTS,TString("workspace"),debug)
 
     obsTS = TString(var)
@@ -254,7 +282,7 @@ def fitB2DPi( debug, var,
     data= []
     nEntries = []
     sample = [TString("up"),TString("down")]
-    ran = 2.0
+    ran = 2
     
     for i in range(0,ran):
         datasetTS = TString("dataSetMCBdDPi")+TString("_")+sample[i]
@@ -273,13 +301,13 @@ def fitB2DPi( debug, var,
     meanD  = 1869
     meanB  = 5280
     index  = 0
-    sigma1DName = modeTS + TString("_D_") + BDTGTS + TString ("_sigma1_bc")
-    sigma2DName = modeTS + TString("_D_") + BDTGTS + TString ("_sigma2_bc")
-    n1DName = modeTS + TString("_D_") + BDTGTS + TString ("_n1_bc")
-    n2DName = modeTS + TString("_D_") + BDTGTS + TString ("_n2_bc")
-    alpha1DName = modeTS + TString("_D_") + BDTGTS + TString ("_alpha1_bc")
-    alpha2DName = modeTS + TString("_D_") + BDTGTS + TString ("_alpha2_bc")
-    fracDName = modeTS + TString("_D_") + BDTGTS + TString ("_frac_bc")
+    sigma1DName = modeTS + TString("_D_") + BDTGTS + TString ("_sigma1")
+    sigma2DName = modeTS + TString("_D_") + BDTGTS + TString ("_sigma2")
+    n1DName = modeTS + TString("_D_") + BDTGTS + TString ("_n1")
+    n2DName = modeTS + TString("_D_") + BDTGTS + TString ("_n2")
+    alpha1DName = modeTS + TString("_D_") + BDTGTS + TString ("_alpha1")
+    alpha2DName = modeTS + TString("_D_") + BDTGTS + TString ("_alpha2")
+    fracDName = modeTS + TString("_D_") + BDTGTS + TString ("_frac")
     if debug:
         print sigma1DName
         print sigma2DName
@@ -289,13 +317,13 @@ def fitB2DPi( debug, var,
         print alpha2DName
         print fracDName
 
-    sigma1BName = modeTS + TString("_B_") + BDTGTS + TString ("_sigma1_bc")
-    sigma2BName = modeTS + TString("_B_") + BDTGTS + TString ("_sigma2_bc")
-    n1BName = modeTS + TString("_B_") + BDTGTS + TString ("_n1_bc")
-    n2BName = modeTS + TString("_B_") + BDTGTS + TString ("_n2_bc")
-    alpha1BName = modeTS + TString("_B_") + BDTGTS + TString ("_alpha1_bc")
-    alpha2BName = modeTS + TString("_B_") + BDTGTS + TString ("_alpha2_bc")
-    fracBName = modeTS + TString("_B_") + BDTGTS + TString ("_frac_bc")
+    sigma1BName = modeTS + TString("_B_") + BDTGTS + TString ("_sigma1")
+    sigma2BName = modeTS + TString("_B_") + BDTGTS + TString ("_sigma2")
+    n1BName = modeTS + TString("_B_") + BDTGTS + TString ("_n1")
+    n2BName = modeTS + TString("_B_") + BDTGTS + TString ("_n2")
+    alpha1BName = modeTS + TString("_B_") + BDTGTS + TString ("_alpha1")
+    alpha2BName = modeTS + TString("_B_") + BDTGTS + TString ("_alpha2")
+    fracBName = modeTS + TString("_B_") + BDTGTS + TString ("_frac")
     if debug:
         print sigma1BName
         print sigma2BName
@@ -419,7 +447,7 @@ def fitB2DPi( debug, var,
 
 
     ny = TString("combData")    
-    GeneralUtils.SaveDataSet(combData, mass, sample[0], ny, true)    
+    GeneralUtils.SaveDataSet(combData, mass, sample[0], ny, plotSettings, true)    
     totPDFsim = RooSimultaneous("simPdf","simultaneous pdf",sam)
     bkgPDF1 = []
     bkgPDF2 = []
@@ -490,13 +518,13 @@ def fitB2DPi( debug, var,
     for i in range(0,ran):
         if MD:
             cB.append(RooRealVar("cB","coefficient #2", 5*myconfigfile[cB1Name.Data()][index], -0.1, 0.0)) 
-            bkgBPDF.append(RooExponential("expB", "expB" , massB, cB[i]))
+            bkgBPDF1.append(RooExponential("expB", "expB" , massB, cB[i]))
 
             cB2.append(RooRealVar("cB2","coefficient #2", myconfigfile[cB2Name.Data()][index], -0.01, 0.0))
             bkgBPDF2.append(RooExponential("expB2", "expB2" , massB, cB2[i]))
 
             fracbkg2.append(RooRealVar("fracComb2","fracComb2", myconfigfile[fracCombBName.Data()][index], 0.0, 1.0))
-            #bkgBPDF.append(RooAddPdf("bkgBAddPdf","bkgBAddPdf",bkgBPDF1[i], bkgBPDF2[i], fracbkg2[i]))                                    
+            bkgBPDF.append(RooAddPdf("bkgBAddPdf","bkgBAddPdf",bkgBPDF1[i], bkgBPDF2[i], fracbkg2[i]))                                    
             
             fracbkg.append(RooRealVar("fracComb","fracComb", myconfigfile[fracCombDName.Data()][index])) 
             cD.append(RooRealVar("cD","coefficient #2", myconfigfile[cDName.Data()][index])) #, -0.01, 0.0))  
@@ -528,15 +556,17 @@ def fitB2DPi( debug, var,
         nameBd2DstPi = TString("nBd2DstPi_")+sample[i]+TString("_Evts")
         nameBd2DRho = TString("nBd2DRho_")+sample[i]+TString("_Evts")
 
-        if merge:
-            predSignal = myconfigfile[predSignalName.Data()][i]+myconfigfile[predSignalName.Data()][i+1]
-        else:
-            predSignal = myconfigfile[predSignalName.Data()][i]
+        #if merge:
+        predSignal = myconfigfile[predSignalName.Data()][i] #+myconfigfile[predSignalName.Data()][i+1]
+        #else:
+        #    predSignal = myconfigfile[predSignalName.Data()][i]
             
         if (DK == true):
-            nBd2DK.append(RooRealVar(nameBd2DK.Data() , nameBd2DK.Data(), myconfigfile[predBDKName.Data()]))
+            nBd2DK.append(RooRealVar(nameBd2DK.Data() , nameBd2DK.Data(), myconfigfile[predBDKName.Data()]*1.2, 
+                                     myconfigfile[predBDKName.Data()]*0.8, 
+                                     1.5*myconfigfile[predBDKName.Data()]))
                                      #predSignal*0.0735*0.64/2,
-                                     #0.0, #predSignal*0.735*0.64*0.05,
+                                     #0.0, predSignal*0.735*0.64*0.05,
                                      #predSignal*0.735*0.64*2))
         else:
             nBd2DK.append(RooRealVar(nameBd2DK.Data() , nameBd2DK.Data(),0))

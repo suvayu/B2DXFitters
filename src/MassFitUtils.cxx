@@ -1555,6 +1555,10 @@ namespace MassFitUtils {
 	    weight->setVal(wMC*wRW*globalWeight);
 	  }
 
+	  if (hypo.Contains("Bd") == true && ( mode[i] == "Bs2DsPi" || mode[i] == "Bs2Dspi" ) && jentry%8 != 0 ) continue;
+	  if (hypo.Contains("Bd") == true && ( mode[i] == "Bd2DK" ) && jentry%4 != 0 ) continue;
+	  if (hypo.Contains("Bd") == true && ( mode[i] == "Bd2DstPi" ) && jentry%2 != 0 ) continue;
+
 	  if (5320 < lab0_MM2 and lab0_MM2 < 5420) sa_counter++;
 	  if (mdSet->GetMassBRangeDown() < lab0_MM2 and lab0_MM2 < mdSet->GetMassBRangeUp()) ag_counter++;
   
@@ -2682,8 +2686,8 @@ namespace MassFitUtils {
       
       dataSetMCtmp[i] = new RooDataSet(name.Data(),name.Data(), *obs, wname.Data());
       for (Long64_t jentry=0; jentry<nentriesMC; jentry++) {
-	treetmp->GetEntry(jentry);
-	
+	treetmp->GetEntry(jentry); 
+
 	Int_t id;
 	if (lab1_ID3 > 0) { id = 1.0; }
 	else { id = -1.0; }
@@ -2737,8 +2741,9 @@ namespace MassFitUtils {
 	wRW = hRDM.GetWeight(log(lab1_PT3F),log(nTr3F), smp[i]); 
 	wE = heff.GetWeight(lab1_P3, smp[i]); 
 	if ( mode.Contains("Pi") ) { weight->setVal(wE*globalWeight); }
-	else{ weight->setVal(wRW*wE*globalWeight); }
+	else{ weight->setVal(wE*globalWeight); }
 
+	
 	if (reweight == true) { dataSetMC[i]->add(*obs,wRW*wE*globalWeight,0); }
 	else { dataSetMC[i]->add(*obs); }
 	    
@@ -3033,8 +3038,8 @@ namespace MassFitUtils {
   return work;
   }
 
-  RooWorkspace* CreatePdfSpecBackground(TString& filesDirMU, TString& sigMU,
-                                        TString& filesDirMD, TString& sigMD,
+  RooWorkspace* CreatePdfSpecBackground(TString filesDirMU, TString sigMU,
+                                        TString filesDirMD, TString sigMD,
 					MDFitterSettings* mdSet,
                                         RooWorkspace* work,
                                         Bool_t mistag,
@@ -3042,18 +3047,36 @@ namespace MassFitUtils {
 					bool debug
                                         )
   {
+    if ( mistag == false )
+      {
+	TString nl = ""; 
+	work =  CreatePdfSpecBackground(filesDirMU, sigMU,
+					filesDirMD, sigMD,
+					mdSet->GetMassBVar(),
+					mdSet->GetMassDVar(),
+					nl,
+					nl,
+					work,
+					mistag,
+					plotSet,
+					debug
+					);
+      }
+    else
+      {
+	work =  CreatePdfSpecBackground(filesDirMU, sigMU,
+                                        filesDirMD, sigMD,
+                                        mdSet->GetMassBVar(),
+                                        mdSet->GetMassDVar(),
+                                        mdSet->GetTagVar(0),
+                                        mdSet->GetTagOmegaVar(0),
+                                        work,
+                                        mistag,
+                                        plotSet,
+                                        debug
+                                        );
+      }
 
-    work =  CreatePdfSpecBackground(filesDirMU, sigMU,
-				    filesDirMD, sigMD,
-				    mdSet->GetMassBVar(),
-				    mdSet->GetMassDVar(),
-				    mdSet->GetTagVar(0),
-				    mdSet->GetTagOmegaVar(0),
-				    work,
-				    mistag,
-				    plotSet,
-				    debug
-				    );
     return work;
 
   }
@@ -3804,13 +3827,13 @@ namespace MassFitUtils {
     Float_t B_Ds_KPiPi   = 6.9e-3;
     Float_t B_Ds_KPiPi_u = 0.5e-3;
     //B(Lc->pKPi)//
-    Float_t B_Lc_pKPi   = 5.0e-2;
-    Float_t B_Lc_pKPi_u = 1.3e-2;
+    Float_t B_Lc_pKPi   = 6.84e-2;
+    Float_t B_Lc_pKPi_u = 0.24e-2;
       
 
     //fragmentation factor//
-    Float_t fsfd = 0.268;
-    Float_t fsfd_u = 0.008;
+    Float_t fsfd = 0.259;
+    Float_t fsfd_u = 0.015;
     Float_t flfd = 0.4;
     Float_t flfd_u = 0.0;
 

@@ -103,6 +103,8 @@ __doc__ = """ real docstring """
 # -----------------------------------------------------------------------------
 import B2DXFitters
 import ROOT
+from B2DXFitters import *
+from ROOT import *
 from ROOT import RooFit
 from optparse import OptionParser
 from math     import pi, log
@@ -147,8 +149,8 @@ def fitSignal( debug, var , mode, modeDs,  reweight, veto, merge, BDTG) :
 
     RooAbsData.setDefaultStorageType(RooAbsData.Tree)
     
-    plotSettings = PlotSettings("plotSettings","plotSettings", "PlotLbLcPi", "pdf", 100, true, false, true)
-    plotSettings.Print()
+    plotSettings = PlotSettings("plotSettings","plotSettings", "PlotSignal", "pdf", 100, true, false, true)
+    plotSettings.Print("v")
         
     MDSettings = MDFitterSettings("MDSettings","MDFSettings")
     
@@ -156,8 +158,6 @@ def fitSignal( debug, var , mode, modeDs,  reweight, veto, merge, BDTG) :
     MDSettings.SetMassDVar(TString("lab2_MM"))
     MDSettings.SetTimeVar(TString("lab0_LifetimeFit_ctau"))
     MDSettings.SetTerrVar(TString("lab0_LifetimeFit_ctauErr"))
-    MDSettings.SetTagVar(TString("lab0_BsTaggingTool_TAGDECISION_OS"))
-    MDSettings.SetTagOmegaVar(TString("lab0_BsTaggingTool_TAGOMEGA_OS"))
     MDSettings.SetIDVar(TString("lab1_ID"))
     MDSettings.SetPIDKVar(TString("lab1_PIDK"))
     MDSettings.SetBDTGVar(TString("BDTGResponse_1"))
@@ -165,7 +165,7 @@ def fitSignal( debug, var , mode, modeDs,  reweight, veto, merge, BDTG) :
     MDSettings.SetTrMomVar(TString("lab1_PT"))
     MDSettings.SetTracksVar(TString("nTracks"))
     
-                                                         
+    
     dataTS = TString(dataName)
     modeTS = TString(mode)
     if modeTS  == "BsDsK":
@@ -177,13 +177,11 @@ def fitSignal( debug, var , mode, modeDs,  reweight, veto, merge, BDTG) :
     obsTS = TString(var)    
     if modeTS == "BDPi":
         modeDsTS = TString("KPiPi")
-        MDSettings.SetTagVar(TString("lab0_BdTaggingTool_TAGDECISION_OS"))
-        MDSettings.SetTagOmegaVar(TString("lab0_BdTaggingTool_TAGOMEGA_OS"))
         Dmass_down = 1770 #1830 #1930
         Dmass_up = 1920 #2015
         Bmass_down = 5000
         Bmass_up = 5500
-        if ( obsTS == "lab2_MM"):
+        if ( obsTS == "lab2_MM" or obsTS == "Ds_MM"):
             mean  =  1869 #1968.49
         else:
             mean  = 5279 #367.51
@@ -192,9 +190,12 @@ def fitSignal( debug, var , mode, modeDs,  reweight, veto, merge, BDTG) :
         modeDsTS=TString(modeDs)
         Dmass_down = 1930
         Dmass_up = 2015
-        Bmass_down = 5000
-        Bmass_up = 5600
+        Bmass_down = 5100
+        Bmass_up = 5500
         if ( obsTS == "lab2_MM"):
+            mean  =  1968.49
+            Bmass_down = 5300
+        elif ( obsTS == "Ds_MM"):
             mean  =  1968.49
         else:
             mean  = 5367.51
@@ -227,23 +228,37 @@ def fitSignal( debug, var , mode, modeDs,  reweight, veto, merge, BDTG) :
     MDSettings.SetBDTGRange( BDTG_down, BDTG_up  )     
     MDSettings.SetPIDBach(PIDcut)     
     MDSettings.SetTerrRange(Terr_down, Terr_up  )     
-    MDSettings.SetTagRange(-2.0, 2.0  )      
-    MDSettings.SetTagOmegaRange(0.0, 1.0  ) 
+    #MDSettings.SetTagRange(-2.0, 2.0  )      
+    #MDSettings.SetTagOmegaRange(0.0, 1.0  ) 
     MDSettings.SetIDRange( -1000.0, 1000.0 )
 
-    MDSettings.SetLumDown(0.59) 
-    MDSettings.SetLumUp(0.44)  
+    MDSettings.SetLumDown(1.0) #0.59) 
+    MDSettings.SetLumUp(1.0) #0.44)  
     MDSettings.SetLumRatio()  
-    
-    MDSettings.Print()
+    if modeDsTS == "HHHPi0":
+        MDSettings.SetNotation(0)
+        MDSettings.SetMassBVar(TString("Bs_MassConsDs_M"))
+        MDSettings.SetMassDVar(TString("Ds_MM"))
+        MDSettings.SetTimeVar(TString("Bs_LifetimeFit_ctau"))
+        MDSettings.SetTerrVar(TString("Bs_LifetimeFit_ctauErr"))
+        MDSettings.SetIDVar(TString("Bac_ID"))
+        MDSettings.SetPIDKVar(TString("Bac_PIDK"))
+        MDSettings.SetBDTGVar(TString(""))
+        MDSettings.SetMomVar(TString("Bac_P"))
+        MDSettings.SetTrMomVar(TString("Bac_PT"))
+        MDSettings.SetTracksVar(TString("nTracks"))
 
-    if ( modeDsTS == "NonRes" or modeDsTS == "KstK" or modeDsTS == "PhiPi" or modeDsTS == "All"):
+    MDSettings.Print("v")
+
+    if ( modeDsTS == "NonRes" or modeDsTS == "KstK" or modeDsTS == "PhiPi" or modeDsTS == "All" or modeDsTS == "HHHPi0"):
         if modeDsTS == "NonRes" :
             modeDsTS2 = "nonres"
         elif modeDsTS == "KstK":
             modeDsTS2 = "kstk"
         elif modeDsTS == "PhiPi":
             modeDsTS2 = "phipi"
+        elif modeDsTS == "HHHPi0":
+            modeDsTS2 = "hhhpi0"
         else:
             modeDsTS2 = "kkpi"
     else:
@@ -263,13 +278,15 @@ def fitSignal( debug, var , mode, modeDs,  reweight, veto, merge, BDTG) :
                                           MDSettings, modeTS, false, false, NULL, false,
                                           MDSettings.GetLumDown(), MDSettings.GetLumUp(), plotSettings, debug)
     
-                                             
-       
+    #GeneralUtils.SaveWorkspace(workspace,TString("work_signal_bdpi.root"), debug)
+    #exit(0) 
     
     mass = GeneralUtils.GetObservable(workspace,obsTS, debug)
     weight = GeneralUtils.GetObservable(workspace,TString("weights"), debug)
-    observables = RooArgSet( mass, weight )
-    
+    if reweight:
+        observables = RooArgSet( mass,  weight )
+    else:
+        observables = RooArgSet( mass )
              
                                                                                            
                                                                                                                     
@@ -287,43 +304,48 @@ def fitSignal( debug, var , mode, modeDs,  reweight, veto, merge, BDTG) :
         sample = [TString("both"),TString("both")]
         data[0].append(data[1])
         data[0].Print()
+        nEntries[0] = data[0].sumEntries()
                 
-    if obsTS != "lab2_MM":
-        sigma1 = 10.00
-        sigma2 = 7.00
-        alpha1 = 4.0
-        alpha2 = -2.0
-        n1 = 5.0
-        n2 = 2.0
-        frac = 0.50
-        alpha1Var =  RooRealVar( "DblCBPDF_alpha1", "alpha1",  alpha1,  0,     6)
-        alpha2Var =  RooRealVar( "DblCBPDF_alpha2", "alpha2",  alpha2,  -6,    0)
-        n1Var     =  RooRealVar( "DblCBPDF_n1",     "n1",      n1,      0.001,  50)
-        n2Var     =  RooRealVar( "DblCBPDF_n2",     "n2",      n2,      0.001,  50)
-        fracVar   =  RooRealVar( "DblCBPDF_frac",   "frac",    frac,    0,     1)
-        sigma1Var =  RooRealVar( "DblCBPDF_sigma1", "sigma1",  sigma1,  1.0,    30, "MeV/c^{2}")
-        sigma2Var =  RooRealVar( "DblCBPDF_sigma2", "sigma2",  sigma2,  1.0,    20, "MeV/c^{2}")
+    if obsTS != "lab2_MM" and obsTS != "Ds_MM":
+        sigma1 = 11.5 #25.0 #15.00 #10.00
+        sigma2 = 17.0 #5.00 #7.00
+        alpha1 = 4.20378e+00 #1.89471e+00 #2.0 #4.0
+        alpha2 = -4.18503e+00 #-2.08562e+00 #-2.0
+        n1 = 1.12600e+00  #0.01
+        n2 = 3.66107e+00 #0.001
+        frac = 0.5 #.57596e-01 #0.50
+        alpha1Var =  RooRealVar( "DblCBPDF_alpha1", "alpha1",  alpha1,   1,     5)
+        alpha2Var =  RooRealVar( "DblCBPDF_alpha2", "alpha2",  alpha2,  -5,     1)
+        n1Var     =  RooRealVar( "DblCBPDF_n1",     "n1",      n1,      0.0005, 10)
+        n2Var     =  RooRealVar( "DblCBPDF_n2",     "n2",      n2,      0.0005, 15)
+        fracVar   =  RooRealVar( "DblCBPDF_frac",   "frac",    frac,    0,      1)
+        sigma1Var =  RooRealVar( "DblCBPDF_sigma1", "sigma1",  sigma1,  5.0,     20, "MeV/c^{2}")
+        sigma2Var =  RooRealVar( "DblCBPDF_sigma2", "sigma2",  sigma2,  10.0,    30, "MeV/c^{2}")
             
     else:
-        sigma1 = 15.00
-        sigma2 = 10.0
-        sigma3 = 1.0
-        alpha1 = 5.0
-        alpha2 = -3.0
-        n1 = 25.0
-        n2 = 40.0 
-        frac = 0.50
-        frac2 = 0.50
-        alpha1Var =  RooRealVar( "DblCBPDF_alpha1", "alpha1",  alpha1,  0.0,  7.0)
-        alpha2Var =  RooRealVar( "DblCBPDF_alpha2", "alpha2",  alpha2,  -7.0,  0.0)
-        n1Var     =  RooRealVar( "DblCBPDF_n1",     "n1",      n1,      0.001,  50)
-        n2Var     =  RooRealVar( "DblCBPDF_n2",     "n2",      n2,      0.001,  70)
-                
+        print "Fitting Ds shape"
+        sigma1 = 8.3016e+00 #15.00
+        sigma2 = 4.5111e+00 #10.0
+        #sigma3 = 1.0
+        alpha1 = 1.9181e+00 #5.0
+        alpha2 = -2.9860e+00 #-3.0
+        n1 = 1.7235e+00 #25.0
+        n2 = 7.1778e-01 #40.0 
+        frac = 3.8284e-01
+        #frac2 = 0.50
+        alpha1Var =  RooRealVar( "DblCBPDF_alpha1", "alpha1",  alpha1,  1.0,  4.0)
+        alpha2Var =  RooRealVar( "DblCBPDF_alpha2", "alpha2",  alpha2,  -4.0,  1.0)
+        n1Var     =  RooRealVar( "DblCBPDF_n1",     "n1",      n1,      0.005,  5)
+        n2Var     =  RooRealVar( "DblCBPDF_n2",     "n2",      n2,      0.005,  5)
+        
         fracVar   =  RooRealVar( "DblCBPDF_frac",   "frac",    frac,    0,     1)
-        frac2Var   =  RooRealVar( "DblCBPDF_frac2",   "frac2",    frac2,    0,     1)
-        sigma1Var =  RooRealVar( "DblCBPDF_sigma1", "sigma1",  sigma1,  1,    20, "MeV/c^{2}")
-        sigma2Var =  RooRealVar( "DblCBPDF_sigma2", "sigma2",  sigma2,  1,    20, "MeV/c^{2}")
-        sigma3Var =  RooRealVar( "DblCBPDF_sigma3", "sigma3",  sigma3,  0.0001,    20, "MeV/c^{2}")
+        #frac2Var   =  RooRealVar( "DblCBPDF_frac2",   "frac2",    frac2,    0,     1)
+        if modeDsTS != "HHHPi0":
+            sigma1Var =  RooRealVar( "DblCBPDF_sigma1", "sigma1",  sigma1,  1,    20, "MeV/c^{2}")
+        else:
+            sigma1Var =  RooRealVar( "DblCBPDF_sigma1", "sigma1",  sigma1,  1,    100, "MeV/c^{2}")
+        sigma2Var =  RooRealVar( "DblCBPDF_sigma2", "sigma2",  sigma2,  1,    8, "MeV/c^{2}")
+        #sigma3Var =  RooRealVar( "DblCBPDF_sigma3", "sigma3",  sigma3,  0.0001,    20, "MeV/c^{2}")
         
     meanVar   =  [RooRealVar( "DblCBPDF_mean_up" ,  "mean",    mean,    mean-50, mean+50, "MeV/c^{2}"),
                   RooRealVar( "DblCBPDF_mean_down" ,  "mean",    mean,    mean-50, mean+50, "MeV/c^{2}")]
@@ -344,22 +366,21 @@ def fitSignal( debug, var , mode, modeDs,  reweight, veto, merge, BDTG) :
     for i in range(0,1):
         nSigEvts.append(0.9*nEntries[i])
         nameSig = TString("nSigEvts_")+sample[i]
-        nSig.append(RooRealVar( nameSig.Data(), nameSig.Data(), nEntries[i], 0.8*nEntries[i], 1.2*nEntries[i]))
-        if obsTS != "lab2_MM":
+        nSig.append(RooRealVar( nameSig.Data(), nameSig.Data(), nEntries[i], 0.4*nEntries[i], 1.2*nEntries[i]))
+        if obsTS != "lab2_MM" and obsTS != "Ds_MM":
             sigPDF.append(Bs2Dsh2011TDAnaModels.buildDoubleCBEPDF_sim(mass, meanVar[i], sigma1Var, alpha1Var, n1Var, sigma2Var,
                                                                       alpha2Var, n2Var, fracVar, nSig[i], sample[i].Data(), bName, debug ))
         else:
-            nameSigPDF = TString("pdfSignal_")+sample[i]
-            #sigPDF.append(RooCruijff(nameSigPDF.Data(), nameSigPDF.Data(),mass, meanVar[i], sigma1Var, sigma2Var,alpha1Var, alpha2Var))
-            #sigPDF.append(Bs2Dsh2011TDAnaModels.buildDoubleGEPDF_sim(mass, meanVar[i], sigma1Var, sigma2Var,  fracVar,
-            #                                                         nSig[i], sample[i].Data(), bName, false, debug ))
-            sigPDF.append(Bs2Dsh2011TDAnaModels.buildDoubleCBEPDF_sim(mass, meanVar[i], sigma1Var, alpha1Var, n1Var, sigma2Var,
-                                                                      alpha2Var, n2Var, fracVar, nSig[i], sample[i].Data(), bName, debug ))
-
-            #sigPDF.append(RooCBShape( nameSigPDF.Data(), nameSigPDF.Data(), mass ,meanVar[i], sigma1Var, alpha1Var, n1Var))
-            
-            #name1 = TString("gauss1_")+sample[i]
-            #sigPDF1.append(RooGaussian(name1.Data(), name1.Data(), mass, meanVar[i], sigma1Var))
+            #nameSigPDF = TString("pdfSignal_")+sample[i]
+            if modeDsTS != "HHHPi0":
+                print "Fitting double Crystal Ball"
+                sigPDF.append(Bs2Dsh2011TDAnaModels.buildDoubleCBEPDF_sim(mass, meanVar[i], sigma1Var, alpha1Var, n1Var, sigma2Var,
+                                                                          alpha2Var, n2Var, fracVar, nSig[i], sample[i].Data(), bName, debug ))
+            else:
+                print "Fitting Gaussian"
+                name1 = TString("gauss1_")+sample[i]
+                sigPDF.append(RooGaussian(name1.Data(),name1.Data(), mass, meanVar[i], sigma1Var))
+            #sigPDF.append(RooCBShape( nameSigPDF.Data(), nameSigPDF.Data(), mass ,meanVar[i], sigma1Var, alpha1Var, n1Var))     
             #name2 = TString("gauss2_")+sample[i]
             #sigPDF2.append(RooGaussian(name2.Data(), name2.Data(), mass, meanVar[i], sigma2Var))
             #name3 = TString("gauss3_")+sample[i]
@@ -381,18 +402,29 @@ def fitSignal( debug, var , mode, modeDs,  reweight, veto, merge, BDTG) :
         sam.defineType(sample[1].Data())
 
     if merge:
-        combData = RooDataSet("combData","combined data",RooArgSet(observables),
-                              RooFit.Index(sam),
-                              RooFit.Import(sample[0].Data(),data[0]),
-                              RooFit.WeightVar("weights"))
-        
+        if reweight:
+            print "Reweighting"
+            combData = RooDataSet("combData","combined data",RooArgSet(observables),
+                                  RooFit.Index(sam),
+                                  RooFit.Import(sample[0].Data(),data[0]),
+                                  RooFit.WeightVar("weights"))
+        else:
+            combData = RooDataSet("combData","combined data",RooArgSet(observables),
+                                  RooFit.Index(sam),
+                                  RooFit.Import(sample[0].Data(),data[0]))
     else:
-        combData = RooDataSet("combData","combined data",RooArgSet(observables),
-                              RooFit.Index(sam),
-                              RooFit.Import(sample[0].Data(),data[0]),
-                              RooFit.Import(sample[1].Data(),data[1]),
-                              RooFit.WeightVar("weights"))
-        
+        if reweight:
+            combData = RooDataSet("combData","combined data",RooArgSet(observables),
+                                  RooFit.Index(sam),
+                                  RooFit.Import(sample[0].Data(),data[0]),
+                                  RooFit.Import(sample[1].Data(),data[1]),
+                                  RooFit.WeightVar("weights"))
+        else:
+            combData = RooDataSet("combData","combined data",RooArgSet(observables),
+                                  RooFit.Index(sam),
+                                  RooFit.Import(sample[0].Data(),data[0]),
+                                  RooFit.Import(sample[1].Data(),data[1]))
+
     totPDF = RooSimultaneous("simPdf","simultaneous pdf",sam)
     if merge:
         totPDF.addPdf(sigEPDF[0], sample[0].Data())

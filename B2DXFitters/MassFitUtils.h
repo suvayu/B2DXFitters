@@ -238,8 +238,8 @@ namespace MassFitUtils {
 					PlotSettings* plotSet = NULL,
 					bool debug = false); 
 					
-  RooWorkspace* CreatePdfSpecBackground(TString& filesDirMU, TString& sigMU,
-                                        TString& filesDirMD, TString& sigMD,
+  RooWorkspace* CreatePdfSpecBackground(TString filesDirMU, TString sigMU,
+                                        TString filesDirMD, TString sigMD,
 					MDFitterSettings* mdSet,
                                         RooWorkspace* work=NULL,
 					Bool_t mistag=false,

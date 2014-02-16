@@ -150,11 +150,12 @@ def runBsDsKMassFitterOnData( debug, sample,
     
            
     workNameTS = TString(workName)
-    workData = GeneralUtils.LoadWorkspace(TString("work_dspi_pid_53005800_PIDK0_5M_BDTGA_4.root"),workNameTS,debug)
+    #workData = GeneralUtils.LoadWorkspace(TString("work_dspi_pid_53005800_PIDK0_5M_BDTGA_4.root"),workNameTS,debug)
     workspace = []
     workspace.append(GeneralUtils.LoadWorkspace(TString(fileNameAll),workNameTS,debug))
     #workspaceID = GeneralUtils.LoadWorkspace(TString(fileNameAllID),workNameTS,debug)
-    
+    workData = workspace[0]
+
     obsTS = TString(mVar)
     
     configNameTS = TString(configName)
@@ -212,19 +213,19 @@ def runBsDsKMassFitterOnData( debug, sample,
         for i in range(0,MDSettings.GetNumTagOmegaVar()):
             tagOmegaVar.append(GeneralUtils.GetObservable(workspace[0], MDSettings.GetTagOmegaVar(i), debug))
             nameCalib = MDSettings.GetTagOmegaVar(i) + TString("_calib")
-            tagOmegaVarCalib.append(GeneralUtils.GetObservable(workData, nameCalib, debug))
+            tagOmegaVarCalib.append(GeneralUtils.GetObservable(workspace[0], nameCalib, debug))
             observables.add(tagOmegaVar[i])
             observables.add(tagOmegaVarCalib[i])
             
     tagDecCombName = TString("tagDecComb")         
-    tagDecComb = GeneralUtils.GetCategory(workData, tagDecCombName, debug)
+    tagDecComb = GeneralUtils.GetCategory(workspace[0], tagDecCombName, debug)
     tagOmegaCombName= TString("tagOmegaComb")
-    tagOmegaComb = GeneralUtils.GetObservable(workData, tagOmegaCombName, debug) 
+    tagOmegaComb = GeneralUtils.GetObservable(workspace[0], tagOmegaCombName, debug) 
 
     observables.add(tagDecComb)
     observables.add(tagOmegaComb)
                
-            
+    
  ###------------------------------------------------------------------------------------------------------------------------------------###
     ###------------------------------------------------------------------------------------------------------------------------------###
  ###------------------------------------------------------------------------------------------------------------------------------------###   
