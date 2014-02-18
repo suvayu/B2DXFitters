@@ -203,31 +203,6 @@ DecayTree;1
 DecayTree;1
 ###
 
-
-#MC FileName MD
-/afs/cern.ch/work/a/adudziak/public/Merged_Bd2DK_D2KPiPi_MD_BdHypo_BDTG.root
-/afs/cern.ch/work/a/adudziak/public/Merged_Bs2DsPi_Ds2KKPi_MD_BdHypo_BDTG.root
-/afs/cern.ch/work/a/adudziak/public/Merged_Lb2LcPi_Lc2pKPi_MD_BdHypo_BDTG.root
-/afs/cern.ch/work/a/adudziak/public/Merged_Bd2DRho_D2KPiPi_MD_BdHypo_BDTG.root
-/afs/cern.ch/work/a/adudziak/public/Merged_Bd2DstPi_Dst2D0Pi_MD_BdHypo_BDTG.root
-/afs/cern.ch/work/a/adudziak/public/Merged_Bd2DstPi_Dst2D-Pi0_MD_BdHypo_BDTG.root
-###
-
-#MC FileName MU
-/afs/cern.ch/work/a/adudziak/public/Merged_Bd2DK_D2KPiPi_MU_BdHypo_BDTG.root
-/afs/cern.ch/work/a/adudziak/public/Merged_Bs2DsPi_Ds2KKPi_MU_BdHypo_BDTG.root
-/afs/cern.ch/work/a/adudziak/public/Merged_Lb2LcPi_Lc2pKPi_MU_BdHypo_BDTG.root
-/afs/cern.ch/work/a/adudziak/public/Merged_Bd2DRho_D2KPiPi_MU_BdHypo_BDTG.root
-/afs/cern.ch/work/a/adudziak/public/Merged_Bd2DstPi_Dst2D0Pi_MU_BdHypo_BDTG.root
-/afs/cern.ch/work/a/adudziak/public/Merged_Bd2DstPi_Dst2D-Pi0_MU_BdHypo_BDTG.root
-###
-
-#MC TreeName
-DecayTree;1
-DecayTree;1
-DecayTree;1
-###
-
 #PIDp
 /afs/cern.ch/user/l/lcarson/public/ForAgnieszka/
 EffHistos_Reco12_39Mom_Proton_MagDown_TightCuts.root
