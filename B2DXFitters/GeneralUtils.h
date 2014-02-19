@@ -247,6 +247,18 @@ namespace GeneralUtils {
   //==========================================================================
   RooDataSet* GetDataSet(RooWorkspace* work, TString &obs, bool        debug = false);
 
+  RooDataSet* GetDataSet(RooWorkspace* work, RooArgSet* obs, RooCategory& sam,
+                         TString &dat, TString & sample, TString& mode,
+                         bool merge, bool debug );
+
+  std::vector <TString> GetSampleMode(TString& sample, TString& mode, bool merge, bool debug );
+  std::vector <TString>  GetSample(TString& sample, bool debug );
+  std::vector <TString>  GetMode(TString& mode, bool debug );
+  std::vector <Int_t> GetEntriesCombData(RooWorkspace* work, 
+                                         TString &dat, TString & sample, TString& mode,
+                                         bool merge, bool debug );
+
+
   //===========================================================================
   // Get data histogram ( dat ) from workspace (work)
   //==========================================================================

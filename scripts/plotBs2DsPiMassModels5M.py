@@ -187,6 +187,9 @@ parser.add_option( '--bin',
                    default = 100,
                    help = 'set number of bins'
                    )
+parser.add_option( '--dim',
+                   dest = 'dim',
+                   default = 3)
 
 
 #------------------------------------------------------------------------------
@@ -661,6 +664,7 @@ if __name__ == '__main__' :
                       ( options.wsname, FILENAME ) )
     
     f.Close()
+    dim = int(options.dim)
     bin = options.bin
     mVarTS = TString(options.var)    
     mass = w.var(mVarTS.Data())
@@ -1015,14 +1019,21 @@ if __name__ == '__main__' :
         frame_p.GetXaxis().SetTitle('#font[12]{m(B_{s} #rightarrow D_{s}#pi) [MeV/c^{2}]}')
                                         
                                           
+    if dim == 3:
+        if mVarTS == "lab1_PIDK":
+            pullnameTS = TString("FullPdf_Int[lab0_MassFitConsD_M,lab2_MM]_Norm[lab0_MassFitConsD_M,lab1_PIDK,lab2_MM]_Comp[FullPdf]")
+        elif mVarTS == "lab2_MM":
+            pullnameTS = TString("FullPdf_Int[lab0_MassFitConsD_M,lab1_PIDK]_Norm[lab0_MassFitConsD_M,lab1_PIDK,lab2_MM]_Comp[FullPdf]")
+        else:
+            pullnameTS = TString("FullPdf_Int[lab1_PIDK,lab2_MM]_Norm[lab0_MassFitConsD_M,lab1_PIDK,lab2_MM]_Comp[FullPdf]")
+    elif dim == 2:
+        if mVarTS == "lab2_MM":
+            pullnameTS = TString("FullPdf_Int[lab0_MassFitConsD_M]_Norm[lab0_MassFitConsD_M,lab2_MM]_Comp[FullPdf]")
+        else:
+            pullnameTS = TString("FullPdf_Int[lab2_MM]_Norm[lab0_MassFitConsD_M,lab2_MM]_Comp[FullPdf]")
+    elif dim == 1:
+        pullnameTS = TString("FullPdf_Norm[lab0_MassFitConsD_M]_Comp[FullPdf]")
     
-    if mVarTS == "lab1_PIDK":
-        pullnameTS = TString("FullPdf_Int[lab0_MassFitConsD_M,lab2_MM]_Norm[lab0_MassFitConsD_M,lab1_PIDK,lab2_MM]_Comp[FullPdf]")
-    elif mVarTS == "lab2_MM":
-        pullnameTS = TString("FullPdf_Int[lab0_MassFitConsD_M,lab1_PIDK]_Norm[lab0_MassFitConsD_M,lab1_PIDK,lab2_MM]_Comp[FullPdf]")
-    else:
-        pullnameTS = TString("FullPdf_Int[lab1_PIDK,lab2_MM]_Norm[lab0_MassFitConsD_M,lab1_PIDK,lab2_MM]_Comp[FullPdf]")
-        
     pullHist  = frame_m.pullHist(pullname2TS.Data(),pullnameTS.Data())
     frame_p.addPlotable(pullHist,"P")
     frame_p.Draw()

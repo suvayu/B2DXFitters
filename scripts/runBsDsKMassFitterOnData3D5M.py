@@ -117,7 +117,7 @@ bName = 'Bs'
 dName = 'Ds'
 #------------------------------------------------------------------------------
 def runBsDsKMassFitterOnData( debug, sample, mVar, mdVar, tVar, terrVar, tagVar, tagOmegaVar, idVar, mode,
-                              sweight,  fileNameAll, fileNameToys, workName, configName, wide, merge ) :
+                              sweight,  fileNameAll, fileNameToys, workName, configName, wide, dim, merge ) :
 
 
     # Get the configuration file
@@ -161,9 +161,9 @@ def runBsDsKMassFitterOnData( debug, sample, mVar, mdVar, tVar, terrVar, tagVar,
             exit(0)
 
     workspace = []
-    workData = GeneralUtils.LoadWorkspace(TString("work_dsk_pid_53005800_PIDK5_5M_BDTGA_4.root"),workNameTS,debug)
     workspace.append(GeneralUtils.LoadWorkspace(TString(fileNameAll),workNameTS, debug))
-         
+    workData = workspace[0]
+     
     obsTS = TString(mVar)
     
     if (not toys ):
@@ -236,7 +236,7 @@ def runBsDsKMassFitterOnData( debug, sample, mVar, mdVar, tVar, terrVar, tagVar,
         
     datasetTS = TString("dataSetBsDsK_")
     sam = RooCategory("sample","sample")
-
+    dim = int(dim)
     sm = []
     data = []
     nEntries = []
@@ -310,287 +310,28 @@ def runBsDsKMassFitterOnData( debug, sample, mVar, mdVar, tVar, terrVar, tagVar,
                         countRhoPi[j] += 1
                         
 
-                                                                  
+                        
     else:    
-        if sample == "both":
-            if mode == "all":
-                if debug:
-                    print "[INFO] Sample both. Mode all."
+        combData =  GeneralUtils.GetDataSet(workspace[0], observables, sam, datasetTS, sampleTS, modeTS, merge, debug )
+        sm = GeneralUtils.GetSampleMode(sampleTS, modeTS, merge, debug )
+        s = GeneralUtils.GetSample(sampleTS, debug)
+        m = GeneralUtils.GetMode(modeTS,debug)
+        nEntries = GeneralUtils.GetEntriesCombData(workspace[0], datasetTS, sampleTS, modeTS, merge, debug ) 
                 
-                s = [TString('up'),TString('down')]
-                m = [TString('nonres'),TString('phipi'),TString('kstk'),TString('kpipi'),TString('pipipi')]
-                                
-                for i in range(0,5):
-                    for j in range(0,2):
-                        sm.append(s[j]+t+m[i])
-                        data.append(GeneralUtils.GetDataSet(workData,datasetTS+sm[2*i+j], debug))
-                        nEntries.append(data[i*2+j].numEntries())
-                    
-                if debug:
-                    for i in range(0,5):
-                        for j in range(0,2):
-                            print "%s : %s : %f"%(sm[i*2+j],data[i*2+j].GetName(),nEntries[i*2+j])
-                            
-                nEntries_up = nEntries[0]+nEntries[2]+nEntries[4]+nEntries[6]+nEntries[8]
-                if debug:
-                    print "nEntries_dw: %s + %s + %s + %s +%s= %s"%(nEntries[0],nEntries[2],nEntries[4],nEntries[6],nEntries[8],nEntries_up)
-                nEntries_dw = nEntries[1]+nEntries[3]+nEntries[5]+nEntries[7]+nEntries[9]
-                if debug:
-                    print "nEntries_up: %s + %s + %s +%s +%s= %s"%(nEntries[1],nEntries[3],nEntries[5],nEntries[7],nEntries[9],nEntries_dw)
-                    print "nEntries: %s + %s = %s"%(nEntries_up, nEntries_dw,nEntries)
-                
-                if merge:
-                    data[0].append(data[1])
-                    data[2].append(data[3])
-                    data[4].append(data[5])
-                    data[6].append(data[7])
-                    data[8].append(data[9])
-                    nEntries[0] = nEntries[0]+nEntries[1]
-                    nEntries[1] = nEntries[2]+nEntries[3]
-                    nEntries[2] = nEntries[4]+nEntries[5]
-                    nEntries[3] = nEntries[6]+nEntries[7]
-                    nEntries[4] = nEntries[8]+nEntries[9]
-                    s = [TString('both'),TString('both')]
-                    for i in range(0,5):
-                        sm[i] =s[0]+t+m[i]
-                        sam.defineType(sm[i].Data())
-                        
-                    combData = RooDataSet("combData","combined data",RooArgSet(observables),
-                                          RooFit.Index(sam),
-                                          RooFit.Import(sm[0].Data(),data[0]),
-                                          RooFit.Import(sm[1].Data(),data[2]),
-                                          RooFit.Import(sm[2].Data(),data[4]),
-                                          RooFit.Import(sm[3].Data(),data[6]),
-                                          RooFit.Import(sm[4].Data(),data[8]))
-
-                else:
-                    for i in range(0,5):
-                        for j in range(0,2):
-                            sam.defineType(sm[i*2+j].Data())
-                            
-                            combData = RooDataSet("combData","combined data",RooArgSet(observables),
-                                                  RooFit.Index(sam),
-                                                  RooFit.Import(sm[0].Data(),data[0]),
-                                                  RooFit.Import(sm[1].Data(),data[1]),
-                                                  RooFit.Import(sm[2].Data(),data[2]),
-                                                  RooFit.Import(sm[3].Data(),data[3]),
-                                                  RooFit.Import(sm[4].Data(),data[4]),
-                                                  RooFit.Import(sm[5].Data(),data[5]),
-                                                  RooFit.Import(sm[6].Data(),data[6]),
-                                                  RooFit.Import(sm[7].Data(),data[7]),
-                                                  RooFit.Import(sm[8].Data(),data[8]),
-                                                  RooFit.Import(sm[9].Data(),data[9])
-                                                  )
-                                       
-            elif mode == "3modes" or mode == "3modeskkpi" :
-                if debug:
-                    print "[INFO] Sample both. Mode 3modes."
-                    
-                    s = [TString('up'),TString('down')]
-                    if mode == "3modeskkpi":
-                        m = [TString('nonres'),TString('phipi'),TString('kstk')]
-                    else:
-                        m = [TString('kkpi'),TString('kpipi'),TString('pipipi')]
-            
-                    t = TString('_')
-            
-                    for i in range(0,3):
-                        for j in range(0,2):
-                            sm.append(s[j]+t+m[i])
-                            data.append(GeneralUtils.GetDataSet(workspace[0],datasetTS+sm[2*i+j], debug))
-                            nEntries.append(data[i*2+j].numEntries())           
-                            
-                    if debug:
-                        for i in range(0,3):
-                            for j in range(0,2):
-                                print "%s : %s : %f"%(sm[i*2+j],data[i*2+j].GetName(),nEntries[i*2+j])
-                                
-                    nEntries_up = nEntries[0]+nEntries[2]+nEntries[4]
-                    if debug:
-                        print "nEntries_dw: %s + %s + %s = %s"%(nEntries[0],nEntries[2],nEntries[4], nEntries_up)
-                    nEntries_dw = nEntries[1]+nEntries[3]+nEntries[5]
-                    if debug:
-                        print "nEntries_up: %s + %s + %s = %s"%(nEntries[1],nEntries[3],nEntries[5],nEntries_dw)
-                        print "nEntries: %s + %s = %s"%(nEntries_up, nEntries_dw,nEntries) 
-                        
-                    if merge:
-                        data[0].append(data[1])
-                        data[2].append(data[3])
-                        data[4].append(data[5])
-                        nEntries[0] = nEntries[0]+nEntries[1]
-                        nEntries[1] = nEntries[2]+nEntries[3]
-                        nEntries[2] = nEntries[4]+nEntries[5]
-                        s = [TString('both'),TString('both')]
-                        for i in range(0,3):
-                            sm[i] =s[0]+t+m[i]
-                            sam.defineType(sm[i].Data())
-                            
-                        combData = RooDataSet("combData","combined data",RooArgSet(observables),
-                                              RooFit.Index(sam),
-                                              RooFit.Import(sm[0].Data(),data[0]),
-                                              RooFit.Import(sm[1].Data(),data[2]),
-                                              RooFit.Import(sm[2].Data(),data[4]))
-                        
-                    else:
-                        for i in range(0,3):
-                            for j in range(0,2):
-                                sam.defineType(sm[i*2+j].Data())
-                                                                
-                                combData = RooDataSet("combData","combined data",RooArgSet(observables),
-                                                      RooFit.Index(sam),
-                                                      RooFit.Import(sm[0].Data(),data[0]),
-                                                      RooFit.Import(sm[1].Data(),data[1]),
-                                                      RooFit.Import(sm[2].Data(),data[2]),
-                                                      RooFit.Import(sm[3].Data(),data[3]),
-                                                      RooFit.Import(sm[4].Data(),data[4]),
-                                                      RooFit.Import(sm[5].Data(),data[5]))
-            
-                    if debug:
-                        print "CombData: %s number of entries %f"%(combData.GetName(),combData.numEntries())
-                        
-            elif mode == "kkpi" or mode == "kpipi" or mode == "pipipi":
-                print "Sample both. Mode %s."%(mode)
-                
-                m = [modeTS]
-                s = [TString('up'),TString('down')]
-                t = TString('_')
-                
-                for i in range(0,2):
-                    sm.append(s[i]+t+modeTS)
-                    data.append(GeneralUtils.GetDataSet(workspace[0],datasetTS+sm[i],debug))
-                    nEntries.append(data[i].numEntries())
-                    
-                if debug:
-                    print "nEntries: %s + %s = %s"%(nEntries[0], nEntries[1],nEntries[0]+nEntries[1])
-                    
-                if merge:
-                    data[0].append(data[1])
-                    s = [TString('both'),TString('both')]
-                    for i in range(0,2):
-                        sm[i] = s[i]+t+modeTS
-                        sam.defineType(sm[i].Data())
-                        
-                        combData = RooDataSet("combData","combined data",RooArgSet(observables),
-                                              RooFit.Index(sam),
-                                              RooFit.Import(sm[0].Data(),data[0]))
-                        nEntries[0] = nEntries[0]+nEntries[1]
-                                                      
-                else:
-                    for i in range(0,2):
-                        sam.defineType(sm[i].Data())
-                        
-                        combData = RooDataSet("combData","combined data",RooArgSet(observables),
-                                              RooFit.Index(sam),
-                                              RooFit.Import(sm[0].Data(),data[0]),
-                                              RooFit.Import(sm[1].Data(),data[1]))
-                        
-                if debug:
-                    print "CombData: %s number of entries %f"%(combData.GetName(),combData.numEntries())
-            else:
-                if debug:
-                    print "[ERROR] Sample both. Wrong mode. Possibilities: all, kkpi, kpipi, pipipi" 
-            
-        elif sample == "up" or sample == "down":
-        
-            if mode == "3modes":
-                if debug:
-                    print "Sample %s. Mode all"%(sample)
-                    
-                s = [sampleTS]
-                m = [TString('kkpi'),TString('kpipi'),TString('pipipi')]
-                t = TString('_')
-                
-                for i in range(0,3):
-                    sm.append(sampleTS+t+m[i])
-                    sam.defineType(sm[i].Data())
-                    data.append(GeneralUtils.GetDataSet(workspace[0],datasetTS+sm[i],debug))
-                    nEntries.append(data[i].numEntries())
-                
-                if debug:
-                    print "nEntries: %s + %s + %s= %s"%(nEntries[0], nEntries[1], nEntries[2], nEntries[0]+nEntries[1]+nEntries[2])
-                combData = RooDataSet("combData","combined data",RooArgSet(observables),
-                                      RooFit.Index(sam),
-                                      RooFit.Import(sm[0].Data(),data[0]),
-                                      RooFit.Import(sm[1].Data(),data[1]),
-                                      RooFit.Import(sm[2].Data(),data[2])
-                                      )
-                                                                                                                        
-                if debug:
-                    print "CombData: %s number of entries %f"%(combData.GetName(),combData.numEntries())
-            
-            elif mode == "kkpi" or mode == "kpipi" or mode == "pipipi":
-                s = [sampleTS]
-                t = TString('_')
-                sm.append(sampleTS+t+modeTS)
-                sam.defineType(sm[0].Data())
-                data.append(GeneralUtils.GetDataSet(workspace[0],datasetTS+sm[0]))
-                nEntries.append(data[0].numEntries())
-                
-                if debug:
-                    print "nEntries: %s"%(nEntries[0])
-                combData = RooDataSet("combData","combined data",RooArgSet(observables),
-                                      RooFit.Index(sam),
-                                      RooFit.Import(sm[0].Data(),data[0])
-                                      )
-                
-                if debug:
-                    print "CombData: %s number of entries %f"%(combData.GetName(),combData.numEntries())
-            
-                
-            else:
-                if debug:
-                    print "[ERROR] Sample %s. Wrong mode. Possibilities: all, kkpi, kpipi, pipipi"%(sample) 
-                    
-        else:    
-            if debug:
-                print "[ERROR] Wrong sample. Possibilities: both, up, down "
-            exit(0)
-                  
-       
-
-    if toys:
-        if mode == "all":
-            ran = 10
-            ranmode = 5
-            ransample = 2
-        else:
-            ran = 1
-            ranmode = 1
-            ransample = 1
-    else:
-        if sample == "both":
-            if mode == "all":
-                ran = 10
-                ranmode = 5
-                ransample = 2
-            elif mode == "3modes" or mode == "3modeskkpi":
-                ran = 6
-                ranmode = 3
-                ransample = 2
-            elif mode == "kkpi" or mode == "kpipi" or mode == "pipipi":
-                ran = 2
-                ransample = 2
-                ranmode = 1
-            elif sample == "up" or sample == "down":
-                if mode == "all":
-                    ran = 3
-                    ranmode = 3
-                    ransample = 1
-                elif mode == "kkpi" or mode == "kpipi" or mode == "pipipi":
-                    ran = 1
-                    ranmode = 1
-                    ransample = 1
-
+    ran = sm.__len__()
+    ranmode = m.__len__()
+    ransample = s.__len__()
     if merge:
         bound = ranmode
     else:
         bound = ran
-                            
+    print "bound: ",bound    
     
     ###------------------------------------------------------------------------------------------------------------------------------------###
           ###-------------------------   Create the signal PDF in Bs mass, Ds mass, PIDK   ------------------------------------------###
     ###------------------------------------------------------------------------------------------------------------------------------------###
 
+    workInt = RooWorkspace("workInt","workInt")
     nSig = []
     sigPDF = []
     sigDsPDF = []
@@ -654,65 +395,78 @@ def runBsDsKMassFitterOnData( debug, sample, mVar, mdVar, tVar, terrVar, tagVar,
                                                                   s2[i], al2, n2,
                                                                   frac,
                                                                   nSig[i],sm[i].Data(),bName,debug))
-        
+        getattr(workInt,'import')(sigPDF[i])
 
-        sig1Ds = myconfigfile["sigma1Ds_bc"][i]
-        sig2Ds = myconfigfile["sigma2Ds_bc"][i]
-        if sig1Ds>sig2Ds:
-            sig1Ds = sig1Ds*myconfigfile["sigma1Dsfrac"]
-            sig2Ds = sig2Ds*myconfigfile["sigma2Dsfrac"]
-        else:
-            sig1Ds = sig1Ds*myconfigfile["sigma2Dsfrac"]
-            sig2Ds = sig2Ds*myconfigfile["sigma1Dsfrac"]
+        if dim > 1:
+            sig1Ds = myconfigfile["sigma1Ds_bc"][i]
+            sig2Ds = myconfigfile["sigma2Ds_bc"][i]
+            if sig1Ds>sig2Ds:
+                sig1Ds = sig1Ds*myconfigfile["sigma1Dsfrac"]
+                sig2Ds = sig2Ds*myconfigfile["sigma2Dsfrac"]
+            else:
+                sig1Ds = sig1Ds*myconfigfile["sigma2Dsfrac"]
+                sig2Ds = sig2Ds*myconfigfile["sigma1Dsfrac"]
             
-        name = TString("Signal_sigma1_Ds_")+sm[i]
-        s1Ds.append(RooRealVar( name.Data(), name.Data(), sig1Ds)) #,
-        name = TString("Signal_sigma2_Ds_")+sm[i]
-        s2Ds.append(RooRealVar( name.Data(), name.Data(), sig2Ds)) #,
+            name = TString("Signal_sigma1_Ds_")+sm[i]
+            s1Ds.append(RooRealVar( name.Data(), name.Data(), sig1Ds)) #,
+            name = TString("Signal_sigma2_Ds_")+sm[i]
+            s2Ds.append(RooRealVar( name.Data(), name.Data(), sig2Ds)) #,
+                
+            al1Ds  = myconfigfile["alpha1Ds_bc"][i]*myconfigfile["alpha1Dsfrac"]
+            al2Ds  = myconfigfile["alpha2Ds_bc"][i]*myconfigfile["alpha2Dsfrac"]
+            n1Ds   =  myconfigfile["n1Ds_bc"][i]
+            n2Ds   =  myconfigfile["n2Ds_bc"][i]
+            fracDs =  myconfigfile["fracDs_bc"][i]
 
-        al1Ds  = myconfigfile["alpha1Ds_bc"][i]*myconfigfile["alpha1Dsfrac"]
-        al2Ds  = myconfigfile["alpha2Ds_bc"][i]*myconfigfile["alpha2Dsfrac"]
-        n1Ds   =  myconfigfile["n1Ds_bc"][i]
-        n2Ds   =  myconfigfile["n2Ds_bc"][i]
-        fracDs =  myconfigfile["fracDs_bc"][i]
-
-        if debug:
-            print al1Ds
-            print al2Ds
-            print n1Ds
-            print n2Ds
-            print fracDs
-        
-        sigDsPDF.append(Bs2Dsh2011TDAnaModels.buildDoubleCBEPDF_fix(massDs,mnDs,
-                                                                    s1Ds[i], al1Ds, n1Ds,
-                                                                    s2Ds[i], al2Ds, n2Ds,
-                                                                    fracDs,
-                                                                    nSig[i],sm[i].Data(),dName,debug))
-        
+            if debug:
+                print al1Ds
+                print al2Ds
+                print n1Ds
+                print n2Ds
+                print fracDs
+                
+            sigDsPDF.append(Bs2Dsh2011TDAnaModels.buildDoubleCBEPDF_fix(massDs,mnDs,
+                                                                        s1Ds[i], al1Ds, n1Ds,
+                                                                        s2Ds[i], al2Ds, n2Ds,
+                                                                        fracDs,
+                                                                        nSig[i],sm[i].Data(),dName,debug))
+            getattr(workInt,'import')(sigDsPDF[i])
     #exit(0)
     nSigdG = []
     sigPIDKPDF = []
     sigProdPDF = []
     sigEPDF = []
     lumRatio = RooRealVar("lumRatio","lumRatio", myconfigfile["lumRatio"])
+    getattr(workInt,'import')(lumRatio)
+    
+    if dim > 2 :
+        for i in range(0,bound):
+            namePID = TString("Bs2DsK_")+sm[i]
+            k = bound%2
+            sigPIDKPDF.append(Bs2Dsh2011TDAnaModels.ObtainPIDKShape(workspace[0], namePID, s[k], lumRatio, true, debug))
+            getattr(workInt,'import')(sigPIDKPDF[i])
 
     for i in range(0,bound):
         name2 = TString("SigProdPDF")+t+sm[i]
         name3 = TString("SigEPDF")+t+sm[i]
-        namePID = TString("Bs2DsK_")+sm[i]
-        k = bound%2
-        print k
-        sigPIDKPDF.append(Bs2Dsh2011TDAnaModels.ObtainPIDKShape(workspace[0], namePID, s[k], lumRatio, true, debug))
-        sigProdPDF.append(RooProdPdf(name2.Data(),name2.Data(),RooArgList(sigPDF[i],sigDsPDF[i],sigPIDKPDF[i])))
-        print sigProdPDF[i].GetName()
-        sigEPDF.append(RooExtendPdf(name3.Data(),name3.Data(),sigProdPDF[i], nSig[i]))
-        print sigEPDF[i].GetName()
-           
+        if dim == 1:
+            print "Signal 1D"
+            sigEPDF.append(RooExtendPdf(name3.Data(),name3.Data(),sigPDF[i], nSig[i]))
+        elif dim == 2:
+            print "Signal 2D"
+            sigProdPDF.append(RooProdPdf(name2.Data(),name2.Data(),RooArgList(sigPDF[i],sigDsPDF[i])))
+            sigEPDF.append(RooExtendPdf(name3.Data(),name3.Data(),sigProdPDF[i], nSig[i]))
+        elif dim == 3:
+            print "Signal 3D"
+            sigProdPDF.append(RooProdPdf(name2.Data(),name2.Data(),RooArgList(sigPDF[i],sigDsPDF[i],sigPIDKPDF[i])))
+            sigEPDF.append(RooExtendPdf(name3.Data(),name3.Data(),sigProdPDF[i], nSig[i]))
+        else:
+            print "[INFO] Wrong number of fitting dimensions: ",dim
+            exit(0)
 
     ###------------------------------------------------------------------------------------------------------------------------------------###
         ###-------------------------------   Create the backgrounds PDF in Bs mass, Ds mass, PIDK --------------------------------------###
     ###------------------------------------------------------------------------------------------------------------------------------------###
-        
     
     nCombBkgEvts = []
     nKEvts = []
@@ -723,11 +477,11 @@ def runBsDsKMassFitterOnData( debug, sample, mVar, mdVar, tVar, terrVar, tagVar,
     evts = TString("Evts")
     nCombBkg = []
     nBsLb2DsDsstPPiRho = []
-    #nBs2DsPi = []
     nBs2DsDssKKst = []
-    #nLb2DsDsstp = []
     nBd2DK = []
+    nBd2DPi = []
     nLb2LcK = []
+    nLb2LcPi = [] 
     
     bkgBdDsK = []
     width1 = []
@@ -748,28 +502,30 @@ def runBsDsKMassFitterOnData( debug, sample, mVar, mdVar, tVar, terrVar, tagVar,
 
         nameCombBkg = TString("nCombBkg_")+sm[i]+t+evts
         nameBsLb2DsDsstPPiRho = TString("nBsLb2DsDsstPPiRho_")+sm[i]+t+evts
-        #nameBs2DsPi = TString("nBs2DsPi_")+sm[i]+t+evts
         nameLb2LcK = TString("nLb2LcK_")+sm[i]+t+evts
+        nameLb2LcPi = TString("nLb2LcPi_")+sm[i]+t+evts
         nameBs2DsDssKKst = TString("nBs2DsDssKKst_")+sm[i]+t+evts
-        #nameLb2DsDsstp = TString("nLb2DsDsstp_")+sm[i]+t+evts
         nameBd2DK = TString("nBd2DK_")+sm[i]+t+evts
+        nameBd2DPi = TString("nBd2DPi_")+sm[i]+t+evts
+
         if merge: 
-            #inBs2DsPiEvts = myconfigfile["nBs2DsPiEvts"][i*2]+myconfigfile["nBs2DsPiEvts"][i*2+1]
             inBsLb2DsDsstPPiRhoEvts = myconfigfile["nBs2DsDsstPiRhoEvts"][i*2]+myconfigfile["nBs2DsDsstPiRhoEvts"][i*2+1]
             inLbLcKEvts = myconfigfile["nLbLcKEvts"][i*2] + myconfigfile["nLbLcKEvts"][i*2+1]
-            #inLbDspEvts = myconfigfile["nLbDspEvts"][i*2] + myconfigfile["nLbDspEvts"][i*2+1]
+            inLbLcPiEvts = myconfigfile["nLbLcPiEvts"][i*2] + myconfigfile["nLbLcPiEvts"][i*2+1]
             inBdDKEvts = myconfigfile["nBdDKEvts"][i*2]+myconfigfile["nBdDKEvts"][i*2+1]
+            inBdDPiEvts = myconfigfile["nBdDPiEvts"][i*2]+myconfigfile["nBdDPiEvts"][i*2+1]
         else    :
             inBsLb2DsDsstPPiRhoEvts = myconfigfile["nBs2DsDsstPiRhoEvts"][i]
-            #inBs2DsPiEvts = myconfigfile["nBs2DsPiEvts"][i]
             inLbLcKEvts = myconfigfile["nLbLcKEvts"][i]
-            #inLbDspEvts = myconfigfile["nLbDspEvts"][i]
+            inLbLcPiEvts = myconfigfile["nLbLcPiEvts"][i]
             inBdDKEvts = myconfigfile["nBdDKEvts"][i]
-            
+            inBdDPiEvts = myconfigfile["nBdDPiEvts"][i]
+
         nCombBkg.append(RooRealVar( nameCombBkg.Data()  , nameCombBkg.Data() , nCombBkgEvts[i] , 0. , nEntries[i] ))
-        #nBs2DsPi.append(RooRealVar( nameBs2DsPi.Data(), nameBs2DsPi.Data(),  inBs2DsPiEvts, inBs2DsPiEvts*0.5, inBs2DsPiEvts*2.0))
-        nLb2LcK.append(RooRealVar( nameLb2LcK.Data(), nameLb2LcK.Data(), inLbLcKEvts)) #, 0, inLbLcKEvts*2.0))
+        nLb2LcK.append(RooRealVar( nameLb2LcK.Data(), nameLb2LcK.Data(), inLbLcKEvts)) 
+        nLb2LcPi.append(RooRealVar( nameLb2LcPi.Data(), nameLb2LcPi.Data(), inLbLcPiEvts))
         nBd2DK.append(RooRealVar( nameBd2DK.Data(), nameBd2DK.Data(), inBdDKEvts))        
+        nBd2DPi.append(RooRealVar( nameBd2DPi.Data(), nameBd2DPi.Data(), inBdDPiEvts))
 
         if wide:
             nBsLb2DsDsstPPiRho.append(RooRealVar( nameBsLb2DsDsstPPiRho.Data(), nameBsLb2DsDsstPPiRho.Data(),
@@ -777,15 +533,21 @@ def runBsDsKMassFitterOnData( debug, sample, mVar, mdVar, tVar, terrVar, tagVar,
                                                   inBsLb2DsDsstPPiRhoEvts-inBsLb2DsDsstPPiRhoEvts*1.0,
                                                   inBsLb2DsDsstPPiRhoEvts+inBsLb2DsDsstPPiRhoEvts*5.0 ))
             nBs2DsDssKKst.append(RooRealVar( nameBs2DsDssKKst.Data(), nameBs2DsDssKKst.Data(), nKEvts[i] , 0. , nEntries[i]/2 ))
-            #nLb2DsDsstp.append(RooRealVar( nameLb2DsDsstp.Data(), nameLb2DsDsstp.Data(), inLbDspEvts, 0.0, inLbDspEvts*3))
         else:
             nBsLb2DsDsstPPiRho.append(RooRealVar( nameBsLb2DsDsstPPiRho.Data(), nameBsLb2DsDsstPPiRho.Data(),
                                                   inBsLb2DsDsstPPiRhoEvts/2, 0.0, inBsLb2DsDsstPPiRhoEvts*3.0))
             nBs2DsDssKKst.append(RooRealVar( nameBs2DsDssKKst.Data(), nameBs2DsDssKKst.Data(), inBsLb2DsDsstPPiRhoEvts/4, 0.0, inBsLb2DsDsstPPiRhoEvts/2 ))
-            #nLb2DsDsstp.append(RooRealVar( nameLb2DsDsstp.Data(), nameLb2DsDsstp.Data(), inLbDspEvts/2, 0, inBsLb2DsDsstPPiRhoEvts)) #inLbDspEvts*3.0))
-                                                                                                              
-        al1 = myconfigfile["alpha1_bc"][i] #*myconfigfile["alpha1Bsfrac"]
-        al2 = myconfigfile["alpha2_bc"][i] #*myconfigfile["alpha2Bsfrac"]
+
+        getattr(workInt,'import')(nCombBkg[i])
+        getattr(workInt,'import')(nLb2LcK[i])
+        getattr(workInt,'import')(nLb2LcPi[i])
+        getattr(workInt,'import')(nBd2DPi[i])
+        getattr(workInt,'import')(nBd2DK[i])
+        getattr(workInt,'import')(nBsLb2DsDsstPPiRho[i])
+        getattr(workInt,'import')(nBs2DsDssKKst[i])
+
+        al1 = myconfigfile["alpha1_bc"][i] 
+        al2 = myconfigfile["alpha2_bc"][i] 
         n1 =  myconfigfile["n1_bc"][i]
         n2 =  myconfigfile["n2_bc"][i]
         frac =  myconfigfile["frac_bc"][i]
@@ -796,7 +558,7 @@ def runBsDsKMassFitterOnData( debug, sample, mVar, mdVar, tVar, terrVar, tagVar,
                                                          frac,
                                                          m[j],
                                                          TString("Bd2DsK"), debug))
-
+        
         mul = 10.0
         confTS = TString(configName)
         if confTS.Contains("BDTG3"):
@@ -812,7 +574,11 @@ def runBsDsKMassFitterOnData( debug, sample, mVar, mdVar, tVar, terrVar, tagVar,
             fracComb.append(RooRealVar(name.Data(), name.Data(), myconfigfile["fracComb"][i]))
         else:
             fracComb.append(RooRealVar(name.Data(), name.Data(), myconfigfile["fracComb"][i], 0.0, 1.0))
-           
+        
+        getattr(workInt,'import')(cBVar[i])
+        getattr(workInt,'import')(cDVar[i])
+        getattr(workInt,'import')(fracComb[i])
+        
         if merge:
             j=j+1
         else:
@@ -829,118 +595,44 @@ def runBsDsKMassFitterOnData( debug, sample, mVar, mdVar, tVar, terrVar, tagVar,
     #shared variable:
     # Group 1: Bd->DsK, Bs->DsK*
     g1_f1              = RooRealVar( "g1_f1_frac","g1_f1_frac", 1.0)
-    
+    getattr(workInt,'import')(g1_f1)
+
     # Group 2 Bs->DsPi, Bs->DsstPi, Bs->DsRho: (g2_f1)*DsPi + (1-g2_f1)*[ (g2_f2)*DsstPi+(1-g2_f2)*DsRho]
     g2_f1              = RooRealVar( "g2_f1_frac","g2_f1_frac", 0.5, 0, 1) #myconfigfile["g2_f1"],0,1)
     g2_f2              = RooRealVar( "g2_f2_frac","g2_f2_frac", 0.5) #, 0, 1) #myconfigfile["g2_f2"],0,1)
-            
+    getattr(workInt,'import')(g2_f1)
+    getattr(workInt,'import')(g2_f2)
+
     # Group 3: g3_f1*Lb->Dsp + (1-g3_f1)Lb->Ds*p
     g3_f1              = RooRealVar( "g3_f1_frac","g3_f1_frac", 0.75) #, 0.5, 1.0)
+    getattr(workInt,'import')(g3_f1)
 
     # PIDcomponets
     g4_f1              = RooRealVar( "PID1_frac","PID1_frac", 0.6, 0.0, 1.0)
     g4_f2              = RooRealVar( "PID2_frac","PID2_frac", 0.6, 0.0, 1.0)
+    getattr(workInt,'import')(g4_f1)
+    getattr(workInt,'import')(g4_f2)
 
     # Global fraction: (g5_f1)*Bs2DsDsstPiRho + (1-g5_f1)*Lb2DsDsstp
     g5_f1              = RooRealVar( "g5_f1_frac","g5_f1_frac", 0.5, 0, 1);
-    
-    #if toys :
-    #    g1_f1              = RooRealVar( "g1_f1_frac","g1_f1_frac", 1.00000)
-    #    g2_f1              = RooRealVar( "g2_f1_frac","g2_f1_frac", 0.31054)
-    #    g3_f1              = RooRealVar( "g3_f1_frac","g3_f1_frac", 0.99998)
-    #    g4_f1              = RooRealVar( "PID1_frac", "PID1_frac",  0.61381)
-    #    g4_f2              = RooRealVar( "PID2_frac", "PID2_frac",  0.60271)
+    getattr(workInt,'import')(g5_f1)
             
     
     bkgPDF = []
+    workInt.Print("v")
 
     if (mode == "all" and ( sample == "up" or sample == "down")):
         for i in range(0,3):
-            bkgPDF.append(Bs2Dsh2011TDAnaModels.build_Bs2DsK_BKG_MDFitter(mass,
-                                                                          massDs,
-                                                                          workspace[0],
-                                                                          bkgBdDsK[i],
-                                                                          nCombBkg[i],
-                                                                          nBsLb2DsDsstPPiRho[i],
-                                                                          #nBs2DsPi[i],
-                                                                          nBs2DsDssKKst[i],
-                                                                          #nLb2DsDsstp[i],
-                                                                          nBd2DK[i],
-                                                                          nLb2LcK[i],
-                                                                          g1_f1,
-                                                                          g2_f1,
-                                                                          g2_f2,
-                                                                          g3_f1,
-                                                                          g4_f1,
-                                                                          g4_f2,
-                                                                          g5_f1,
-                                                                          sigDsPDF[i],
-                                                                          cBVar[i],
-                                                                          cDVar[i],
-                                                                          fracComb[i],
-                                                                          sm[i],
-                                                                          lumRatio,
-                                                                          debug ))
+            bkgPDF.append(Bs2Dsh2011TDAnaModels.build_Bs2DsK_BKG_MDFitter(mass, massDs, workspace[0], workInt, bkgBdDsK[i], sm[i], dim, debug ))
     else:
         if merge:
             for i in range(0,bound):
-                bkgPDF.append(Bs2Dsh2011TDAnaModels.build_Bs2DsK_BKG_MDFitter(mass,
-                                                                              massDs,
-                                                                              workspace[0],
-                                                                              bkgBdDsK[i],
-                                                                              nCombBkg[i],
-                                                                              nBsLb2DsDsstPPiRho[i],
-                                                                              #nBs2DsPi[i],
-                                                                              nBs2DsDssKKst[i],
-                                                                              #nLb2DsDsstp[i],
-                                                                              nBd2DK[i],
-                                                                              nLb2LcK[i],
-                                                                              g1_f1,
-                                                                              g2_f1,
-                                                                              g2_f2,
-                                                                              g3_f1,
-                                                                              g4_f1,
-                                                                              g4_f2,
-                                                                              g5_f1,
-                                                                              sigDsPDF[i],
-                                                                              cBVar[i],
-                                                                              cDVar[i],
-                                                                              fracComb[i],
-                                                                              sm[i],
-                                                                              lumRatio,
-                                                                              debug ))
-                
+                bkgPDF.append(Bs2Dsh2011TDAnaModels.build_Bs2DsK_BKG_MDFitter(mass, massDs, workspace[0], workInt, bkgBdDsK[i], sm[i], dim, debug ))
         else:
-           
             for i in range(0,ranmode):
                 for j in range (0,ransample):
-                    print "i %s, j %s"%(i,j)
-                    print "sample: %s, sm: %s, name: %s"%(s[j],sm[i*2+j],nCombBkg[i*2+j])
-                    bkgPDF.append(Bs2Dsh2011TDAnaModels.build_Bs2DsK_BKG_MDFitter(mass,
-                                                                                  massDs,
-                                                                                  workspace[0],
-                                                                                  bkgBdDsK[i*2+j],
-                                                                                  nCombBkg[i*2+j],
-                                                                                  nBsLb2DsDsstPPiRho[i*2+j],
-                                                                                  #nBs2DsPi[i*2+j],
-                                                                                  nBs2DsDssKKst[i*2+j],
-                                                                                  #nLb2DsDsstp[i*2+j],
-                                                                                  nBd2DK[i*2+j],
-                                                                                  nLb2LcK[i*2+j],
-                                                                                  g1_f1,
-                                                                                  g2_f1,
-                                                                                  g2_f2,
-                                                                                  g3_f1,
-                                                                                  g4_f1,
-                                                                                  g4_f2,
-                                                                                  g5_f1,
-                                                                                  sigDsPDF[i*2+j],
-                                                                                  cBVar[i*2+j],
-                                                                                  cDVar[i*2+j],
-                                                                                  fracComb[i*2+j],
-                                                                                  sm[i*2+j],
-                                                                                  lumRatio,
-                                                                                  debug ))
+                    bkgPDF.append(Bs2Dsh2011TDAnaModels.build_Bs2DsK_BKG_MDFitter(mass, massDs, workspace[0], workInt, 
+                                                                                  bkgBdDsK[i*2+j], sm[i*2+j], dim, debug ))
                     
         
         
@@ -972,13 +664,14 @@ def runBsDsKMassFitterOnData( debug, sample, mVar, mdVar, tVar, terrVar, tagVar,
     ###------------------------------------------------------------------------------------------------------------------------------------###
           ###--------------------------------------------  Instantiate and run the fitter  -------------------------------------------###
     ###------------------------------------------------------------------------------------------------------------------------------------###
-    
+    #exit(0)
+
     fitter = FitMeTool( debug )
     fitter.setObservables( observables )
     fitter.setModelPDF( totPDF )
     fitter.setData(combData) 
-                
-    fitter.fit(True, RooFit.Extended(), RooFit.SumW2Error(True), RooFit.Verbose(False))
+    
+    fitter.fit(True, RooFit.Extended(), RooFit.Verbose(False)) #RooFit.SumW2Error(True), RooFit.Verbose(False))
     result = fitter.getFitResult()
     result.Print("v")
     floatpar = result.floatParsFinal()
@@ -1177,7 +870,9 @@ parser.add_option( '--merge',
                    default = False,
                    help = 'merge magnet polarity'
                    )
-
+parser.add_option( '--dim',
+                   dest = 'dim',
+                   default = 3)
 
 # -----------------------------------------------------------------------------
 
@@ -1195,6 +890,6 @@ if __name__ == '__main__' :
                                 options.tagvar, options.tagomegavar, options.idvar,\
                                 options.mode, options.sweight, \
                                 options.fileNameAll, options.fileNameToys,
-                                options.workName, options.configName, options.wide, options.merge)
+                                options.workName, options.configName, options.wide, options.dim, options.merge)
 
 # -----------------------------------------------------------------------------

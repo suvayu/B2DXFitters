@@ -4,6 +4,17 @@
 ! Purpose     : RooFit-based fitters for B -> D X
 !-----------------------------------------------------------------------------
 
+! 2014-02-19 - Agnieszka Dziurda
+ - MDFitter update:
+  - new signal line shapes
+  - new funcionality: posibility to do 1D, 2D, 3D fits
+  - clean up all parts of MDFitter
+  - add DPi and LcPi to DsK
+  - new fd/fs fraction in misID predicition
+  - new ratio data/MC
+  - new scale factor for signal widths
+  - update old scripts to be used with MDFitterSettings
+
 ! 2014-02-08 - Agnieszka Dziurda
  - Small extension of  package for DsK* analysis
  - First scripts for DsK* 

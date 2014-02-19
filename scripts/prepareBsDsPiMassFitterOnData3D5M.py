@@ -154,35 +154,17 @@ def prepareBsDsPiMassFitterOnData( debug,
     MDSettings.SetMassDVar(TString(mdVar))
     MDSettings.SetTimeVar(TString(tVar))
     MDSettings.SetTerrVar(TString(terrVar))
-    MDSettings.SetTagVar(TString(tagVar))
-    MDSettings.SetTagOmegaVar(TString(tagOmegaVar))
     MDSettings.SetIDVar(TString(idVar))
     MDSettings.SetPIDKVar(TString(pidkVar))
     MDSettings.SetBDTGVar(TString(bdtgVar))
     MDSettings.SetMomVar(TString(pVar))
     MDSettings.SetTrMomVar(TString(ptVar))
     MDSettings.SetTracksVar(TString(ntracksVar))
-
-    MDSettingsMC = MDFitterSettings("MDSettingsMC","MDFSettingsMC",config)
-    MDSettingsMC.SetMassBVar(TString(mVar))
-    MDSettingsMC.SetMassDVar(TString(mdVar))
-    MDSettingsMC.SetTimeVar(TString(tVar))
-    MDSettingsMC.SetTerrVar(TString(terrVar))
-    MDSettingsMC.SetTagVar(TString("lab0_BsTaggingTool_TAGDECISION_OS"))
-    MDSettingsMC.SetTagOmegaVar(TString("lab0_BsTaggingTool_TAGOMEGA_OS"))
-    MDSettingsMC.SetIDVar(TString(idVar))
-    MDSettingsMC.SetPIDKVar(TString(pidkVar))
-    MDSettingsMC.SetBDTGVar(TString(bdtgVar))
-    MDSettingsMC.SetMomVar(TString(pVar))
-    MDSettingsMC.SetTrMomVar(TString(ptVar))
-    MDSettingsMC.SetTracksVar(TString(ntracksVar))
-    
-    
+        
     MDRatio= 1.0-myconfigfile["lumRatio"]
     MURatio= myconfigfile["lumRatio"]
 
     MDSettings.Print("v")
-    MDSettingsMC.Print("v")
         
     tagTool = TagTool
  
@@ -205,7 +187,7 @@ def prepareBsDsPiMassFitterOnData( debug,
         
     if DPi:
         workspace = MassFitUtils.ObtainMissForBsDsPi(dataTS, TString("#BdPi"), TString("nonres"),  
-                                                     MDSettings, TString("Bd2DPi"),workspace, false, plotSettings, debug)
+                                                     MDSettings, TString("Bd2DPi"),workspace, plotSettings, debug)
         
     workspace.Print()
     GeneralUtils.SaveWorkspace(workspace,saveNameTS, debug)
@@ -223,14 +205,14 @@ def prepareBsDsPiMassFitterOnData( debug,
         
     if MC:
         workspace = MassFitUtils.ObtainSpecBack(dataTS, TString("#MC FileName MD"), TString("#MC TreeName"),
-                                                MDSettingsMC, TString("BsDsPi"), workspace, true, MDRatio, plotSettings, debug)
+                                                MDSettings, TString("BsDsPi"), workspace, true, MDRatio, plotSettings, debug)
         
         workspace = MassFitUtils.ObtainSpecBack(dataTS, TString("#MC FileName MU"), TString("#MC TreeName"),
-                                                MDSettingsMC, TString("BsDsPi"), workspace, true, MURatio, plotSettings, debug)
+                                                MDSettings, TString("BsDsPi"), workspace, true, MURatio, plotSettings, debug)
         
         workspace = MassFitUtils.CreatePdfSpecBackground(dataTS, TString("#MC FileName MD"),
                                                          dataTS, TString("#MC FileName MU"),
-                                                         MDSettingsMC, workspace, true, plotSettings, debug)
+                                                         MDSettings, workspace, true, plotSettings, debug)
         
     workspace.Print()
     GeneralUtils.SaveWorkspace(workspace,saveNameTS, debug)
@@ -238,37 +220,37 @@ def prepareBsDsPiMassFitterOnData( debug,
     
     if MCPID:
         workspace = WeightingUtils.ObtainHistRatio(TString(myconfigfile["dataName"]), TString("#MC FileName MD"),
-                                                   MDSettingsMC, TString("MC BsDsPi Down Pion"), workspace, plotSettings, debug)
+                                                   MDSettings, TString("MC BsDsPi Down Pion"), workspace, plotSettings, debug)
         
         workspace = WeightingUtils.ObtainHistRatio(TString(myconfigfile["dataName"]), TString("#MC FileName MU"),
-                                                   MDSettingsMC, TString("MC BsDsPi Up Pion"), workspace, plotSettings, debug)
+                                                   MDSettings, TString("MC BsDsPi Up Pion"), workspace, plotSettings, debug)
         
         workspace.Print()
         GeneralUtils.SaveWorkspace(workspace,saveNameTS, debug)
         
         workspace = WeightingUtils.ObtainHistRatio(TString(myconfigfile["dataName"]), TString("#MC FileName MD"),
-                                                   MDSettingsMC, TString("MC BsDsPi Down Kaon"), workspace, plotSettings, debug)
+                                                   MDSettings, TString("MC BsDsPi Down Kaon"), workspace, plotSettings, debug)
         
         workspace = WeightingUtils.ObtainHistRatio(TString(myconfigfile["dataName"]), TString("#MC FileName MU"),
-                                                   MDSettingsMC, TString("MC BsDsPi Up Kaon"), workspace, plotSettings, debug)
+                                                   MDSettings, TString("MC BsDsPi Up Kaon"), workspace, plotSettings, debug)
         
         workspace.Print()
         GeneralUtils.SaveWorkspace(workspace,saveNameTS, debug)
                 
         workspace = WeightingUtils.ObtainPIDShapeFromCalibSample(TString(myconfigfile["dataName"]), TString("#MC FileName MD"),
-                                                                 MDSettingsMC, TString("MC BsDsPi Down Pion"), workspace, plotSettings, debug)
+                                                                 MDSettings, TString("MC BsDsPi Down Pion"), workspace, plotSettings, debug)
         
         workspace = WeightingUtils.ObtainPIDShapeFromCalibSample(TString(myconfigfile["dataName"]), TString("#MC FileName MU"),
-                                                                 MDSettingsMC, TString("MC BsDsPi Up Pion"), workspace, plotSettings, debug)
+                                                                 MDSettings, TString("MC BsDsPi Up Pion"), workspace, plotSettings, debug)
     
         workspace.Print()
         GeneralUtils.SaveWorkspace(workspace,saveNameTS, debug)
         
         workspace = WeightingUtils.ObtainPIDShapeFromCalibSample(TString(myconfigfile["dataName"]), TString("#MC FileName MD"),
-                                                                 MDSettingsMC, TString("MC BsDsPi Down Kaon"), workspace, plotSettings, debug)
+                                                                 MDSettings, TString("MC BsDsPi Down Kaon"), workspace, plotSettings, debug)
         
         workspace = WeightingUtils.ObtainPIDShapeFromCalibSample(TString(myconfigfile["dataName"]), TString("#MC FileName MU"),
-                                                                 MDSettingsMC, TString("MC BsDsPi Up Kaon"), workspace, plotSettings, debug)
+                                                                 MDSettings, TString("MC BsDsPi Up Kaon"), workspace, plotSettings, debug)
         
     workspace.Print()
     GeneralUtils.SaveWorkspace(workspace,saveNameTS, debug)
@@ -282,7 +264,7 @@ def prepareBsDsPiMassFitterOnData( debug,
 
         for i in range(0,5):
             workspace = MassFitUtils.ObtainSignal(TString(myconfigfile["dataName"]), signalNames[i],
-                                                  MDSettingsMC, TString("BsDsPi"), false, false, workspace, false,
+                                                  MDSettings, TString("BsDsPi"), false, false, workspace, false,
                                                   1.0, 1.0, plotSettings, debug)
             
         
@@ -303,9 +285,9 @@ def prepareBsDsPiMassFitterOnData( debug,
                           TString("MC BsDsPi PiPiPi Pion Up")]
         
         for i in range(0,10):
-            workspace = WeightingUtils.ObtainHistRatioOneSample(MDSettingsMC, signalNamesPID[i], workspace, workspace, plotSettings, debug)
+            workspace = WeightingUtils.ObtainHistRatioOneSample(MDSettings, signalNamesPID[i], workspace, workspace, plotSettings, debug)
             
-            workspace = WeightingUtils.ObtainPIDShapeFromCalibSampleOneSample(MDSettingsMC, signalNamesPID[i], workspace, plotSettings, debug)
+            workspace = WeightingUtils.ObtainPIDShapeFromCalibSampleOneSample(MDSettings, signalNamesPID[i], workspace, plotSettings, debug)
             
             workspace.Print()
             GeneralUtils.SaveWorkspace(workspace,saveNameTS, debug)

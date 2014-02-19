@@ -23,6 +23,7 @@
 #include "TString.h"
 #include "TString.h"
 #include "TH1F.h"
+#include "TH2F.h"
 #include "TTree.h"
 #include "TCut.h"
 #include "RooAbsData.h"
@@ -133,7 +134,14 @@ namespace MassFitUtils {
   //===========================================================================
   TString GetHistNameBachPIDEffBkgMC(MDFitterSettings* mdSet, TString hypo, bool debug = false);
 
-
+  //===========================================================================                                                                               
+  // Get correlation factor between observables                                                                                                    
+  //===========================================================================                                    
+  Double_t CheckCorr(RooDataSet* data, RooRealVar* obs1, RooRealVar* obs2, TString corrName,
+		     PlotSettings* plotSet = NULL, bool debug = false );
+  
+  TH2F* GetCorrHist(RooDataSet* data, RooDataSet* dataPID, RooArgSet* obs, std::vector <TString> &obsName,
+                    TString corrName, PlotSettings* plotSet, bool debug );
   //===========================================================================
   // Obtain dataSets for all partially reconstructed backgrounds
   // filesDir - name of config .txt file from where data are loaded
@@ -152,7 +160,7 @@ namespace MassFitUtils {
 			       MDFitterSettings* mdSet,
 			       TString& hypo,
 			       RooWorkspace* workspace = NULL,
-			       Bool_t mistag = false, 
+			       Bool_t corr = false, 
 			       double globalWeight = 1.0,
 			       PlotSettings* plotSet = NULL,
 			       bool        debug = false);

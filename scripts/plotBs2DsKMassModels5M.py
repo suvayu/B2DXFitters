@@ -170,6 +170,9 @@ parser.add_option( '--bin',
                    default = 100,
                    help = 'set number of bins'
                    )
+parser.add_option( '--dim',
+                   dest = 'dim',
+                   default = 3)
 
 #------------------------------------------------------------------------------
 def plotDataSet( dataset, frame, sample, mode, merge) :
@@ -336,6 +339,13 @@ def plotFitModel( model, frame, sam, var,mode, merge) :
                 nameLamK5 = TString("Lb2LcKEPDF_m_both_")+mode5
                 nameLamK = nameLamK1+p+nameLamK2+p+nameLamK3+p+nameLamK4+p+nameLamK5
 
+                nameLamPi1 = TString("Lb2LcPiEPDF_m_both_")+mode1
+                nameLamPi2 = TString("Lb2LcPiEPDF_m_both_")+mode2
+                nameLamPi3 = TString("Lb2LcPiEPDF_m_both_")+mode3
+                nameLamPi4 = TString("Lb2LcPiEPDF_m_both_")+mode4
+                nameLamPi5 = TString("Lb2LcPiEPDF_m_both_")+mode5
+                nameLamPi = nameLamPi1+p+nameLamPi2+p+nameLamPi3+p+nameLamPi4+p+nameLamPi5
+
                 nameRho1 = TString("PhysBkgBs2DsDsstPiRhoPdf_m_both_")+mode1+tot #+p+TString("Bs2DsPiEPDF_m_both_")+mode1
                 nameRho2 = TString("PhysBkgBs2DsDsstPiRhoPdf_m_both_")+mode2+tot #+p+TString("Bs2DsPiEPDF_m_both_")+mode2
                 nameRho3 = TString("PhysBkgBs2DsDsstPiRhoPdf_m_both_")+mode3+tot #+p+TString("Bs2DsPiEPDF_m_both_")+mode3
@@ -356,7 +366,21 @@ def plotFitModel( model, frame, sam, var,mode, merge) :
                 nameDK4  = TString("Bd2DKEPDF_m_both_")+mode4
                 nameDK5  = TString("Bd2DKEPDF_m_both_")+mode5
                 nameDK  = nameDK1+p+nameDK2+p+nameDK3+p+nameDK4+p+nameDK5
-                                
+
+                nameDK1  = TString("Bd2DKEPDF_m_both_")+mode1
+                nameDK2  = TString("Bd2DKEPDF_m_both_")+mode2
+                nameDK3  = TString("Bd2DKEPDF_m_both_")+mode3
+                nameDK4  = TString("Bd2DKEPDF_m_both_")+mode4
+                nameDK5  = TString("Bd2DKEPDF_m_both_")+mode5
+                nameDK  = nameDK1+p+nameDK2+p+nameDK3+p+nameDK4+p+nameDK5
+                
+                nameDPi1  = TString("Bd2DPiEPDF_m_both_")+mode1
+                nameDPi2  = TString("Bd2DPiEPDF_m_both_")+mode2
+                nameDPi3  = TString("Bd2DPiEPDF_m_both_")+mode3
+                nameDPi4  = TString("Bd2DPiEPDF_m_both_")+mode4
+                nameDPi5  = TString("Bd2DPiEPDF_m_both_")+mode5
+                nameDPi  = nameDPi1+p+nameDPi2+p+nameDPi3+p+nameDPi4+p+nameDPi5
+            
             elif mode.Contains("3modes"):
                 nameTot = TString("FullPdf")
 
@@ -388,6 +412,11 @@ def plotFitModel( model, frame, sam, var,mode, merge) :
                 nameLamK2 = TString("Lb2LcKEPDF_m_both_")+mode2
                 nameLamK3 = TString("Lb2LcKEPDF_m_both_")+mode3
                 nameLamK = nameLamK1+p+nameLamK2+p+nameLamK3
+
+                nameLamPi1 = TString("Lb2LcPiEPDF_m_both_")+mode1
+                nameLamPi2 = TString("Lb2LcPiEPDF_m_both_")+mode2
+                nameLamPi3 = TString("Lb2LcPiEPDF_m_both_")+mode3
+                nameLamPi = nameLamPi1+p+nameLamPi2+p+nameLamPi3
                               
                 nameRho1 = TString("PhysBkgBs2DsDsstPiRhoPdf_m_both_")+mode1+tot #+p+TString("Bs2DsPiEPDF_m_both_")+mode1
                 nameRho2 = TString("PhysBkgBs2DsDsstPiRhoPdf_m_both_")+mode2+tot #+p+TString("Bs2DsPiEPDF_m_both_")+mode2
@@ -404,16 +433,22 @@ def plotFitModel( model, frame, sam, var,mode, merge) :
                 nameDK3  = TString("Bd2DKEPDF_m_both_")+mode3
                 nameDK  = nameDK1+p+nameDK2+p+nameDK3
                 
+                nameDPi1  = TString("Bd2DPiEPDF_m_both_")+mode1
+                nameDPi2  = TString("Bd2DPiEPDF_m_both_")+mode2
+                nameDPi3  = TString("Bd2DPiEPDF_m_both_")+mode3
+                nameDPi  = nameDPi1+p+nameDPi2+p+nameDPi3
+
             else:
                 nameTot = TString("FullPdf")
                 nameCom = TString("CombBkgEPDF_m_both_")+mode
                 nameSig = TString("SigEPDF_both_")+mode
                 nameLam = TString("PhysBkgLb2DsDsstPPdf_m_both_")+mode+tot
                 nameLamK = TString("Lb2LcKEPDF_m_both_")+mode
+                nameLamPi = TString("Lb2LcPiEPDF_m_both_")+mode
                 nameRho = TString("PhysBkgBs2DsDsstPiRhoPdf_m_both_")+mode+tot #p+TString("Bs2DsPiEPDF_m_both_")+mode
                 nameKst = TString("Bs2DsDsstKKstEPDF_m_both_")+mode
                 nameDK  = TString("Bd2DKEPDF_m_both_")+mode
-                
+                nameDPi  = TString("Bd2DPiEPDF_m_both_")+mode
                 
         else:    
             if mode == "all":
@@ -442,7 +477,11 @@ def plotFitModel( model, frame, sam, var,mode, merge) :
                 nameLamK2 = TString("Lb2LcKEPDF_m_up_")+mode2+p+TString("Lb2LcKEPDF_m_down_")+mode2
                 nameLamK3 = TString("Lb2LcKEPDF_m_up_")+mode3+p+TString("Lb2LcKEPDF_m_down_")+mode3
                 nameLamK = nameLamK1+p+nameLamK2+p+nameLamK3
-                   
+
+                nameLamPi1 = TString("Lb2LcPiEPDF_m_up_")+mode1+p+TString("Lb2LcPiEPDF_m_down_")+mode1
+                nameLamPi2 = TString("Lb2LcPiEPDF_m_up_")+mode2+p+TString("Lb2LcPiEPDF_m_down_")+mode2
+                nameLamPi3 = TString("Lb2LcPiEPDF_m_up_")+mode3+p+TString("Lb2LcPiEPDF_m_down_")+mode3
+                nameLamPi = nameLamPi1+p+nameLamPi2+p+nameLamPi3
                 
                 nameRho1 = TString("PhysBkgBs2DsDsstPiRhoPdf_m_up_")+mode1+tot+p+TString("PhysBkgBs2DsDsstPiRhoPdf_m_down_")+mode1+tot 
                 nameRho2 = TString("PhysBkgBs2DsDsstPiRhoPdf_m_up_")+mode2+tot+p+TString("PhysBkgBs2DsDsstPiRhoPdf_m_down_")+mode2+tot
@@ -459,6 +498,10 @@ def plotFitModel( model, frame, sam, var,mode, merge) :
                 nameDK3  = TString("Bd2DKEPDF_m_up_")+mode3+p+TString("Bd2DKEPDF_m_down_")+mode3
                 nameDK  = nameDK1+p+nameDK2+p+nameDK3
                 
+                nameDPi1  = TString("Bd2DPiEPDF_m_up_")+mode1+p+TString("Bd2DPiEPDF_m_down_")+mode1
+                nameDPi2  = TString("Bd2DPiEPDF_m_up_")+mode2+p+TString("Bd2DPiEPDF_m_down_")+mode2
+                nameDPi3  = TString("Bd2DPiEPDF_m_up_")+mode3+p+TString("Bd2DPiEPDF_m_down_")+mode3
+                nameDPi  = nameDPi1+p+nameDPi2+p+nameDPi3
                 
             else:
                 nameTot = TString("FullPdf")
@@ -468,9 +511,11 @@ def plotFitModel( model, frame, sam, var,mode, merge) :
                 nameSig = TString("SigEPDF_up_")+mode+p+TString("SigEPDF_down_")+mode
                 nameLam = TString("PhysBkgLb2DsDsstPPdf_m_up_")+mode+tot+p+TString("PhysBkgLb2DsDsstPPdf_m_down_")+mode+tot
                 nameLamK = TString("Lb2LcKEPDF_m_up_")+mode+p+TString("Lb2LcKEPDF_m_down_")+mode
+                nameLamPi = TString("Lb2LcPiEPDF_m_up_")+mode+p+TString("Lb2LcPiEPDF_m_down_")+mode
                 nameRho = TString("PhysBkgBs2DsDsstPiRhoPdf_m_up_")+mode+tot+p+TString("PhysBkgBs2DsDsstPiRhoPdf_m_down_")+mode+tot 
                 nameKst = TString("Bs2DsDsstKKstEPDF_m_up_")+mode+p+TString("Bs2DsDsstKKstEPDF_m_down_")+mode
                 nameDK  = TString("Bd2DKEPDF_m_up_")+mode+p+TString("Bd2DKEPDF_m_down_")+mode
+                nameDPi  = TString("Bd2DPiEPDF_m_up_")+mode+p+TString("Bd2DPiEPDF_m_down_")+mode
                                                                                     
     else:
         if mode == "all":
@@ -500,6 +545,10 @@ def plotFitModel( model, frame, sam, var,mode, merge) :
             nameLamK3 = TString("Lb2LcKEPDF_m_")+sam+t+TString("pipipi")
             nameLamK = nameLamK1+p+nameLamK2+p+nameLamK3
                                             
+            nameLamPi1 = TString("Lb2LcPiEPDF_m_")+sam+t+TString("kkpi")
+            nameLamPi2 = TString("Lb2LcPiEPDF_m_")+sam+t+TString("kpipi")
+            nameLamPi3 = TString("Lb2LcPiEPDF_m_")+sam+t+TString("pipipi")
+            nameLamPi = nameLamPi1+p+nameLamPi2+p+nameLamPi3
 
             nameRho1 = TString("PhysBkgBs2DsDsstPiRhoPdf_m_")+sam+t+TString("kkpi")+tot #+p+TString("Bs2DsPiEPDF_m_")+sam+t+TString("kkpi")
             nameRho2 = TString("PhysBkgBs2DsDsstPiRhoPdf_m_")+sam+t+TString("kpipi")+tot #+p+TString("Bs2DsPiEPDF_m_")+sam+t+TString("kpipi")
@@ -515,6 +564,11 @@ def plotFitModel( model, frame, sam, var,mode, merge) :
             nameDK2  = TString("Bd2DKEPDF_m_")+sam+t+TString("kpipi")
             nameDK3  = TString("Bd2DKEPDF_m_")+sam+t+TString("pipipi")
             nameDK  = nameDK1+p+nameDK2+p+nameDK3
+            
+            nameDPi1  = TString("Bd2DPiEPDF_m_")+sam+t+TString("kkpi")
+            nameDPi2  = TString("Bd2DPiEPDF_m_")+sam+t+TString("kpipi")
+            nameDPi3  = TString("Bd2DPiEPDF_m_")+sam+t+TString("pipipi")
+            nameDPi  = nameDPi1+p+nameDPi2+p+nameDPi3
         
         else:
             nameTot = TString("FullPdf")
@@ -522,16 +576,19 @@ def plotFitModel( model, frame, sam, var,mode, merge) :
             nameSig = TString("SigEPDF_")+sam+t+mode
             nameLam = TString("PhysBkgLb2DsDsstPPdf_m_")+sam+t+mode+tot
             nameLamK = TString("Lb2LcKEPDF_m_")+sam+t+mode
+            nameLamPi = TString("Lb2LcPiEPDF_m_")+sam+t+mode
             nameRho = TString("PhysBkgBs2DsDsstPiRhoPdf_m_")+sam+t+mode+tot #+p+TString("Bs2DsPiEPDF_m_")+sam+t+mode
             nameKst = TString("Bs2DsDsstKKstEPDF_m_")+sam+t+mode
             nameDK  = TString("Bd2DKEPDF_m_")+sam+t+mode
-                                                        
-    #p=TString(",")
+            nameDPi  = TString("Bd2DPiEPDF_m_")+sam+t+mode
     
-    nameLamKCom = nameLamK+p+nameCom
+    #p=TString(",")
+    nameLamKPi = nameLamK+p+nameLamPi        
+    nameDKPi = nameDK+p+nameDPi        
+    nameLamKCom = nameLamKPi+p+nameCom
     nameLamCom  = nameLamKCom+p+nameLam
     nameAllDsPi = nameLamCom+p+nameRho
-    nameAllDK   = nameAllDsPi+p+nameDK
+    nameAllDK   = nameAllDsPi+p+nameDKPi
     nameAllDsK  = nameAllDK+p+nameKst
 
                 
@@ -627,6 +684,7 @@ if __name__ == '__main__' :
                       ( options.wsname, FILENAME ) )
     
     f.Close()
+    dim = int(options.dim)
     bin = options.bin
     mVarTS = TString(options.var)
     mass = w.var(mVarTS.Data())
@@ -663,7 +721,7 @@ if __name__ == '__main__' :
     if sam == "up" or sam == "down" or (sam == "both" and merge == True):
         if mod =="all":
             print "Sample %s, mode %s"%(sam,mod)
-            w.factory("SUM:FullPdf(nBsLb2DsDsstPPiRho_%s_nonres_Evts*BsLb2DsDsstPPiRhoEPDF_m_%s_nonres, nBs2DsDssKKst_%s_nonres_Evts*Bs2DsDsstKKstEPDF_m_%s_nonres, nBd2DK_%s_nonres_Evts*Bd2DKEPDF_m_%s_nonres, nSig_%s_nonres_Evts*SigEPDF_%s_nonres, nCombBkg_%s_nonres_Evts*CombBkgEPDF_m_%s_nonres, nLb2LcK_%s_nonres_Evts*Lb2LcKEPDF_m_%s_nonres, nBsLb2DsDsstPPiRho_%s_phipi_Evts*BsLb2DsDsstPPiRhoEPDF_m_%s_phipi, nBs2DsDssKKst_%s_phipi_Evts*Bs2DsDsstKKstEPDF_m_%s_phipi, nBd2DK_%s_phipi_Evts*Bd2DKEPDF_m_%s_phipi, nSig_%s_phipi_Evts*SigEPDF_%s_phipi, nCombBkg_%s_phipi_Evts*CombBkgEPDF_m_%s_phipi, nLb2LcK_%s_phipi_Evts*Lb2LcKEPDF_m_%s_phipi, nBsLb2DsDsstPPiRho_%s_kstk_Evts*BsLb2DsDsstPPiRhoEPDF_m_%s_kstk, nBs2DsDssKKst_%s_kstk_Evts*Bs2DsDsstKKstEPDF_m_%s_kstk, nBd2DK_%s_kstk_Evts*Bd2DKEPDF_m_%s_kstk, nSig_%s_kstk_Evts*SigEPDF_%s_kstk, nCombBkg_%s_kstk_Evts*CombBkgEPDF_m_%s_kstk, nLb2LcK_%s_kstk_Evts*Lb2LcKEPDF_m_%s_kstk, nBsLb2DsDsstPPiRho_%s_kpipi_Evts*BsLb2DsDsstPPiRhoEPDF_m_%s_kpipi, nBs2DsDssKKst_%s_kpipi_Evts*Bs2DsDsstKKstEPDF_m_%s_kpipi, nBd2DK_%s_kpipi_Evts*Bd2DKEPDF_m_%s_kpipi, nSig_%s_kpipi_Evts*SigEPDF_%s_kpipi, nCombBkg_%s_kpipi_Evts*CombBkgEPDF_m_%s_kpipi, nLb2LcK_%s_kpipi_Evts*Lb2LcKEPDF_m_%s_kpipi, nBsLb2DsDsstPPiRho_%s_pipipi_Evts*BsLb2DsDsstPPiRhoEPDF_m_%s_pipipi, nBs2DsDssKKst_%s_pipipi_Evts*Bs2DsDsstKKstEPDF_m_%s_pipipi, nBd2DK_%s_pipipi_Evts*Bd2DKEPDF_m_%s_pipipi, nSig_%s_pipipi_Evts*SigEPDF_%s_pipipi, nCombBkg_%s_pipipi_Evts*CombBkgEPDF_m_%s_pipipi, nLb2LcK_%s_pipipi_Evts*Lb2LcKEPDF_m_%s_pipipi)"%(sam,sam,sam,sam,sam,sam,sam,sam,sam,sam,sam,sam,sam,sam,sam,sam,sam,sam,sam,sam,sam,sam,sam,sam,sam,sam,sam,sam,sam,sam,sam,sam,sam,sam,sam,sam,sam,sam,sam,sam,sam,sam,sam,sam,sam,sam,sam,sam,sam,sam,sam,sam,sam,sam,sam,sam,sam,sam,sam,sam))
+            w.factory("SUM:FullPdf(nBsLb2DsDsstPPiRho_%s_nonres_Evts*BsLb2DsDsstPPiRhoEPDF_m_%s_nonres, nBs2DsDssKKst_%s_nonres_Evts*Bs2DsDsstKKstEPDF_m_%s_nonres, nBd2DK_%s_nonres_Evts*Bd2DKEPDF_m_%s_nonres, nSig_%s_nonres_Evts*SigEPDF_%s_nonres, nCombBkg_%s_nonres_Evts*CombBkgEPDF_m_%s_nonres, nLb2LcK_%s_nonres_Evts*Lb2LcKEPDF_m_%s_nonres, nBsLb2DsDsstPPiRho_%s_phipi_Evts*BsLb2DsDsstPPiRhoEPDF_m_%s_phipi, nBs2DsDssKKst_%s_phipi_Evts*Bs2DsDsstKKstEPDF_m_%s_phipi, nBd2DK_%s_phipi_Evts*Bd2DKEPDF_m_%s_phipi, nSig_%s_phipi_Evts*SigEPDF_%s_phipi, nCombBkg_%s_phipi_Evts*CombBkgEPDF_m_%s_phipi, nLb2LcK_%s_phipi_Evts*Lb2LcKEPDF_m_%s_phipi, nBsLb2DsDsstPPiRho_%s_kstk_Evts*BsLb2DsDsstPPiRhoEPDF_m_%s_kstk, nBs2DsDssKKst_%s_kstk_Evts*Bs2DsDsstKKstEPDF_m_%s_kstk, nBd2DK_%s_kstk_Evts*Bd2DKEPDF_m_%s_kstk, nSig_%s_kstk_Evts*SigEPDF_%s_kstk, nCombBkg_%s_kstk_Evts*CombBkgEPDF_m_%s_kstk, nLb2LcK_%s_kstk_Evts*Lb2LcKEPDF_m_%s_kstk, nBsLb2DsDsstPPiRho_%s_kpipi_Evts*BsLb2DsDsstPPiRhoEPDF_m_%s_kpipi, nBs2DsDssKKst_%s_kpipi_Evts*Bs2DsDsstKKstEPDF_m_%s_kpipi, nBd2DK_%s_kpipi_Evts*Bd2DKEPDF_m_%s_kpipi, nSig_%s_kpipi_Evts*SigEPDF_%s_kpipi, nCombBkg_%s_kpipi_Evts*CombBkgEPDF_m_%s_kpipi, nLb2LcK_%s_kpipi_Evts*Lb2LcKEPDF_m_%s_kpipi, nBsLb2DsDsstPPiRho_%s_pipipi_Evts*BsLb2DsDsstPPiRhoEPDF_m_%s_pipipi, nBs2DsDssKKst_%s_pipipi_Evts*Bs2DsDsstKKstEPDF_m_%s_pipipi, nBd2DK_%s_pipipi_Evts*Bd2DKEPDF_m_%s_pipipi, nSig_%s_pipipi_Evts*SigEPDF_%s_pipipi, nCombBkg_%s_pipipi_Evts*CombBkgEPDF_m_%s_pipipi, nLb2LcK_%s_pipipi_Evts*Lb2LcKEPDF_m_%s_pipipi, nLb2LcPi_%s_nonres_Evts*Lb2LcPiEPDF_m_%s_nonres,nLb2LcPi_%s_phipi_Evts*Lb2LcPiEPDF_m_%s_phipi, nLb2LcPi_%s_kstk_Evts*Lb2LcPiEPDF_m_%s_kstk, nLb2LcPi_%s_kpipi_Evts*Lb2LcPiEPDF_m_%s_kpipi, nLb2LcPi_%s_pipipi_Evts*Lb2LcPiEPDF_m_%s_pipipi, nBd2DPi_%s_nonres_Evts*Bd2DPiEPDF_m_%s_nonres, nBd2DPi_%s_phipi_Evts*Bd2DPiEPDF_m_%s_phipi,nBd2DPi_%s_kpipi_Evts*Bd2DPiEPDF_m_%s_kpipi,nBd2DPi_%s_kstk_Evts*Bd2DPiEPDF_m_%s_kstk,nBd2DPi_%s_pipipi_Evts*Bd2DPiEPDF_m_%s_pipipi)"%(sam,sam,sam,sam,sam,sam,sam,sam,sam,sam,sam,sam,sam,sam,sam,sam,sam,sam,sam,sam,sam,sam,sam,sam,sam,sam,sam,sam,sam,sam,sam,sam,sam,sam,sam,sam,sam,sam,sam,sam,sam,sam,sam,sam,sam,sam,sam,sam,sam,sam,sam,sam,sam,sam,sam,sam,sam,sam,sam,sam,sam,sam,sam,sam,sam,sam,sam,sam,sam,sam,sam,sam,sam,sam,sam,sam,sam,sam,sam,sam))
             pullfake = "h_combData_Cut[sample==sample::%s_nonres || sample==sample::%s_phipi || sample==sample::%s_kstk || sample==sample::%s_kpipi || sample==sample::%s_pipipi]"%(sam,sam,sam,sam,sam)
             pullname2TS = TString(pullfake)
                                                  
@@ -678,13 +736,13 @@ if __name__ == '__main__' :
                 mod2 = "kpipi"
                 mod3 = "pipipi"
             
-            w.factory("SUM:FullPdf(nBsLb2DsDsstPPiRho_%s_%s_Evts*BsLb2DsDsstPPiRhoEPDF_m_%s_%s, nBs2DsDssKKst_%s_%s_Evts*Bs2DsDsstKKstEPDF_m_%s_%s, nBd2DK_%s_%s_Evts*Bd2DKEPDF_m_%s_%s, nSig_%s_%s_Evts*SigEPDF_%s_%s, nCombBkg_%s_%s_Evts*CombBkgEPDF_m_%s_%s, nLb2LcK_%s_%s_Evts*Lb2LcKEPDF_m_%s_%s, nBsLb2DsDsstPPiRho_%s_%s_Evts*BsLb2DsDsstPPiRhoEPDF_m_%s_%s, nBs2DsDssKKst_%s_%s_Evts*Bs2DsDsstKKstEPDF_m_%s_%s, nBd2DK_%s_%s_Evts*Bd2DKEPDF_m_%s_%s, nSig_%s_%s_Evts*SigEPDF_%s_%s, nCombBkg_%s_%s_Evts*CombBkgEPDF_m_%s_%s, nLb2LcK_%s_%s_Evts*Lb2LcKEPDF_m_%s_%s, nBsLb2DsDsstPPiRho_%s_%s_Evts*BsLb2DsDsstPPiRhoEPDF_m_%s_%s, nBs2DsDssKKst_%s_%s_Evts*Bs2DsDsstKKstEPDF_m_%s_%s, nBd2DK_%s_%s_Evts*Bd2DKEPDF_m_%s_%s, nSig_%s_%s_Evts*SigEPDF_%s_%s, nCombBkg_%s_%s_Evts*CombBkgEPDF_m_%s_%s,nLb2LcK_%s_%s_Evts*Lb2LcKEPDF_m_%s_%s)"%(sam,mod1,sam,mod1,sam,mod1,sam,mod1,sam,mod1,sam,mod1,sam,mod1,sam,mod1,sam,mod1,sam,mod1,sam,mod1,sam,mod1,sam,mod2,sam,mod2,sam,mod2,sam,mod2,sam,mod2,sam,mod2,sam,mod2,sam,mod2,sam,mod2,sam,mod2,sam,mod2,sam,mod2,sam,mod3,sam,mod3,sam,mod3,sam,mod3,sam,mod3,sam,mod3,sam,mod3,sam,mod3,sam,mod3,sam,mod3,sam,mod3,sam,mod3))
+            w.factory("SUM:FullPdf(nBsLb2DsDsstPPiRho_%s_%s_Evts*BsLb2DsDsstPPiRhoEPDF_m_%s_%s, nBs2DsDssKKst_%s_%s_Evts*Bs2DsDsstKKstEPDF_m_%s_%s, nBd2DK_%s_%s_Evts*Bd2DKEPDF_m_%s_%s, nSig_%s_%s_Evts*SigEPDF_%s_%s, nCombBkg_%s_%s_Evts*CombBkgEPDF_m_%s_%s, nLb2LcK_%s_%s_Evts*Lb2LcKEPDF_m_%s_%s, nBsLb2DsDsstPPiRho_%s_%s_Evts*BsLb2DsDsstPPiRhoEPDF_m_%s_%s, nBs2DsDssKKst_%s_%s_Evts*Bs2DsDsstKKstEPDF_m_%s_%s, nBd2DK_%s_%s_Evts*Bd2DKEPDF_m_%s_%s, nSig_%s_%s_Evts*SigEPDF_%s_%s, nCombBkg_%s_%s_Evts*CombBkgEPDF_m_%s_%s, nLb2LcK_%s_%s_Evts*Lb2LcKEPDF_m_%s_%s, nBsLb2DsDsstPPiRho_%s_%s_Evts*BsLb2DsDsstPPiRhoEPDF_m_%s_%s, nBs2DsDssKKst_%s_%s_Evts*Bs2DsDsstKKstEPDF_m_%s_%s, nBd2DK_%s_%s_Evts*Bd2DKEPDF_m_%s_%s, nSig_%s_%s_Evts*SigEPDF_%s_%s, nCombBkg_%s_%s_Evts*CombBkgEPDF_m_%s_%s,nLb2LcK_%s_%s_Evts*Lb2LcKEPDF_m_%s_%s,nLb2LcPi_%s_%s_Evts*Lb2LcPiEPDF_m_%s_%s, nLb2LcPi_%s_%s_Evts*Lb2LcPiEPDF_m_%s_%s, nLb2LcPi_%s_%s_Evts*Lb2LcPiEPDF_m_%s_%s, nBd2DPi_%s_%s_Evts*Bd2DPiEPDF_m_%s_%s, nBd2DPi_%s_%s_Evts*Bd2DPiEPDF_m_%s_%s, nBd2DPi_%s_%s_Evts*Bd2DPiEPDF_m_%s_%s)"%(sam,mod1,sam,mod1,sam,mod1,sam,mod1,sam,mod1,sam,mod1,sam,mod1,sam,mod1,sam,mod1,sam,mod1,sam,mod1,sam,mod1,sam,mod2,sam,mod2,sam,mod2,sam,mod2,sam,mod2,sam,mod2,sam,mod2,sam,mod2,sam,mod2,sam,mod2,sam,mod2,sam,mod2,sam,mod3,sam,mod3,sam,mod3,sam,mod3,sam,mod3,sam,mod3,sam,mod3,sam,mod3,sam,mod3,sam,mod3,sam,mod3,sam,mod3,sam,mod1,sam,mod1,sam,mod2,sam,mod2,sam,mod3,sam,mod3, sam,mod1,sam,mod1,sam,mod2,sam,mod2,sam,mod3,sam,mod3))
             pullfake = "h_combData_Cut[sample==sample::%s_%s || sample==sample::%s_%s || sample==sample::%s_%s]"%(sam,mod1,sam,mod2,sam,mod3)
             pullname2TS = TString(pullfake)
             
         elif mod == "phipi" or mod == "kstk" or mod == "nonres" or mod == "kkpi" or mod == "kpipi" or mod == "pipipi":
             print "Sample %s, %s "%(sam,mod)
-            w.factory("SUM:FullPdf(nBsLb2DsDsstPPiRho_%s_%s_Evts*BsLb2DsDsstPPiRhoEPDF_m_%s_%s, nBs2DsDssKKst_%s_%s_Evts*Bs2DsDsstKKstEPDF_m_%s_%s, nBd2DK_%s_%s_Evts*Bd2DKEPDF_m_%s_%s, nSig_%s_%s_Evts*SigEPDF_%s_%s, nCombBkg_%s_%s_Evts*CombBkgEPDF_m_%s_%s, nLb2LcK_%s_%s_Evts*Lb2LcKEPDF_m_%s_%s)"%(sam,mod,sam,mod,sam,mod,sam,mod,sam,mod,sam,mod,sam,mod,sam,mod,sam,mod,sam,mod,sam,mod,sam,mod))
+            w.factory("SUM:FullPdf(nBsLb2DsDsstPPiRho_%s_%s_Evts*BsLb2DsDsstPPiRhoEPDF_m_%s_%s, nBs2DsDssKKst_%s_%s_Evts*Bs2DsDsstKKstEPDF_m_%s_%s, nBd2DK_%s_%s_Evts*Bd2DKEPDF_m_%s_%s, nSig_%s_%s_Evts*SigEPDF_%s_%s, nCombBkg_%s_%s_Evts*CombBkgEPDF_m_%s_%s, nLb2LcK_%s_%s_Evts*Lb2LcKEPDF_m_%s_%s, nLb2LcPi_%s_%s_Evts*Lb2LcPiEPDF_m_%s_%s,  nBd2DPi_%s_%s_Evts*Bd2DPiEPDF_m_%s_%s )"%(sam,mod,sam,mod,sam,mod,sam,mod,sam,mod,sam,mod,sam,mod,sam,mod,sam,mod,sam,mod,sam,mod,sam,mod,sam,mod,sam,mod,sam,mod,sam,mod))
             pullfake = "h_combData_Cut[sample==sample::%s_%s]"%(sam,mod)
             pullname2TS = TString(pullfake)
         else:
@@ -694,15 +752,15 @@ if __name__ == '__main__' :
         if mod == "all":
             s = ["up","down"]
             for i in range(0,2):
-                w.factory("SUM:FullPdf%s(nBsLb2DsDsstPPiRho_%s_nonres_Evts*BsLb2DsDsstPPiRhoEPDF_m_%s_nonres, nBs2DsDssKKst_%s_nonres_Evts*Bs2DsDsstKKstEPDF_m_%s_nonres, nBd2DK_%s_nonres_Evts*Bd2DKEPDF_m_%s_nonres, nSig_%s_nonres_Evts*SigEPDF_%s_nonres, nCombBkg_%s_nonres_Evts*CombBkgEPDF_m_%s_nonres, nLb2LcK_%s_nonres_Evts*Lb2LcKEPDF_m_%s_nonres, nBsLb2DsDsstPPiRho_%s_phipi_Evts*BsLb2DsDsstPPiRhoEPDF_m_%s_phipi, nBs2DsDssKKst_%s_phipi_Evts*Bs2DsDsstKKstEPDF_m_%s_phipi, nBd2DK_%s_phipi_Evts*Bd2DKEPDF_m_%s_phipi, nSig_%s_phipi_Evts*SigEPDF_%s_phipi, nCombBkg_%s_phipi_Evts*CombBkgEPDF_m_%s_phipi, nLb2LcK_%s_phipi_Evts*Lb2LcKEPDF_m_%s_phipi, nBsLb2DsDsstPPiRho_%s_kstk_Evts*BsLb2DsDsstPPiRhoEPDF_m_%s_kstk, nBs2DsDssKKst_%s_kstk_Evts*Bs2DsDsstKKstEPDF_m_%s_kstk, nBd2DK_%s_kstk_Evts*Bd2DKEPDF_m_%s_kstk, nSig_%s_kstk_Evts*SigEPDF_%s_kstk, nCombBkg_%s_kstk_Evts*CombBkgEPDF_m_%s_kstk, nLb2LcK_%s_kstk_Evts*Lb2LcKEPDF_m_%s_kstk, nBsLb2DsDsstPPiRho_%s_kpipi_Evts*BsLb2DsDsstPPiRhoEPDF_m_%s_kpipi, nBs2DsDssKKst_%s_kpipi_Evts*Bs2DsDsstKKstEPDF_m_%s_kpipi, nBd2DK_%s_kpipi_Evts*Bd2DKEPDF_m_%s_kpipi, nSig_%s_kpipi_Evts*SigEPDF_%s_kpipi, nCombBkg_%s_kpipi_Evts*CombBkgEPDF_m_%s_kpipi, nLb2LcK_%s_kpipi_Evts*Lb2LcKEPDF_m_%s_kpipi, nBsLb2DsDsstPPiRho_%s_pipipi_Evts*BsLb2DsDsstPPiRhoEPDF_m_%s_pipipi, nBs2DsDssKKst_%s_pipipi_Evts*Bs2DsDsstKKstEPDF_m_%s_pipipi, nBd2DK_%s_pipipi_Evts*Bd2DKEPDF_m_%s_pipipi, nSig_%s_pipipi_Evts*SigEPDF_%s_pipipi, nCombBkg_%s_pipipi_Evts*CombBkgEPDF_m_%s_pipipi, nLb2LcK_%s_pipipi_Evts*Lb2LcKEPDF_m_%s_pipipi)"%(str(i+1),s[i],s[i],s[i],s[i],s[i],s[i],s[i],s[i],s[i],s[i],s[i],s[i],s[i],s[i],s[i],s[i],s[i],s[i],s[i],s[i],s[i],s[i],s[i],s[i],s[i],s[i],s[i],s[i],s[i],s[i],s[i],s[i],s[i],s[i],s[i],s[i],s[i],s[i],s[i],s[i],s[i],s[i],s[i],s[i],s[i],s[i],s[i],s[i],s[i],s[i],s[i],s[i],s[i],s[i],s[i],s[i],s[i],s[i],s[i],s[i]))
+                w.factory("SUM:FullPdf%s(nBsLb2DsDsstPPiRho_%s_nonres_Evts*BsLb2DsDsstPPiRhoEPDF_m_%s_nonres, nBs2DsDssKKst_%s_nonres_Evts*Bs2DsDsstKKstEPDF_m_%s_nonres, nBd2DK_%s_nonres_Evts*Bd2DKEPDF_m_%s_nonres, nSig_%s_nonres_Evts*SigEPDF_%s_nonres, nCombBkg_%s_nonres_Evts*CombBkgEPDF_m_%s_nonres, nLb2LcK_%s_nonres_Evts*Lb2LcKEPDF_m_%s_nonres, nBsLb2DsDsstPPiRho_%s_phipi_Evts*BsLb2DsDsstPPiRhoEPDF_m_%s_phipi, nBs2DsDssKKst_%s_phipi_Evts*Bs2DsDsstKKstEPDF_m_%s_phipi, nBd2DK_%s_phipi_Evts*Bd2DKEPDF_m_%s_phipi, nSig_%s_phipi_Evts*SigEPDF_%s_phipi, nCombBkg_%s_phipi_Evts*CombBkgEPDF_m_%s_phipi, nLb2LcK_%s_phipi_Evts*Lb2LcKEPDF_m_%s_phipi, nBsLb2DsDsstPPiRho_%s_kstk_Evts*BsLb2DsDsstPPiRhoEPDF_m_%s_kstk, nBs2DsDssKKst_%s_kstk_Evts*Bs2DsDsstKKstEPDF_m_%s_kstk, nBd2DK_%s_kstk_Evts*Bd2DKEPDF_m_%s_kstk, nSig_%s_kstk_Evts*SigEPDF_%s_kstk, nCombBkg_%s_kstk_Evts*CombBkgEPDF_m_%s_kstk, nLb2LcK_%s_kstk_Evts*Lb2LcKEPDF_m_%s_kstk, nBsLb2DsDsstPPiRho_%s_kpipi_Evts*BsLb2DsDsstPPiRhoEPDF_m_%s_kpipi, nBs2DsDssKKst_%s_kpipi_Evts*Bs2DsDsstKKstEPDF_m_%s_kpipi, nBd2DK_%s_kpipi_Evts*Bd2DKEPDF_m_%s_kpipi, nSig_%s_kpipi_Evts*SigEPDF_%s_kpipi, nCombBkg_%s_kpipi_Evts*CombBkgEPDF_m_%s_kpipi, nLb2LcK_%s_kpipi_Evts*Lb2LcKEPDF_m_%s_kpipi, nBsLb2DsDsstPPiRho_%s_pipipi_Evts*BsLb2DsDsstPPiRhoEPDF_m_%s_pipipi, nBs2DsDssKKst_%s_pipipi_Evts*Bs2DsDsstKKstEPDF_m_%s_pipipi, nBd2DK_%s_pipipi_Evts*Bd2DKEPDF_m_%s_pipipi, nSig_%s_pipipi_Evts*SigEPDF_%s_pipipi, nCombBkg_%s_pipipi_Evts*CombBkgEPDF_m_%s_pipipi, nLb2LcK_%s_pipipi_Evts*Lb2LcKEPDF_m_%s_pipipi, nLb2LcPi_%s_nonres_Evts*Lb2LcPiEPDF_m_%s_nonres,nLb2LcPi_%s_phipi_Evts*Lb2LcPiEPDF_m_%s_phipi, nLb2LcPi_%s_kstk_Evts*Lb2LcPiEPDF_m_%s_kstk, nLb2LcPi_%s_kpipi_Evts*Lb2LcPiEPDF_m_%s_kpipi, nLb2LcPi_%s_pipipi_Evts*Lb2LcPiEPDF_m_%s_pipipi, nBd2DPi_%s_nonres_Evts*Bd2DPiEPDF_m_%s_nonres, nBd2DPi_%s_phipi_Evts*Bd2DPiEPDF_m_%s_phipi,nBd2DPi_%s_kpipi_Evts*Bd2DPiEPDF_m_%s_kpipi,nBd2DPi_%s_kstk_Evts*Bd2DPiEPDF_m_%s_kstk,nBd2DPi_%s_pipipi_Evts*Bd2DPiEPDF_m_%s_pipipi)"%(str(i+1),s[i],s[i],s[i],s[i],s[i],s[i],s[i],s[i],s[i],s[i],s[i],s[i],s[i],s[i],s[i],s[i],s[i],s[i],s[i],s[i],s[i],s[i],s[i],s[i],s[i],s[i],s[i],s[i],s[i],s[i],s[i],s[i],s[i],s[i],s[i],s[i],s[i],s[i],s[i],s[i],s[i],s[i],s[i],s[i],s[i],s[i],s[i],s[i],s[i],s[i],s[i],s[i],s[i],s[i],s[i],s[i],s[i],s[i],s[i],s[i],s[i],s[i],s[i],s[i],s[i],s[i],s[i],s[i],s[i],s[i],s[i],s[i],s[i],s[i],s[i],s[i],s[i],s[i],s[i],s[i]))
                                 
-                w.factory("EXPR::N_%s('nBsLb2DsDsstPPiRho_%s_nonres_Evts+nBs2DsDssKKst_%s_nonres_Evts+nBd2DK_%s_nores_Evts+nSig_%s_nonres_Evts+nCombBkg_%s_nonres_Evts+nLb2LcK_%s_nonres_Evts+nBsLb2DsDsstPPiRho_%s_phipi_Evts+nBs2DsDssKKst_%s_phipi_Evts+nBd2DK_%s_phipi_Evts+nSig_%s_phipi_Evts+nCombBkg_%s_phipi_Evts+nLb2LcK_%s_phipi_Evts+nBsLb2DsDsstPPiRho_%s_kstk_Evts+nBs2DsDssKKst_%s_kstk_Evts+nBd2DK_%s_kstk_Evts+nSig_%s_kstk_Evts+nCombBkg_%s_kstk_Evts+nLb2LcK_%s_kstk_Evts+nBsLb2DsDsstPPiRho_%s_kpipi_Evts+nBs2DsDssKKst_%s_kpipi_Evts+nBd2DK_%s_kpipi_Evts+nSig_%s_kpipi_Evts+nCombBkg_%s_kpipi_Evts+nLb2LcK_%s_kpipi_Evts+nBsLb2DsDsstPPiRho_%s_pipipi_Evts+nBs2DsDssKKst_%s_pipipi_Evts+nBd2DK_%s_pipipi_Evts+nSig_%s_pipipi_Evts+nCombBkg_%s_pipipi_Evts+nLb2LcK_%s_pipipi_Evts',nBsLb2DsDsstPPiRho_%s_nonres_Evts,nBs2DsDssKKst_%s_nonres_Evts,nBd2DK_%s_nonres_Evts,nSig_%_nonres_Evts,nCombBkg_%s_nonres_Evts,nLb2LcK_%s_nonres_Evts, nBsLb2DsDsstPPiRho_%s_phipi_Evts,nBs2DsDssKKst_%s_phipi_Evts,nBd2DK_%s_phipi_Evts,nSig_%_phipi_Evts,nCombBkg_%s_phipi_Evts,nLb2LcK_%s_phipi_Evts,nBsLb2DsDsstPPiRho_%s_kstk_Evts,nBs2DsDssKKst_%s_kstk_Evts,nBd2DK_%s_kstk_Evts,nSig_%_kstk_Evts,nCombBkg_%s_kstk_Evts,nLb2LcK_%s_kstk_Evts, nBsLb2DsDsstPPiRho_%s_kpipi_Evts,nBs2DsDssKKst_%s_kpipi_Evts, nBd2DK_%s_kpipi_Evts,nSig_%s_kpipi_Evts,nCombBkg_%s_kpipi_Evts, nLb2LcK_%s_kpipi_Evts, nBsLb2DsDsstPPiRho_%s_pipipi_Evts,nBs2DsDssKKst_%s_pipipi_Evts, nBd2DK_%s_pipipi_Evts,nSig_%s_pipipi_Evts,nCombBkg_%s_pipipi_Evts)"%(str(i+1), s[i],s[i],s[i],s[i],s[i],s[i], s[i],s[i],s[i],s[i],s[i],s[i], s[i],s[i],s[i],s[i],s[i],s[i], s[i],s[i],s[i],s[i],s[i],s[i], s[i],s[i],s[i],s[i],s[i],s[i], s[i],s[i],s[i],s[i],s[i],s[i], s[i],s[i],s[i],s[i],s[i],s[i], s[i],s[i],s[i],s[i],s[i],s[i], s[i],s[i],s[i],s[i],s[i],s[i], s[i],s[i],s[i],s[i],s[i],s[i]))
+                w.factory("EXPR::N_%s('nBsLb2DsDsstPPiRho_%s_nonres_Evts+nBs2DsDssKKst_%s_nonres_Evts+nBd2DK_%s_nores_Evts+nSig_%s_nonres_Evts+nCombBkg_%s_nonres_Evts+nLb2LcK_%s_nonres_Evts+nBsLb2DsDsstPPiRho_%s_phipi_Evts+nBs2DsDssKKst_%s_phipi_Evts+nBd2DK_%s_phipi_Evts+nSig_%s_phipi_Evts+nCombBkg_%s_phipi_Evts+nLb2LcK_%s_phipi_Evts+nBsLb2DsDsstPPiRho_%s_kstk_Evts+nBs2DsDssKKst_%s_kstk_Evts+nBd2DK_%s_kstk_Evts+nSig_%s_kstk_Evts+nCombBkg_%s_kstk_Evts+nLb2LcK_%s_kstk_Evts+nBsLb2DsDsstPPiRho_%s_kpipi_Evts+nBs2DsDssKKst_%s_kpipi_Evts+nBd2DK_%s_kpipi_Evts+nSig_%s_kpipi_Evts+nCombBkg_%s_kpipi_Evts+nLb2LcK_%s_kpipi_Evts+nBsLb2DsDsstPPiRho_%s_pipipi_Evts+nBs2DsDssKKst_%s_pipipi_Evts+nBd2DK_%s_pipipi_Evts+nSig_%s_pipipi_Evts+nCombBkg_%s_pipipi_Evts+nLb2LcK_%s_pipipi_Evts',nBsLb2DsDsstPPiRho_%s_nonres_Evts,nBs2DsDssKKst_%s_nonres_Evts,nBd2DK_%s_nonres_Evts,nSig_%_nonres_Evts,nCombBkg_%s_nonres_Evts,nLb2LcK_%s_nonres_Evts, nBsLb2DsDsstPPiRho_%s_phipi_Evts,nBs2DsDssKKst_%s_phipi_Evts,nBd2DK_%s_phipi_Evts,nSig_%_phipi_Evts,nCombBkg_%s_phipi_Evts,nLb2LcK_%s_phipi_Evts,nBsLb2DsDsstPPiRho_%s_kstk_Evts,nBs2DsDssKKst_%s_kstk_Evts,nBd2DK_%s_kstk_Evts,nSig_%_kstk_Evts,nCombBkg_%s_kstk_Evts,nLb2LcK_%s_kstk_Evts, nBsLb2DsDsstPPiRho_%s_kpipi_Evts,nBs2DsDssKKst_%s_kpipi_Evts, nBd2DK_%s_kpipi_Evts,nSig_%s_kpipi_Evts,nCombBkg_%s_kpipi_Evts, nLb2LcK_%s_kpipi_Evts, nBsLb2DsDsstPPiRho_%s_pipipi_Evts,nBs2DsDssKKst_%s_pipipi_Evts, nBd2DK_%s_pipipi_Evts,nSig_%s_pipipi_Evts,nCombBkg_%s_pipipi_Evts, nLb2LcPi_%s_nonres_Evts, nLb2LcPi_%s_phipi_Evts, nLb2LcPi_%s_kstk_Evts,nLb2LcPi_%s_kpipi_Evts,nLb2LcPi_%s_pipipi_Evts, nBd2DPi_%s_nonres_Evts, nBd2DK_%s_phipi_Evts, nBd2DK_%s_kpipi_Evts, nBd2DK_%s_kstk_Evts, nBd2DK_%s_pipiipi_Evts)"%(str(i+1), s[i],s[i],s[i],s[i],s[i],s[i], s[i],s[i],s[i],s[i],s[i],s[i], s[i],s[i],s[i],s[i],s[i],s[i], s[i],s[i],s[i],s[i],s[i],s[i], s[i],s[i],s[i],s[i],s[i],s[i], s[i],s[i],s[i],s[i],s[i],s[i], s[i],s[i],s[i],s[i],s[i],s[i], s[i],s[i],s[i],s[i],s[i],s[i], s[i],s[i],s[i],s[i],s[i],s[i], s[i],s[i],s[i],s[i],s[i],s[i],s[i],s[i],s[i],s[i],s[i],s[i],s[i],s[i],s[i],s[i]))
 
                 w.factory("SUM:FullPdf(N_1*FullPdf1,N_2*FullPdf2)")
                 pullname2TS = TString("h_combData_Cut[sample==sample::up_nonres || sample==sample::up_phipi || sample==sample::up_kstk || sample==sample::up_kpipi || sample==sample::up_pipipi || sample==sample::down_nonres || sample==sample::down_phipi || sample==sample::down_kstk || sample==sample::down_kpipi || sample==sample::down_pipipi]")
         elif mod == "phipi" or mod == "kstk" or mod == "nonres" or mode == "kkpi" or mode == "kpipi" or mode == "pipipi":
             print "Sample both, mode %s"%(mod)
-            w.factory("SUM:FullPdf(nBsLb2DsDsstPPiRho_down_%_Evts*BsLb2DsDsstPPiRhoEPDF_m_down_%s, nBs2DsDssKKst_down_%s_Evts*Bs2DsDsstKKstEPDF_m_down_%s, nBd2DK_down_%s_Evts*Bd2DKEPDF_m_down_%s, nSig_down_%s_Evts*SigEPDF_down_%s, nCombBkg_down_%s_Evts*CombBkgEPDF_m_down_%s,nBsLb2DsDsstPPiRho_up_%s_Evts*BsLb2DsDsstPiRhoEPDF_m_up_%s, nBs2DsDssKKst_up_%s_Evts*Bs2DsDsstKKstEPDF_m_up_%s, nBd2DK_up_%s_Evts*Bd2DKEPDF_m_up_%s, nSig_up_%s_Evts*SigEPDF_up_%s, nCombBkg_up_%s_Evts*CombBkgEPDF_m_up_%s, nLb2LcK_up_%s_Evts*Lb2LcKEPDF_m_up_%s, nLb2LcK_down_%s_Evts*Lb2LcKEPDF_m_down_%s)"%(mod,mod,mod,mod,mod,mod,mod,mod,mod,mod,mod,mod,mod,mod,mod,mod,mod,mod,mod,mod,mod,mod))
+            w.factory("SUM:FullPdf(nBsLb2DsDsstPPiRho_down_%_Evts*BsLb2DsDsstPPiRhoEPDF_m_down_%s, nBs2DsDssKKst_down_%s_Evts*Bs2DsDsstKKstEPDF_m_down_%s, nBd2DK_down_%s_Evts*Bd2DKEPDF_m_down_%s, nSig_down_%s_Evts*SigEPDF_down_%s, nCombBkg_down_%s_Evts*CombBkgEPDF_m_down_%s,nBsLb2DsDsstPPiRho_up_%s_Evts*BsLb2DsDsstPiRhoEPDF_m_up_%s, nBs2DsDssKKst_up_%s_Evts*Bs2DsDsstKKstEPDF_m_up_%s, nBd2DK_up_%s_Evts*Bd2DKEPDF_m_up_%s, nSig_up_%s_Evts*SigEPDF_up_%s, nCombBkg_up_%s_Evts*CombBkgEPDF_m_up_%s, nLb2LcK_up_%s_Evts*Lb2LcKEPDF_m_up_%s, nLb2LcK_down_%s_Evts*Lb2LcKEPDF_m_down_%s, nLb2LcPi_up_%s_Evts*Lb2LcPiEPDF_m_up_%s, nLb2LcPi_down_%s_Evts*Lb2LcPiEPDF_m_down_%s, nBd2DPi_down_%s_Evts*Bd2DPiEPDF_m_down_%s, nBd2DPi_up_%s_Evts*Bd2DPiEPDF_m_up_%s)"%(mod,mod,mod,mod,mod,mod,mod,mod,mod,mod,mod,mod,mod,mod,mod,mod,mod,mod,mod,mod,mod,mod,mod,mod,mod,mod,mod,mod,mod,mod))
             pullfake = "h_combData_Cut[sample==sample::up_%s || sample==sample::down_%s]"%(mod,mod)
             pullname2TS = TString(pullfake)
         else:
@@ -826,13 +884,13 @@ if __name__ == '__main__' :
     h6=TH1F("Lb2LcK","Lb2LcK",5,0,1)
     h6.SetFillColor(kGreen-3)
     h6.SetFillStyle(1001)
-    legend.AddEntry(h6, "#Lambda_{b} #rightarrow #Lambda_{c}K", "f")
+    legend.AddEntry(h6, "#Lambda_{b} #rightarrow #Lambda_{c}(K,#pi)", "f")
        
             
     h4=TH1F("BDK","BDK",5,0,1)
     h4.SetFillColor(kRed)
     h4.SetFillStyle(1001)
-    legend.AddEntry(h4, "B_{d} #rightarrow DK", "f")
+    legend.AddEntry(h4, "B_{d} #rightarrow D(K,#pi)", "f")
 
     h5=TH1F("Combinatorial","Combinatorial",5,0,1)
     h5.SetFillColor(kMagenta-2)
@@ -896,13 +954,21 @@ if __name__ == '__main__' :
                                                                                     
     
     frame_m.Print("v")
-    if mVarTS == "lab1_PIDK":
-        pullnameTS = TString("FullPdf_Int[lab0_MassFitConsD_M,lab2_MM]_Norm[lab0_MassFitConsD_M,lab1_PIDK,lab2_MM]_Comp[FullPdf]")
-    elif mVarTS == "lab2_MM":
-        pullnameTS = TString("FullPdf_Int[lab0_MassFitConsD_M,lab1_PIDK]_Norm[lab0_MassFitConsD_M,lab1_PIDK,lab2_MM]_Comp[FullPdf]")
-    else:
-        pullnameTS = TString("FullPdf_Int[lab1_PIDK,lab2_MM]_Norm[lab0_MassFitConsD_M,lab1_PIDK,lab2_MM]_Comp[FullPdf]")
-        
+    if dim == 3:
+        if mVarTS == "lab1_PIDK":
+            pullnameTS = TString("FullPdf_Int[lab0_MassFitConsD_M,lab2_MM]_Norm[lab0_MassFitConsD_M,lab1_PIDK,lab2_MM]_Comp[FullPdf]")
+        elif mVarTS == "lab2_MM":
+            pullnameTS = TString("FullPdf_Int[lab0_MassFitConsD_M,lab1_PIDK]_Norm[lab0_MassFitConsD_M,lab1_PIDK,lab2_MM]_Comp[FullPdf]")
+        else:
+            pullnameTS = TString("FullPdf_Int[lab1_PIDK,lab2_MM]_Norm[lab0_MassFitConsD_M,lab1_PIDK,lab2_MM]_Comp[FullPdf]")
+    elif dim == 2:
+        if mVarTS == "lab2_MM":
+            pullnameTS = TString("FullPdf_Int[lab0_MassFitConsD_M]_Norm[lab0_MassFitConsD_M,lab2_MM]_Comp[FullPdf]")
+        else:
+            pullnameTS = TString("FullPdf_Int[lab2_MM]_Norm[lab0_MassFitConsD_M,lab2_MM]_Comp[FullPdf]")
+    elif dim == 1:
+        pullnameTS = TString("FullPdf_Norm[lab0_MassFitConsD_M]_Comp[FullPdf]")
+
     pullHist  = frame_m.pullHist(pullname2TS.Data(),pullnameTS.Data())
     axisX = pullHist.GetXaxis()
     frame_p.addPlotable(pullHist,"P")

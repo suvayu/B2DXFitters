@@ -952,10 +952,282 @@ namespace GeneralUtils {
     RooDataSet* data = NULL;
     data = (RooDataSet*)work->data(dat.Data());
     if( data != NULL ){ 
-      if ( debug == true) std::cout<<"Read data set: "<<data->GetName()<<" with number of entries: "<<data->numEntries()<<std::endl; 
+      if ( debug == true) 
+	{
+	  std::cout<<"Read data set: "<<data->GetName()<<" with number of entries: "<<data->numEntries() 
+		   <<" and the sum of entries: "<<data->sumEntries()<<std::endl;
+	}
       return data; 
     }
     else{ if ( debug == true) std::cout<<"Cannot read data set"<<std::endl; return NULL;}
+
+  }
+
+  RooDataSet* GetDataSet(RooWorkspace* work, RooArgSet* obs, RooCategory& sam, 
+			 TString &dat, TString & sample, TString& mode, 
+			 bool merge, bool debug )
+  {
+    
+    std::vector <RooDataSet*> data;
+    std::vector <TString> sm; 
+    std::vector <Int_t> nEntries;
+    RooDataSet* combData = NULL; 
+    TString dataName = "combData";
+
+    
+    if (debug == true ){ std::cout<<"[INFO] Sample "<<sample<<". Mode "<<mode<<std::endl; }
+    if ( merge == true && sample != "both") { std::cout<<"[ERROR] Option merge only possible for sample = both"<<std::endl; return NULL; }  
+
+    std::vector <TString> s;
+    std::vector <TString> m; 
+
+    s = GetSample(sample,debug);
+    m = GetMode(mode, debug );
+    sm = GetSampleMode(sample, mode, false, debug);
+    
+    for (int i=0; i<sm.size(); i++ )
+      {
+	TString name = dat+sm[i]; 
+	data.push_back(GetDataSet(work,name,debug));	
+	nEntries.push_back(data[i]->numEntries());
+      }
+
+    if ( debug == true )
+      {
+	Int_t nEntries_up = 0;
+	Int_t nEntries_dw = 0; 
+	if ( sample == "both" ) 
+	  {
+	    for(int i=0; i<m.size()*s.size(); i++ )
+	      {
+		if( i%2 == 0 ) { nEntries_up += nEntries[i]; }
+		else { nEntries_dw +=  nEntries[i]; }
+	      }
+	    std::cout<<"Magnet up: "<<nEntries_up<<" Magnet down: "<<nEntries_dw<<" Both polarities: "<<nEntries_up+nEntries_dw<<std::endl;
+	  }
+	else
+	  {
+	    for(int i=0; i<m.size()*s.size(); i++ )
+              {
+		nEntries_up += nEntries[i];
+              }
+	    std::cout<<"Magnet "<<sample<<": "<<nEntries_up<<std::endl;
+	  }
+      }
+    if( merge == true )
+      {
+	for (int i =0; i<s.size()*m.size(); i++)
+	  {
+	    if(i%2 == 0) 
+	      {
+		data[i]->append(*data[i+1]);
+	      }
+	  }
+		
+	sm = GetSampleMode(sample, mode, true, debug);
+	for (int i=0; i<m.size(); i++ )
+	  {
+	    sam.defineType(sm[i].Data());
+	  }
+ 
+	if (  mode == "all" )
+	  {
+	    
+	    combData = new RooDataSet(dataName.Data(),dataName.Data(),*obs,
+				      RooFit::Index(sam),
+				      RooFit::Import(sm[0].Data(),*data[0]), RooFit::Import(sm[1].Data(),*data[2]),
+				      RooFit::Import(sm[2].Data(),*data[4]), RooFit::Import(sm[3].Data(),*data[6]), 
+				      RooFit::Import(sm[4].Data(),*data[8]));
+	  }
+	else if ( mode == "3modes" or mode == "3modeskkpi" )
+	  {
+	    combData = new RooDataSet(dataName.Data(),dataName.Data(),*obs,
+                                      RooFit::Index(sam),
+                                      RooFit::Import(sm[0].Data(),*data[0]), 
+				      RooFit::Import(sm[1].Data(),*data[2]),
+                                      RooFit::Import(sm[2].Data(),*data[4]));
+	  }
+	else
+	  {
+	    combData = new RooDataSet(dataName.Data(),dataName.Data(),*obs,
+                                      RooFit::Index(sam),
+                                      RooFit::Import(sm[0].Data(),*data[0]));
+	  }
+      }
+    else
+      {
+	for (int i=0; i<sm.size(); i++ )
+	  {
+	    sam.defineType(sm[i].Data());
+	  }
+	if ( sample == "both" )
+	  {
+	    if (  mode == "all" )
+	      {
+		combData = new RooDataSet(dataName.Data(),dataName.Data(),*obs,
+					  RooFit::Index(sam),
+					  RooFit::Import(sm[0].Data(),*data[0]), RooFit::Import(sm[1].Data(),*data[1]),
+					  RooFit::Import(sm[2].Data(),*data[2]), RooFit::Import(sm[3].Data(),*data[3]),
+					  RooFit::Import(sm[4].Data(),*data[4]));
+	    
+		TString dataName2 = "combData2"; 
+		RooDataSet* combData2 = new RooDataSet(dataName2.Data(), dataName2.Data(), *obs, 
+						       RooFit::Index(sam),
+						       RooFit::Import(sm[5].Data(),*data[5]),
+						       RooFit::Import(sm[6].Data(),*data[6]), RooFit::Import(sm[7].Data(),*data[7]),
+						       RooFit::Import(sm[8].Data(),*data[8]), RooFit::Import(sm[9].Data(),*data[9]));
+		combData->append(*combData2); 
+		
+	      }
+	    else if ( mode == "3modes" or mode == "3modeskkpi" )
+	      {
+		combData = new RooDataSet(dataName.Data(),dataName.Data(),*obs,
+					  RooFit::Index(sam),
+					  RooFit::Import(sm[0].Data(),*data[0]), RooFit::Import(sm[1].Data(),*data[1]),
+					  RooFit::Import(sm[2].Data(),*data[2]), RooFit::Import(sm[3].Data(),*data[3]),
+					  RooFit::Import(sm[4].Data(),*data[4]), RooFit::Import(sm[5].Data(),*data[5]));
+		
+	      }
+	    else
+	      {
+		combData = new RooDataSet(dataName.Data(),dataName.Data(),*obs,
+					  RooFit::Index(sam),
+					  RooFit::Import(sm[0].Data(),*data[0]),
+					  RooFit::Import(sm[1].Data(),*data[1]));
+	      }
+	  }
+	else
+	  {
+	    if (  mode == "all" )
+              {
+                combData = new RooDataSet(dataName.Data(),dataName.Data(),*obs,
+                                          RooFit::Index(sam),
+                                          RooFit::Import(sm[0].Data(),*data[0]), RooFit::Import(sm[1].Data(),*data[1]),
+                                          RooFit::Import(sm[2].Data(),*data[2]), RooFit::Import(sm[3].Data(),*data[3]),
+                                          RooFit::Import(sm[4].Data(),*data[4]));
+	      }
+	    else if ( mode == "3modes" or mode == "3modeskkpi" )
+              {
+                combData = new RooDataSet(dataName.Data(),dataName.Data(),*obs,
+                                          RooFit::Index(sam),
+                                          RooFit::Import(sm[0].Data(),*data[0]), RooFit::Import(sm[1].Data(),*data[1]),
+                                          RooFit::Import(sm[2].Data(),*data[2]));
+
+	      }
+            else
+              {
+                combData = new RooDataSet(dataName.Data(),dataName.Data(),*obs,
+                                          RooFit::Index(sam),
+                                          RooFit::Import(sm[0].Data(),*data[0]));
+              }
+
+	  }
+	
+      }
+    if( combData != NULL ){
+      if ( debug == true) 
+	{
+	  std::cout<<"Read data set: "<<combData->GetName()<<" with number of entries: "<<combData->numEntries()
+		   <<" and the sum of entries: "<<combData->sumEntries()<<std::endl;
+	}
+      return combData;
+    }
+    else{ if ( debug == true) std::cout<<"Cannot read data set"<<std::endl; return NULL;}
+
+    
+  }
+  
+  std::vector <TString> GetSampleMode(TString& sample, TString& mode, bool merge, bool debug )
+  {
+    std::vector <TString> sm;
+    std::vector <TString> s;
+    std::vector <TString> m;
+    
+    if (debug == true ){ std::cout<<"[INFO] Sample "<<sample<<". Mode "<<mode<<std::endl; }
+    if ( merge == true && sample != "both") { std::cout<<"[ERROR] Option merge only possible for sample = both"<<std::endl; return sm; }
+
+    s =  GetSample(sample,debug);
+    m =  GetMode(mode, debug );
+    
+    for (int i=0; i<m.size(); i++ )
+      {
+        for( int j = 0; j<s.size(); j++ )
+          {
+            sm.push_back(s[j]+"_"+m[i]);
+          }
+      }
+
+    if( merge == true )
+      {
+	TString s1 = "both";
+        for (int i=0; i<m.size(); i++ )
+          {
+            sm[i] =s1+"_"+m[i];
+          }
+      }
+    
+    return sm; 
+    
+  }
+
+  std::vector <TString>  GetSample(TString& sample, bool debug )
+  {
+    std::vector <TString> s;
+    if ( sample == "both")  { s.push_back("up"); s.push_back("down"); }
+    else { s.push_back(sample); }
+
+    return s;
+  }
+
+  std::vector <TString>  GetMode(TString& mode, bool debug )
+  {
+    std::vector <TString> m;
+    if ( mode == "all" ) { m.push_back("nonres"); m.push_back("phipi"); m.push_back("kstk"); m.push_back("kpipi"); m.push_back("pipipi"); }
+    else if (mode == "3modeskkpi") {  m.push_back("nonres"); m.push_back("phipi"); m.push_back("kstk"); }
+    else if (mode == "3modes" ) { m.push_back("kkpi"); m.push_back("kpipi"); m.push_back("pipipi"); }
+    else { m.push_back(mode); }
+    return m;
+  }
+
+  std::vector <Int_t> GetEntriesCombData(RooWorkspace* work, 
+					 TString &dat, TString & sample, TString& mode,
+					 bool merge, bool debug )
+  {
+    std::vector <RooDataSet*> data;
+    std::vector <TString> sm;
+    std::vector <Int_t> nEntries;
+    std::vector <Int_t> nE; 
+
+    if (debug == true ){ std::cout<<"[INFO] Sample "<<sample<<". Mode "<<mode<<std::endl; }
+    if ( merge == true && sample != "both") { std::cout<<"[ERROR] Option merge only possible for sample = both"<<std::endl; return nEntries; }
+
+    std::vector <TString> s;
+    std::vector <TString> m;
+
+    s = GetSample(sample,debug);
+    m = GetMode(mode, debug );
+    sm = GetSampleMode(sample, mode, false, debug);
+
+    for (int i=0; i<sm.size(); i++ )
+      {
+        TString name = dat+sm[i];
+        data.push_back(GetDataSet(work,name,debug));
+        nEntries.push_back(data[i]->numEntries());
+      }
+    
+    if( merge == true )
+      {
+        for (int i =0; i<s.size()*m.size(); i++)
+          {
+            if(i%2 == 0)
+              {
+                nEntries[i] += nEntries[i+1];
+		nE.push_back(nEntries[i]); 
+              }
+	  }
+      }
+   
+    return nE; 
 
   }
 
@@ -1290,14 +1562,26 @@ namespace GeneralUtils {
   TString CheckObservable(TString& check, bool debug)
   {
     TString label = "";
-    if( check.Contains("lab0_MassFitConsD_M") == true || check.Contains("lab0_MM") == true  ) { label = "mass B_{(s)} [MeV/c^{2}]"; }
-    else if ( check.Contains("lab2_MassFitConsD_M") == true || check.Contains("lab2_MM") == true ) { label = "mass D_{(s)} [MeV/c^{2}]";}
-    else if ( check.Contains("TAGDECISION") == true || check.Contains("DEC") == true ) { label = "tagging decision [1]"; }
-    else if ( check.Contains("TAGOMEGA") == true || check.Contains("PROB") == true) {label ="#omega [1]"; }
-    else if ( check.Contains("lab0_LifetimeFit_ctau") == true || check.Contains("lab0_TAU") == true ||  check.Contains("lab0_TRUETAU") == true ) 
+    if( check.Contains("lab0_MassFitConsD_M") == true || check.Contains("lab0_MM") == true  ||
+	(check.Contains("Bs") == true && check.Contains("Mass") == true) ) { label = "mass B_{(s)} [MeV/c^{2}]"; }
+    else if ( check.Contains("Ds_MM") == true || check.Contains("lab2_MM") == true ) { label = "mass D_{(s)} [MeV/c^{2}]";}
+    else if ( check.Contains("TAGDECISION") == true || check.Contains("DEC") == true ) 
+      { 
+	if ( check.Contains("SS_nnetKaon") == true )  { label = "tagging decision SS [1]"; }
+	else if ( check.Contains("TAGDECISION_OS") == true )  { label = "tagging decision OS [1]"; }
+	else { label = "tagging decision [1]"; }
+      }
+    else if ( check.Contains("TAGOMEGA") == true || check.Contains("PROB") == true) 
+      {
+	if ( check.Contains("SS_nnetKaon") == true )  { label = "#omega SS [1]"; }
+	else if( check.Contains("TAGOMEGA_OS") == true )  { label = "#omega OS [1]"; }
+	else { label = "#omega [1]"; }
+      }
+    else if ( check.Contains("LifetimeFit_ctau") == true || check.Contains("TAU") == true ||  check.Contains("TRUETAU") == true ) 
       {label ="t [ps]"; }
-    else if ( check.Contains("lab1_ID") == true ) {label ="bachelor ID [1]"; }
-    else if ( check.Contains("lab1_PIDK") == true ) {label ="bachelor log(PIDK) [1]"; }
+    else if ( check.Contains("ID") == true && check.Contains("PIDK") == false && 
+	      ( check.Contains("lab1") == true || check.Contains("Bac") ==true) ) {label ="bachelor ID [1]"; }
+    else if ( check.Contains("PIDK") == true && ( check.Contains("lab1") == true || check.Contains("Bac") ==true) ) {label ="bachelor PIDK [1]"; }
     else if ( check.Contains("_PT") == true ) {label ="log(p_{t}) [MeV/c]"; }
     else if ( check.Contains("_P") == true && check.Contains("_PT") == false ) {label ="log(p) [MeV/c]"; }
     else if ( check.Contains("nTracks") == true ) {label ="log(nTracks) [1]"; }

@@ -150,7 +150,7 @@ def fitCombBkg( debug, var , mode, modeDs, merge, BDTG, configName, WS) :
     RooAbsData.setDefaultStorageType(RooAbsData.Tree)
     
     plotSettings = PlotSettings("plotSettings","plotSettings", "PlotSignal", "pdf", 100, true, false, true)
-    plotSettings.Print()
+    plotSettings.Print("v")
     
     MDSettings = MDFitterSettings("MDSettings","MDFSettings")
 
@@ -164,8 +164,6 @@ def fitCombBkg( debug, var , mode, modeDs, merge, BDTG, configName, WS) :
     MDSettings.SetMassDVar(TString("lab2_MM"))
     MDSettings.SetTimeVar(TString("lab0_LifetimeFit_ctau"))
     MDSettings.SetTerrVar(TString("lab0_LifetimeFit_ctauErr"))
-    MDSettings.SetTagVar(TString("lab0_BsTaggingTool_TAGDECISION_OS"))
-    MDSettings.SetTagOmegaVar(TString("lab0_BsTaggingTool_TAGOMEGA_OS"))
     MDSettings.SetIDVar(TString("lab1_ID"))
     MDSettings.SetPIDKVar(TString("lab1_PIDK"))
     MDSettings.SetBDTGVar(TString("BDTGResponse_1"))
@@ -243,9 +241,7 @@ def fitCombBkg( debug, var , mode, modeDs, merge, BDTG, configName, WS) :
     MDSettings.SetBDTGRange( BDTG_down, BDTG_up  )
     MDSettings.SetPIDKRange(-PIDcut,150)
     MDSettings.SetPIDBach(PIDcut)
-    MDSettings.SetTerrRange(Terr_down, Terr_up  )
-    MDSettings.SetTagRange(-2.0, 2.0  )
-    MDSettings.SetTagOmegaRange(0.0, 1.0  )
+    MDSettings.SetTerrRange(Terr_down, Terr_up )
     MDSettings.SetIDRange( -1000.0, 1000.0 )
     
     MDSettings.SetLumDown(0.59)
@@ -290,13 +286,13 @@ def fitCombBkg( debug, var , mode, modeDs, merge, BDTG, configName, WS) :
     if modeTS == "BDPi":
         index = 0
         
-    sigma1Name = TString("sigma1") #TString("BsDsPi_") + BDTGTS + TString ("_sigma1")
-    sigma2Name = TString("sigma2") #TString("BsDsPi_") + BDTGTS + TString ("_sigma2")
-    n1Name = TString("n1") #TString("BsDsPi_") + BDTGTS + TString ("_n1")
-    n2Name = TString("n2") #TString("BsDsPi_") + BDTGTS + TString ("_n2")
-    alpha1Name = TString("alpha1") #TString("BsDsPi_") + BDTGTS + TString ("_alpha1")
-    alpha2Name = TString("alpha2") #TString("BsDsPi_") + BDTGTS + TString ("_alpha2")
-    fracName = TString("frac") #TString("BsDsPi_") + BDTGTS + TString ("_frac")
+    sigma1Name = TString("sigma1_bc") #TString("BsDsPi_") + BDTGTS + TString ("_sigma1")
+    sigma2Name = TString("sigma2_bc") #TString("BsDsPi_") + BDTGTS + TString ("_sigma2")
+    n1Name = TString("n1_bc") #TString("BsDsPi_") + BDTGTS + TString ("_n1")
+    n2Name = TString("n2_bc") #TString("BsDsPi_") + BDTGTS + TString ("_n2")
+    alpha1Name = TString("alpha1_bc") #TString("BsDsPi_") + BDTGTS + TString ("_alpha1")
+    alpha2Name = TString("alpha2_bc") #TString("BsDsPi_") + BDTGTS + TString ("_alpha2")
+    fracName = TString("frac_bc") #TString("BsDsPi_") + BDTGTS + TString ("_frac")
     print sigma1Name
     print sigma2Name
     print n1Name
@@ -395,7 +391,7 @@ def fitCombBkg( debug, var , mode, modeDs, merge, BDTG, configName, WS) :
         nSig.append(RooRealVar( nameSig.Data(), nameSig.Data(), nSigEvts[i], 0.3*nEntries[i], nEntries[i]))
         nCombBkgEvts.append(0.1*nEntries[i])
         nameCombBkg = TString("nCombBkg_")+sample[i]
-        nCombBkg.append(RooRealVar( nameCombBkg.Data(), nameCombBkg.Data(), nCombBkgEvts[i], 0.2*nEntries[i], 0.8*nEntries[i]))
+        nCombBkg.append(RooRealVar( nameCombBkg.Data(), nameCombBkg.Data(), 0.1*nEntries[i], 0.0, 0.8*nEntries[i]))
                 
         nameExp = TString("Exp")
         nameGauss = TString("Gauss")

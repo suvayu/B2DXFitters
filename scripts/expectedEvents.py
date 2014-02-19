@@ -1,128 +1,115 @@
 #!/usr/bin/env python
 # --------------------------------------------------------------------------- #
 #                                                                             #
-#   Python script to run a mass fit on data for Bd -> D pi                    #
-#   with the FitMeTool fitter                                                 #
+#   Python script to obtain misID backgrounds yields                          #
 #                                                                             #
 #   Example usage:                                                            #
-#      python runBdMassFitterOnData.py [-d | --debug]                         #
+#      python expectedEvents.py --mode BDPi --BDTG BDTGA                      #
 #                                                                             #
-#   Author: Eduardo Rodrigues                                                 #
-#   Date  : 08 / 06 / 2011                                                    #
 #   Author: Agnieszka Dziurda                                                 #
 #   Date  : 21 / 02 / 2012                                                    #
 #                                                                             #
 # --------------------------------------------------------------------------- #
 
-# -----------------------------------------------------------------------------
-# Load necessary libraries
-# -----------------------------------------------------------------------------
-# This file is used as both a shell script and as a Python script.
+""":"                                                                                                                                                     
+# This part is run by the shell. It does some setup which is convenient to save                                                                          
+# work in common use cases.                                                                                                                              
+                                                                                                                                                          
+# make sure the environment is set up properly                                                                                                           
+if test -n "$CMTCONFIG" \                                                                                                                                
+         -a -f $B2DXFITTERSROOT/$CMTCONFIG/libB2DXFittersDict.so \                                                                                       
+     -a -f $B2DXFITTERSROOT/$CMTCONFIG/libB2DXFittersLib.so; then                                                                                        
+    # all ok, software environment set up correctly, so don't need to do                                                                                 
+    # anything                                                                                                                                           
+    true                                                                                                                                                 
+else                                                                                                                                                     
+    if test -n "$CMTCONFIG"; then                                                                                                                        
+    # clean up incomplete LHCb software environment so we can run                                                                                        
+    # standalone                                                                                                                                         
+        echo Cleaning up incomplete LHCb software environment.                                                                                           
+        PYTHONPATH=`echo $PYTHONPATH | tr ':' '\n' | \                                                                                                   
+            egrep -v "^($User_release_area|$MYSITEROOT/lhcb)" | \                                                                                        
+            tr '\n' ':' | sed -e 's/:$//'`                                                                                                               
+        export PYTHONPATH                                                                                                                                
+        LD_LIBRARY_PATH=`echo $LD_LIBRARY_PATH | tr ':' '\n' | \                                                                                        
+            egrep -v "^($User_release_area|$MYSITEROOT/lhcb)" | \                                                                                        
+            tr '\n' ':' | sed -e 's/:$//'`                                                                                                               
+        export LD_LIBRARY_PATH                                                                                                                           
+        exec env -u CMTCONFIG -u B2DXFITTERSROOT "$0" "$@"                                                                                               
+    fi                                                              
+    # automatic set up in standalone build mode                                                                                                          
+    if test -z "$B2DXFITTERSROOT"; then                                                                                                                  
+        cwd="$(pwd)"                                                                                                                                     
+        if test -z "$(dirname $0)"; then                                                                                                                 
+        # have to guess location of setup.sh                                                                                                             
+        cd ../standalone                                                                                                                                 
+        . ./setup.sh                                                                                                                                     
+        cd "$cwd"                                                                                                                                        
+        else                                                                                                                                             
+        # know where to look for setup.sh                                                                                                                
+        cd "$(dirname $0)"/../standalone                                                                                                                 
+        . ./setup.sh                                                                                                                                     
+        cd "$cwd"                                                                                                                                        
+        fi                                                                                                                                               
+    unset cwd                                                                                                                                            
+    fi                                                                                                                                                   
+fi                                                   
+            
+# figure out which custom allocators are available                                                                                                       
+# prefer jemalloc over tcmalloc                                                                                                                          
+for i in libjemalloc libtcmalloc; do                                                                                                                     
+    for j in `echo "$LD_LIBRARY_PATH" | tr ':' ' '` \                                                                                                    
+        /usr/local/lib /usr/lib /lib; do                                                                                                                 
+        for k in `find "$j" -name "$i"'*.so.?' | sort -r`; do                                                                                            
+            if test \! -e "$k"; then                                                                                                                     
+            continue                                                                                                                                     
+        fi                                                                                                                                               
+        echo adding $k to LD_PRELOAD                                                                                                                     
+        if test -z "$LD_PRELOAD"; then                                                                                                                   
+            export LD_PRELOAD="$k"                                                                                                                       
+            break 3                                                                                                                                      
+        else                                                                                                                                             
+            export LD_PRELOAD="$LD_PRELOAD":"$k"                                                                                                         
+            break 3                                                                                                                                      
+        fi                                                                                                                                               
+    done                                                                                                                                                 
+    done                                                                                                                                                 
+done                                                 
 
-""":"
-# This part is run by the shell. It does some setup which is convenient to save
-# work in common use cases.
-
-# make sure the environment is set up properly
-if test -n "$CMTCONFIG" \
-         -a -f $B2DXFITTERSROOT/$CMTCONFIG/libB2DXFittersDict.so \
-     -a -f $B2DXFITTERSROOT/$CMTCONFIG/libB2DXFittersLib.so; then
-    # all ok, software environment set up correctly, so don't need to do 
-    # anything
-    true
-else
-    if test -n "$CMTCONFIG"; then
-    # clean up incomplete LHCb software environment so we can run
-    # standalone
-        echo Cleaning up incomplete LHCb software environment.
-        PYTHONPATH=`echo $PYTHONPATH | tr ':' '\n' | \
-            egrep -v "^($User_release_area|$MYSITEROOT/lhcb)" | \
-            tr '\n' ':' | sed -e 's/:$//'`
-        export PYTHONPATH
-        LD_LIBRARY_PATH=`echo $LD_LIBRARY_PATH | tr ':' '\n' | \
-            egrep -v "^($User_release_area|$MYSITEROOT/lhcb)" | \
-            tr '\n' ':' | sed -e 's/:$//'`
-        export LD_LIBRARY_PATH
-        exec env -u CMTCONFIG -u B2DXFITTERSROOT "$0" "$@"
-    fi
-    # automatic set up in standalone build mode
-    if test -z "$B2DXFITTERSROOT"; then
-        cwd="$(pwd)"
-        if test -z "$(dirname $0)"; then
-        # have to guess location of setup.sh
-        cd ../standalone
-        . ./setup.sh
-        cd "$cwd"
-        else
-        # know where to look for setup.sh
-        cd "$(dirname $0)"/../standalone
-        . ./setup.sh
-        cd "$cwd"
-        fi
-    unset cwd
-    fi
-fi
-
-# figure out which custom allocators are available
-# prefer jemalloc over tcmalloc
-for i in libjemalloc libtcmalloc; do
-    for j in `echo "$LD_LIBRARY_PATH" | tr ':' ' '` \
-        /usr/local/lib /usr/lib /lib; do
-        for k in `find "$j" -name "$i"'*.so.?' | sort -r`; do
-            if test \! -e "$k"; then
-            continue
-        fi
-        echo adding $k to LD_PRELOAD
-        if test -z "$LD_PRELOAD"; then
-            export LD_PRELOAD="$k"
-            break 3
-        else
-            export LD_PRELOAD="$LD_PRELOAD":"$k"
-            break 3
-        fi
-    done
-    done
-done
-
-# set batch scheduling (if schedtool is available)
-schedtool="`which schedtool 2>/dev/zero`"
-if test -n "$schedtool" -a -x "$schedtool"; then
-    echo "enabling batch scheduling for this job (schedtool -B)"
-    schedtool="$schedtool -B -e"
-else
-    schedtool=""
-fi
-
-# set ulimit to protect against bugs which crash the machine: 2G vmem max,
-# no more then 8M stack
-ulimit -v $((2048 * 1024))
-ulimit -s $((   8 * 1024))
-
-# trampoline into python
-exec $schedtool /usr/bin/time -v env python -O -- "$0" "$@"
+# set batch scheduling (if schedtool is available)                                                                                                       
+schedtool="`which schedtool 2>/dev/zero`"                                                                                                                
+if test -n "$schedtool" -a -x "$schedtool"; then                                                                                                         
+    echo "enabling batch scheduling for this job (schedtool -B)"                                                                                         
+    schedtool="$schedtool -B -e"                                                                                                                         
+else                                                                                                                                                     
+    schedtool=""                                                                                                                                         
+fi                                                                                                                                                       
+                                                                                                                                                         
+# set ulimit to protect against bugs which crash the machine: 2G vmem max,                                                                               
+# no more then 8M stack                                                                                                                                  
+ulimit -v $((2048 * 1024))                                                                                                                               
+ulimit -s $((   8 * 1024))                                                                                                                               
+                                                                                                                                                         
+# trampoline into python                                                                                                                                 
+exec $schedtool /usr/bin/time -v env python -O -- "$0" "$@"                                                                                              
 """
 __doc__ = """ real docstring """
-# -----------------------------------------------------------------------------
-# Load necessary libraries
-# -----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------                                                                          
+# Load necessary libraries                                                                                                                               
+# -----------------------------------------------------------------------------                               
+print "Load necessary libraries"
 import B2DXFitters
 import ROOT
 from B2DXFitters import *
 from ROOT import *
-from ROOT import RooFit
 from optparse import OptionParser
 from math     import pi, log
 import os, sys, gc
-
-# set a flag if we have access to AFS (can be used in the personality files)
-haveAFS = os.path.isdir('/afs') and os.path.isdir('/afs/cern.ch')
-
 # -----------------------------------------------------------------------------
 # Configuration settings
 # -----------------------------------------------------------------------------
 
 # FIT CONFIGURATION
-extendedFit =  True
 
 PIDcut = 10
 histname = "MyPionMisID_10"
@@ -146,7 +133,7 @@ bName = 'B_{s}'
 
 
 #------------------------------------------------------------------------------
-def runBsDsPiMassFitterOnData( debug, mVar, mProbVar, save, BDTG, mode ) :
+def runExpectedYields( debug, mVar, mProbVar, save, BDTG, mode ) :
 
     dataTS = TString(dataName)
     mVarTS = TString(mVar)
@@ -172,22 +159,25 @@ def runBsDsPiMassFitterOnData( debug, mVar, mProbVar, save, BDTG, mode ) :
                                                                                         
     print "BDTG Range: (%f,%f)"%(BDTG_down,BDTG_up)
 
+    plotSettings = PlotSettings("plotSettings","plotSettings", "PlotBs2DsPi3DBDTGA", "pdf", 100, true, false, true)
+    plotSettings.Print("v")
+
     if modeTS == "BDPi":
         
         number = MassFitUtils.ExpectedYield(dataTS, TString("#BdDPi BsHypo PhiPi"), TString("#BdDPi BdHypo"),
-                                            TString("#PID2m2"), TString("MyPionMisID_m2"),
                                             TString("#PID2m2"), TString("MyKaonEff_m2"),
-                                            TString("#PID2m2"), TString("MyPionMisID_m2"),
+                                            TString("#PID"), TString("MyPionMisID_10"),
+                                            TString("#PID2m2"), TString("MyPionMisID_10_pKm5"),
                                             Pcut_down, Pcut_up,
                                             BDTG_down, BDTG_up,
                                             Dmass_down, Dmass_up,
                                             mVarTS, mProbVarTS,
                                             TString("BdDPi"),TString("kkpi"))
-        
+        #exit(0)
         number = MassFitUtils.ExpectedYield(dataTS, TString("#BdDPi BsHypo KstK"), TString("#BdDPi BdHypo"),
-                                            TString("#PID"), TString("MyPionMisID_5"),
                                             TString("#PID2m2"), TString("MyKaonEff_m2"),
-                                            TString("#PID"), TString("MyPionMisID_5"),
+                                            TString("#PID"), TString("MyPionMisID_10"),
+                                            TString("#PID2m2"), TString("MyPionMisID_10_pKm5"),
                                             Pcut_down, Pcut_up,
                                             BDTG_down, BDTG_up,
                                             Dmass_down, Dmass_up,
@@ -195,9 +185,9 @@ def runBsDsPiMassFitterOnData( debug, mVar, mProbVar, save, BDTG, mode ) :
                                             TString("BdDPi"),TString("kkpi"))
         
         number = MassFitUtils.ExpectedYield(dataTS, TString("#BdDPi BsHypo NonRes"), TString("#BdDPi BdHypo"),
-                                            TString("#PID"), TString("MyPionMisID_5"),
                                             TString("#PID"), TString("MyKaonEff_5"),
-                                            TString("#PID"), TString("MyPionMisID_5"),
+                                            TString("#PID"), TString("MyPionMisID_10"),
+                                            TString("#PID2m2"), TString("MyPionMisID_10_pKm5"),
                                             Pcut_down, Pcut_up,
                                             BDTG_down, BDTG_up,
                                             Dmass_down, Dmass_up,
@@ -207,7 +197,7 @@ def runBsDsPiMassFitterOnData( debug, mVar, mProbVar, save, BDTG, mode ) :
         number = MassFitUtils.ExpectedYield(dataTS, TString("#BdDPi BsHypo KPiPi"), TString("#BdDPi BdHypo"),
                                             TString("#PID"), TString("MyKaonMisID_5"),
                                             TString("#PID"), TString("MyPionMisID_10"),
-                                            TString("#PID"), TString("MyKaonMisID_5"),
+                                            TString("#PID"), TString("MyPionMisID_10"),
                                             Pcut_down, Pcut_up,
                                             BDTG_down, BDTG_up,
                                             Dmass_down, Dmass_up,
@@ -216,24 +206,80 @@ def runBsDsPiMassFitterOnData( debug, mVar, mProbVar, save, BDTG, mode ) :
         
 
     elif modeTS == "LbLcPi":
-        number = MassFitUtils.ExpectedYield(dataTS, TString("#LbLcPi"), TString("#LbLcPi"),
-                                            TString("#PID"), TString("MyKaonEff_0"),
-                                            TString("#PIDp"), TString("MyProtonMisID_pK5"),
+        number = MassFitUtils.ExpectedYield(dataTS, TString("#LbLcPi PhiPi"), TString("#LbLcPi PhiPi"),
+                                            TString("#PID2m2"), TString("MyKaonEff_m2"),
+                                            TString("#PIDp3"), TString("MyProtonMisID_pKm5"), #_KPim2"),
+                                            TString("#PIDp3"), TString("MyProtonMisID_pKm5"), #_KPi10"),
+                                            Pcut_down, Pcut_up,
+                                            BDTG_down, BDTG_up,
+                                            Dmass_down, Dmass_up,
+                                            mVarTS, mProbVarTS,
+                                            TString("LbLcPi"),TString("kkpi"))
+
+        number = MassFitUtils.ExpectedYield(dataTS, TString("#LbLcPi KstK"), TString("#LbLcPi KstK"),
+                                            TString("#PID2m2"), TString("MyKaonEff_m2"),
+                                            TString("#PIDp3"), TString("MyProtonMisID_pKm5"), #_KPi5"),
+                                            TString("#PIDp3"), TString("MyProtonMisID_pKm5"), #_KPi10"),
+                                            Pcut_down, Pcut_up,
+                                            BDTG_down, BDTG_up,
+                                            Dmass_down, Dmass_up,
+                                            mVarTS, mProbVarTS,
+                                            TString("LbLcPi"),TString("kkpi"))
+
+        number = MassFitUtils.ExpectedYield(dataTS, TString("#LbLcPi NonRes"), TString("#LbLcPi NonRes"),
+                                            TString("#PID"), TString("MyKaonEff_5"),
+                                            TString("#PIDp3"), TString("MyProtonMisID_pKm5"), #_KPi5"),
+                                            TString("#PIDp3"), TString("MyProtonMisID_pKm5"), #_KPi10"),
+                                            Pcut_down, Pcut_up,
+                                            BDTG_down, BDTG_up,
+                                            Dmass_down, Dmass_up,
+                                            mVarTS, mProbVarTS,
+                                            TString("LbLcPi"),TString("kkpi"))
+        
+        number = MassFitUtils.ExpectedYield(dataTS, TString("#LbLcPi KPiPi"), TString("#LbLcPi KPiPi"),
+                                            TString("#PID2m2"), TString("MyKaonMisID_5_p10"),
+                                            TString("#PIDp3"), TString("MyProtonMisID_pKm5"), #_KPi10"),
+                                            TString("#PIDp3"), TString("MyProtonMisID_pKm5"), #_KPi10"),
                                             Pcut_down, Pcut_up,
                                             BDTG_down, BDTG_up,
                                             Dmass_down, Dmass_up,
                                             mVarTS, mProbVarTS,
                                             TString("LbLcPi"),TString("kpipi"))
-        
-        number = MassFitUtils.ExpectedYield(dataTS, TString("#LbLcPi"), TString("#LbLcPi"), TString("#PIDp"),
-                                            TString("MyProtonMisID_pK5"),
+
+        number = MassFitUtils.ExpectedYield(dataTS, TString("#LbLcPi PiPiPi"), TString("#LbLcPi PiPiPi"),
+                                            TString("#PID"), TString("MyKaonEff_5"),
+                                            TString("#PIDp3"), TString("MyProtonMisID_pKm5"), #_KPi10"),
+                                            TString("#PIDp3"), TString("MyProtonMisID_pKm5"), #_KPi10"),
                                             Pcut_down, Pcut_up,
                                             BDTG_down, BDTG_up,
                                             Dmass_down, Dmass_up,
                                             mVarTS, mProbVarTS,
                                             TString("LbLcPi"),TString("pipipi"))
+        
+        
     elif modeTS == "BsDsPi":
-        number = MassFitUtils.ExpectedYield(dataTS, TString("#BsDsPi"), TString("#BsDsPi"),
+        number = MassFitUtils.ExpectedYield(dataTS, TString("#BsDsPi PhiPi"), TString("#BsDsPi PhiPi"),
+                                            TString("#PID"), TString("MyPionMisID_5"),
+                                            TString("#PID"), TString("MyPionMisID_5"),
+                                            TString("#PID"), TString("MyPionMisID_5"),
+                                            Pcut_down, Pcut_up,
+                                            BDTG_down, BDTG_up,
+                                            Dmass_down, Dmass_up,
+                                            mVarTS, mProbVarTS,
+                                            TString("BsDsPi"),TString("kkpi"))
+
+        number = MassFitUtils.ExpectedYield(dataTS, TString("#BsDsPi KstK"), TString("#BsDsPi KstK"),
+                                            TString("#PID"), TString("MyPionMisID_5"),
+                                            TString("#PID"), TString("MyPionMisID_5"),
+                                            TString("#PID"), TString("MyPionMisID_5"),
+                                            Pcut_down, Pcut_up,
+                                            BDTG_down, BDTG_up,
+                                            Dmass_down, Dmass_up,
+                                            mVarTS, mProbVarTS,
+                                            TString("BsDsPi"),TString("kkpi"))
+        
+        number = MassFitUtils.ExpectedYield(dataTS, TString("#BsDsPi NonRes"), TString("#BsDsPi NonRes"),
+                                            TString("#PID"), TString("MyPionMisID_5"),
                                             TString("#PID"), TString("MyPionMisID_5"),
                                             TString("#PID"), TString("MyPionMisID_5"),
                                             Pcut_down, Pcut_up,
@@ -243,17 +289,31 @@ def runBsDsPiMassFitterOnData( debug, mVar, mProbVar, save, BDTG, mode ) :
                                             TString("BsDsPi"),TString("kkpi"))
         
 
- #   number = MassFitUtils.ExpectedYield(dataTS, TString("#BsDsPi"), TString("#BsDsPi"),
- #                                       TString("#PID"), TString("MyPionMisID_10"),
- #                                       TString("#PID"), TString("MyPionMisID_10"),
- #                                       Pcut_down, Pcut_up,
- #                                       BDTGCut,
- #                                       Dmass_down, Dmass_up,
- #                                       mVarTS, mProbVarTS,
- #                                       TString("BsDsPi"),TString("kpipi"))
+        number = MassFitUtils.ExpectedYield(dataTS, TString("#BsDsPi KPiPi"), TString("#BsDsPi KPiPi"),
+                                            TString("#PID"), TString("MyPionMisID_5"),
+                                            TString("#PID"), TString("MyPionMisID_5"),
+                                            TString("#PID"), TString("MyPionMisID_5"),
+                                            Pcut_down, Pcut_up,
+                                            BDTG_down, BDTG_up,
+                                            Dmass_down, Dmass_up,
+                                            mVarTS, mProbVarTS,
+                                            TString("BsDsPi"),TString("kpipi"))
+    
+        number = MassFitUtils.ExpectedYield(dataTS, TString("#BsDsPi PiPiPi"), TString("#BsDsPi PiPiPi"),
+                                            TString("#PID"), TString("MyPionMisID_5"),
+                                            TString("#PID"), TString("MyPionMisID_5"),
+                                            TString("#PID"), TString("MyPionMisID_5"),
+                                            Pcut_down, Pcut_up,
+                                            BDTG_down, BDTG_up,
+                                            Dmass_down, Dmass_up,
+                                            mVarTS, mProbVarTS,
+                                            TString("BsDsPi"),TString("pipipi"))
+        
+        
 
     elif modeTS == "BDK":
         number = MassFitUtils.ExpectedYield(dataTS, TString("#BDK"), TString("#BDK"),
+                                            TString("#PID"), TString("MyKaonMisID_0"),
                                             TString("#PID"), TString("MyKaonMisID_0"),
                                             TString("#PID"), TString("MyKaonMisID_0"),
                                             Pcut_down, Pcut_up,
@@ -262,15 +322,57 @@ def runBsDsPiMassFitterOnData( debug, mVar, mProbVar, save, BDTG, mode ) :
                                             mVarTS, mProbVarTS,
                                             TString("BDK"),TString("kpipi"))
     elif modeTS == "BsDsK":
-        number = MassFitUtils.ExpectedYield(dataTS, TString("#BsDsK"), TString("#BsDsK"),
-                                            TString("#PID"), TString("MyPionMisID_0"),
-                                            TString("#PID"), TString("MyPionMisID_0"),
+        number = MassFitUtils.ExpectedYield(dataTS, TString("#BsDsK PhiPi"), TString("#BsDsK PhiPi"),
+                                            TString("#PID"), TString("MyKaonMisID_0"),
+                                            TString("#PID"), TString("MyKaonMisID_0"),
+                                            TString("#PID"), TString("MyKaonMisID_0"),
                                             Pcut_down, Pcut_up,
                                             BDTG_down, BDTG_up,
-                                            DDmass_down, DDmass_up,
+                                            Dmass_down, Dmass_up,
                                             mVarTS, mProbVarTS,
                                             TString("BsDsK"),TString("kkpi"))
         
+        number = MassFitUtils.ExpectedYield(dataTS, TString("#BsDsK KstK"), TString("#BsDsK KstK"),
+                                            TString("#PID"), TString("MyKaonMisID_0"),
+                                            TString("#PID"), TString("MyKaonMisID_0"),
+                                            TString("#PID"), TString("MyKaonMisID_0"),
+                                            Pcut_down, Pcut_up,
+                                            BDTG_down, BDTG_up,
+                                            Dmass_down, Dmass_up,
+                                            mVarTS, mProbVarTS,
+                                            TString("BsDsK"),TString("kkpi"))
+        
+        number = MassFitUtils.ExpectedYield(dataTS, TString("#BsDsK NonRes"), TString("#BsDsK NonRes"),
+                                            TString("#PID"), TString("MyKaonMisID_0"),
+                                            TString("#PID"), TString("MyKaonMisID_0"),
+                                            TString("#PID"), TString("MyKaonMisID_0"),
+                                            Pcut_down, Pcut_up,
+                                            BDTG_down, BDTG_up,
+                                            Dmass_down, Dmass_up,
+                                            mVarTS, mProbVarTS,
+                                            TString("BsDsK"),TString("kkpi"))
+        
+        
+        number = MassFitUtils.ExpectedYield(dataTS, TString("#BsDsK KPiPi"), TString("#BsDsK KPiPi"),
+                                            TString("#PID"), TString("MyKaonMisID_0"),
+                                            TString("#PID"), TString("MyKaonMisID_0"),
+                                            TString("#PID"), TString("MyKaonMisID_0"),
+                                            Pcut_down, Pcut_up,
+                                            BDTG_down, BDTG_up,
+                                            Dmass_down, Dmass_up,
+                                            mVarTS, mProbVarTS,
+                                            TString("BsDsK"),TString("kpipi"))
+        
+        number = MassFitUtils.ExpectedYield(dataTS, TString("#BsDsK PiPiPi"), TString("#BsDsK PiPiPi"),
+                                            TString("#PID"), TString("MyKaonMisID_0"),
+                                            TString("#PID"), TString("MyKaonMisID_0"),
+                                            TString("#PID"), TString("MyKaonMisID_0"),
+                                            Pcut_down, Pcut_up,
+                                            BDTG_down, BDTG_up,
+                                            Dmass_down, Dmass_up,
+                                            mVarTS, mProbVarTS,
+                                            TString("BsDsK"),TString("pipipi"))
+                        
         
 
   #  number = MassFitUtils.ExpectedYield(dataTS, TString("#BsDsPi"), TString("#BsDsPi"),
@@ -362,6 +464,6 @@ if __name__ == '__main__' :
         parser.print_help()
         exit( -1 )
     
-    runBsDsPiMassFitterOnData( options.debug, options.var, options.ProbVar, options.save, options.BDTG, options.mode )
+    runExpectedYields( options.debug, options.var, options.ProbVar, options.save, options.BDTG, options.mode )
 
 # -----------------------------------------------------------------------------
