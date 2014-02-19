@@ -29,17 +29,17 @@ MomVsnTr_Comp_DPi_Up_hist.root
 ###
 
 #Kfactor MC FileName MD
-../../ntuples/MC/MCMarch2013/MergedTree_Bs2DsstPi_Ds2KKPi_BsHypo_BDTG.root
-../../ntuples/MC/MCMarch2013/MergedTree_Bs2DsK_Ds2KKPi_BsHypo_BDTG.root
-../../ntuples/MC/MCMarch2013/MergedTree_Lb2LcPi_Lc2pKPi_BsHypo_BDTG.root
-../../ntuples/MC/MCMarch2013/MergedTree_Bd2DPi_D2KPiPi_BsHypo_BDTG.root
+../../ntuples/MC/MCJanuary2014/MergedTree_Bs2DsstPi_Ds2KKPi_BsHypo_BDTG.root
+../../ntuples/MC/MCJanuary2014/MergedTree_Bs2DsK_Ds2KKPi_BsHypo_BDTG.root
+../../ntuples/MC/MCJanuary2014/MergedTree_Lb2LcPi_Lc2pKPi_BsHypo_BDTG.root
+../../ntuples/MC/MCJanuary2014/MergedTree_Bd2DPi_D2KPiPi_BsHypo_BDTG.root
 ###
 
 #Kfactor MC FileName MU
-../../ntuples/MC/MCMarch2013/MergedTree_Bs2DsstPi_Ds2KKPi_BsHypo_BDTG.root
-../../ntuples/MC/MCMarch2013/MergedTree_Bs2DsK_Ds2KKPi_BsHypo_BDTG.root
-../../ntuples/MC/MCMarch2013/MergedTree_Lb2LcPi_Lc2pKPi_BsHypo_BDTG.root
-../../ntuples/MC/MCMarch2013/MergedTree_Bd2DPi_D2KPiPi_BsHypo_BDTG.root
+../../ntuples/MC/MCJanuary2014/MergedTree_Bs2DsstPi_Ds2KKPi_BsHypo_BDTG.root
+../../ntuples/MC/MCJanuary2014/MergedTree_Bs2DsK_Ds2KKPi_BsHypo_BDTG.root
+../../ntuples/MC/MCJanuary2014/MergedTree_Lb2LcPi_Lc2pKPi_BsHypo_BDTG.root
+../../ntuples/MC/MCJanuary2014/MergedTree_Bd2DPi_D2KPiPi_BsHypo_BDTG.root
 ###
 
 #Kfactor MC TreeName
