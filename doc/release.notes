@@ -5,6 +5,7 @@
 !-----------------------------------------------------------------------------
 
 ! 2014-02-19 - Agnieszka Dziurda
+ - add function for correlations  
  - MDFitter update:
   - new signal line shapes
   - new funcionality: posibility to do 1D, 2D, 3D fits

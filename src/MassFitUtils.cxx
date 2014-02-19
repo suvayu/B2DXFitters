@@ -1291,7 +1291,7 @@ namespace MassFitUtils {
 	  }
       }
     TStyle *style = new TStyle();
-    style->SetPalette(1,0);
+    style->SetPalette(55,0);
     
     TString dir = plotSet->GetDir();
     TString ext = plotSet->GetExt();
@@ -1303,7 +1303,7 @@ namespace MassFitUtils {
     rat->SetFillColor(0);
     rat->cd();
     histCorr->GetZaxis()->SetRangeUser(-1.0, 1.0);
-    histCorr->Draw("COLZ");
+    histCorr->Draw("COLZ TEXT45");
     rat->Update();
     rat->SaveAs(save.Data());
     return histCorr;
@@ -1680,6 +1680,7 @@ namespace MassFitUtils {
 	    {
 	      
 	      lab0_TAUERR->setVal(lab0_TAUERR3[0]*corr);
+	      lab0_TAU->setVal(lab0_TAU3[0]*corr);
 	      
 	      if(  mdSet->CheckTagVar() == true )
 		{
