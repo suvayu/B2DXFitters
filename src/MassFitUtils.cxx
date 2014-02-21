@@ -1942,12 +1942,12 @@ TCut GetCutMCBkg( MDFitterSettings* mdSet, TString mode, TString hypo, TString D
 	if ("Bd2DK" == sanemode) {
 	  current_mode = Bd2DK;
 	  SocksFitterArgs[0] = BDMASS;
-	  // SocksFitterArgs[1] = DMASS;
+	  SocksFitterArgs[1] = DMASS;
 	  SocksFitterArgs[2] = KMASS;
 	} else if ("Lb2LcK" == sanemode) {
 	  current_mode = Lb2LcK;
 	  SocksFitterArgs[0] = LBMASS;
-	  // SocksFitterArgs[1] = LCMASS;
+	  SocksFitterArgs[1] = LCMASS;
 	  SocksFitterArgs[2] = KMASS;
 	} else if ("Lb2Dsstp" == sanemode) {
 	  current_mode = Lb2Dsstp;
@@ -1982,12 +1982,12 @@ TCut GetCutMCBkg( MDFitterSettings* mdSet, TString mode, TString hypo, TString D
 	} else if ("Lb2LcPi" == sanemode or "Lb2Lambdacpi" == sanemode) {
 	  current_mode = Lb2LcPi;
 	  SocksFitterArgs[0] = LBMASS;
-	  // SocksFitterArgs[1] = LCMASS;
+	  SocksFitterArgs[1] = LCMASS;
 	  // SocksFitterArgs[2] = PIMASS;
 	} else if ("Bd2DPi" == sanemode) {
 	  current_mode = Bd2DPi;
 	  SocksFitterArgs[0] = BDMASS;
-	  // SocksFitterArgs[1] = DMASS;
+	  SocksFitterArgs[1] = DMASS;
 	  // SocksFitterArgs[2] = PIMASS;
 	}
       } else {
@@ -2011,12 +2011,12 @@ TCut GetCutMCBkg( MDFitterSettings* mdSet, TString mode, TString hypo, TString D
 	} else if ("Lb2LcPi" == sanemode or "Lb2Lambdacpi" == sanemode) {
 	  current_mode = Lb2LcPi;
 	  SocksFitterArgs[0] = LBMASS;
-	  // SocksFitterArgs[1] = LCMASS;
+	  SocksFitterArgs[1] = LCMASS;
 	  // SocksFitterArgs[2] = PIMASS;
 	} else if ("Bd2DPi" == sanemode) {
 	  current_mode = Bd2DPi;
 	  SocksFitterArgs[0] = BDMASS;
-	  // SocksFitterArgs[1] = DMASS;
+	  SocksFitterArgs[1] = DMASS;
 	  // SocksFitterArgs[2] = PIMASS;
 	}
       }
