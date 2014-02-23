@@ -228,13 +228,14 @@ def get_workspace(configname, varnames, masslo, masshi, debug):
 
     if configname.startswith('Bs2DsK'):
         hypo = TString("BsDsK")
+        ffile = TFile('dsk_treedump.root', 'recreate')        
     elif configname.startswith('Bs2DsPi'):
         hypo = TString("BsDsPi")
+        ffile = TFile('dspi_treedump.root', 'recreate')
     else:
         print 'Unknown mass hypothesis; job will crash.'
         return None
 
-    ffile = TFile('treedump.root', 'recreate')
     workspace = 0
     workspace = getSpecBkg4kfactor(TString(myconfigfile["dataName"]),
                                    TString('#Kfactor MC FileName MU'),
