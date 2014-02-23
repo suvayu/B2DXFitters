@@ -2273,21 +2273,29 @@ namespace MassFitUtils {
 	  switch (current_mode) {
 	  case Bd2DK:
 	    {
-	      wMC = hChild.GetWeight(lab4_P2,smp[i]);
+	      wMC = hChild.GetWeight(lab4_P2,smp[i])*hBachEff.GetWeight(lab1_P2,smp[i]);
 	    }
 	    break;
 	  case Lb2LcK:
 	    {
-	      wMC = hBachEff.GetWeight(lab1_P2,smp[i]);
+	      wMC = hBachEff.GetWeight(lab1_P2,smp[i])*hBachEff.GetWeight(lab1_P2,smp[i]);
 	    }
 	    break;
-	    // case Lb2Dsstp:		// common weight for all non-K modes
-	    // case Lb2Dsp:
-	    // case Bs2DsstPi:
-	    // case Bs2DsRho:
-	    // case Bs2DsPi:
-	  default:
-	    wMC = hBach.GetWeight(lab1_P2,smp[i]);
+	  case Lb2Dsstp:	// intentional pass, common weights for Lb with proton
+	  case Lb2Dsp:
+	    {
+	      wMC = hProton.GetWeight(lab4_P2,smp[i])*hBach.GetWeight(lab1_P2,smp[i]);
+	    }
+	    break;
+	  case Bs2DsstPi:	// common weight for modes with Pi
+	  case Bs2DsRho:
+	  case Bs2DsPi:
+	    {
+	      wMC = hBach.GetWeight(lab1_P2,smp[i]);
+	    }
+	    break;
+	  default:		// typical modes with K
+	    wMC = hBachEff.GetWeight(lab1_P2,smp[i]);
 	    break;
 	  }
 	} else {
@@ -2298,14 +2306,18 @@ namespace MassFitUtils {
 	      wMC = hProton.GetWeight(lab5_P2,smp[i])*hBachEff.GetWeight(lab1_P2,smp[i]);
 	    }
 	    break;
+	  case Bd2DsPi:		// intentional pass, modes with Bd
 	  case Bd2DPi:
 	    {
 	      wMC = hChild.GetWeight(lab4_P2,smp[i])*hBachEff.GetWeight(lab1_P2,smp[i]);
 	    }
 	    break;
-	  // case Bs2DsK:   // what is the weight for Bs2DsK?
-	  // case Bd2DsPi:  // nothing done, mode with Pi
-	  // case Bs2DsstPi:
+	  case Bs2DsK:
+	    {
+	      wMC = hBach.GetWeight(lab1_P2,smp[i]);
+	    }
+	    break;
+	  case Bs2DsstPi:  // nothing done, mode with Pi
 	  default:
 	    wMC = hBachEff.GetWeight(lab1_P2,smp[i]);
 	    break;
