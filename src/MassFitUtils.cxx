@@ -1868,11 +1868,10 @@ namespace MassFitUtils {
     bool isDsK(hypo.Contains("K"));
 
     // some constants
-    const double DSMASS(1968.49), KMASS(493.677), BSMASS(5366.3), 
-      BDMASS(5279.53), DMASS(1869.62), PIMASS(139.57018),
-      DSSTMASS(2112.34), KSTMASS(891.66), LBMASS(5620.2),
-      LCMASS(2286.46), PMASS(938.27203), RHOMASS(775.49),
-      DSTMASS(2010.25), DSTMASS2(2460.1);
+    const double BSMASS(5366.77), BDMASS(5279.58), DSMASS(1968.49),
+      DSSTMASS(2112.3), DMASS(1869.62), PIMASS(139.57018), KMASS(493.677),
+      KSTMASS(891.66), PI0MASS(134.9766), LBMASS(5619.4), LCMASS(2286.46),
+      PMASS(938.272046), RHOMASS(775.49);
 
     long veto_counter(0);
     const double pgratio_cut(5E-3), gratio_cut(5E-2);
@@ -1913,17 +1912,17 @@ namespace MassFitUtils {
       ftree->SetBranchAddress(mdSet->GetMassBVar().Data(),  &Bmass);
       ftree->SetBranchAddress(mdSet->GetMassDVar().Data(),  &Dmass);
 
-      ftree->SetBranchAddress("lab0_TRUEP_E", &B_tru_PE);
+      // ftree->SetBranchAddress("lab0_TRUEP_E", &B_tru_PE);
       ftree->SetBranchAddress("lab0_TRUEP_X", &B_tru_PX);
       ftree->SetBranchAddress("lab0_TRUEP_Y", &B_tru_PY);
       ftree->SetBranchAddress("lab0_TRUEP_Z", &B_tru_PZ);
 
-      ftree->SetBranchAddress("lab2_TRUEP_E", &D_tru_PE);
+      // ftree->SetBranchAddress("lab2_TRUEP_E", &D_tru_PE);
       ftree->SetBranchAddress("lab2_TRUEP_X", &D_tru_PX);
       ftree->SetBranchAddress("lab2_TRUEP_Y", &D_tru_PY);
       ftree->SetBranchAddress("lab2_TRUEP_Z", &D_tru_PZ);
 
-      ftree->SetBranchAddress("lab1_TRUEP_E", &h_tru_PE);
+      // ftree->SetBranchAddress("lab1_TRUEP_E", &h_tru_PE);
       ftree->SetBranchAddress("lab1_TRUEP_X", &h_tru_PX);
       ftree->SetBranchAddress("lab1_TRUEP_Y", &h_tru_PY);
       ftree->SetBranchAddress("lab1_TRUEP_Z", &h_tru_PZ);
@@ -2101,6 +2100,9 @@ namespace MassFitUtils {
 
 	if (loop_counter > 5000) break; // debug
 
+	B_tru_PE = pe_from_pid(BPID, B_tru_PX, B_tru_PY, B_tru_PZ);
+	D_tru_PE = pe_from_pid(DPID, D_tru_PX, D_tru_PY, D_tru_PZ);
+	h_tru_PE = pe_from_pid(hPID, h_tru_PX, h_tru_PY, h_tru_PZ);
 	TLorentzVector Bs(B_tru_PX, B_tru_PY, B_tru_PZ, B_tru_PE),
 	  Ds(D_tru_PX, D_tru_PY, D_tru_PZ, D_tru_PE),
 	  bach(h_tru_PX, h_tru_PY, h_tru_PZ, h_tru_PE),

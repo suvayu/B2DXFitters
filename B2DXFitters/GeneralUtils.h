@@ -304,7 +304,9 @@ namespace GeneralUtils {
   // Get coefficient for acceptance
   //==========================================================================
   RooArgList* GetCoeffFromBinning(RooBinning* binning, RooRealVar* time, bool debug = false);
-    
+
+  double pe_from_pid(int pid, double px, double py, double pz);
+
 }
 // end of namespace
 

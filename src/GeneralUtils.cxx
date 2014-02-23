@@ -14,6 +14,7 @@
 #include <vector>
 #include <fstream>
 #include <stdexcept>
+#include <cmath>
 
 // ROOT and RooFit includes
 #include "TH1D.h"
@@ -1657,5 +1658,46 @@ namespace GeneralUtils {
     
     list = new RooArgList(*c1Var,*c2Var);
     return list;
+  }
+
+  double pe_from_pid(int pid, double px, double py, double pz)
+  {
+    // some constants
+    const double BSMASS(5366.77), BDMASS(5279.58), DSMASS(1968.49),
+      DSSTMASS(2112.3), DMASS(1869.62), PIMASS(139.57018), KMASS(493.677),
+      KSTMASS(891.66), PI0MASS(134.9766), LBMASS(5619.4), LCMASS(2286.46),
+      PMASS(938.272046), RHOMASS(775.49);
+
+    double p2(px*px + py*py + pz*pz), mass(0.0);
+    switch (std::abs(pid)) {
+    case 531:		// Bs
+      mass = BSMASS; break;
+    case 511:		// Bd
+      mass = BDMASS; break;
+    case 431:		// Ds+
+      mass = DSMASS; break;
+    case 411:		// D+
+      mass = DMASS; break;
+    case 433:		// Dsst
+      mass = DSSTMASS; break;
+    case 321:		// K
+      mass = KMASS; break;
+    case 211:		// Pi
+      mass = PIMASS; break;
+    case 5122:	// Lb
+      mass = LBMASS; break;
+    case 2212:	// p
+      mass = PMASS; break;
+    case 4122:	// Lc+
+      mass = LCMASS; break;
+    case 213:		// Rho(770)+
+      mass = RHOMASS; break;
+    case 111:		// Pi0
+      mass = PI0MASS; break;
+    case 22:		// photon
+    default:
+      mass = 0.0;
+    }
+    return std::sqrt(mass*mass + p2);
   }
 } //end of namespace
