@@ -1839,26 +1839,6 @@ namespace MassFitUtils {
       smp[i] = CheckPolarity(sig, debug);
     }
 
-    // std::string nratio("hratio_"), nratiop("hratiop_"), sample;
-    // if (sig.Contains("MU")) {
-    //   sample = "_MU";
-    // }
-    // if (sig.Contains("MD")) {
-    //   sample = "_MD";
-    // }
-
-    // TH1D hderatio((nratio+"dE"+sample).c_str(),   "", 100, 0, 0.1);
-    // TH1D hpxratio((nratio+"Px"+sample).c_str(),   "", 100, 0, 0.1);
-    // TH1D hpyratio((nratio+"Py"+sample).c_str(),   "", 100, 0, 0.1);
-    // TH1D hpzratio((nratio+"Pz"+sample).c_str(),   "", 100, 0, 0.1);
-    // TH1D hgratio((nratio+"global"+sample).c_str(),   "", 100, 0, 0.1);
-
-    // TH1D hderatiop((nratiop+"dE"+sample).c_str(), "", 100, 0, 0.1);
-    // TH1D hpxratiop((nratiop+"Px"+sample).c_str(), "", 100, 0, 0.1);
-    // TH1D hpyratiop((nratiop+"Py"+sample).c_str(), "", 100, 0, 0.1);
-    // TH1D hpzratiop((nratiop+"Pz"+sample).c_str(), "", 100, 0, 0.1);
-    // TH1D hgratiop((nratiop+"global"+sample).c_str(), "", 100, 0, 0.1);
-
     /**
      * Calculate and return datasets with k-factors for partially
      * reconstructed backgrounds.
@@ -2077,28 +2057,11 @@ namespace MassFitUtils {
 	}
       }
 
-      TH1D * hmass_ref = NULL;
-      TH1D * hmass_rec = NULL;
-      TH1D * hmass_no_corr = NULL;
-      if (Bs2DsPi == current_mode) {
-	hmass_no_corr = new TH1D("hmass_no_corr", "", 100, 5300, 5500);
-	hmass_ref = new TH1D("hmass_ref", "", 100, 5300, 5500);
-	hmass_rec = new TH1D("hmass_rec", "", 100, 5300, 5500);
-      }
-
-      TH1D * hdm_Bd2DK_Lb2LcK = NULL;
-      if (Bd2DK == current_mode) {
-	hdm_Bd2DK_Lb2LcK = new TH1D("hdm_Bd2DK", "", 100, -300, 300);
-      }
-      if (Lb2LcK == current_mode) {
-	hdm_Bd2DK_Lb2LcK = new TH1D("hdm_Lb2LcK", "", 100, -300, 300);
-      }
-
       for (Long64_t jentry=0; jentry < nentries; jentry++) {
 	long msg_count(0), err_count(0);
 	ftree->GetEntry(jentry);
 
-	if (loop_counter > 5000) break; // debug
+	// if (loop_counter > 5000) break; // debug
 
 	B_tru_PE = pe_from_pid(BPID, B_tru_PX, B_tru_PY, B_tru_PZ);
 	D_tru_PE = pe_from_pid(DPID, D_tru_PX, D_tru_PY, D_tru_PZ);
@@ -2349,16 +2312,6 @@ namespace MassFitUtils {
 	if (std::isnan(kfactor) || std::isinf(kfactor) || kfactor <= 0. ||
 	    std::isnan(kfactorp) || std::isinf(kfactorp) || kfactorp <= 0.) {
 	  DEBUG(msg_count, "K-factor is invalid: " << kfactor);
-
-	  // not considered anymore
-
-	  // if ("Bd2DsstK" == sanemode or "Bd2DsKst" == sanemode
-	  //     or "Bs2DsKst" == sanemode) {
-	  //   DEBUG(msg_count, sanemode << "Bs_ref.M() = " << Bs_ref.M()
-	  // 	  << " Bmass (LHCb) = " << Bmass);
-	  //   DEBUG(msg_count, sanemode << "K-factor (m/p) = " << kfactor
-	  // 	  << " K-factor (p) = " << kfactorp);
-	  // }
 	  continue;
 	}
 
@@ -2382,43 +2335,6 @@ namespace MassFitUtils {
 
 	if (in_mass_win) {
 	  mBdiff = Bs_rec.M() - Bs_ref.M();
-	  DEBUG(msg_count, "mBdiff = " << mBdiff << ", k(m/p) = "
-		<< kfactor << ", k(p) = " << kfactorp);
-
-	  // if (std::fabs(mBdiff) > 100) { // debug
-	  //   double moverp_tru(Bs.M() / Bs.P()),
-	  //     moverp_rec(Bs_rec.M() / Bs_rec.P());
-	  //   DEBUG(msg_count, "delta m = " << mBdiff);
-	  //   DEBUG(msg_count, "k(m/p) = " << kfactor << ", k(p) = " << kfactorp);
-	  //   DEBUG(msg_count, "True m/p = " << moverp_tru << ", Reco m/p = " << moverp_rec);
-	  //   DEBUG(msg_count, "gratio = " << gratio);
-	  //   DEBUG(msg_count, "Veto B 4-momenta diff");
-	  //   Bs_diff.Print();
-	  //   DEBUG(msg_count, "True B 4-momenta");
-	  //   Bs.Print();
-	  //   DEBUG(msg_count, "True D 4-momenta");
-	  //   Ds.Print();
-	  //   DEBUG(msg_count, "PID corrected true bachelor 4-momenta");
-	  //   bach.Print();
-	  //   DEBUG(msg_count, "Reco B 4-momenta");
-	  //   Bs_rec.Print();
-	  //   DEBUG(msg_count, "Reference B 4-momenta");
-	  //   Bs_ref.Print();
-	  // }
-
-	  // if (ispartial) {
-	  //   hderatiop.Fill(dEratio);
-	  //   hpxratiop.Fill(dPxratio);
-	  //   hpyratiop.Fill(dPyratio);
-	  //   hpzratiop.Fill(dPzratio);
-	  //   hgratiop.Fill(gratio);
-	  // } else {
-	  //   hderatio.Fill(dEratio);
-	  //   hpxratio.Fill(dPxratio);
-	  //   hpyratio.Fill(dPyratio);
-	  //   hpzratio.Fill(dPzratio);
-	  //   hgratio.Fill(gratio);
-	  // }
 
 	  // Fill selected events
 	  mBresn.Fill();
@@ -2441,18 +2357,6 @@ namespace MassFitUtils {
       delete ftree;
       delete treefile;
     } // end of loop on datasets/modes
-
-    // ffile.WriteObject(&hderatio, hderatio.GetName());
-    // ffile.WriteObject(&hpxratio, hpxratio.GetName());
-    // ffile.WriteObject(&hpyratio, hpyratio.GetName());
-    // ffile.WriteObject(&hpzratio, hpzratio.GetName());
-    // ffile.WriteObject(&hgratio, hgratio.GetName());
-
-    // ffile.WriteObject(&hderatiop, hderatiop.GetName());
-    // ffile.WriteObject(&hpxratiop, hpxratiop.GetName());
-    // ffile.WriteObject(&hpyratiop, hpyratiop.GetName());
-    // ffile.WriteObject(&hpzratiop, hpzratiop.GetName());
-    // ffile.WriteObject(&hgratiop, hgratiop.GetName());
 
     DEBUG(gmsg_count, "Vetoed " << veto_counter << " events");
     return workspace;
