@@ -1928,14 +1928,12 @@ namespace MassFitUtils {
 	  SocksFitterArgs[1] = LCMASS;
 	  // SocksFitterArgs[2] = PIMASS;
 	  Ds_hypo = false;
- 	  h_hypo = true;
 	} else if ("Bd2DPi" == sanemode) {
 	  current_mode = Bd2DPi;
 	  SocksFitterArgs[0] = BDMASS;
 	  SocksFitterArgs[1] = DMASS;
 	  // SocksFitterArgs[2] = PIMASS;
 	  Ds_hypo = false;
- 	  h_hypo = true;
 	}
       } else {
 	// FIXME: need to add DsPi background modes
