@@ -2020,6 +2020,20 @@ namespace MassFitUtils {
 	  SocksFitterArgs[4] = PIMASS;
 	} else if ("Bs2DsPi" == sanemode) {
 	  current_mode = Bs2DsPi;
+	} else if ("Lb2LcPi" == sanemode) {
+	  current_mode = Lb2LcPi;
+	  SocksFitterArgs[0] = LBMASS;
+	  SocksFitterArgs[1] = LCMASS;
+	  // SocksFitterArgs[2] = PIMASS;
+	  Ds_hypo = false;
+	  h_hypo = true;
+	} else if ("Bd2DPi" == sanemode) {
+	  current_mode = Bd2DPi;
+	  SocksFitterArgs[0] = BDMASS;
+	  SocksFitterArgs[1] = DMASS;
+	  // SocksFitterArgs[2] = PIMASS;
+	  Ds_hypo = false;
+	  h_hypo = true;
 	}
       } else {
 	// FIXME: need to add DsPi background modes
