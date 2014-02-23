@@ -1858,86 +1858,7 @@ namespace MassFitUtils {
     double wMC(0), wRW(0);
 
     for (unsigned i = 0; i < ndsets; i++) {
-      // if (i > 2) break;
-
-      // create new tree after appling all cuts
-      TString md(mode[i]);
-      TCut MCCut = GetCutMCBkg(mdSet, md, hypo);
-      TTree *ftree = TreeCut(treeMC[i], MCCut, smp[i], md, debug);
-      assert(ftree);
-
       std::string sanemode(mode[i].substr(0, mode[i].find("_")));
-
-      // variables to read from tree
-      int BPID(0), DPID(0), hPID(0), nTr(0);
-      float Bmass(0.);
-      double Bmom(0.), Dmass(0.),
-	B_tru_PE(0.), B_tru_PX(0.), B_tru_PY(0.), B_tru_PZ(0.),
-	D_tru_PE(0.), D_tru_PX(0.), D_tru_PY(0.), D_tru_PZ(0.),
-	h_tru_PE(0.), h_tru_PX(0.), h_tru_PY(0.), h_tru_PZ(0.),
-	B_PE(0.), B_PX(0.), B_PY(0.), B_PZ(0.),
-	lab4_P2(0), lab1_P2(0), lab1_PT2(0), lab5_P2(0);
-
-      ftree->SetBranchAddress("lab0_TRUEID", &BPID);
-      ftree->SetBranchAddress("lab2_TRUEID", &DPID);
-      ftree->SetBranchAddress("lab1_TRUEID", &hPID);
-
-      ftree->SetBranchAddress(mdSet->GetTracksVar().Data(), &nTr);
-      ftree->SetBranchAddress(mdSet->GetMomVar().Data(),    &lab1_P2);
-      ftree->SetBranchAddress(mdSet->GetTrMomVar().Data(),  &lab1_PT2);
-      ftree->SetBranchAddress("lab4_P",                     &lab4_P2);
-      ftree->SetBranchAddress("lab5_P",                     &lab5_P2);
-
-      ftree->SetBranchAddress("lab0_P", &Bmom);
-      ftree->SetBranchAddress(mdSet->GetMassBVar().Data(),  &Bmass);
-      ftree->SetBranchAddress(mdSet->GetMassDVar().Data(),  &Dmass);
-
-      // ftree->SetBranchAddress("lab0_TRUEP_E", &B_tru_PE);
-      ftree->SetBranchAddress("lab0_TRUEP_X", &B_tru_PX);
-      ftree->SetBranchAddress("lab0_TRUEP_Y", &B_tru_PY);
-      ftree->SetBranchAddress("lab0_TRUEP_Z", &B_tru_PZ);
-
-      // ftree->SetBranchAddress("lab2_TRUEP_E", &D_tru_PE);
-      ftree->SetBranchAddress("lab2_TRUEP_X", &D_tru_PX);
-      ftree->SetBranchAddress("lab2_TRUEP_Y", &D_tru_PY);
-      ftree->SetBranchAddress("lab2_TRUEP_Z", &D_tru_PZ);
-
-      // ftree->SetBranchAddress("lab1_TRUEP_E", &h_tru_PE);
-      ftree->SetBranchAddress("lab1_TRUEP_X", &h_tru_PX);
-      ftree->SetBranchAddress("lab1_TRUEP_Y", &h_tru_PY);
-      ftree->SetBranchAddress("lab1_TRUEP_Z", &h_tru_PZ);
-
-      ftree->SetBranchAddress("lab0_PE", &B_PE);
-      ftree->SetBranchAddress("lab0_PX", &B_PX);
-      ftree->SetBranchAddress("lab0_PY", &B_PY);
-      ftree->SetBranchAddress("lab0_PZ", &B_PZ);
-
-      long long nentries = ftree->GetEntries();
-
-      std::string dname ("kfactor_dataset_" + mode[i] + "_" + smp[i]);
-      RooRealVar kfactorVar("kfactorVar", "Correction factor", 0.5, 1.5);
-      RooRealVar weight("weight", "Event weight", 0., 500.0);
-      RooDataSet dataset(dname.c_str(), dname.c_str(),
-			 RooArgSet(kfactorVar, weight), "weight");
-
-      ffile.cd();
-      std::string hname("_"+mode[i]+"_"+smp[i]);
-      TTree mBresn(std::string("mBresn"+hname).c_str(),
-		   std::string("mBresn"+hname).c_str());
-
-      double mBdiff(0.0), kfactor(0.0), kfactorm(0.0), kfactorp(0.0);
-      mBresn.Branch("mBdiff", &mBdiff, "mBdiff/D");
-      mBresn.Branch("kfactor", &kfactor, "kfactor/D");
-      mBresn.Branch("kfactorm", &kfactorm, "kfactorm/D");
-      mBresn.Branch("kfactorp", &kfactorp, "kfactorp/D");
-      mBresn.Branch("wMC", &wMC, "wMC/D");
-      mBresn.Branch("wRW", &wRW, "wRW/D");
-      mBresn.Branch("globalWeight", &globalWeight, "globalWeight/D");
-
-      unsigned long fill_counter(0), loop_counter(0);
-
-      DEBUG(gmsg_count, "decay mode " << mode[i] << "_" << smp[i]
-	    << " with " << nentries << " entries");
 
       bool ispartial(false);
       if (mode[i].find("st") != std::string::npos or
@@ -2007,14 +1928,14 @@ namespace MassFitUtils {
 	  SocksFitterArgs[1] = LCMASS;
 	  // SocksFitterArgs[2] = PIMASS;
 	  Ds_hypo = false;
-	  h_hypo = true;
+ 	  h_hypo = true;
 	} else if ("Bd2DPi" == sanemode) {
 	  current_mode = Bd2DPi;
 	  SocksFitterArgs[0] = BDMASS;
 	  SocksFitterArgs[1] = DMASS;
 	  // SocksFitterArgs[2] = PIMASS;
 	  Ds_hypo = false;
-	  h_hypo = true;
+ 	  h_hypo = true;
 	}
       } else {
 	// FIXME: need to add DsPi background modes
@@ -2057,11 +1978,100 @@ namespace MassFitUtils {
 	}
       }
 
+      // create new tree after appling all cuts
+      TString md(mode[i]);
+      TCut MCCut = GetCutMCBkg(mdSet, md, hypo);
+      TTree *ftree = TreeCut(treeMC[i], MCCut, smp[i], md, debug);
+      assert(ftree);
+
+      // variables to read from tree
+      int BPID(0), DPID(0), hPID(0), nTr(0);
+      float Bmass(0.);
+      double Bmom(0.), Dmass(0.),
+	B_tru_PE(0.), B_tru_PX(0.), B_tru_PY(0.), B_tru_PZ(0.),
+	D_tru_PE(0.), D_tru_PX(0.), D_tru_PY(0.), D_tru_PZ(0.),
+	h_tru_PE(0.), h_tru_PX(0.), h_tru_PY(0.), h_tru_PZ(0.),
+	B_PE(0.), B_PX(0.), B_PY(0.), B_PZ(0.),
+	lab4_P2(0), lab1_P2(0), lab1_PT2(0), lab5_P2(0);
+
+      ftree->SetBranchAddress("lab0_TRUEID", &BPID);
+      ftree->SetBranchAddress("lab2_TRUEID", &DPID);
+      ftree->SetBranchAddress("lab1_TRUEID", &hPID);
+
+      ftree->SetBranchAddress(mdSet->GetTracksVar().Data(), &nTr);
+      ftree->SetBranchAddress(mdSet->GetMomVar().Data(),    &lab1_P2);
+      ftree->SetBranchAddress(mdSet->GetTrMomVar().Data(),  &lab1_PT2);
+      ftree->SetBranchAddress("lab4_P",                     &lab4_P2);
+      ftree->SetBranchAddress("lab5_P",                     &lab5_P2);
+
+      ftree->SetBranchAddress("lab0_P", &Bmom);
+      ftree->SetBranchAddress(mdSet->GetMassBVar().Data(),  &Bmass);
+      ftree->SetBranchAddress(mdSet->GetMassDVar().Data(),  &Dmass);
+
+      // ftree->SetBranchAddress("lab0_TRUEP_E", &B_tru_PE);
+      ftree->SetBranchAddress("lab0_TRUEP_X", &B_tru_PX);
+      ftree->SetBranchAddress("lab0_TRUEP_Y", &B_tru_PY);
+      ftree->SetBranchAddress("lab0_TRUEP_Z", &B_tru_PZ);
+
+      // ftree->SetBranchAddress("lab2_TRUEP_E", &D_tru_PE);
+      ftree->SetBranchAddress("lab2_TRUEP_X", &D_tru_PX);
+      ftree->SetBranchAddress("lab2_TRUEP_Y", &D_tru_PY);
+      ftree->SetBranchAddress("lab2_TRUEP_Z", &D_tru_PZ);
+
+      // ftree->SetBranchAddress("lab1_TRUEP_E", &h_tru_PE);
+      ftree->SetBranchAddress("lab1_TRUEP_X", &h_tru_PX);
+      ftree->SetBranchAddress("lab1_TRUEP_Y", &h_tru_PY);
+      ftree->SetBranchAddress("lab1_TRUEP_Z", &h_tru_PZ);
+
+      ftree->SetBranchAddress("lab0_PE", &B_PE);
+      ftree->SetBranchAddress("lab0_PX", &B_PX);
+      ftree->SetBranchAddress("lab0_PY", &B_PY);
+      ftree->SetBranchAddress("lab0_PZ", &B_PZ);
+
+      double D_PE(0.), D_PX(0.), D_PY(0.), D_PZ(0.),
+	h_PE(0.), h_PX(0.), h_PY(0.), h_PZ(0.);
+
+      ftree->SetBranchAddress("lab2_PE", &D_PE);
+      ftree->SetBranchAddress("lab2_PX", &D_PX);
+      ftree->SetBranchAddress("lab2_PY", &D_PY);
+      ftree->SetBranchAddress("lab2_PZ", &D_PZ);
+
+      ftree->SetBranchAddress("lab1_PE", &h_PE);
+      ftree->SetBranchAddress("lab1_PX", &h_PX);
+      ftree->SetBranchAddress("lab1_PY", &h_PY);
+      ftree->SetBranchAddress("lab1_PZ", &h_PZ);
+
+      long long nentries = ftree->GetEntries();
+
+      std::string dname ("kfactor_dataset_" + mode[i] + "_" + smp[i]);
+      RooRealVar kfactorVar("kfactorVar", "Correction factor", 0.5, 1.5);
+      RooRealVar weight("weight", "Event weight", 0., 500.0);
+      RooDataSet dataset(dname.c_str(), dname.c_str(),
+			 RooArgSet(kfactorVar, weight), "weight");
+
+      ffile.cd();
+      std::string hname("_"+mode[i]+"_"+smp[i]);
+      TTree mBresn(std::string("mBresn"+hname).c_str(),
+		   std::string("mBresn"+hname).c_str());
+
+      double mBdiff(0.0), kfactor(0.0), kfactorm(0.0), kfactorp(0.0);
+      mBresn.Branch("mBdiff", &mBdiff, "mBdiff/D");
+      mBresn.Branch("kfactor", &kfactor, "kfactor/D");
+      mBresn.Branch("kfactorm", &kfactorm, "kfactorm/D");
+      mBresn.Branch("kfactorp", &kfactorp, "kfactorp/D");
+      mBresn.Branch("wMC", &wMC, "wMC/D");
+      mBresn.Branch("wRW", &wRW, "wRW/D");
+      mBresn.Branch("globalWeight", &globalWeight, "globalWeight/D");
+
+      unsigned long fill_counter(0), loop_counter(0);
+
+      DEBUG(gmsg_count, "decay mode " << mode[i] << "_" << smp[i]
+	    << " with " << nentries << " entries");
+
       for (Long64_t jentry=0; jentry < nentries; jentry++) {
 	long msg_count(0), err_count(0);
-	ftree->GetEntry(jentry);
-
 	// if (loop_counter > 5000) break; // debug
+	ftree->GetEntry(jentry);
 
 	B_tru_PE = pe_from_pid(BPID, B_tru_PX, B_tru_PY, B_tru_PZ);
 	D_tru_PE = pe_from_pid(DPID, D_tru_PX, D_tru_PY, D_tru_PZ);
@@ -2139,7 +2149,7 @@ namespace MassFitUtils {
 	  fit_status = fitter.fit(Blv, Dlv, hlv);
 
 	if (not fit_status) {
-	  ERROR(gerr_count, "DecayTreeTupleSucksFitter::fit(..) failed\n"
+	  ERROR(err_count, "DecayTreeTupleSucksFitter::fit(..) failed\n"
 		<< mode[i] << "_" << smp[i] << " 4-momenta after fit\n"
 		<< "Bs(t,x,y,z) = " << Blv[0] << "," << Blv[1] << ","
 		<< Blv[2] << "," << Blv[3] << std::endl
