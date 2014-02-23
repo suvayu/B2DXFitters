@@ -4,6 +4,12 @@
 ! Purpose     : RooFit-based fitters for B -> D X
 !-----------------------------------------------------------------------------
 
+! 2014-02-23 Suvayu Ali
+ - Fix global weights & PID reweighting for k-factor templates
+ - Update MC samples for k-factor templates
+ - Bd2DPi & Λb2LcPi k-factor templates for Bs2DsK
+ - Enable 4-momenta refit before k-factor evaluation
+
 ! 2014-02-19 - Agnieszka Dziurda
  - add function for correlations  
  - MDFitter update:
