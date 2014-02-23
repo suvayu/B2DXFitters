@@ -2020,7 +2020,7 @@ namespace MassFitUtils {
 	  SocksFitterArgs[4] = PIMASS;
 	} else if ("Bs2DsPi" == sanemode) {
 	  current_mode = Bs2DsPi;
-	} else if ("Lb2LcPi" == sanemode) {
+	} else if ("Lb2LcPi" == sanemode or "Lb2Lambdacpi" == sanemode) {
 	  current_mode = Lb2LcPi;
 	  SocksFitterArgs[0] = LBMASS;
 	  SocksFitterArgs[1] = LCMASS;
@@ -2059,7 +2059,7 @@ namespace MassFitUtils {
 	  SocksFitterArgs[2] = KMASS;
 	  Ds_hypo = true;
 	  h_hypo = false;
-	} else if ("Lb2LcPi" == sanemode) {
+	} else if ("Lb2LcPi" == sanemode or "Lb2Lambdacpi" == sanemode) {
 	  current_mode = Lb2LcPi;
 	  SocksFitterArgs[0] = LBMASS;
 	  SocksFitterArgs[1] = LCMASS;
