@@ -1968,7 +1968,7 @@ namespace MassFitUtils {
 		    Lb2Dsp, Lb2Dsstp, Lb2LcK, Bs2DsPi, Bd2DsPi,
 		    Lb2LcPi, Bd2DPi, Bs2DsK} current_mode=Bd2DK;
 
-      // double SocksFitterArgs[5] = {BSMASS, DSMASS, PIMASS, -1.0, -1.0};
+      double SocksFitterArgs[5] = {BSMASS, DSMASS, PIMASS, -1.0, -1.0};
 
       bool Ds_hypo(true), h_hypo(false),
 	noMC(false);		// noMC is redundant now that we have
@@ -1978,46 +1978,46 @@ namespace MassFitUtils {
 	// ordered in increasing yields under DsK
 	if ("Bd2DK" == sanemode) {
 	  current_mode = Bd2DK;
-	  // SocksFitterArgs[0] = BDMASS;
-	  // SocksFitterArgs[1] = DMASS;
-	  // SocksFitterArgs[2] = KMASS;
+	  SocksFitterArgs[0] = BDMASS;
+	  SocksFitterArgs[1] = DMASS;
+	  SocksFitterArgs[2] = KMASS;
 	  Ds_hypo = false;
 	  h_hypo = true;
 	} else if ("Lb2LcK" == sanemode) {
 	  current_mode = Lb2LcK;
-	  // SocksFitterArgs[0] = LBMASS;
-	  // SocksFitterArgs[1] = LCMASS;
-	  // SocksFitterArgs[2] = KMASS;
+	  SocksFitterArgs[0] = LBMASS;
+	  SocksFitterArgs[1] = LCMASS;
+	  SocksFitterArgs[2] = KMASS;
 	  Ds_hypo = false;
 	  h_hypo = true;
 	} else if ("Lb2Dsstp" == sanemode) {
 	  current_mode = Lb2Dsstp;
-	  // SocksFitterArgs[0] = LBMASS;
-	  // // SocksFitterArgs[1] = DSMASS;
-	  // SocksFitterArgs[2] = PMASS;
-	  // SocksFitterArgs[3] = DSSTMASS;
+	  SocksFitterArgs[0] = LBMASS;
+	  // SocksFitterArgs[1] = DSMASS;
+	  SocksFitterArgs[2] = PMASS;
+	  SocksFitterArgs[3] = DSSTMASS;
 	} else if ("Lb2Dsp" == sanemode) {
 	  current_mode = Lb2Dsp;
-	  // SocksFitterArgs[0] = LBMASS;
-	  // // SocksFitterArgs[1] = DSMASS;
-	  // SocksFitterArgs[2] = PMASS;
+	  SocksFitterArgs[0] = LBMASS;
+	  // SocksFitterArgs[1] = DSMASS;
+	  SocksFitterArgs[2] = PMASS;
 	} else if ("Bs2DsstPi" == sanemode) {
 	  current_mode = Bs2DsstPi;
-	  // // SocksFitterArgs[0] = BSMASS;
-	  // // SocksFitterArgs[1] = DSMASS;
-	  // // SocksFitterArgs[2] = PIMASS;
-	  // SocksFitterArgs[3] = DSSTMASS;
+	  // SocksFitterArgs[0] = BSMASS;
+	  // SocksFitterArgs[1] = DSMASS;
+	  // SocksFitterArgs[2] = PIMASS;
+	  SocksFitterArgs[3] = DSSTMASS;
 	} else if ("Bs2DsRho" == sanemode) {
 	  // FIXME: Only high statistics sample with large delta mB (~20
 	  // MeV). The Rho decays quickly, so it is reconstructed as a
 	  // Pi?  and the other Pi is missed! This should be considered
 	  // as a partially reconstructed decay with a Rho intermediate
-	  // state.
+	  // state.  Do not constrain the rho mass, as it is very wide.
 	  current_mode = Bs2DsRho;
-	  // // SocksFitterArgs[0] = BSMASS;
-	  // // SocksFitterArgs[1] = DSMASS;
-	  // // SocksFitterArgs[2] = PIMASS;
-	  // SocksFitterArgs[4] = PIMASS;
+	  // SocksFitterArgs[0] = BSMASS;
+	  // SocksFitterArgs[1] = DSMASS;
+	  // SocksFitterArgs[2] = PIMASS;
+	  SocksFitterArgs[4] = PIMASS;
 	} else if ("Bs2DsPi" == sanemode) {
 	  current_mode = Bs2DsPi;
 	}
@@ -2025,38 +2025,38 @@ namespace MassFitUtils {
 	// FIXME: need to add DsPi background modes
 	if ("Bd2DsPi" == sanemode) {
 	  current_mode = Bd2DsPi;
-	  // SocksFitterArgs[0] = BDMASS;
-	  // // SocksFitterArgs[1] = DSMASS;
-	  // // SocksFitterArgs[2] = PIMASS;
+	  SocksFitterArgs[0] = BDMASS;
+	  // SocksFitterArgs[1] = DSMASS;
+	  // SocksFitterArgs[2] = PIMASS;
 	  Ds_hypo = true;
 	  h_hypo = true;
 	} else if ("Bs2DsstPi" == sanemode) {
 	  current_mode = Bs2DsstPi;
-	  // // SocksFitterArgs[0] = BSMASS;
-	  // // SocksFitterArgs[1] = DSMASS;
-	  // // SocksFitterArgs[2] = PIMASS;
-	  // SocksFitterArgs[3] = DSSTMASS;
+	  // SocksFitterArgs[0] = BSMASS;
+	  // SocksFitterArgs[1] = DSMASS;
+	  // SocksFitterArgs[2] = PIMASS;
+	  SocksFitterArgs[3] = DSSTMASS;
 	  Ds_hypo = true;
 	  h_hypo = true;
 	} else	if ("Bs2DsK" == sanemode) {
 	  current_mode = Bs2DsK;
-	  // // SocksFitterArgs[0] = BSMASS;
-	  // // SocksFitterArgs[1] = DSMASS;
-	  // SocksFitterArgs[2] = KMASS;
+	  // SocksFitterArgs[0] = BSMASS;
+	  // SocksFitterArgs[1] = DSMASS;
+	  SocksFitterArgs[2] = KMASS;
 	  Ds_hypo = true;
 	  h_hypo = false;
 	} else if ("Lb2LcPi" == sanemode) {
 	  current_mode = Lb2LcPi;
-	  // SocksFitterArgs[0] = LBMASS;
-	  // SocksFitterArgs[1] = LCMASS;
-	  // // SocksFitterArgs[2] = PIMASS;
+	  SocksFitterArgs[0] = LBMASS;
+	  SocksFitterArgs[1] = LCMASS;
+	  // SocksFitterArgs[2] = PIMASS;
 	  Ds_hypo = false;
 	  h_hypo = true;
 	} else if ("Bd2DPi" == sanemode) {
 	  current_mode = Bd2DPi;
-	  // SocksFitterArgs[0] = BDMASS;
-	  // SocksFitterArgs[1] = DMASS;
-	  // // SocksFitterArgs[2] = PIMASS;
+	  SocksFitterArgs[0] = BDMASS;
+	  SocksFitterArgs[1] = DMASS;
+	  // SocksFitterArgs[2] = PIMASS;
 	  Ds_hypo = false;
 	  h_hypo = true;
 	}
@@ -2083,7 +2083,7 @@ namespace MassFitUtils {
 	long msg_count(0), err_count(0);
 	ftree->GetEntry(jentry);
 
-	// if (fill_counter > 200) break; // debug
+	if (loop_counter > 5000) break; // debug
 
 	TLorentzVector Bs(B_tru_PX, B_tru_PY, B_tru_PZ, B_tru_PE),
 	  Ds(D_tru_PX, D_tru_PY, D_tru_PZ, D_tru_PE),
@@ -2128,46 +2128,46 @@ namespace MassFitUtils {
 	// Ds.Print();
 	// bach.Print();
 
-	// // in the Dsst case, autodetect gamma/pi, but only if the other B
-	// // daughter is fully reconstructed
-	// switch (current_mode) {
-	// case Bs2DsstK: // fall-through intended
-	// case Bs2DsstPi:
-	// case Lb2Dsstp:
-	//     {
-	// 	const double m2 = mlv[0] * mlv[0] - mlv[1] * mlv[1] -
-	// 	    mlv[2] * mlv[2] - mlv[3] * mlv[3];
-	// 	// cut at (half the pion mass)^2
-	// 	if (m2 < 0.25 * PIMASS * PIMASS)
-	// 	    SocksFitterArgs[4] = 0.;
-	// 	else
-	// 	    SocksFitterArgs[4] = PIMASS;
-	//     }
-	//     break;
-	// default:
-	//   break;
-	// }
+	// in the Dsst case, autodetect gamma/pi, but only if the other B
+	// daughter is fully reconstructed
+	switch (current_mode) {
+	case Bs2DsstK: // fall-through intended
+	case Bs2DsstPi:
+	case Lb2Dsstp:
+	    {
+		const double m2 = mlv[0] * mlv[0] - mlv[1] * mlv[1] -
+		    mlv[2] * mlv[2] - mlv[3] * mlv[3];
+		// cut at (half the pion mass)^2
+		if (m2 < 0.25 * PIMASS * PIMASS)
+		    SocksFitterArgs[4] = 0.;
+		else
+		    SocksFitterArgs[4] = PIMASS;
+	    }
+	    break;
+	default:
+	  break;
+	}
 
-	// DecayTreeTupleSucksFitter fitter(SocksFitterArgs[0], SocksFitterArgs[1],
-	// 				 SocksFitterArgs[2], SocksFitterArgs[3],
-	// 				 SocksFitterArgs[4]);
-	// bool fit_status(false);
-	// if (ispartial)
-	//   fit_status = fitter.fit(Blv, Dlv, hlv, mlv);
-	// else
-	//   fit_status = fitter.fit(Blv, Dlv, hlv);
+	DecayTreeTupleSucksFitter fitter(SocksFitterArgs[0], SocksFitterArgs[1],
+					 SocksFitterArgs[2], SocksFitterArgs[3],
+					 SocksFitterArgs[4]);
+	bool fit_status(false);
+	if (ispartial)
+	  fit_status = fitter.fit(Blv, Dlv, hlv, mlv);
+	else
+	  fit_status = fitter.fit(Blv, Dlv, hlv);
 
-	// if (not fit_status) {
-	//   ERROR(gerr_count, "DecayTreeTupleSucksFitter::fit(..) failed\n"
-	// 	<< mode[i] << "_" << smp[i] << " 4-momenta after fit\n"
-	// 	<< "Bs(t,x,y,z) = " << Blv[0] << "," << Blv[1] << ","
-	// 	<< Blv[2] << "," << Blv[3] << std::endl
-	// 	<< "Ds(t,x,y,z) = " << Dlv[0] << "," << Dlv[1] << ","
-	// 	<< Dlv[2] << "," << Dlv[3] << std::endl
-	// 	<< "h(t,x,y,z) = " << hlv[0] << "," << hlv[1] << ","
-	// 	<< hlv[2] << "," << hlv[3] << std::endl);
-	//   continue;
-	// }
+	if (not fit_status) {
+	  ERROR(gerr_count, "DecayTreeTupleSucksFitter::fit(..) failed\n"
+		<< mode[i] << "_" << smp[i] << " 4-momenta after fit\n"
+		<< "Bs(t,x,y,z) = " << Blv[0] << "," << Blv[1] << ","
+		<< Blv[2] << "," << Blv[3] << std::endl
+		<< "Ds(t,x,y,z) = " << Dlv[0] << "," << Dlv[1] << ","
+		<< Dlv[2] << "," << Dlv[3] << std::endl
+		<< "h(t,x,y,z) = " << hlv[0] << "," << hlv[1] << ","
+		<< hlv[2] << "," << hlv[3] << std::endl);
+	  continue;
+	}
 
 	TLorentzVector fBs(Blv[1], Blv[2], Blv[3], Blv[0]),
 	  fDs(Dlv[1], Dlv[2], Dlv[3], Dlv[0]),
@@ -2175,13 +2175,13 @@ namespace MassFitUtils {
 	  fmiss(mlv[1], mlv[2], mlv[3], mlv[0]);
 	TLorentzVector fstarred(0.0, 0.0, 0.0, 0.0);
 
-	/*
+	///*
 	DEBUG(msg_count, mode[i] << "_" << smp[i] << " 4-momenta after fit");
 	fBs.Print();
 	fDs.Print();
 	fbach.Print();
 	if (ispartial) fmiss.Print();
-	*/
+	//*/
 
 	// No need to shift 4-momenta, no missing MC anymore
 
