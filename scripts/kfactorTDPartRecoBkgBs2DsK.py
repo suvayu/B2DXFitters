@@ -96,7 +96,34 @@ background to Bs⁰ → DsK.
 # Python standard libraries
 import os
 import sys
-from optparse import OptionParser
+sys.path.append("../data/")
+
+# options
+import argparse
+parser = argparse.ArgumentParser(description=__doc__)
+parser.add_argument('-o', '--outfile', dest='fname',
+                    default=os.environ['B2DXFITTERSROOT']+'/data/workspace/kfactor_wspace.root',
+                    help='Filename with saved workspace')
+parser.add_argument('--mvar', dest='mvar',
+                    default='lab0_MassFitConsD_M',
+                    help = 'Set mass observable')
+parser.add_argument('--masslo', dest='masslo',
+                    type=float, default=5320.0,
+                    help='Mass window lower edge')
+parser.add_argument('--masshi', dest='masshi',
+                    type=float, default=5420.0,
+                    help='Mass window upper edge')
+parser.add_argument('--nomasswin', dest='nomasswin',
+                    action='store_false', default=False,
+                    help='Turn off mass window')
+parser.add_argument('--configname', dest = 'configname',
+                    default='Bs2DsKConfigForNominalMassFitBDTGA',
+                    help='Configuration file name')
+parser.add_argument('-d', '--debug', dest='debug',
+                    action='store_true', default=True)
+
+options = parser.parse_args()
+
 
 # ROOT globals
 import B2DXFitters
@@ -116,6 +143,8 @@ from ROOT import RooAbsPdf, RooGaussian
 from ROOT import RooGenericPdf, RooEffProd, RooAddPdf, RooProdPdf, RooHistPdf
 from ROOT import RooDataSet, RooDataHist
 from ROOT import RooDecay, RooGaussModel, TString, TLorentzVector
+
+
 
 # avoid memory leaks - will have to explicitly relinquish and acquire ownership
 # if required, but PyROOT does not do what it thinks best without our knowing
@@ -222,40 +251,8 @@ def get_workspace(configname, varnames, masslo, masshi, debug):
         print '=' * 50
     return workspace
 
-# options
-_usage = '%prog [options]'
-parser = OptionParser( _usage )
-parser.add_option('-o', '--outfile', dest='fname',
-                  default=os.environ['B2DXFITTERSROOT']+'/data/workspace/kfactor_wspace.root',
-                  help='Filename with saved workspace')
-parser.add_option('--mvar', dest='mvar',
-                   default='lab0_MassFitConsD_M',
-                   help = 'Set mass observable')
-parser.add_option('--masslo', dest='masslo',
-                  type='float', default=5320.0,
-                  help='Mass window lower edge')
-parser.add_option('--masshi', dest='masshi',
-                  type='float', default=5420.0,
-                  help='Mass window upper edge')
-parser.add_option('--nomasswin', dest='nomasswin',
-                  action='store_false', default=False,
-                  help='Turn off mass window')
-parser.add_option('--configname', dest = 'configname',
-                   default='Bs2DsKConfigForNominalMassFitBDTGA',
-                   help='Configuration file name')
-parser.add_option('-d', '--debug', dest='debug',
-                  action='store_true', default=True)
-
 
 if __name__ == "__main__":
-
-    (options, args) = parser.parse_args()
-    if len(args) > 0:
-        parser.print_help()
-        exit(-1)
-
-    import sys
-    sys.path.append("../data/")
 
     fname = options.fname
     debug = options.debug
