@@ -1872,8 +1872,7 @@ namespace MassFitUtils {
 
       double SocksFitterArgs[5] = {BSMASS, DSMASS, PIMASS, -1.0, -1.0};
 
-      bool Ds_hypo(true), h_hypo(false),
-	noMC(false);		// noMC is redundant now that we have
+      bool noMC(false);		// noMC is redundant now that we have
 				// all MC.  keep for reference.
 
       if (isDsK) {
@@ -1883,15 +1882,11 @@ namespace MassFitUtils {
 	  SocksFitterArgs[0] = BDMASS;
 	  SocksFitterArgs[1] = DMASS;
 	  SocksFitterArgs[2] = KMASS;
-	  Ds_hypo = false;
-	  h_hypo = true;
 	} else if ("Lb2LcK" == sanemode) {
 	  current_mode = Lb2LcK;
 	  SocksFitterArgs[0] = LBMASS;
 	  SocksFitterArgs[1] = LCMASS;
 	  SocksFitterArgs[2] = KMASS;
-	  Ds_hypo = false;
-	  h_hypo = true;
 	} else if ("Lb2Dsstp" == sanemode) {
 	  current_mode = Lb2Dsstp;
 	  SocksFitterArgs[0] = LBMASS;
@@ -1927,13 +1922,11 @@ namespace MassFitUtils {
 	  SocksFitterArgs[0] = LBMASS;
 	  SocksFitterArgs[1] = LCMASS;
 	  // SocksFitterArgs[2] = PIMASS;
-	  Ds_hypo = false;
 	} else if ("Bd2DPi" == sanemode) {
 	  current_mode = Bd2DPi;
 	  SocksFitterArgs[0] = BDMASS;
 	  SocksFitterArgs[1] = DMASS;
 	  // SocksFitterArgs[2] = PIMASS;
-	  Ds_hypo = false;
 	}
       } else {
 	// FIXME: need to add DsPi background modes
@@ -1942,37 +1935,27 @@ namespace MassFitUtils {
 	  SocksFitterArgs[0] = BDMASS;
 	  // SocksFitterArgs[1] = DSMASS;
 	  // SocksFitterArgs[2] = PIMASS;
-	  Ds_hypo = true;
-	  h_hypo = true;
 	} else if ("Bs2DsstPi" == sanemode) {
 	  current_mode = Bs2DsstPi;
 	  // SocksFitterArgs[0] = BSMASS;
 	  // SocksFitterArgs[1] = DSMASS;
 	  // SocksFitterArgs[2] = PIMASS;
 	  SocksFitterArgs[3] = DSSTMASS;
-	  Ds_hypo = true;
-	  h_hypo = true;
 	} else	if ("Bs2DsK" == sanemode) {
 	  current_mode = Bs2DsK;
 	  // SocksFitterArgs[0] = BSMASS;
 	  // SocksFitterArgs[1] = DSMASS;
 	  SocksFitterArgs[2] = KMASS;
-	  Ds_hypo = true;
-	  h_hypo = false;
 	} else if ("Lb2LcPi" == sanemode or "Lb2Lambdacpi" == sanemode) {
 	  current_mode = Lb2LcPi;
 	  SocksFitterArgs[0] = LBMASS;
 	  SocksFitterArgs[1] = LCMASS;
 	  // SocksFitterArgs[2] = PIMASS;
-	  Ds_hypo = false;
-	  h_hypo = true;
 	} else if ("Bd2DPi" == sanemode) {
 	  current_mode = Bd2DPi;
 	  SocksFitterArgs[0] = BDMASS;
 	  SocksFitterArgs[1] = DMASS;
 	  // SocksFitterArgs[2] = PIMASS;
-	  Ds_hypo = false;
-	  h_hypo = true;
 	}
       }
 
@@ -2304,13 +2287,9 @@ namespace MassFitUtils {
 
 	// emulating mis-reconstruction
 	Bs = fBs;
-	if (Ds_hypo == false) Ds.SetVectM(fDs.Vect(), DSMASS);
-	else Ds = fDs;
-	if (h_hypo == false) {
-	  if (isDsK) bach.SetVectM(fbach.Vect(), KMASS);
-	  else bach.SetVectM(fbach.Vect(), PIMASS);
-	}
-	else bach = fbach;
+	Ds.SetVectM(fDs.Vect(), DSMASS);
+	if (isDsK) bach.SetVectM(fbach.Vect(), KMASS);
+	else bach.SetVectM(fbach.Vect(), PIMASS);
 	Bs_rec = Ds + bach;
 
 	kfactorp = Bs_rec.P() / Bs.P();
