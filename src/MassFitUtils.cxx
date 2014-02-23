@@ -2175,13 +2175,13 @@ namespace MassFitUtils {
 	  fmiss(mlv[1], mlv[2], mlv[3], mlv[0]);
 	TLorentzVector fstarred(0.0, 0.0, 0.0, 0.0);
 
-	///*
+	/*
 	DEBUG(msg_count, mode[i] << "_" << smp[i] << " 4-momenta after fit");
 	fBs.Print();
 	fDs.Print();
 	fbach.Print();
 	if (ispartial) fmiss.Print();
-	//*/
+	*/
 
 	// No need to shift 4-momenta, no missing MC anymore
 
