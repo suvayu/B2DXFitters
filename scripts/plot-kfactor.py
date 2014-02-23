@@ -80,7 +80,7 @@ for mode in modes:
             if noweights:
                 tree.Draw('%s>>%s' % (var, hname), '', 'hist')
             else:
-                tree.Draw('%s>>%s' % (var, hname), 'wMC*wRW', 'hist')
+                tree.Draw('%s>>%s' % (var, hname), 'wMC*wRW*globalWeight', 'hist')
             # adjust labels and styles
             hist = gPad.FindObject(hname)
             hist.SetTitle('%s - %s' % (vardict[var], tname))

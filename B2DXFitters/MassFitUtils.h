@@ -190,6 +190,7 @@ namespace MassFitUtils {
 				   MDFitterSettings* mdSet,
 				   TString& hypo,
 				   RooWorkspace* workspace,
+				   double globalWeight,
 				   TFile &ffile, bool debug=true);
 
 

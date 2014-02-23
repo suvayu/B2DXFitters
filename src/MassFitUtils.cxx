@@ -1764,6 +1764,7 @@ namespace MassFitUtils {
 				   MDFitterSettings* mdSet,
 				   TString& hypo,
 				   RooWorkspace* workspace,
+				   double globalWeight,
 				   TFile &ffile,  bool debug)
   {
     long gmsg_count(0), gerr_count(0);
@@ -1952,6 +1953,7 @@ namespace MassFitUtils {
       mBresn.Branch("kfactorp", &kfactorp, "kfactorp/D");
       mBresn.Branch("wMC", &wMC, "wMC/D");
       mBresn.Branch("wRW", &wRW, "wRW/D");
+      mBresn.Branch("globalWeight", &globalWeight, "globalWeight/D");
 
       unsigned long fill_counter(0), loop_counter(0);
 
@@ -2419,7 +2421,7 @@ namespace MassFitUtils {
 	  // Fill selected events
 	  mBresn.Fill();
 	  kfactorVar.setVal(kfactor);
-	  weight.setVal(wMC*wRW);
+	  weight.setVal(wMC*wRW*globalWeight);
 	  dataset.add(RooArgSet(kfactorVar, weight), weight.getVal());
 	  fill_counter++;
 	}

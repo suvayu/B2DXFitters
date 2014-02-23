@@ -223,6 +223,9 @@ def get_workspace(configname, varnames, masslo, masshi, debug):
     # MDSettingsMC.SetMassDRange()
     MDSettingsMC.Print("v")
 
+    MDRatio= 1.0-myconfigfile["lumRatio"]
+    MURatio= myconfigfile["lumRatio"]
+
     if configname.startswith('Bs2DsK'):
         hypo = TString("BsDsK")
     elif configname.startswith('Bs2DsPi'):
@@ -237,12 +240,12 @@ def get_workspace(configname, varnames, masslo, masshi, debug):
                                    TString('#Kfactor MC FileName MU'),
                                    TString('#Kfactor MC TreeName'),
                                    MDSettingsMC, hypo,
-                                   workspace, ffile, debug)
+                                   workspace, MURatio, ffile, debug)
     workspace = getSpecBkg4kfactor(TString(myconfigfile["dataName"]),
                                    TString('#Kfactor MC FileName MD'),
                                    TString('#Kfactor MC TreeName'),
                                    MDSettingsMC, hypo,
-                                   workspace, ffile, debug)
+                                   workspace, MDRatio, ffile, debug)
     ffile.Close()
 
     if debug:
