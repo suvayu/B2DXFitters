@@ -446,12 +446,12 @@ RooAbsGenContext* RooKResModel::modelGenContext(
 	tmppdf = dynamic_cast<RooAbsAnaConvPdf*>(
 		convPdf.clone(pdfname.c_str()));
 	assert(tmppdf);
-	const RooResolutionModel& resmodel =
+	const RooResolutionModel& resmodel_t =
 	    dynamic_cast<const RooResolutionModel&>(_resmodel.arg());
-	std::string resmodelname(resmodel.GetName());
+	std::string resmodelname(resmodel_t.GetName());
 	resmodelname += "_GenContext";
 	RooResolutionModel* newresmodel = dynamic_cast<RooResolutionModel*>(
-		resmodel.clone(resmodelname.c_str()));
+		resmodel_t.clone(resmodelname.c_str()));
 	newresmodel->changeBasis(0);
 	tmppdf->changeModel(*newresmodel);
 	// substitute q -> k * q for all q in _substTargets

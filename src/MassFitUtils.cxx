@@ -1850,8 +1850,8 @@ namespace MassFitUtils {
     // some constants
     const double BSMASS(5366.77), BDMASS(5279.58), DSMASS(1968.49),
       DSSTMASS(2112.3), DMASS(1869.62), PIMASS(139.57018), KMASS(493.677),
-      KSTMASS(891.66), PI0MASS(134.9766), LBMASS(5619.4), LCMASS(2286.46),
-      PMASS(938.272046), RHOMASS(775.49);
+      LBMASS(5619.4), LCMASS(2286.46), PMASS(938.272046);
+    // , RHOMASS(775.49), KSTMASS(891.66), PI0MASS(134.9766);
 
     long veto_counter(0);
     const double pgratio_cut(5E-3), gratio_cut(5E-2);
@@ -1872,8 +1872,8 @@ namespace MassFitUtils {
 
       double SocksFitterArgs[5] = {BSMASS, DSMASS, PIMASS, -1.0, -1.0};
 
-      bool noMC(false);		// noMC is redundant now that we have
-				// all MC.  keep for reference.
+      // noMC is redundant now that we have all MC, keep for reference.
+      // bool noMC(false);
 
       if (isDsK) {
 	// ordered in increasing yields under DsK
