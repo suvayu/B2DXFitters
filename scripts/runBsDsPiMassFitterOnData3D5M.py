@@ -166,16 +166,29 @@ def runBsDsKMassFitterOnData( debug, sample,
         workspaceToys = (GeneralUtils.LoadWorkspace(TString(fileNameToys),workNameTS, debug))
         workspaceToys.Print("v")
                  
-                                                                           
+    if mode == "hhhpi0":
+        mdVar = "Ds_MM"
+        mVar = "Bs_MassConsDs_M"
+        pidVar = "Bac_PIDK"
+        tVar  = "Bs_LifetimeFit_ctau"
+        terrVar = "Bs_LifetimeFit_ctauErr"
+        #idVar   = "Bs_ID"
+        nTrVar  = "nTracks"
+        ptVar = "Bac_PT"
+    else:
+        pidVar = "lab1_PIDK"
+        nTrVar = "nTracks"
+        ptVar = "lab1_PT"
+
     if (not toys ):
-        mass        = GeneralUtils.GetObservable(workspace[0],obsTS, debug)
+        mass        = GeneralUtils.GetObservable(workspace[0],TString(mVar), debug)
         massDs      = GeneralUtils.GetObservable(workspace[0],TString(mdVar), debug)
-        PIDK        = GeneralUtils.GetObservable(workspace[0],TString("lab1_PIDK"), debug)
+        PIDK        = GeneralUtils.GetObservable(workspace[0],TString(pidVar), debug)
         tvar        = GeneralUtils.GetObservable(workspace[0],TString(tVar), debug)
         terrvar     = GeneralUtils.GetObservable(workspace[0],TString(terrVar), debug)
         idvar       = GeneralUtils.GetCategory(workspace[0],TString(idVar), debug)
-        nTrvar      = GeneralUtils.GetObservable(workspace[0],TString("nTracks"), debug)
-        ptvar       = GeneralUtils.GetObservable(workspace[0],TString("lab1_PT"), debug)
+        nTrvar      = GeneralUtils.GetObservable(workspace[0],TString(nTrVar), debug)
+        ptvar       = GeneralUtils.GetObservable(workspace[0],TString(ptVar), debug)
                 
     else:
         mass        = GeneralUtils.GetObservable(workspaceToys,obsTS, debug)
@@ -183,9 +196,7 @@ def runBsDsKMassFitterOnData( debug, sample,
         PIDK        = GeneralUtils.GetObservable(workspaceToys,TString("lab1_PIDK"), debug)
         tvar        = GeneralUtils.GetObservable(workspaceToys,TString(tVar), debug)
         terrvar     = GeneralUtils.GetObservable(workspaceToys,TString(terrVar), debug)
-        tagomegavar = GeneralUtils.GetObservable(workspaceToys,TString(tagOmegaVar), debug)
-        tagvar      = GeneralUtils.GetObservable(workspaceToys,TString(tagVar)+TString("_idx"), debug)
-        idvar       = GeneralUtils.GetObservable(workspaceToys,TString(idVar)+TString("_idx"), debug)
+        idvar       = GeneralUtils.GetCategory(workspaceToys,TString(idVar), debug)
         trueidvar   = GeneralUtils.GetObservable(workspaceToys,TString("lab0_TRUEID"), debug)
                 
     observables = RooArgSet( mass,massDs, PIDK, tvar, terrvar, idvar )
@@ -244,15 +255,60 @@ def runBsDsKMassFitterOnData( debug, sample,
 
     ### Obtain data set ###
     if toys:
-        s = [sampleTS, sampleTS]
-        m = [modeTS]
-        sm.append(s[0]+t+m[0])
-        data.append(GeneralUtils.GetDataSet(workspaceToys,datasetTS+TString("toys"),debug))
-        nEntries.append(data[0].numEntries())
-        sam.defineType(sm[0].Data())
+        s = [TString("both"), TString("both"), TString("both"), TString("both"), TString("both")]
+        m = [TString("nonres"), TString("phipi"), TString("kstk"), TString("kpipi"), TString("pipipi")]
+        for i in range(0,5):
+            sm.append(s[0]+t+m[i])
+            sam.defineType(sm[i].Data())
+            data.append(GeneralUtils.GetDataSet(workspaceToys,datasetTS+sm[i],debug))
+            nEntries.append(data[i].numEntries())
+            
         combData = RooDataSet("combData","combined data",RooArgSet(observables),
                               RooFit.Index(sam),
-                              RooFit.Import(sm[0]))
+                              RooFit.Import(sm[0].Data(),data[0]),
+                              RooFit.Import(sm[1].Data(),data[1]),
+                              RooFit.Import(sm[2].Data(),data[2]),
+                              RooFit.Import(sm[3].Data(),data[3]),
+                              RooFit.Import(sm[4].Data(),data[4]))
+        
+        countSig   = [0,0,0,0,0]
+        countCombo = [0,0,0,0,0]
+        countLcPi  = [0,0,0,0,0]
+        countBDPi  = [0,0,0,0,0]
+        countBDsPi = [0,0,0,0,0]
+        countRhoPi = [0,0,0,0,0]
+        countDsK   = [0,0,0,0,0]
+        if debug:
+            for j in range(0,m.__len__()):
+                print "nEntries: %s"%(nEntries[j])
+                obs = data[j].get()
+                trueid = obs.find("lab0_TRUEID")
+                for i in range(0,nEntries[j]):
+                    obs2 = data[j].get(i)
+                    if abs(trueid.getValV(obs2)-1.0) < 0.5 :
+                        countSig[j] += 1
+                    if abs(trueid.getValV(obs2)-2.0) < 0.5 :
+                        countBDPi[j] += 1
+                    if abs(trueid.getValV(obs2)-3.0) < 0.5 :
+                        countBDsPi[j] += 1
+                    if abs(trueid.getValV(obs2)-4.0) < 0.5 :
+                        countLcPi[j] += 1
+                    if abs(trueid.getValV(obs2)-5.0) < 0.5 :
+                        countRhoPi[j] += 1
+                    if abs(trueid.getValV(obs2)-7.0) < 0.5 :
+                        countDsK[j] += 1
+                    if abs(trueid.getValV(obs2)-10.0) < 0.5 :
+                        countCombo[j] += 1
+
+        #s = [sampleTS, sampleTS]
+        #m = [modeTS]
+        #sm.append(s[0]+t+m[0])
+        #data.append(GeneralUtils.GetDataSet(workspaceToys,datasetTS+TString("toys"),debug))
+        #nEntries.append(data[0].numEntries())
+        #sam.defineType(sm[0].Data())
+        #combData = RooDataSet("combData","combined data",RooArgSet(observables),
+        #                      RooFit.Index(sam),
+        #                      RooFit.Import(sm
     else:
         combData =  GeneralUtils.GetDataSet(workspace[0], observables, sam, datasetTS, sampleTS, modeTS, merge, debug )
         sm = GeneralUtils.GetSampleMode(sampleTS, modeTS, merge, debug )
@@ -277,7 +333,9 @@ def runBsDsKMassFitterOnData( debug, sample,
         bound = ranmode
     else:
         bound = ran
-                
+
+    #exit(0)
+    
     ###------------------------------------------------------------------------------------------------------------------------------------###    
           ###-------------------------   Create the signal PDF in Bs mass, Ds mass, PIDK   ------------------------------------------###          
     ###------------------------------------------------------------------------------------------------------------------------------------###        
@@ -666,6 +724,7 @@ def runBsDsKMassFitterOnData( debug, sample,
     fitter.fit(True, RooFit.Extended(),  RooFit.Verbose(False)) #, RooFit.InitialHesse(True))
     result = fitter.getFitResult()
     result.Print("v")
+    floatpar = result.floatParsFinal()
 
     if (not toys ):
         BDTGTS = GeneralUtils.CheckBDTGBin(confTS, debug)
@@ -686,8 +745,57 @@ def runBsDsKMassFitterOnData( debug, sample,
         fitter.saveData ( options.wsname )
 
     #print nSig[0].getVal(), nSig[0].getErrorLo(), nSig[0].getErrorHi()    
+    if toys:
+        AllSig = [0,0]
+        AllDPi = [0,0]                                                                                                                                      
+        AllLcPi = [0,0]
+        AllLMPi = [0,0]
+        AllCombo = [0,0]
+        AllDsK   = [0,0]
+
+        for i in range(0,bound):
+            print sm[i]
+            nameSig = TString("nSig")+t+sm[i]+t+TString("Evts")
+            nameCombBkg = TString("nCombBkg_")+sm[i]+t+evts
+            nameBs2DsDsstPiRho = TString("nBs2DsDsstPiRho_")+sm[i]+t+evts
+            nameLb2LcK = TString("nLb2LcPi_")+sm[i]+t+evts
+            nameBd2DK = TString("nBd2DPi_")+sm[i]+t+evts
+            nameBs2DsK = TString("nBs2DsK_")+sm[i]+t+evts
+
+
+            AllSig[0]   += countSig[i]
+            AllSig[1]   += floatpar.find(nameSig.Data()).getValV()
+            AllDPi[0]   += countBDPi[i]
+            AllDPi[1]   += myconfigfile["BdDPiEvents"][i]
+            AllLcPi[0]   += countLcPi[i]
+            AllLcPi[1]   += myconfigfile["LbLcPiEvents"][i]
+            AllDsK[0]   += countDsK[i]
+            AllDsK[1]   += myconfigfile["BsDsKEvents"][i]
+            AllLMPi[0]  += countRhoPi[i]+countBDsPi[i]
+            AllLMPi[1]  += floatpar.find(nameBs2DsDsstPiRho.Data()).getValV()
+            AllCombo[0] += countCombo[i]
+            AllCombo[1] += floatpar.find(nameCombBkg.Data()).getValV()
+            
+            print "Number of %s signal events: generated %d, fitted %d"%(m[i], countSig[i], floatpar.find(nameSig.Data()).getValV())
+            print "Number of %s B->DPi events: generated %d, fitted %d"%(m[i],countBDPi[i], myconfigfile["BdDPiEvents"][i]) 
+            print "Number of %s Lb->LcPi events: generated %d, fitted %d"%(m[i],countLcPi[i],myconfigfile["LbLcPiEvents"][i])
+            print "Number of %s Bs->DsK events: generated %d, fitted %d"%(m[i],countDsK[i],myconfigfile["BsDsKEvents"][i])
+            print "Number of %s Bs->DsstPi, DsRho events: generated %d, fitted %d"%(m[i],countRhoPi[i]+countBDsPi[i],
+                                                                                    floatpar.find(nameBs2DsDsstPiRho.Data()).getValV() )
+            print "Number of %s Combinatorial events: generated %d, fitted %d"%(m[i],countCombo[i],floatpar.find(nameCombBkg.Data()).getValV())
+            print "Number of events: ",nEntries[i]
+
+        print "Number of all signal events: generated %d, fitted %d"%(AllSig[0], AllSig[1])
+        print "Number of all B->DPi events: generated %d, fitted %d"%(AllDPi[0],AllDPi[1])  
+        print "Number of all Lb->LcPi events: generated %d, fitted %d"%(AllLcPi[0],AllLcPi[1])
+        print "Number of all Bs->DsK events: generated %d, fitted %d"%(AllDsK[0],AllDsK[1])
+        print "Number of all Bs->DsstPi, DsRho events: generated %d, fitted %d"%(AllLMPi[0],AllLMPi[1] )
+        print "Number of all Combinatorial events: generated %d, fitted %d"%(AllCombo[0],AllCombo[1])
+    
 
     del fitter
+
+    
     
 #------------------------------------------------------------------------------
 _usage = '%prog [options]'
