@@ -145,8 +145,6 @@ def runFitSplineAcc( debug, var , mode, modeDs, spline ) :
     MDSettings.SetMassDVar(TString("lab2_MM"))
     MDSettings.SetTimeVar(TString("lab0_LifetimeFit_ctau"))
     MDSettings.SetTerrVar(TString("lab0_LifetimeFit_ctauErr"))
-    MDSettings.SetTagVar(TString("lab0_BsTaggingTool_TAGDECISION_OS"))
-    MDSettings.SetTagOmegaVar(TString("lab0_BsTaggingTool_TAGOMEGA_OS"))
     MDSettings.SetIDVar(TString("lab1_ID"))
     MDSettings.SetPIDKVar(TString("lab1_PIDK"))
     MDSettings.SetBDTGVar(TString("BDTGResponse_1"))
@@ -165,8 +163,6 @@ def runFitSplineAcc( debug, var , mode, modeDs, spline ) :
     obsTS = TString(var)
     if modeTS == "BDPi":
         modeDsTS = TString("KPiPi")
-        MDSettings.SetTagVar(TString("lab0_BdTaggingTool_TAGDECISION_OS"))
-        MDSettings.SetTagOmegaVar(TString("lab0_BdTaggingTool_TAGOMEGA_OS"))
         Dmass_down = 1770 #1830 #1930
         Dmass_up = 1920 #2015
         Bmass_down = 5000
@@ -197,8 +193,6 @@ def runFitSplineAcc( debug, var , mode, modeDs, spline ) :
     MDSettings.SetBDTGRange( BDTG_down, BDTG_up  )
     MDSettings.SetPIDBach(PIDcut)
     MDSettings.SetTerrRange(Terr_down, Terr_up  )
-    MDSettings.SetTagRange(-2.0, 2.0  )
-    MDSettings.SetTagOmegaRange(0.0, 1.0  )
     MDSettings.SetIDRange( -1000.0, 1000.0 )
     
     MDSettings.SetLumDown(0.59)
@@ -224,7 +218,12 @@ def runFitSplineAcc( debug, var , mode, modeDs, spline ) :
     #exit(0)
 
     
-    workName = "data_acceptance_"+mode+".root"
+    #workName = "data_acceptance_"+mode+".root"
+    if mode == "BsDsPi":
+        workName = "work_dspi_pid_53005800_PIDK0_5M_BDTGA.root"
+    else:
+        workName = "work_dsk_pid_53005800_PIDK5_5M_BDTGA_4.root"
+
     workspace = GeneralUtils.LoadWorkspace(TString(workName), TString("workspace"),debug)
     workspace.Print("v")
     time = GeneralUtils.GetObservable(workspace,obsTS, debug)
@@ -295,13 +294,13 @@ def runFitSplineAcc( debug, var , mode, modeDs, spline ) :
         time.setRange(0.2, 15.0)
         listCoeff = GeneralUtils.GetCoeffFromBinning(TimeBin, time)
         
-        var1 = RooRealVar("var1", "var1", 1.0, 0.0, 3.0) 
-        var2 = RooRealVar("var2", "var2", 1.0, 0.0, 3.0)  
-        var3 = RooRealVar("var3", "var3", 1.0, 0.0, 3.0)  
-        var4 = RooRealVar("var4", "var4", 1.0, 0.0, 3.0) 
-        var5 = RooRealVar("var5", "var5", 1.0, 0.0, 3.0) 
+        var1 = RooRealVar("var1", "var1", 1,0, 0.0, 3.0) #1.56933e-01) #1.77520e-01, 0.0, 3.0) 
+        var2 = RooRealVar("var2", "var2", 1,0, 0.0, 3.0) #2.69653e-01) #2.89603e-01, 0.0, 3.0)  
+        var3 = RooRealVar("var3", "var3", 1,0, 0.0, 3.0) #6.48147e-01) #6.79455e-01, 0.0, 3.0)  
+        var4 = RooRealVar("var4", "var4", 1,0, 0.0, 3.0) #1.11342e+00) #1.11726e+00, 0.0, 3.0) 
+        var5 = RooRealVar("var5", "var5", 1,0, 0.0, 3.0) #1.23416e+00) #1.23189e+00, 0.0, 3.0) 
         var6 = RooRealVar("var6", "var6", 1.0, 0.0, 3.0) 
-        var7 = RooRealVar("var7", "var7", 1.0, 0.0, 3.0)
+        var7 = RooRealVar("var7", "var7", 1,0, 0.0, 3.0) #1.28603e+00) #1.26661e+00, 0.0, 3.0)
         var8 = RooRealVar("var8", "var8", 1.0)  
         var9 = RooAddition("var9","var9", RooArgList(var7,var8), listCoeff)
         #var9 = RooRealVar("var9","var9",1.0, 0.0, 3.0)
@@ -438,9 +437,9 @@ def runFitSplineAcc( debug, var , mode, modeDs, spline ) :
     dataF.plotOn(frame_m,RooFit.Binning( bin ))
     pdf.plotOn(frame_m, RooFit.LineColor(kBlue+3))
     if spline:
-        spl.plotOn(frame_m, RooFit.LineColor(kRed), RooFit.Normalization(800, RooAbsReal.Relative))
+        spl.plotOn(frame_m, RooFit.LineColor(kRed), RooFit.Normalization(4000, RooAbsReal.Relative))
     else:
-        tacc.plotOn(frame_m, RooFit.LineColor(kRed), RooFit.Normalization(800, RooAbsReal.Relative))
+        tacc.plotOn(frame_m, RooFit.LineColor(kRed), RooFit.Normalization(4000, RooAbsReal.Relative))
     canvas = TCanvas("canvas", "canvas", 1200, 1000)
     canvas.cd()
     pad1 = TPad("upperPad", "upperPad", .050, .22, 1.0, 1.0)
@@ -557,8 +556,8 @@ def runFitSplineAcc( debug, var , mode, modeDs, spline ) :
     else:
         suf = "powlaw"
 
-    namePDF = "data_sPline_"+mode+"_"+suf+".pdf"    
-    nameROOT = "data_sPline_"+mode+"_"+suf+".root"
+    namePDF = "data_sPline_"+mode+"_"+suf+"2.pdf"    
+    nameROOT = "data_sPline_"+mode+"_"+suf+"2.root"
     canvas.SaveAs(namePDF)
     canvas.SaveAs(nameROOT)
     
@@ -589,7 +588,7 @@ parser.add_option( '-m', '--mode',
 
 parser.add_option( '--modeDs',
                    dest = 'modeDs',
-                   default = 'KKPi',
+                   default = 'All',
                    help = 'set observable '
                    )
 parser.add_option( '--spline',

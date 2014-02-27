@@ -222,6 +222,42 @@ namespace Bs2Dsh2011TDAnaModels {
 			   TString& Mode,
 			   bool debug = false);
     
+  //===============================================================================
+  // Background 2D model for Bs->DsPi (Ds --> HHHPi0) mass fitter.
+  //===============================================================================
+
+  RooAbsPdf* build_Bs2DsPi_BKG_HHHPi0( RooAbsReal& mass,
+					 RooAbsReal& massDs,
+					 RooWorkspace* work,
+					 RooWorkspace* workInt,
+					 /*
+					 RooRealVar& nCombBkgEvts,
+					 RooRealVar& nBd2DPiEvts,
+					 RooRealVar& nBs2DsDsstPiRhoEvts,
+					 RooRealVar& g1_f1,
+					 RooRealVar& g1_f2,
+					 RooRealVar& nLb2LcPiEvts,
+					 RooRealVar& nBdDsPi,
+					 */
+					 RooAbsPdf* pdf_BdDsPi,
+					 /*
+					 RooRealVar& nBdDsstPi,
+					 RooRealVar& nBd2DRhoEvts,
+					 RooRealVar& nBd2DstPiEvts,
+					 RooRealVar& nBs2DsKEvts,
+					 RooAbsPdf* pdf_SignalDs,
+					 RooRealVar& cBVar,
+					 RooRealVar& cB2Var,
+					 RooRealVar& fracBsComb,
+					 RooRealVar& cDVar,
+					 RooRealVar& fracDsComb,
+					 RooRealVar& fracPIDComb,
+					 */
+					 TString &samplemode,
+					 Int_t dim, 
+					 //RooRealVar& lumRatio,
+					 bool debug);
+
 
   //===============================================================================
   // Background 2D model for Bs->DsPi mass fitter.

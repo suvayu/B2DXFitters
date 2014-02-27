@@ -1,4 +1,4 @@
-set diroutput = '/afs/cern.ch/work/a/adudziak/public/Bs2DsKToys/Gamma70_5M_2T/'
+set diroutput = '/afs/cern.ch/work/a/adudziak/public/Bs2DsKToys/Gamma70_5M_2T_MD/'
 
 @ thissample = $1
 @ ten = $3

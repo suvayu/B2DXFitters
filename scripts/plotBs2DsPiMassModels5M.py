@@ -235,6 +235,10 @@ def plotDataSet( dataset, frame, sample, mode, toy, merge, Bin ) :
                 dataset.plotOn( frame,
                                 RooFit.Cut("sample==sample::both_pipipi"),
                                 RooFit.Binning( Bin ) )
+            elif mode == "hhhpi0":
+                dataset.plotOn( frame,
+                                RooFit.Cut("sample==sample::both_hhhpi0"),
+                                RooFit.Binning( Bin ) )
             else:
                 print "[ERROR] Sample: both, wrong mode!"
                 
@@ -560,7 +564,7 @@ def plotFitModel( model, frame, sam, var, mode, merge) :
     #nameComDPiRho = nameComDPiLam+p+nameBdDsPi+p+nameBd+p+nameBdDsstPi     #nameLam
     nameAll = nameComDPiLam+p+nameRho
     nameAll2 = nameAll+p+nameDsK
-
+    nameAll3 = nameAll2+p+nameBdDsstPi
                         
 
                 
@@ -570,6 +574,14 @@ def plotFitModel( model, frame, sam, var, mode, merge) :
                  # RooFit.LineStyle(kDashed),
                   RooFit.Normalization( 1., RooAbsReal.RelativeExpected )
                   )
+    if mode == "hhhpi0":
+        model.plotOn( frame, #RooFit.ProjectionRange("SR"),                                                                                                  
+                      RooFit.Components(nameAll3.Data()),
+                      RooFit.DrawOption("F"),
+                      RooFit.FillStyle(1001),
+                      RooFit.FillColor(kMagenta-2),
+                      RooFit.Normalization( 1., RooAbsReal.RelativeExpected )
+                      )
     model.plotOn( frame, #RooFit.ProjectionRange("SR"),
                   RooFit.Components(nameAll2.Data()),
                   RooFit.DrawOption("F"),
@@ -594,13 +606,14 @@ def plotFitModel( model, frame, sam, var, mode, merge) :
     #              RooFit.Normalization( 1., RooAbsReal.RelativeExpected )
     #              )
     
-    #model.plotOn( frame, #RooFit.ProjectionRange("SR"),
-    #              RooFit.Components(nameComDPiRho.Data()),
-    #              RooFit.DrawOption("F"),
-    #              RooFit.FillStyle(1001),
-    #              RooFit.FillColor(kMagenta-2),
-    #              RooFit.Normalization( 1., RooAbsReal.RelativeExpected )
-    #              )
+    #if mode == "hhhpi0":
+    #    model.plotOn( frame, #RooFit.ProjectionRange("SR"),
+    #                  RooFit.Components(nameAll3.Data()),
+    #                  RooFit.DrawOption("F"),
+    #                  RooFit.FillStyle(1001),
+    #                  RooFit.FillColor(kMagenta-2),
+    #                  RooFit.Normalization( 1., RooAbsReal.RelativeExpected )
+    #                  )
                   
     model.plotOn( frame, #RooFit.ProjectionRange("SR"),
                   RooFit.Components(nameComDPiLam.Data()),
@@ -663,6 +676,8 @@ if __name__ == '__main__' :
         parser.error( 'Workspace "%s" not found in file "%s"! Nothing plotted.' %\
                       ( options.wsname, FILENAME ) )
     
+    w.Print("v")    
+
     f.Close()
     dim = int(options.dim)
     bin = options.bin
@@ -787,7 +802,11 @@ if __name__ == '__main__' :
                 print "Sample down, mode pipipi, Bd2DsPi should be included in BsDsDsstPiRho"
                 w.factory("SUM:FullPdf(nBs2DsDsstPiRho_both_pipipi_Evts*Bs2DsDsstPiRhoEPDF_m_both_pipipi, nLb2LcPi_both_pipipi_Evts*Lb2LcPiEPDF_m_both_pipipi, nBd2DPi_both_pipipi_Evts*Bd2DPiEPDF_m_both_pipipi, nSig_both_pipipi_Evts*SigEPDF_both_pipipi, nCombBkg_both_pipipi_Evts*CombBkgEPDF_m_both_pipipi, nBs2DsK_both_pipipi_Evts*Bs2DsKEPDF_m_both_pipipi)")
                 pullname2TS = TString("h_combData_Cut[sample==sample::both_pipipi]")
-                                                    
+            elif mod == "hhhpi0":
+                print "Sample down, mode hhhpi0, Bd2DsPi should be included in BsDsDsstPiRho"
+                w.factory("SUM:FullPdf(nBs2DsDsstPiRho_both_hhhpi0_Evts*Bs2DsDsstPiRhoEPDF_m_both_hhhpi0, nLb2LcPi_both_hhhpi0_Evts*Lb2LcPiEPDF_m_both_hhhpi0, nBd2DPi_both_hhhpi0_Evts*Bd2DPiEPDF_m_both_hhhpi0, nSig_both_hhhpi0_Evts*SigEPDF_both_hhhpi0, nCombBkg_both_hhhpi0_Evts*CombBkgEPDF_m_both_hhhpi0, nBd2DsstPi_both_hhhpi0_Evts*Bd2DsstPiEPDF_m_both_hhhpi0)")
+                pullname2TS = TString("h_combData_Cut[sample==sample::both_hhhpi0]")
+    
             
         else:    
             if mod == "3modes":
@@ -882,6 +901,8 @@ if __name__ == '__main__' :
             frame_m.GetYaxis().SetRangeUser(10,frame_m.GetMaximum()*1.35)
         else:
             frame_m.GetYaxis().SetRangeUser(1.5,frame_m.GetMaximum()*1.35)
+    elif ( mVarTS == "Ds_MM" ):
+        frame_m.GetYaxis().SetRangeUser(1,frame_m.GetMaximum()*1.1)
     else:
         frame_m.GetYaxis().SetRangeUser(1,frame_m.GetMaximum()*1.1)
                                
@@ -943,7 +964,8 @@ if __name__ == '__main__' :
     h6=TH1F("Bs2DsK","Bs2DsK",5,0,1)
     h6.SetFillColor(kGreen+3)
     h6.SetFillStyle(1001)
-    legend.AddEntry(h6, "B_{s}#rightarrow D_{s}K", "f")
+    if mod != "hhhpi0":
+        legend.AddEntry(h6, "B_{s}#rightarrow D_{s}K", "f")
     
     h2=TH1F("B2DPi","B2DPi",5,0,1)
     h2.SetFillColor(kOrange-2)
@@ -958,7 +980,8 @@ if __name__ == '__main__' :
     h4=TH1F("B2DsDsstPiRho","B2DsDsstPiRho",5,0,1)
     h4.SetFillColor(kMagenta-2)
     h4.SetFillStyle(1001)
-    #legend.AddEntry(h4, "B_{d}#rightarrow D_{(s)}^{(*)}(#pi,#rho)", "f")
+    if mod == "hhhpi0":
+        legend.AddEntry(h4, "B_{d}#rightarrow D_{(s)}^{(*)}(#pi,#rho)", "f")
                   
     h5=TH1F("Combinatorial","Combinatorial",5,0,1)
     h5.SetFillColor(kBlue-6)
@@ -969,7 +992,8 @@ if __name__ == '__main__' :
 
     pad1.cd()
     frame_m.Draw()
-    legend.Draw("same")
+    if ( mVarTS != "Ds_MM" ):
+        legend.Draw("same")
     if mVarTS == "lab2_MM":
         lhcbtext.DrawTextNDC(0.13,0.85,"LHCb")
     else:
@@ -1029,10 +1053,14 @@ if __name__ == '__main__' :
     elif dim == 2:
         if mVarTS == "lab2_MM":
             pullnameTS = TString("FullPdf_Int[lab0_MassFitConsD_M]_Norm[lab0_MassFitConsD_M,lab2_MM]_Comp[FullPdf]")
-        else:
+        elif mVarTS == "lab0_MassFitConsD_M":
             pullnameTS = TString("FullPdf_Int[lab2_MM]_Norm[lab0_MassFitConsD_M,lab2_MM]_Comp[FullPdf]")
+        elif mVarTS == "Ds_MM":
+            pullnameTS = TString("FullPdf_Int[Bs_MassConsDs_M]_Norm[Bs_MassConsDs_M,Ds_MM]_Comp[FullPdf]")
+        else:
+            pullnameTS = TString("FullPdf_Int[Ds_MM]_Norm[Bs_MassConsDs_M,Ds_MM]_Comp[FullPdf]")
     elif dim == 1:
-        pullnameTS = TString("FullPdf_Norm[lab0_MassFitConsD_M]_Comp[FullPdf]")
+        pullnameTS = TString("FullPdf_Norm[")+mVarTS+TString("]_Comp[FullPdf]")
     
     pullHist  = frame_m.pullHist(pullname2TS.Data(),pullnameTS.Data())
     frame_p.addPlotable(pullHist,"P")

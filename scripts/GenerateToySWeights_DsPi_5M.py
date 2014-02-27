@@ -178,13 +178,13 @@ def runBsDsKGenerator( debug, single, configName, rangeDown, rangeUp, seed , siz
     gendata = []
     data = []
     
-    fileName  = "work_dsk_pid_53005800_PIDK5_5M_BDTGA_4.root"
-    fileNameData = "work_dsk_pid_53005800_PIDK5_5M_BDTGA_4.root"
-    fileNameTerr = "../data/workspace/MDFitter/template_Data_Terr_BsDsK.root"
+    fileName  = "work_dspi_pid_53005800_PIDK0_5M_BDTGA.root"
+    fileNameData = "work_dspi_pid_53005800_PIDK0_5M_BDTGA.root"
+    fileNameTerr = "../data/workspace/MDFitter/template_Data_Terr_BsDsPi.root"
     fileNameMistag = "../data/workspace/MDFitter/template_Data_Mistag_BsDsPi.root"
     fileNameMistagBDPi = "../data/workspace/MDFitter/template_Data_Mistag_BDPi.root"
     fileNameMistagComb = "../data/workspace/MDFitter/template_Data_Mistag_CombBkg.root"
-    fileNameKFactor =  "../data/workspace/MDFitter/template_MC_KFactor_BsDsK_5300_5800.root"
+    #fileNameKFactor =  "../data/workspace/MDFitter/template_MC_KFactor_BsDsK_5300_5800.root"
     #fileNameKFactor =  "../data/workspace/MDFitter/ktemplates.root"
     workName = 'workspace'
 
@@ -202,11 +202,11 @@ def runBsDsKGenerator( debug, single, configName, rangeDown, rangeUp, seed , siz
     workMistagBDPi.Print("v")
     workMistagComb = GeneralUtils.LoadWorkspace(TString(fileNameMistagComb),TString(workName), debug)
     workMistagComb.Print("v")
-    workKFactor = GeneralUtils.LoadWorkspace(TString(fileNameKFactor),TString(workName), debug)
-    workKFactor.Print("v")
+    #workKFactor = GeneralUtils.LoadWorkspace(TString(fileNameKFactor),TString(workName), debug)
+    #workKFactor.Print("v")
     
-    kFactor = GeneralUtils.GetObservable(workKFactor,TString("kfactorVar"), debug)
-    kFactor.setRange(0.80, 1.10)
+   # kFactor = GeneralUtils.GetObservable(workKFactor,TString("kfactorVar"), debug)
+   # kFactor.setRange(0.80, 1.10)
     
     '''
     dataKFactorDown = []
@@ -456,9 +456,7 @@ def runBsDsKGenerator( debug, single, configName, rangeDown, rangeUp, seed , siz
     sigma1VarBd =  []
     sigma2VarBd =  []
     
-    massB_dsk = []
     massD_dsk = []
-    PIDK_dsk = []
     MDFitter_dsk = []
     timeandmass_dsk = []
 
@@ -467,17 +465,10 @@ def runBsDsKGenerator( debug, single, configName, rangeDown, rangeUp, seed , siz
     PIDK_dspi = []
     MDFitter_dspi = []
     timeandmass_dspi = []
-
-    massD_dsp = []
-    MDFitter_dsp = []
-    timeandmass_dsp = []
-
-    massD_dsstp = []
-    MDFitter_dsstp = []
-    timeandmass_dsstp = []
-            
     
-    cBVar = []
+    cB1Var = []
+    cB2Var = []
+    fracBsComb = []
     massB_combo = []     
     cDVar = [] 
     fracDsComb = []
@@ -490,188 +481,254 @@ def runBsDsKGenerator( debug, single, configName, rangeDown, rangeUp, seed , siz
     timeandmass_lm1 = []
 
     massD_dsstpi = []
+    PIDK_dsstpi = []
     MDFitter_dsstpi = []
     timeandmass_dsstpi = []
 
     massD_dsrho = []
+    PIDK_dsrho = []
     MDFitter_dsrho = []
     timeandmass_dsrho = []
                
-    timeandmass_dk = []
-    timeandmass_lck = []
     timeandmass_dpi = []
     timeandmass_lcpi = []
 
-    
     num_signal = []
-    num_dk = []
     num_dpi = []
     num_dsk = []
     num_dspi = []
-    num_lck = []
     num_lcpi = []
-    num_dsp = []
-    num_dsstp = []
     num_combo = []
-    num_lm1 = []
     num_dsstpi = []
     num_dsrho = []
     
     evNum  = 0
+#------------------------------------------------- Bs -> DsPi ----------------------------------------------------#
 
-    # ------------------------------------------------ Signal -----------------------------------------------------#
-
-    #The signal - time acceptance - tacc_powlaw
+    #The Bs->DsPi - acceptance - tacc_powlaw
     tacc_signal = tacc
-
-    #The signal - resolution
+    
+    #The Bs->DsPi - resolution
     trm_signal = trm
-    
-    #The signal - time error
-    terr_signal = Bs2Dsh2011TDAnaModels.GetRooHistPdfFromWorkspace(workTerr,TString("TimeErrorPdf_Bs2DsK"), debug)
+    #kfactor_dspi = Bs2Dsh2011TDAnaModels.GetRooHistPdfFromWorkspace(workKFactor,TString("kFactor_Bs2DsPi_both"), debug)
+    #trm_kf_dspi = RooKResModel('kresmodel_dspi', 'kresmodel_dspi', trm_dspi, kfactor_dspi,
+    #                           kFactor,  RooArgSet(Gammas, DeltaGammas, DeltaMs))
         
-    #The signal - time
-    ACPobs_signal = cpobservables.AsymmetryObservables(myconfigfile["ArgLf_s"], myconfigfile["ArgLbarfbar_s"], myconfigfile["ModLf_s"])
-    ACPobs_signal.printtable()
     
-    C_signal     = RooRealVar('C_signal','C_signal',ACPobs_signal.Cf())
-    S_signal     = RooRealVar('S_signal','S_signal',ACPobs_signal.Sf())
-    D_signal     = RooRealVar('D_signal','D_signal',ACPobs_signal.Df())
-    Sbar_signal  = RooRealVar('Sbar_signal','Sbar_signal',ACPobs_signal.Sfbar())
-    Dbar_signal  = RooRealVar('Dbar_signal','Dbar_signal',ACPobs_signal.Dfbar())
-
+    #The Bs->DsPi - time
     tagEff_signal = []
     tagEffList_signal = RooArgList()
     for i in range(0,3):
         tagEff_signal.append(RooRealVar('tagEff_signal_'+str(i+1), 'Signal tagging efficiency', myconfigfile["tagEff_signal"][i]))
         print tagEff_signal[i].GetName()
         tagEffList_signal.add(tagEff_signal[i])
-       
+            
+    C_signal    = RooRealVar('C_signal', 'C coeff. signal', 1.)
+    S_signal    = RooRealVar('S_signal', 'S coeff. signal', 0.)
+    D_signal    = RooRealVar('D_signal', 'D coeff. signal', 0.)
+    Sbar_signal    = RooRealVar('Sbar_signal', 'Sbar coeff. signal', 0.)
+    Dbar_signal    = RooRealVar('Dbar_signal', 'Dbar coeff. signal', 0.)	
+
     aProd_signal   = RooConstVar('aprod_signal',   'aprod_signal',   myconfigfile["aprod_signal"])        # production asymmetry
     aDet_signal    = RooConstVar('adet_signal',    'adet_signal',    myconfigfile["adet_signal"])         # detector asymmetry
-    
     aTagEff_signal = []
     aTagEffList_signal = RooArgList()
     for i in range(0,3):
         aTagEff_signal.append(RooRealVar('aTagEff_signal_'+str(i+1), 'atageff', myconfigfile["atageff_signal"][i]))
         print aTagEff_signal[i].GetName()
         aTagEffList_signal.add(aTagEff_signal[i])
-      
-    #The Bs->DsK - mistag
-    mistag_signal = mistagBsPDFList 
+                                    
     
-    flag_signal = 0
-    flag = 0
-
+    mistag_signal = mistagBsPDFList
+    
     otherargs_signal = [ tagOmegaComb, mistag_signal, tagEffList_signal ]
     otherargs_signal.append(tagOmegaList)
     otherargs_signal.append(aProd_signal)
     otherargs_signal.append(aDet_signal)
     otherargs_signal.append(aTagEffList_signal)
     
-    cosh_signal = DecRateCoeff('signal_cosh', 'signal_cosh', DecRateCoeff.CPEven,
-                               idVar_B, tagDecComb,  one,      one,      *otherargs_signal)
-    sinh_signal = DecRateCoeff('signal_sinh', 'signal_sinh', flag_signal | DecRateCoeff.CPEven,
-                               idVar_B, tagDecComb,  D_signal,    Dbar_signal, *otherargs_signal)
-    cos_signal  = DecRateCoeff('signal_cos',  'signal_cos' , DecRateCoeff.CPOdd,
-                               idVar_B, tagDecComb,  C_signal,    C_signal,    *otherargs_signal)
-    sin_signal  = DecRateCoeff('signal_sin',  'signal_sin',  flag_signal | DecRateCoeff.CPOdd | DecRateCoeff.Minus,
-                               idVar_B, tagDecComb,  S_signal, Sbar_signal,    *otherargs_signal)
+    flag = 0
+    cosh_signal = DecRateCoeff('signal_cosh', 'signal_cosh', DecRateCoeff.CPEven, idVar_B, tagDecComb,
+                               one,         one,         *otherargs_signal)
+    sinh_signal = DecRateCoeff('signal_sinh', 'signal_sinh', DecRateCoeff.CPEven, idVar_B, tagDecComb,
+                               D_signal,    Dbar_signal, *otherargs_signal)
+    cos_signal  = DecRateCoeff('signal_cos' , 'signal_cos' , DecRateCoeff.CPOdd,  idVar_B, tagDecComb,
+                               C_signal,    C_signal,    *otherargs_signal)
+    sin_signal  = DecRateCoeff('signal_sin' , 'signal_sin' , DecRateCoeff.CPOdd,  idVar_B, tagDecComb,
+                               Sbar_signal, S_signal,    *otherargs_signal)
     
-    
-    time_signal_noacc       = RooBDecay('time_signal_noacc','time_signal_noacc', timeVar_B, TauInvGs, DeltaGammas,
+    time_signal_noacc = RooBDecay('time_signal_noacc','time_signal_noacc', timeVar_B, TauInvGs, DeltaGammas,
                                   cosh_signal, sinh_signal, cos_signal, sin_signal,
-                                  DeltaMs, trm, RooBDecay.SingleSided)
+                                  DeltaMs, trm_signal, RooBDecay.SingleSided)
     
-    time_signal             = RooEffProd('time_signal','time_signal',time_signal_noacc,tacc)
-
-    #The signal - true ID
+    
+    time_signal             = RooEffProd('time_signal','time_signal',time_signal_noacc,tacc_signal)
+    
+    #The Bs->DsPi - true ID
     trueid_signal = RooGenericPdf("trueid_signal","exp(-100.*abs(@0-1))",RooArgList(trueIDVar_B))
     
+    #The Bs->DsPi - time error
+    terr_signal = Bs2Dsh2011TDAnaModels.GetRooHistPdfFromWorkspace(workTerr,TString("TimeErrorPdf_Bs2DsPi"), debug)
     
-    #The Bs->DsK - total
+    #The Bs->DsPi - total
     timeerr_signal = RooProdPdf('signal_timeerr', 'signal_timeerr',  RooArgSet(terr_signal),
                                 RooFit.Conditional(RooArgSet(time_signal),
+                                                 RooArgSet(timeVar_B, idVar_B, tagDecComb, tagOmegaComb )))
+
+#------------------------------------------------- Bd -> DsPi ----------------------------------------------------#
+
+    #The Bd->DsK - acceptance - tacc_powlaw
+    tacc_dspi = tacc
+    
+    #The Bd->DsK - resolution
+    trm_dspi = trm
+    
+    #The Bd->DsK - time
+    tagEff_dspi = []
+    tagEffList_dspi = RooArgList()
+    for i in range(0,3):
+        tagEff_dspi.append(RooRealVar('tagEff_dspi_'+str(i+1), 'Signal tagging efficiency', myconfigfile["tagEff_dspi"][i]))
+        print tagEff_dspi[i].GetName()
+        tagEffList_dspi.add(tagEff_dspi[i])
+                                    
+    
+    C_dspi    = RooRealVar('C_dspi', 'C coeff. dspi', 1.)
+    S_dspi    = RooRealVar('S_dspi', 'S coeff. dspi', 0.)
+    D_dspi    = RooRealVar('D_dspi', 'D coeff. dspi', 0.)
+    Sbar_dspi    = RooRealVar('Sbar_dspi', 'Sbar coeff. dspi', 0.)
+    Dbar_dspi    = RooRealVar('Dbar_dspi', 'Dbar coeff. dspi', 0.)	
+    aProd_dspi   = RooConstVar('aprod_dspi',   'aprod_dspi',   myconfigfile["aprod_dspi"])        # production asymmetry
+    aDet_dspi    = RooConstVar('adet_dspi',    'adet_dspi',    myconfigfile["adet_dspi"])         # detector asymmetry
+
+    aTagEff_dspi = []
+    aTagEffList_dspi = RooArgList()
+    for i in range(0,3):
+        aTagEff_dspi.append(RooRealVar('aTagEff_dspi_'+str(i+1), 'atageff', myconfigfile["atageff_dspi"][i]))
+        print aTagEff_dspi[i].GetName()
+        aTagEffList_dspi.add(aTagEff_dspi[i])
+        
+        
+    #The Bd->DsPi - mistag
+    mistag_dspi = mistagBdPDFList
+
+    otherargs_dspi = [ tagOmegaComb, mistag_dspi, tagEffList_dspi ]
+    otherargs_dspi.append(tagOmegaListBd)
+    otherargs_dspi.append(aProd_dspi)
+    otherargs_dspi.append(aDet_dspi)
+    otherargs_dspi.append(aTagEffList_dspi)
+                    
+    
+    cosh_dspi = DecRateCoeff('dspi_cosh', 'dspi_cosh', DecRateCoeff.CPEven,
+                             idVar_B, tagDecComb,  one,       one,     *otherargs_dspi)
+    sinh_dspi = DecRateCoeff('dspi_sinh', 'dspi_sinh', flag | DecRateCoeff.CPEven,
+                             idVar_B, tagDecComb,  D_dspi,    Dbar_dspi, *otherargs_dspi)
+    cos_dspi  = DecRateCoeff('dspi_cos',  'dspi_cos' , DecRateCoeff.CPOdd,
+                             idVar_B, tagDecComb, C_dspi,    C_dspi,    *otherargs_dspi)
+    sin_dspi  = DecRateCoeff('dspi_sin',  'dspi_sin',  flag | DecRateCoeff.CPOdd,
+                             idVar_B, tagDecComb,  Sbar_dspi, S_dspi,    *otherargs_dspi)
+
+    time_dspi_noacc    = RooBDecay('time_dspi_noacc','time_dspi_noacc', timeVar_B, TauInvGd, DeltaGammad,
+                                  cosh_dspi, sinh_dspi, cos_dspi, sin_dspi,
+                                  DeltaMd, trm_dspi, RooBDecay.SingleSided)
+    
+    time_dspi             = RooEffProd('time_dspi','time_dspi',time_dspi_noacc,tacc_dspi)
+    
+    #The Bd->DsK - true ID
+    trueid_dspi = RooGenericPdf("trueid_dspi","exp(-100.*abs(@0-3))",RooArgList(trueIDVar_B))
+    
+    #The Bd->DsK - time error
+    terr_dspi = Bs2Dsh2011TDAnaModels.GetRooHistPdfFromWorkspace(workTerr,TString("TimeErrorPdf_Bs2DsPi"), debug)
+       
+    
+    #The Bd->DsK - total
+    timeerr_dspi = RooProdPdf('dspi_timeerr', 'dspi_timeerr',  RooArgSet(terr_dspi),
+                             RooFit.Conditional(RooArgSet(time_dspi),
+                                                RooArgSet(timeVar_B, idVar_B, tagDecComb, tagOmegaComb )))
+
+    # ------------------------------------------------ Bs->DsK -----------------------------------------------------#
+    #The Bs->DsK - mass B 
+    m = TString("Bs2DsK")
+    massB_dsk = Bs2Dsh2011TDAnaModels.ObtainMassShape(workspace, m, false, lumRatio, debug)
+
+    #The Bs->DsK - PIDK                                                                                                                                 
+    PIDK_dsk = Bs2Dsh2011TDAnaModels.ObtainPIDKShape(workspace, m, sam, lumRatio, true, debug)
+    
+    #The signal - time acceptance - tacc_powlaw
+    tacc_dsk = tacc
+
+    #The signal - resolution
+    trm_dsk = trm
+    
+    #The signal - time error
+    terr_dsk = Bs2Dsh2011TDAnaModels.GetRooHistPdfFromWorkspace(workTerr,TString("TimeErrorPdf_Bs2DsK"), debug)
+        
+    #The signal - time
+    ACPobs_dsk = cpobservables.AsymmetryObservables(myconfigfile["ArgLf_s"], myconfigfile["ArgLbarfbar_s"], myconfigfile["ModLf_s"])
+    ACPobs_dsk.printtable()
+    
+    C_dsk     = RooRealVar('C_dsk','C_dsk',ACPobs_dsk.Cf())
+    S_dsk     = RooRealVar('S_dsk','S_dsk',ACPobs_dsk.Sf())
+    D_dsk     = RooRealVar('D_dsk','D_dsk',ACPobs_dsk.Df())
+    Sbar_dsk  = RooRealVar('Sbar_dsk','Sbar_dsk',ACPobs_dsk.Sfbar())
+    Dbar_dsk  = RooRealVar('Dbar_dsk','Dbar_dsk',ACPobs_dsk.Dfbar())
+
+    tagEff_dsk = []
+    tagEffList_dsk = RooArgList()
+    for i in range(0,3):
+        tagEff_dsk.append(RooRealVar('tagEff_dsk_'+str(i+1), 'Signal tagging efficiency', myconfigfile["tagEff_dsk"][i]))
+        print tagEff_dsk[i].GetName()
+        tagEffList_dsk.add(tagEff_dsk[i])
+       
+    aProd_dsk   = RooConstVar('aprod_dsk',   'aprod_dsk',   myconfigfile["aprod_dsk"])        # production asymmetry
+    aDet_dsk    = RooConstVar('adet_dsk',    'adet_dsk',    myconfigfile["adet_dsk"])         # detector asymmetry
+    
+    aTagEff_dsk = []
+    aTagEffList_dsk = RooArgList()
+    for i in range(0,3):
+        aTagEff_dsk.append(RooRealVar('aTagEff_dsk_'+str(i+1), 'atageff', myconfigfile["atageff_dsk"][i]))
+        print aTagEff_dsk[i].GetName()
+        aTagEffList_dsk.add(aTagEff_dsk[i])
+      
+    #The Bs->DsK - mistag
+    mistag_dsk = mistagBsPDFList 
+    
+    flag_dsk = 0
+    flag = 0
+
+    otherargs_dsk = [ tagOmegaComb, mistag_dsk, tagEffList_dsk ]
+    otherargs_dsk.append(tagOmegaList)
+    otherargs_dsk.append(aProd_dsk)
+    otherargs_dsk.append(aDet_dsk)
+    otherargs_dsk.append(aTagEffList_dsk)
+    
+    cosh_dsk = DecRateCoeff('dsk_cosh', 'dsk_cosh', DecRateCoeff.CPEven,
+                               idVar_B, tagDecComb,  one,      one,      *otherargs_dsk)
+    sinh_dsk = DecRateCoeff('dsk_sinh', 'dsk_sinh', flag_dsk | DecRateCoeff.CPEven,
+                               idVar_B, tagDecComb,  D_dsk,    Dbar_dsk, *otherargs_dsk)
+    cos_dsk  = DecRateCoeff('dsk_cos',  'dsk_cos' , DecRateCoeff.CPOdd,
+                               idVar_B, tagDecComb,  C_dsk,    C_dsk,    *otherargs_dsk)
+    sin_dsk  = DecRateCoeff('dsk_sin',  'dsk_sin',  flag_dsk | DecRateCoeff.CPOdd | DecRateCoeff.Minus,
+                               idVar_B, tagDecComb,  S_dsk, Sbar_dsk,    *otherargs_dsk)
+    
+    
+    time_dsk_noacc       = RooBDecay('time_dsk_noacc','time_dsk_noacc', timeVar_B, TauInvGs, DeltaGammas,
+                                  cosh_dsk, sinh_dsk, cos_dsk, sin_dsk,
+                                  DeltaMs, trm, RooBDecay.SingleSided)
+    
+    time_dsk             = RooEffProd('time_dsk','time_dsk',time_dsk_noacc,tacc)
+
+    #The signal - true ID
+    trueid_dsk = RooGenericPdf("trueid_dsk","exp(-100.*abs(@0-7))",RooArgList(trueIDVar_B))
+    
+    #The Bs->DsK - total
+    timeerr_dsk = RooProdPdf('dsk_timeerr', 'dsk_timeerr',  RooArgSet(terr_dsk),
+                                RooFit.Conditional(RooArgSet(time_dsk),
                                                    RooArgSet(timeVar_B, idVar_B, tagDecComb, tagOmegaComb )))
     #exit(0)
-    #-------------------------------------------------- Bd -> DK ----------------------------------------------------#
-
-    m = TString("Bd2DK")
-    MDFitter_dk = Bs2Dsh2011TDAnaModels.ObtainRooProdPdfForMDFitter(workspace, m, sam, lumRatio, NULL, dim, debug)
-
-    #The Bd->DK - acceptance - tacc_powlaw
-    tacc_dk = tacc
-    
-    #The Bd->DK - resolution
-    trm_dk = trm
-    kfactor_dk = Bs2Dsh2011TDAnaModels.GetRooHistPdfFromWorkspace(workKFactor,TString("kFactor_Bd2DK_both"), debug)
-    trm_kf_dk = RooKResModel('kresmodel_dk', 'kresmodel_dk', trm_dk, kfactor_dk, kFactor,  RooArgSet(Gammad, DeltaGammad, DeltaMd))
-    
-    #The Bd->DK - time
-    tagEff_dk = []
-    tagEffList_dk = RooArgList()
-    for i in range(0,3):
-        tagEff_dk.append(RooRealVar('tagEff_dk_'+str(i+1), 'Signal tagging efficiency', myconfigfile["tagEff_dk"][i]))
-        print tagEff_dk[i].GetName()
-        tagEffList_dk.add(tagEff_dk[i])
-                                   
-    
-    C_dk    = RooRealVar('C_dk', 'C coeff. dk', 1.)
-    S_dk    = RooRealVar('S_dk', 'S coeff. dk', 0.)
-    D_dk    = RooRealVar('D_dk', 'D coeff. dk', 0.)
-    Sbar_dk    = RooRealVar('Sbar_dk', 'Sbar coeff. dk', 0.)
-    Dbar_dk    = RooRealVar('Dbar_dk', 'Dbar coeff. dk', 0.)
-    
-    aProd_dk   = RooConstVar('aprod_dk',   'aprod_dk',   myconfigfile["aprod_dk"])        # production asymmetry
-    aDet_dk    = RooConstVar('adet_dk',    'adet_dk',    myconfigfile["adet_dk"])         # detector asymmetry
-    aTagEff_dk = []
-    aTagEffList_dk = RooArgList()
-    for i in range(0,3):
-        aTagEff_dk.append(RooRealVar('aTagEff_dk_'+str(i+1), 'atageff', myconfigfile["atageff_dk"][i]))
-        print aTagEff_dk[i].GetName()
-        aTagEffList_dk.add(aTagEff_dk[i])
-        
-    
-    #The Bd->DPi - mistag
-    mistag_dk = mistagBdPDFList
-    
-    otherargs_dk = [ tagOmegaComb, mistag_dk, tagEffList_dk ]
-    otherargs_dk.append(tagOmegaListBd)
-    otherargs_dk.append(aProd_dk)
-    otherargs_dk.append(aDet_dk)
-    otherargs_dk.append(aTagEffList_dk)
-                    
-
-    cosh_dk = DecRateCoeff('dk_cosh', 'dk_cosh', DecRateCoeff.CPEven,
-                           idVar_B, tagDecComb,  one,      one,      *otherargs_dk)
-    sinh_dk = DecRateCoeff('dk_sinh', 'dk_sinh', flag | DecRateCoeff.CPEven,
-                           idVar_B, tagDecComb,  D_dk,    Dbar_dk, *otherargs_dk)
-    cos_dk  = DecRateCoeff('dk_cos',  'dk_cos' , DecRateCoeff.CPOdd,
-                           idVar_B, tagDecComb, C_dk,    C_dk,    *otherargs_dk)
-    sin_dk  = DecRateCoeff('dk_sin',  'dk_sin',  flag | DecRateCoeff.CPOdd,
-                           idVar_B, tagDecComb,  Sbar_dk, S_dk,    *otherargs_dk)
-
-    time_dk_noacc  = RooBDecay('time_dk_noacc','time_dk_noacc', timeVar_B, TauInvGd, DeltaGammad,
-                         cosh_dk, sinh_dk, cos_dk, sin_dk,
-                         DeltaMd, trm_dk, RooBDecay.SingleSided)
-    
-    
-    time_dk             = RooEffProd('time_dk','time_dk',time_dk_noacc, tacc_dk)
-    
-    #The Bd->DK - true ID
-    trueid_dk = RooGenericPdf("trueid_dk","exp(-100.*abs(@0-2))",RooArgList(trueIDVar_B))
-    
-    #The Bd->DPi - time error
-    terr_dk = Bs2Dsh2011TDAnaModels.GetRooHistPdfFromWorkspace(workTerr,TString("TimeErrorPdf_Bd2DK"), debug)
-        
-    #The Bd->DK - total
-    timeerr_dk = RooProdPdf('dk_timeerr', 'dk_timeerr',  RooArgSet(terr_dk),
-                            RooFit.Conditional(RooArgSet(time_dk),
-                                               RooArgSet(timeVar_B, idVar_B, tagDecComb, tagOmegaComb )))
                                             
     #-------------------------------------------------- Bd -> DPi ----------------------------------------------------#                                      
 
-    m = TString("Bd2DPi")
+    m = TString("Bd2DPi_kpipi")
     MDFitter_dpi = Bs2Dsh2011TDAnaModels.ObtainRooProdPdfForMDFitter(workspace, m, sam, lumRatio, NULL, dim, debug)
 
     #The Bd->DPi - acceptance - tacc_powlaw                                                                                                                  
@@ -679,8 +736,8 @@ def runBsDsKGenerator( debug, single, configName, rangeDown, rangeUp, seed , siz
 
     #The Bd->DPi - resolution                                                                                                                                
     trm_dpi = trm
-    kfactor_dpi = Bs2Dsh2011TDAnaModels.GetRooHistPdfFromWorkspace(workKFactor,TString("kFactor_Bd2DK_both"), debug)
-    trm_kf_dpi = RooKResModel('kresmodel_dpi', 'kresmodel_dpi', trm_dpi, kfactor_dpi, kFactor,  RooArgSet(Gammad, DeltaGammad, DeltaMd))
+    #kfactor_dpi = Bs2Dsh2011TDAnaModels.GetRooHistPdfFromWorkspace(workKFactor,TString("kFactor_Bd2DK_both"), debug)
+    #trm_kf_dpi = RooKResModel('kresmodel_dpi', 'kresmodel_dpi', trm_dpi, kfactor_dpi, kFactor,  RooArgSet(Gammad, DeltaGammad, DeltaMd))
 
     #The Bd->DK - time                                                                                                                                         
     tagEff_dpi = []
@@ -708,7 +765,7 @@ def runBsDsKGenerator( debug, single, configName, rangeDown, rangeUp, seed , siz
         print aTagEff_dpi[i].GetName()
         aTagEffList_dpi.add(aTagEff_dpi[i])
 
-    #The Bd->DPi - mistag                                                                                                                                     
+    #The Bd->DPi - mistag                                                                                                                                    
     mistag_dpi = mistagBdPDFList
 
     otherargs_dpi = [ tagOmegaComb, mistag_dpi, tagEffList_dpi ]
@@ -738,235 +795,12 @@ def runBsDsKGenerator( debug, single, configName, rangeDown, rangeUp, seed , siz
     trueid_dpi = RooGenericPdf("trueid_dpi","exp(-100.*abs(@0-2))",RooArgList(trueIDVar_B))
 
     #The Bd->DPi - time error                                                                                                                                 
-    terr_dpi = Bs2Dsh2011TDAnaModels.GetRooHistPdfFromWorkspace(workTerr,TString("TimeErrorPdf_Bd2DK"), debug)
+    terr_dpi = Bs2Dsh2011TDAnaModels.GetRooHistPdfFromWorkspace(workTerr,TString("TimeErrorPdf_Bd2DPi"), debug)
 
     #The Bd->DK - total                                                                                                                                        
     timeerr_dpi = RooProdPdf('dpi_timeerr', 'dpi_timeerr',  RooArgSet(terr_dpi),
                             RooFit.Conditional(RooArgSet(time_dpi),
                                                RooArgSet(timeVar_B, idVar_B, tagDecComb, tagOmegaComb )))
-
-
-    #------------------------------------------------- Bd -> DsK ----------------------------------------------------#
-
-    #The Bd->DsK - acceptance - tacc_powlaw
-    tacc_dsk = tacc
-    
-    #The Bd->DsK - resolution
-    trm_dsk = trm
-    
-    #The Bd->DsK - time
-    tagEff_dsk = []
-    tagEffList_dsk = RooArgList()
-    for i in range(0,3):
-        tagEff_dsk.append(RooRealVar('tagEff_dsk_'+str(i+1), 'Signal tagging efficiency', myconfigfile["tagEff_dsk"][i]))
-        print tagEff_dsk[i].GetName()
-        tagEffList_dsk.add(tagEff_dsk[i])
-                                    
-    
-    C_dsk    = RooRealVar('C_dsk', 'C coeff. dsk', 1.)
-    S_dsk    = RooRealVar('S_dsk', 'S coeff. dsk', 0.)
-    D_dsk    = RooRealVar('D_dsk', 'D coeff. dsk', 0.)
-    Sbar_dsk    = RooRealVar('Sbar_dsk', 'Sbar coeff. dsk', 0.)
-    Dbar_dsk    = RooRealVar('Dbar_dsk', 'Dbar coeff. dsk', 0.)
-    
-    aProd_dsk   = RooConstVar('aprod_dsk',   'aprod_dsk',   myconfigfile["aprod_dsk"])        # production asymmetry
-    aDet_dsk    = RooConstVar('adet_dsk',    'adet_dsk',    myconfigfile["adet_dsk"])         # detector asymmetry
-
-    aTagEff_dsk = []
-    aTagEffList_dsk = RooArgList()
-    for i in range(0,3):
-        aTagEff_dsk.append(RooRealVar('aTagEff_dsk_'+str(i+1), 'atageff', myconfigfile["atageff_dsk"][i]))
-        print aTagEff_dsk[i].GetName()
-        aTagEffList_dsk.add(aTagEff_dsk[i])
-        
-        
-    #The Bd->DsPi - mistag
-    mistag_dsk = mistagBdPDFList
-
-    otherargs_dsk = [ tagOmegaComb, mistag_dsk, tagEffList_dsk ]
-    otherargs_dsk.append(tagOmegaListBd)
-    otherargs_dsk.append(aProd_dsk)
-    otherargs_dsk.append(aDet_dsk)
-    otherargs_dsk.append(aTagEffList_dsk)
-                    
-    
-    cosh_dsk = DecRateCoeff('dsk_cosh', 'dsk_cosh', DecRateCoeff.CPEven,
-                            idVar_B, tagDecComb,  one,       one,     *otherargs_dsk)
-    sinh_dsk = DecRateCoeff('dsk_sinh', 'dsk_sinh', flag | DecRateCoeff.CPEven,
-                            idVar_B, tagDecComb,  D_dsk,    Dbar_dsk, *otherargs_dsk)
-    cos_dsk  = DecRateCoeff('dsk_cos',  'dsk_cos' , DecRateCoeff.CPOdd,
-                            idVar_B, tagDecComb, C_dsk,    C_dsk,    *otherargs_dsk)
-    sin_dsk  = DecRateCoeff('dsk_sin',  'dsk_sin',  flag | DecRateCoeff.CPOdd,
-                            idVar_B, tagDecComb,  Sbar_dsk, S_dsk,    *otherargs_dsk)
-    
-    time_dsk_noacc    = RooBDecay('time_dsk_noacc','time_dsk_noacc', timeVar_B, TauInvGd, DeltaGammad,
-                                  cosh_dsk, sinh_dsk, cos_dsk, sin_dsk,
-                                  DeltaMd,trm_dsk, RooBDecay.SingleSided)
-    
-    time_dsk             = RooEffProd('time_dsk','time_dsk',time_dsk_noacc,tacc_dsk)
-    
-    #The Bd->DsK - true ID
-    trueid_dsk = RooGenericPdf("trueid_dsk","exp(-100.*abs(@0-3))",RooArgList(trueIDVar_B))
-    
-    #The Bd->DsK - time error
-    terr_dsk = terr_dk = Bs2Dsh2011TDAnaModels.GetRooHistPdfFromWorkspace(workTerr,TString("TimeErrorPdf_Bs2DsK"), debug)
-       
-    
-    #The Bd->DsK - total
-    timeerr_dsk = RooProdPdf('dsk_timeerr', 'dsk_timeerr',  RooArgSet(terr_dsk),
-                             RooFit.Conditional(RooArgSet(time_dsk),
-                                                RooArgSet(timeVar_B, idVar_B, tagDecComb, tagOmegaComb )))
-    
-    #------------------------------------------------- Bs -> DsPi ----------------------------------------------------#
-
-    #The Bs->DsPi - acceptance - tacc_powlaw
-    tacc_dspi = tacc
-    
-    #The Bs->DsPi - resolution
-    trm_dspi = trm
-    kfactor_dspi = Bs2Dsh2011TDAnaModels.GetRooHistPdfFromWorkspace(workKFactor,TString("kFactor_Bs2DsPi_both"), debug)
-    trm_kf_dspi = RooKResModel('kresmodel_dspi', 'kresmodel_dspi', trm_dspi, kfactor_dspi,
-                               kFactor,  RooArgSet(Gammas, DeltaGammas, DeltaMs))
-        
-    
-    #The Bs->DsPi - time
-    tagEff_dspi = []
-    tagEffList_dspi = RooArgList()
-    for i in range(0,3):
-        tagEff_dspi.append(RooRealVar('tagEff_dspi_'+str(i+1), 'Signal tagging efficiency', myconfigfile["tagEff_dspi"][i]))
-        print tagEff_dspi[i].GetName()
-        tagEffList_dspi.add(tagEff_dspi[i])
-            
-    C_dspi    = RooRealVar('C_dspi', 'C coeff. dspi', 1.)
-    S_dspi    = RooRealVar('S_dspi', 'S coeff. dspi', 0.)
-    D_dspi    = RooRealVar('D_dspi', 'D coeff. dspi', 0.)
-    Sbar_dspi    = RooRealVar('Sbar_dspi', 'Sbar coeff. dspi', 0.)
-    Dbar_dspi    = RooRealVar('Dbar_dspi', 'Dbar coeff. dspi', 0.)
-    
-    aProd_dspi   = RooConstVar('aprod_dspi',   'aprod_dspi',   myconfigfile["aprod_dspi"])        # production asymmetry
-    aDet_dspi    = RooConstVar('adet_dspi',    'adet_dspi',    myconfigfile["adet_dspi"])         # detector asymmetry
-    aTagEff_dspi = []
-    aTagEffList_dspi = RooArgList()
-    for i in range(0,3):
-        aTagEff_dspi.append(RooRealVar('aTagEff_dspi_'+str(i+1), 'atageff', myconfigfile["atageff_dspi"][i]))
-        print aTagEff_dspi[i].GetName()
-        aTagEffList_dspi.add(aTagEff_dspi[i])
-                                    
-    
-    mistag_dspi = mistagBsPDFList
-    
-    otherargs_dspi = [ tagOmegaComb, mistag_dspi, tagEffList_dspi ]
-    otherargs_dspi.append(tagOmegaList)
-    otherargs_dspi.append(aProd_dspi)
-    otherargs_dspi.append(aDet_dspi)
-    otherargs_dspi.append(aTagEffList_dspi)
-    
-
-    cosh_dspi = DecRateCoeff('dspi_cosh', 'dspi_cosh', DecRateCoeff.CPEven, idVar_B, tagDecComb,
-                             one,         one,         *otherargs_dspi)
-    sinh_dspi = DecRateCoeff('dspi_sinh', 'dspi_sinh', DecRateCoeff.CPEven, idVar_B, tagDecComb,
-                             D_dspi,    Dbar_dspi, *otherargs_dspi)
-    cos_dspi  = DecRateCoeff('dspi_cos' , 'dspi_cos' , DecRateCoeff.CPOdd,  idVar_B, tagDecComb,
-                             C_dspi,    C_dspi,    *otherargs_dspi)
-    sin_dspi  = DecRateCoeff('dspi_sin' , 'dspi_sin' , DecRateCoeff.CPOdd,  idVar_B, tagDecComb,
-                             Sbar_dspi, S_dspi,    *otherargs_dspi)
-    
-    time_dspi_noacc = RooBDecay('time_dspi_noacc','time_dspi_noacc', timeVar_B, TauInvGs, DeltaGammas,
-                                cosh_dspi, sinh_dspi, cos_dspi, sin_dspi,
-                                DeltaMs, trm_dspi, RooBDecay.SingleSided)
-    
-    
-    time_dspi             = RooEffProd('time_dspi','time_dspi',time_dspi_noacc,tacc_dspi)
-    
-    #The Bs->DsPi - true ID
-    trueid_dspi = RooGenericPdf("trueid_dspi","exp(-100.*abs(@0-4))",RooArgList(trueIDVar_B))
-    
-    #The Bs->DsPi - time error
-    terr_dspi = Bs2Dsh2011TDAnaModels.GetRooHistPdfFromWorkspace(workTerr,TString("TimeErrorPdf_Bs2DsPi"), debug)
-        
-    
-    #The Bs->DsPi - total
-    timeerr_dspi = RooProdPdf('dspi_timeerr', 'dspi_timeerr',  RooArgSet(terr_dspi),
-                              RooFit.Conditional(RooArgSet(time_dspi),
-                                                 RooArgSet(timeVar_B, idVar_B, tagDecComb, tagOmegaComb )))
-
-    #------------------------------------------------- Lb -> LcK ----------------------------------------------------#
-
-    #The Lb->LcK - mass
-    m = TString("Lb2LcK");
-    MDFitter_lck = Bs2Dsh2011TDAnaModels.ObtainRooProdPdfForMDFitter(workspace, m, sam, lumRatio, NULL, dim, debug);
-
-    #The Lb->LcK - acceptance - tacc_powlaw
-    tacc_lck = tacc
-    
-    #The Lb->LcK - resolution
-    trm_lck = trm
-    kfactor_lck = Bs2Dsh2011TDAnaModels.GetRooHistPdfFromWorkspace(workKFactor,TString("kFactor_Lb2LcK_both"), debug)
-    trm_kf_lck = RooKResModel('kresmodel_lck', 'kresmodel_lck', trm_lck, kfactor_lck,
-                                                                  kFactor,  RooArgSet(GammaLb, zero, zero))
-        
-    
-    #The Lb->LcK - time
-    tagEff_lck = []
-    tagEffList_lck = RooArgList()
-    for i in range(0,3):
-        tagEff_lck.append(RooRealVar('tagEff_lck_'+str(i+1), 'Signal tagging efficiency', myconfigfile["tagEff_lck"][i]))
-        print tagEff_lck[i].GetName()
-        tagEffList_lck.add(tagEff_lck[i])
-                                    
-    
-    C_lck    = RooRealVar('C_lck', 'C coeff. lck', 0.)
-    S_lck    = RooRealVar('S_lck', 'S coeff. lck', 0.)
-    D_lck    = RooRealVar('D_lck', 'D coeff. lck', 0.)
-    Sbar_lck    = RooRealVar('Sbar_lck', 'Sbar coeff. lck', 0.)
-    Dbar_lck    = RooRealVar('Dbar_lck', 'Dbar coeff. lck', 0.)
-    
-    aProd_lck   = RooConstVar('aprod_lck',   'aprod_lck',   myconfigfile["aprod_lck"])        # production asymmetry
-    aDet_lck    = RooConstVar('adet_lck',    'adet_lck',    myconfigfile["adet_lck"])         # detector asymmetry
-    aTagEff_lck = []
-    aTagEffList_lck = RooArgList()
-    for i in range(0,3):
-        aTagEff_lck.append(RooRealVar('aTagEff_lck_'+str(i+1), 'atageff', myconfigfile["atageff_lck"][i]))
-        print aTagEff_lck[i].GetName()
-        aTagEffList_lck.add(aTagEff_lck[i])
-        
-    
-    #The Lb->LcK - mistag
-    mistag_lck = mistagBdPDFList
-    
-    otherargs_lck = [ tagOmegaComb, mistag_lck, tagEffList_lck ]
-    otherargs_lck.append(tagOmegaListBd)
-    otherargs_lck.append(aProd_lck)
-    otherargs_lck.append(aDet_lck)
-    otherargs_lck.append(aTagEffList_lck)
-                    
-    
-    cosh_lck = DecRateCoeff('lck_cosh', 'lck_cosh', DecRateCoeff.CPEven,
-                            idVar_B, tagDecComb,  one,       one,     *otherargs_lck)
-    sinh_lck = DecRateCoeff('lck_sinh', 'lck_sinh', flag | DecRateCoeff.CPEven,
-                            idVar_B, tagDecComb,  D_lck,    Dbar_lck, *otherargs_lck)
-    cos_lck  = DecRateCoeff('lck_cos',  'lck_cos' , DecRateCoeff.CPOdd,
-                            idVar_B, tagDecComb,  C_lck,    C_lck,    *otherargs_lck)
-    sin_lck  = DecRateCoeff('lck_sin',  'lck_sin',  flag | DecRateCoeff.CPOdd,
-                            idVar_B, tagDecComb,  Sbar_lck, S_lck,    *otherargs_lck)
-    
-    time_lck_noacc    = RooBDecay('time_lck_noacc','time_lck_noacc', timeVar_B, TauInvLb, zero,
-                            cosh_lck, sinh_lck, cos_lck, sin_lck,
-                            zero,trm_lck, RooBDecay.SingleSided)
-
-    time_lck             = RooEffProd('time_lck','time_lck',time_lck_noacc,tacc_lck)
-
-    #The Lb->LcK - true ID
-    trueid_lck = RooGenericPdf("trueid_lck","exp(-100.*abs(@0-5))",RooArgList(trueIDVar_B))
-
-    #The Lb->LcK - time error
-    terr_lck = Bs2Dsh2011TDAnaModels.GetRooHistPdfFromWorkspace(workTerr,TString("TimeErrorPdf_Lb2LcK"), debug)
-        
-    #The Lb->LcK - total
-    timeerr_lck = RooProdPdf('lck_timeerr', 'lck_timeerr',  RooArgSet(terr_lck),
-                             RooFit.Conditional(RooArgSet(time_lck),
-                                                RooArgSet(timeVar_B, idVar_B, tagDecComb, tagOmegaComb )))
-
 
     #------------------------------------------------- Lb -> LcPi ----------------------------------------------------#                                       
  
@@ -979,10 +813,9 @@ def runBsDsKGenerator( debug, single, configName, rangeDown, rangeUp, seed , siz
 
     #The Lb->LcPi - resolution                                                                                                                               
     trm_lcpi = trm
-    kfactor_lcpi = Bs2Dsh2011TDAnaModels.GetRooHistPdfFromWorkspace(workKFactor,TString("kFactor_Lb2LcK_both"), debug)
-    trm_kf_lcpi = RooKResModel('kresmodel_lcpi', 'kresmodel_lcpi', trm_lcpi, kfactor_lcpi,
-                               kFactor,  RooArgSet(GammaLb, zero, zero))
-
+    #kfactor_lcpi = Bs2Dsh2011TDAnaModels.GetRooHistPdfFromWorkspace(workKFactor,TString("kFactor_Lb2LcK_both"), debug)
+    #trm_kf_lcpi = RooKResModel('kresmodel_lcpi', 'kresmodel_lcpi', trm_lcpi, kfactor_lcpi,
+    #                           kFactor,  RooArgSet(GammaLb, zero, zero))
 
     #The Lb->LcPi - time                                                                                                                                      
     tagEff_lcpi = []
@@ -1033,194 +866,28 @@ def runBsDsKGenerator( debug, single, configName, rangeDown, rangeUp, seed , siz
     time_lcpi             = RooEffProd('time_lcpi','time_lcpi',time_lcpi_noacc,tacc_lcpi)
 
     #The Lb->LcK - true ID                                                                                                                                    
-    trueid_lcpi = RooGenericPdf("trueid_lcpi","exp(-100.*abs(@0-5))",RooArgList(trueIDVar_B))
+    trueid_lcpi = RooGenericPdf("trueid_lcpi","exp(-100.*abs(@0-4))",RooArgList(trueIDVar_B))
 
     #The Lb->LcK - time error                                                                                                                                 
-    terr_lcpi = Bs2Dsh2011TDAnaModels.GetRooHistPdfFromWorkspace(workTerr,TString("TimeErrorPdf_Lb2LcK"), debug)
+    terr_lcpi = Bs2Dsh2011TDAnaModels.GetRooHistPdfFromWorkspace(workTerr,TString("TimeErrorPdf_Lb2LcPi"), debug)
 
     #The Lb->LcK - total                                                                                                                                      
     timeerr_lcpi = RooProdPdf('lcpi_timeerr', 'lcpi_timeerr',  RooArgSet(terr_lcpi),
                               RooFit.Conditional(RooArgSet(time_lcpi),
                                                  RooArgSet(timeVar_B, idVar_B, tagDecComb, tagOmegaComb )))
     
-    #------------------------------------------------- Lb -> Dsp -------------------------------------------------------#
-
-    #The Lb->Dsp - Bs
-    m = TString("Lb2Dsp")
-    massB_dsp = Bs2Dsh2011TDAnaModels.ObtainMassShape(workspace, m, false, lumRatio, debug)
-
-    #Thee Lb->Dsp - PIDK
-    m = TString("Lb2Dsp")
-    PIDK_dsp = Bs2Dsh2011TDAnaModels.ObtainPIDKShape(workspace, m, sam, lumRatio, false, debug)
-          
-
-    #The Lb->Dsp - acceptance 
-    tacc_dsp = tacc
-    
-    #The Lb->Dsp - resolution
-    trm_dsp = trm
-    kfactor_dsp = Bs2Dsh2011TDAnaModels.GetRooHistPdfFromWorkspace(workKFactor,TString("kFactor_Lb2Dsp_both"), debug)
-     
-    trm_kf_dsp = RooKResModel('kresmodel_dsp', 'kresmodel_dsp', trm_dsp, kfactor_dsp,
-                              kFactor,  RooArgSet(GammaLb, zero, zero))
-        
-    
-    #The Lb->Dsp - time
-    tagEff_dsp = []
-    tagEffList_dsp = RooArgList()
-    for i in range(0,3):
-        tagEff_dsp.append(RooRealVar('tagEff_dsp_'+str(i+1), 'Signal tagging efficiency', myconfigfile["tagEff_dsp"][i]))
-        print tagEff_dsp[i].GetName()
-        tagEffList_dsp.add(tagEff_dsp[i])
-            
-    C_dsp    = RooRealVar('C_dsp', 'S coeff. dsp', 0.)
-    S_dsp    = RooRealVar('S_dsp', 'S coeff. dsp', 0.)
-    D_dsp    = RooRealVar('D_dsp', 'D coeff. dsp', 0.)
-    Sbar_dsp = RooRealVar('Sbar_dsp', 'Sbar coeff. dsp', 0.)
-    Dbar_dsp = RooRealVar('Dbar_dsp', 'Dbar coeff. dsp', 0.)
-    
-    aProd_dsp   = RooConstVar('aprod_dsp',   'aprod_dsp',   myconfigfile["aprod_dsp"])        # production asymmetry
-    aDet_dsp    = RooConstVar('adet_dsp',    'adet_dsp',    myconfigfile["adet_dsp"])         # detector asymmetry
-    
-    aTagEff_dsp = []
-    aTagEffList_dsp = RooArgList()
-    for i in range(0,3):
-        aTagEff_dsp.append(RooRealVar('aTagEff_dsp_'+str(i+1), 'atageff', myconfigfile["atageff_dsp"][i]))
-        print aTagEff_dsp[i].GetName()
-        aTagEffList_dsp.add(aTagEff_dsp[i])
-                              
-                              
-    #The Lb->Dsp - mistag
-    mistag_dsp = mistagBdPDFList
-    
-    otherargs_dsp = [ tagOmegaComb, mistag_dsp, tagEffList_dsp ]
-    otherargs_dsp.append(tagOmegaListBd)
-    otherargs_dsp.append(aProd_dsp)
-    otherargs_dsp.append(aDet_dsp)
-    otherargs_dsp.append(aTagEffList_dsp)
-                    
-
-    cosh_dsp = DecRateCoeff('dsp_cosh', 'dsp_cosh', DecRateCoeff.CPEven,
-                            idVar_B, tagDecComb,  one,       one,             *otherargs_dsp)
-    sinh_dsp = DecRateCoeff('dsp_sinh', 'dsp_sinh', flag | DecRateCoeff.CPEven,
-                            idVar_B, tagDecComb,  D_dsp,    Dbar_dsp, *otherargs_dsp)
-    cos_dsp  = DecRateCoeff('dsp_cos',  'dsp_cos' , DecRateCoeff.CPOdd,
-                            idVar_B, tagDecComb,  C_dsp,    C_dsp,    *otherargs_dsp)
-    sin_dsp  = DecRateCoeff('dsp_sin',  'dsp_sin',  flag | DecRateCoeff.CPOdd,
-                            idVar_B, tagDecComb,  Sbar_dsp, S_dsp,    *otherargs_dsp)
-    
-    time_dsp_noacc      = RooBDecay('time_dsp_noacc','time_dsp_noacc', timeVar_B, TauInvLb, zero,
-                                  cosh_dsp, sinh_dsp, cos_dsp, sinh_dsp,
-                                  zero,trm_dsp, RooBDecay.SingleSided)
-    
-    time_dsp             = RooEffProd('time_dsp','time_dsp',time_dsp_noacc,tacc_dsp)
-    
-    #The Lb->Dsp - true ID
-    trueid_dsp = RooGenericPdf("trueid_dsp","exp(-100.*abs(@0-6))",RooArgList(trueIDVar_B))
-    
-    #The Lb->Dsp, Lb->Dsstp - time error
-    terr_dsp = Bs2Dsh2011TDAnaModels.GetRooHistPdfFromWorkspace(workTerr,TString("TimeErrorPdf_Lb2Dsp"), debug)
-       
-    #The Lb->Dsp, Lb->Dsstp - total
-    timeerr_dsp = RooProdPdf('dsp_timeerr', 'dsp_timeerr',  RooArgSet(terr_dsp),
-                             RooFit.Conditional(RooArgSet(time_dsp),
-                                                RooArgSet(timeVar_B, idVar_B, tagDecComb, tagOmegaComb )))
-    
-    #------------------------------------------------- Lb ->  Dsstp ----------------------------------------------------#
-    
-    #The Lb->Dsstp - mass
-    m = TString("Lb2Dsstp")
-    massB_dsstp = Bs2Dsh2011TDAnaModels.ObtainMassShape(workspace, m, false, lumRatio, debug)
-    
-    #The Lb->Dsp, Lb->Dsstp - PIDK
-    m = TString("Lb2Dsstp")
-    PIDK_dsstp = Bs2Dsh2011TDAnaModels.ObtainPIDKShape(workspace, m, sam, lumRatio, false, debug)
-       
-    #The Lb->Dsp, Lb->Dsstp - acceptance - tacc_powlaw
-    tacc_dsstp = tacc
-    
-    #The Lb->Dsp, Lb->Dsstp - resolution
-    trm_dsstp = trm
-    kfactor_dsstp = Bs2Dsh2011TDAnaModels.GetRooHistPdfFromWorkspace(workKFactor,TString("kFactor_Lb2Dsstp_both"), debug)
-    trm_kf_dsstp = RooKResModel('kresmodel_dsstp', 'kresmodel_dsstp', trm_dsstp, kfactor_dsstp,
-                                kFactor,  RooArgSet(GammaLb, zero, zero))
-    
-    
-    #The Lb->Dsp, Lb->Dsstp - time
-    tagEff_dsstp = []
-    tagEffList_dsstp = RooArgList()
-    for i in range(0,3):
-        tagEff_dsstp.append(RooRealVar('tagEff_dsstp_'+str(i+1), 'Signal tagging efficiency', myconfigfile["tagEff_dsstp"][i]))
-        print tagEff_dsstp[i].GetName()
-        tagEffList_dsstp.add(tagEff_dsstp[i])
-
-    C_dsstp    = RooRealVar('C_dsstp', 'S coeff. dsstp', 0.)
-    S_dsstp    = RooRealVar('S_dsstp', 'S coeff. dsstp', 0.)
-    D_dsstp    = RooRealVar('D_dsstp', 'D coeff. dsstp', 0.)
-    Sbar_dsstp    = RooRealVar('Sbar_dsstp', 'Sbar coeff. dsstp', 0.)
-    Dbar_dsstp    = RooRealVar('Dbar_dsstp', 'Dbar coeff. dsstp', 0.)
-    
-    aProd_dsstp   = RooConstVar('aprod_dsstp',   'aprod_dsstp',   myconfigfile["aprod_dsstp"])        # production asymmetry
-    aDet_dsstp    = RooConstVar('adet_dsstp',    'adet_dsstp',    myconfigfile["adet_dsstp"])         # detector asymmetry
-    
-    aTagEff_dsstp = []
-    aTagEffList_dsstp = RooArgList()
-    for i in range(0,3):
-        aTagEff_dsstp.append(RooRealVar('aTagEff_dsstp_'+str(i+1), 'atageff', myconfigfile["atageff_dsstp"][i]))
-        print aTagEff_dsstp[i].GetName()
-        aTagEffList_dsstp.add(aTagEff_dsstp[i])
-        
-    #The Lb->Dsstp - mistag
-    mistag_dsstp = mistagBdPDFList
-    
-    otherargs_dsstp = [ tagOmegaComb, mistag_dsstp, tagEffList_dsstp ]
-    otherargs_dsstp.append(tagOmegaListBd)
-    otherargs_dsstp.append(aProd_dsstp)
-    otherargs_dsstp.append(aDet_dsstp)
-    otherargs_dsstp.append(aTagEffList_dsstp)
-    
-    
-    cosh_dsstp = DecRateCoeff('dsstp_cosh', 'dsstp_cosh', DecRateCoeff.CPEven,
-                                idVar_B, tagDecComb,  one,       one,             *otherargs_dsstp)
-    sinh_dsstp = DecRateCoeff('dsstp_sinh', 'dsstp_sinh', flag | DecRateCoeff.CPEven,
-                                idVar_B, tagDecComb,  D_dsstp,    Dbar_dsstp, *otherargs_dsstp)
-    cos_dsstp  = DecRateCoeff('dsstp_cos',  'dsstp_cos' , DecRateCoeff.CPOdd,
-                               idVar_B, tagDecComb,  C_dsstp,    C_dsstp,    *otherargs_dsstp)
-    sin_dsstp  = DecRateCoeff('dsstp_sin',  'dsstp_sin',  flag | DecRateCoeff.CPOdd,
-                                idVar_B, tagDecComb,  Sbar_dsstp, S_dsstp,    *otherargs_dsstp)
-    
-    time_dsstp_noacc      = RooBDecay('time_dsstp_noacc','time_dsstp_noacc', timeVar_B, TauInvLb, zero,
-                                        cosh_dsstp, sinh_dsstp, cos_dsstp, sinh_dsstp,
-                                        zero,trm_dsstp, RooBDecay.SingleSided)
-    
-    time_dsstp             = RooEffProd('time_dsstp','time_dsstp',time_dsstp_noacc,tacc_dsstp)
-    
-    #The Lb->Dsstp - true ID
-    trueid_dsstp = RooGenericPdf("trueid_dsstp","exp(-100.*abs(@0-6))",RooArgList(trueIDVar_B))
-    
-    #The Lb->Dsstp - time error
-    terr_dsstp = Bs2Dsh2011TDAnaModels.GetRooHistPdfFromWorkspace(workTerr,TString("TimeErrorPdf_Lb2Dsstp"), debug)
-    
-    #The Lb->Dsstp - total
-    timeerr_dsstp = RooProdPdf('dsstp_timeerr', 'dsstp_timeerr',  RooArgSet(terr_dsstp),
-                                 RooFit.Conditional(RooArgSet(time_dsstp),
-                                                    RooArgSet(timeVar_B, idVar_B, tagDecComb, tagOmegaComb )))
         
     
     #------------------------------------------------- Combinatorial ----------------------------------------------------#
     
     #The combinatorics - PIDK
-    fracPIDKComb1 = RooRealVar("CombBkg_fracPIDKComb1", "CombBkg_fracPIDKComb1",  myconfigfile["fracPIDKComb1"])
-    fracPIDKComb2 = RooRealVar("CombBkg_fracPIDKComb2", "CombBkg_fracPIDKComb2",  myconfigfile["fracPIDKComb2"])
+    fracPIDKComb = RooRealVar("CombBkg_fracPIDKComb", "CombBkg_fracPIDKComb",  myconfigfile["fracPIDKComb"])
+    m = TString("Comb")
+    PIDK1_combo = Bs2Dsh2011TDAnaModels.ObtainPIDKShape(workspace, m, sam, lumRatio, false, debug)
     m = TString("CombK")
-    PIDK_combo_K = Bs2Dsh2011TDAnaModels.ObtainPIDKShape(workspace, m, sam, lumRatio, false, debug)
-    m = TString("CombPi")
-    PIDK_combo_Pi = Bs2Dsh2011TDAnaModels.ObtainPIDKShape(workspace, m, sam, lumRatio, false, debug)
-    m = TString("CombP")
-    PIDK_combo_P = Bs2Dsh2011TDAnaModels.ObtainPIDKShape(workspace, m, sam, lumRatio, false, debug)
+    PIDK2_combo = Bs2Dsh2011TDAnaModels.ObtainPIDKShape(workspace, m, sam, lumRatio, false, debug)
     name = "ShapePIDKAll_Comb";
-    PIDK_combo = RooAddPdf("ShapePIDKAll_combo","ShapePIDKAll_combo",
-                           RooArgList(PIDK_combo_K, PIDK_combo_Pi, PIDK_combo_P), RooArgList(fracPIDKComb1, fracPIDKComb2), true)
+    PIDK_combo = RooAddPdf("ShapePIDKAll_combo","ShapePIDKAll_combo", PIDK1_combo, PIDK2_combo, fracPIDKComb)
     
     #The combinatorics - acceptance - tacc_powlaw
     tacc_combo = tacc
@@ -1288,91 +955,6 @@ def runBsDsKGenerator( debug, single, configName, rangeDown, rangeUp, seed , siz
                                RooFit.Conditional(RooArgSet(time_combo),
                                                   RooArgSet(timeVar_B, idVar_B, tagDecComb, tagOmegaComb )))
 
-    #------------------------------------------------- Low mass K ----------------------------------------------------#
-    
-    #The low mass - mass B
-    m = TString("Bs2DsKst")
-    massB_lm1 = Bs2Dsh2011TDAnaModels.ObtainMassShape(workspace, m, false, lumRatio, debug);
-
-    #The low mass - PIDK
-    PIDK_lm1 = Bs2Dsh2011TDAnaModels.ObtainPIDKShape(workspace, m, sam, lumRatio, false, debug);
-            
-    #The low mass - acceptance - tacc_powlaw
-    tacc_lm1 = tacc
-
-    #The low mass - resolution
-    trm_lm1 = trm
-    #kfactor_lm1 = Bs2Dsh2011TDAnaModels.GetRooHistPdfFromWorkspace(workKFactor,TString("kFactor_Bd2DK_both"), debug)
-    #trm_kf_lm1 = RooKResModel('kresmodel_dk', 'kresmodel_dk', trm_dk, kfactor_dk, kFactor,  RooArgSet(Gammad, DeltaGammad, DeltaMd))
-        
-
-    #The low mass - time
-    ACPobs_lm1 = cpobservables.AsymmetryObservables(myconfigfile["ArgLf_s"], myconfigfile["ArgLbarfbar_s"], myconfigfile["ModLf_s"])
-    
-    C_lm1     = RooRealVar('C_lm1','C_lm1',ACPobs_lm1.Cf())
-    S_lm1     = RooRealVar('S_lm1','S_lm1',ACPobs_lm1.Sf())
-    D_lm1     = RooRealVar('D_lm1','D_lm1',ACPobs_lm1.Df())
-    Sbar_lm1  = RooRealVar('Sbar_lm1','Sbar_lm1',ACPobs_lm1.Sfbar())
-    Dbar_lm1  = RooRealVar('Dbar_lm1','Dbar_lm1',ACPobs_lm1.Dfbar())
-    
-    tagEff_lm1 = []
-    tagEffList_lm1 = RooArgList()
-    for i in range(0,3):
-        tagEff_lm1.append(RooRealVar('tagEff_lm1_'+str(i+1), 'Signal tagging efficiency', myconfigfile["tagEff_lm1"][i]))
-        print tagEff_lm1[i].GetName()
-        tagEffList_lm1.add(tagEff_lm1[i])
-        
-    
-    aProd_lm1   = RooConstVar('aprod_lm1',   'aprod_lm1',   myconfigfile["aprod_lm1"])        # production asymmetry
-    aDet_lm1    = RooConstVar('adet_lm1',    'adet_lm1',    myconfigfile["adet_lm1"])         # detector asymmetry
-    aTagEff_lm1 = []
-    aTagEffList_lm1 = RooArgList()
-    for i in range(0,3):
-        aTagEff_lm1.append(RooRealVar('aTagEff_lm1_'+str(i+1), 'atageff', myconfigfile["atageff_lm1"][i]))
-        print aTagEff_lm1[i].GetName()
-        aTagEffList_lm1.add(aTagEff_lm1[i])
-        
-
-        
-    #The low mass - mistag
-    mistag_lm1 = mistagBsPDFList
-    
-    otherargs_lm1 = [ tagOmegaComb, mistag_lm1, tagEffList_lm1 ]
-    otherargs_lm1.append(tagOmegaList)
-    otherargs_lm1.append(aProd_lm1)
-    otherargs_lm1.append(aDet_lm1)
-    otherargs_lm1.append(aTagEffList_lm1)
-                    
-
-    flag_lm1 = 0 #DecRateCoeff.AvgDelta
-
-    cosh_lm1 = DecRateCoeff('lm1_cosh', 'lm1_cosh', DecRateCoeff.CPEven,
-                            idVar_B, tagDecComb,  one,      one,      *otherargs_lm1)
-    sinh_lm1 = DecRateCoeff('lm1_sinh', 'lm1_sinh', flag_lm1 | DecRateCoeff.CPEven,
-                            idVar_B, tagDecComb,  D_lm1,    Dbar_lm1, *otherargs_lm1)
-    cos_lm1  = DecRateCoeff('lm1_cos',  'lm1_cos' , DecRateCoeff.CPOdd,
-                            idVar_B, tagDecComb,  C_lm1,    C_lm1,    *otherargs_lm1)
-    sin_lm1  = DecRateCoeff('lm1_sin',  'lm1_sin',  flag_lm1 | DecRateCoeff.CPOdd | DecRateCoeff.Minus,
-                            idVar_B, tagDecComb,  S_lm1, Sbar_lm1,    *otherargs_lm1)
-    
-    time_lm1_noacc    = RooBDecay('time_lm1_noacc','time_lm1_noacc', timeVar_B, TauInvGs, DeltaGammas,
-                                  cosh_lm1, sinh_lm1, cos_lm1, sin_lm1,
-                                  DeltaMs,trm_lm1, RooBDecay.SingleSided)
-    
-    
-    time_lm1             = RooEffProd('time_lm1','time_lm1',time_lm1_noacc,tacc_lm1)
-                                                    
-    #The low mass - true ID
-    trueid_lm1 = RooGenericPdf("trueid_lm1","exp(-100.*abs(@0-7))",RooArgList(trueIDVar_B))
-    
-    #The low mass - time error
-    terr_lm1 = terr_signal     
-    
-    #The low mass - total
-    timeerr_lm1 = RooProdPdf('lm1_timeerr', 'lm1_timeerr',  RooArgSet(terr_lm1),
-                             RooFit.Conditional(RooArgSet(time_lm1),
-                                                RooArgSet(timeVar_B, idVar_B, tagDecComb, tagOmegaComb )))
-
     #------------------------------------------------- Low mass Pi ----------------------------------------------------#
 
     #The low mass - pi - mass B
@@ -1380,17 +962,17 @@ def runBsDsKGenerator( debug, single, configName, rangeDown, rangeUp, seed , siz
     massB_dsstpi = Bs2Dsh2011TDAnaModels.ObtainMassShape(workspace, m, false, lumRatio, debug)
     
     #the low mass - pi - pidk
-    m = TString("Bs2DsstPi")
-    PIDK_dsstpi = Bs2Dsh2011TDAnaModels.ObtainPIDKShape(workspace, m, sam, lumRatio, false, debug)
+    #m = TString("Bs2DsstPi")
+    #PIDK_dsstpi = Bs2Dsh2011TDAnaModels.ObtainPIDKShape(workspace, m, sam, lumRatio, false, debug)
                 
     #The low mass - acceptance - tacc_powlaw
     tacc_dsstpi = tacc
         
     #The low mass - resolution
     trm_dsstpi = trm
-    kfactor_dsstpi = Bs2Dsh2011TDAnaModels.GetRooHistPdfFromWorkspace(workKFactor,TString("kFactor_Bs2DsstPi_both"), debug)
-    trm_kf_dsstpi = RooKResModel('kresmodel_dsstpi', 'kresmodel_dsstpi',
-                                 trm_dsstpi, kfactor_dsstpi, kFactor,  RooArgSet(Gammas, DeltaGammas, DeltaMs))
+    #kfactor_dsstpi = Bs2Dsh2011TDAnaModels.GetRooHistPdfFromWorkspace(workKFactor,TString("kFactor_Bs2DsstPi_both"), debug)
+    #trm_kf_dsstpi = RooKResModel('kresmodel_dsstpi', 'kresmodel_dsstpi',
+    #                             trm_dsstpi, kfactor_dsstpi, kFactor,  RooArgSet(Gammas, DeltaGammas, DeltaMs))
     
     #The low mass - time
     tagEff_dsstpi = []
@@ -1441,7 +1023,7 @@ def runBsDsKGenerator( debug, single, configName, rangeDown, rangeUp, seed , siz
     time_dsstpi             = RooEffProd('time_dsstpi','time_dsstpi',time_dsstpi_noacc,tacc_dsstpi)
     
     #The low mass - true ID true
-    trueid_dsstpi = RooGenericPdf("trueid_dsstpi","exp(-100.*abs(@0-8))",RooArgList(trueIDVar_B))
+    trueid_dsstpi = RooGenericPdf("trueid_dsstpi","exp(-100.*abs(@0-5))",RooArgList(trueIDVar_B))
     
     #The low mass - time error
     terr_dsstpi = Bs2Dsh2011TDAnaModels.GetRooHistPdfFromWorkspace(workTerr,TString("TimeErrorPdf_Bs2DsstPi"), debug)
@@ -1453,23 +1035,23 @@ def runBsDsKGenerator( debug, single, configName, rangeDown, rangeUp, seed , siz
     
         
     #------------------------------------------------- Low mass Pi ----------------------------------------------------#
-
+    '''
     #The low mass - pi - mass B
     m = TString("Bs2DsRho")
     massB_dsrho = Bs2Dsh2011TDAnaModels.ObtainMassShape(workspace, m, false, lumRatio, debug)
     
     #The low mass - pi - pidk
-    m = TString("Bs2DsRho")
-    PIDK_dsrho = Bs2Dsh2011TDAnaModels.ObtainPIDKShape(workspace, m, sam, lumRatio, false, debug)
+    #m = TString("Bs2DsRho")
+    #PIDK_dsrho = Bs2Dsh2011TDAnaModels.ObtainPIDKShape(workspace, m, sam, lumRatio, false, debug)
         
     #The low mass - acceptance - tacc_powlaw
     tacc_dsrho = tacc
 
     #The low mass - resolution
     trm_dsrho = trm
-    kfactor_dsrho = Bs2Dsh2011TDAnaModels.GetRooHistPdfFromWorkspace(workKFactor,TString("kFactor_Bs2DsRho_both"), debug)
-    trm_kf_dsrho = RooKResModel('kresmodel_dsrho', 'kresmodel_dsrho',
-                                trm_dsrho, kfactor_dsrho, kFactor,  RooArgSet(Gammas, DeltaGammas, DeltaMs))
+    #kfactor_dsrho = Bs2Dsh2011TDAnaModels.GetRooHistPdfFromWorkspace(workKFactor,TString("kFactor_Bs2DsRho_both"), debug)
+    #trm_kf_dsrho = RooKResModel('kresmodel_dsrho', 'kresmodel_dsrho',
+    #                            trm_dsrho, kfactor_dsrho, kFactor,  RooArgSet(Gammas, DeltaGammas, DeltaMs))
 
     #The low mass - time
     tagEff_dsrho = []
@@ -1522,7 +1104,7 @@ def runBsDsKGenerator( debug, single, configName, rangeDown, rangeUp, seed , siz
     time_dsrho             = RooEffProd('time_dsrho','time_dsrho',time_dsrho_noacc,tacc_dsrho)
     
     #The low mass - true ID true
-    trueid_dsrho = RooGenericPdf("trueid_dsrho","exp(-100.*abs(@0-8))",RooArgList(trueIDVar_B))
+    trueid_dsrho = RooGenericPdf("trueid_dsrho","exp(-100.*abs(@0-5))",RooArgList(trueIDVar_B))
     
     #The low mass - time error
     terr_dsrho = Bs2Dsh2011TDAnaModels.GetRooHistPdfFromWorkspace(workTerr,TString("TimeErrorPdf_Bs2DsRho"), debug)
@@ -1532,7 +1114,7 @@ def runBsDsKGenerator( debug, single, configName, rangeDown, rangeUp, seed , siz
                                RooFit.Conditional(RooArgSet(time_dsrho),
                                                             RooArgSet(timeVar_B, idVar_B, tagDecComb, tagOmegaComb )))
                                
-                               
+    '''                                                        
     #------------------------------------------------- Signal -----------------------------------------------------#
     for i in range(0,5):
         #The signal - mass
@@ -1572,7 +1154,7 @@ def runBsDsKGenerator( debug, single, configName, rangeDown, rangeUp, seed , siz
                                                                         num_signal[i], nameDs[i].Data(), "Ds", debug ))
         
         # The signal - PIDK
-        m = TString("Bs2DsK_")+nameDs[i]
+        m = TString("Bs2DsPi_")+nameDs[i]
         PIDK_signal.append(Bs2Dsh2011TDAnaModels.ObtainPIDKShape(workspace, m, sam, lumRatio, true, debug))
         
         # The signal - MDFitter
@@ -1583,16 +1165,33 @@ def runBsDsKGenerator( debug, single, configName, rangeDown, rangeUp, seed , siz
                                                                                                                   MDFitter_signal[i],
                                                                                                                   trueid_signal))) 
     
+    #------------------------------------------------- Bd -> DsK ----------------------------------------------------#
     
-    #-------------------------------------------------- Bd -> DK ----------------------------------------------------#
+        #The Bd->DsK - mass
+        meanVarBd.append(RooRealVar(    "DblCBBdPDF_mean_%s"%(nameDs2[i]) ,  "mean",    myconfigfile["mean"][i]-86.8))
+        sigma1VarBd.append(RooRealVar( "DblCBBdPDF_sigma1_%s"%(nameDs2[i]), "sigma1",  myconfigfile["sigma1"][i]*myconfigfile["ratio1"] ))
+        sigma2VarBd.append(RooRealVar(  "DblCBBdPDF_sigma2_%s"%(nameDs2[i]), "sigma2",  myconfigfile["sigma2"][i]*myconfigfile["ratio2"] ))
+    
+        num_dspi.append(RooRealVar("num_dspi_%s"%(nameDs[i]),"num_dspi",myconfigfile["num_dspi"][i]*size))
+        evNum += myconfigfile["num_dspi"][i]*size
+        print myconfigfile["num_dspi"][i]*size
+                       
+        massB_dspi.append(Bs2Dsh2011TDAnaModels.buildDoubleCBEPDF_sim(massVar_B, meanVarBd[i],
+                                                                     sigma1VarBd[i], alpha1VarBs[i], n1VarBs[i],
+                                                                     sigma2VarBd[i], alpha2VarBs[i], n2VarBs[i],
+                                                                     fracVarBs[i], num_dspi[i], nameDs[i].Data(), "Bd", debug ))
+        
+        # The signal - MDFitter
+        massD_dspi.append(massD_signal[i])
+        PIDK_dspi.append(PIDK_signal[i])
+        
+	MDFitter_dspi.append(RooProdPdf("MDFitter_dspi_%s"%(nameDs2[i]),"MDFitter_dspi",RooArgList(massB_dspi[i], massD_dspi[i], PIDK_dspi[i])))
                                
-        num_dk.append(RooRealVar("num_dk_%s"%(nameDs2[i]),"num_dk",myconfigfile["num_dk"][i]*size))
-        evNum += myconfigfile["num_dk"][i]*size
-        print myconfigfile["num_dk"][i]*size
-               
-        timeandmass_dk.append(RooProdPdf("timeandmass_dk_%s"%(nameDs2[i]),"timeandmass_dk",RooArgList(timeerr_dk,
-                                                                                                      MDFitter_dk,
-                                                                                                      trueid_dk))) 
+                
+        timeandmass_dspi.append(RooProdPdf("timeandmass_dspi_%s"%(nameDs2[i]),"timeandmass_dspi",RooArgList(timeerr_dspi,
+                                                                                                         MDFitter_dspi[i],
+                                                                                                         trueid_dspi))) #,     
+    
     #-------------------------------------------------- Bd -> DPi ----------------------------------------------------#                          
 
         num_dpi.append(RooRealVar("num_dpi_%s"%(nameDs2[i]),"num_dpi",myconfigfile["num_dpi"][i]*size))
@@ -1603,70 +1202,25 @@ def runBsDsKGenerator( debug, single, configName, rangeDown, rangeUp, seed , siz
                                                                                                          MDFitter_dpi,
                                                                                                          trueid_dpi)))
     
-    #------------------------------------------------- Bd -> DsK ----------------------------------------------------#
     
-        #The Bd->DsK - mass
-        meanVarBd.append(RooRealVar(    "DblCBBdPDF_mean_%s"%(nameDs2[i]) ,  "mean",    myconfigfile["mean"][i]-86.8))
-        sigma1VarBd.append(RooRealVar( "DblCBBdPDF_sigma1_%s"%(nameDs2[i]), "sigma1",  myconfigfile["sigma1"][i]*myconfigfile["ratio1"] ))
-        sigma2VarBd.append(RooRealVar(  "DblCBBdPDF_sigma2_%s"%(nameDs2[i]), "sigma2",  myconfigfile["sigma2"][i]*myconfigfile["ratio2"] ))
-    
-        num_dsk.append(RooRealVar("num_dsk_%s"%(nameDs[i]),"num_dsk",myconfigfile["num_dsk"][i]*size))
-        evNum += myconfigfile["num_dsk"][i]*size
-        print myconfigfile["num_dsk"][i]*size
-                       
-        massB_dsk.append(Bs2Dsh2011TDAnaModels.buildDoubleCBEPDF_sim(massVar_B, meanVarBd[i],
-                                                                     sigma1VarBd[i], alpha1VarBs[i], n1VarBs[i],
-                                                                     sigma2VarBd[i], alpha2VarBs[i], n2VarBs[i],
-                                                                     fracVarBs[i], num_dsk[i], nameDs[i].Data(), "Bd", debug ))
         
-        # The signal - MDFitter
-        massD_dsk.append(massD_signal[i])
-        PIDK_dsk.append(PIDK_signal[i])
-                
-        MDFitter_dsk.append(RooProdPdf("MDFitter_dsk_%s"%(nameDs2[i]),"MDFitter_dsk",RooArgList(massB_dsk[i], massD_dsk[i], PIDK_dsk[i])))
-                               
-                
-        timeandmass_dsk.append(RooProdPdf("timeandmass_dsk_%s"%(nameDs2[i]),"timeandmass_dsk",RooArgList(timeerr_dsk,
-                                                                                                         MDFitter_dsk[i],
-                                                                                                         trueid_dsk))) #,
                                
           
-    #------------------------------------------------- Bs -> DsPi ----------------------------------------------------# 
-    
-        #The Bs->DsPi - mass B
-        #mass_dspi = Bs2Dsh2011TDAnaModels.GetRooKeysPdfFromWorkspace(workspace,TString("PhysBkgBsDsPi_m_down_kkpi"), debug) 
-        m = TString("Bs2DsPi_")+nameDs[i]
-        massB_dspi.append(Bs2Dsh2011TDAnaModels.ObtainMassShape(workspace, m, false, lumRatio, debug))
+    #------------------------------------------------- Bs -> DsK ----------------------------------------------------# 
     
         #The Bs->DsPi- mass D
-        massD_dspi.append(massD_signal[i])
-               
-        #The Bs->DsPi - PIDK
-        PIDK_dspi.append(Bs2Dsh2011TDAnaModels.ObtainPIDKShape(workspace, m, sam, lumRatio, true, debug))
+        massD_dsk.append(massD_signal[i])
         
-        #The Bs->DsPi - MDFitter
-        MDFitter_dspi.append(RooProdPdf("MDFitter_dspi_%s"%(nameDs2[i]),"MDFitter_dspi",RooArgList(massB_dspi[i], massD_dspi[i], PIDK_dspi[i])))
+        #The Bs->DsK - MDFitter
+        MDFitter_dsk.append(RooProdPdf("MDFitter_dsk_%s"%(nameDs2[i]),"MDFitter_dsk",RooArgList(massB_dsk, massD_dspi[i], PIDK_dsk)))
                                  
-        num_dspi.append(RooRealVar("num_dspi_%s"%(nameDs2[i]),"num_dspi", myconfigfile["num_dspi"][i]*size))
-        evNum += myconfigfile["num_dspi"][i]*size
-        print myconfigfile["num_dspi"][i]*size
+        num_dsk.append(RooRealVar("num_dsk_%s"%(nameDs2[i]),"num_dsk", myconfigfile["num_dsk"][i]*size))
+        evNum += myconfigfile["num_dsk"][i]*size
+        print myconfigfile["num_dsk"][i]*size
         
-        timeandmass_dspi.append(RooProdPdf("timeandmass_dspi_%s"%(nameDs2[i]),"timeandmass_dspi",RooArgList(timeerr_dspi,
-                                                                                                            MDFitter_dspi[i],
-                                                                                                            trueid_dspi)))
-                         
-        
-              
-    #------------------------------------------------- Lb -> LcK ----------------------------------------------------#
-    
-              
-        num_lck.append(RooRealVar("num_lck_%s"%(nameDs2[i]),"num_lck", myconfigfile["num_lck"][i]*size))
-        evNum += myconfigfile["num_lck"][i]*size
-        print myconfigfile["num_lck"][i]*size
-        
-        timeandmass_lck.append(RooProdPdf("timeandmass_lck_%s"%(nameDs2[i]),"timeandmass_lck",RooArgList(timeerr_lck,
-                                                                                                         MDFitter_lck,
-                                                                                                         trueid_lck))) 
+        timeandmass_dsk.append(RooProdPdf("timeandmass_dsk_%s"%(nameDs2[i]),"timeandmass_dsk",RooArgList(timeerr_dsk,
+                                                                                                         MDFitter_dsk[i],
+                                                                                                         trueid_dsk)))
         
     #------------------------------------------------- Lb -> LcPi ----------------------------------------------------#                                       
 
@@ -1678,49 +1232,7 @@ def runBsDsKGenerator( debug, single, configName, rangeDown, rangeUp, seed , siz
                                                                                                          MDFitter_lcpi,
                                                                                                          trueid_lcpi)))
 
-        
-    #------------------------------------------------- Lb -> Dsstp ----------------------------------------------------#
-                               
-               
-        num_dsstp.append(RooRealVar("num_dsstp_%s"%(nameDs2[i]),"num_dsstp", myconfigfile["num_dsstp"][i]*size))
-        evNum += myconfigfile["num_dsstp"][i]*size
-        print myconfigfile["num_dsstp"][i]*size
-
-        #The Lb->Dsp, Lb->Dsstp - mass
-        massD_dsstp.append(massD_signal[i])
-                               
-                               
-        #The Lb->Dsp, Lb->Dsstp - MDFitter
-        MDFitter_dsstp.append(RooProdPdf("MDFitter_dsstp_%s"%(nameDs2[i]),"MDFitter_dsstp",
-                                           RooArgList(massB_dsstp, massD_dsstp[i], PIDK_dsstp)))
-        
-                      
-        timeandmass_dsstp.append(RooProdPdf("timeandmass_dsstp_%s"%(nameDs2[i]),"timeandmass_dsstp",RooArgList(timeerr_dsstp,
-                                                                                                               MDFitter_dsstp[i],
-                                                                                                               trueid_dsstp)))
-        
-
-    #------------------------------------------------- Lb -> Dsp ----------------------------------------------------#
-
-
-        num_dsp.append(RooRealVar("num_dsp_%s"%(nameDs2[i]),"num_dsp", myconfigfile["num_dsp"][i]*size))
-        evNum += myconfigfile["num_dsp"][i]*size
-        print myconfigfile["num_dsp"][i]*size
-
-        #The Lb->Dsp - mass
-        massD_dsp.append(massD_signal[i])
-    
-    
-        #The Lb->Dsp
-        MDFitter_dsp.append(RooProdPdf("MDFitter_dsp_%s"%(nameDs2[i]),"MDFitter_dsp",
-                                       RooArgList(massB_dsp, massD_dsp[i], PIDK_dsp)))
-        
-        
-        timeandmass_dsp.append(RooProdPdf("timeandmass_dsp_%s"%(nameDs2[i]),"timeandmass_dsp",RooArgList(timeerr_dsp,
-                                                                                                         MDFitter_dsp[i],
-                                                                                                         trueid_dsp)))
-        
-         
+      
     
     #------------------------------------------------- Combinatorial ----------------------------------------------------#
 
@@ -1730,8 +1242,10 @@ def runBsDsKGenerator( debug, single, configName, rangeDown, rangeUp, seed , siz
         print myconfigfile["num_combo"][i]*size
 
         #The combinatorics - mass B
-        cBVar.append(RooRealVar("CombBkg_slope_Bs_%s"%(nameDs2[i]),"CombBkg_slope_Bs", myconfigfile["cB"][i]))
-        massB_combo.append(RooExponential("massB_combo_%s","massB_combo",massVar_B, cBVar[i]))
+        cB1Var.append(RooRealVar("CombBkg_slope_Bs1_%s"%(nameDs2[i]),"CombBkg_slope_Bs1", myconfigfile["cB1"][i]))
+        cB2Var.append(RooRealVar("CombBkg_slope_Bs2_%s"%(nameDs2[i]),"CombBkg_slope_Bs2", myconfigfile["cB2"][i]))
+        fracBsComb.append(RooRealVar("CombBkg_fracBsComb_%s"%(nameDs2[i]), "CombBkg_fracBsComb",  myconfigfile["fracBsComb"][i]))
+        massB_combo.append(Bs2Dsh2011TDAnaModels.ObtainComboBs(massVar_B, cB1Var[i], cB2Var[i], fracBsComb[i], nameDs[i], debug))
         
         #The combinatorics - mass D
         cDVar.append(RooRealVar("CombBkg_slope_Ds_%s"%(nameDs2[i]),"CombBkg_slope_Ds", myconfigfile["cD"][i]))
@@ -1740,29 +1254,12 @@ def runBsDsKGenerator( debug, single, configName, rangeDown, rangeUp, seed , siz
     
         #The combinatorics - MDFitter
         MDFitter_combo.append(RooProdPdf("MDFitter_combo_%s"%(nameDs2[i]),"MDFitter_combo",RooArgList(massB_combo[i], massD_combo[i], PIDK_combo)))
-        
+
               
         timeandmass_combo.append(RooProdPdf("timeandmass_combo_%s"%(nameDs2[i]),"timeandmass_combo",RooArgList(timeerr_combo,
                                                                                                                MDFitter_combo[i],
                                                                                                                trueid_combo))) 
         
-        
-        #------------------------------------------------- Low mass K ----------------------------------------------------#
-    
-                
-        #The low mass - mass D
-        massD_lm1.append(massD_signal[i])
-                     
-        #The low mass - MDFitter
-        MDFitter_lm1.append(RooProdPdf("MDFitter_lm1_%s"%(nameDs2[i]),"MDFitter_lm1",RooArgList(massB_lm1, massD_lm1[i], PIDK_lm1)))
-        
-        num_lm1.append( RooRealVar("num_lm1_%s"%(nameDs2[i]),"num_lm1",myconfigfile["num_lm1"][i]*size))
-        evNum += myconfigfile["num_lm1"][i]*size
-        print myconfigfile["num_lm1"][i]*size
-        
-        timeandmass_lm1.append(RooProdPdf("timeandmass_lm1_%s"%(nameDs2[i]),"timeandmass_lm1",RooArgList(timeerr_lm1,
-                                                                                                         MDFitter_lm1[i],
-                                                                                                         trueid_lm1))) 
      
           
     #------------------------------------------------- Low mass Pi ----------------------------------------------------#
@@ -1770,14 +1267,14 @@ def runBsDsKGenerator( debug, single, configName, rangeDown, rangeUp, seed , siz
         num_dsstpi.append(RooRealVar("num_dsstpi_%s"%(nameDs2[i]),"num_dsstpi", myconfigfile["num_dsstpi"][i]*size))
         evNum += myconfigfile["num_dsstpi"][i]*size
         print myconfigfile["num_dsstpi"][i]*size
-
-        #The low mass - mass D
+                          
+                          #The low mass - mass D
         massD_dsstpi.append(massD_signal[i])
-             
-                
-        #The low mass - MDFitter
+        PIDK_dsstpi.append(PIDK_signal[i])
+                          
+                          #The low mass - MDFitter
         MDFitter_dsstpi.append(RooProdPdf("MDFitter_dsstpi_%s"%(nameDs[i]),"MDFitter_dsstpi",
-                                          RooArgList(massB_dsstpi, massD_dsstpi[i], PIDK_dsstpi)))
+                                          RooArgList(massB_dsstpi, massD_dsstpi[i], PIDK_dsstpi[i])))
         
               
         timeandmass_dsstpi.append(RooProdPdf("timeandmass_dsstpi_%s"%(nameDs2[i]),"timeandmass_dsstpi",RooArgList(timeerr_dsstpi,
@@ -1785,48 +1282,40 @@ def runBsDsKGenerator( debug, single, configName, rangeDown, rangeUp, seed , siz
                                                                                                                   trueid_dsstpi)))
                                
     #------------------------------------------------- Low mass Pi ----------------------------------------------------#
-
+        '''
         num_dsrho.append(RooRealVar("num_dsrho_%s"%(nameDs2[i]),"num_dsrho", myconfigfile["num_dsrho"][i]*size))
         evNum += myconfigfile["num_dsrho"][i]*size
         print myconfigfile["num_dsrho"][i]*size
 
         #The low mass - mass D
         massD_dsrho.append(massD_signal[i])
-
+        PIDK_dsrho.append(PIDK_signal[i])                  
 
         #The low mass - MDFitter
         MDFitter_dsrho.append(RooProdPdf("MDFitter_dsrho_%s"%(nameDs[i]),"MDFitter_dsrho",
-                                         RooArgList(massB_dsrho, massD_dsrho[i], PIDK_dsrho)))
+                                         RooArgList(massB_dsrho, massD_dsrho[i], PIDK_dsrho[i])))
 
 
         timeandmass_dsrho.append(RooProdPdf("timeandmass_dsrho_%s"%(nameDs2[i]),"timeandmass_dsrho",RooArgList(timeerr_dsrho,
                                                                                                                MDFitter_dsrho[i],
                                                                                                                trueid_dsrho)))
+       '''
         print "partial total num of events: ",evNum
     #------------------------------------------------- Total bkg ----------------------------------------------------#
     
         #Total
         pdfList = RooArgList(timeandmass_signal[i],
-                             timeandmass_dk[i],timeandmass_dsk[i],timeandmass_dspi[i],
-                             timeandmass_lck[i])
-        pdfList.add(timeandmass_dsp[i])
-        pdfList.add(timeandmass_dsstp[i])
+                             timeandmass_dpi[i],timeandmass_dsk[i], timeandmass_lcpi[i])
         pdfList.add(timeandmass_combo[i])
-        pdfList.add(timeandmass_lm1[i])
         pdfList.add(timeandmass_dsstpi[i])
-        pdfList.add(timeandmass_dsrho[i])
-        pdfList.add(timeandmass_dpi[i])
-        pdfList.add(timeandmass_lcpi[i])
+        pdfList.add(timeandmass_dspi[i])
+        #pdfList.add(timeandmass_dsrho[i])
 
-        numList = RooArgList(num_signal[i], num_dk[i], num_dsk[i], num_dspi[i], num_lck[i])
-        numList.add(num_dsp[i])
-        numList.add(num_dsstp[i])
+        numList = RooArgList(num_signal[i], num_dpi[i], num_dsk[i], num_lcpi[i])
         numList.add(num_combo[i])
-        numList.add(num_lm1[i])
         numList.add(num_dsstpi[i])
-        numList.add(num_dsrho[i])
-        numList.add(num_dpi[i])
-        numList.add(num_lcpi[i])
+        numList.add(num_dspi[i])
+        #numList.add(num_dsrho[i])
         
         total_pdf.append(RooAddPdf("total_pdf_%s"%(nameDs2[i]),"total_pdf", pdfList, numList))
                                    
@@ -1858,7 +1347,7 @@ def runBsDsKGenerator( debug, single, configName, rangeDown, rangeUp, seed , siz
             #gendata.Print("v")
             #print "Data name: ",gendata.GetName()
 
-            gendata.SetName("dataSetBsDsK_both_"+nameDs2[j])
+            gendata.SetName("dataSetBsDsPi_both_"+nameDs2[j])
 
             #print "Data name: ",gendata.GetName()
             #gendata.Print("v")
@@ -1909,38 +1398,37 @@ def runBsDsKGenerator( debug, single, configName, rangeDown, rangeUp, seed , siz
             l1.SetLineColor(kRed-7)
             l1.SetLineWidth(4)
             l1.SetLineStyle(kDashed)
-            legend.AddEntry(l1, "Signal B_{s}#rightarrow D_{s}K", "L")
-            
+            legend.AddEntry(l1, "Signal B_{s}#rightarrow D_{s}#pi", "L")
+
             l2 = TLine()
-            l2.SetLineColor(kRed)
+            l2.SetLineColor(kOrange-2)
             l2.SetLineWidth(4)
-            legend.AddEntry(l2, "B #rightarrow DK", "L")
-            
+            legend.AddEntry(l2, "B #rightarrow D#pi", "L")
+
             l3 = TLine()
-            l3.SetLineColor(kGreen-3)
+            l3.SetLineColor(kRed)
             l3.SetLineWidth(4)
-            legend.AddEntry(l3, "#Lambda_{b}#rightarrow #Lambda_{c}K", "L")
-            
+            legend.AddEntry(l3, "#Lambda_{b}#rightarrow #Lambda_{c}#pi", "L")
+
             l4 = TLine()
-            l4.SetLineColor(kBlue-6)
+            l4.SetLineColor(kBlue-10)
             l4.SetLineWidth(4)
             legend.AddEntry(l4, "B_{s}#rightarrow D_{s}^{(*)}(#pi,#rho)", "L")
 
             l5 = TLine()
-            l5.SetLineColor(kOrange)
+            l5.SetLineColor(kGreen+3)
             l5.SetLineWidth(4)
-            legend.AddEntry(l5, "#Lambda_{b} #rightarrow D_{s}^{(*)}p", "L")
-            
+            legend.AddEntry(l5, "B_{s}#rightarrow D_{s}K", "L")
+
             l6 = TLine()
-            l6.SetLineColor(kBlue-10)
+            l6.SetLineColor(kMagenta-2)
             l6.SetLineWidth(4)
-            legend.AddEntry(l6, "B_{(d,s)}#rightarrow D^{(*)}_{s}K^{(*)}", "L")
-            
+            legend.AddEntry(l6, "B_{d}#rightarrow D_{s}#pi", "L")
+
             l7 = TLine()
-            l7.SetLineColor(kMagenta-2)
+            l7.SetLineColor(kBlue-6)
             l7.SetLineWidth(4)
             legend.AddEntry(l7, "Combinatorial", "L")
-
             
             gStyle.SetOptLogy(1)
             canv_Bmass = TCanvas("canv_Bmass","canv_Bmass", 1200, 1000)
@@ -1961,7 +1449,7 @@ def runBsDsKGenerator( debug, single, configName, rangeDown, rangeUp, seed , siz
             '''
             frame_Bmass.Draw()
             legend.Draw("same")
-            canv_Bmass.Print("DsK_Toys_Bmass.pdf") 
+            canv_Bmass.Print("DsPi_Toys_Bmass.pdf") 
 
             gStyle.SetOptLogy(1)
             canv_Dmass = TCanvas("canv_Dmass","canv_Dmass",1200, 1000)
@@ -1982,7 +1470,7 @@ def runBsDsKGenerator( debug, single, configName, rangeDown, rangeUp, seed , siz
             '''
             frame_Dmass.Draw()
             legend.Draw("same")
-            canv_Dmass.Print("DsK_Toys_Dmass.pdf")
+            canv_Dmass.Print("DsPi_Toys_Dmass.pdf")
 
             gStyle.SetOptLogy(1)
             canv_PIDK = TCanvas("canv_PIDK","canv_PIDK", 1200, 1000)
@@ -2003,7 +1491,7 @@ def runBsDsKGenerator( debug, single, configName, rangeDown, rangeUp, seed , siz
             '''
             frame_PIDK.Draw()
             legend.Draw("same")
-            canv_PIDK.Print("DsK_Toys_PIDK.pdf")
+            canv_PIDK.Print("DsPi_Toys_PIDK.pdf")
 
             gStyle.SetOptLogy(0)
             canv_Bmistag = TCanvas("canv_Bmistag","canv_Btag", 1200, 1000)
@@ -2011,7 +1499,7 @@ def runBsDsKGenerator( debug, single, configName, rangeDown, rangeUp, seed , siz
             frame_Bmistag.SetTitle('')
             data.plotOn(frame_Bmistag,RooFit.Binning(50))
             frame_Bmistag.Draw()
-            canv_Bmistag.Print("DsK_Toys_Bmistag.pdf")
+            canv_Bmistag.Print("DsPi_Toys_Bmistag.pdf")
 
             gStyle.SetOptLogy(0)
             canv_Bterr = TCanvas("canv_Bterr","canv_Bterr", 1200, 1000)
@@ -2020,7 +1508,7 @@ def runBsDsKGenerator( debug, single, configName, rangeDown, rangeUp, seed , siz
             data.plotOn(frame_Bterr,RooFit.Binning(100))
             #total_pdf.plotOn(frame_Bterr)
             frame_Bterr.Draw()
-            canv_Bterr.Print("DsK_Toys_TimeErrors.pdf")
+            canv_Bterr.Print("DsPi_Toys_TimeErrors.pdf")
 
             obs = data.get()
             tagFName = TString(tagdec)+TString("_idx")
@@ -2031,7 +1519,7 @@ def runBsDsKGenerator( debug, single, configName, rangeDown, rangeUp, seed , siz
             frame_Btag.SetTitle('')
             data.plotOn(frame_Btag,RooFit.Binning(5))
             frame_Btag.Draw()
-            canv_Btag.Print("DsK_Toys_Tag.pdf")
+            canv_Btag.Print("DsPi_Toys_Tag.pdf")
             
             idFName = TString(charge)+TString("_idx")
             idF = obs.find(idFName.Data())
@@ -2041,7 +1529,7 @@ def runBsDsKGenerator( debug, single, configName, rangeDown, rangeUp, seed , siz
             frame_Bid.SetTitle('')
             data.plotOn(frame_Bid,RooFit.Binning(2))
             frame_Bid.Draw()
-            canv_Bid.Print("DsK_Toys_Charge.pdf")
+            canv_Bid.Print("DsPi_Toys_Charge.pdf")
             
             
             gStyle.SetOptLogy(1)
@@ -2057,11 +1545,11 @@ def runBsDsKGenerator( debug, single, configName, rangeDown, rangeUp, seed , siz
             #total_pdf.plotOn(frame_Btime,RooFit.Components("time_lm"),RooFit.LineStyle(1),RooFit.LineColor(6))
             #total_pdf.plotOn(frame_Btime,RooFit.Components("time_combo"),RooFit.LineStyle(1),RooFit.LineColor(1))
             frame_Btime.Draw()
-            canv_Btime.Print("DsK_Toys_Btime.pdf")
+            canv_Btime.Print("DsPi_Toys_Btime.pdf")
         if not single :
-            workout.writeToFile(dir+"DsK_Toys_Work_"+str(i)+".root")
+            workout.writeToFile(dir+"DsPi_Toys_Work_"+str(i)+".root")
         else :
-            workout.writeToFile("Data_Toys_Single_Work_DsK.root")
+            workout.writeToFile("Data_Toys_Single_Work_DsPi.root")
 
         del workout
         
@@ -2093,7 +1581,7 @@ parser.add_option( '-e','--end',
 
 parser.add_option( '--configName',
                    dest = 'configName',
-                   default = 'Bs2DsKConfigForGenerator5M')
+                   default = 'Bs2DsPiConfigForGenerator5M')
 
 parser.add_option( '--seed',
                    dest = 'seed',
@@ -2105,7 +1593,7 @@ parser.add_option( '--size',
 
 parser.add_option( '--dir',
                    dest = 'dir',
-                   default = '/afs/cern.ch/work/a/adudziak/public/Bs2DsKToys/Gamma70_5M_2T_MD/')
+                   default = '/afs/cern.ch/work/a/adudziak/public/Bs2DsPiToys/Gamma70_5M_2T_MD/')
 
 
 # -----------------------------------------------------------------------------

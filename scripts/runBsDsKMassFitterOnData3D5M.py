@@ -260,19 +260,7 @@ def runBsDsKMassFitterOnData( debug, sample, mVar, mdVar, tVar, terrVar, tagVar,
                                   RooFit.Import(sm[2].Data(),data[2]),
                                   RooFit.Import(sm[3].Data(),data[3]),
                                   RooFit.Import(sm[4].Data(),data[4]))
-            
 
-        else:
-            s = [sampleTS, sampleTS]
-            m = [modeTS]
-            sm.append(s[0]+t+m[0])
-            data.append(GeneralUtils.GetDataSet(workspaceToys,datasetTS+TString("toys"),debug))
-            nEntries.append(data[0].numEntries())
-
-            sam.defineType(sm[0].Data())
-            combData = RooDataSet("combData","combined data",RooArgSet(observables),
-                                  RooFit.Index(sam),
-                                  RooFit.Import(sm[0].Data(),data[0]))
             
         countSig   = [0,0,0,0,0]
         countCombo = [0,0,0,0,0]
@@ -714,13 +702,13 @@ def runBsDsKMassFitterOnData( debug, sample, mVar, mdVar, tVar, terrVar, tagVar,
             AllSig[0]   += countSig[i]
             AllSig[1]   += floatpar.find(nameSig.Data()).getValV()
             AllDK[0]    += countBDK[i]
-            AllDK[1]    += myconfigfile["nBdDKEvts"][i*2]+myconfigfile["nBdDKEvts"][i*2+1]
+            AllDK[1]    += myconfigfile["nBdDKEvts"][i*2]+myconfigfile["nBdDKEvts"][i*2+1]+myconfigfile["nBdDPiEvts"][i*2]+myconfigfile["nBdDPiEvts"][i*2+1]
             AllLMK[0]   += countBDsK[i]+countKstK[i]
             AllLMK[1]   += floatpar.find(nameBs2DsDssKKst.Data()).getVal()
             #AllDsPi[0]  += countDsPi[i]
             #AllDsPi[1]  += floatpar.find(nameBs2DsPi.Data()).getValV()
             AllLcK[0]   += countLcK[i]
-            AllLcK[1]   += myconfigfile["nLbLcKEvts"][i*2] + myconfigfile["nLbLcKEvts"][i*2+1]
+            AllLcK[1]   += myconfigfile["nLbLcKEvts"][i*2] + myconfigfile["nLbLcKEvts"][i*2+1]+myconfigfile["nLbLcPiEvts"][i*2] + myconfigfile["nLbLcPiEvts"][i*2+1]
             #AllDsp[0]   += countDsp[i]
             #AllDsp[1]   += floatpar.find(nameLb2DsDsstp.Data()).getValV()
             AllLMPi[0]  += countRhoPi[i]+countDsPi[i]+countDsp[i]
@@ -729,12 +717,15 @@ def runBsDsKMassFitterOnData( debug, sample, mVar, mdVar, tVar, terrVar, tagVar,
             AllCombo[1] += floatpar.find(nameCombBkg.Data()).getValV()
             
             print "Number of %s signal events: generated %d, fitted %d"%(m[i], countSig[i], floatpar.find(nameSig.Data()).getValV())
-            print "Number of %s B->DK events: generated %d, fitted %d"%(m[i],countBDK[i], myconfigfile["nBdDKEvts"][i*2]+myconfigfile["nBdDKEvts"][i*2+1])
+            print "Number of %s B->DK events: generated %d, fitted %d"%(m[i],countBDK[i], 
+                                                                        myconfigfile["nBdDKEvts"][i*2]+myconfigfile["nBdDKEvts"][i*2+1]
+                                                                        +myconfigfile["nBdDPiEvts"][i*2]+myconfigfile["nBdDPiEvts"][i*2+1])
             print "Number of %s Bd->DsK, Bs->DsK* events: generated %d, fitted %d"%(m[i],countBDsK[i]+countKstK[i],
                                                                                     floatpar.find(nameBs2DsDssKKst.Data()).getValV())
             #print "Number of %s Bs->DsPi events: generated %d, fitted %d"%(m[i],countDsPi[i], floatpar.find(nameBs2DsPi.Data()).getValV())
             print "Number of %s Lb->LcK events: generated %d, fitted %d"%(m[i],countLcK[i],
-                                                                          myconfigfile["nLbLcKEvts"][i*2] + myconfigfile["nLbLcKEvts"][i*2+1])
+                                                                          myconfigfile["nLbLcKEvts"][i*2] + myconfigfile["nLbLcKEvts"][i*2+1]
+                                                                          +myconfigfile["nLbLcPiEvts"][i*2] + myconfigfile["nLbLcPiEvts"][i*2+1])
             #print "Number of %s Lb->Dsp,Dsstp events: generated %d, fitted %d"%(m[i],countDsp[i], floatpar.find(nameLb2DsDsstp.Data()).getValV())
             print "Number of %s Bs->DsstPi, DsRho events: generated %d, fitted %d"%(m[i],countRhoPi[i]+countDsPi[i]+countDsp[i],
                                                                                     floatpar.find(nameBs2DsDsstPiRho.Data()).getValV() )

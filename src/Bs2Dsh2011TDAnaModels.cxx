@@ -1,5 +1,3 @@
-
-
 // ROOT and RooFit includes
 #include "RooFormulaVar.h"
 #include "RooAddPdf.h"
@@ -937,6 +935,306 @@ namespace Bs2Dsh2011TDAnaModels {
     CheckPDF( pdf_combBkg_Ds, debug);
     return pdf_combBkg_Ds;
   }
+
+
+
+
+  //===============================================================================
+  // Background 2D model for Bs->DsPi (Ds--> HHHPi0) mass fitter.
+  //===============================================================================
+  RooAbsPdf* build_Bs2DsPi_BKG_HHHPi0( RooAbsReal& mass,
+					 RooAbsReal& massDs,
+					 RooWorkspace* work,
+					 RooWorkspace* workInt,
+					 RooAbsPdf* pdf_Bd2DsPi,
+					 TString &samplemode,
+					 Int_t dim, 
+					 bool debug
+					 ){
+    if (debug == true)
+      {
+        cout<<"------------------------------------"<<endl;
+	cout<<"=====> Build background model BsDsPi"<<endl;
+        cout<<"------------------------------------"<<endl;
+      }
+
+    TString nCombBkgName = "nCombBkg_"+samplemode+"_Evts";
+    RooRealVar* nCombBkgEvts = GetObservable(workInt, nCombBkgName, debug);
+
+    TString nBs2DsDsstPiRhoName = "nBs2DsDsstPiRho_"+samplemode+"_Evts";
+    RooRealVar* nBs2DsDsstPiRhoEvts = GetObservable(workInt, nBs2DsDsstPiRhoName, debug);
+
+    TString nBd2DPiName = "nBd2DPi_"+samplemode+"_Evts";
+    RooRealVar*  nBd2DPiEvts = GetObservable(workInt, nBd2DPiName, debug);
+
+    TString nLb2LcPiName = "nLb2LcPi_"+samplemode+"_Evts";
+    RooRealVar* nLb2LcPiEvts =  GetObservable(workInt, nLb2LcPiName, debug);
+
+    TString nBd2DsstPiName = "nBd2DsstPi_"+samplemode+"_Evts";
+    RooRealVar*  nBd2DsstPiEvts = GetObservable(workInt, nBd2DsstPiName, debug);
+    
+    TString nBd2DsstRhoName = "nBd2DsstRho_"+samplemode+"_Evts";
+    RooRealVar*  nBd2DsstRhoEvts = GetObservable(workInt, nBd2DsstRhoName, debug);
+
+    //TString nBs2DsstRhoName = "nBs2DsstRho_"+samplemode+"_Evts";
+    //RooRealVar*  nBs2DsstRhoEvts = GetObservable(workInt, nBs2DsstRhoName, debug);
+
+    //TString nBd2DstPiName = "nBd2DstPi_"+samplemode+"_Evts";
+    //RooRealVar*  nBd2DstPiEvts = GetObservable(workInt, nBd2DstPiName, debug);
+    
+    //TString nBd2DRhoName = "nBd2DRho_"+samplemode+"_Evts";
+    //RooRealVar*  nBd2DRhoEvts = GetObservable(workInt, nBd2DRhoName, debug);
+
+    TString g1_f1_Name = "g1_f1_frac";
+    RooRealVar* g1_f1 = GetObservable(workInt, g1_f1_Name, debug);
+
+    TString Mode = CheckDMode(samplemode,debug);
+    if ( Mode == "" ) { Mode = CheckKKPiMode(samplemode, debug); }
+
+    TString cB1VarName = "CombBkg_slope_Bs1_"+Mode;
+    RooRealVar* cB1Var = GetObservable(workInt, cB1VarName, debug);
+    
+    //TString cB2VarName = "CombBkg_slope_Bs2_"+Mode;
+    //RooRealVar* cB2Var = GetObservable(workInt, cB2VarName, debug);
+
+    RooRealVar* cDVar = NULL;
+    if (dim > 1)
+      {
+	TString cDVarName = "CombBkg_slope_Ds_"+Mode;
+	cDVar =GetObservable(workInt, cDVarName, debug);
+      }
+
+    //TString fracBsCombName = "CombBkg_fracBsComb_"+Mode;
+    //RooRealVar* fracBsComb =GetObservable(workInt, fracBsCombName, debug);
+
+    RooRealVar* fracDsComb = NULL;
+    if (dim>1)
+      {
+	TString fracDsCombName = "CombBkg_fracDsComb_"+Mode;
+	fracDsComb =GetObservable(workInt, fracDsCombName, debug);
+      }
+    
+    RooRealVar* fracPIDComb = NULL;
+    if ( dim > 2)
+      {
+	TString fracPIDCombName = "CombBkg_fracPIDKComb";
+	fracPIDComb =GetObservable(workInt, fracPIDCombName, debug);
+      }
+    
+    TString lumRatioName = "lumRatio";
+    RooRealVar* lumRatio =GetObservable(workInt, lumRatioName, debug);
+
+    RooAbsPdf* pdf_SignalDs = NULL;
+    if (dim>1)
+      {
+	TString signalDsName = "sigDs_"+samplemode;
+	pdf_SignalDs = GetRooAbsPdfFromWorkspace(workInt, signalDsName, debug);
+	CheckPDF(pdf_SignalDs, debug);
+      }
+                              
+    // ------------------------------------------ Read BdDsPi ----------------------------------------------------//
+    if (debug == true){
+      cout<<"-------------------------- Read BdDsPi -------------------------------"<<endl;
+      //if( pdf_BdDsPi != NULL ) { cout<<"Read "<<pdf_BdDsPi->GetName()<<endl;} else {cout<<"Cannot read BdDsPi pdf"<<endl; return NULL;}
+    }
+    TString name="";
+    TString m = "";
+    TString sam = CheckPolarity(samplemode,debug);
+
+    RooAbsPdf* pdf_Bd2DsPi_PIDK = NULL;
+    m = "Bs2DsPi_"+samplemode;
+    if ( dim > 2 )
+      {
+	pdf_Bd2DsPi_PIDK = ObtainPIDKShape(work, m, sam, *lumRatio, true, debug);
+      }
+    RooAbsPdf* pdf_Bd2DsPi_Ds = NULL;
+    if (dim > 1)
+      {
+	pdf_Bd2DsPi_Ds = pdf_SignalDs;
+      }
+
+    RooProdPdf* pdf_Bd2DsPi_Tot = NULL;
+    m = "Bd2DsPi";
+    pdf_Bd2DsPi_Tot = GetRooProdPdfDim(m, samplemode, pdf_Bd2DsPi, pdf_Bd2DsPi_Ds, pdf_Bd2DsPi_PIDK, dim, debug  );
+
+    // -------------------------------- Create Combinatorial Background --------------------------------------------//
+   
+    if (debug == true) cout<<"---------------  Create combinatorial background PDF -----------------"<<endl;
+      
+    RooAbsPdf* pdf_combBkg = NULL;
+    //pdf_combBkg = ObtainComboBs(mass, *cB1Var, *cB2Var, *fracBsComb, Mode, debug);
+    pdf_combBkg = new RooExponential( name.Data(), "Combinatorial background PDF in mass", mass, *cB1Var);
+    
+    RooAddPdf* pdf_combBkg_Ds = NULL;
+    if ( dim > 1)
+      {
+	pdf_combBkg_Ds = ObtainComboDs(massDs, *cDVar, *fracDsComb, pdf_SignalDs, Mode, debug); 
+      }
+
+    RooAbsPdf* pdf_combBkg_PIDK1 = NULL;
+    RooAbsPdf* pdf_combBkg_PIDK2 = NULL;
+    RooAddPdf* pdf_combBkg_PIDK = NULL;
+
+    if (dim >2)
+      {
+	m = "Comb";
+	pdf_combBkg_PIDK1 = ObtainPIDKShape(work, m, sam, *lumRatio, false, debug);
+	m = "CombK";
+	pdf_combBkg_PIDK2 = ObtainPIDKShape(work, m, sam, *lumRatio, false, debug);
+	
+	name = "ShapePIDKAll_Comb_"+samplemode;
+	pdf_combBkg_PIDK = new RooAddPdf( name.Data(),
+					  name.Data(),
+					  RooArgList(*pdf_combBkg_PIDK1,*pdf_combBkg_PIDK2), *fracPIDComb);
+	CheckPDF(pdf_combBkg_PIDK,debug);
+      }
+
+    RooProdPdf* pdf_combBkg_Tot = NULL;
+    m = "CombBkg";
+    pdf_combBkg_Tot = GetRooProdPdfDim(m, samplemode, pdf_combBkg, pdf_combBkg_Ds, pdf_combBkg_PIDK, dim, debug  );
+
+    RooExtendPdf* epdf_combBkg   = NULL;
+    name = "CombBkgEPDF_m_"+samplemode;
+    epdf_combBkg = new RooExtendPdf( name.Data() , pdf_combBkg   -> GetTitle(), *pdf_combBkg_Tot  , *nCombBkgEvts   );
+    CheckPDF(epdf_combBkg, debug);
+
+    
+    // --------------------------------- Read PDFs from Workspace -------------------------------------------------//
+
+    if (debug == true) cout<<endl;
+    if (debug == true) cout<<"---------------  Read PDF's from the workspace -----------------"<<endl;
+    
+    RooProdPdf* pdf_Bd2DPi_Tot = NULL;
+    m = "Bd2Dpi";
+    pdf_Bd2DPi_Tot =  ObtainRooProdPdfForMDFitter(work, m, sam, *lumRatio, NULL, dim, debug);
+
+    RooExtendPdf* epdf_Bd2DPi    = NULL;
+    name = "Bd2DPiEPDF_m_"+samplemode;
+    epdf_Bd2DPi = new RooExtendPdf( name.Data(),pdf_Bd2DPi_Tot->GetTitle(), *pdf_Bd2DPi_Tot, *nBd2DPiEvts);
+    CheckPDF(epdf_Bd2DPi, debug);
+
+    //-----------------------------------------//
+
+    RooProdPdf* pdf_Bd2DsstPi_Tot = NULL;
+    m = "Bd2Dsstpi";
+    pdf_Bd2DsstPi_Tot =  ObtainRooProdPdfForMDFitter(work, m, sam, *lumRatio, pdf_SignalDs, dim, debug);
+
+    RooExtendPdf* epdf_Bd2DsstPi = NULL;
+    name = "Bd2DsstPiEPDF_m_"+samplemode;
+    epdf_Bd2DsstPi = new RooExtendPdf(name.Data() , pdf_Bd2DsstPi_Tot->GetTitle(), *pdf_Bd2DsstPi_Tot, *nBd2DsstPiEvts );
+    CheckPDF(epdf_Bd2DsstPi, debug);
+
+    //-----------------------------------------//
+    /*
+    RooProdPdf* pdf_Bd2DsstRho_Tot = NULL;
+    m = "Bd2Dsstrho";
+    pdf_Bd2DsstRho_Tot =  ObtainRooProdPdfForMDFitter(work, m, sam, *lumRatio, pdf_SignalDs, dim, debug);
+
+    RooExtendPdf* epdf_Bd2DsstRho = NULL;
+    name = "Bd2DsstRhoEPDF_m_"+samplemode;
+    epdf_Bd2DsstRho = new RooExtendPdf(name.Data() , pdf_Bd2DsstRho_Tot->GetTitle(), *pdf_Bd2DsstRho_Tot, *nBd2DsstRhoEvts );
+    CheckPDF(epdf_Bd2DsstRho, debug);
+    */
+    //-----------------------------------------//
+    /*
+    RooProdPdf* pdf_Bs2DsstRho_Tot = NULL;
+    m = "Bs2Dsstrho";
+    pdf_Bs2DsstRho_Tot =  ObtainRooProdPdfForMDFitter(work, m, sam, *lumRatio, pdf_SignalDs, dim, debug);
+
+    RooExtendPdf* epdf_Bs2DsstRho = NULL;
+    name = "Bs2DsstRhoEPDF_m_"+samplemode;
+    epdf_Bs2DsstRho = new RooExtendPdf(name.Data() , pdf_Bs2DsstRho_Tot->GetTitle(), *pdf_Bs2DsstRho_Tot, *nBs2DsstRhoEvts );
+    CheckPDF(epdf_Bs2DsstRho, debug);
+    */
+    //-----------------------------------------//
+
+    RooProdPdf* pdf_Lb2LcPi_Tot = NULL;
+    m = "Lb2Lambdacpi";
+    pdf_Lb2LcPi_Tot =  ObtainRooProdPdfForMDFitter(work, m, sam, *lumRatio, NULL, dim, debug);
+
+    RooExtendPdf* epdf_Lb2LcPi = NULL;
+    name = "Lb2LcPiEPDF_m_"+samplemode;
+    epdf_Lb2LcPi = new RooExtendPdf(name.Data() , pdf_Lb2LcPi_Tot->GetTitle(), *pdf_Lb2LcPi_Tot, *nLb2LcPiEvts );
+    CheckPDF(epdf_Lb2LcPi, debug);
+
+    // --------------------------------- Create RooAddPdf -------------------------------------------------/
+    
+    RooAbsPdf* pdf_Bs2DsstPi = NULL;
+    RooAbsPdf* pdf_Bs2DsstPi_Ds = NULL;
+    if ( dim > 1)
+      {
+	pdf_Bs2DsstPi_Ds = pdf_SignalDs;
+      }
+
+    RooAbsPdf* pdf_Bs2DsstPi_PIDK = NULL;
+    m = "Bs2Dsstpi";
+    pdf_Bs2DsstPi = ObtainMassShape(work, m, false, *lumRatio, debug);
+    if ( dim > 2 )
+      {
+	m = "Bs2DsPi_"+samplemode;
+	pdf_Bs2DsstPi_PIDK = ObtainPIDKShape(work, m, sam, *lumRatio, true, debug);
+      }
+    
+    RooProdPdf* pdf_Bs2DsstPi_Tot = NULL;
+    pdf_Bs2DsstPi_Tot = GetRooProdPdfDim(m, samplemode, pdf_Bs2DsstPi, pdf_Bs2DsstPi_Ds, pdf_Bs2DsstPi_PIDK, dim, debug  );
+    
+    RooAddPdf* pdf_Bs2DsDsstPiRho_Tot = NULL;
+    name="PhysBkgBs2DsDsstPiPdf_m_"+samplemode+"_Tot";
+    pdf_Bs2DsDsstPiRho_Tot = new RooAddPdf( name.Data(),
+					    name.Data(),
+					    RooArgList(*pdf_Bs2DsstPi_Tot, *pdf_Bd2DsPi_Tot), //, *pdf_Bs2DsRho), //,*pdf_Bs2DsstRho),
+					    RooArgList(*g1_f1) //,g1_f2), rec
+                                        );
+    CheckPDF(pdf_Bs2DsDsstPiRho_Tot, debug);
+
+    RooExtendPdf* epdf_Bs2DsDsstPiRho   = NULL;
+    name = "Bs2DsDsstPiRhoEPDF_m_"+samplemode;
+    epdf_Bs2DsDsstPiRho = new RooExtendPdf( name.Data() , pdf_Bs2DsDsstPiRho_Tot-> GetTitle(), *pdf_Bs2DsDsstPiRho_Tot  , *nBs2DsDsstPiRhoEvts);
+    CheckPDF(epdf_Bs2DsDsstPiRho, debug);
+
+    
+    RooAbsPdf* pdf_totBkg = NULL;
+    name = "BkgEPDF_m_"+samplemode;
+    pdf_totBkg = new RooAddPdf( name.Data(), name.Data(),
+                                RooArgList(*epdf_combBkg,
+                                           *epdf_Bd2DPi,
+					   *epdf_Bs2DsDsstPiRho,
+                                           *epdf_Lb2LcPi,
+                                           *epdf_Bd2DsstPi
+                                           //*epdf_Bd2DsstRho, 
+                                           //*epdf_Bs2DsstRho 
+                                           //*epdf_Bd2DsstPi,
+                                           //*epdf_BdDsPi,
+					   ));
+					   
+    
+      if (debug == true)
+	{
+	  cout<<endl;
+	  if( pdf_totBkg != NULL ){ cout<<" ------------- CREATED TOTAL BACKGROUND PDF: SUCCESFULL------------"<<endl; }
+	  else { cout<<" ---------- CREATED TOTAL BACKGROUND PDF: FAILED ----------------"<<endl;}
+	}
+      return pdf_totBkg;
+    
+  }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
   //===============================================================================
