@@ -620,7 +620,7 @@ def runBsDsKMassFitterOnData( debug, sample,
                                 myconfigfile["cD"][i]+myconfigfile["cD"][i]*mul, 0.0))
         name = TString("CombBkg_fracDsComb_")+m[j]
         print name
-        if ( sm[i].Contains("kpipi") == true or sm[i].Contains("pipipi") == true or sm[i].Contains("hhhpi0") ):
+        if ( sm[i].Contains("kpipi") == true or sm[i].Contains("pipipi") == true ):
             fracDsComb.append(RooRealVar(name.Data(), name.Data(), myconfigfile["fracComb"][i]))
         else:
             fracDsComb.append(RooRealVar(name.Data(), name.Data(), myconfigfile["fracComb"][i], 0.0, 1.0))
