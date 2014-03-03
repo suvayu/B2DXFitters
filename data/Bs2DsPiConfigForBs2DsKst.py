@@ -71,13 +71,13 @@ def getconfig() :
     #configdict["frac"]    = [0.85102, 0.46495, 0.51567, 0.65731, 0.68870]
 
     #Bs signal shape with BKGCAT
-    configdict["sigma1_bc"]  = [17.2698] 
-    configdict["sigma2_bc"]  = [17.756] 
-    configdict["alpha1_bc"]  = [1.] 
-    configdict["alpha2_bc"]  = [-1.27596] 
-    configdict["n1_bc"]      = [0.92]
-    configdict["n2_bc"]      = [0.54]
-    configdict["frac_bc"]    = [0.579]
+    configdict["sigma1_bc"]  = [13.351] 
+    configdict["sigma2_bc"]  = [21.793] 
+    configdict["alpha1_bc"]  = [1.4748] 
+    configdict["alpha2_bc"]  = [-2.0359] 
+    configdict["n1_bc"]      = [0.87428]
+    configdict["n2_bc"]      = [0.49600]
+    configdict["frac_bc"]    = [0.44080]
 
     # ratio data/MC
     configdict["sigma1Bsfrac"] = 1.145 
@@ -100,7 +100,7 @@ def getconfig() :
     #configdict["fracDs"]    = [0.25406,  0.48465, 0.32864, 0.59958, 0.27873]
 
     #Ds signal shapes with BKGCAT
-    configdict["sigma1Ds_bc"]  = [27.81]
+    configdict["sigma1Ds_bc"]  = [25.166]
     configdict["sigma2Ds_bc"]  = [] 
     configdict["alpha1Ds_bc"]  = [] 
     configdict["alpha2Ds_bc"]  = []

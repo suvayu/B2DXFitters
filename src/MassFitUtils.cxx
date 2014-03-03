@@ -1129,13 +1129,21 @@ namespace MassFitUtils {
 
     TCut addCuts = (TCut)mdSet->GetAddMCCuts();
 
+    TCut pi0Cut= "";
+
+    if (Dmode == "hhhpi0")
+    {
+      pi0Cut= "abs(Pi0_ID)==111 && abs(Pi0_TRUEID)==111";
+    
+    }
+
     if (hypo.Contains("K"))  // consider PartReco backgrounds for BsDsK
       {
-	MCCut = MCBsIDCut&&MCCut1&&MCCut2&&P_cut&&BDTG_cut&&hypoKaon&&PT_cut&&nTr_cut&&FD_cut&&addCuts;
+	MCCut = MCBsIDCut&&MCCut1&&MCCut2&&P_cut&&BDTG_cut&&hypoKaon&&PT_cut&&nTr_cut&&FD_cut&&addCuts&&pi0Cut;
       }
     else //consider PartReco backgrounds for BsDsPi//
       {
-	MCCut = MCBsIDCut&&MCCut1&&MCCut2&&P_cut&&BDTG_cut&&hypoPion&&PT_cut&&nTr_cut&&FD_cut&&addCuts;
+	MCCut = MCBsIDCut&&MCCut1&&MCCut2&&P_cut&&BDTG_cut&&hypoPion&&PT_cut&&nTr_cut&&FD_cut&&addCuts&&pi0Cut;
       }
 
     if (debug == true )
@@ -2451,7 +2459,15 @@ namespace MassFitUtils {
 
     TCut addCuts = (TCut)mdSet->GetAddMCCuts();
 
-    cut = MCBsIDCut&&MCD&&MCB&&P_cut&&BDTG_cut&&FDCHI2&&BachHypo&&DHypo&&MCBsTRUEIDCut&&BkgCAT&&Time_cut&&addCuts;
+    TCut pi0Cut= "";
+
+    if (modeD.Contains("hhhpi0") == true)
+    {
+      pi0Cut= "abs(Pi0_ID)==111 && abs(Pi0_TRUEID)==111";
+    
+    }
+
+    cut = MCBsIDCut&&MCD&&MCB&&P_cut&&BDTG_cut&&FDCHI2&&BachHypo&&DHypo&&MCBsTRUEIDCut&&BkgCAT&&Time_cut&&addCuts&&pi0Cut;
 
     if (debug == true )
       {
