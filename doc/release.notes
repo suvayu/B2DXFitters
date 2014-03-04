@@ -3,6 +3,10 @@
 ! Responsible : Eduardo Rodrigues
 ! Purpose     : RooFit-based fitters for B -> D X
 !-----------------------------------------------------------------------------
+
+! 2014-03-04 - Manuel Tobias Schiller
+ - Rules.mk: get gccxml to work in SLC6 standalone builds
+
 ! 2014-03-04 - Manuel Tobias Schiller
  - cFit changes:
    * allow complex constraints (constrain a RooFormulaVar to a given value/error)

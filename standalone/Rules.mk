@@ -65,6 +65,8 @@
 # 	add some FreeBSD/NetBSD compatibility code
 # v0.19 2013-11-14 Manuel Schiller <manuel.schiller@nikhef.nl>
 #	better clang support, nicer formatting of error messages
+# v0.20 2014-03-04 Manuel Schiller <manuel.schiller@nikhef.nl>
+#	make GCCXML on SLC6 pick up the compiler that is being used
 #######################################################################
 
 #######################################################################
@@ -589,6 +591,39 @@ TUNEFLAGS.PathScale ?= -march=auto -OPT:Ofast -OPT:ro=3 \
     `$(ECHO) $$CMTCONFIG | $(GREP) -q slc5- && echo $(GREP) -v avx || \
     $(ECHO) $(CAT)` | $(TR) '\n' ' ')
 TUNEFLAGS.SunPro ?= -xtarget=native -xarch=native -xbuiltin -fsimple=2
+
+# make sure gccxml picks up the "right" C++ compiler ("right" is difficult to
+# get right here, gccxml has defaults which may or may not work - thanks to
+# CERN compiling everything assuming AFS to be available, and if the defaults
+# do not work, try to find a usable substitute using some kind of heuristics)
+# 
+# logic is: if unset, try gccxml's default, $(CXX), g++ in path, c++ in path,
+# /usr/bin/g++, /usr/bin/c++; take the first one that works
+ifeq ($(GCCXML_COMPILER),)
+ifeq ($(shell $(GCCXML) --print > /dev/zero 2>&1; $(ECHO) $$?),0)
+GCCXML_COMPILER=$(shell $(GCCXML) --print | $(GREP) GCCXML_COMPILER | $(CUT) -d= -f2-)
+else
+ifeq ($(shell $(GCCXML) --gccxml-compiler $(CXX) --print > /dev/zero 2>&1; $(ECHO) $$?),0)
+GCCXML_COMPILER=$(CXX)
+else
+ifeq ($(shell $(GCCXML) --gccxml-compiler $$(which g++) --print > /dev/zero 2>&1; $(ECHO) $$?),0)
+GCCXML_COMPILER=$(shell which g++)
+else
+ifeq ($(shell $(GCCXML) --gccxml-compiler $$(which c++) --print > /dev/zero 2>&1; $(ECHO) $$?),0)
+GCCXML_COMPILER=$(shell which c++)
+else
+ifeq ($(shell $(GCCXML) --gccxml-compiler /usr/bin/g++ --print > /dev/zero 2>&1; $(ECHO) $$?),0)
+GCCXML_COMPILER=/usr/bin/g++
+else
+GCCXML_COMPILER=/usr/bin/c++
+endif
+endif
+endif
+endif
+endif
+endif
+GCCXML_COMPILER:=$(GCCXML_COMPILER)
+export GCCXML_COMPILER
 
 #######################################################################
 # compiler flags
