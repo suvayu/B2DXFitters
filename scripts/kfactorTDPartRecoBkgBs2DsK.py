@@ -1,7 +1,7 @@
 #!/bin/sh
 # -*- mode: python; coding: utf-8 -*-
 # vim: ft=python:sw=4:tw=78
-# --------------------------------------------------------------------------- 
+# ---------------------------------------------------------------------------
 # coding=utf-8
 """:"
 # This part is run by the shell. It does some setup which is convenient to save
@@ -11,7 +11,7 @@
 if test -n "$CMTCONFIG" \
          -a -f $B2DXFITTERSROOT/$CMTCONFIG/libB2DXFittersDict.so \
      -a -f $B2DXFITTERSROOT/$CMTCONFIG/libB2DXFittersLib.so; then
-    # all ok, software environment set up correctly, so don't need to do 
+    # all ok, software environment set up correctly, so don't need to do
     # anything
     true
 else
@@ -174,19 +174,6 @@ Dmass_down = 1948
 Dmass_up = 1990
 
 
-def cpp_to_pylist(cpplist):
-    """Convert a C++ list (from PyROOT) to a Python list.
-
-    NB: Calling this empties the original C++ list.
-
-    """
-    pylist = []
-    for i in range(cpplist.size()):
-        pylist.append(cpplist.back())
-        cpplist.pop_back()
-    return pylist
-
-
 def get_workspace(configname, varnames, masslo, masshi, debug):
     """Get a workspace with all the datasets for partially
     reconstructed background.
@@ -228,10 +215,10 @@ def get_workspace(configname, varnames, masslo, masshi, debug):
 
     if configname.startswith('Bs2DsK'):
         hypo = TString("BsDsK")
-        ffile = TFile('dsk_treedump.root', 'recreate')        
+        ffile = TFile('dsk_treedump_mass_bin_{}_{}.root'.format(masslo, masshi), 'recreate')
     elif configname.startswith('Bs2DsPi'):
         hypo = TString("BsDsPi")
-        ffile = TFile('dspi_treedump.root', 'recreate')
+        ffile = TFile('dspi_treedump_mass_bin_{}_{}.root'.format(masslo, masshi), 'recreate')
     else:
         print 'Unknown mass hypothesis; job will crash.'
         return None
@@ -253,7 +240,79 @@ def get_workspace(configname, varnames, masslo, masshi, debug):
         print 'Dataset read from ntuples.\n', '=' * 50
         workspace.Print()
         print '=' * 50
-    return workspace
+
+    kFactor = GeneralUtils.GetObservable(workspace,TString("kfactorVar"), debug)
+    kFactor.setRange(0.80, 1.10)
+
+    if DsK:
+        names = ["Bd2DK","Bd2DPi","Lb2LcK","Lb2LcPi","Lb2Dsstp","Lb2Dsp","Bs2DsstPi","Bs2DsRho","Bs2DsPi"]
+    else:
+        names = ["Bs2DsstPi","Bs2DsK","Lb2LcPi","Bd2DPi"]
+
+    hi, lo = [], []
+    dataup, datadown = [], []
+    for mode in names:
+        dataName = "kfactor_dataset_"+mode+"_up"
+        dataup.append(GeneralUtils.GetDataSet(workspace,TString(dataName), debug))
+        dataup[i].Print("v")
+        print dataup[i].sumEntries()
+        dataName = "kfactor_dataset_" + mode + "_down"
+        datadown.append(GeneralUtils.GetDataSet(workspace,TString(dataName), debug))
+        datadown[-1].Print("v")
+        print datadown[-1].sumEntries()
+        hi.append(-2.0)
+        lo.append(2.0)
+
+    for i in range(len(names)):
+        for j in range(dataup[i].numEntries()):
+            obsKF = dataup[i].get(j)
+            kF = obsKF.find("kfactorVar")
+            kNum = kF.getVal()
+            if kNum > hi[i]:
+                hi[i] = kNum
+            if kNum < lo[i]:
+                lo[i] = kNum
+        for j in range(datadown[i].numEntries()):
+            obsKF = datadown[i].get(j)
+            kF = obsKF.find("kfactorVar")
+            kNum = kF.getVal()
+            if kNum > hi[i]:
+                hi[i] = kNum
+            if kNum < lo[i]:
+                lo[i] = kNum
+
+    print hi
+    print lo
+    maxRange = []
+    minRange = []
+    for i in range(len(names)):
+        q = hi[i] - lo[i]
+        maxRange.append(hi[i]+0.05*q)
+        minRange.append(lo[i]-0.05*q)
+    print maxRange
+    print minRange
+
+    plotSet = PlotSettings("plotSet","plotSet")
+
+    histDW = []
+    histUP = []
+    hist   = []
+    pdfKF  = []
+    lumRatio = RooRealVar("lumRatio","lumRatio",myconfigfile["lumRatio"])
+    for i in range(len(names)):
+        kFactor.setRange(minRange[i], maxRange[i])
+
+        name = "kFactor_"+names[i]+"_both"
+        pdfKF.append(GeneralUtils.CreateHistPDF(dataup[i], datadown[i], myconfigfile["lumRatio"],
+                                                kFactor, TString(name), 100, debug))
+        t = TString("both")
+        GeneralUtils.SaveTemplate(NULL, pdfKF[i], kFactor, TString(names[i]), t, plotSet, debug );
+
+    workOut = RooWorkspace("workspace","workspace")
+    for i in range(len(names)):
+        getattr(workOut,'import')(pdfKF[i])
+    workOut.Print("v")
+    return workOut
 
 
 if __name__ == "__main__":
