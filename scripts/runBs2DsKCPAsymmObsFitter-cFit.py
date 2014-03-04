@@ -1370,6 +1370,8 @@ def getMassTemplateOneMode2011Paper(
         if None != nYield: nYield = nYield.getVal()
     elif mode == 'CombBkg':
         pdf = fromws.pdf('CombBkgPDF_m_both_%s_Tot' % sname)
+        if None == pdf:
+            pdf = fromws.pdf('PhysBkgCombBkgPdf_m_both_%s_Tot' % sname)
         nYield = fromws.var('nCombBkg_both_%s_Evts' % sname)
         if None != nYield: nYield = nYield.getVal()
     else:

@@ -3,6 +3,9 @@
 ! Responsible : Eduardo Rodrigues
 ! Purpose     : RooFit-based fitters for B -> D X
 !-----------------------------------------------------------------------------
+! 2014-03-04 - Manuel Tobias Schiller
+ - adapt cFit to new MDFitter template naming conventions
+
 ! 2014-02-27 - Agnieszka Dziurda
  - Bs->DsPi Ds->HHHPi0 update, we are able to do 2D fit!
  - update MDFitter toys for DsK
