@@ -4,6 +4,12 @@
 ! Purpose     : RooFit-based fitters for B -> D X
 !-----------------------------------------------------------------------------
 ! 2014-03-04 - Manuel Tobias Schiller
+ - cFit changes:
+   * allow complex constraints (constrain a RooFormulaVar to a given value/error)
+   * adapt to new CombBkg MDFitter pdf namespaces
+   * update personalities with new BG modes, new GammaComb
+
+! 2014-03-04 - Manuel Tobias Schiller
  - adapt cFit to new MDFitter template naming conventions
 
 ! 2014-02-27 - Agnieszka Dziurda

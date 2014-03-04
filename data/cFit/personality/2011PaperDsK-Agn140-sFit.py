@@ -4,15 +4,16 @@
             'Bs2DsK',
             'Bs2DsKst',
             'Bs2DsPi', 'Bs2DsstPi', 'Bs2DsRho',
-            'Bd2DK', 'Bd2DsK',
-            'Lb2LcK', 'Lb2Dsp', 'Lb2Dsstp',
+            'Bd2DK', 'Bd2DPi', 'Bd2DsK',
+            'Lb2LcK', 'Lb2LcPi', 'Lb2Dsp', 'Lb2Dsstp',
             'CombBkg'
             ],
         'SampleCategories': [
             'nonres', 'phipi', 'kstk', 'kpipi', 'pipipi'
             ],
         'DeltaMs':                      17.768, # in ps^{-1}
-        'GammaLb':			0.702, # in ps^{-1}
+        'GammaLb':			0.700, # in ps^{-1}
+        'GammaCombBkg':			0.971, # in ps^{-1}
         'WeakPhase': {
             'Bs2DsK':           140. / 180. * pi,
             'Bs2DsstK':         70. / 180. * pi,
@@ -72,4 +73,9 @@
             'MistagCalibBbar_p0', 'MistagCalibBbar_p1', 'MistagCalibBbar_avgmistag',
             'Bs2DsKst_TagEff', 'Bs2DsKst_delta', 'Bs2DsKst_lambda', 'Bs2DsKst_phi_w',
             ],
+        'Constraints': {
+                'Bd2DPi_lambda': 0.3 * 0.0187,
+                'Bd2DPi_avgSSbar': [ '0.5*(@0+@1)', ['Bd2DPi_S', 'Bd2DPi_Sbar'], +0.046, 0.023 ],
+                'Bd2DPi_difSSbar': [ '0.5*(@0-@1)', ['Bd2DPi_S', 'Bd2DPi_Sbar'], -0.022, 0.021 ],
+                },
 }

@@ -278,12 +278,12 @@ defaultConfig = {
     'AcceptanceSplineCoeffs':   {
             # dspi data dsk mc dspi mc
             'MC': {
-                'Bs2DsK':       [ 1.86413e-01, 2.83214e-01, 7.24952e-01, 1.18847e+00, 1.33798e+00, 1.32593e+00 ],
-                'Bs2DsPi':      [ 1.93184e-01, 3.35302e-01, 7.39033e-01, 1.16141e+00, 1.29660e+00, 1.31712e+00 ],
+                'Bs2DsPi':      [ 0.179, 0.294, 0.690, 1.125, 1.245, 1.270 ],
+                'Bs2DsK':       [ 0.159, 0.271, 0.655, 1.124, 1.244, 1.296 ],
                 },
             'DATA': {
-                'Bs2DsK':       [0.14015906208588702, 0.17733499740532416, 0.6133271294786565, 1.0530772741753556, 1.2978385361715257, 1.248797501366618],
-                'Bs2DsPi':      [ 1.4525e-01, 2.0995e-01, 6.2524e-01, 1.0291e+00, 1.2577e+00, 1.2405e+00]
+                'Bs2DsPi':      [ 0.145, 0.210, 0.625, 1.029, 1.258, 1.241 ],
+                'Bs2DsK':       [ 0.128, 0.194, 0.566, 1.028, 1.258, 1.267 ],
                 }
             },
 
@@ -324,10 +324,16 @@ defaultConfig = {
             ],
     # dictionary of constrained parameters
     'Constraints': {
-            # format is 'paramname': error
-            # the parameter's value is taken to be the central value, and a
-            # Gaussian constraint with that central value and the given error
-            # is applied
+            # two possible formats:
+            # - 'paramname': error
+            #   the parameter's value is taken to be the central value, and a
+            #   Gaussian constraint with that central value and the given
+            #   error is applied
+            # - 'formulaname': [ 'formula', [ 'par1', 'par2', ... ], mean, error ]
+            #   construct a RooFormulaVar named formulaname with formula
+            #   formula, giving the arguments in the list as constructor
+            #   arguments; then use a Gaussian constraint to bring the value
+            #   of that formula to mean with an uncertainty of error
             },
 
     # mass templates
@@ -3443,22 +3449,47 @@ def getMasterPDF(config, name, debug = False):
     # apply any additional constraints
     if 'FIT' in config['Context']:
         for vname in config['Constraints']:
-            v = ws.obj(vname)
-            if (None == v or not v.InheritsFrom('RooAbsReal') or
-                    v.InheritsFrom('RooConstVar')):
-                print 'ERROR: Variable %s to constrain not found' % vname
-                return None
-            mean = WS(ws, RooConstVar('%s_mean' % vname, '%s_mean' % vname,
-                v.getVal()))
-            err = WS(ws, RooConstVar('%s_err' % vname, '%s_err' % vname,
-                config['Constraints'][vname]))
-            # re-float v (if v was set constant)
-            v.setConstant(False)
-            v.setError(err.getVal())
-            # append to list of constraints
-            constraints.append(WS(ws, RooGaussian(
-                '%s_constraint' % vname, '%s_constraint' % vname,
-                v, mean, err)))
+            constraint = config['Constraints'][vname]
+            if type(constraint) == list or type(constraint) == tuple:
+                from ROOT import RooFormulaVar
+                fvarformula = constraint[0]
+                fvarargs = constraint[1]
+                mean, sigma = constraint[2], constraint[3]
+                al = RooArgList()
+                for arg in fvarargs:
+                    al.add(ws.obj(arg))
+                del fvarargs
+                fvar = WS(ws, RooFormulaVar(vname, fvarformula, al))
+                del al
+                del fvarformula
+                mean = WS(ws, RooConstVar('%s_mean' % vname, '%s_mean' % vname,
+                    mean))
+                err = WS(ws, RooConstVar('%s_err' % vname, '%s_err' % vname,
+                    sigma))
+                constraints.append(WS(ws, RooGaussian(
+                    '%s_constraint' % vname, '%s_constraint' % vname,
+                    fvar, mean, err)))
+                del fvar
+                del mean
+                del err
+            else:
+                v = ws.obj(vname)
+                if (None == v or not v.InheritsFrom('RooAbsReal') or
+                        v.InheritsFrom('RooConstVar')):
+                    print 'ERROR: Variable %s to constrain not found' % vname
+                    return None
+                mean = WS(ws, RooConstVar('%s_mean' % vname, '%s_mean' % vname,
+                    v.getVal()))
+                err = WS(ws, RooConstVar('%s_err' % vname, '%s_err' % vname,
+                    constraint))
+                # re-float v (if v was set constant)
+                v.setConstant(False)
+                v.setError(err.getVal())
+                # append to list of constraints
+                constraints.append(WS(ws, RooGaussian(
+                    '%s_constraint' % vname, '%s_constraint' % vname,
+                    v, mean, err)))
+            del constraint
 
     constr = RooArgSet('constraints')
     for c in constraints:

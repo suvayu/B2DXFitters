@@ -17,7 +17,8 @@
             'nonres', 'phipi', 'kstk', 'kpipi', 'pipipi'
             ],
         'DeltaMs':                      17.768, # in ps^{-1}
-        'GammaLb':			0.702, # in ps^{-1}
+        'GammaLb':			0.700, # in ps^{-1}
+        'GammaCombBkg':			1.057, # in ps^{-1}
         'WeakPhase': {
             'Bs2DsK':           70. / 180. * pi,
             'Bs2DsstK':         70. / 180. * pi,
