@@ -4,6 +4,10 @@
 ! Purpose     : RooFit-based fitters for B -> D X
 !-----------------------------------------------------------------------------
 
+! 2014-03-07 - Manuel Tobias Schiller
+ - tagging toys: update to new calibration parameters and latest set of
+   templates from DsPi data
+
 ! 2014-03-04 - Manuel Tobias Schiller
  - Rules.mk: get gccxml to work in SLC6 standalone builds
 

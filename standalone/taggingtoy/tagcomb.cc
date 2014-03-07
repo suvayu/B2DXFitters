@@ -176,15 +176,15 @@ int main(int argc, char* argv[])
     };
     // we modify the true calibration (it governs what the true mistag is)
     Calibration truecalib[2] = {
-	{ 0.3919, { 0.3927 + std::atof(argv[1]), 0.9818 + std::atof(argv[2]) },
+	{ 0.3813, { 0.3834 + std::atof(argv[1]), 0.972 + std::atof(argv[2]) },
 	    { 0., 0. } },
-	{ 0.4097, { 0.4244 + std::atof(argv[3]), 1.255 + std::atof(argv[4]) },
+	{ 0.4097, { 0.4244 + std::atof(argv[3]), 1.218 + std::atof(argv[4]) },
 	    { 0., 0. } }
     };
     // but always apply the same nominal calibration before combining
     Calibration applycalib[2] = {
-	{ 0.3919, { 0.3927,  0.9818 }, { 0., 0. } },
-	{ 0.4097, { 0.4244, 1.255 }, { 0., 0. } }
+	{ 0.3813, { 0.3834, 0.972 }, { 0., 0. } },
+	{ 0.4097, { 0.4244, 1.218 }, { 0., 0. } }
     };
     // by how much to calibrate after the combination to undo the fact that
     // applycalib is off wrt. truecalib
