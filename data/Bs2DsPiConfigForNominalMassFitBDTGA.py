@@ -22,9 +22,9 @@ def getconfig() :
     configdict["lab0_TAGOMEGA_OS"]  = [0.0, 0.5]
     configdict["lab0_SS_nnetKaon_PROB"] = [0.0, 0.5]
 
-    configdict["calibration_p0"]  = [0.3927, 0.4244]
-    configdict["calibration_p1"]  = [0.9818, 1.2550]
-    configdict["calibration_av"]  = [0.3919, 0.4097]
+    configdict["calibration_p0"]  = [0.3834, 0.4244]
+    configdict["calibration_p1"]  = [0.9720, 1.2180]
+    configdict["calibration_av"]  = [0.3813, 0.4097]
                                                
     configdict["Terr"]       = [0.01,    0.1     ]
     configdict["BachCharge"] = [-1000.0, 1000.0  ]

@@ -131,7 +131,7 @@ dataName      = '../data/config_fitSignal.txt'
 
 
 #------------------------------------------------------------------------------
-def runFitSplineAcc( debug, var , mode, modeDs, spline ) :
+def runFitSplineAcc( debug, var , mode, modeDs, spline, read, fileName, workName ) :
 
     
     RooAbsData.setDefaultStorageType(RooAbsData.Tree)
@@ -198,34 +198,55 @@ def runFitSplineAcc( debug, var , mode, modeDs, spline ) :
     MDSettings.SetLumDown(0.59)
     MDSettings.SetLumUp(0.44)
     MDSettings.SetLumRatio()
-    
+
+    if modeDsTS == "HHHPi0":
+	    MDSettings.SetNotation(0)
+	    MDSettings.SetMassBVar(TString("Bs_MassConsDs_M"))
+	    MDSettings.SetMassDVar(TString("Ds_MM"))
+	    MDSettings.SetTimeVar(TString("Bs_LifetimeFit_ctau"))
+	    MDSettings.SetTerrVar(TString("Bs_LifetimeFit_ctauErr"))
+	    MDSettings.SetIDVar(TString("Bac_ID"))
+	    MDSettings.SetPIDKVar(TString("Bac_PIDK"))
+	    MDSettings.SetBDTGVar(TString(""))
+	    MDSettings.SetMomVar(TString("Bac_P"))
+	    MDSettings.SetTrMomVar(TString("Bac_PT"))
+	    MDSettings.SetTracksVar(TString("nTracks"))
+	    obsTS = TString("Bs_LifetimeFit_ctau")
     MDSettings.Print("v")
     workspace = RooWorkspace("workspace","workspace")
 
-    if modeDsTS == "All":
-        mDs = ["NonRes", "PhiPi", "KstK", "KPiPi", "PiPiPi"]
-    else:
-        mDs = [modeDsTS]
+    if read == false:
+        wD = (0.59)/(0.59+0.44)
+        wU = (0.44)/(0.59+0.44)
+        if modeDsTS == "All":
+            mDs = ["NonRes", "PhiPi", "KstK", "KPiPi", "PiPiPi"]
+            wGD = [0.9918, 0.9918, 0.9918, 1.5, 0.9322]
+            wGU = [0.9918, 0.9918, 0.9918, 1.5, 0.9322]
+        else:
+            mDs = [modeDsTS]
+            wGD = [1.0]
+            wGU = [1.0]
+        i=0
     
-    #for m in mDs:
-    #    nameTS = TString("#Signal ")+modeTS+TString(" ")+TString(m)
-    #    print nameTS
-    #    workspace = MassFitUtils.ObtainSignal(dataTS, nameTS,
-    #                                          MDSettings, modeTS, false, false, workspace, false,
-    #                                          MDSettings.GetLumDown(), MDSettings.GetLumUp(), plotSettings, debug)
-    
-    #GeneralUtils.SaveWorkspace(workspace,TString("data_acceptance_BsDsK.root"), debug)
-    #exit(0)
+        for m in mDs:
+            nameTS = TString("#Signal ")+modeTS+TString(" ")+TString(m)
+            print nameTS
+            print "global weight for down = %lf, global weight for up = %lf"%(wD*wGD[i],wU*wGU[i])
+            workspace = MassFitUtils.ObtainSignal(dataTS, nameTS,
+                                                  MDSettings, modeTS, false, false, workspace, false,
+                                                  wD*wGD[i], wU*wGU[i], plotSettings, debug)
+            i+=1
 
+        if mode == "BsDsPi":    
+            GeneralUtils.SaveWorkspace(workspace,TString("work_dspi_spline.root"), debug)
+        else:
+            GeneralUtils.SaveWorkspace(workspace,TString("work_dsk_spline.root"), debug)
     
-    #workName = "data_acceptance_"+mode+".root"
-    if mode == "BsDsPi":
-        workName = "work_dspi_pid_53005800_PIDK0_5M_BDTGA.root"
+    
     else:
-        workName = "work_dsk_pid_53005800_PIDK5_5M_BDTGA_4.root"
+        workspace = GeneralUtils.LoadWorkspace(TString(fileName), TString(workName),debug)
+        workspace.Print("v")
 
-    workspace = GeneralUtils.LoadWorkspace(TString(workName), TString("workspace"),debug)
-    workspace.Print("v")
     time = GeneralUtils.GetObservable(workspace,obsTS, debug)
     weight = GeneralUtils.GetObservable(workspace,TString("weights"), debug)
     observables = RooArgSet( time, weight )
@@ -260,16 +281,17 @@ def runFitSplineAcc( debug, var , mode, modeDs, spline ) :
         data[0].Print()
 
     dataF = RooDataSet("data_fit", "data_fit", data[0].get(), RooFit.Import(data[0]), RooFit.WeightVar("weights")) 
-    '''
-    terr = GeneralUtils.GetObservable(workspace,TString("lab0_LifetimeFit_ctauErr"), debug)
-    nameTerrPDF = "sigTimeErrorPdf_"+mode
-    terrpdf = GeneralUtils.CreateHistPDF(dataF, terr, TString(nameTerrPDF), 40, debug)
-    workout = RooWorkspace("workspace","workspace")
-    getattr(workout,'import')(terrpdf)
-    saveName = "template_MC_Terr_"+mode+".root"
-    workout.Print()
-    GeneralUtils.SaveWorkspace(workout,TString(saveName), debug)
-    '''
+    
+    #terr = GeneralUtils.GetObservable(workspace,TString("lab0_LifetimeFit_ctauErr"), debug)
+    #nameTerrPDF = "sigTimeErrorPdf_"+mode
+    #terrpdf = GeneralUtils.CreateHistPDF(dataF, terr, TString(nameTerrPDF), 40, debug)
+    #workout = RooWorkspace("workspace","workspace")
+    #getattr(workout,'import')(terrpdf)
+    #getattr(workout,'import')(dataF)
+    #saveName = "template_MC_Terr_"+mode+".root"
+    #workout.Print()
+    #GeneralUtils.SaveWorkspace(workout,TString(saveName), debug)
+    #exit(0)
     nEntriesF  = dataF.numEntries()
     print "Data set: %s with number of events: %s"%(dataF.GetName(),nEntriesF)
     #exit(0)
@@ -294,18 +316,18 @@ def runFitSplineAcc( debug, var , mode, modeDs, spline ) :
         time.setRange(0.2, 15.0)
         listCoeff = GeneralUtils.GetCoeffFromBinning(TimeBin, time)
         
-        var1 = RooRealVar("var1", "var1", 1,0, 0.0, 3.0) #1.56933e-01) #1.77520e-01, 0.0, 3.0) 
-        var2 = RooRealVar("var2", "var2", 1,0, 0.0, 3.0) #2.69653e-01) #2.89603e-01, 0.0, 3.0)  
-        var3 = RooRealVar("var3", "var3", 1,0, 0.0, 3.0) #6.48147e-01) #6.79455e-01, 0.0, 3.0)  
-        var4 = RooRealVar("var4", "var4", 1,0, 0.0, 3.0) #1.11342e+00) #1.11726e+00, 0.0, 3.0) 
-        var5 = RooRealVar("var5", "var5", 1,0, 0.0, 3.0) #1.23416e+00) #1.23189e+00, 0.0, 3.0) 
-        var6 = RooRealVar("var6", "var6", 1.0, 0.0, 3.0) 
-        var7 = RooRealVar("var7", "var7", 1,0, 0.0, 3.0) #1.28603e+00) #1.26661e+00, 0.0, 3.0)
+        var1 = RooRealVar("var1", "var1", 0.16, 0.0, 3.0) #1.56933e-01) #1.77520e-01, 0.0, 3.0) 
+        var2 = RooRealVar("var2", "var2", 0.27, 0.0, 3.0) #2.69653e-01) #2.89603e-01, 0.0, 3.0)  
+        var3 = RooRealVar("var3", "var3", 0.65, 0.0, 3.0) #6.48147e-01) #6.79455e-01, 0.0, 3.0)  
+        var4 = RooRealVar("var4", "var4", 1.11, 0.0, 3.0) #1.11342e+00) #1.11726e+00, 0.0, 3.0) 
+        var5 = RooRealVar("var5", "var5", 1.23, 0.0, 3.0) #1.23416e+00) #1.23189e+00, 0.0, 3.0) 
+        var6 = RooRealVar("var6", "var6", 1.28, 0.0, 3.0) 
+        #var7 = RooRealVar("var7", "var7", 1.0, 0.0, 3.0) #1.28603e+00) #1.26661e+00, 0.0, 3.0)
         var8 = RooRealVar("var8", "var8", 1.0)  
-        var9 = RooAddition("var9","var9", RooArgList(var7,var8), listCoeff)
+        var9 = RooAddition("var9","var9", RooArgList(var6,var8), listCoeff)
         #var9 = RooRealVar("var9","var9",1.0, 0.0, 3.0)
         
-        Var = RooArgList(var1,var2,var3,var4,var5,var7,var8,var9)
+        Var = RooArgList(var1,var2,var3,var4,var5,var6,var8,var9)
         
         spl = RooCubicSplineFun("spline", "spline", time, "splineBinning", Var)
         
@@ -436,10 +458,14 @@ def runFitSplineAcc( debug, var , mode, modeDs, spline ) :
     bin = 100
     dataF.plotOn(frame_m,RooFit.Binning( bin ))
     pdf.plotOn(frame_m, RooFit.LineColor(kBlue+3))
-    if spline:
-        spl.plotOn(frame_m, RooFit.LineColor(kRed), RooFit.Normalization(4000, RooAbsReal.Relative))
+    if modeDsTS == "HHHPi0":
+	    rel = 50
     else:
-        tacc.plotOn(frame_m, RooFit.LineColor(kRed), RooFit.Normalization(4000, RooAbsReal.Relative))
+	    rel = 4000
+    if spline:
+        spl.plotOn(frame_m, RooFit.LineColor(kRed), RooFit.Normalization(rel, RooAbsReal.Relative))
+    else:
+        tacc.plotOn(frame_m, RooFit.LineColor(kRed), RooFit.Normalization(rel, RooAbsReal.Relative))
     canvas = TCanvas("canvas", "canvas", 1200, 1000)
     canvas.cd()
     pad1 = TPad("upperPad", "upperPad", .050, .22, 1.0, 1.0)
@@ -489,7 +515,7 @@ def runFitSplineAcc( debug, var , mode, modeDs, spline ) :
     frame_p.GetYaxis().SetLabelFont( 132 )
     frame_p.GetXaxis().SetTitle('#font[12]{#tau(B_{s}) [ps]}')
 
-    pullnameTS = TString("Bdecay_Norm[lab0_LifetimeFit_ctau]")
+    pullnameTS = TString("Bdecay_Norm[")+obsTS+TString("]")
     pullname2TS = TString("h_data_fit")
     pullHist  = frame_m.pullHist(pullname2TS.Data(),pullnameTS.Data())
     frame_p.addPlotable(pullHist,"P")
@@ -556,8 +582,8 @@ def runFitSplineAcc( debug, var , mode, modeDs, spline ) :
     else:
         suf = "powlaw"
 
-    namePDF = "data_sPline_"+mode+"_"+suf+"2.pdf"    
-    nameROOT = "data_sPline_"+mode+"_"+suf+"2.root"
+    namePDF = "data_sPline_"+mode+"_"+suf+".pdf"    
+    nameROOT = "data_sPline_"+mode+"_"+suf+".root"
     canvas.SaveAs(namePDF)
     canvas.SaveAs(nameROOT)
     
@@ -597,6 +623,21 @@ parser.add_option( '--spline',
                    default = False,
                    )
 
+parser.add_option( '--read',
+                   dest = 'read',
+                   action = 'store_true',
+                   default = False,
+                   )
+parser.add_option( '--fileName',
+                   dest = 'file',
+                   default = 'work_spline.root',
+                   help = 'set observable '
+                   )
+parser.add_option( '--workName',
+                   dest = 'work',
+                   default = 'workspace',
+                   help = 'set observable '
+                   )
 
 # -----------------------------------------------------------------------------
 
@@ -611,6 +652,7 @@ if __name__ == '__main__' :
     import sys
     sys.path.append("../data/")
 
-    runFitSplineAcc( options.debug, options.var, options.mode, options.modeDs, options.spline )                                
+    runFitSplineAcc( options.debug, options.var, options.mode, options.modeDs, options.spline,
+                     options.read, options.file, options.work)                                
 # -----------------------------------------------------------------------------
                                 

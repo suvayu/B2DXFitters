@@ -546,6 +546,11 @@ namespace GeneralUtils {
       }
     }
 
+    for( unsigned int i =0; i< MCFileName.size(); i++ )
+      {
+	mode[i] = CheckMode(mode[i],debug); 
+      }
+
     unsigned kst_count(0), DsstPi_count(0), DsstK_count(0), DsRho_count(0);
 
     for( unsigned i = 0; i < MCFileName.size(); i++)
@@ -856,6 +861,35 @@ namespace GeneralUtils {
     return pdfH;
   }
 
+  RooHistPdf* CreateHistPDF(RooDataSet* dataSet1,
+                            RooDataSet* dataSet2,
+                            Double_t frac,
+                            RooRealVar* obs,
+                            TString &name,
+                            Int_t bin,
+                            bool debug)
+  {
+    if ( debug == true) std::cout<<"[INFO] ==> GeneralUtils::CreateHistPDFMC(...). Create RooHistPdf"<<std::endl;
+    TString n = "";
+    RooHistPdf* pdfH = NULL;
+
+    TH1* hist1 = NULL;
+    n = "hist1_"+name;
+    hist1 = dataSet1->createHistogram(n.Data(), *obs, RooFit::Binning(bin));
+
+    TH1* hist2 = NULL;
+    n = "hist2_"+name;
+    hist2 = dataSet2->createHistogram(n.Data(), *obs, RooFit::Binning(bin));
+
+    n = "hist_"+name;
+    TH1* hist = new TH1F(n.Data(), n.Data(), bin, obs->getMin(), obs->getMax());
+    hist->Add(hist1, hist2, frac, 1-frac);
+
+    pdfH = CreateHistPDF(hist, obs, name, bin, debug);
+
+    return pdfH;
+  }
+
   
 
   RooAbsPdf* CreateBinnedPDF(RooDataSet* dataSet,
@@ -986,7 +1020,7 @@ namespace GeneralUtils {
     m = GetMode(mode, debug );
     sm = GetSampleMode(sample, mode, false, debug);
     
-    for (int i=0; i<sm.size(); i++ )
+    for (unsigned int i=0; i<sm.size(); i++ )
       {
 	TString name = dat+sm[i]; 
 	data.push_back(GetDataSet(work,name,debug));	
@@ -999,7 +1033,7 @@ namespace GeneralUtils {
 	Int_t nEntries_dw = 0; 
 	if ( sample == "both" ) 
 	  {
-	    for(int i=0; i<m.size()*s.size(); i++ )
+	    for(unsigned int i=0; i<m.size()*s.size(); i++ )
 	      {
 		if( i%2 == 0 ) { nEntries_up += nEntries[i]; }
 		else { nEntries_dw +=  nEntries[i]; }
@@ -1008,7 +1042,7 @@ namespace GeneralUtils {
 	  }
 	else
 	  {
-	    for(int i=0; i<m.size()*s.size(); i++ )
+	    for(unsigned int i=0; i<m.size()*s.size(); i++ )
               {
 		nEntries_up += nEntries[i];
               }
@@ -1017,7 +1051,7 @@ namespace GeneralUtils {
       }
     if( merge == true )
       {
-	for (int i =0; i<s.size()*m.size(); i++)
+	for (unsigned int i =0; i<s.size()*m.size(); i++)
 	  {
 	    if(i%2 == 0) 
 	      {
@@ -1026,7 +1060,7 @@ namespace GeneralUtils {
 	  }
 		
 	sm = GetSampleMode(sample, mode, true, debug);
-	for (int i=0; i<m.size(); i++ )
+	for (unsigned int i=0; i<m.size(); i++ )
 	  {
 	    sam.defineType(sm[i].Data());
 	  }
@@ -1057,7 +1091,7 @@ namespace GeneralUtils {
       }
     else
       {
-	for (int i=0; i<sm.size(); i++ )
+	for (unsigned int i=0; i<sm.size(); i++ )
 	  {
 	    sam.defineType(sm[i].Data());
 	  }
@@ -1150,9 +1184,9 @@ namespace GeneralUtils {
     s =  GetSample(sample,debug);
     m =  GetMode(mode, debug );
     
-    for (int i=0; i<m.size(); i++ )
+    for (unsigned int i=0; i<m.size(); i++ )
       {
-        for( int j = 0; j<s.size(); j++ )
+        for(unsigned int j = 0; j<s.size(); j++ )
           {
             sm.push_back(s[j]+"_"+m[i]);
           }
@@ -1161,7 +1195,7 @@ namespace GeneralUtils {
     if( merge == true )
       {
 	TString s1 = "both";
-        for (int i=0; i<m.size(); i++ )
+        for (unsigned int i=0; i<m.size(); i++ )
           {
             sm[i] =s1+"_"+m[i];
           }
@@ -1209,7 +1243,7 @@ namespace GeneralUtils {
     m = GetMode(mode, debug );
     sm = GetSampleMode(sample, mode, false, debug);
 
-    for (int i=0; i<sm.size(); i++ )
+    for (unsigned int i=0; i<sm.size(); i++ )
       {
         TString name = dat+sm[i];
         data.push_back(GetDataSet(work,name,debug));
@@ -1218,7 +1252,7 @@ namespace GeneralUtils {
     
     if( merge == true )
       {
-        for (int i =0; i<s.size()*m.size(); i++)
+        for (unsigned int i =0; i<s.size()*m.size(); i++)
           {
             if(i%2 == 0)
               {
@@ -1455,7 +1489,55 @@ namespace GeneralUtils {
     return kkpimode;
   }
 
+  std::string CheckMode(std::string& check, bool debug )
+  {
+    std::string mode;
+    std::string Bs = "";
+    std::string Ds = "";
+    std::string Bach = "";
 
+    if ( check.find("Lb") != std::string::npos ||
+	 check.find("lambdab") != std::string::npos ||
+	 check.find("Lambdab") != std::string::npos  ){ Bs="Lb";}
+    else if( check.find("Bs") != std::string::npos || check.find("bs") != std::string::npos) { Bs = "Bs"; }
+    else if (( check.find("Bd") != std::string::npos || check.find("bd") != std::string::npos ) && check.find("ambda") == std::string::npos )
+      { Bs="Bd"; }
+    else { Bs="Comb";}
+
+    if (check.find("Lc") != std::string::npos ||
+	check.find("lambdac") != std::string::npos ||
+	check.find("Lambdac") != std::string::npos) { Ds = "Lc";}
+    else if (check.find("Dsst") != std::string::npos || check.find("dsst") != std::string::npos)
+      { Ds ="Dsst";}
+    else if ( (check.find("Ds") != std::string::npos  || check.find("ds") != std::string::npos) && 
+	 (check.find("Dsst") == std::string::npos || check.find("dsst") == std::string::npos ))
+      { Ds = "Ds";}
+    else if (( check.find("D") != std::string::npos  || check.find("d") != std::string::npos )  &&
+	     (check.find("Ds") == std::string::npos  || check.find("ds") == std::string::npos) && check.find("ambda") == std::string::npos) 
+      {Ds = "D";}
+    else { Ds ="bkg";}
+
+    if ( check.find("Pi") != std::string::npos || check.find("pi") != std::string::npos) { Bach = "Pi"; }
+    else if( ( check.find("P") != std::string::npos || check.find("p") != std::string::npos ) && 
+	     ( check.find("Pi") == std::string::npos || check.find("pi") == std::string::npos))
+      {Bach = "p";}
+    else if( (check.find("K") != std::string::npos || check.find("k") != std::string::npos )&& 
+	     (check.find("Kst") == std::string::npos || check.find("kst") == std::string::npos) )
+      {Bach = "K";}
+    else if( check.find("Kst") != std::string::npos || check.find("kst") != std::string::npos ) {Bach ="Kst";}
+    else if( check.find("Rho") != std::string::npos || check.find("rho") != std::string::npos ) {Bach = "Rho";}
+    else { Bach ="";}
+
+    mode = Bs+"2"+Ds+Bach;
+    if (debug == true )
+      {
+	if ( mode != check )
+	  {
+	    std::cout<<"[INFO] Changed mode label from: "<< check <<" to: "<<mode<<std::endl;
+	  } 
+      }
+    return mode; 
+  }
   
   TString GetLabel(TString& mode, bool bs, bool ds, bool pol, bool debug)
   {
@@ -1471,21 +1553,25 @@ namespace GeneralUtils {
     DsState = CheckDMode(mode, debug);
     if ( DsState == "" || DsState == "kkpi" ) { DsState = CheckKKPiMode(mode, debug); } 
 
-    if( mode.Contains("Bs") == true) { Bs = "B_{s}"; }
-    else if ( mode.Contains("Bd") == true || mode.Contains("DPi") == true || mode.Contains("Dpi") == true){ Bs="B_{d}"; }
-    else if ( mode.Contains("Lb") == true){ Bs="#Lambda_{b}";}
+    if ( mode.Contains("Lb") == true || mode.Contains("lambdab") == true || mode.Contains("Lambdab") == true  ){ Bs="#Lambda_{b}";}
+    else if( mode.Contains("Bs") == true || mode.Contains("bs") == true) { Bs = "B_{s}"; }
+    else if ( mode.Contains("Bd") == true || mode.Contains("bd") == true ){ Bs="B_{d}"; }
     else { Bs="Comb";}
 
-    if ( mode.Contains("Ds") == true  && mode.Contains("Dsst") != true) { Ds = "D_{s}";}
-    else if (mode.Contains("Dsst") == true ) { Ds ="D^{*}_{s}";}
-    else if (mode.Contains("D")==true && mode.Contains("Ds") != true) {Ds = "D";}
-    else if (mode.Contains("Lc") == true || mode.Contains("Lambdac") == true) { Ds = "#Lambda_{c}";}
+    if (mode.Contains("Lc") == true || mode.Contains("Lambdac") == true || mode.Contains("lambdac") == true) { Ds = "#Lambda_{c}";}
+    else if (mode.Contains("Dsst") == true || mode.Contains("dsst") == true){ Ds ="D^{*}_{s}";}
+    else if ( (mode.Contains("Ds") == true  || mode.Contains("ds") == true) && (mode.Contains("Dsst") != true || mode.Contains("dsst") != true )) 
+      { Ds = "D_{s}";}
+    else if ((mode.Contains("D")==true || mode.Contains("d") == true )  &&  
+	     ( mode.Contains("Ds") != true || mode.Contains("ds") == true )) {Ds = "D";}
     else { Ds ="bkg";}
 
     if ( mode.Contains("Pi") == true || mode.Contains("pi") == true ) { Bach = "#pi"; }
-    else if( mode.Contains("p") == true ) {Bach = "p";}
-    else if( mode.Contains("K") == true && mode.Contains("Kst")!=true ) {Bach = "K";}
-    else if( mode.Contains("Kst") == true) {Bach ="K^{*}";}
+    else if( (mode.Contains("p") == true || mode.Contains("P") == true ) && (mode.Contains("pi") == true || mode.Contains("Pi") == true )) 
+      {Bach = "p";}
+    else if( (mode.Contains("K") == true || mode.Contains("k") == true )&& (mode.Contains("Kst")!=true || mode.Contains("kst") != true) ) 
+      {Bach = "K";}
+    else if( ( mode.Contains("Kst") == true || mode.Contains("kst") == true ) ) {Bach ="K^{*}";}
     else if( mode.Contains("Rho") == true || mode.Contains("rho") == true ) {Bach = "#rho";}
     else { Bach ="";}
 

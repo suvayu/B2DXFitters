@@ -307,41 +307,41 @@ def fitSignal( debug, var , mode, modeDs,  reweight, veto, merge, BDTG) :
         nEntries[0] = data[0].sumEntries()
                 
     if obsTS != "lab2_MM" and obsTS != "Ds_MM":
-        sigma1 = 11.5 #25.0 #15.00 #10.00
-        sigma2 = 17.0 #5.00 #7.00
-        alpha1 = 4.20378e+00 #1.89471e+00 #2.0 #4.0
-        alpha2 = -4.18503e+00 #-2.08562e+00 #-2.0
-        n1 = 1.12600e+00  #0.01
-        n2 = 3.66107e+00 #0.001
-        frac = 0.5 #.57596e-01 #0.50
-        alpha1Var =  RooRealVar( "DblCBPDF_alpha1", "alpha1",  alpha1,   1,     5)
-        alpha2Var =  RooRealVar( "DblCBPDF_alpha2", "alpha2",  alpha2,  -5,     1)
-        n1Var     =  RooRealVar( "DblCBPDF_n1",     "n1",      n1,      0.0005, 10)
-        n2Var     =  RooRealVar( "DblCBPDF_n2",     "n2",      n2,      0.0005, 15)
+        sigma1 = 1.13912e+01 
+        sigma2 = 1.76473e+01
+        alpha1 = 2.09298e+00
+        alpha2 = -2.32953e+00
+        n1 = 1.26735e+00
+        n2 = 4.01949e+00
+        frac = 7.03979e-01
+        alpha1Var =  RooRealVar( "DblCBPDF_alpha1", "alpha1",  alpha1) #,   1,     5)
+        alpha2Var =  RooRealVar( "DblCBPDF_alpha2", "alpha2",  alpha2) #,  -5,     1)
+        n1Var     =  RooRealVar( "DblCBPDF_n1",     "n1",      n1,      0.1, 10)
+        n2Var     =  RooRealVar( "DblCBPDF_n2",     "n2",      n2,      0.1, 10)
         fracVar   =  RooRealVar( "DblCBPDF_frac",   "frac",    frac,    0,      1)
         sigma1Var =  RooRealVar( "DblCBPDF_sigma1", "sigma1",  sigma1,  5.0,     20, "MeV/c^{2}")
-        sigma2Var =  RooRealVar( "DblCBPDF_sigma2", "sigma2",  sigma2,  10.0,    30, "MeV/c^{2}")
+        sigma2Var =  RooRealVar( "DblCBPDF_sigma2", "sigma2",  sigma2,  10.0,    20, "MeV/c^{2}")
             
     else:
         print "Fitting Ds shape"
-        sigma1 = 8.3016e+00 #15.00
-        sigma2 = 4.5111e+00 #10.0
+        sigma1 = 9.7878e+00
+        sigma2 = 5.5775e+00
         #sigma3 = 1.0
-        alpha1 = 1.9181e+00 #5.0
-        alpha2 = -2.9860e+00 #-3.0
-        n1 = 1.7235e+00 #25.0
-        n2 = 7.1778e-01 #40.0 
-        frac = 3.8284e-01
+        alpha1 = 1.7660e+00
+        alpha2 = -2.7750e+00
+        n1 = 1.5563e+00
+        n2 = 8.6475e-01
+        frac = 4.3761e-01
         #frac2 = 0.50
-        alpha1Var =  RooRealVar( "DblCBPDF_alpha1", "alpha1",  alpha1,  1.0,  4.0)
-        alpha2Var =  RooRealVar( "DblCBPDF_alpha2", "alpha2",  alpha2,  -4.0,  1.0)
+        alpha1Var =  RooRealVar( "DblCBPDF_alpha1", "alpha1",  alpha1,  1.0,   3.0)
+        alpha2Var =  RooRealVar( "DblCBPDF_alpha2", "alpha2",  alpha2,  -3.0,  1.0)
         n1Var     =  RooRealVar( "DblCBPDF_n1",     "n1",      n1,      0.005,  5)
         n2Var     =  RooRealVar( "DblCBPDF_n2",     "n2",      n2,      0.005,  5)
         
         fracVar   =  RooRealVar( "DblCBPDF_frac",   "frac",    frac,    0,     1)
         #frac2Var   =  RooRealVar( "DblCBPDF_frac2",   "frac2",    frac2,    0,     1)
         if modeDsTS != "HHHPi0":
-            sigma1Var =  RooRealVar( "DblCBPDF_sigma1", "sigma1",  sigma1,  1,    20, "MeV/c^{2}")
+            sigma1Var =  RooRealVar( "DblCBPDF_sigma1", "sigma1",  sigma1,  1,    15, "MeV/c^{2}")
         else:
             sigma1Var =  RooRealVar( "DblCBPDF_sigma1", "sigma1",  sigma1,  1,    100, "MeV/c^{2}")
         sigma2Var =  RooRealVar( "DblCBPDF_sigma2", "sigma2",  sigma2,  1,    8, "MeV/c^{2}")

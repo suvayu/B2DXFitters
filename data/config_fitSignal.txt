@@ -121,7 +121,13 @@ DecayTree;1
 DecayTree;1
 ###
 
-
+#Signal BsDsK HHHPi0
+/afs/cern.ch/work/l/lsestini/public/Data_BsDsK/
+MergedTree_Signal_Bs2DsK_Ds2HHHPi0Resolved_dw.root
+MergedTree_Signal_Bs2DsK_Ds2HHHPi0Resolved_up.root
+DecayTreeTuple/tuple;1
+DecayTreeTuple/tuple;1
+###
 
 Signal BdDsK
 /afs/cern.ch/work/a/adudziak/public/

@@ -43,8 +43,8 @@ DecayTree;1
 
 #BDK
 /afs/cern.ch/work/a/adudziak/public/MCJanuary2014/
-Merged_Bd2DK_D2KPiPi_MD_BdHypo_BDTG.root
-Merged_Bd2DK_D2KPiPi_MU_BdHypo_BDTG.root
+MergedTree_Bd2DK_D2KPiPi_BdHypo_BDTG.root
+MergedTree_Bd2DK_D2KPiPi_BdHypo_BDTG.root
 DecayTree;1
 DecayTree;1
 ###

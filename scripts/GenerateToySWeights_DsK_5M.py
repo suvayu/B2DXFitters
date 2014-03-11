@@ -185,7 +185,8 @@ def runBsDsKGenerator( debug, single, configName, rangeDown, rangeUp, seed , siz
     fileNameMistagBDPi = "../data/workspace/MDFitter/template_Data_Mistag_BDPi.root"
     fileNameMistagComb = "../data/workspace/MDFitter/template_Data_Mistag_CombBkg.root"
     fileNameKFactor =  "../data/workspace/MDFitter/template_MC_KFactor_BsDsK_5300_5800.root"
-    #fileNameKFactor =  "../data/workspace/MDFitter/ktemplates.root"
+    dupa = "5320_5420"
+    fileNameKFactor =  "../data/workspace/MDFitter/dsk_ktemplates_mass_bin_%s.root"%(dupa)
     workName = 'workspace'
 
     #Read workspace with PDFs
@@ -204,15 +205,16 @@ def runBsDsKGenerator( debug, single, configName, rangeDown, rangeUp, seed , siz
     workMistagComb.Print("v")
     workKFactor = GeneralUtils.LoadWorkspace(TString(fileNameKFactor),TString(workName), debug)
     workKFactor.Print("v")
+    #exit(0)
     
     kFactor = GeneralUtils.GetObservable(workKFactor,TString("kfactorVar"), debug)
     kFactor.setRange(0.80, 1.10)
     
-    '''
     dataKFactorDown = []
     dataKFactorUp   = []
-    names = ["Bd2DK","Lb2LcK","Lb2Dsstp","Lb2Dsp","Bs2DsstPi","Bs2DsRho","Bs2DsPi"]
-    for i in range(0,7):
+    names = ["Bd2DK","Bd2DPi","Lb2LcK","Lb2LcPi","Lb2Dsstp","Lb2Dsp","Bs2DsstPi","Bs2DsRho","Bs2DsPi"]
+    #names = ["Bs2DsstPi","Bs2DsK","Lb2LcPi","Bd2DPi"]
+    for i in range(0,names.__len__()):
         dataNameUp = "kfactor_dataset_"+names[i]+"_up" 
         dataKFactorUp.append(GeneralUtils.GetDataSet(workKFactor,TString(dataNameUp), debug))
         dataKFactorUp[i].Print("v")
@@ -222,9 +224,9 @@ def runBsDsKGenerator( debug, single, configName, rangeDown, rangeUp, seed , siz
         dataKFactorDown[i].Print("v")
         print dataKFactorDown[i].sumEntries()
 
-    max = [-2.0,-2.0,-2.0,-2.0,-2.0,-2.0,-2.0]
-    min = [2.0,2.0,2.0,2.0,2.0,2.0,2.0]
-    for i in range(0,7):
+    max = [-2.0,-2.0,-2.0,-2.0,-2.0,-2.0,-2.0,-2.0,-2.0]
+    min = [2.0,2.0,2.0,2.0,2.0,2.0,2.0,2.0,2.0]
+    for i in range(0,names.__len__()):
         for j in range(0,dataKFactorUp[i].numEntries()) :
             obsKF = dataKFactorUp[i].get(j)
             kF = obsKF.find("kfactorVar")
@@ -247,7 +249,7 @@ def runBsDsKGenerator( debug, single, configName, rangeDown, rangeUp, seed , siz
     print min
     maxRange = []
     minRange = []
-    for i in range(0,7):
+    for i in range(0,names.__len__()):
         q = max[i] - min[i]
         maxRange.append(max[i]+0.05*q)
         minRange.append(min[i]-0.05*q)
@@ -263,23 +265,32 @@ def runBsDsKGenerator( debug, single, configName, rangeDown, rangeUp, seed , siz
     hist   = []
     pdfKF     = []
     lumRatio = RooRealVar("lumRatio","lumRatio",myconfigfile["lumRatio"])
-    for i in range(0,7):
+    gMax = -100.0
+    gMin = 100.0
+    for i in range(0,names.__len__()):
         kFactor.setRange(minRange[i], maxRange[i])
-
+        if gMax < maxRange[i]:
+            gMax = maxRange[i]
+        if gMin > minRange[i]:
+            gMin = minRange[i]
         name = "kFactor_"+names[i]+"_both"
         pdfKF.append(GeneralUtils.CreateHistPDF(dataKFactorUp[i], dataKFactorDown[i], myconfigfile["lumRatio"],
                                                 kFactor, TString(name), 100, debug))
         t = TString("both")
         GeneralUtils.SaveTemplate(NULL, pdfKF[i], kFactor, TString(names[i]), t, plotSet, debug );
         
+    print gMin
+    print gMax
     workOut = RooWorkspace("workspace","workspace")
-    for i in range(0,7):
+    kFactor.setRange(gMin,gMax)
+    getattr(workOut,'import')(kFactor) 
+    for i in range(0,names.__len__()):
         getattr(workOut,'import')(pdfKF[i])
         
-    workOut.SaveAs("template_MC_KFactor_BsDsK.root")
+    workOut.SaveAs("template_MC_KFactor_BsDsK_%s.root"%(dupa))
     workOut.Print("v")
     exit(0)
-    '''
+    
     
     mVar         = 'lab0_MassFitConsD_M'
     mdVar        = 'lab2_MM'

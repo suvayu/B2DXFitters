@@ -201,7 +201,7 @@ namespace MassFitUtils {
 	tree[i] = NULL;
         tree[i] = ReadTreeData(FileName,i, debug);
       }
-
+    
     //Read sample (means down or up)  from path // 
     //Read mode (means D mode: kkpi, kpipi or pipipi) from path //
     TString smp[2], md[2];
@@ -211,7 +211,7 @@ namespace MassFitUtils {
       md[i-1] = CheckDMode(FileName[i], debug);
       if ( md[i-1] == "kkpi" || md[i-1] == ""){ md[i-1] = CheckKKPiMode(FileName[i], debug);}
     }
-
+    
     //Set PID cut depends on mode// 
     TCut PID_cut;  
     if( mode.Contains("Pi") )    { 
@@ -251,7 +251,7 @@ namespace MassFitUtils {
       {
 	FDCHI2 = DsPrefix+"FDCHI2_ORIVX > 9";
       }
-
+    
     TCut addCuts = (TCut)mdSet->GetAddDataCuts(); 
 
     TCut All_cut = PID_cut&&P_cut&&BDTG_cut&&mass_cut&&massD_cut&&FDCHI2&&PT_cut&&nTr_cut&&Time_cut&&Terr_cut&&addCuts;
@@ -1047,7 +1047,7 @@ namespace MassFitUtils {
   // Get cut for background MC
   //===========================================================================
 
-  TCut GetCutMCBkg( MDFitterSettings* mdSet, TString mode, TString hypo, bool debug )
+TCut GetCutMCBkg( MDFitterSettings* mdSet, TString mode, TString hypo, TString Dmode, bool debug )
   {
     TCut MCCut= ""; 
 
@@ -1096,7 +1096,6 @@ namespace MassFitUtils {
     TCut hypoKaon = Form("%s_M > 200",BachPrefix.Data());  // hypo Kaon //
     TCut hypoPion = Form("%s_M < 200",BachPrefix.Data());  // hypo Pion //
     
-    TString Dmode = CheckDMode(hypo, debug);
     TCut FD_cut = "";
     if (Dmode != "hhhpi0" )
       {
@@ -1128,14 +1127,11 @@ namespace MassFitUtils {
       }
 
     TCut addCuts = (TCut)mdSet->GetAddMCCuts();
-
-    TCut pi0Cut= "";
-
-    if (Dmode == "hhhpi0")
-    {
-      pi0Cut= "abs(Pi0_ID)==111 && abs(Pi0_TRUEID)==111";
-    
-    }
+    TCut pi0Cut= ""; 
+    if (Dmode == "hhhpi0") 
+      { 
+	pi0Cut= "abs(Pi0_ID)==111 && abs(Pi0_TRUEID)==111";     
+      } 
 
     if (hypo.Contains("K"))  // consider PartReco backgrounds for BsDsK
       {
@@ -1456,6 +1452,8 @@ namespace MassFitUtils {
 	  smp[i] = CheckPolarity(sig,debug);
 	}
     }
+    TString modeD;
+    modeD = CheckDMode(sig, debug);
        
     if ( debug == true) std::cout<<"[INFO] ==> Create RooKeysPdf for PartReco backgrounds" <<std::endl;
     
@@ -1494,10 +1492,8 @@ namespace MassFitUtils {
     
     for(int i = 0; i< size1; i++ )
       {
-	
 	TString md= mode[i];
-	
-	TCut MCCut = GetCutMCBkg(mdSet, md, hypo,debug); 
+	TCut MCCut = GetCutMCBkg(mdSet, md, hypo, modeD, debug); 
 	
 	treetmp[i] = NULL;
 	treetmp[i] = TreeCut(treeMC[i], MCCut, smp[i], md, debug);  // create new tree after applied all cuts // 
@@ -1846,6 +1842,8 @@ namespace MassFitUtils {
     for (unsigned i = 0; i< ndsets; i++) {
       smp[i] = CheckPolarity(sig, debug);
     }
+    TString modeD;
+    modeD = CheckDMode(sig, debug);
 
     /**
      * Calculate and return datasets with k-factors for partially
@@ -1969,7 +1967,7 @@ namespace MassFitUtils {
 
       // create new tree after appling all cuts
       TString md(mode[i]);
-      TCut MCCut = GetCutMCBkg(mdSet, md, hypo);
+      TCut MCCut = GetCutMCBkg(mdSet, md, modeD, hypo);
       TTree *ftree = TreeCut(treeMC[i], MCCut, smp[i], md, debug);
       assert(ftree);
 
@@ -2459,14 +2457,11 @@ namespace MassFitUtils {
 
     TCut addCuts = (TCut)mdSet->GetAddMCCuts();
 
-    TCut pi0Cut= "";
-
-    if (modeD.Contains("hhhpi0") == true)
-    {
-      pi0Cut= "abs(Pi0_ID)==111 && abs(Pi0_TRUEID)==111";
-    
-    }
-
+    TCut pi0Cut= ""; 
+    if (modeD.Contains("hhhpi0") == true) 
+     { 
+       pi0Cut= "abs(Pi0_ID)==111 && abs(Pi0_TRUEID)==111"; 
+     } 
     cut = MCBsIDCut&&MCD&&MCB&&P_cut&&BDTG_cut&&FDCHI2&&BachHypo&&DHypo&&MCBsTRUEIDCut&&BkgCAT&&Time_cut&&addCuts&&pi0Cut;
 
     if (debug == true )

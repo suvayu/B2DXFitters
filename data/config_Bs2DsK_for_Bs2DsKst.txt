@@ -1,0 +1,96 @@
+#Bs2DsK HHHPi0
+/afs/cern.ch/work/l/lsestini/public/Data_BsDsK/
+MergedTree_Data_Bs2DsK_Ds2HHHPi0Resolved_dw.root
+MergedTree_Data_Bs2DsK_Ds2HHHPi0Resolved_up.root
+DecayTreeTuple/tuple
+DecayTreeTuple/tuple
+###
+
+#PIDp
+/afs/cern.ch/user/l/lcarson/public/ForAgnieszka/
+EffHistos_Reco12_39Mom_Proton_MagDown_TightCuts.root
+EffHistos_Reco12_39Mom_Proton_MagUp_TightCuts.root
+###
+
+#PID
+/afs/cern.ch/user/l/lcarson/public/ForAgnieszka/
+EffHistos_Reco12_39Mom_MagDown_0123.root
+EffHistos_Reco12_39Mom_MagUp_012.root
+###
+
+#PID2
+/afs/cern.ch/user/l/lcarson/public/ForAgnieszka/
+EffHistos_Reco12_39Mom_MagDown_45678.root
+EffHistos_Reco12_39Mom_MagUp_3456.root
+###
+
+#RatioDataMC2D
+/afs/cern.ch/work/a/adudziak/public/workspace/
+MomVsnTr_Comp_DPi_Down_hist.root
+MomVsnTr_Comp_DPi_Up_hist.root
+###
+	
+#MC FileName MD DsPi
+/afs/cern.ch/work/a/adudziak/public/Merged_Bs2DsPi_Ds2KKPi_MD_BsHypo_BDTG.root
+###
+
+#MC FileName MU DsPi
+/afs/cern.ch/work/a/adudziak/public/Merged_Bs2DsPi_Ds2KKPi_MU_BsHypo_BDTG.root
+###
+
+#MC TreeName DsPi
+DecayTree;1
+###.
+
+
+#MC FileName MD HHHPi0
+/afs/cern.ch/work/l/lsestini/public/Data_BsDsK/MergedTree_Bd2Dk_Bs2DsK_Ds2HHHPi0Resolved_dw.root
+/afs/cern.ch/work/l/lsestini/public/Data_BsDsK/MergedTree_Bd2Dsk_Bs2DsK_Ds2HHHPi0Resolved_dw.root
+/afs/cern.ch/work/l/lsestini/public/Data_BsDsK/MergedTree_Bd2Dsstk_Bs2DsK_Ds2HHHPi0Resolved_dw.root
+/afs/cern.ch/work/l/lsestini/public/Data_BsDsK/MergedTree_Bs2Dsstk_Bs2DsK_Ds2HHHPi0Resolved_dw.root
+/afs/cern.ch/work/l/lsestini/public/Data_BsDsK/MergedTree_Lb2Lambdack_Bs2DsK_Ds2HHHPi0Resolved_dw.root
+###
+
+#MC FileName MU HHHPi0
+/afs/cern.ch/work/l/lsestini/public/Data_BsDsK/MergedTree_Bd2Dk_Bs2DsK_Ds2HHHPi0Resolved_up.root
+/afs/cern.ch/work/l/lsestini/public/Data_BsDsK/MergedTree_Bd2Dsk_Bs2DsK_Ds2HHHPi0Resolved_up.root
+/afs/cern.ch/work/l/lsestini/public/Data_BsDsK/MergedTree_Bd2Dsstk_Bs2DsK_Ds2HHHPi0Resolved_up.root
+/afs/cern.ch/work/l/lsestini/public/Data_BsDsK/MergedTree_Bs2Dsstk_Bs2DsK_Ds2HHHPi0Resolved_up.root
+/afs/cern.ch/work/l/lsestini/public/Data_BsDsK/MergedTree_Lb2Lambdack_Bs2DsK_Ds2HHHPi0Resolved_up.root
+###
+
+#MC TreeName
+DecayTreeTuple/tuple;1
+DecayTreeTuple/tuple;1
+DecayTreeTuple/tuple;1
+DecayTreeTuple/tuple;1
+DecayTreeTuple/tuple;1
+###
+
+#Signal Bs2DsK HHHPi0
+/afs/cern.ch/work/l/lsestini/public/Data_BsDsK/
+MergedTree_Signal_Bs2DsK_Ds2HHHPi0Resolved_dw.root
+MergedTree_Signal_Bs2DsK_Ds2HHHPi0Resolved_up.root
+DecayTreeTuple/tuple;1
+DecayTreeTuple/tuple;1
+###
+
+#PID2m2
+/afs/cern.ch/work/a/adudziak/public/hist/
+EffHistos_Reco12_39Mom_MagDown_2m2_0123.root
+EffHistos_Reco12_39Mom_MagUp_2m2_012.root
+###
+
+#PID2m22
+/afs/cern.ch/work/a/adudziak/public/hist/
+EffHistos_Reco12_39Mom_MagDown_2m2_45678.root
+EffHistos_Reco12_39Mom_MagUp_2m2_3456.root
+###
+
+#PIDp3
+/afs/cern.ch/work/a/adudziak/public/hist/
+EffHistos_Reco12_39Mom_MagDown_Proton_DLLKDLLpK.root
+EffHistos_Reco12_39Mom_MagUp_Proton_DLLKDLLpK.root
+###
+
+

@@ -218,7 +218,14 @@ namespace GeneralUtils {
                             TString &name,
                             Int_t bin,
                             bool debug = false);
-  
+
+  RooHistPdf* CreateHistPDF(RooDataSet* dataSet1,
+                            RooDataSet*dataSet2,
+                            Double_t frac,
+                            RooRealVar* obs,
+                            TString &name,
+                            Int_t bin,
+                            bool debug = false);
   
   RooAbsPdf* CreateBinnedPDF(RooDataSet* dataSet,
                              RooRealVar* obs,
@@ -283,6 +290,8 @@ namespace GeneralUtils {
   //===========================================================================
   // Check D/Ds final state (kkpi,kpipi,pipipi) from check
   //==========================================================================
+  std::string CheckMode(std::string& check, bool debug = false);
+
   TString CheckDMode(std::string& check, bool debug = false);
   TString CheckDMode(TString& check, bool debug = false);
 

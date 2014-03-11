@@ -13,20 +13,25 @@ def getconfig() :
     configdict["ArgLf"]       = configdict["StrongPhase"] - configdict["WeakPhase"]
     configdict["ArgLbarfbar"] = configdict["StrongPhase"] + configdict["WeakPhase"]
     configdict["ModLf"]       = 0.372
+    
+    configdict["calibration_p0"]  = [0.3834, 0.4244]
+    configdict["calibration_p1"]  = [0.9720, 1.2180]
+    configdict["calibration_av"]  = [0.3813, 0.4097]
 
-    configdict["calibration_p0"]  = [0.3927, 0.4244]
-    configdict["calibration_p1"]  = [0.9818, 1.2550]
-    configdict["calibration_av"]  = [0.3919, 0.4097]
-
+    #configdict["calibration_p0"]  = [0.3927, 0.4244]
+    #configdict["calibration_p1"]  = [0.9818, 1.2550]
+    #configdict["calibration_av"]  = [0.3919, 0.4097]
+    
     configdict["tacc_size"]   = 6
     configdict["tacc_knots"]  = [0.25, 0.5, 1.0, 2.0, 3.0, 12.0]
     
-    configdict["tacc_values"] = [1.4525e-01*1.86413e-01/1.93184e-01,
-                                 2.0995e-01*2.83214e-01/3.35302e-01,
-                                 6.2524e-01*7.24952e-01/7.39033e-01,
-                                 1.0291e+00*1.18847e+00/1.16141e+00,
-                                 1.2577e+00*1.33798e+00/1.29660e+00,
-                                 1.2405e+00*1.32593e+00/1.31712e+00]
+    #configdict["tacc_values"] = [1.4525e-01*1.86413e-01/1.93184e-01,
+    #                             2.0995e-01*2.83214e-01/3.35302e-01,
+    #                             6.2524e-01*7.24952e-01/7.39033e-01,
+    #                             1.0291e+00*1.18847e+00/1.16141e+00,
+    #                             1.2577e+00*1.33798e+00/1.29660e+00,
+    #                             1.2405e+00*1.32593e+00/1.31712e+00]
+    configdict["tacc_values"] = [0.128, 0.193, 0.590, 1.023, 1.250, 1.253]
     
     configdict["tagEff_OS"] = 0.387
     configdict["tagEff_SS"] = 0.4772

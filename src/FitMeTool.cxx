@@ -1149,7 +1149,8 @@ void FitMeTool::savesWeights(const char* observableName, RooDataSet* data, TStri
   TIterator* it = params -> createIterator();
   TObject* obj  = NULL;
   while ( ( obj = it -> Next() ) ) {
-    RooAbsRealLValue* param = dynamic_cast<RooAbsRealLValue*>( obj );
+    //RooAbsRealLValue* param = dynamic_cast<RooAbsRealLValue*>( obj );
+    RooRealVar* param = dynamic_cast<RooRealVar*>( obj );
     if ( param &&
          ( ! vars -> contains( *param ) ) &&
          ( ! param -> isConstant() ) ) {
@@ -1157,6 +1158,24 @@ void FitMeTool::savesWeights(const char* observableName, RooDataSet* data, TStri
               param -> GetName() );
       param -> setConstant();
     }
+    TString name = param->GetName();
+    if ( name.Contains("Evts") == true && param->isConstant() == true)
+      {
+	Double_t val = param->getValV();
+	if (val == 0.0 )
+	  {
+	    param->setRange(-1.0, 1.0);
+	  }
+	else
+	  {
+	    param->setRange(0.95*val, 1.05*val);
+	  }
+	param->clearValueAndShapeDirty(); 
+	param->setConstant(false); 
+	printf( "[WARNING] Variable \"%s\" set to be floated - sPlot technique requirement.\n",
+		param -> GetName() );
+      }
+
     //if (vars -> contains( *param )) {
     //  param -> setConstant(kFALSE);
     //}
@@ -1183,7 +1202,7 @@ void FitMeTool::savesWeights(const char* observableName, RooDataSet* data, TStri
   for ( int i = 0; i < vars -> getSize(); ++i ) {
     RooAbsArg* iarg = vars -> at( i );
     RooAbsRealLValue* ivar = dynamic_cast<RooAbsRealLValue*>( iarg );
-    if ( ivar ) printf( "Yield of %30s is %15f. From sWeights it is %15f\n",
+    if ( ivar ) printf( "Yield of %40s is %15f. From sWeights it is %15f\n",
                         ivar -> GetName(), ivar -> getVal(),
                         splot -> GetYieldFromSWeight( ivar -> GetName() ) );
   }

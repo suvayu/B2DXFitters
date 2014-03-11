@@ -238,12 +238,13 @@ def fitB2DPi( debug, var,
                                         TString("BdDPi"),false, TString("DsPi")) #TString("BdDPi"))
     
     #workspace.Print()
-    '''
+    
     #workspace = RooWorkspace("workspace","workspace") 
 
     #saveNameTS = TString("work_dpi_")+BDTGTS+TString(".root")
     #GeneralUtils.SaveWorkspace(workspace,saveNameTS, debug)
     #exit(0)
+    '''
     MCFileMD = TString("#MC FileName MD")
     MCFileMU = TString("#MC FileName MU") 
 
@@ -258,7 +259,7 @@ def fitB2DPi( debug, var,
                                                      
     workspace.Print()
     saveNameTS = TString("work_dpi_")+BDTGTS+TString("_weighting.root")
-    GeneralUtils.SaveWorkspace(workspace,saveNameTS, debug)
+    #GeneralUtils.SaveWorkspace(workspace,saveNameTS, debug)
     exit(0)
     '''
     
@@ -271,10 +272,24 @@ def fitB2DPi( debug, var,
     momB = GeneralUtils.GetObservable(workspace,TString("lab0_P"))
     pt = GeneralUtils.GetObservable(workspace,TString("lab1_PT"))
     nTr = GeneralUtils.GetObservable(workspace,TString("nTracks"))
+    tag1 = GeneralUtils.GetCategory(workspace,TString("lab0_TAGDECISION_OS"))
+    tag2 = GeneralUtils.GetCategory(workspace,TString("lab0_SS_nnetKaon_DEC"))
+    mistag1 = GeneralUtils.GetObservable(workspace,TString("lab0_TAGOMEGA_OS"))
+    mistag2 = GeneralUtils.GetObservable(workspace,TString("lab0_SS_nnetKaon_PROB"))
+    time = GeneralUtils.GetObservable(workspace,TString("lab0_LifetimeFit_ctau"))
+    terr = GeneralUtils.GetObservable(workspace,TString("lab0_LifetimeFit_ctauErr"))
+    id = GeneralUtils.GetCategory(workspace,TString("lab1_ID"))
     if MD:
         massB = GeneralUtils.GetObservable(workspace,mVarTS)
         massD = GeneralUtils.GetObservable(workspace,TString("lab2_MM"))
         observables = RooArgSet( massB, massD, mom, momB, pt, nTr )
+        observables.add(tag1)
+        observables.add(tag2)
+        observables.add(mistag1)
+        observables.add(mistag2)
+        observables.add(time)
+        observables.add(terr)
+        observables.add(id)
     else:    
         observables = RooArgSet( mass, mom, pt, nTr )
     #exit(0)
@@ -512,7 +527,7 @@ def fitB2DPi( debug, var,
     bkgDBdDRho = []
                     
        
-    predSignalName = TString("pred_Signal_")+BDTGTS
+    #predSignalName = TString("pred_Signal_")+BDTGTS
     predBDKName = TString("pred_BDK_")+BDTGTS
     
     for i in range(0,ran):
@@ -520,14 +535,14 @@ def fitB2DPi( debug, var,
             cB.append(RooRealVar("cB","coefficient #2", 5*myconfigfile[cB1Name.Data()][index], -0.1, 0.0)) 
             bkgBPDF1.append(RooExponential("expB", "expB" , massB, cB[i]))
 
-            cB2.append(RooRealVar("cB2","coefficient #2", myconfigfile[cB2Name.Data()][index], -0.01, 0.0))
+            cB2.append(RooRealVar("cB2","coefficient #2", 0.0)) #myconfigfile[cB2Name.Data()][index], -0.01, 0.0))
             bkgBPDF2.append(RooExponential("expB2", "expB2" , massB, cB2[i]))
 
             fracbkg2.append(RooRealVar("fracComb2","fracComb2", myconfigfile[fracCombBName.Data()][index], 0.0, 1.0))
             bkgBPDF.append(RooAddPdf("bkgBAddPdf","bkgBAddPdf",bkgBPDF1[i], bkgBPDF2[i], fracbkg2[i]))                                    
             
-            fracbkg.append(RooRealVar("fracComb","fracComb", myconfigfile[fracCombDName.Data()][index])) 
-            cD.append(RooRealVar("cD","coefficient #2", myconfigfile[cDName.Data()][index])) #, -0.01, 0.0))  
+            fracbkg.append(RooRealVar("fracComb","fracComb", myconfigfile[fracCombDName.Data()][index], 0.0, 1.0)) 
+            cD.append(RooRealVar("cD","coefficient #2", myconfigfile[cDName.Data()][index], -0.01, 0.0))  
             bkgDPDF1.append(RooExponential("expD", "expB" , massD, cD[i]))
             
             bkgDPDF.append(RooAddPdf("bkgDAddPdf","bkgAddPdf",bkgDPDF1[i], sigDPDF[i], fracbkg[i]))
@@ -557,14 +572,14 @@ def fitB2DPi( debug, var,
         nameBd2DRho = TString("nBd2DRho_")+sample[i]+TString("_Evts")
 
         #if merge:
-        predSignal = myconfigfile[predSignalName.Data()][i] #+myconfigfile[predSignalName.Data()][i+1]
+        #predSignal = myconfigfile[predSignalName.Data()][i] #+myconfigfile[predSignalName.Data()][i+1]
         #else:
         #    predSignal = myconfigfile[predSignalName.Data()][i]
             
         if (DK == true):
-            nBd2DK.append(RooRealVar(nameBd2DK.Data() , nameBd2DK.Data(), myconfigfile[predBDKName.Data()]*1.2, 
-                                     myconfigfile[predBDKName.Data()]*0.8, 
-                                     1.5*myconfigfile[predBDKName.Data()]))
+            nBd2DK.append(RooRealVar(nameBd2DK.Data() , nameBd2DK.Data(), myconfigfile[predBDKName.Data()])) #*1.2, 
+                                     #myconfigfile[predBDKName.Data()]*0.1, 
+                                     #6*myconfigfile[predBDKName.Data()]))
                                      #predSignal*0.0735*0.64/2,
                                      #0.0, predSignal*0.735*0.64*0.05,
                                      #predSignal*0.735*0.64*2))

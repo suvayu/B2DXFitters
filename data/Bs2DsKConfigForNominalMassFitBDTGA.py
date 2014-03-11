@@ -22,9 +22,13 @@ def getconfig() :
     configdict["lab0_TAGOMEGA_OS"]  = [0.0, 0.5]
     configdict["lab0_SS_nnetKaon_PROB"] = [0.0, 0.5]
 
-    configdict["calibration_p0"]  = [0.3927, 0.4244]
-    configdict["calibration_p1"]  = [0.9818, 1.2550]
-    configdict["calibration_av"]  = [0.3919, 0.4097]
+    #configdict["calibration_p0"]  = [0.3927, 0.4244]
+    #configdict["calibration_p1"]  = [0.9818, 1.2550]
+    #configdict["calibration_av"]  = [0.3919, 0.4097]
+
+    configdict["calibration_p0"]  = [0.3834, 0.4244]
+    configdict["calibration_p1"]  = [0.9720, 1.2180]
+    configdict["calibration_av"]  = [0.3813, 0.4097]
        
     configdict["Terr"]       = [0.01,    0.1     ]
     configdict["BachCharge"] = [-1000.0, 1000.0  ]
@@ -111,6 +115,7 @@ def getconfig() :
 
     configdict["meanDs"]    = [1968.49, 1968.49, 1968.49, 1968.49, 1968.49]
     
+    
     configdict["sigma1Ds_bc"]  = [5.3468e+00,  8.2412e+00,  6.0845e+00,  8.8531e+00,  8.0860e+00 ]  
     configdict["sigma2Ds_bc"]  = [5.1848e+00,  4.4944e+00,  5.1266e+00,  5.2073e+00,  7.3773e+00 ]
     configdict["alpha1Ds_bc"]  = [1.2252e+00,  1.9827e+00,  1.1316e+00,  1.7131e+00,  9.0639e-01 ]
@@ -118,7 +123,7 @@ def getconfig() :
     configdict["n1Ds_bc"]      = [4.6625e+00,  1.4867e+00,  1.3280e+01,  2.0239e+00,  1.1486e+01 ]
     configdict["n2Ds_bc"]      = [6.9989e+01,  6.1022e-01,  1.1017e+01,  1.0860e+00,  4.0001e+01 ]
     configdict["fracDs_bc"]    = [4.7565e-01,  3.9628e-01 , 4.0048e-01,  5.5084e-01,  4.8729e-01 ]
-
+    
     configdict["sigma1Ds_old"]  = [7.6526,  8.7205,  5.3844,  11.590,  11.217 ]
     configdict["sigma2Ds_old"]  = [4.2202,  4.5795,  11.981,  6.0350,  6.8617 ]
     configdict["alpha1Ds_old"]  = [1.9266,  1.9260,  4.8339,  1.5839,  1.0902 ]

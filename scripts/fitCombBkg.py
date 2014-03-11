@@ -177,8 +177,8 @@ def fitCombBkg( debug, var , mode, modeDs, merge, BDTG, configName, WS) :
     MDSettings.AddTagVar(TString("lab0_SS_nnetKaon_DEC"), -1.0, 1.0 )
     MDSettings.AddTagOmegaVar(TString("lab0_TAGOMEGA_OS"), 0.0, 0.5 )
     MDSettings.AddTagOmegaVar(TString("lab0_SS_nnetKaon_PROB"), 0.0, 0.5 )
-    MDSettings.AddCalibration(0.3927, 0.9818, 0.3919)
-    MDSettings.AddCalibration(0.4244, 1.2550, 0.4097)
+    MDSettings.AddCalibration(0.3834, 0.972, 0.3813)
+    MDSettings.AddCalibration(0.4244, 1.218, 0.4097)
     MDSettings.SetIDVar(TString("lab1_ID"))
     MDSettings.SetPIDKVar(TString("lab1_PIDK"))
     MDSettings.SetBDTGVar(TString("BDTGResponse_1"))
@@ -326,10 +326,13 @@ def fitCombBkg( debug, var , mode, modeDs, merge, BDTG, configName, WS) :
         print "Data set: %s with number of events: %s"%(data[i].GetName(),nEntries[i])
 
     data[0].append(data[1])
+    mistagPDF = SFitUtils.CreateMistagTemplates(data[0],MDSettings,50,true,debug)
+
     workOut = RooWorkspace("workspace","workspace")
     getattr(workOut,'import')(data[0])
-    workOut.SaveAs("work_dspi_combbkg.root")
-    exit(0)
+    getattr(workOut,'import')(mistagPDF)
+    workOut.SaveAs("work_combbkg.root")
+    #exit(0)
     
     if merge:
         bound = 1

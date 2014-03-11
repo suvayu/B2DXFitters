@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/usr/bin/env python
 # --------------------------------------------------------------------------- #
 #                                                                             #
 #   Python script to run a toy MC fit for the CP asymmetry observables        #
@@ -14,11 +14,11 @@
 #   Author: Agnieszka Dziurda                                                 #
 #   Author: Vladimir Vava Gligorov                                            #
 # --------------------------------------------------------------------------- #
-""":"
+
 # This part is run by the shell. It does some setup which is convenient to save
 # work in common use cases.
-
 # make sure the environment is set up properly
+""":"
 if test -n "$CMTCONFIG" \
          -a -f $B2DXFITTERSROOT/$CMTCONFIG/libB2DXFittersDict.so \
 	 -a -f $B2DXFITTERSROOT/$CMTCONFIG/libB2DXFittersLib.so; then
@@ -216,7 +216,7 @@ def runBdGammaFitterOnData(debug, wsname,
         data.append(GeneralUtils.GetDataSet(workspace[i],   nameData, debug))
         dataW.append(GeneralUtils.GetDataSet(workspaceW[i],   nameData, debug))
         
-    dataWA = dataW[0]
+    dataWA = data[0]
     if BDTGbins:
         dataWA.append(dataW[1])
         dataWA.append(dataW[2])
@@ -233,7 +233,13 @@ def runBdGammaFitterOnData(debug, wsname,
     mistag.setRange(0, 0.5)
     weight = obs.find("sWeights")
     observables = RooArgSet(time,tag,id)
-
+    weight.setRange(-1,1.5)
+    if debug:
+        name = TString("pdf")
+        swpdf = GeneralUtils.CreateHistPDF(dataWA, weight, name, 100, debug)
+        GeneralUtils.SaveTemplate(dataWA, swpdf, weight, name)
+        #exit(0)
+    
     # Physical parameters
     #-----------------------
         

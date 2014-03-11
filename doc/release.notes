@@ -4,6 +4,10 @@
 ! Purpose     : RooFit-based fitters for B -> D X
 !-----------------------------------------------------------------------------
 
+! 2014-03-11 - Agnieszka Dziurda
+ - add scripts for DsK (DsK* analysis)
+ - update everything according to version 2 of DsK note
+
 ! 2014-03-07 - Manuel Tobias Schiller
  - tagging toys: update to new calibration parameters and latest set of
    templates from DsPi data

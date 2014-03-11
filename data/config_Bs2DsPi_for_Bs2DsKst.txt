@@ -43,22 +43,22 @@ DecayTree;1
 ###
 
 
-#MC FileName MD
-/castor/cern.ch/user/s/sgallori/lhcb/bs2dsk/13_01_2014/MergedTree_Bd2Dpi_Bs2DsPi_Ds2HHHPi0Resolved_dw.root
-/castor/cern.ch/user/s/sgallori/lhcb/bs2dsk/13_01_2014/MergedTree_Bd2Dsstpi_Bs2DsPi_Ds2HHHPi0Resolved_dw.root
-/castor/cern.ch/user/s/sgallori/lhcb/bs2dsk/13_01_2014/MergedTree_Bd2Dsstrho_Bs2DsPi_Ds2HHHPi0Resolved_dw.root
-/castor/cern.ch/user/s/sgallori/lhcb/bs2dsk/13_01_2014/MergedTree_Bs2Dsstpi_Bs2DsPi_Ds2HHHPi0Resolved_dw.root
-/castor/cern.ch/user/s/sgallori/lhcb/bs2dsk/13_01_2014/MergedTree_Bs2Dsstrho_Bs2DsPi_Ds2HHHPi0Resolved_dw.root
-/castor/cern.ch/user/s/sgallori/lhcb/bs2dsk/13_01_2014/MergedTree_Lb2Lambdacpi_Bs2DsPi_Ds2HHHPi0Resolved_dw.root
+#MC FileName MD HHHPi0
+rfio:/castor/cern.ch/user/s/sgallori/lhcb/bs2dsk/13_01_2014/MergedTree_Bd2Dpi_Bs2DsPi_Ds2HHHPi0Resolved_dw.root
+rfio:/castor/cern.ch/user/s/sgallori/lhcb/bs2dsk/13_01_2014/MergedTree_Bd2Dsstpi_Bs2DsPi_Ds2HHHPi0Resolved_dw.root
+rfio:/castor/cern.ch/user/s/sgallori/lhcb/bs2dsk/13_01_2014/MergedTree_Bd2Dsstrho_Bs2DsPi_Ds2HHHPi0Resolved_dw.root
+rfio:/castor/cern.ch/user/s/sgallori/lhcb/bs2dsk/13_01_2014/MergedTree_Bs2Dsstpi_Bs2DsPi_Ds2HHHPi0Resolved_dw.root
+rfio:/castor/cern.ch/user/s/sgallori/lhcb/bs2dsk/13_01_2014/MergedTree_Bs2Dsstrho_Bs2DsPi_Ds2HHHPi0Resolved_dw.root
+rfio:/castor/cern.ch/user/s/sgallori/lhcb/bs2dsk/13_01_2014/MergedTree_Lb2Lambdacpi_Bs2DsPi_Ds2HHHPi0Resolved_dw.root
 ###
 
-#MC FileName MU
-/castor/cern.ch/user/s/sgallori/lhcb/bs2dsk/13_01_2014/MergedTree_Bd2Dpi_Bs2DsPi_Ds2HHHPi0Resolved_up.root
-/castor/cern.ch/user/s/sgallori/lhcb/bs2dsk/13_01_2014/MergedTree_Bd2Dsstpi_Bs2DsPi_Ds2HHHPi0Resolved_up.root
-/castor/cern.ch/user/s/sgallori/lhcb/bs2dsk/13_01_2014/MergedTree_Bd2Dsstrho_Bs2DsPi_Ds2HHHPi0Resolved_up.root
-/castor/cern.ch/user/s/sgallori/lhcb/bs2dsk/13_01_2014/MergedTree_Bs2Dsstpi_Bs2DsPi_Ds2HHHPi0Resolved_up.root
-/castor/cern.ch/user/s/sgallori/lhcb/bs2dsk/13_01_2014/MergedTree_Bs2Dsstrho_Bs2DsPi_Ds2HHHPi0Resolved_up.root
-/castor/cern.ch/user/s/sgallori/lhcb/bs2dsk/13_01_2014/MergedTree_Lb2Lambdacpi_Bs2DsPi_Ds2HHHPi0Resolved_up.root
+#MC FileName MU HHHPi0
+rfio:/castor/cern.ch/user/s/sgallori/lhcb/bs2dsk/13_01_2014/MergedTree_Bd2Dpi_Bs2DsPi_Ds2HHHPi0Resolved_up.root
+rfio:/castor/cern.ch/user/s/sgallori/lhcb/bs2dsk/13_01_2014/MergedTree_Bd2Dsstpi_Bs2DsPi_Ds2HHHPi0Resolved_up.root
+rfio:/castor/cern.ch/user/s/sgallori/lhcb/bs2dsk/13_01_2014/MergedTree_Bd2Dsstrho_Bs2DsPi_Ds2HHHPi0Resolved_up.root
+rfio:/castor/cern.ch/user/s/sgallori/lhcb/bs2dsk/13_01_2014/MergedTree_Bs2Dsstpi_Bs2DsPi_Ds2HHHPi0Resolved_up.root
+rfio:/castor/cern.ch/user/s/sgallori/lhcb/bs2dsk/13_01_2014/MergedTree_Bs2Dsstrho_Bs2DsPi_Ds2HHHPi0Resolved_up.root
+rfio:/castor/cern.ch/user/s/sgallori/lhcb/bs2dsk/13_01_2014/MergedTree_Lb2Lambdacpi_Bs2DsPi_Ds2HHHPi0Resolved_up.root
 ###
 
 #MC TreeName

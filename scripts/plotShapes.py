@@ -139,15 +139,15 @@ def plotShapes( debug, fileName, workName, obs, mode, data ) :
 
               
     elif modeTS.Contains("DsK") == true:
-        modes = ["Bs2DsRho","Bs2DsstPi", "Lb2Dsp","Lb2Dsstp", "Bd2DK","Lb2LcK"]
+        modes = ["Bs2DsRho","Bs2DsstPi", "Lb2Dsp","Lb2Dsstp", "Bd2DK","Bd2DPi", "Lb2LcK","Lb2LcPi"]
         modes5M = "Bs2DsPi"
         modesSig = "Sig"
-        color = [kBlue-2, kBlue-2, kYellow+1, kYellow+1, kRed, kGreen+3] 
-        style = [1, 2, 1, 2, 1, 2, 1, ]
+        color = [kBlue-2, kBlue-2, kYellow+1, kYellow+1, kRed, kRed, kGreen+3, kGreen+3] 
+        style = [1, 2, 1, 2, 1, 2, 1, 2, 1,2]
         color5M = [kBlue-2, kWhite, kBlue-2, kBlue-2, kBlue-2, kBlue-2]
         style5M = [1,1, 2,3,6,9]
         ranType = 4
-        ran = 6
+        ran = 8
                                                                   
     namePrefix = "PhysBkg"
     nameSufix1  = "Pdf_m_both"
@@ -166,10 +166,13 @@ def plotShapes( debug, fileName, workName, obs, mode, data ) :
     namesSig = []
         
     for m in modes:
-        if m =="Bd2DK" or m == "Lb2LcK" or m == "Bd2DPi" or m == "Lb2LcPi":
-            n = namePrefix+m+nameSufix1+p+nameSufix2
+        if obs != "lab0_LifetimeFit_ctauErr":
+            if m =="Bd2DK" or m == "Lb2LcK" or m == "Bd2DPi" or m == "Lb2LcPi":
+                n = namePrefix+m+nameSufix1+p+nameSufix2
+            else:
+                n = namePrefix+m+nameSufix1+p+modesDs[0]+p+nameSufix2
         else:
-            n = namePrefix+m+nameSufix1+p+modesDs[0]+p+nameSufix2
+            n = "TimeErrorPdf_"+m
         names.append(n)
         namesLatex.append(GeneralUtils.GetLabel(TString(n),true,false,false,debug))
         
@@ -309,9 +312,11 @@ def plotShapes( debug, fileName, workName, obs, mode, data ) :
         padbkg[0].SetLogy(1)
         gStyle.SetOptLogy(1)
     padbkg[0].cd()                                                                        
-    pdf[0].plotOn(frame[0], RooFit.LineColor(color[0]), RooFit.LineStyle(style[0]), RooFit.LineWidth(5))
+    if ( modeTS.Contains("DsK") == true):
+        pdf[0].plotOn(frame[0], RooFit.LineColor(color[0]), RooFit.LineStyle(style[0]), RooFit.LineWidth(5))
     pdf[1].plotOn(frame[0], RooFit.LineColor(color[1]), RooFit.LineStyle(style[1]), RooFit.LineWidth(5))
-    legend[0].AddEntry(line[0], namesLatex[0].Data() , "L")
+    if ( modeTS.Contains("DsK") == true):
+        legend[0].AddEntry(line[0], namesLatex[0].Data() , "L")
     legend[0].AddEntry(line[1], namesLatex[1].Data() , "L")
     frame[0].Draw()
     legend[0].Draw("same")
@@ -335,8 +340,7 @@ def plotShapes( debug, fileName, workName, obs, mode, data ) :
                 padbkg[i].SetLogy(1)
                 gStyle.SetOptLogy(1)
             padbkg[i].cd()
-                                        
-                        
+                                                                
             pdf[i+1].plotOn(frame[i],RooFit.LineColor(color[i+1]), RooFit.LineStyle(style[i+1]),  RooFit.LineWidth(5))
             legend[i].AddEntry(line[i+1], namesLatex[i+1].Data() , "L")
             frame[i].Draw()
@@ -368,7 +372,40 @@ def plotShapes( debug, fileName, workName, obs, mode, data ) :
         canv[1].Print(nameSavePdf.Data())
         canv[1].Print(nameSaveRoot.Data())
 
-        if ( obsTS == "lab1_PIDK" or obsTS == "lab2_MM"):
+        if ( obsTS == "lab1_PIDK"):
+            canv[2].cd()
+            pdf[4].plotOn(frame[2], RooFit.LineColor(color[4]), RooFit.LineStyle(style[4]), RooFit.LineWidth(5))
+            pdf[6].plotOn(frame[2], RooFit.LineColor(color[6]), RooFit.LineStyle(style[6]), RooFit.LineWidth(6))
+            legend[2].AddEntry(line[4], namesLatex[4].Data() , "L")
+            legend[2].AddEntry(line[6], namesLatex[6].Data() , "L")
+            frame[2].Draw()
+            legend[2].Draw("same")
+            if ( obsTS == "lab2_MM"):
+                lhcbtext[2].DrawTextNDC( 0.62 , 0.34, "LHCb")
+            else:
+                lhcbtext[2].DrawTextNDC( 0.62 , 0.84, "LHCb")
+            nameSavePdf = TString("template")+pTS+modeTS+pTS+obsTS+pTS+TString("BachK.pdf")
+            nameSaveRoot = TString("template")+pTS+modeTS+pTS+obsTS+pTS+TString("BachK.root")
+            canv[2].Print(nameSavePdf.Data())
+            canv[2].Print(nameSaveRoot.Data())
+
+            canv[3].cd()
+            pdf[5].plotOn(frame[3], RooFit.LineColor(color[5]), RooFit.LineStyle(style[5]), RooFit.LineWidth(5))
+            pdf[7].plotOn(frame[3], RooFit.LineColor(color[7]), RooFit.LineStyle(style[7]), RooFit.LineWidth(5))
+            legend[3].AddEntry(line[5], namesLatex[5].Data() , "L")
+            legend[3].AddEntry(line[7], namesLatex[7].Data() , "L")
+            frame[3].Draw()
+            legend[3].Draw("same")
+            if ( obsTS == "lab2_MM"):
+                lhcbtext[2].DrawTextNDC( 0.62 , 0.34, "LHCb")
+            else:
+                lhcbtext[2].DrawTextNDC( 0.62 , 0.84, "LHCb")
+            nameSavePdf = TString("template")+pTS+modeTS+pTS+obsTS+pTS+TString("BachPi.pdf")
+            nameSaveRoot = TString("template")+pTS+modeTS+pTS+obsTS+pTS+TString("BachPi.root")
+            canv[3].Print(nameSavePdf.Data())
+            canv[3].Print(nameSaveRoot.Data())
+
+        else:
             canv[2].cd()
             pdf[4].plotOn(frame[2], RooFit.LineColor(color[4]), RooFit.LineStyle(style[4]), RooFit.LineWidth(5))
             pdf[5].plotOn(frame[2], RooFit.LineColor(color[5]), RooFit.LineStyle(style[5]), RooFit.LineWidth(5))
@@ -380,26 +417,26 @@ def plotShapes( debug, fileName, workName, obs, mode, data ) :
                 lhcbtext[2].DrawTextNDC( 0.62 , 0.34, "LHCb")
             else:
                 lhcbtext[2].DrawTextNDC( 0.62 , 0.84, "LHCb")
-            nameSavePdf = TString("template")+pTS+modeTS+pTS+obsTS+pTS+TString("BachK.pdf")
-            nameSaveRoot = TString("template")+pTS+modeTS+pTS+obsTS+pTS+TString("BachK.root")
+            nameSavePdf = TString("template")+pTS+modeTS+pTS+obsTS+pTS+TString("Bd2DKPi.pdf")
+            nameSaveRoot = TString("template")+pTS+modeTS+pTS+obsTS+pTS+TString("Bd2DKPi.root")
             canv[2].Print(nameSavePdf.Data())
             canv[2].Print(nameSaveRoot.Data())
-            
-        else:
-            for i in range(2,ranType):
-                canv[i].cd()
-                pdf[i+2].plotOn(frame[i],RooFit.LineColor(color[i+2]), RooFit.LineStyle(style[i+2]), RooFit.LineWidth(5))
-                legend[i].AddEntry(line[i+2], namesLatex[i+2].Data() , "L")
-                frame[i].Draw()
-                legend[i].Draw("same")
-                if ( obsTS == "lab2_MM"):
-                    lhcbtext[i].DrawTextNDC( 0.62 , 0.34, "LHCb")
-                else:
-                    lhcbtext[i].DrawTextNDC( 0.62 , 0.84, "LHCb")
-                nameSavePdf = TString("template")+pTS+modeTS+pTS+obsTS+pTS+TString(modes[i+2])+TString(".pdf")
-                nameSaveRoot = TString("template")+pTS+modeTS+pTS+obsTS+pTS+TString(modes[i+2])+TString(".root")
-                canv[i].Print(nameSavePdf.Data())
-                canv[i].Print(nameSaveRoot.Data())
+        
+            canv[3].cd()
+            pdf[6].plotOn(frame[3], RooFit.LineColor(color[6]), RooFit.LineStyle(style[6]), RooFit.LineWidth(5))
+            pdf[7].plotOn(frame[3], RooFit.LineColor(color[7]), RooFit.LineStyle(style[7]), RooFit.LineWidth(5))
+            legend[3].AddEntry(line[6], namesLatex[6].Data() , "L")
+            legend[3].AddEntry(line[7], namesLatex[7].Data() , "L")
+            frame[3].Draw()
+            legend[3].Draw("same")
+            if ( obsTS == "lab2_MM"):
+                lhcbtext[2].DrawTextNDC( 0.62 , 0.34, "LHCb")
+            else:
+                lhcbtext[2].DrawTextNDC( 0.62 , 0.84, "LHCb")
+            nameSavePdf = TString("template")+pTS+modeTS+pTS+obsTS+pTS+TString("Lb2LcKPi.pdf")
+            nameSaveRoot = TString("template")+pTS+modeTS+pTS+obsTS+pTS+TString("Lb2LcKPi.root")
+            canv[3].Print(nameSavePdf.Data())
+            canv[3].Print(nameSaveRoot.Data())
                     
         canv[ranType].cd()
         legend[ranType].SetTextSize(0.05)
@@ -471,230 +508,6 @@ def plotShapes( debug, fileName, workName, obs, mode, data ) :
         canv[ranType+3].Print(nameSaveRoot.Data())
                                                                                                         
     #exit(0)
-    
-    canv[ranType+1].cd()
-    pad1 = TPad("upperPad", "upperPad",  0.005, 0.005, 0.5, 0.99)
-    
-    pad1.SetBorderMode(0)
-    pad1.SetBorderSize(-1)
-    pad1.SetFillStyle(0)
-    pad1.SetBottomMargin(0.13)
-    pad1.SetTopMargin(0.99)
-    pad1.SetTickx(0);
-    pad1.Draw()
-#    if obsTS == "lab0_MassFitConsD_M":  
-#        pad1.SetLogy(1)
-#        gStyle.SetOptLogy(1)
-    pad1.cd()
-    
-    legend[ranType+1].SetTextSize(0.05)
-    namesLatex5M[0].ReplaceAll("(Non Resonant)","")
-    namesLatex5M[1] = TString("(Non Resonant)")
-        
-    fileNamesSig = []
-    #dirNameSig = "/afs/cern.ch/work/a/adudziak/public/workspace/MDFitter/Signal/"
-    dirNameSig = "/afs/cern.ch/work/a/adudziak/public/workspace/MDFitter/CombBkg/"
-    workNameSig = "FitMeToolWS"
-    workSig = []
-    dataSig = []
-    pullHist = []
-    if obsTS == "lab0_MassFitConsD_M":
-        sufSig = "Bs"
-    elif obsTS == "lab2_MM":
-        sufSig = "Ds"
-    else:
-        sufSig = ""
-
-    sufSig == ""    
-    if sufSig != "":
-        if modeTS.Contains("DsPi") == true:
-            midSig = "DsPi"
-        else:
-            midSig = "DsK"
-
-        for m in ModesDs:
-            if m !="":
-                #fileNamesSig.append(dirNameSig+"WS_MC_"+midSig+"_"+m+"_"+sufSig+"_BDTGA.root")
-                fileNamesSig.append(dirNameSig+"WS_CombBkg_"+midSig+"_"+m+"_"+sufSig+"_BDTGA.root")
-            else:
-                fileNamesSig.append("")
-                
-        for i in range(0,5):
-            if fileNamesSig != "":
-                workSig.append(GeneralUtils.LoadWorkspace(TString(fileNamesSig[i]),TString(workNameSig),debug))
-                #workSig[i].factory("SUM:FullPdf(nSigEvts_both*SigEPDF_both)")
-                workSig[i].factory("SUM:FullPdf(nCombBkgEvts_both*CombBkgEPDF_both)")
-                dataSig.append(GeneralUtils.GetDataSet(workSig[i], TString("combData"), debug))
-                pdfSig.append(workSig[i].pdf("FullPdf")) 
-                print "data contains: %d"%(dataSig[i].numEntries())
-                
-        pullname2TS = TString("h_combData_Cut[sample==sample::both]")
-        pullname3TS = TString("SigEPDF_both")
-        pullnameTS = TString("FullPdf_Norm[")+obsTS+TString("]")
-        frame[ranType+2].GetXaxis().SetLabelSize( 0.04 );
-        frame[ranType+2].GetXaxis().SetTitleSize( 0.05 );
-
-        dataSig[0].plotOn(frame[ranType+2],RooFit.Cut("sample==sample::both"),
-                            RooFit.MarkerStyle(22), RooFit.MarkerColor(color5M[i]),
-                            RooFit.Binning(20), RooFit.MarkerSize(2), RooFit.Invisible())
-        
-        dataSig[0].plotOn(frame[ranType+1],RooFit.Cut("sample==sample::both"),RooFit.Invisible())
-        pdfSig[0].plotOn(frame[ranType+1],RooFit.LineColor(color5M[0]), RooFit.LineStyle(style5M[0]))
-        pdfSig[0].plotOn(frame[ranType+2],RooFit.LineColor(color5M[0]), RooFit.LineStyle(style5M[0]), RooFit.LineWidth(2))
-        pullHist.append(frame[ranType+1].pullHist(pullname2TS.Data(),pullnameTS.Data()))
-         
-        for i in range (2,6):
-            dataSig[i-1].plotOn(frame[ranType+1],RooFit.Cut("sample==sample::both"),RooFit.Invisible())
-            pdfSig[i-1].plotOn(frame[ranType+1],RooFit.LineColor(color5M[i]), RooFit.LineStyle(style5M[i]))
-
-            scaleA = dataSig[0].sumEntries()/dataSig[i-1].sumEntries()
-            dataSig[i-1].plotOn(frame[ranType+2],RooFit.Cut("sample==sample::both"),
-                                RooFit.MarkerStyle(21+i), RooFit.MarkerColor(color5M[i]),
-                                RooFit.Rescale(scaleA), RooFit.Binning(20), RooFit.MarkerSize(2), RooFit.Invisible())
-            pdfSig[i-1].plotOn(frame[ranType+2],RooFit.LineColor(color5M[i]),
-                               RooFit.LineStyle(style5M[i]), RooFit.LineWidth(2), RooFit.Normalization(scaleA))
-            frame[ranType+1].Print()
-            pullHist.append(frame[ranType+1].pullHist(pullname2TS.Data(),pullnameTS.Data()))
-            
-        for i in range(0,6):
-            legend[ranType+1].AddEntry(line5M[i], namesLatex5M[i].Data() , "L")
-        
-        legend[ranType+1].SetTextSize(0.04)
-        frame[ranType+2].Draw()
-        legend[ranType+1].Draw("same")
-        lhcbtext[ranType+1].DrawTextNDC( 0.72 , 0.85, "LHCb")
-        #lhcbtext[ranType+1].DrawTextNDC( 0.42, 0.85, "LHCb")
-        pad1.Update()
-        
-        canv[ranType+1].cd()
-        gStyle.SetOptLogy(0)
-        pad2 = []
-        text = []
-        frame_p = []
-        graph1 = []
-        graph2 = []
-        graph3 = []
-        x = [.5, 1.0]
-        y1 = [ 0.005, 0.195, 0.385, 0.575, 0.765]
-        y2 = [ 0.190, 0.380, 0.570, 0.760, 0.950]
-        y  = [ ]
-        for i in range (0,5):
-            canv[ranType+1].cd()
-            namepad = "lowerPad"+str(i)
-            if i == 4:
-                y1A = y1[4-i]+0.01
-                y2A = y2[4-i]+0.07
-            elif i == 2:
-                y1A = y1[4-i]-0.03
-                y2A = y2[4-i]+0.03
-            elif i == 0:
-                y1A = y1[4-i]-0.06
-                y2A = y2[4-i]
-            elif i == 1:
-                y1A = y1[4-i]-0.04
-                y2A = y2[4-i]+0.02
-            elif i == 3:
-                y1A = y1[4-i]-0.01
-                y2A = y2[4-i]+0.045
-                                                   
-            else:
-                y1A = y1[4-i]
-                y2A = y2[4-i]
-                
-            
-            '''
-            if i == 4:
-                y1A = y1[4-i]
-            else:
-                y1A = y1[4-i]-0.05
-            if i == 0:
-                y2A = y2[4-i]
-            else:
-                y2A = y2[4-i]+0.05
-            '''
-            pad2.append(TPad(namepad, namepad,  x[0], y1A, x[1], y2A))
-            
-            pad2[i].SetBorderMode(0)
-            pad2[i].SetBorderSize(-1)
-            pad2[i].SetFillStyle(0)
-            pad2[i].SetBottomMargin(0.35)
-            pad2[i].SetTickx(0);
-            pad2[i].Draw()
-            pad2[i].SetLogy(0)
-            pad2[i].cd()
-
-                                             
-            frame_p.append(obs.frame(RooFit.Title("pull_frame")))
-            frame_p[i].Print("v")
-            frame_p[i].SetTitle("")
-            frame_p[i].GetYaxis().SetTitle("")
-            frame_p[i].GetXaxis().SetTitle(label.Data())
-            frame_p[i].GetYaxis().SetTitleSize(0.09)
-            frame_p[i].GetYaxis().SetTitleOffset(0.26)
-            frame_p[i].GetYaxis().SetTitleFont(62)
-            frame_p[i].GetYaxis().SetNdivisions(106)
-            frame_p[i].GetYaxis().SetLabelSize(0.15)
-            frame_p[i].GetYaxis().SetLabelOffset(0.006)
-            frame_p[i].GetXaxis().SetTitleSize(0.17)
-            frame_p[i].GetXaxis().SetTitleFont(132)
-            frame_p[i].GetXaxis().SetTitleOffset(0.85)
-            #frame_p[i].GetXaxis().SetNdivisions(5)
-            frame_p[i].GetYaxis().SetNdivisions(5)
-            frame_p[i].GetXaxis().SetLabelSize(0.12)
-            frame_p[i].GetXaxis().SetLabelFont( 132 )
-            frame_p[i].GetYaxis().SetLabelFont( 132 )
-            if i != 4:
-                frame_p[i].GetXaxis().SetLabelColor( kWhite)
-                frame_p[i].GetXaxis().SetTitle("")
-            frame_p[i].addPlotable(pullHist[i],"P")
-
-            frame_p[i].Draw()
-
-            axisY = pullHist[i].GetYaxis()
-            max = axisY.GetXmax()
-            min = axisY.GetXmin()
-
-            range_dw = obs.getMin()
-            range_up = obs.getMax()
-            
-            graph1.append(TGraph(2))
-            graph1[i].SetMaximum(max)
-            graph1[i].SetMinimum(min)
-            graph1[i].SetPoint(1,range_dw,0)
-            graph1[i].SetPoint(2,range_up,0)
-            
-            graph2.append(TGraph(2))
-            graph2[i].SetMaximum(max)
-            graph2[i].SetMinimum(min)
-            graph2[i].SetPoint(1,range_dw,-3)
-            graph2[i].SetPoint(2,range_up,-3)
-            graph2[i].SetLineColor(kRed)
-            
-            graph3.append(TGraph(2))
-            graph3[i].SetMaximum(max)
-            graph3[i].SetMinimum(min)
-            graph3[i].SetPoint(1,range_dw,3)
-            graph3[i].SetPoint(2,range_up,3)
-            graph3[i].SetLineColor(kRed)
-
-            graph1[i].Draw("same")
-            graph2[i].Draw("same")
-            graph3[i].Draw("same")
-
-            text.append(TLatex())
-            text[i].SetTextFont(132)
-            text[i].SetTextColor(1)
-            text[i].SetTextSize(0.20)
-            text[i].SetTextAlign(22)
-            text[i].SetTextAngle(90)
-            text[i].DrawTextNDC(0.03, 0.605, ModesDs[i])
-            pad2[i].Update()
-        
-        canv[ranType+1].Update() 
-        nameSavePdf = TString("template_CombBkg")+pTS+obsTS+pTS+TString(mode)+TString(".pdf")
-        nameSaveRoot = TString("template_CombBkg")+pTS+obsTS+pTS+TString(mode)+TString(".root")
-        canv[ranType+1].Print(nameSavePdf.Data())
-        canv[ranType+1].Print(nameSaveRoot.Data())
 
     if obsTS == "lab1_PIDK":
         p

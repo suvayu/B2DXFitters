@@ -112,7 +112,7 @@ namespace MassFitUtils {
   // Get cut for background MC 
   //===========================================================================
 
-  TCut GetCutMCBkg( MDFitterSettings* mdSet, TString mode, TString hypo, bool debug = false );
+  TCut GetCutMCBkg( MDFitterSettings* mdSet, TString mode, TString hypo, TString modeD, bool debug = false );
 
   //===========================================================================
   // Get name of PID hist for bachelor  - background MC

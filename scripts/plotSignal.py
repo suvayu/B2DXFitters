@@ -304,9 +304,15 @@ if __name__ == '__main__' :
         if ( mVarTS == "lab0_MassFitConsD_M" or  mVarTS == "Bs_MassConsDs_M"):
             range_down = 5000
             range_up = 5400
+            bin = 120
+            Bin = RooBinning(range_down,range_up,'P')
+            Bin.addUniform(bin, range_down, range_up)
         else:
             range_down = 1830 
             range_up = 1920         
+            bin = 120
+            Bin = RooBinning(range_down,range_up,'P')
+            Bin.addUniform(bin, range_down, range_up)
     else:
         if ( mVarTS == "lab0_MassFitConsD_M" or  mVarTS == "Bs_MassConsDs_M"):
             range_down = 5100

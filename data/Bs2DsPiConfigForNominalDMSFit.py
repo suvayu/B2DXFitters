@@ -20,8 +20,9 @@ def getconfig() :
     configdict["tacc_beta"]     = 3.4936e-02 #0.0363
     configdict["tacc_turnon"]   = 1.3291e+00 #1.215
 
-    configdict["calibration_p1"] = 1.035 #1.035
-    configdict["calibration_p0"] = 0.392 #-0.013
+    configdict["calibration_p0"]  = [0.3834, 0.4244]
+    configdict["calibration_p1"]  = [0.9720, 1.2180]
+    configdict["calibration_av"]  = [0.3813, 0.4097]
     
     configdict["TemplateFile"]      = "/afs/cern.ch/work/a/adudziak/public/workspace/MDFitter/templates_BsDsPi.root"
     configdict["TemplateWorkspace"] = "workspace"

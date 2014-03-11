@@ -475,7 +475,7 @@ if __name__ == '__main__' :
 
     if ( mVarTS == "lab0_MassFitConsD_M" or mVarTS == "lab1_PIDK"):
         gStyle.SetOptLogy(1)
-        if (mod == "all" and mVarTS == "lab0_MassFitConsD_M"):
+        if ((mod == "all" or mod == "pipipi") and mVarTS == "lab0_MassFitConsD_M"):
             frame_m.GetYaxis().SetRangeUser(10,frame_m.GetMaximum()*1.35)
         else:
             frame_m.GetYaxis().SetRangeUser(1.5,frame_m.GetMaximum()*1.35)

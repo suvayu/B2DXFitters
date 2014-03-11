@@ -9,6 +9,7 @@
 #include "RooAddPdf.h"
 #include "RooHistPdf.h"
 #include "RooProdPdf.h"
+#include "RooArgList.h"
 
 namespace Bs2Dsh2011TDAnaModels {
   
@@ -366,6 +367,8 @@ namespace Bs2Dsh2011TDAnaModels {
   // Check RooRealVar (whether is null).
   //===============================================================================
   bool CheckVar(RooRealVar* var, bool debug = false); 
+
+  RooArgList* AddEPDF(RooArgList* list, RooExtendPdf* pdf, RooRealVar *numEvts, bool debug = false); 
 }
 
 #endif

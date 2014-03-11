@@ -162,19 +162,20 @@ def runBsDsKMassFitterOnData( debug, sample, mVar, mdVar, tVar, terrVar, tagVar,
 
     workspace = []
     workspace.append(GeneralUtils.LoadWorkspace(TString(fileNameAll),workNameTS, debug))
+    #workData = GeneralUtils.LoadWorkspace(TString("work_dsk_data.root"),workNameTS, debug)
     workData = workspace[0]
      
     obsTS = TString(mVar)
     
     if (not toys ):
-        mass        = GeneralUtils.GetObservable(workspace[0],obsTS, debug)
-        massDs      = GeneralUtils.GetObservable(workspace[0],TString(mdVar), debug)
-        PIDK        = GeneralUtils.GetObservable(workspace[0],TString("lab1_PIDK"), debug)
-        tvar        = GeneralUtils.GetObservable(workspace[0],TString(tVar), debug)
-        terrvar     = GeneralUtils.GetObservable(workspace[0],TString(terrVar), debug)
-        idvar       = GeneralUtils.GetCategory(workspace[0],TString(idVar), debug)
-        nTrvar      = GeneralUtils.GetObservable(workspace[0],TString("nTracks"), debug)
-        ptvar       = GeneralUtils.GetObservable(workspace[0],TString("lab1_PT"), debug)
+        mass        = GeneralUtils.GetObservable(workData,obsTS, debug)
+        massDs      = GeneralUtils.GetObservable(workData,TString(mdVar), debug)
+        PIDK        = GeneralUtils.GetObservable(workData,TString("lab1_PIDK"), debug)
+        tvar        = GeneralUtils.GetObservable(workData,TString(tVar), debug)
+        terrvar     = GeneralUtils.GetObservable(workData,TString(terrVar), debug)
+        idvar       = GeneralUtils.GetCategory(workData,TString(idVar), debug)
+        nTrvar      = GeneralUtils.GetObservable(workData,TString("nTracks"), debug)
+        ptvar       = GeneralUtils.GetObservable(workData,TString("lab1_PT"), debug)
                 
     else:
         mass        = GeneralUtils.GetObservable(workspaceToys,obsTS, debug)
@@ -200,29 +201,29 @@ def runBsDsKMassFitterOnData( debug, sample, mVar, mdVar, tVar, terrVar, tagVar,
     if not toys:
         if MDSettings.CheckAddVar() == true:
             for i in range(0,MDSettings.GetNumAddVar()):
-                addVar = GeneralUtils.GetObservable(workspace[0], MDSettings.GetAddVarName(i), debug)
+                addVar = GeneralUtils.GetObservable(workData, MDSettings.GetAddVarName(i), debug)
                 observables.add(addVar)
             
         tagVar = []
         if MDSettings.CheckTagVar() == true:
             for i in range(0,MDSettings.GetNumTagVar()):
-                tagVar.append(GeneralUtils.GetCategory(workspace[0], MDSettings.GetTagVar(i), debug))
+                tagVar.append(GeneralUtils.GetCategory(workData, MDSettings.GetTagVar(i), debug))
                 observables.add(tagVar[i])
             
         tagOmegaVar = []
         tagOmegaVarCalib = []
         if MDSettings.CheckTagOmegaVar() == true:
             for i in range(0,MDSettings.GetNumTagOmegaVar()):
-                tagOmegaVar.append(GeneralUtils.GetObservable(workspace[0], MDSettings.GetTagOmegaVar(i), debug))
+                tagOmegaVar.append(GeneralUtils.GetObservable(workData, MDSettings.GetTagOmegaVar(i), debug))
                 observables.add(tagOmegaVar[i])
                 nameCalib = MDSettings.GetTagOmegaVar(i) + TString("_calib")
                 tagOmegaVarCalib.append(GeneralUtils.GetObservable(workData, nameCalib, debug))
                 observables.add(tagOmegaVarCalib[i])
                 
         tagDecCombName = TString("tagDecComb")
-        tagDecComb = GeneralUtils.GetCategory(workspace[0], tagDecCombName, debug)
+        tagDecComb = GeneralUtils.GetCategory(workData, tagDecCombName, debug)
         tagOmegaCombName= TString("tagOmegaComb")
-        tagOmegaComb = GeneralUtils.GetObservable(workspace[0], tagOmegaCombName, debug)
+        tagOmegaComb = GeneralUtils.GetObservable(workData, tagOmegaCombName, debug)
         
         observables.add(tagDecComb)
         observables.add(tagOmegaComb)
@@ -492,7 +493,7 @@ def runBsDsKMassFitterOnData( debug, sample, mVar, mdVar, tVar, terrVar, tagVar,
         nameBsLb2DsDsstPPiRho = TString("nBsLb2DsDsstPPiRho_")+sm[i]+t+evts
         nameLb2LcK = TString("nLb2LcK_")+sm[i]+t+evts
         nameLb2LcPi = TString("nLb2LcPi_")+sm[i]+t+evts
-        nameBs2DsDssKKst = TString("nBs2DsDssKKst_")+sm[i]+t+evts
+        nameBs2DsDssKKst = TString("nBs2DsDsstKKst_")+sm[i]+t+evts
         nameBd2DK = TString("nBd2DK_")+sm[i]+t+evts
         nameBd2DPi = TString("nBd2DPi_")+sm[i]+t+evts
 
@@ -695,7 +696,7 @@ def runBsDsKMassFitterOnData( debug, sample, mVar, mdVar, tVar, terrVar, tagVar,
             nameBs2DsDsstPiRho = TString("nBsLb2DsDsstPPiRho_")+sm[i]+t+evts
             #nameBs2DsPi = TString("nBs2DsPi_")+sm[i]+t+evts
             nameLb2LcK = TString("nLb2LcK_")+sm[i]+t+evts
-            nameBs2DsDssKKst = TString("nBs2DsDssKKst_")+sm[i]+t+evts
+            nameBs2DsDssKKst = TString("nBs2DsDsstKKst_")+sm[i]+t+evts
             nameLb2DsDsstp = TString("nLb2DsDsstp_")+sm[i]+t+evts
             nameBd2DK = TString("nBd2DK_")+sm[i]+t+evts
 

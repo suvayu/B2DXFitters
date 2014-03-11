@@ -364,7 +364,7 @@ fitted_signal = TH1F("fitted_signal","fitted_signal",100,28000,32000)
 fitted_signal.GetXaxis().SetTitle("Fitted signal events")
 errf_signal   = TH1F("errf_signal","errf_signal",100,100,300)
 errf_signal.GetXaxis().SetTitle("Fitted signal error")
-pull_signal   = TH1F("pull_signal","pull_signal",50,-5,5)
+pull_signal   = TH1F("pull_signal","pull_signal",nbinspull,lowerpullrange,upperpullrange)
 pull_signal.GetXaxis().SetTitle("Fitted Signal Pull")
 
 for thistoy in range(0,ntoys) :
@@ -585,7 +585,7 @@ fitted_f1 = TH1F("fitted_f1","fitted_f5",100,0.5,1)
 fitted_f1.GetXaxis().SetTitle("Fitted g1_f1 events")
 errf_f1   = TH1F("errf_f1","errf_f1",100,0,0.3)
 errf_f1.GetXaxis().SetTitle("Fitted error")
-pull_f1   = TH1F("pull_f1","pull_f1",50,-5,5)
+pull_f1   = TH1F("pull_f1","pull_f1",nbinspull,lowerpullrange,upperpullrange)
 pull_f1.GetXaxis().SetTitle("Fitted Pull")
 
 for thistoy in range(0,ntoys) :

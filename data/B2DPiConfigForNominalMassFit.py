@@ -1,3 +1,4 @@
+
 def getconfig() :
 
     configdict = {}
@@ -13,13 +14,13 @@ def getconfig() :
     configdict["BDPi_D_BDTGA_alpha2"]  = [-2.9946e+00] #[-2.3337]
     configdict["BDPi_D_BDTGA_frac"]    = [4.0597e-01] #[0.71173]
 
-    configdict["BDPi_D_BDTGA_sigma1_nopid"]  = [9.7878e+00*1.16] #[6.0109]                                                                                    
-    configdict["BDPi_D_BDTGA_sigma2_nopid"]  = [5.5775e+00*1.19] #[11.710]                                                                                     
-    configdict["BDPi_D_BDTGA_n1_nopid"]      = [1.5563e+00] #[0.3688]                                                         
-    configdict["BDPi_D_BDTGA_n2_nopid"]      = [8.6475e-01] #[1.0265]                                                                 
-    configdict["BDPi_D_BDTGA_alpha1_nopid"]  = [1.7660e+00] #[2.5717]                                                                     
-    configdict["BDPi_D_BDTGA_alpha2_nopid"]  = [-2.7750e+00] #[-2.3337]                                                                              
-    configdict["BDPi_D_BDTGA_frac_nopid"]    = [4.3761e-01] #[0.71173]                   
+    configdict["BDPi_D_BDTGA_sigma1_nopid"]  = [9.7880e+00] #[6.0109]                                                                    
+    configdict["BDPi_D_BDTGA_sigma2_nopid"]  = [5.5777e+00] #[11.710]                                                                       
+    configdict["BDPi_D_BDTGA_n1_nopid"]      = [1.5555e+00] #[0.3688]                                                         
+    configdict["BDPi_D_BDTGA_n2_nopid"]      = [8.6615e-01] #[1.0265]                                                                 
+    configdict["BDPi_D_BDTGA_alpha1_nopid"]  = [1.7662e+00] #[2.5717]                                                                     
+    configdict["BDPi_D_BDTGA_alpha2_nopid"]  = [-2.7740e+00] #[-2.3337]                                                         
+    configdict["BDPi_D_BDTGA_frac_nopid"]    = [4.3756e-01] #[0.71173]                   
 
     configdict["BDPi_D_BDTGC_sigma1"]  = [5.9603]
     configdict["BDPi_D_BDTGC_sigma2"]  = [11.173]
@@ -63,13 +64,13 @@ def getconfig() :
     configdict["BDPi_B_BDTGA_alpha2"]  = [-2.0650e+00] #[-0.49187]
     configdict["BDPi_B_BDTGA_frac"]    = [2.5354e-01] #[0.87419]
     
-    configdict["BDPi_B_BDTGA_sigma1_nopid"]  = [2.7500e+01*1.22] #[6.0109]                                                                                     
-    configdict["BDPi_B_BDTGA_sigma2_nopid"]  = [1.3146e+01*1.28] #[11.710]                                                                                     
-    configdict["BDPi_B_BDTGA_n1_nopid"]      = [2.2977e+00] #[0.3688]                                                                                          
-    configdict["BDPi_B_BDTGA_n2_nopid"]      = [1.8053e+01] #[1.0265]                                                                                           
-    configdict["BDPi_B_BDTGA_alpha1_nopid"]  = [1.0164e+00] #[2.5717]                                                                                          
-    configdict["BDPi_B_BDTGA_alpha2_nopid"]  = [-4.7030e+00] #[-2.3337]                                                                                        
-    configdict["BDPi_B_BDTGA_frac_nopid"]    = [1.7365e-01] #[0.71173]                                     
+    configdict["BDPi_B_BDTGA_sigma1_nopid"]  = [2.7504e+01] #[6.0109]                                                              
+    configdict["BDPi_B_BDTGA_sigma2_nopid"]  = [1.3146e+01] #[11.710]                                                                       
+    configdict["BDPi_B_BDTGA_n1_nopid"]      = [2.2966e+00] #[0.3688]                                                                            
+    configdict["BDPi_B_BDTGA_n2_nopid"]      = [1.8046e+01] #[1.0265]                                                                             
+    configdict["BDPi_B_BDTGA_alpha1_nopid"]  = [1.0165e+00] #[2.5717]                                                                  
+    configdict["BDPi_B_BDTGA_alpha2_nopid"]  = [-4.8090e+00] #[-2.3337]                                                              
+    configdict["BDPi_B_BDTGA_frac_nopid"]    = [1.7359e-01] #[0.71173]                                
 
     configdict["BDPi_B_BDTGC_sigma1"]  = [11.584]
     configdict["BDPi_B_BDTGC_sigma2"]  = [17.875]

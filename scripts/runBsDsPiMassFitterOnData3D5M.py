@@ -144,10 +144,9 @@ def runBsDsKMassFitterOnData( debug, sample,
     MDSettings = MDFitterSettings("MDSettings","MDFSettings",config)    
            
     workNameTS = TString(workName)
-    #workData = GeneralUtils.LoadWorkspace(TString("work_dspi_pid_53005800_PIDK0_5M_BDTGA_4.root"),workNameTS,debug)
+    #workData = GeneralUtils.LoadWorkspace(TString("work_dspi_data.root"),workNameTS,debug)
     workspace = []
     workspace.append(GeneralUtils.LoadWorkspace(TString(fileNameAll),workNameTS,debug))
-    #workspaceID = GeneralUtils.LoadWorkspace(TString(fileNameAllID),workNameTS,debug)
     workData = workspace[0]
 
     obsTS = TString(mVar)
@@ -159,6 +158,7 @@ def runBsDsKMassFitterOnData( debug, sample,
         toys = true
         workspaceToys = (GeneralUtils.LoadWorkspace(TString(fileNameToys),workNameTS, debug))
         workspaceToys.Print("v")
+        workData = workspaceToys
                  
     if mode == "hhhpi0":
         mdVar = "Ds_MM"
@@ -181,14 +181,14 @@ def runBsDsKMassFitterOnData( debug, sample,
     MDSettings.SetIDVar(TString(idVar))    
 
     if (not toys ):
-        mass        = GeneralUtils.GetObservable(workspace[0],TString(mVar), debug)
-        massDs      = GeneralUtils.GetObservable(workspace[0],TString(mdVar), debug)
-        PIDK        = GeneralUtils.GetObservable(workspace[0],TString(pidVar), debug)
-        tvar        = GeneralUtils.GetObservable(workspace[0],TString(tVar), debug)
-        terrvar     = GeneralUtils.GetObservable(workspace[0],TString(terrVar), debug)
-        idvar       = GeneralUtils.GetCategory(workspace[0],TString(idVar), debug)
-        nTrvar      = GeneralUtils.GetObservable(workspace[0],TString(nTrVar), debug)
-        ptvar       = GeneralUtils.GetObservable(workspace[0],TString(ptVar), debug)
+        mass        = GeneralUtils.GetObservable(workData,TString(mVar), debug)
+        massDs      = GeneralUtils.GetObservable(workData,TString(mdVar), debug)
+        PIDK        = GeneralUtils.GetObservable(workData,TString(pidVar), debug)
+        tvar        = GeneralUtils.GetObservable(workData,TString(tVar), debug)
+        terrvar     = GeneralUtils.GetObservable(workData,TString(terrVar), debug)
+        idvar       = GeneralUtils.GetCategory(workData,TString(idVar), debug)
+        nTrvar      = GeneralUtils.GetObservable(workData,TString(nTrVar), debug)
+        ptvar       = GeneralUtils.GetObservable(workData,TString(ptVar), debug)
                 
     else:
         mass        = GeneralUtils.GetObservable(workspaceToys,obsTS, debug)
@@ -209,29 +209,29 @@ def runBsDsKMassFitterOnData( debug, sample,
         
     if MDSettings.CheckAddVar() == true:
         for i in range(0,MDSettings.GetNumAddVar()):
-            addVar = GeneralUtils.GetObservable(workspace[0], MDSettings.GetAddVarName(i), debug)
+            addVar = GeneralUtils.GetObservable(workData, MDSettings.GetAddVarName(i), debug)
             observables.add(addVar)
 
     tagVar = []
     if MDSettings.CheckTagVar() == true:
         for i in range(0,MDSettings.GetNumTagVar()):
-            tagVar.append(GeneralUtils.GetCategory(workspace[0], MDSettings.GetTagVar(i), debug))
+            tagVar.append(GeneralUtils.GetCategory(workData, MDSettings.GetTagVar(i), debug))
             observables.add(tagVar[i])
                         
     tagOmegaVar = []
     tagOmegaVarCalib = []
     if MDSettings.CheckTagOmegaVar() == true:
         for i in range(0,MDSettings.GetNumTagOmegaVar()):
-            tagOmegaVar.append(GeneralUtils.GetObservable(workspace[0], MDSettings.GetTagOmegaVar(i), debug))
+            tagOmegaVar.append(GeneralUtils.GetObservable(workData, MDSettings.GetTagOmegaVar(i), debug))
             nameCalib = MDSettings.GetTagOmegaVar(i) + TString("_calib")
-            tagOmegaVarCalib.append(GeneralUtils.GetObservable(workspace[0], nameCalib, debug))
+            tagOmegaVarCalib.append(GeneralUtils.GetObservable(workData, nameCalib, debug))
             observables.add(tagOmegaVar[i])
             observables.add(tagOmegaVarCalib[i])
             
     tagDecCombName = TString("tagDecComb")         
-    tagDecComb = GeneralUtils.GetCategory(workspace[0], tagDecCombName, debug)
+    tagDecComb = GeneralUtils.GetCategory(workData, tagDecCombName, debug)
     tagOmegaCombName= TString("tagOmegaComb")
-    tagOmegaComb = GeneralUtils.GetObservable(workspace[0], tagOmegaCombName, debug) 
+    tagOmegaComb = GeneralUtils.GetObservable(workData, tagOmegaCombName, debug) 
 
     observables.add(tagDecComb)
     observables.add(tagOmegaComb)

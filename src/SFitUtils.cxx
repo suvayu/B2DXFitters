@@ -238,7 +238,7 @@ namespace SFitUtils {
     obs->setName(setOfObsName.Data());
     
     TString namew = "sWeights";
-    weights = new RooRealVar(namew.Data(), namew.Data(), -2.0, 2.0 );  // create weights //
+    weights = new RooRealVar(namew.Data(), namew.Data(), -1.0, 1.5 );  // create weights //
     obs->add(*weights);
 
     //obs->add(*lab1_P);
