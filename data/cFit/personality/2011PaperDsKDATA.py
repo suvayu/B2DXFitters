@@ -102,27 +102,30 @@
             },
         'MistagCalibrationParams': {
                 'Bs2DsK': [
-                    [ [ 0.3823, 1., 0.3823 ] ],
-                    [ [ 0.4244, 1., 0.4244 ] ],
-                    [ [ 0.3610, 1., 0.3610 ] ],
+                    [ [ 0.3834, 0.9994, 0.3834 ] ],
+                    [ [ 0.4244, 1.0002, 0.4244 ] ],
+                    [ [ 0.3625, 0.9998, 0.3625 ] ],
                     ],
                 'Bd': [
-                    [ [ 0.3823, 1., 0.3823 ] ],
+                    [ [ 0.3834, 0.9994, 0.3834 ] ],
                     [ [ 0.5, 0., 0. ] ],
-                    [ [ 0.3610, 1., 0.3610 ] ],
+                    [ [ 0.3625, 0.9998, 0.3625 ] ],
                     ],
                 },
         'Constraints': {
-                'Bs2DsK_Mistag0CalibB_p0': 0.0014,
-                'Bs2DsK_Mistag0CalibB_p1': 0.0173,
-                'Bs2DsK_Mistag1CalibB_p0': 0.0086,
-                'Bs2DsK_Mistag1CalibB_p1': 0.1110,
-                'Bs2DsK_Mistag2CalibB_p0': 0.0026,
-                'Bs2DsK_Mistag2CalibB_p1': 0.0285,
-                'Bd_Mistag0CalibB_p0': 0.0014,
-                'Bd_Mistag0CalibB_p1': 0.0173,
-                'Bd_Mistag2CalibB_p0': 0.0026,
-                'Bd_Mistag2CalibB_p1': 0.0285,
+                'Bs2DsK_Mistag0CalibB_p0': 0.0042,
+                'Bs2DsK_Mistag0CalibB_p1': 0.0382,
+                'Bs2DsK_Mistag1CalibB_p0': 0.0112,
+                'Bs2DsK_Mistag1CalibB_p1': 0.1502,
+                'Bs2DsK_Mistag2CalibB_p0': 0.0051,
+                'Bs2DsK_Mistag2CalibB_p1': 0.0407,
+                'Bd_Mistag0CalibB_p0': 0.0042,
+                'Bd_Mistag0CalibB_p1': 0.0382,
+                'Bd_Mistag2CalibB_p0': 0.0051,
+                'Bd_Mistag2CalibB_p1': 0.0407,
+                'Bd2DPi_lambda': 0.3 * 0.0187,
+                'Bd2DPi_avgSSbar': [ '0.5*(@0+@1)', ['Bd2DPi_S', 'Bd2DPi_Sbar'], +0.046, 0.023 ],
+                'Bd2DPi_difSSbar': [ '0.5*(@0-@1)', ['Bd2DPi_S', 'Bd2DPi_Sbar'], -0.022, 0.021 ],
                 },
         'Asymmetries': {
                 'Prod': {}, 'Det': { }, 'TagEff': {}, 'TagEff_t': {}, 'TagEff_f': {},
@@ -165,10 +168,20 @@
                     'Workspace': 'workspace',
                     'TemplateName': 'TimeErrorPdf_Lb2LcK',
                     'VarName': 'lab0_LifetimeFit_ctauErr', },
+                'Lb2LcPi': {
+                    'File': os.environ['B2DXFITTERSROOT']+'/data/workspace/MDFitter/template_Data_Terr_BsDsK.root',
+                    'Workspace': 'workspace',
+                    'TemplateName': 'TimeErrorPdf_Lb2LcPi',
+                    'VarName': 'lab0_LifetimeFit_ctauErr', },
                 'Bd2DK': {
                     'File': os.environ['B2DXFITTERSROOT']+'/data/workspace/MDFitter/template_Data_Terr_BsDsK.root',
                     'Workspace': 'workspace',
                     'TemplateName': 'TimeErrorPdf_Bd2DK',
+                    'VarName': 'lab0_LifetimeFit_ctauErr', },
+                'Bd2DPi': {
+                    'File': os.environ['B2DXFITTERSROOT']+'/data/workspace/MDFitter/template_Data_Terr_BsDsK.root',
+                    'Workspace': 'workspace',
+                    'TemplateName': 'TimeErrorPdf_Bd2DPi',
                     'VarName': 'lab0_LifetimeFit_ctauErr', },
                 'CombBkg': {
                     'File': os.environ['B2DXFITTERSROOT']+'/data/workspace/MDFitter/template_Data_Terr_BsDsK.root',
@@ -197,6 +210,11 @@
                     'Workspace': 'workspace',
                     'TemplateName': 'kFactor_Lb2LcK_both',
                     'VarName': 'kfactorVar', },
+                'Lb2LcPi': {
+                    'File': os.environ['B2DXFITTERSROOT']+'/data/workspace/MDFitter/template_MC_KFactor_BsDsK_5320_5420.root',
+                    'Workspace': 'workspace',
+                    'TemplateName': 'kFactor_Lb2LcPi_both',
+                    'VarName': 'kfactorVar', },
                 'Lb2Dsp': {
                     'File': os.environ['B2DXFITTERSROOT']+'/data/workspace/MDFitter/template_MC_KFactor_BsDsK_5320_5420.root',
                     'Workspace': 'workspace',
@@ -212,6 +230,11 @@
                     'Workspace': 'workspace',
                     'TemplateName': 'kFactor_Bd2DK_both',
                     'VarName': 'kfactorVar', },
+                'Bd2DPi': {
+                    'File': os.environ['B2DXFITTERSROOT']+'/data/workspace/MDFitter/template_MC_KFactor_BsDsK_5320_5420.root',
+                    'Workspace': 'workspace',
+                    'TemplateName': 'kFactor_Bd2DPi_both',
+                    'VarName': 'kfactorVar', },
                 },
         'AcceptanceFunction': 'Spline',
         'constParams': [
@@ -221,9 +244,4 @@
             '.+_Mistag[0-9]+Calib(B|Bbar)_p[0-9]+',
             'Bs2DsKst_TagEff[0-9]', 'Bs2DsKst_delta', 'Bs2DsKst_lambda', 'Bs2DsKst_phi_w',
             ],
-        'Constraints': {
-                'Bd2DPi_lambda': 0.3 * 0.0187,
-                'Bd2DPi_avgSSbar': [ '0.5*(@0+@1)', ['Bd2DPi_S', 'Bd2DPi_Sbar'], +0.046, 0.023 ],
-                'Bd2DPi_difSSbar': [ '0.5*(@0-@1)', ['Bd2DPi_S', 'Bd2DPi_Sbar'], -0.022, 0.021 ],
-                },
 }
