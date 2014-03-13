@@ -95,6 +95,11 @@
                     [ [ 0., 1., 0. ] ],
                     ],
                 },
+        'Constraints': {
+                'Bd2DPi_lambda': 0.3 * 0.0187,
+                'Bd2DPi_avgSSbar': [ '0.5*(@0+@1)', ['Bd2DPi_S', 'Bd2DPi_Sbar'], +0.046, 0.023 ],
+                'Bd2DPi_difSSbar': [ '0.5*(@0-@1)', ['Bd2DPi_S', 'Bd2DPi_Sbar'], -0.022, 0.021 ],
+                },
         'Asymmetries': {
                 'Prod': {}, 'Det': { }, 'TagEff': {}, 'TagEff_t': {}, 'TagEff_f': {},
                 },
@@ -168,6 +173,11 @@
                     'Workspace': 'workspace',
                     'TemplateName': 'kFactor_Lb2LcK_both',
                     'VarName': 'kfactorVar', },
+                'Lb2LcPi': {
+                    'File': os.environ['B2DXFITTERSROOT']+'/data/workspace/MDFitter/template_MC_KFactor_BsDsK_5320_5420.root',
+                    'Workspace': 'workspace',
+                    'TemplateName': 'kFactor_Lb2LcPi_both',
+                    'VarName': 'kfactorVar', },
                 'Lb2Dsp': {
                     'File': os.environ['B2DXFITTERSROOT']+'/data/workspace/MDFitter/template_MC_KFactor_BsDsK_5300_5800.root',
                     'Workspace': 'workspace',
@@ -183,6 +193,11 @@
                     'Workspace': 'workspace',
                     'TemplateName': 'kFactor_Bd2DK_both',
                     'VarName': 'kfactorVar', },
+                'Bd2DPi': {
+                    'File': os.environ['B2DXFITTERSROOT']+'/data/workspace/MDFitter/template_MC_KFactor_BsDsK_5320_5420.root',
+                    'Workspace': 'workspace',
+                    'TemplateName': 'kFactor_Bd2DPi_both',
+                    'VarName': 'kfactorVar', },
                 },
         'AcceptanceFunction': 'Spline',
         'constParams': [
@@ -192,9 +207,4 @@
             '.+_Mistag[0-9]+Calib(B|Bbar)_p[0-9]+',
             'Bs2DsKst_TagEff[0-9]', 'Bs2DsKst_delta', 'Bs2DsKst_lambda', 'Bs2DsKst_phi_w',
             ],
-        'Constraints': {
-                'Bd2DPi_lambda': 0.3 * 0.0187,
-                'Bd2DPi_avgSSbar': [ '0.5*(@0+@1)', ['Bd2DPi_S', 'Bd2DPi_Sbar'], +0.046, 0.023 ],
-                'Bd2DPi_difSSbar': [ '0.5*(@0-@1)', ['Bd2DPi_S', 'Bd2DPi_Sbar'], -0.022, 0.021 ],
-                },
 }
