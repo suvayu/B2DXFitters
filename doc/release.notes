@@ -4,6 +4,9 @@
 ! Purpose     : RooFit-based fitters for B -> D X
 !-----------------------------------------------------------------------------
 
+! 2014-03-20 - Marco Clemencic
+ - Added CMake configuration file.
+
 ! 2014-03-11 - Agnieszka Dziurda
  - add scripts for DsK (DsK* analysis)
  - update everything according to version 2 of DsK note
