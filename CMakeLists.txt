@@ -21,5 +21,8 @@ gaudi_add_library(B2DXFittersLib
                   INCLUDE_DIRS ROOT
                   LINK_LIBRARIES ROOT)
 
+# ensure that genreflex is not called twice (in parallel builds)
+add_dependencies(B2DXFittersLib B2DXFittersDictGen)
+
 gaudi_install_python_modules()
 

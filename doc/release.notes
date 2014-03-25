@@ -4,6 +4,9 @@
 ! Purpose     : RooFit-based fitters for B -> D X
 !-----------------------------------------------------------------------------
 
+! 2014-03-25 - Marco Clemencic
+ - Fixed CMake build.
+
 ! 2014-03-20 - Marco Clemencic
  - Added CMake configuration file.
 
