@@ -149,16 +149,15 @@ def getDecayTimeErrorTemplate(
     from ROOT import ( TFile, RooWorkspace, RooKeysPdf, RooHistPdf,
         RooArgList, RooDataHist, RooArgSet )
     import os
-    #fromfile = os.environ['B2DXFITTERSROOT']+'/data/workspace/MDFitter/templates_BsDsPi.root'
-    #fromfile = "/afs/cern.ch/work/a/adudziak/public/workspace/MDFitter/templates_BsDsK.root"
-    fromfile = "/afs/cern.ch/user/a/adudziak/cmtuser/Urania_v2r1/PhysFit/B2DXFitters/scripts/template_MC_Terr_BsDsPi.root"
+    mode = "DsK"
+    fromfile ='%s/data/workspace/MDFitter/template_Data_Terr_Bs%s.root' % (os.environ['B2DXFITTERSROOT'], mode)
     fromws = 'workspace'
     fromvarname = 'lab0_LifetimeFit_ctauErr'
     fromfile = TFile(fromfile, 'READ')
     workspace = fromfile.Get(fromws)
     ROOT.SetOwnership(workspace, True)
     var = workspace.var(fromvarname)
-    pdf = workspace.pdf('sigTimeErrorPdf_BsDsPi')
+    pdf = workspace.pdf('TimeErrorPdf_Bs2%s' % mode)
     # we need to jump through a few hoops to rename the dataset and variables
     # get underlying histogram
     hist = pdf.dataHist().createHistogram(var.GetName())
@@ -168,7 +167,7 @@ def getDecayTimeErrorTemplate(
     hist.SetDirectory(None)
     # get bounds from var on file
     timeerr.setMin(max(timeerr.getMin(), var.getMin()))
-    timeerr.setMax(max(timeerr.getMax(), var.getMax()))
+    timeerr.setMax(min(timeerr.getMax(), var.getMax()))
     # recreate datahist
     dh = RooDataHist('sigTimeErrPdf_dhist', 'sigTimeErrPdf_dhist',
             RooArgList(timeerr), hist)
