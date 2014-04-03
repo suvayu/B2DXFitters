@@ -4,6 +4,11 @@
 ! Purpose     : RooFit-based fitters for B -> D X
 !-----------------------------------------------------------------------------
 
+! 2014-04-03 - Manuel Tobias Schiller
+ - added python class to wrap RooFitResults in a python-only object that's a
+   bit friendlier for comparing fitters/toys/...
+   the interface is probably not final yet
+
 ! 2014-03-25 - Marco Clemencic
  - Fixed CMake build.
 
