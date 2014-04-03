@@ -70,6 +70,8 @@ class FitResult:
           blinding offset is)
         - options is a list of options, currently, the only supported value
           is 'SameDataSet'
+        - in case more than one regex in blindmap matches, the longest match
+          wins
 
         Example:
 
@@ -158,11 +160,18 @@ class FitResult:
             # no blinding for parameters that do not float
             if not idx in self._finalparam: continue
             blind, ofs = False, 0.
+            mlen = 0
             for re in blindres:
-                if re.match(oldname) or re.match(newname):
+                m1 = re.match(oldname)
+                m2 = re.match(newname)
+                if m1 or m2:
                     blind = True
-                    ofs = float(blindres[re])
-                    break
+                    if m1 and mlen <= (m1.end() - m1.start()):
+                        ofs = float(blindres[re])
+                        mlen = m1.end() - m1.start()
+                    if m2 and mlen <= (m2.end() - m2.start()):
+                        ofs = float(blindres[re])
+                        mlen = m2.end() - m2.start()
             if not blind:
                 self._blindingOffsets[idx] = 0.
                 continue
@@ -173,10 +182,10 @@ class FitResult:
             rnd.seed(blindstr + newname)
             # flat between -ofs and ofs
             while True:
-                ofs = ofs * 2. * (rnd.random() - 0.5)
+                rofs = ofs * 2. * (rnd.random() - 0.5)
                 if 0. != ofs: break
-            self._blindingOffsets[idx] = ofs
-            self._finalparam[idx] = self._finalparam[idx] + ofs
+            self._blindingOffsets[idx] = rofs
+            self._finalparam[idx] = self._finalparam[idx] + rofs
 
         # put in new name-index mappings
         self._name2Index = newn2i
@@ -406,13 +415,14 @@ class FitResult:
             err = sqrt(self._cov[idx][idx])
             llo = self._finalparamlimlo[idx]
             lhi = self._finalparamlimhi[idx]
+            bof = self._blindingOffsets[idx]
             comment = ''
             if llo > -float_info.max or lhi < float_info.max:
                 comment += ' L(%s, %s)' % (
                         formats['n'] % llo, formats['n'] % lhi)
             if 0. != self._blindingOffsets[idx]:
                 comment += ' BLINDED'
-            if llo >= fin or fin >= lhi:
+            if llo >= (fin - bof) or (fin - bof) >= lhi:
                 comment += ' *** AT LIMIT ***'
             retVal += '%2u %-24s %s %s %s%s\n' % (idx, name,
                     formats['n'] % ini, formats['n'] % fin, formats['n'] % err,
