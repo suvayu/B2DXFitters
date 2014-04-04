@@ -118,18 +118,22 @@ def grabResult(filename):
                   'p1_2': 'Bs2DsK_Mistag2CalibB_p1',
                   }
     blinds = {
-            # CP parameters blinded with random offset from -3 ... +3
-            '^Bs2DsK_(C|D|Dbar|S|Sbar)$': 3.0,
+            # CP parameters blinded with random offset from 13 ... 17
+            '^Bs2DsK_(C|D|Dbar|S|Sbar)$': [ 13.0, 17.0 ],
             # everything else connected with DsK is blinded with random offset
-            # from -1 ... 1 (efficiencies, calibrations, ...)
-            '^Bs2DsK': 1.0
+            # from +3 ... +7 (efficiencies, calibrations, ...)
+            '^Bs2DsK': [ 3.0, 7.0 ],
             }
     f = TFile(filename, "READ")
     # try to read cFit style fitresult
     for key in f.GetListOfKeys():
         if not TClass.GetClass(key.GetClassName()).InheritsFrom('RooFitResult'):
             continue
-        return FitResult(key.ReadObj(), renames, blinds)
+        fitresult = key.ReadObj()
+        retVal = FitResult(fitresult, renames, blinds)
+        del fitresult
+        f.Close()
+        return retVal
     # ok, not successful, try sFit next
     namelist = ('fitresult_signal_TimeTimeerrPdf_BDTGA_dataSet_time_BsDsK', )
     for key in f.GetListOfKeys():
@@ -141,29 +145,36 @@ def grabResult(filename):
             obj = ws.obj(n)
             if None == obj: continue
             if not obj.InheritsFrom('RooFitResult'): continue
-            return FitResult(obj, renames, blinds)
+            retVal = FitResult(obj, renames, blinds)
+            del obj
+            f.Close()
+            return retVal
 
-if len(sys.argv) != 3:
-    print 'usage: %s file1 file2' % sys.argv[0]
+if len(sys.argv) not in (2, 3):
+    print 'usage: %s file1 [file2]' % sys.argv[0]
 
-res1, res2 = grabResult(sys.argv[1]), grabResult(sys.argv[2])
-# inform that these are for the same data set
-for r in (res1, res2): r.setOptions(['SameDataSet'])
-
+res1 = grabResult(sys.argv[1])
 print 72 * '*'
 print 'FIT1 RESULT'
 print 72 * '*'
 print res1
 print 72 * '*'
-print
-print 72 * '*'
-print 'FIT2 RESULT'
-print 72 * '*'
-print res2
-print 72 * '*'
-print
-print 72 * '*'
-print 'RESULT (FIT2 - FIT1) - IGNORE CORRELATIONS, AT LIMIT WARNINGS'
-print 72 * '*'
-print (res2 - res1)
-print 72 * '*'
+
+if len(sys.argv) > 2:
+    res2 = grabResult(sys.argv[2])
+    # inform that these are for the same data set
+    for r in (res1, res2): r.setOptions(['SameDataSet'])
+    
+    print
+    print 72 * '*'
+    print 'FIT2 RESULT'
+    print 72 * '*'
+    print res2
+    print 72 * '*'
+    print
+    print 72 * '*'
+    print 'RESULT (FIT2 - FIT1) - IGNORE CORRELATIONS, AT LIMIT WARNINGS'
+    print 72 * '*'
+    print (res2 - res1)
+    print 72 * '*'
+

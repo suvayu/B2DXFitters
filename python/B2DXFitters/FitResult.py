@@ -59,10 +59,11 @@ class FitResult:
         options         --- options
 
         further explanations:
-        - blindmap = { 'Bs2DsK_(C|D|Dbar|S|Sbar)': 3. } would match variable
-          names Bs2DsK_C, Bs2DsK_D, Bs2DsK_Dbar, Bs2DsK_S, Bs2DsK_Sbar, and
-          would cause the final values of these parameters to be shifted by
-          a random amount between -3. to +3. (flat distribution)
+        - blindmap = { 'Bs2DsK_(C|D|Dbar|S|Sbar)': [ -3., 3. ] } would match
+          variable names Bs2DsK_C, Bs2DsK_D, Bs2DsK_Dbar, Bs2DsK_S,
+          Bs2DsK_Sbar, and would cause the reported values to be a random
+          value between -3. and +3 (flat distribution) from which you
+          randomly add/subtract the true value.
         - the blinding applied depends only on the blinding string and the
           parameter name (after renaming)
         - blinding shifts the final parameters, but not the initial ones
@@ -82,7 +83,7 @@ class FitResult:
                 { 'C': 'Bs2DsK_C', 'D': 'Bs2DsK_D',
                   'Dbar': 'Bs2DsK_Dbar', 'S': 'Bs2DsK_S',
                   'Sbar': 'Bs2DsK'Sbar', 'DeltaMs': 'deltaMs' },
-                { '^Bs2DsK_(C|D|Dbar|S|Sbar)$': 3.0 })
+                { '^Bs2DsK_(C|D|Dbar|S|Sbar)$': [ -3.0, 3.0 ] })
         # this renames sFit variables to the cFit conventions
         # it also blinds the CP parameters with a random offset in the range
         # from -3. to 3.; the funny string is a regular expression;
@@ -104,6 +105,7 @@ class FitResult:
         self._finalparamlimlo = { }
         self._finalparamlimhi = { }
         self._blindingOffsets = { }
+        self._blindingSigns = { }
         self._status = 4
         self._covQual = 0
         self._cov = { }
@@ -159,7 +161,7 @@ class FitResult:
             # check if the parameter is to be blinded
             # no blinding for parameters that do not float
             if not idx in self._finalparam: continue
-            blind, ofs = False, 0.
+            blind, ofs = False, [ 0., 0. ]
             mlen = 0
             for re in blindres:
                 m1 = re.match(oldname)
@@ -167,13 +169,16 @@ class FitResult:
                 if m1 or m2:
                     blind = True
                     if m1 and mlen <= (m1.end() - m1.start()):
-                        ofs = float(blindres[re])
+                        ofs = [ float(blindres[re][0]),
+                                float(blindres[re][1]) ]
                         mlen = m1.end() - m1.start()
                     if m2 and mlen <= (m2.end() - m2.start()):
-                        ofs = float(blindres[re])
+                        ofs = [ float(blindres[re][0]),
+                                float(blindres[re][1]) ]
                         mlen = m2.end() - m2.start()
             if not blind:
                 self._blindingOffsets[idx] = 0.
+                self._blindingSigns[idx] = 1.
                 continue
             # blinding offset should be the same for variables of the
             # same name; for that reason, we concatenate the blinding
@@ -181,11 +186,11 @@ class FitResult:
             # it
             rnd.seed(blindstr + newname)
             # flat between -ofs and ofs
-            while True:
-                rofs = ofs * 2. * (rnd.random() - 0.5)
-                if 0. != ofs: break
+            rofs = rnd.uniform(ofs[0], ofs[1])
+            sign = -1. if rnd.random() < 0.5 else 1.
             self._blindingOffsets[idx] = rofs
-            self._finalparam[idx] = self._finalparam[idx] + rofs
+            self._blindingSigns[idx] = sign
+            self._finalparam[idx] = rofs + sign * self._finalparam[idx]
 
         # put in new name-index mappings
         self._name2Index = newn2i
@@ -341,11 +346,16 @@ class FitResult:
             retVal._name2Index[n] = idx
             retVal._index2Name[idx] = n
             retVal._initialparam[idx] = 0.
-            retVal._finalparam[idx] = ((self._finalparam[sidx] -
-                    self._blindingOffsets[sidx]) -
-                    (other._finalparam[oidx] -
-                        other._blindingOffsets[oidx]))
+            # unblind before we perform the difference
+            subl = self._blindingSigns[sidx] * (self._finalparam[sidx] -
+                    self._blindingOffsets[sidx]) 
+            oubl = other._blindingSigns[oidx] * (other._finalparam[oidx] -
+                    other._blindingOffsets[oidx]) 
             retVal._blindingOffsets[idx] = 0.
+            # we copy the sign, so we don't know which is larger
+            retVal._blindingSigns[idx] = self._blindingSigns[sidx]
+            retVal._finalparam[idx] = retVal._blindingSigns[idx] * (subl -
+                    oubl)
             retVal._finalparamlimlo[idx] = max(
                     self._finalparamlimlo[sidx],
                     other._finalparamlimlo[oidx])
@@ -415,14 +425,17 @@ class FitResult:
             err = sqrt(self._cov[idx][idx])
             llo = self._finalparamlimlo[idx]
             lhi = self._finalparamlimhi[idx]
-            bof = self._blindingOffsets[idx]
+            # unblind, but DO NOT PRINT! (need it for the at/beyond limit
+            # checks)
+            ubl = self._blindingSigns[idx] * (self._finalparam[idx] -
+                    self._blindingOffsets[idx]) 
             comment = ''
             if llo > -float_info.max or lhi < float_info.max:
                 comment += ' L(%s, %s)' % (
                         formats['n'] % llo, formats['n'] % lhi)
             if 0. != self._blindingOffsets[idx]:
                 comment += ' BLINDED'
-            if llo >= (fin - bof) or (fin - bof) >= lhi:
+            if llo >= ubl or ubl >= lhi:
                 comment += ' *** AT LIMIT ***'
             retVal += '%2u %-24s %s %s %s%s\n' % (idx, name,
                     formats['n'] % ini, formats['n'] % fin, formats['n'] % err,

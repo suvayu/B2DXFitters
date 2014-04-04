@@ -4,6 +4,14 @@
 ! Purpose     : RooFit-based fitters for B -> D X
 !-----------------------------------------------------------------------------
 
+! 2014-04-04 - Manuel Tobias Schiller
+ - change FitResult behaviour in case of blinding:
+   - blinding now works according param_blind = U(a, b) + sign * param_unblind
+     where U(a, b) is a random number between a and b, and sign is +1 or -1
+     (random), both chosen according to the blinding string
+   - this has the advantage that you cannot tell in the difference which of
+     the two fits has the larger/smaller true value in a given parameter
+
 ! 2014-04-03 - Manuel Tobias Schiller
  - added python class to wrap RooFitResults in a python-only object that's a
    bit friendlier for comparing fitters/toys/...
