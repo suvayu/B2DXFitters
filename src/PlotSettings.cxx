@@ -91,7 +91,7 @@ PlotSettings::PlotSettings(const PlotSettings& other) :
   _stylePdf = other._stylePdf;
 }
 
-std::ostream & operator<< (ostream &out, const PlotSettings &s)         
+std::ostream & operator<< (std::ostream &out, const PlotSettings &s)         
 {
   out<<"PlotSettings("<<s.GetName()<<","<<s.GetTitle()<<")"<<std::endl;
   out<<"Directory: " <<s._dir<<std::endl;

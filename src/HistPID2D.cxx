@@ -302,7 +302,7 @@ HistPID2D::HistPID2D(const HistPID2D& other) :
 }
 
 
-std::ostream & operator<< (ostream &out, const HistPID2D &s)         
+std::ostream & operator<< (std::ostream &out, const HistPID2D &s)         
 {
   out<<"HistPID("<<s.GetName()<<","<<s.GetTitle()<<")"<<std::endl;
   if ( s._hist[0] != NULL )
