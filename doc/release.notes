@@ -2168,4 +2168,14 @@
  - New helper files PropertimeResolutionModels.h/.cxx implementing various
    propertime resolution models for Bx -> Dx h. So far are available:
    truth, Gaussian and DoubleGaussian models
- - GeneralModels: added easy creation of (extended) RooDecay 
+ - GeneralModels: added easy creation of (extended) RooDecay PDFs
+ - Added script runBdGammaFitterToyMC.py to run a Gamma_d toy fit on Bd -> D pi
+ - Additions and improvements to FitMeTool
+
+! 2011-05-25 - Eduardo Rodrigues
+ - New helper files Bs2DshModels.h/.cxx for RooFit models for Bs -> Ds h.
+   For now it provides the background PDF models for Bs -> Ds pi as defined
+   in the Delta m_s analysis:
+   - combinatorial backgroud
+   - physical backgrounds
+   All individual m
