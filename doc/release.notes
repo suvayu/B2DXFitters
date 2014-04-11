@@ -4,6 +4,9 @@
 ! Purpose     : RooFit-based fitters for B -> D X
 !-----------------------------------------------------------------------------
 
+!============================================== v2r5 2014-4-11 ==============================
+! 2014-4-11 Diego Martinez Santos
+	 Make version v2r5
 ! 2014-04-04 - Manuel Tobias Schiller
  - change FitResult behaviour in case of blinding:
    - blinding now works according param_blind = U(a, b) + sign * param_unblind
@@ -2110,72 +2113,4 @@
 ! 2011-11-06 - Diego Martinez Santos
  - Make version v1r2.
 
-! 2011-10-25 - Eduardo Rodrigues
- - Added scripts/runBs2DsKCPAsymmObsFitterToyMC.py, a test/development script
-   for the TD CP asymmetry fit with DsPi+DsK
-
-!============================== v1r1 28-07-2011 ==============================
-! 2011-07-28 - Diego Martinez Santos
- - Make version v1r1.
-
-! 2011-07-29 - Eduardo Rodrigues
- - Added tests/test_combBkgPTPdf.py to check the CombBkgPTPdf class
- - Trivial improvements here and there
-
-! 2011-06-20 - Eduardo Rodrigues
- - new module python/B2DXFitters/cpobservables.py to deal with CP observables
- - FitMeTool: new functions for calculation of yields in specified region
- - New scripts for Bs -> Ds K toy studies:
-   - scripts/runBs2DsKMassFitterToyMC.py: (too) simple toy for the mass fit
-   - scripts/plotBs2DsKMassModels.py: make the model plots in mass
- - Major updates to scripts/runBdDeltaMFitterToyMC.py concerning background
-
-! 2011-06-09 - Eduardo Rodrigues
- - Added new module taggingutils.py under python/B2DXFitters containing helper
-   functions to deal with tagging.
- - Added a test script for taggingutils.py under tests/
- - Improvements to various scripts
- - Added documentation to FitMeTool
- - Bd -> D pi mass fit with 2010 data:
-   - Added scripts/runBdMassFitterOnData.py to run the Bd -> D pi mass fit
-   - Added data/2010DataNtuple_Bd2DPi.root with the data sample from the 2010
-     Delta m_d analysis
-
-! 2011-06-07 - Eduardo Rodrigues
- - scripts/runBdDeltaMFitterToyMC.py extended to take into account acceptances,
-   etc.
-
-! 2011-06-01 - Eduardo Rodrigues
- - Added a test script to tests/: checks the mass fit plotter
- - Major improvements to the Gamma_d fit
- - Bd2DhModels added the no-tagging background model in time as used in the
-   Delta m_d analysis
- - Added scripts/plotBdTimeModels.py to plot the Bd -> D pi time models
- - Minor improvements to various running and plotting scripts
-
-! 2011-05-31 - Eduardo Rodrigues
- - GeneralModels: added easy creation of (extended) RooBDecay PDFs
- - Added scripts/runBdDeltaMFitterToyMC.py to run a toy delta m_d fit
- - Added scripts/runBsMassFitterToyMC.py to run a toy mass Bs -> Ds pi fit
- - Added scripts/plotBdMassModels.py to plot the Bd -> D pi mass models
- - Added scripts/plotBsMassModels.py to plot the Bs -> Ds pi mass models
- - New tests/ directory created.
-   Added a script testToyFitFromWorkspace.py and corresponding ROOT file
-   to test running a toy MC fit defining the model PDF from the one stored
-   on a RooWorkspace.
-
-! 2011-05-27 - Eduardo Rodrigues
- - New helper files PropertimeResolutionModels.h/.cxx implementing various
-   propertime resolution models for Bx -> Dx h. So far are available:
-   truth, Gaussian and DoubleGaussian models
- - GeneralModels: added easy creation of (extended) RooDecay PDFs
- - Added script runBdGammaFitterToyMC.py to run a Gamma_d toy fit on Bd -> D pi
- - Additions and improvements to FitMeTool
-
-! 2011-05-25 - Eduardo Rodrigues
- - New helper files Bs2DshModels.h/.cxx for RooFit models for Bs -> Ds h.
-   For now it provides the background PDF models for Bs -> Ds pi as defined
-   in the Delta m_s analysis:
-   - combinatorial backgroud
-   - physical backgrounds
-   All individual m
+! 2011-10-25 - Eduard
