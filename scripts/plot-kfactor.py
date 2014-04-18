@@ -21,8 +21,8 @@ rfile = options.rfile
 plotfile = options.plotfile
 noweights = options.noweights
 
-if not len(plotfile):
-    plotfile = fname
+if not plotfile:
+    plotfile = rfile.rsplit('.',1)[0]
 
 if noweights:
     plotfile += '_wo_weights'
