@@ -243,7 +243,7 @@ def get_workspace(configname, varnames, masslo, masshi, debug):
         workspace.Print()
         print '=' * 50
 
-    kFactor = GeneralUtils.GetObservable(workspace,TString("kfactorVar"), debug)
+    kFactor = workspace.var('kfactorVar')
     kFactor.setRange(0.80, 1.10)
 
     if hypo.EqualTo('BsDsK'):
@@ -251,70 +251,55 @@ def get_workspace(configname, varnames, masslo, masshi, debug):
     else:
         names = ["Bs2DsstPi","Bs2DsK","Lb2LcPi","Bd2DPi"]
 
-    hi, lo = [], []
     dataup, datadown = [], []
     for mode in names:
         dataName = "kfactor_dataset_"+mode+"_up"
-        dataup.append(GeneralUtils.GetDataSet(workspace,TString(dataName), debug))
-        dataup[-1].Print("v")
-        print dataup[-1].sumEntries()
+        dataup.append(workspace.data(dataName))
+        dataup[-1].Print()
         dataName = "kfactor_dataset_" + mode + "_down"
-        datadown.append(GeneralUtils.GetDataSet(workspace,TString(dataName), debug))
-        datadown[-1].Print("v")
-        print datadown[-1].sumEntries()
-        hi.append(-2.0)
-        lo.append(2.0)
+        datadown.append(workspace.data(dataName))
+        datadown[-1].Print()
+    print '=' * 50
 
+    kfactor_range = []
     for i in range(len(names)):
-        for j in range(dataup[i].numEntries()):
-            obsKF = dataup[i].get(j)
-            kF = obsKF.find("kfactorVar")
-            kNum = kF.getVal()
-            if kNum > hi[i]:
-                hi[i] = kNum
-            if kNum < lo[i]:
-                lo[i] = kNum
-        for j in range(datadown[i].numEntries()):
-            obsKF = datadown[i].get(j)
-            kF = obsKF.find("kfactorVar")
-            kNum = kF.getVal()
-            if kNum > hi[i]:
-                hi[i] = kNum
-            if kNum < lo[i]:
-                lo[i] = kNum
+        from ROOT import Double
+        lo = (Double(0.0), Double(0.0))
+        hi = (Double(0.0), Double(0.0))
+        dataup[i].getRange(kFactor, lo[0], hi[0])
+        datadown[i].getRange(kFactor, lo[1], hi[1])
+        lo, hi = min(lo), max(hi)
+        krange = hi - lo
+        kfactor_range.append((lo - 0.05*krange, hi + 0.05*krange))
+        del lo, hi, krange
 
-    print hi
-    print lo
-    maxRange = []
-    minRange = []
-    for i in range(len(names)):
-        q = hi[i] - lo[i]
-        maxRange.append(hi[i]+0.05*q)
-        minRange.append(lo[i]-0.05*q)
-    print maxRange
-    print minRange
+    # # uncomment if you want to plot ktemplates from pdfs.
+    # plotSet = PlotSettings("plotSet","plotSet")
 
-    plotSet = PlotSettings("plotSet","plotSet")
-
-    histDW = []
-    histUP = []
-    hist   = []
     pdfKF  = []
     lumRatio = RooRealVar("lumRatio","lumRatio",myconfigfile["lumRatio"])
     for i in range(len(names)):
-        kFactor.setRange(minRange[i], maxRange[i])
+        if (dataup[i].numEntries() + datadown[i].numEntries()) < 1:
+            print 'Skipping {}.  Dataset has no entries (up+down combined).'.format(names[i])
+            print 'Hint: try increasing mass bin width.'
+            continue
 
+        kFactor.setRange(kfactor_range[i][0], kfactor_range[i][1])
         name = "kFactor_"+names[i]+"_both"
         pdfKF.append(GeneralUtils.CreateHistPDF(dataup[i], datadown[i], myconfigfile["lumRatio"],
                                                 kFactor, TString(name), 100, debug))
-        t = TString("both")
-        GeneralUtils.SaveTemplate(0, pdfKF[i], kFactor, TString(names[i]), t, plotSet, debug );
 
-    workOut = RooWorkspace("workspace","workspace")
-    for i in range(len(names)):
-        getattr(workOut,'import')(pdfKF[i])
-    workOut.Print("v")
-    return workOut
+        # # uncomment if you want to plot ktemplates from pdfs.
+        # t = TString("both")
+        # GeneralUtils.SaveTemplate(0, pdfKF[i], kFactor, TString(names[i]), t, plotSet, debug );
+
+    from factory import _import, get_timestamp
+    final_workspace = RooWorkspace('workspace',
+                                   'Workspace saved at %s' % get_timestamp())
+    for pdf in pdfKF:
+        _import(final_workspace, pdf)
+    final_workspace.Print("v")
+    return final_workspace
 
 
 if __name__ == "__main__":
