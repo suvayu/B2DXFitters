@@ -12,7 +12,7 @@ import argparse
 optparser = argparse.ArgumentParser(description=__doc__)
 optparser.add_argument('rfile', help='ROOT file with tree dump')
 optparser.add_argument('-o', '--output', dest='plotfile',
-                       help='Output file basename (w/o extension)')
+                       help='Output filename (pdf)')
 optparser.add_argument('-nw', '--noweights', dest='noweights',
                        action='store_true', default=False,
                        help='Make plots without weights')
@@ -21,24 +21,11 @@ rfile = options.rfile
 plotfile = options.plotfile
 noweights = options.noweights
 
-if not plotfile:
-    plotfile = rfile.rsplit('.',1)[0]
-
 if noweights:
     plotfile += '_wo_weights'
 
-
-def cpp_to_pylist(cpplist):
-    """Convert a C++ list (from PyROOT) to a Python list.
-
-    NB: Calling this empties the original C++ list.
-
-    """
-    pylist = []
-    for i in range(cpplist.size()):
-        pylist.append(cpplist.back())
-        cpplist.pop_back()
-    return pylist
+if not plotfile:
+    plotfile = '{}.pdf'.format(rfile.rsplit('.',1)[0])
 
 
 from ROOT import TFile, TCanvas, TH1D, TTree, TList
@@ -50,7 +37,7 @@ ffile = TFile.Open(rfile, 'update')
 klist = ffile.GetListOfKeys()
 
 canvas = TCanvas('canvas', 'canvas', 800, 600)
-canvas.Print('%s.pdf[' % plotfile)
+canvas.Print('{}['.format(plotfile))
 
 modes = {}
 for item in klist:
@@ -91,8 +78,8 @@ for mode in modes:
 
             # Debug
             print 'MSG: Tree %s with %d: %s' % (tname, tree.GetEntries(), var)
-            canvas.Print('%s.pdf' % plotfile)
+            canvas.Print(plotfile)
     else:
         print 'MSG: Tree %s has no entries!' % (tree.GetName())
 
-canvas.Print('%s.pdf]' % plotfile)
+canvas.Print('{}]'.format(plotfile))
