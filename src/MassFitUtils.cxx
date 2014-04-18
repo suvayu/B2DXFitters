@@ -1967,7 +1967,7 @@ TCut GetCutMCBkg( MDFitterSettings* mdSet, TString mode, TString hypo, TString D
 
       // create new tree after appling all cuts
       TString md(mode[i]);
-      TCut MCCut = GetCutMCBkg(mdSet, md, modeD, hypo);
+      TCut MCCut = GetCutMCBkg(mdSet, md, hypo, modeD);
       TTree *ftree = TreeCut(treeMC[i], MCCut, smp[i], md, debug);
       assert(ftree);
 
