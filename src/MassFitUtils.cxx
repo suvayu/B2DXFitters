@@ -2082,10 +2082,14 @@ TCut GetCutMCBkg( MDFitterSettings* mdSet, TString mode, TString hypo, TString D
 	double gratio(dEratio + dPxratio + dPyratio + dPzratio);
 
 	if (ispartial and (gratio < pgratio_cut)) {
-	  DEBUG(msg_count, "Vetoing " << mode[i] << "_" << smp[i]);
+	  DEBUG(msg_count, "Vetoing " << mode[i] << "_" << smp[i]
+		<< " (" << gratio <<" < " << pgratio_cut << ")");
+	  veto_counter++;
 	  continue;
 	} else if (not ispartial and (gratio > gratio_cut)) {
-	  DEBUG(msg_count, "Vetoing " << mode[i] << "_" << smp[i]);
+	  DEBUG(msg_count, "Vetoing " << mode[i] << "_" << smp[i] 
+		<< " (" << gratio <<" > " << gratio_cut << ")");
+	  veto_counter++;
 	  continue;
 	}
 
