@@ -158,7 +158,9 @@ ROOT.gSystem.Load(os.environ['B2DXFITTERSROOT'] +
         '/standalone/libB2DXFitters')
 
 from ROOT import MDFitterSettings
+from ROOT import PlotSettings
 getSpecBkg4kfactor = ROOT.MassFitUtils.getSpecBkg4kfactor
+from ROOT import GeneralUtils
 
 # Models = GaudiPython.gbl.Bs2Dsh2011TDAnaModels
 
@@ -244,7 +246,7 @@ def get_workspace(configname, varnames, masslo, masshi, debug):
     kFactor = GeneralUtils.GetObservable(workspace,TString("kfactorVar"), debug)
     kFactor.setRange(0.80, 1.10)
 
-    if DsK:
+    if hypo.EqualTo('BsDsK'):
         names = ["Bd2DK","Bd2DPi","Lb2LcK","Lb2LcPi","Lb2Dsstp","Lb2Dsp","Bs2DsstPi","Bs2DsRho","Bs2DsPi"]
     else:
         names = ["Bs2DsstPi","Bs2DsK","Lb2LcPi","Bd2DPi"]
@@ -254,8 +256,8 @@ def get_workspace(configname, varnames, masslo, masshi, debug):
     for mode in names:
         dataName = "kfactor_dataset_"+mode+"_up"
         dataup.append(GeneralUtils.GetDataSet(workspace,TString(dataName), debug))
-        dataup[i].Print("v")
-        print dataup[i].sumEntries()
+        dataup[-1].Print("v")
+        print dataup[-1].sumEntries()
         dataName = "kfactor_dataset_" + mode + "_down"
         datadown.append(GeneralUtils.GetDataSet(workspace,TString(dataName), debug))
         datadown[-1].Print("v")
@@ -306,7 +308,7 @@ def get_workspace(configname, varnames, masslo, masshi, debug):
         pdfKF.append(GeneralUtils.CreateHistPDF(dataup[i], datadown[i], myconfigfile["lumRatio"],
                                                 kFactor, TString(name), 100, debug))
         t = TString("both")
-        GeneralUtils.SaveTemplate(NULL, pdfKF[i], kFactor, TString(names[i]), t, plotSet, debug );
+        GeneralUtils.SaveTemplate(0, pdfKF[i], kFactor, TString(names[i]), t, plotSet, debug );
 
     workOut = RooWorkspace("workspace","workspace")
     for i in range(len(names)):
