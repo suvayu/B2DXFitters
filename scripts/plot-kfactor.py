@@ -36,12 +36,10 @@ from ROOT import RooWorkspace, RooArgSet, RooArgList, RooFit
 from ROOT import gPad, gStyle, kRed, kBlue, kAzure, kGreen, kBlack
 
 gStyle.SetOptStat('nemrou')
-
-ffile = TFile.Open(rfile, 'update')
-klist = ffile.GetListOfKeys()
-
 canvas = TCanvas('canvas', 'canvas', 800, 600)
 canvas.Print('{}['.format(plotfile))
+
+ffile = TFile.Open(rfile, 'read')
 
 if ifpdf:
     workspace = ffile.Get('workspace')
@@ -58,6 +56,7 @@ if ifpdf:
         canvas.Print(plotfile)
 else:
     modes = {}
+    klist = ffile.GetListOfKeys()
     for item in klist:
         name = item.GetName()
         if not name.startswith('mBresn'):
