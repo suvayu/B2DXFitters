@@ -95,7 +95,7 @@ import os, sys, gc
 
 gStyle.SetOptStat(0)
 gStyle.SetOptFit(1011)
-gROOT.SetBatch()
+#gROOT.SetBatch()
 
 def makeprintout(canvas,name) :
     # set all the different types of plots to make
@@ -116,32 +116,31 @@ saveplots = True
 tbtd = True
 tagEffPlot = False
 
-nbinspull = 50
-lowerpullrange = -5
-upperpullrange = 5
+nbinspull = 60
+lowerpullrange = -3
+upperpullrange = 3
 if tbtd :
     nbinspull = 200
-    lowerpullrange = -0.75
-    upperpullrange = 0.75   
+    lowerpullrange = -0.1
+    upperpullrange = 0.1   
 
 useavgmistag = False
 avgmistagsuffix = "AvgMistag_"
 
-ntoys                   = 200
-toysdir                 = '/afs/cern.ch/work/a/adudziak/public/Bs2DsKToys/NEWToys/'
-toysdir_md              = '/afs/cern.ch/work/a/adudziak/public/Bs2DsKToys/NEWToys/' 
-toysdir_tbtd            = '/afs/cern.ch/work/g/gligorov/public/Bs2DsKToys/Systematics/kFactor/'
+ntoys                   = 1000
+toysdir                 = '/afs/cern.ch/work/g/gligorov/public/Bs2DsKToys/For1fbPaper/Gamma70_5M_2T_MD/TimeFitResults/Nominal/'
+toysdir_md              = '/afs/cern.ch/work/g/gligorov/public/Bs2DsKToys/For1fbPaper/Gamma70_5M_2T_MD/MassFitResults/Nominal/'
+toysdir_tbtd            = '/afs/cern.ch/work/g/gligorov/public/Bs2DsKToys/For1fbPaper/Gamma70_5M_2T_MD/TimeFitResults/Systematics/FixedBackgrounds/'
 toysresultprefix        = 'DsK_Toys_TimeFitResult_'
 toysresultprefix_md     = 'DsK_Toys_MassFitResult_'
-toysresultprefix_tbtd   = 'DsK_Toys_TimeFitResult_Syst_kFactor_'
+toysresultprefix_tbtd   = 'DsK_Toys_TimeFitResult_'
 
 if useavgmistag : toysresultprefix += avgmistagsuffix
 if largeToys    : toysresultprefix = 'DsK_Toys_FullLarge_TimeFitResult_'
 toysresultsuffix    = '.log'    
-#outputdir = '/afs/cern.ch/work/g/gligorov/public/Bs2DsKToys/Systematics/PullPlots/'
-outputdir = '/afs/cern.ch/work/a/adudziak/public/Bs2DsKToys/NEWToys/'
+outputdir = '/afs/cern.ch/work/g/gligorov/public/Bs2DsKToys/For1fbPaper/Gamma70_5M_2T_MD/PullPlots/Systematics/FixedBackgrounds/Time/'
 
-additionalsuffix = 'kFactor'
+additionalsuffix = 'Nominal'
 
 from B2DXFitters import taggingutils, cpobservables
 theseobservables = cpobservables.AsymmetryObservables(myconfigfile["ArgLf_s"],myconfigfile["ArgLbarfbar_s"],myconfigfile["ModLf_s"])
@@ -345,11 +344,11 @@ print nfailed
 #exit(0)
 
 if tbtd : 
-    additionalsuffix += "_TBTD_"
+    additionalsuffix += "_TBTD"
 
-fitted_C = TH1F("fitted_C","fitted_C",100,-3.,3.0) 
+fitted_C = TH1F("fitted_C","fitted_C",100,-2.,2.0) 
 fitted_C.GetXaxis().SetTitle("Fitted C events")
-errf_C   = TH1F("errf_C","errf_C",100,0,1.)
+errf_C   = TH1F("errf_C","errf_C",100,0,0.6)
 errf_C.GetXaxis().SetTitle("Fitted error")
 pull_C   = TH1F("pull_C","pull_C",nbinspull,lowerpullrange,upperpullrange)
 pull_C.GetXaxis().SetTitle("Fitted Pull")
@@ -374,15 +373,15 @@ pull_C.Fit("gaus")
 pull_C.Draw("PE")
 
 if not useavgmistag and not largeToys and saveplots:
-    makeprintout(pullcanvasC,outputdir+"PullPlot_"+additionalsuffix+"DsK_Time_C")
+    makeprintout(pullcanvasC,outputdir+"PullPlot_"+additionalsuffix+"_DsK_Time_C")
 elif not largeToys and saveplots:
     makeprintout(pullcanvasC,outputdir+"PullPlot_DsK_Time_"+avgmistagsuffix+"C")
 elif saveplots :
     makeprintout(pullcanvasC,outputdir+"PullPlot_DsK_Time_Large_C")
 
-fitted_S = TH1F("fitted_S","fitted_S",100,-3.,3.0)     
+fitted_S = TH1F("fitted_S","fitted_S",100,-2.,2.0)     
 fitted_S.GetXaxis().SetTitle("Fitted S events")
-errf_S   = TH1F("errf_S","errf_S",100,0,1.)
+errf_S   = TH1F("errf_S","errf_S",100,0,0.6)
 errf_S.GetXaxis().SetTitle("Fitted error")
 pull_S   = TH1F("pull_S","pull_S",nbinspull,lowerpullrange,upperpullrange)
 pull_S.GetXaxis().SetTitle("Fitted Pull")
@@ -407,15 +406,15 @@ pull_S.Fit("gaus")
 pull_S.Draw("PE")
 
 if not useavgmistag and not largeToys and saveplots:
-    makeprintout(pullcanvasS,outputdir+"PullPlot_"+additionalsuffix+"DsK_Time_S")
+    makeprintout(pullcanvasS,outputdir+"PullPlot_"+additionalsuffix+"_DsK_Time_S")
 elif not largeToys and saveplots:
     makeprintout(pullcanvasS,outputdir+"PullPlot_DsK_Time_"+avgmistagsuffix+"S")
 elif saveplots :
     makeprintout(pullcanvasS,outputdir+"PullPlot_DsK_Time_Large_S")
 
-fitted_Sbar = TH1F("fitted_Sbar","fitted_Sbar",100,-3.,3.0)     
+fitted_Sbar = TH1F("fitted_Sbar","fitted_Sbar",100,-2.,2.0)     
 fitted_Sbar.GetXaxis().SetTitle("Fitted Sbar events")
-errf_Sbar   = TH1F("errf_Sbar","errf_Sbar",100,0,1.)
+errf_Sbar   = TH1F("errf_Sbar","errf_Sbar",100,0,0.6)
 errf_Sbar.GetXaxis().SetTitle("Fitted error")
 pull_Sbar   = TH1F("pull_Sbar","pull_Sbar",nbinspull,lowerpullrange,upperpullrange)
 pull_Sbar.GetXaxis().SetTitle("Fitted Pull")
@@ -440,15 +439,15 @@ pull_Sbar.Fit("gaus")
 pull_Sbar.Draw("PE")
 
 if not useavgmistag and not largeToys and saveplots:
-    makeprintout(pullcanvasSbar,outputdir+"PullPlot_"+additionalsuffix+"DsK_Time_Sbar")
+    makeprintout(pullcanvasSbar,outputdir+"PullPlot_"+additionalsuffix+"_DsK_Time_Sbar")
 elif not largeToys and saveplots:
     makeprintout(pullcanvasSbar,outputdir+"PullPlot_DsK_Time_"+avgmistagsuffix+"Sbar")
 elif saveplots :
     makeprintout(pullcanvasSbar,outputdir+"PullPlot_DsK_Time_Large_Sbar")
 
-fitted_D = TH1F("fitted_D","fitted_D",100,-3.,3.0)     
+fitted_D = TH1F("fitted_D","fitted_D",100,-2.,2.0)     
 fitted_D.GetXaxis().SetTitle("Fitted D events")
-errf_D   = TH1F("errf_D","errf_D",100,0,1.)
+errf_D   = TH1F("errf_D","errf_D",100,0,0.6)
 errf_D.GetXaxis().SetTitle("Fitted error")
 pull_D   = TH1F("pull_D","pull_D",nbinspull,lowerpullrange,upperpullrange)
 pull_D.GetXaxis().SetTitle("Fitted Pull")
@@ -473,15 +472,15 @@ pull_D.Fit("gaus")
 pull_D.Draw("PE")
 
 if not useavgmistag and not largeToys  and saveplots:
-    makeprintout(pullcanvasD,outputdir+"PullPlot_"+additionalsuffix+"DsK_Time_D")
+    makeprintout(pullcanvasD,outputdir+"PullPlot_"+additionalsuffix+"_DsK_Time_D")
 elif not largeToys and saveplots:
     makeprintout(pullcanvasD,outputdir+"PullPlot_DsK_Time_"+avgmistagsuffix+"D")
 elif saveplots :
     makeprintout(pullcanvasD,outputdir+"PullPlot_DsK_Time_Large_D")
 
-fitted_Dbar = TH1F("fitted_Dbar","fitted_Dbar",100,-3.,3.0)     
+fitted_Dbar = TH1F("fitted_Dbar","fitted_Dbar",100,-2.,2.0)     
 fitted_Dbar.GetXaxis().SetTitle("Fitted Dbar events")
-errf_Dbar   = TH1F("errf_Dbar","errf_Dbar",100,0,1.)
+errf_Dbar   = TH1F("errf_Dbar","errf_Dbar",100,0,0.6)
 errf_Dbar.GetXaxis().SetTitle("Fitted error")
 pull_Dbar   = TH1F("pull_Dbar","pull_Dbar",nbinspull,lowerpullrange,upperpullrange)
 pull_Dbar.GetXaxis().SetTitle("Fitted Pull")
@@ -506,7 +505,7 @@ pull_Dbar.Fit("gaus")
 pull_Dbar.Draw("PE")
 
 if not useavgmistag and not largeToys and saveplots:
-    makeprintout(pullcanvasDbar,outputdir+"PullPlot_"+additionalsuffix+"DsK_Time_Dbar")
+    makeprintout(pullcanvasDbar,outputdir+"PullPlot_"+additionalsuffix+"_DsK_Time_Dbar")
 elif not largeToys and saveplots:
     makeprintout(pullcanvasDbar,outputdir+"PullPlot_DsK_Time_"+avgmistagsuffix+"Dbar")
 elif saveplots :
@@ -541,7 +540,7 @@ if tagEffPlot:
     pull_tagEff.Draw("PE")
     
     if not useavgmistag and not largeToys and saveplots:
-        makeprintout(pullcanvastagEff,outputdir+"PullPlot_"+additionalsuffix+"DsK_Time_tagEff")
+        makeprintout(pullcanvastagEff,outputdir+"PullPlot_"+additionalsuffix+"_DsK_Time_tagEff")
     elif not largeToys and saveplots:
         makeprintout(pullcanvastagEff,outputdir+"PullPlot_DsK_Time_"+avgmistagsuffix+"tagEff")
     elif saveplots :

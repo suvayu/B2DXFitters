@@ -4,18 +4,47 @@ def getconfig() :
     
     from math import pi
 
+    # FILENAMES
+    configdict["fileName"]           = "/afs/cern.ch/work/a/adudziak/public/workspace/DsKNoteV11/work_dsk_pid_53005800_PIDK5_5M_BDTGA_4.root"
+    configdict["fileNameData"]       = "/afs/cern.ch/work/a/adudziak/public/workspace/DsKNoteV11/work_dsk_pid_53005800_PIDK5_5M_BDTGA_4.root"
+    configdict["fileNameTerr"]       = "../data/workspace/MDFitter/template_Data_Terr_BsDsK.root"
+    configdict["fileNameMistag"]     = "../data/workspace/MDFitter/template_Data_Mistag_BsDsPi.root"
+    configdict["fileNameMistagBDPi"] = "../data/workspace/MDFitter/template_Data_Mistag_BDPi.root"
+    configdict["fileNameMistagComb"] = "../data/workspace/MDFitter/template_Data_Mistag_CombBkg.root"
+    configdict["fileNameKFactHists"] = "../data/workspace/MDFitter/kFactorsInMassBins/histograms_MC_KFactor_BsDsK.root"
+
+    # EVENTUALLY MUCH OF THE REST OF THIS CONFIG SHOULD BE REWRITTEN
+    # INTO THIS DICTIONARY. FOR NOW PUT THE MC TRUTH AND WHO NEEDS
+    # A K-FACTOR HERE.
+    configdict["DecayModeParameters"] = {}
+    configdict["DecayModeParameters"]["Signal"]     = { "TRUEID" : "1"    , "KFACTOR" : False }
+    configdict["DecayModeParameters"]["Bd2DK"]      = { "TRUEID" : "2"    , "KFACTOR" : True  }
+    configdict["DecayModeParameters"]["Bd2DPi"]     = { "TRUEID" : "12"   , "KFACTOR" : True  }
+    configdict["DecayModeParameters"]["Bd2DsK"]     = { "TRUEID" : "3"    , "KFACTOR" : False }
+    configdict["DecayModeParameters"]["Bs2DsPi"]    = { "TRUEID" : "4"    , "KFACTOR" : True  }
+    configdict["DecayModeParameters"]["Bs2DsstPi"]  = { "TRUEID" : "8"    , "KFACTOR" : True  }
+    configdict["DecayModeParameters"]["Bs2DsRho"]   = { "TRUEID" : "18"   , "KFACTOR" : True  }
+    configdict["DecayModeParameters"]["Lb2LcK"]     = { "TRUEID" : "5"    , "KFACTOR" : True  }
+    configdict["DecayModeParameters"]["Lb2LcPi"]    = { "TRUEID" : "15"   , "KFACTOR" : True  }
+    configdict["DecayModeParameters"]["Lb2Dsp"]     = { "TRUEID" : "6"    , "KFACTOR" : True  }
+    configdict["DecayModeParameters"]["Lb2Dsstp"]   = { "TRUEID" : "16"   , "KFACTOR" : True  }
+    configdict["DecayModeParameters"]["LM1"]        = { "TRUEID" : "7"    , "KFACTOR" : False }
+    configdict["DecayModeParameters"]["Combo"]      = { "TRUEID" : "10"   , "KFACTOR" : False }
+ 
     # PHYSICAL PARAMETERS
-    configdict["Gammas"]      =  0.661   # in ps^{-1}
-    configdict["DeltaGammas"] = -0.105
+    configdict["kFactorBinning"]= 50    # in MeV
 
-    configdict["Gammad"]      =  0.656   # in ps^{-1}
-    configdict["DeltaGammad"] =  0.
+    configdict["Gammas"]        =  0.661   # in ps^{-1}
+    configdict["DeltaGammas"]   = -0.105
 
-    configdict["DeltaMs"]     =  17.768    # in ps^{-1}
-    configdict["DeltaMd"]     =  0.507   # in ps^{-1}
+    configdict["Gammad"]        =  0.656   # in ps^{-1}
+    configdict["DeltaGammad"]   =  0.
 
-    configdict["GammaLb"]    =  0.700    # in ps^{-1}
-    configdict["GammaCombo"] =  0.800
+    configdict["DeltaMs"]       =  17.768    # in ps^{-1}
+    configdict["DeltaMd"]       =  0.507   # in ps^{-1}
+
+    configdict["GammaLb"]       =  0.700    # in ps^{-1}
+    configdict["GammaCombo"]    =  0.800
        
     configdict["StrongPhase_d"] = 20. / 180. * pi
     configdict["StrongPhase_s"] = 30. / 180. * pi
@@ -40,11 +69,12 @@ def getconfig() :
     configdict["nBinsProperTimeErr"]   = 50
     configdict["nBinsAcceptance"]   = 740
     
-    configdict["lumRatioDown"] =  0.59
-    configdict["lumRatioUp"] =  0.44
-    configdict["lumRatio"] =  configdict["lumRatioUp"]/(configdict["lumRatioDown"]+configdict["lumRatioUp"])
-            
-    configdict["timeRange"] = [0.2, 15]
+    configdict["lumRatioDown"]  =  0.59
+    configdict["lumRatioUp"]    =  0.44
+    configdict["lumRatio"]      =  configdict["lumRatioUp"]/(configdict["lumRatioDown"]+configdict["lumRatioUp"])
+    
+    configdict["massRange"]     = [5300,5800] # in MeV 
+    configdict["timeRange"]     = [0.2, 15] # in ps
 
     configdict["tacc_size"]   = 6
     configdict["tacc_knots"]  = [0.25, 0.5, 1.0, 2.0, 3.0, 12.0]
@@ -53,103 +83,103 @@ def getconfig() :
     configdict["tagEff_OS"] = 0.387
     configdict["tagEff_SS"] = 0.4772
 
-    configdict["tagEff_signal"]    = [configdict["tagEff_OS"] - configdict["tagEff_OS"]*configdict["tagEff_SS"],
+    configdict["tagEff_Signal"]    = [configdict["tagEff_OS"] - configdict["tagEff_OS"]*configdict["tagEff_SS"],
                                       configdict["tagEff_SS"] - configdict["tagEff_OS"]*configdict["tagEff_SS"],
                                       configdict["tagEff_OS"]*configdict["tagEff_SS"]]
-    configdict["tagEff_dk"]        = [configdict["tagEff_OS"] - configdict["tagEff_OS"]*configdict["tagEff_SS"],
+    configdict["tagEff_Bd2DK"]        = [configdict["tagEff_OS"] - configdict["tagEff_OS"]*configdict["tagEff_SS"],
                                       configdict["tagEff_SS"] - configdict["tagEff_OS"]*configdict["tagEff_SS"],
                                       configdict["tagEff_OS"]*configdict["tagEff_SS"]]
-    configdict["tagEff_dpi"]        = [configdict["tagEff_OS"] - configdict["tagEff_OS"]*configdict["tagEff_SS"],
+    configdict["tagEff_Bd2DPi"]        = [configdict["tagEff_OS"] - configdict["tagEff_OS"]*configdict["tagEff_SS"],
                                       configdict["tagEff_SS"] - configdict["tagEff_OS"]*configdict["tagEff_SS"],
                                       configdict["tagEff_OS"]*configdict["tagEff_SS"]]
-    configdict["tagEff_dsk"]       = [configdict["tagEff_OS"] - configdict["tagEff_OS"]*configdict["tagEff_SS"],
+    configdict["tagEff_Bd2DsK"]       = [configdict["tagEff_OS"] - configdict["tagEff_OS"]*configdict["tagEff_SS"],
                                       configdict["tagEff_SS"] - configdict["tagEff_OS"]*configdict["tagEff_SS"],
                                       configdict["tagEff_OS"]*configdict["tagEff_SS"]]
-    configdict["tagEff_dspi"]      = [configdict["tagEff_OS"] - configdict["tagEff_OS"]*configdict["tagEff_SS"],
+    configdict["tagEff_Bs2DsPi"]      = [configdict["tagEff_OS"] - configdict["tagEff_OS"]*configdict["tagEff_SS"],
                                       configdict["tagEff_SS"] - configdict["tagEff_OS"]*configdict["tagEff_SS"],
                                       configdict["tagEff_OS"]*configdict["tagEff_SS"]]
-    configdict["tagEff_lck"]       = [configdict["tagEff_OS"] - configdict["tagEff_OS"]*configdict["tagEff_SS"],
+    configdict["tagEff_Lb2LcK"]       = [configdict["tagEff_OS"] - configdict["tagEff_OS"]*configdict["tagEff_SS"],
                                       configdict["tagEff_SS"] - configdict["tagEff_OS"]*configdict["tagEff_SS"],
                                       configdict["tagEff_OS"]*configdict["tagEff_SS"]]
-    configdict["tagEff_lcpi"]       = [configdict["tagEff_OS"] - configdict["tagEff_OS"]*configdict["tagEff_SS"],
+    configdict["tagEff_Lb2LcPi"]       = [configdict["tagEff_OS"] - configdict["tagEff_OS"]*configdict["tagEff_SS"],
                                       configdict["tagEff_SS"] - configdict["tagEff_OS"]*configdict["tagEff_SS"],
                                       configdict["tagEff_OS"]*configdict["tagEff_SS"]]
-    configdict["tagEff_combo"]     = [configdict["tagEff_OS"] - configdict["tagEff_OS"]*configdict["tagEff_SS"],
+    configdict["tagEff_Combo"]     = [configdict["tagEff_OS"] - configdict["tagEff_OS"]*configdict["tagEff_SS"],
                                       configdict["tagEff_SS"] - configdict["tagEff_OS"]*configdict["tagEff_SS"],
                                       configdict["tagEff_OS"]*configdict["tagEff_SS"]]
-    configdict["tagEff_dsp"]       = [configdict["tagEff_OS"] - configdict["tagEff_OS"]*configdict["tagEff_SS"],
+    configdict["tagEff_Lb2Dsp"]       = [configdict["tagEff_OS"] - configdict["tagEff_OS"]*configdict["tagEff_SS"],
                                       configdict["tagEff_SS"] - configdict["tagEff_OS"]*configdict["tagEff_SS"],
                                       configdict["tagEff_OS"]*configdict["tagEff_SS"]]
-    configdict["tagEff_dsstp"]     = [configdict["tagEff_OS"] - configdict["tagEff_OS"]*configdict["tagEff_SS"],
+    configdict["tagEff_Lb2Dsstp"]     = [configdict["tagEff_OS"] - configdict["tagEff_OS"]*configdict["tagEff_SS"],
                                       configdict["tagEff_SS"] - configdict["tagEff_OS"]*configdict["tagEff_SS"],
                                       configdict["tagEff_OS"]*configdict["tagEff_SS"]]
     
-    configdict["tagEff_lm1"]       = [configdict["tagEff_OS"] - configdict["tagEff_OS"]*configdict["tagEff_SS"],
+    configdict["tagEff_LM1"]       = [configdict["tagEff_OS"] - configdict["tagEff_OS"]*configdict["tagEff_SS"],
                                       configdict["tagEff_SS"] - configdict["tagEff_OS"]*configdict["tagEff_SS"],
                                       configdict["tagEff_OS"]*configdict["tagEff_SS"]]
-    configdict["tagEff_dsstpi"]    = [configdict["tagEff_OS"] - configdict["tagEff_OS"]*configdict["tagEff_SS"],
+    configdict["tagEff_Bs2DsstPi"]    = [configdict["tagEff_OS"] - configdict["tagEff_OS"]*configdict["tagEff_SS"],
                                       configdict["tagEff_SS"] - configdict["tagEff_OS"]*configdict["tagEff_SS"],
                                       configdict["tagEff_OS"]*configdict["tagEff_SS"]]
-    configdict["tagEff_dsrho"]     = [configdict["tagEff_OS"] - configdict["tagEff_OS"]*configdict["tagEff_SS"],
+    configdict["tagEff_Bs2DsRho"]     = [configdict["tagEff_OS"] - configdict["tagEff_OS"]*configdict["tagEff_SS"],
                                       configdict["tagEff_SS"] - configdict["tagEff_OS"]*configdict["tagEff_SS"],
                                       configdict["tagEff_OS"]*configdict["tagEff_SS"]]
     
 
-    configdict["aprod_signal"]    = 0.0 #0.03
-    configdict["aprod_dk"]        = 0.0 #0.03
-    configdict["aprod_dpi"]       = 0.0 #0.03 
-    configdict["aprod_dsk"]       = 0.0 #3
-    configdict["aprod_dspi"]      = 0.0 # 3
-    configdict["aprod_lck"]       = 0.0 # 3
-    configdict["aprod_lcpi"]      = 0.0 # 3
-    configdict["aprod_combo"]     = 0.0 #3
-    configdict["aprod_dsp"]       = 0.0 #3
-    configdict["aprod_dsstp"]     = 0.0 #3
-    configdict["aprod_lm1"]       = 0.0 #3
-    configdict["aprod_dsstpi"]    = 0.0 #3
-    configdict["aprod_dsrho"]     = 0.0 #3
+    configdict["aprod_Signal"]    = 0.0 #0.03
+    configdict["aprod_Bd2DK"]        = 0.0 #0.03
+    configdict["aprod_Bd2DPi"]       = 0.0 #0.03 
+    configdict["aprod_Bd2DsK"]    = 0.0 #3
+    configdict["aprod_Bs2DsPi"]      = 0.0 # 3
+    configdict["aprod_Lb2LcK"]       = 0.0 # 3
+    configdict["aprod_Lb2LcPi"]      = 0.0 # 3
+    configdict["aprod_Combo"]     = 0.0 #3
+    configdict["aprod_Lb2Dsp"]       = 0.0 #3
+    configdict["aprod_Lb2Dsstp"]     = 0.0 #3
+    configdict["aprod_LM1"]       = 0.0 #3
+    configdict["aprod_Bs2DsstPi"]    = 0.0 #3
+    configdict["aprod_Bs2DsRho"]     = 0.0 #3
                                     
-    configdict["atageff_signal"]    = [0.0, 0.0, 0.0]
-    configdict["atageff_dk"]        = [0.0, 0.0, 0.0]
-    configdict["atageff_dpi"]       = [0.0, 0.0, 0.0]
-    configdict["atageff_dsk"]       = [0.0, 0.0, 0.0]
-    configdict["atageff_dspi"]      = [0.0, 0.0, 0.0]
-    configdict["atageff_lck"]       = [0.0, 0.0, 0.0]
-    configdict["atageff_lcpi"]      = [0.0, 0.0, 0.0]
-    configdict["atageff_combo"]     = [0.0, 0.0, 0.0]
-    configdict["atageff_dsp"]       = [0.0, 0.0, 0.0]
-    configdict["atageff_dsstp"]     = [0.0, 0.0, 0.0]
-    configdict["atageff_lm1"]       = [0.0, 0.0, 0.0]
-    configdict["atageff_dsstpi"]    = [0.0, 0.0, 0.0]
-    configdict["atageff_dsrho"]     = [0.0, 0.0, 0.0]
+    configdict["atageff_Signal"]    = [0.0, 0.0, 0.0]
+    configdict["atageff_Bd2DK"]        = [0.0, 0.0, 0.0]
+    configdict["atageff_Bd2DPi"]       = [0.0, 0.0, 0.0]
+    configdict["atageff_Bd2DsK"]    = [0.0, 0.0, 0.0]
+    configdict["atageff_Bs2DsPi"]      = [0.0, 0.0, 0.0]
+    configdict["atageff_Lb2LcK"]       = [0.0, 0.0, 0.0]
+    configdict["atageff_Lb2LcPi"]      = [0.0, 0.0, 0.0]
+    configdict["atageff_Combo"]     = [0.0, 0.0, 0.0]
+    configdict["atageff_Lb2Dsp"]       = [0.0, 0.0, 0.0]
+    configdict["atageff_Lb2Dsstp"]     = [0.0, 0.0, 0.0]
+    configdict["atageff_LM1"]       = [0.0, 0.0, 0.0]
+    configdict["atageff_Bs2DsstPi"]    = [0.0, 0.0, 0.0]
+    configdict["atageff_Bs2DsRho"]     = [0.0, 0.0, 0.0]
 
-    configdict["adet_signal"]    = 0.0
-    configdict["adet_dk"]        = 0.0
-    configdict["adet_dpi"]       = 0.0
-    configdict["adet_dsk"]       = 0.0
-    configdict["adet_dspi"]      = 0.0
-    configdict["adet_lck"]       = 0.0
-    configdict["adet_lcpi"]      = 0.0
-    configdict["adet_combo"]     = 0.0
-    configdict["adet_dsp"]       = 0.0
-    configdict["adet_dsstp"]     = 0.0
-    configdict["adet_lm1"]       = 0.0
-    configdict["adet_dsstpi"]    = 0.0
-    configdict["adet_dsrho"]     = 0.0
+    configdict["adet_Signal"]    = 0.0
+    configdict["adet_Bd2DK"]        = 0.0
+    configdict["adet_Bd2DPi"]       = 0.0
+    configdict["adet_Bd2DsK"]    = 0.0
+    configdict["adet_Bs2DsPi"]      = 0.0
+    configdict["adet_Lb2LcK"]       = 0.0
+    configdict["adet_Lb2LcPi"]      = 0.0
+    configdict["adet_Combo"]     = 0.0
+    configdict["adet_Lb2Dsp"]       = 0.0
+    configdict["adet_Lb2Dsstp"]     = 0.0
+    configdict["adet_LM1"]       = 0.0
+    configdict["adet_Bs2DsstPi"]    = 0.0
+    configdict["adet_Bs2DsRho"]     = 0.0
     
-    configdict["num_signal"]    = [308, 591, 487, 109,  314]
-    configdict["num_dk"]        = [17,    0,   5,   0,    0]
-    configdict["num_dpi"]       = [14,    3,   3,   0,    0]
-    configdict["num_dsk"]       = [18,   35,  42,  11,   32]
-    configdict["num_dspi"]      = [231*0.979*0.653, 514*0.979*0.653, 342*0.979*0.653, 90*0.979*0.653, 258*0.979*0.653]
-    configdict["num_lck"]       = [15,    2,   4,   0,    0]
-    configdict["num_lcpi"]      = [11,    1,   3,   0,    0]
-    configdict["num_combo"]     = [664, 439, 327, 619, 1702]
-    configdict["num_dsp"]       = [231*0.021*0.75, 514*0.021*0.75, 342*0.021*0.75, 90*0.021*0.75, 258*0.021*0.75]
-    configdict["num_dsstp"]     = [231*0.021*0.25, 514*0.021*0.25, 342*0.021*0.25, 90*0.021*0.25, 258*0.021*0.25]
-    configdict["num_lm1"]       = [0,     0,   0,   0,    0]
-    configdict["num_dsstpi"]    = [231*0.979*0.347*0.5, 514*0.979*0.347*0.5, 342*0.979*0.347*0.5, 90*0.979*0.347*0.5, 258*0.979*0.347*0.5]
-    configdict["num_dsrho"]     = [231*0.979*0.347*0.5, 514*0.979*0.347*0.5, 342*0.979*0.347*0.5, 90*0.979*0.347*0.5, 258*0.979*0.347*0.5]
+    configdict["num_Signal"]    = [308, 591, 487, 109,  314]
+    configdict["num_Bd2DK"]        = [17,    0,   5,   0,    0]
+    configdict["num_Bd2DPi"]       = [14,    3,   3,   0,    0]
+    configdict["num_Bd2DsK"]    = [18,   35,  42,  11,   32]
+    configdict["num_Bs2DsPi"]      = [231*0.979*0.653, 514*0.979*0.653, 342*0.979*0.653, 90*0.979*0.653, 258*0.979*0.653]
+    configdict["num_Lb2LcK"]       = [15,    2,   4,   0,    0]
+    configdict["num_Lb2LcPi"]      = [11,    1,   3,   0,    0]
+    configdict["num_Combo"]     = [664, 439, 327, 619, 1702]
+    configdict["num_Lb2Dsp"]       = [231*0.021*0.75, 514*0.021*0.75, 342*0.021*0.75, 90*0.021*0.75, 258*0.021*0.75]
+    configdict["num_Lb2Dsstp"]     = [231*0.021*0.25, 514*0.021*0.25, 342*0.021*0.25, 90*0.021*0.25, 258*0.021*0.25]
+    configdict["num_LM1"]       = [0,     0,   0,   0,    0]
+    configdict["num_Bs2DsstPi"]    = [231*0.979*0.347*0.5, 514*0.979*0.347*0.5, 342*0.979*0.347*0.5, 90*0.979*0.347*0.5, 258*0.979*0.347*0.5]
+    configdict["num_Bs2DsRho"]     = [231*0.979*0.347*0.5, 514*0.979*0.347*0.5, 342*0.979*0.347*0.5, 90*0.979*0.347*0.5, 258*0.979*0.347*0.5]
 
     #----------------------------Signal----------------------------#
 

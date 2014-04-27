@@ -1,6 +1,5 @@
-set dirinput =  '/afs/cern.ch/work/a/adudziak/public/Bs2DsKToys/Gamma70_5M_2T/'
-set diroutput = '/afs/cern.ch/work/a/adudziak/public/Bs2DsKToys/Gamma70_5M_2T/'
-
+set dirinput =  '/afs/cern.ch/work/g/gligorov/public/Bs2DsKToys/For1fbPaper/Gamma70_5M_2T_MD/sWeightsForTimeFit/Systematics/FixedBackgrounds/'
+set diroutput = '/afs/cern.ch/work/g/gligorov/public/Bs2DsKToys/For1fbPaper/Gamma70_5M_2T_MD/TimeFitResults/Systematics/FixedBackgrounds/'
 
 set outputprefix = 'DsK_Toys_TimeFitResult_'
 set outputsuffix = '.log'
@@ -16,7 +15,7 @@ while ($thissample < $2)
     set thissamplestr = `echo $thissample`
     rm $diroutput$outputprefix$thissamplestr$outputsuffix
     rm $diroutput$outputprefix$thissamplestr$outputsuffix.gz
-    python runBs2DsKCPAsymmObsFitterOnData.py --debug --pereventmistag --configName Bs2DsKConfigForNominalGammaFitToys5M --toys --configNameMD Bs2DsKConfigForNominalMassFitToys5M --pathName $dirinput$inputprefix$thissamplestr$inputsuffix --save $diroutput$timeplotprefix$thissamplestr$inputsuffix >& $diroutput$outputprefix$thissamplestr$outputsuffix
+    python runBs2DsKCPAsymmObsFitterOnData.py --pereventmistag --configName Bs2DsKConfigForNominalGammaFitToys5M --toys --configNameMD Bs2DsKConfigForNominalMassFitToys5M --pathName $dirinput$inputprefix$thissamplestr$inputsuffix --save $diroutput$timeplotprefix$thissamplestr$inputsuffix >& $diroutput$outputprefix$thissamplestr$outputsuffix
     gzip $diroutput$outputprefix$thissamplestr$outputsuffix
     @ thissample++
     echo $thissample

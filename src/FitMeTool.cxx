@@ -1212,17 +1212,14 @@ void FitMeTool::savesWeights(const char* observableName, RooDataSet* data, TStri
   TString name = mode;
   TString name2 = "dataSetBsDsK_up_pipipi";
   //data->Print("v");
-  RooDataSet* data_out = splot->GetSDataSet();
-  
+ 
+  std::cout << "About to write the sWeights to " << name.Data() << std::endl;
+ 
   TFile* out = new TFile( name.Data(), "RECREATE" );
-  const TTree* treeSW = new TTree("DecayTree","DecayTree");
-  treeSW = data_out->tree();
-  
-  treeSW -> Write();
-  //data_out->Print("v");
-  
-  //treeSW->Print("v");
+  out->cd();
+  splot->GetSDataSet()->tree()->Write();
   out->Close();
+  delete out;
 }
 
 //=============================================================================

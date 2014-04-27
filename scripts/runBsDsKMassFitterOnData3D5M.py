@@ -741,10 +741,9 @@ def runBsDsKMassFitterOnData( debug, sample, mVar, mdVar, tVar, terrVar, tagVar,
         #print "Number of all Lb->Dsp,Dsstp events: generated %d, fitted %d"%(AllDsp[0],AllDsp[1])
         print "Number of all Bs->DsstPi, DsRho events: generated %d, fitted %d"%(AllLMPi[0],AllLMPi[1] )
         print "Number of all Combinatorial events: generated %d, fitted %d"%(AllCombo[0],AllCombo[1])
-                   
+
     fitter.saveModelPDF( options.wsname )
-    fitter.saveData ( options.wsname )
-                        
+    
     del fitter
 
 #------------------------------------------------------------------------------
@@ -877,7 +876,7 @@ if __name__ == '__main__' :
         
     import sys
     sys.path.append("../data/")
-    
+ 
     runBsDsKMassFitterOnData(   options.debug,  options.sample , options.mvar, options.mdvar, options.tvar, options.terrvar, \
                                 options.tagvar, options.tagomegavar, options.idvar,\
                                 options.mode, options.sweight, \

@@ -92,7 +92,7 @@ from ROOT import RooFit
 from optparse import OptionParser
 from math     import pi, log
 import os, sys, gc
-gROOT.SetBatch()
+#gROOT.SetBatch()
 gStyle.SetOptStat(0)
 gStyle.SetOptFit(1011)
 
@@ -103,8 +103,8 @@ debug = True
 largeToys = False
 drawGeneratedYields = False
 
-ntoys               = 1000
-toysdir             = '/afs/cern.ch/work/a/adudziak/public/Bs2DsKToys/Gamma70_5M_2T_MD/3D/'
+ntoys               = 1200
+toysdir             = '/afs/cern.ch/work/g/gligorov/public/Bs2DsKToys/For1fbPaper/Gamma70_5M_2T_MD/'
 toystupleprefix     = 'DsK_Toys_sWeights_ForTimeFit_'
 if largeToys : toystupleprefix     = 'DsK_Toys_FullLarge_Tree_'
 toystuplesuffix     = '.root'
@@ -117,8 +117,8 @@ toysresultsuffix    = '.log'
 outputdir = "./"
 
 nbinspull = 50
-lowerpullrange = -3
-upperpullrange = 3
+lowerpullrange = -5
+upperpullrange = 5
 
 
 eventtypes = {"Signal" : 1.0, 
@@ -132,7 +132,7 @@ eventtypes = {"Signal" : 1.0,
               "Combo"  : 10.0 }
 
 # Get the configuration file
-myconfigfilegrabber = __import__("Bs2DsKConfigForGenerator",fromlist=['getconfig']).getconfig
+myconfigfilegrabber = __import__("Bs2DsKConfigForGenerator5M",fromlist=['getconfig']).getconfig
 myconfigfile = myconfigfilegrabber()
 
 numgenevt ={"Signal" : ntoys*[1809.0]} #1857.0]} #1856.0]} #1854.0]}
@@ -826,6 +826,7 @@ if largeToys:
 else :
     pullcanvasf2.Print(outputdir+"PullPlot_DsK_Mass_f2g1.pdf")
 
+'''
 exit(0)
 gen_f3    = TH1F("gen_f3","gen_f3",100,0,1)
 gen_f3.GetXaxis().SetTitle("Generated g3_f1 events")
@@ -931,4 +932,4 @@ if largeToys:
     pullcanvaslck.Print(outputdir+"PullPlot_DsK_Mass_Large_LcK.pdf")
 else :
     pullcanvaslck.Print(outputdir+"PullPlot_DsK_Mass_LcK.pdf")
-                
+'''                

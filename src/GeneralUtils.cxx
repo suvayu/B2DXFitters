@@ -1317,7 +1317,7 @@ namespace GeneralUtils {
     work = (RooWorkspace*) file -> Get( workname.Data() ); 
     if( work != NULL ){
       if ( debug == true) std::cout<<"Read workspace: "<<work->GetName()<<std::endl;
-      work->Print();
+      if ( debug == true) work->Print();
       return work;
      }
     else{ if ( debug == true) std::cout<<"Cannot read workspace"<<std::endl; return NULL;}
@@ -1717,7 +1717,7 @@ namespace GeneralUtils {
     RooArgList* list=NULL;
     Double_t max = time->getMax();
     Double_t min = time->getMin(); 
-    std::cout<<"Min of time: "<<min<<" max of time: "<<max<<std::endl; 
+    if (debug) std::cout<<"Min of time: "<<min<<" max of time: "<<max<<std::endl; 
     
     Int_t numB = binning->numBins();
     Double_t x2(0.0), x1(0.0);
@@ -1736,8 +1736,8 @@ namespace GeneralUtils {
     c2 = 1 - (max - x2)/(x1-x2);
     c1 = (max - x2)/(x1-x2);
     
-    std::cout<<"xN = "<<max<<" xN-1 = "<<x2<<" xN-2 = "<<x1<<std::endl;
-    std::cout<<"cN-1 = "<<c2<<" cN-2 = "<<c1<<std::endl;
+    if (debug) std::cout<<"xN = "<<max<<" xN-1 = "<<x2<<" xN-2 = "<<x1<<std::endl;
+    if (debug) std::cout<<"cN-1 = "<<c2<<" cN-2 = "<<c1<<std::endl;
 
     RooConstVar* c2Var = new RooConstVar("c2Var", "c2Var", c2);
     RooConstVar* c1Var = new RooConstVar("c1Var", "c1Var", c1);

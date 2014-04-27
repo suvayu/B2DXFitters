@@ -31,7 +31,7 @@ def getconfig() :
 
     configdict["tacc_size"]   = 6
     configdict["tacc_knots"]  = [0.25, 0.5, 1.0, 2.0, 3.0, 12.0]
-    configdict["tacc_values"] = [1.86413e-01, 2.83214e-01, 7.24952e-01, 1.18847e+00, 1.33798e+00, 1.32593e+00]
+    configdict["tacc_values"] = [1.77520e-01, 2.89603e-01, 6.79455e-01, 1.11726e+00, 1.23189e+00, 1.26661e+00]
 
     configdict["tagEff_OS"] = 0.387
     configdict["tagEff_SS"] = 0.4772

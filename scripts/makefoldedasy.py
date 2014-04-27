@@ -8,8 +8,8 @@ from array import *
 # For the moment makes the plots for DsK toys. Needs some work to generalize
 # it to make the plots for DsPi or DsK, and for data or toys or full MC.
 
-lowertoy = 338
-uppertoy = 437
+lowertoy = 348
+uppertoy = 357
 
 latex_xpos      =  0.675
 latex_ypos      =  0.855
@@ -66,7 +66,6 @@ for histotype in ["DpKm_fold","DmKp_fold"] :
     histosum[histotype].Add(histo[histotype],histonorm[histotype],1.,1.)
     histodiff[histotype].Add(histo[histotype],histonorm[histotype],-1.,1.)
     histodiff[histotype].Divide(histosum[histotype])
-
     histodiff[histotype].GetXaxis().SetTitle("t modulo (2#pi/#Deltam_{s}) [ps]")
 for histotype in ["DpKm_unfold","DmKp_unfold"] :
     histo[histotype].Sumw2()
@@ -89,11 +88,15 @@ myLatex.SetNDC(kTRUE)
 foldedcanvas = TCanvas("foldedcanvas","foldedcanvas",1600,600)
 foldedcanvas.Divide(2)
 foldedcanvas.cd(1)
-histodiff["DpKm_fold"].Draw("EP")
+histodiff["DpKm_fold"].DrawCopy("EP")
 myLatex.DrawLatex(latex_xpos,latex_ypos,latex_string)
 foldedcanvas.cd(2)
-histodiff["DmKp_fold"].Draw("EP")
+histodiff["DmKp_fold"].DrawCopy("EP")
 myLatex.DrawLatex(latex_xpos,latex_ypos,latex_string)
+#foldedcanvas.cd(3)
+#histodiff["DpKm_fold"].Add(histodiff["DmKp_fold"],-1)
+#histodiff["DpKm_fold"].DrawCopy("EP")
+#myLatex.DrawLatex(latex_xpos,latex_ypos,latex_string)
 
 foldedcanvas.SaveAs("/afs/cern.ch/work/g/gligorov//public/Bs2DsKPlotsForPaper/FoldedAsyDsK_"+plotsuffix+".pdf")
 

@@ -4,6 +4,36 @@
 ! Purpose     : RooFit-based fitters for B -> D X
 !-----------------------------------------------------------------------------
 
+! 2014-04-27 - V. Gligorov
+ - Major clean-up of the code in preparation for unblinding. 
+ - Modified files
+   . DrawPullsForToys_DsK_{Mass,Time}_5M.py , change sFit pulls range to match cFit
+     and be more readable in general
+   . GenerateToySWeights_DsK_5M.py , modify generator to enable generating with kFactors
+     which are now taken from mass-dependent templates for each mode. Also a fair bit of
+     functionality has been moved to the config files, see below.
+   . FitMeTool.cxx/GeneralUtils.cxx , clean up a couple of bits of ugly coding, no 
+     functional changes however. Move some printouts to debug.
+   . Many of the sFit related fit configuration files in the data directory have been
+     modified to work with the new toys with kFactors included. As part of this, information 
+     about the MCTruth IDs of the various modes being generated has been moved to the
+     configuration files, and the names of the files used for the templates have also been
+     moved to the configuration files to reduce hardcoding. 
+     
+     Note that in the long run, the generator and fitting scripts need a complete
+     rewrite in order to reduce code duplication and hardcoding. But this can wait for
+     the 3fb result, what has been done is sufficient to make sure the code is doing what
+     it ought to be doing for now.
+ - Added files
+   . data/workspace/MDFitter/kFactorsInMassBins : files needed to generate with mass-dependent
+     kFactors, and to translate these files from RooDataHists to something which can be used
+     to throw a random number (i.e. a TH1) :-)
+ - Deleted files
+   . A lot of files in the various directories which have been deemend obsolete, after a
+     consultation with Suvayu, Manuel, and Agnieszka, have been deleted to reduce the chance
+     of bugs creeping in by running obsolete scripts. The list is far too long to give here.
+   . If a file has been deleted in error, please accept our apologies and revert it back!
+
 !============================================== v2r5 2014-4-11 ==============================
 ! 2014-4-11 Diego Martinez Santos
 	 Make version v2r5
