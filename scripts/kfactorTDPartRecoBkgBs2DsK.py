@@ -293,7 +293,7 @@ def get_workspace(configname, varnames, masslo, masshi, debug):
         # t = TString("both")
         # GeneralUtils.SaveTemplate(0, pdfKF[i], kFactor, TString(names[i]), t, plotSet, debug );
 
-    from factory import _import, get_timestamp
+    from B2DXFitters.factory import _import, get_timestamp
     final_workspace = RooWorkspace('workspace',
                                    'Workspace saved at %s' % get_timestamp())
     for pdf in pdfKF:
