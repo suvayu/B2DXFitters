@@ -891,10 +891,11 @@ double DecRateCoeff::CacheElem::qtetapdf(const int qf, const int qt,
     } else if (0 == qt) {
 	double epsb = 1., epsbbar = 1.;
 	for (unsigned i = 1; i <= m_qtmax; ++i) {
+	    const unsigned idx2 = DecRateCoeff::idxFromQt(i);
 	    const double at(((RooAbsReal*)
-			m_parent.m_atageffs.at(i))->getVal());
+			m_parent.m_atageffs.at(idx2))->getVal());
 	    const double eps(((RooAbsReal*)
-			m_parent.m_tageffs.at(i))->getVal());
+			m_parent.m_tageffs.at(idx2))->getVal());
 	    epsb -= eps * (1. + at);
 	    epsbbar -= eps * (1. - at);
 	}
