@@ -441,95 +441,6 @@ defaultConfig = {
             ],
     }
 
-# pretty-print fit results, optionally blinding all parameters
-def printResult(config, result, blind = False):
-    from ROOT import RooFitResult
-    # read parameters and errors from fit result
-    ini = result.floatParsInit()
-    fin = result.floatParsFinal()
-    iv = {}
-    fv = {}
-    fe = {}
-    fbu = {}
-    fbl = {}
-    correl = {}
-    it = ini.createIterator()
-    ROOT.SetOwnership(it, True)
-    while True:
-        obj = it.Next()
-        if None == obj: break
-        iv[obj.GetName()] = obj.getVal()
-    del it
-    it = fin.createIterator()
-    ROOT.SetOwnership(it, True)
-    while True:
-        obj = it.Next()
-        if None == obj: break
-        fv[obj.GetName()] = obj.getVal()
-        fe[obj.GetName()] = obj.getError()
-        fbl[obj.GetName()] = obj.getMin()
-        fbu[obj.GetName()] = obj.getMax()
-    del it
-    for v1 in iv.keys():
-        if v1 not in correl:
-            correl[v1] = {}
-        for v2 in iv.keys():
-            correl[v1][v2] = result.correlation(v1, v2)
-    # apply bug fixes (if needed)
-    if 'OutputCompatSSbarSwapMinusOne' in config['BugFlags']:
-        for vn in fv.keys():
-            if not vn.endswith('_Sbar'):
-                continue
-            # swap all S and Sbar values, multiply each with minus one
-            on = vn.rstrip('_Sbar') + '_S'
-            for a in [iv, fv]:
-                a[on], a[vn] = -a[vn], -a[on]
-            # swap S and Sbar bounds and errors (no multiplication with -1!)
-            for a in [fe, fbl, fbu]:
-                a[on], a[vn] = a[vn], a[on]
-            # apply swapping to correlation matrix (no multiplication with -1!)
-            for wn in fv.keys():
-                correl[wn][vn], correl[wn][on] = correl[wn][on], correl[wn][vn]
-            for wn in fv.keys():
-                correl[vn][wn], correl[on][wn] = correl[on][wn], correl[vn][wn]
-    # ok, print the result
-    print ''
-    print 'FIT RESULT: FCN % 12.6g STATUS % 2d COV QUAL % 2d EDM %12.6g' % (
-        result.minNll(), result.status(), result.covQual(), result.edm())
-    print ''
-    print '%3s %-24s %12s %12s %12s' % (
-        'PAR', 'NAME', 'INI. VALUE', 'FIT VALUE', 'ERROR' )
-    print ''
-    i = 0
-    for var in sorted(fv.keys()):
-        cmt = ''
-        if fbl[var] >= fv[var] or fbu[var] <= fv[var]:
-            cmt = '*** AT LIMIT ***'
-        val = '% 12.5g' % fv[var]
-        if blind and 'Bs2DsK' in var:
-            val = 'XXXX.XXX'
-        print '% 3u %-24s % 12.5g %12s %12.5g %s' % (
-            i, var, iv[var], val, fe[var], cmt )
-        i = i + 1
-    del i
-    print ''
-    print 'CORRELATION MATRIX:'
-    print ''
-    hdrline = '   '
-    i = 0
-    cov = []
-    for var1 in sorted(correl.keys()):
-        hdrline = hdrline + ' % 6d' % i
-        line = '%3u' % i
-        i = i + 1
-        for var2 in sorted(correl.keys()):
-            line = line + ' % 6.3f' % correl[var1][var2]
-        cov.append(line)
-    del i
-    print hdrline
-    for line in cov:
-        print line
-
 #------------------------------------------------------------------------------
 def setConstantIfSoConfigured(config, obj, recache = {}):
     from ROOT import RooAbsArg, RooRealVar, RooConstVar, RooArgSet
@@ -3819,8 +3730,9 @@ def runBsGammaFittercFit(generatorConfig, fitConfig, toy_num, debug, wsname,
 
     fitResult = pdf['pdf'].fitTo(dataset, fitopts)
 
-    printResult(fitConfig, fitResult,
-            fitConfig['Blinding'] and not fitConfig['IsToy'])
+    from B2DXFitters.FitResult import getDsHBlindFitResult
+    print getDsHBlindFitResult(not fitConfig['IsToy'], fitConfig['Blinding'],
+            fitResult)
 
     # if we fit in mistag categories, do the calibration fit here
     calibws = None
@@ -3906,8 +3818,8 @@ def runBsGammaFittercFit(generatorConfig, fitConfig, toy_num, debug, wsname,
                 RooFit.Optimize(fitConfig['Optimize']),
                 RooFit.Minimizer(*fitConfig['Minimizer']),
                 RooFit.Timer(), RooFit.Save(), RooFit.Verbose())
-        printResult(fitConfig, calibFitResult,
-                fitConfig['Blinding'] and not fitConfig['IsToy'])
+        print getDsHBlindFitResult(not fitConfig['IsToy'], fitConfig['Blinding'],
+                calibFitResult)
         anaCalibFitResult = fitPolynomialAnalytically(
                 len(calibParams) - 1, anafitds)
         if (abs(anaCalibFitResult['chi2'] - calibFitResult.minNll()) /
