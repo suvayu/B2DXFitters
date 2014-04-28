@@ -1438,15 +1438,19 @@ def getMassTemplateOneMode2011Paper(
             if None != nYield:
                 nYield = nYield.getVal()
                 break
-        if tryyieldsfx[0] != sfx and tryyieldsfx[1] != sfx:
+        if None == nYield and mode in ('Bd2DK', 'Bd2DPi', 'Lb2LcK',
+                'Lb2LcPi'):
+            # Agnieszka's yield-removal for modes that were not found
+            nYield = 0.
+        if tryyieldsfx[0] != sfx and tryyieldsfx[1] != sfx and 0. != nYield:
             # ok, we're in one of the modes which have a shared yield and a
             # fraction, so get the fraction, and fix up the yield 
             if 'Bs2DsDsstKKst' in sfx or 'Bs2DsDssKKst' in sfx:
                 f = fromws.var('g1_f1_frac')
                 if 'Bd2DsK' == mode:
-                    f = f.getVal()
-                elif 'Bs2DsKst' == mode:
-                    f = 1. - f.getVal()
+                    f = f.getVal() if None != f else 0.
+                elif 'Bs2DsKst' == mode: 
+                    f = (1. - f.getVal()) if None != f else 0.
                 else:
                     f = None
             elif ('BsLb2DsDsstPPiRho' in sfx and 'Bs2DsK' == config['Modes'][0]
@@ -1487,16 +1491,17 @@ def getMassTemplateOneMode2011Paper(
                 print 'ERROR: Don\'t know how to fix mode %s/%s' % (sfx, mode)
                 return None
             # ok, fix the yield with the right fraction
-            nYield = nYield * f
+            nYield = (nYield * f) if (0. != f) else 0.
     # ok, we should have all we need for now
     if None == pdf or None == nYield:
-        if None == pdf:
+        if None == pdf and 0. != nYield:
             print '@@@@ - ERROR: NO PDF FOR MODE %s SAMPLE CATEGORY %s' % (
                     mode, sname)
-        if None == nYield:
+            return None
+        if None == nYield and 0. != nYield:
             print '@@@@ - ERROR: NO YIELD FOR MODE %s SAMPLE CATEGORY %s' % (
                     mode, sname)
-        return None
+            return None
     # figure out name of mass variable - should start with 'lab0' and end in
     # '_M'; while we're at it, figure out how we need to scale yields due to
     # potentially different mass ranges
@@ -1538,48 +1543,57 @@ def getMassTemplateOneMode2011Paper(
         # ok, figure out yield
         nYield = RooRealVar('n%s_%s_Evts' % (mode, sname),
                 'n%s_%s_Evts' % (mode, sname), nYield * yieldrangescaling)
+    else:
+        if 0. == nYield:
+            nYield = RooRealVar('n%s_%s_Evts' % (mode, sname),
+                    'n%s_%s_Evts' % (mode, sname), 0.)
     # import mass pdf and corresponding yield into our workspace
     # in the way, we rename whatever mass variable was used to the one supplied
     # by our caller
     nYield = WS(ws, nYield, [
         RooFit.RenameConflictNodes('_%s_%s' % (mode, sname)),
         RooFit.Silence()])
-
-    if None != ws.pdf(pdf.GetName()):
-        # reuse pdf if it is already in the workspace - that's fine as long
-        # as all parameters are fixed and the yields are not reused
-        pdf = ws.pdf(pdf.GetName())
-        # see if there is a binned version, if so prefer it
-        if None != ws.pdf('%s_dhist_pdf' % pdf.GetName()):
-            pdf = ws.pdf('%s_dhist_pdf' % pdf.GetName())
-    else:
-        # ok, pdf not in workspace, so swallow it
-        if None != massname:
-            fromnames = '%s,%s,%s' % (massname, dsmassname, pidkname)
-            tonames = '%s,%s,%s' % (mass.GetName(), dsmass.GetName(),
-                    pidk.GetName())
-            if ROOT.gROOT.GetVersionInt() > 53405:
-                pdf = WS(ws, pdf, [ RooFit.Silence(),
-                    RooFit.RenameVariable(fromnames, tonames),
-                    RooFit.RenameConflictNodes('_%s_%s' % (mode, sname)),
-                    RooFit.Silence()])
+    if 0. != nYield.getVal():
+        if None != ws.pdf(pdf.GetName()):
+            # reuse pdf if it is already in the workspace - that's fine as long
+            # as all parameters are fixed and the yields are not reused
+            pdf = ws.pdf(pdf.GetName())
+            # see if there is a binned version, if so prefer it
+            if None != ws.pdf('%s_dhist_pdf' % pdf.GetName()):
+                pdf = ws.pdf('%s_dhist_pdf' % pdf.GetName())
+        else:
+            # ok, pdf not in workspace, so swallow it
+            if None != massname:
+                fromnames = '%s,%s,%s' % (massname, dsmassname, pidkname)
+                tonames = '%s,%s,%s' % (mass.GetName(), dsmass.GetName(),
+                        pidk.GetName())
+                if ROOT.gROOT.GetVersionInt() > 53405:
+                    pdf = WS(ws, pdf, [ RooFit.Silence(),
+                        RooFit.RenameVariable(fromnames, tonames),
+                        RooFit.RenameConflictNodes('_%s_%s' % (mode, sname)),
+                        RooFit.Silence()])
+                else:
+                    # work around RooFit's limitations in ROOT 5.34.05 and
+                    # earlier...
+                    tmpws = RooWorkspace()
+                    pdf = WS(tmpws, pdf, [ RooFit.Silence(),
+                        RooFit.RenameVariable(fromnames, tonames)])
+                    pdf = WS(ws, pdf, [
+                        RooFit.RenameConflictNodes('_%s_%s' % (mode, sname)),
+                        RooFit.Silence()])
+                    del tmpws
             else:
-                # work around RooFit's limitations in ROOT 5.34.05 and
-                # earlier...
-                tmpws = RooWorkspace()
-                pdf = WS(tmpws, pdf, [ RooFit.Silence(),
-                    RooFit.RenameVariable(fromnames, tonames)])
                 pdf = WS(ws, pdf, [
                     RooFit.RenameConflictNodes('_%s_%s' % (mode, sname)),
                     RooFit.Silence()])
-                del tmpws
-        else:
-            pdf = WS(ws, pdf, [
-                RooFit.RenameConflictNodes('_%s_%s' % (mode, sname)),
-                RooFit.Silence()])
-        if config['NBinsMass'] > 0 and not config['MassInterpolation']:
-            print 'WARNING: binned mass requested for %s/%s ' \
-                'mass/dsmass/pidk shape - not implemented yet' % (mode, sname)
+            if config['NBinsMass'] > 0 and not config['MassInterpolation']:
+                print 'WARNING: binned mass requested for %s/%s ' \
+                    'mass/dsmass/pidk shape - not implemented yet' % (mode, sname)
+    else:
+        # yield is zero, so put a dummy pdf there
+        from ROOT import RooUniform
+        pdf = RooUniform('DummyPdf_m_both_Tot', 'DummyPdf_m_both_Tot',
+                RooArgSet(mass, dsmass, pidk))
     # ok, all done, return
     if config['MassInterpolation']:
         print 'WARNING: interpolation requested for %s/%s mass/dsmass/pidk ' \

@@ -5,6 +5,11 @@
 !-----------------------------------------------------------------------------
 
 ! 2014-04-28 - Manuel Tobias Schiller
+ - runBs2DsKCPAsymmObsFitter-cFit: adjust code to deal with Agnieszka's new
+   workspaces which omit PDF components if their yield is zero, and perform
+   some kind of primitive recovery
+
+! 2014-04-28 - Manuel Tobias Schiller
  - B2DXFitters/TagCombiner.h: tiny fix to calling conventions to eliminate a
    warning; this does not affect user code that used to work
  - do full 12D error propagation when combining taggers in standalone/taggingtoy/
