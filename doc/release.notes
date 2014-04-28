@@ -5,6 +5,10 @@
 !-----------------------------------------------------------------------------
 
 ! 2014-04-28 - Manuel Tobias Schiller
+ - python/B2DXFitters/FitResult.py: utility routine for easy printing of blind
+   fit results in DsK/DsPi
+
+! 2014-04-28 - Manuel Tobias Schiller
  - adapt cFit personality to new official toys
 
 ! 2014-04-28 - Manuel Tobias Schiller

@@ -1,3 +1,12 @@
+"""
+@file FitResult.py
+
+@author Manuel Schiller <manuel.schiller@nikhef.nl>
+@date 2014-04-03
+
+wrap RooFitResults, and make sure you can print blinded fit results
+"""
+
 class FitResult:
     """ class to wrap RooFitResults """
 
@@ -457,5 +466,37 @@ class FitResult:
             retVal += '\n'
         # return string
         return retVal
+
+def getDsHBlindFitResult(isData, isBlind, fitResult):
+    """
+    construct an object wrapping RooFitResult with the correct settings
+    for the Bs -> Ds K/Pi CPV analysis which can be used to print blinded
+    fit results
+
+    isData - true if the fitResult is for Data
+    isBlind - true if blinding is to be applied to data
+    fitResult - RooFitResult to blind
+    """
+    doBlind = isData and isBlind
+    # common setup: rename list, blinding specification
+    renames = { 'C': 'Bs2DsK_C', 'D': 'Bs2DsK_D',
+            'Dbar': 'Bs2DsK_Dbar', 'S': 'Bs2DsK_S',
+            'Sbar': 'Bs2DsK_Sbar', 'DeltaMs': 'deltaMs',
+            'p0_0': 'Bs2DsK_Mistag0CalibB_p0',
+            'p0_1': 'Bs2DsK_Mistag1CalibB_p0',
+            'p0_2': 'Bs2DsK_Mistag2CalibB_p0',
+            'p1_0': 'Bs2DsK_Mistag0CalibB_p1',
+            'p1_1': 'Bs2DsK_Mistag1CalibB_p1',
+            'p1_2': 'Bs2DsK_Mistag2CalibB_p1',
+            }
+    blinds = {
+            # CP parameters blinded with random offset from 13 ... 17
+            '^Bs2DsK_(C|D|Dbar|S|Sbar)$': [ 13.0, 17.0 ],
+            # everything else connected with DsK is blinded with random offset
+            # from +3 ... +7 (efficiencies, calibrations, ...)
+            '^Bs2DsK': [ 3.0, 7.0 ],
+            }
+    
+    return FitResult(fitResult, renames, blinds if doBlind else { })
 
 # vim: ft=python:sw=4:tw=76
