@@ -1,3 +1,12 @@
+/** @file tagcomb-covstudy.cc
+ *
+ * @author Manuel Schiller <manuel.schiller@nikhef.nl>
+ * @date April 16th 2014
+ *
+ * study various subtractions eta_0 in the calibration formula
+ * (omega = p0 + p1 (eta - eta_0)) to see which has the lowest
+ * possible correlation between p0 and p1.
+ */
 #include <cmath>
 #include <cassert>
 #include <iostream>
@@ -300,182 +309,7 @@ DLLVector genUncorrTaggers(const DLLVector& tageffs,
     return retVal;
 }
 
-/// hold the final calibration with all its uncertainties
-class OutCalibration
-{
-    public:
-	/// encode what is being updated
-	typedef enum { B = 0, Bbar = 6 } InitialFlavour;
-	/// encode what is being updated
-	typedef enum { OSOnly = 0, SSKOnly = 2, OSSSK = 4 } TagCategory;
-	/// encode what is being updated
-	typedef enum { P0 = 0, P1 = 1 } CalibCoeff;
-
-    public:
-	OutCalibration()
-	{
-	    std::fill(m_aveta, m_aveta + 3,
-		    std::numeric_limits<double>::quiet_NaN());
-	    std::fill(m_calib, m_calib + 12,
-		    std::numeric_limits<double>::quiet_NaN());
-	    std::fill(m_cov, m_cov + (12 * 13 / 2),
-		    std::numeric_limits<double>::quiet_NaN());
-	}
-
-	/// constructor
-	OutCalibration(
-		const std::vector<Calibration>& calib)
-	{
-	    assert(6 == calib.size());
-	    assert(calib[0].aveta() == calib[3].aveta());
-	    assert(calib[1].aveta() == calib[4].aveta());
-	    assert(calib[2].aveta() == calib[5].aveta());
-
-	    m_aveta[0] = calib[0].aveta();
-	    m_aveta[1] = calib[1].aveta();
-	    m_aveta[2] = calib[2].aveta();
-
-	    m_calib[B+OSOnly +P0] = calib[0].calibparams()[0];
-	    m_calib[B+OSOnly +P1] = calib[0].calibparams()[1];
-	    m_calib[B+SSKOnly+P0] = calib[1].calibparams()[0];
-	    m_calib[B+SSKOnly+P1] = calib[1].calibparams()[1];
-	    m_calib[B+OSSSK  +P0] = calib[2].calibparams()[0];
-	    m_calib[B+OSSSK  +P1] = calib[2].calibparams()[1];
-	    m_calib[Bbar+OSOnly +P0] = calib[3].calibparams()[0];
-	    m_calib[Bbar+OSOnly +P1] = calib[3].calibparams()[1];
-	    m_calib[Bbar+SSKOnly+P0] = calib[4].calibparams()[0];
-	    m_calib[Bbar+SSKOnly+P1] = calib[4].calibparams()[1];
-	    m_calib[Bbar+OSSSK  +P0] = calib[5].calibparams()[0];
-	    m_calib[Bbar+OSSSK  +P1] = calib[5].calibparams()[1];
-
-	    // fill covariance matrix
-	    std::fill(m_cov, m_cov + 12 * 13 / 2, 0.);
-	    // copy over stat. part of cov matrix
-	    for (unsigned i = 0; i < 6; ++i) {
-		for (unsigned j = 0; j < 2; ++j) {
-		    const unsigned jj = 2 * i + j;
-		    for (unsigned k = 0; k <= j; ++k) {
-			const unsigned kk = 2 * i + k;
-			m_cov[(jj * (jj + 1)) / 2 + kk] =
-			    calib[i].calibparamcov()[(j * (j + 1)) / 2 + k];
-		    }
-		}
-	    }
-	}
-
-	/// retrieve average eta
-	double getAvEta(TagCategory cat) const
-	{ return m_aveta[int(cat) / 2]; }
-
-	/// update covariance matrix with scale^2 other * other^T (i.e. other = (scale d\vec{outcal}/ddeltaincal) * deltaincal)
-	void updateCov(const OutCalibration& other, const double scale = 1.0)
-	{
-	    // check that we're based on same averages
-	    assert(other.m_aveta[0] == m_aveta[0]);
-	    assert(other.m_aveta[1] == m_aveta[1]);
-	    assert(other.m_aveta[2] == m_aveta[2]);
-
-	    // form difference to nominal calibration
-	    double d[12];
-	    for (unsigned i = 0; i < 12; ++i) d[i] = scale * other.m_calib[i];
-	    // update covariance matrix
-	    for (unsigned i = 0; i < 12; ++i)
-		for (unsigned j = 0; j <= i; ++j)
-		    m_cov[(i * (i + 1) / 2) + j] += d[i] * d[j];
-	}
-
-	Calibration getOutCalib(InitialFlavour iflav, TagCategory cat) const
-	{
-	    const int ip0 = iflav + cat + P0, ip1 = iflav + cat + P1;
-	    return Calibration(
-		    m_aveta[cat / SSKOnly], m_calib[ip0], m_calib[ip1],
-		    m_cov[(ip0 * (ip0 + 1)) / 2 + ip0],
-		    m_cov[(ip1 * (ip1 + 1)) / 2 + ip1 - 1],
-		    m_cov[(ip1 * (ip1 + 1)) / 2 + ip1]);
-	}
-
-	std::ostream& print(std::ostream& os) const
-	{
-	    static const char *flav[2] = { "B   ", "Bbar" };
-	    static const char *cat[3] = { "OS only ", "SSK only", "OS + SSK" };
-
-	    std::ios::fmtflags oflags = os.flags();
-	    os.setf(std::ios::fixed, std::ios::floatfield);
-	    std::streamsize ow = os.width(), op = os.precision();
-
-	    for (unsigned ifl = 0; ifl < 2; ++ifl) {
-		for (unsigned icat = 0; icat < 3; ++icat) {
-		    os << flav[ifl] << " " << cat[icat] << ": " <<
-			getOutCalib(static_cast<InitialFlavour>(ifl * Bbar),
-				static_cast<TagCategory>(icat * SSKOnly)) <<
-			std::endl;
-		}
-	    }
-
-	    os << std::endl << "Correlations:" << std::endl;
-	    os << "   ";
-	    for (unsigned i = 0; i < 12; ++i)
-		os << " " << std::setw(6) << i;
-	    os << std::endl;
-	    for (unsigned i = 0; i < 12; ++i) {
-		os << std::setw(2) << i;
-		const unsigned iidx = ((i * (i + 1)) / 2 + i);
-		for (unsigned j = 0; j < 12; ++j) {
-		    const unsigned idx = (i >= j) ?
-			((i * (i + 1)) / 2 + j) :
-			((j * (j + 1)) / 2 + i);
-		    const unsigned jidx = ((j * (j + 1)) / 2 + j);
-		    const double correl = m_cov[idx] /
-			std::sqrt(m_cov[iidx] * m_cov[jidx]);
-		    os << " " << std::setw(6) <<
-			std::setprecision(3) << correl;
-		}
-		os << std::endl;
-	    }
-
-	    os.flags(oflags);
-	    os.width(ow);
-	    os.precision(op);
-
-	    return os;
-	}
-
-	OutCalibration& operator+=(const OutCalibration& other)
-	{
-	    assert(m_aveta[0] == other.m_aveta[0]);
-	    assert(m_aveta[1] == other.m_aveta[1]);
-	    assert(m_aveta[2] == other.m_aveta[2]);
-	    for (unsigned i = 0; i < 12; ++i) m_calib[i] += other.m_calib[i];
-	    for (unsigned i = 0; i < 12 * 13 / 2; ++i) m_cov[i] += other.m_cov[i];
-	    return *this;
-	}
-
-	OutCalibration& operator-=(const OutCalibration& other)
-	{
-	    assert(m_aveta[0] == other.m_aveta[0]);
-	    assert(m_aveta[1] == other.m_aveta[1]);
-	    assert(m_aveta[2] == other.m_aveta[2]);
-	    for (unsigned i = 0; i < 12; ++i) m_calib[i] -= other.m_calib[i];
-	    for (unsigned i = 0; i < 12 * 13 / 2; ++i) m_cov[i] += other.m_cov[i];
-	    return *this;
-	}
-
-    private:
-	double m_aveta[3];
-	double m_calib[12];
-	double m_cov[12 * 13 / 2];
-};
-
-std::ostream& operator<<(std::ostream& os, const OutCalibration& c)
-{ return c.print(os); }
-
-OutCalibration operator+(const OutCalibration& a, const OutCalibration& b)
-{ return OutCalibration(a) += b; }
-
-OutCalibration operator-(const OutCalibration& a, const OutCalibration& b)
-{ return OutCalibration(a) -= b; }
-
-/// get approximate subtraction to cancel correlations based on mistag distribution
+/// approximate subtraction to cancel correlations based on mistag distribution
 double getEVal(const TH1& h)
 {
     double sumw2 = 0., sumetaw2 = 0.;
@@ -493,21 +327,32 @@ double getEVal(const TH1& h)
     return sumetaw2 / sumw2;
 }
 
+/// exact subtraction to cancel correlations based on omega vs eta plot
+double getEValExact(const TH1& h)
+{
+    double sumw2 = 0., sumetaw2 = 0.;
+    for (unsigned i = 1; i <= unsigned(h.GetNbinsX()); ++i) {
+	const double e = h.GetBinError(i);
+	// skip empty/invalid bins
+	if (e != e || e <= 0.) continue;
+	const double eta = h.GetBinCenter(i);
+	const double w = 1. / (e * e);
+	sumw2 += w;
+	sumetaw2 += w * eta;
+    }
+    std::cout << "DEBUG: mean " << h.GetMean() << " eValExact " << (sumetaw2 / sumw2) << std::endl;
+
+    return sumetaw2 / sumw2;
+}
+
 class CombinerSimulation
 {
     private:
-	Calibration m_incalibnominal[2];	///< nominal calibration
-	Calibration m_incalibstaterr[2];	///< statistical error on calib.
-	Calibration m_incalibsysterr[2];	///< systematic error on calib.
-	Calibration m_incalibdeltaphalf[2];	///< 0.5 * delta p0/p1 (B/Bbar)
-	Calibration m_incalibdeltaphalferr[2];	///< error on m_calibdeltaphalf
+	Calibration m_incalib;	///< nominal calibration
+	Calibration m_outcalib;
+	unsigned long m_seed;
+	unsigned long m_nevents;
 
-
-	OutCalibration m_outnominal;
-	OutCalibration m_outstat;
-	OutCalibration m_outstatdeltaphalf;
-	OutCalibration m_outsyst;
-	OutCalibration m_outtotal;
 
 	template <class T> class ObjSwapper {
 	    private:
@@ -523,7 +368,7 @@ class CombinerSimulation
 	};
 
 	/// run a toy for a single set of calibrations
-	std::vector<Calibration> runToy(
+	Calibration runToy(
 		const Calibration nominalcalib[2],
 		const Calibration truecalib[2]) const
 	{
@@ -536,7 +381,7 @@ class CombinerSimulation
 	    };
 
 	    // 2^26 events in toy (so fits are nice and stable)
-	    const unsigned long nevts = 1 << 26;
+	    const unsigned long nevts = m_nevents;
 	    std::cout << "Using " << nevts << " events per sample" << std::endl;
 
 	    // print inputs
@@ -550,7 +395,7 @@ class CombinerSimulation
 
 	    const std::string labels[3] = { " OS only", "SSK only", "  OS+SSK" };
 	    // run for OS only, SSK only, both OS and SSK
-	    for (unsigned irun = 1; irun < 4; ++irun) {
+	    for (unsigned irun = 2; irun < 3; ++irun) {
 		TH1D h_eta("eta", "eta;eta;#", 100, 0., 0.5);
 		TH1D h_omega("omega", "omega;eta;omega", 100, 0., 0.5);
 		h_eta.Sumw2();
@@ -559,7 +404,7 @@ class CombinerSimulation
 		const DLLVector tageffs(1.0 * bool(irun & 1), 1.0 * bool(irun & 2));
 		std::cout << "Simulating " << labels[irun - 1] << " events" << std::endl;
 
-		ObjSwapper<TRandom> gRandomSwapper(gRandom, new TRandom3(42));
+		ObjSwapper<TRandom> gRandomSwapper(gRandom, new TRandom3(m_seed));
 		// use our own PRNG
 		TagTools::TagCombiner<N> combiner;
 		for (unsigned long iev = 0; iev < nevts; ++iev) {
@@ -576,12 +421,14 @@ class CombinerSimulation
 		}
 
 		h_omega.Divide(&h_omega, &h_eta, 1., 1., "B");
-		// select fitter
+		// switch fit methods - both give same results
 #if 0
-		// straight line fit using Minuit (overkill, except if you want plots)
+		// use ROOT's histogram fit
 		TF1 calib("calib", Form("[0] + [1]*(x - %g)", h_eta.GetMean()), 0., 0.5);
 		calib.SetParameters(h_eta.GetMean(), 1.0);
-		h_omega.Fit(&calib, "NQ");
+		TF1 idcalib(calib);
+		idcalib.SetLineColor(kBlue);
+		h_omega.Fit(&calib, "Q");
 		// save calibration we obtained
 		TVirtualFitter *fitter = TVirtualFitter::GetFitter();
 		outcalib.push_back(Calibration(
@@ -591,184 +438,42 @@ class CombinerSimulation
 			    fitter->GetCovarianceMatrixElement(0, 0),
 			    fitter->GetCovarianceMatrixElement(1, 0),
 			    fitter->GetCovarianceMatrixElement(1, 1)));
+		h_omega.Draw();
+		idcalib.Draw("SAME");
+		gPad->Print("frub.eps");
+
 #else	    
-		// fast and accurate analytical chi^2 fit
+		// use simple chi^2 fit
 		outcalib.push_back(Calibration(
-			    //h_eta.GetMean(), --- don't use this!
+			    //h_eta.GetMean(),
 			    getEVal(h_eta),
+			    //getEValExact(h_omega),
 			    &h_omega));
 #endif
 	    }
 
 	    delete templates[0]; delete templates[1];
 
-	    std::cout << std::endl;
-	    for (unsigned i = 1; i < 4; ++i) {
-		std::cout << "Calibration for " << labels[i - 1] << ": " <<
-		    outcalib[i - 1] << std::endl;
-	    }
-	    std::cout << std::endl;
+	    std::cout << outcalib.front() << std::endl;
 
-	    return outcalib;
-	}
-
-	/// run toys for B/Bbar for a single set of calibrations
-	OutCalibration runToys(
-		const Calibration nominalcalib[2][2],
-		const Calibration truecalib[2][2]) const
-	{
-	    // first B
-	    std::vector<Calibration> calib =
-		runToy(nominalcalib[0], truecalib[0]);
-	    // then Bbar
-	    std::vector<Calibration> tmpcalib =
-		runToy(nominalcalib[1], truecalib[1]);
-	    // merge
-	    calib.insert(calib.end(), tmpcalib.begin(), tmpcalib.end());
-	    tmpcalib.clear();
-	    // construct output
-	    return OutCalibration(calib);
-	}
-
-	/// run OS p0/p1 and SSK p0/p1 variations for B/Bbar
-	std::vector<OutCalibration> runToysVariationOneAtATime(
-		const Calibration nominalcalib[2][2],
-		const Calibration truecalib[2][2],
-		const Calibration deltacalib[2][2]) const
-	{
-	    std::vector<OutCalibration> retVal, tmp;
-	    retVal.reserve(4); tmp.reserve(8);
-	    // up/downward variation of the four parameters
-	    for (unsigned i = 0; i < 8; ++i) {
-		const double sign = (i & 1) ? -1.0 : 1.0;
-		const Calibration tmpcal[2][2] = {
-		    {
-			Calibration(truecalib[0][0].aveta(), // OS (B)
-				truecalib[0][0].calibparams()[0] + sign *
-				((0 == (i / 2)) ? deltacalib[0][0].calibparams()[0] : 0.),
-				truecalib[0][0].calibparams()[1] + sign *
-				((1 == (i / 2)) ? deltacalib[0][0].calibparams()[1] : 0.)),
-			Calibration(truecalib[0][1].aveta(), // OS (B)
-				truecalib[0][1].calibparams()[0] + sign *
-				((2 == (i / 2)) ? deltacalib[0][1].calibparams()[0] : 0.),
-				truecalib[0][1].calibparams()[1] + sign *
-				((3 == (i / 2)) ? deltacalib[0][1].calibparams()[1] : 0.))
-		    }, {
-			Calibration(truecalib[1][0].aveta(), // OS (Bbar)
-				truecalib[1][0].calibparams()[0] + sign *
-				((0 == (i / 2)) ? deltacalib[1][0].calibparams()[0] : 0.),
-				truecalib[1][0].calibparams()[1] + sign *
-				((1 == (i / 2)) ? deltacalib[1][0].calibparams()[1] : 0.)),
-			Calibration(truecalib[1][1].aveta(), // OS (Bbar)
-				truecalib[1][1].calibparams()[0] + sign *
-				((2 == (i / 2)) ? deltacalib[1][1].calibparams()[0] : 0.),
-				truecalib[1][1].calibparams()[1] + sign *
-				((3 == (i / 2)) ? deltacalib[1][1].calibparams()[1] : 0.))
-		    }
-		};
-		tmp.push_back(runToys(nominalcalib, tmpcal));
-	    }
-	    // form "average", or really (as required by error propagation)
-	    // 2 * (d\vec{f}/dp_i) sigma_p_i
-	    for (unsigned i = 0; i < 4; ++i) {
-		retVal.push_back(tmp[2 * i] - tmp[2 * i + 1]);
-	    }
-	    return retVal;
+	    return outcalib.front();
 	}
 
     public:
 	CombinerSimulation(
-		const Calibration& incalibOS,
-		const Calibration& incalibOSerrstat,
-		const Calibration& incalibOSerrsyst,
-		const Calibration& incalibOSdeltaPhalf,
-		const Calibration& incalibOSdeltaPhalferr,
-		const Calibration& incalibSSK,
-		const Calibration& incalibSSKerrstat,
-		const Calibration& incalibSSKerrsyst,
-		const Calibration& incalibSSKdeltaPhalf,
-		const Calibration& incalibSSKdeltaPhalferr)
-	{
-	    m_incalibnominal[0] = incalibOS;
-	    m_incalibstaterr[0] = incalibOSerrstat;
-	    m_incalibsysterr[0] = incalibOSerrsyst;
-	    m_incalibdeltaphalf[0] = incalibOSdeltaPhalf;
-	    m_incalibdeltaphalferr[0] = incalibOSdeltaPhalferr;
-	    m_incalibnominal[1] = incalibSSK;
-	    m_incalibstaterr[1] = incalibSSKerrstat;
-	    m_incalibsysterr[1] = incalibSSKerrsyst;
-	    m_incalibdeltaphalf[1] = incalibSSKdeltaPhalf;
-	    m_incalibdeltaphalferr[1] = incalibSSKdeltaPhalferr;
-
-	    const Calibration nominal[2][2] = {
-		{ m_incalibnominal[0], m_incalibnominal[1] },
-		{ m_incalibnominal[0], m_incalibnominal[1] }
-	    };
-	    // B/Bbar is nominal +/- (delta p_0/2, delta p_1/2)
-	    const Calibration truecal[2][2] = {
-		{ m_incalibnominal[0] + m_incalibdeltaphalf[0],
-		    m_incalibnominal[1] + m_incalibdeltaphalf[1] },
-		{ m_incalibnominal[0] - m_incalibdeltaphalf[0],
-		    m_incalibnominal[1] - m_incalibdeltaphalf[1] }
-	    };
-
-	    m_outnominal = runToys(nominal, truecal);
-
-	    m_outstat = m_outstatdeltaphalf = m_outsyst = m_outtotal = m_outnominal;
-
-	    // ok, get the stat error influence
-	    const Calibration deltastat[2][2] = {
-		{ m_incalibstaterr[0], m_incalibstaterr[1] },
-		{ m_incalibstaterr[0], m_incalibstaterr[1] }
-	    };
-
-	    std::vector<OutCalibration> tmp = runToysVariationOneAtATime(nominal, truecal, deltastat);
-	    for (std::vector<OutCalibration>::const_iterator it = tmp.begin();
-		    tmp.end() != it; ++it) {
-		m_outstat.updateCov(*it, 0.5);
-		m_outtotal.updateCov(*it, 0.5);
-	    }
-
-	    // ok, get the stat error influence (deltaPHalf)
-	    const Calibration deltadeltaphalfstat[2][2] = {
-		{ m_incalibdeltaphalferr[0], m_incalibdeltaphalferr[1] },
-		{ - m_incalibdeltaphalferr[0], - m_incalibdeltaphalferr[1] }
-	    };
-
-	    tmp = runToysVariationOneAtATime(nominal, truecal, deltadeltaphalfstat);
-	    for (std::vector<OutCalibration>::const_iterator it = tmp.begin();
-		    tmp.end() != it; ++it) {
-		m_outstatdeltaphalf.updateCov(*it, 0.5);
-		m_outtotal.updateCov(*it, 0.5);
-	    }
-
-	    // ok, get the syst error influence
-	    const Calibration deltasyst[2][2] = {
-		{ m_incalibsysterr[0], m_incalibsysterr[1] },
-		{ m_incalibsysterr[0], m_incalibsysterr[1] }
-	    };
-
-	    tmp = runToysVariationOneAtATime(nominal, truecal, deltasyst);
-	    for (std::vector<OutCalibration>::const_iterator it = tmp.begin();
-		    tmp.end() != it; ++it) {
-		m_outsyst.updateCov(*it, 0.5);
-		m_outtotal.updateCov(*it, 0.5);
-	    }
+		const Calibration& incalib,
+		unsigned long nevts,
+		unsigned seed) :
+	    m_incalib(incalib), m_seed(seed), m_nevents(nevts)
+        {
+	    const Calibration tmp[2] = { m_incalib, m_incalib };
+	    const Calibration nul[2] = { Calibration(0., 0., 1.), Calibration(0., 0., 1.) };
+	    m_outcalib = runToy(nul, tmp);
 	}
 
-	std::ostream& print(std::ostream& os) const
+	double correl() const
 	{
-	    os << "Nominal calibration:" << std::endl <<
-		m_outnominal << std::endl << std::endl;
-	    os << "Stat. error calibration:" << std::endl <<
-		m_outstat << std::endl << std::endl;
-	    os << "Stat. error (Delta P / 2) calibration:" << std::endl <<
-		m_outstatdeltaphalf << std::endl << std::endl;
-	    os << "Syst. error calibration:" << std::endl <<
-		m_outsyst << std::endl << std::endl;
-	    os << "Total calibration:" << std::endl <<
-		m_outtotal << std::endl << std::endl;
-	    return os;
+	    return m_outcalib.calibparamcov()[1] / std::sqrt(m_outcalib.calibparamcov()[0] * m_outcalib.calibparamcov()[2]);
 	}
 
     private:
@@ -781,7 +486,7 @@ int main(int argc, char* argv[])
 	Calibration(0.3813, 0.3834, 0.972), // OS:  aveta, p0, p1
 	Calibration(0.4097, 0.4244, 1.218), // SSK: aveta, p0, p1
     };
-    const Calibration staterr[2] = {
+    /* const Calibration staterr[2] = {
 	Calibration(0.3813, 0.0014, 0.012), // OS
 	Calibration(0.4097, 0.0086, 0.150)  // SSK
     };
@@ -796,12 +501,19 @@ int main(int argc, char* argv[])
     const Calibration deltaPHalfErr[2] = {
 	Calibration(0.3813, 0.0021, 0.024), // OS
 	Calibration(0.4097,  0.004,  0.03)  // SSK
-    };
+    }; */
 
-    CombinerSimulation up(
-	    nominal[0], staterr[0], systerr[0], deltaPHalf[0], deltaPHalfErr[0],
-	    nominal[1], staterr[1], systerr[1], deltaPHalf[1], deltaPHalfErr[1]);
-    up.print(std::cout);
+    const unsigned long nevts = 1 << 26;
+
+    TH1D hist("correl", "correl", 100, -1., 1.);
+
+    for (unsigned i = 0; i < 1; ++i) {
+	CombinerSimulation simul(nominal[1], nevts, 42 + i); 
+	hist.Fill(simul.correl());
+    }
+
+    hist.Draw();
+    gPad->Print(Form("covstudy-%lu.eps", nevts));
 
     return 0;
 }

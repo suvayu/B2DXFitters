@@ -88,10 +88,10 @@ namespace TagTools {
      * @f[ \eta_c = \sum_{k=0}^N p_k \cdot (\eta-\langle\eta\rangle)^k @f]
      */
     template<unsigned N> static inline double evalCalibPoly(
-	    double eta, double aveta, const double p[N + 1u])
+	    double eta, double aveta, const double (&p)[N])
     {
 	const double deta = eta - aveta;
-	return PolyEvalHelpers::PolyEval<0, N>()(p, deta);
+	return PolyEvalHelpers::PolyEval<0, N - 1u>()(p, deta);
     }
 
     /** @brief class to combine (uncorrelated) taggers

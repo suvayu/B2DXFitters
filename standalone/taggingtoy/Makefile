@@ -1,6 +1,6 @@
-TARGETS = tagcomb
+TARGETS = tagcomb tagcomb-covstudy
 
 include Rules.mk
 
-tagcomb: CC=$(CXX)
-tagcomb: LDLIBS+=$(ROOTLIBS)
+$(TARGETS): CC=$(CXX)
+$(TARGETS): LDLIBS+=$(ROOTLIBS)

@@ -4,6 +4,11 @@
 ! Purpose     : RooFit-based fitters for B -> D X
 !-----------------------------------------------------------------------------
 
+! 2014-04-28 - Manuel Tobias Schiller
+ - B2DXFitters/TagCombiner.h: tiny fix to calling conventions to eliminate a
+   warning; this does not affect user code that used to work
+ - do full 12D error propagation when combining taggers in standalone/taggingtoy/
+
 ! 2014-04-27 - V. Gligorov
  - Major clean-up of the code in preparation for unblinding. 
  - Modified files
@@ -36,7 +41,7 @@
 
 !============================================== v2r5 2014-4-11 ==============================
 ! 2014-4-11 Diego Martinez Santos
-	 Make version v2r5
+    Make version v2r5
 ! 2014-04-04 - Manuel Tobias Schiller
  - change FitResult behaviour in case of blinding:
    - blinding now works according param_blind = U(a, b) + sign * param_unblind
