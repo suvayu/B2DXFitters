@@ -497,6 +497,10 @@ def runBdGammaFitterOnData(debug, wsname,
 
     aProd = zero     # production asymmetry
     aDet = zero      # detector asymmetry
+    if myconfigfile.has_key('aprod_Signal') :
+        aProd = RooConstVar('aprod_Signal','aprod_Signal',myconfigfile["aprod_Signal"])
+    if myconfigfile.has_key('adet_Signal') :
+        aDet = RooConstVar('adet_Signal','adet_Signal',myconfigfile["adet_Signal"])
 
     aTagEffSig = []
     aTagEffSigList = RooArgList()
@@ -504,7 +508,6 @@ def runBdGammaFitterOnData(debug, wsname,
         aTagEffSig.append(RooRealVar('aTagEff_'+str(i+1), 'atageff', myconfigfile["aTagEffSig"][i]))
         print aTagEffSig[i].GetName()
         aTagEffSigList.add(aTagEffSig[i])
-        
 
     # Coefficient in front of sin, cos, sinh, cosh
     # --------------------------------------------

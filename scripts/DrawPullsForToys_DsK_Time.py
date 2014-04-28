@@ -113,7 +113,7 @@ myconfigfile = myconfigfilegrabber()
 splitCharge = False
 largeToys = False
 saveplots = True
-tbtd = True
+tbtd = False
 tagEffPlot = False
 
 nbinspull = 60
@@ -128,8 +128,8 @@ useavgmistag = False
 avgmistagsuffix = "AvgMistag_"
 
 ntoys                   = 1000
-toysdir                 = '/afs/cern.ch/work/g/gligorov/public/Bs2DsKToys/For1fbPaper/Gamma70_5M_2T_MD/TimeFitResults/Nominal/'
-toysdir_md              = '/afs/cern.ch/work/g/gligorov/public/Bs2DsKToys/For1fbPaper/Gamma70_5M_2T_MD/MassFitResults/Nominal/'
+toysdir                 = '/afs/cern.ch/work/g/gligorov/public/Bs2DsKToys/For1fbPaper/Gamma70_WProdDetAsy_5M_2T_MD/TimeFitResults/'
+toysdir_md              = '/afs/cern.ch/work/g/gligorov/public/Bs2DsKToys/For1fbPaper/Gamma70_WProdDetAsy_5M_2T_MD/MassFitResults/'
 toysdir_tbtd            = '/afs/cern.ch/work/g/gligorov/public/Bs2DsKToys/For1fbPaper/Gamma70_5M_2T_MD/TimeFitResults/Systematics/FixedBackgrounds/'
 toysresultprefix        = 'DsK_Toys_TimeFitResult_'
 toysresultprefix_md     = 'DsK_Toys_MassFitResult_'
@@ -138,7 +138,7 @@ toysresultprefix_tbtd   = 'DsK_Toys_TimeFitResult_'
 if useavgmistag : toysresultprefix += avgmistagsuffix
 if largeToys    : toysresultprefix = 'DsK_Toys_FullLarge_TimeFitResult_'
 toysresultsuffix    = '.log'    
-outputdir = '/afs/cern.ch/work/g/gligorov/public/Bs2DsKToys/For1fbPaper/Gamma70_5M_2T_MD/PullPlots/Systematics/FixedBackgrounds/Time/'
+outputdir = '/afs/cern.ch/work/g/gligorov/public/Bs2DsKToys/For1fbPaper/Gamma70_WProdDetAsy_5M_2T_MD/PullPlots/Time/'
 
 additionalsuffix = 'Nominal'
 
