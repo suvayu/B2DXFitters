@@ -5,6 +5,9 @@
 !-----------------------------------------------------------------------------
 
 ! 2014-04-28 - Manuel Tobias Schiller
+ - adapt cFit personality to new official toys
+
+! 2014-04-28 - Manuel Tobias Schiller
  - fix to DecRateCoeff (Kristof de Bruyn): error in normalisation in tagging
    efficiencies for case with more than one category - not apparent in DsK/DsPi
    because the tagging efficiencies "conspire" to have values which happened to

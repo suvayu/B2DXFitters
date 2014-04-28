@@ -31,7 +31,7 @@
         'AcceptanceCorrectionFile': None,
         'CombineModesForEffCPObs': [ ],
         'NEvents':			[ 3474. ],
-        'DataFileName':         ('/afs/cern.ch/work/a/adudziak/public/Bs2DsKToys/Gamma70_5M_2T/DsK_Toys_Work_ForMassPlot_%d.root' if haveAFS else
+        'DataFileName':         ('/afs/cern.ch/work/g/gligorov/public/Bs2DsKToys/For1fbPaper/Gamma70_5M_2T_MD/MassFitResults/Nominal/DsK_Toys_Work_ForMassPlot_%d.root' if haveAFS else
             os.environ['B2DXFITTERSROOT']+'/scripts/paper-dsk-agn70-nominal/data/DsK_Toys_Work_ForMassPlot_%d.root') % TOY_NUMBER,
         'DataWorkSpaceName':    'FitMeToolWS',
         'DataSetNames':         'combData',
@@ -47,7 +47,7 @@
             'qt':       'tagDecComb',
             'weight':   'nSig_both_nonres_Evts_sw+nSig_both_phipi_Evts_sw+nSig_both_kstk_Evts_sw+nSig_both_kpipi_Evts_sw+nSig_both_pipipi_Evts_sw'
             },
-        'MassTemplateFile':             ('/afs/cern.ch/work/a/adudziak/public/Bs2DsKToys/Gamma70_5M_2T/DsK_Toys_Work_ForMassPlot_%d.root' if haveAFS else
+        'MassTemplateFile':             ('/afs/cern.ch/work/g/gligorov/public/Bs2DsKToys/For1fbPaper/Gamma70_5M_2T_MD/MassFitResults/Nominal/DsK_Toys_Work_ForMassPlot_%d.root' if haveAFS else
             os.environ['B2DXFITTERSROOT']+'/scripts/paper-dsk-agn70-nominal/data/DsK_Toys_Work_ForMassPlot_%d.root') % TOY_NUMBER,
         'MassTemplateWorkspace':	'FitMeToolWS',
         'MassInterpolation':		False,
@@ -113,6 +113,11 @@
                     [ [ 0., 1., 0. ] ],
                     ],
                 },
+        'Constraints': {
+                'Bd2DPi_lambda': 0.3 * 0.0187,
+                'Bd2DPi_avgSSbar': [ '0.5*(@0+@1)', ['Bd2DPi_S', 'Bd2DPi_Sbar'], +0.046, 0.023 ],
+                'Bd2DPi_difSSbar': [ '0.5*(@0-@1)', ['Bd2DPi_S', 'Bd2DPi_Sbar'], -0.022, 0.021 ],
+                },
         'Asymmetries': {
                 'Prod': {}, 'Det': { }, 'TagEff': {}, 'TagEff_t': {}, 'TagEff_f': {},
                 },
@@ -154,10 +159,20 @@
                     'Workspace': 'workspace',
                     'TemplateName': 'TimeErrorPdf_Lb2LcK',
                     'VarName': 'lab0_LifetimeFit_ctauErr', },
+                'Lb2LcPi': {
+                    'File': os.environ['B2DXFITTERSROOT']+'/data/workspace/MDFitter/template_Data_Terr_BsDsK.root',
+                    'Workspace': 'workspace',
+                    'TemplateName': 'TimeErrorPdf_Lb2LcPi',
+                    'VarName': 'lab0_LifetimeFit_ctauErr', },
                 'Bd2DK': {
                     'File': os.environ['B2DXFITTERSROOT']+'/data/workspace/MDFitter/template_Data_Terr_BsDsK.root',
                     'Workspace': 'workspace',
                     'TemplateName': 'TimeErrorPdf_Bd2DK',
+                    'VarName': 'lab0_LifetimeFit_ctauErr', },
+                'Bd2DPi': {
+                    'File': os.environ['B2DXFITTERSROOT']+'/data/workspace/MDFitter/template_Data_Terr_BsDsK.root',
+                    'Workspace': 'workspace',
+                    'TemplateName': 'TimeErrorPdf_Bd2DPi',
                     'VarName': 'lab0_LifetimeFit_ctauErr', },
                 'CombBkg': {
                     'File': os.environ['B2DXFITTERSROOT']+'/data/workspace/MDFitter/template_Data_Terr_BsDsK.root',
@@ -167,39 +182,49 @@
                 },
         'KFactorTemplates': {
                 'Bs2DsPi': {
-                    'File': os.environ['B2DXFITTERSROOT']+'/data/workspace/MDFitter/template_MC_KFactor_BsDsK_5300_5800.root',
+                    'File': os.environ['B2DXFITTERSROOT']+'/data/workspace/MDFitter/template_MC_KFactor_BsDsK_5320_5420.root',
                     'Workspace': 'workspace',
                     'TemplateName': 'kFactor_Bs2DsPi_both',
                     'VarName': 'kfactorVar', },
                 'Bs2DsstPi': {
-                    'File': os.environ['B2DXFITTERSROOT']+'/data/workspace/MDFitter/template_MC_KFactor_BsDsK_5300_5800.root',
+                    'File': os.environ['B2DXFITTERSROOT']+'/data/workspace/MDFitter/template_MC_KFactor_BsDsK_5320_5420.root',
                     'Workspace': 'workspace',
                     'TemplateName': 'kFactor_Bs2DsstPi_both',
                     'VarName': 'kfactorVar', },
                 'Bs2DsRho': {
-                    'File': os.environ['B2DXFITTERSROOT']+'/data/workspace/MDFitter/template_MC_KFactor_BsDsK_5300_5800.root',
+                    'File': os.environ['B2DXFITTERSROOT']+'/data/workspace/MDFitter/template_MC_KFactor_BsDsK_5320_5420.root',
                     'Workspace': 'workspace',
                     'TemplateName': 'kFactor_Bs2DsRho_both',
                     'VarName': 'kfactorVar', },
                 'Lb2LcK': {
-                    'File': os.environ['B2DXFITTERSROOT']+'/data/workspace/MDFitter/template_MC_KFactor_BsDsK_5300_5800.root',
+                    'File': os.environ['B2DXFITTERSROOT']+'/data/workspace/MDFitter/template_MC_KFactor_BsDsK_5320_5420.root',
                     'Workspace': 'workspace',
                     'TemplateName': 'kFactor_Lb2LcK_both',
                     'VarName': 'kfactorVar', },
+                'Lb2LcPi': {
+                    'File': os.environ['B2DXFITTERSROOT']+'/data/workspace/MDFitter/template_MC_KFactor_BsDsK_5320_5420.root',
+                    'Workspace': 'workspace',
+                    'TemplateName': 'kFactor_Lb2LcPi_both',
+                    'VarName': 'kfactorVar', },
                 'Lb2Dsp': {
-                    'File': os.environ['B2DXFITTERSROOT']+'/data/workspace/MDFitter/template_MC_KFactor_BsDsK_5300_5800.root',
+                    'File': os.environ['B2DXFITTERSROOT']+'/data/workspace/MDFitter/template_MC_KFactor_BsDsK_5320_5420.root',
                     'Workspace': 'workspace',
                     'TemplateName': 'kFactor_Lb2Dsp_both',
                     'VarName': 'kfactorVar', },
                 'Lb2Dsstp': {
-                    'File': os.environ['B2DXFITTERSROOT']+'/data/workspace/MDFitter/template_MC_KFactor_BsDsK_5300_5800.root',
+                    'File': os.environ['B2DXFITTERSROOT']+'/data/workspace/MDFitter/template_MC_KFactor_BsDsK_5320_5420.root',
                     'Workspace': 'workspace',
                     'TemplateName': 'kFactor_Lb2Dsstp_both',
                     'VarName': 'kfactorVar', },
                 'Bd2DK': {
-                    'File': os.environ['B2DXFITTERSROOT']+'/data/workspace/MDFitter/template_MC_KFactor_BsDsK_5300_5800.root',
+                    'File': os.environ['B2DXFITTERSROOT']+'/data/workspace/MDFitter/template_MC_KFactor_BsDsK_5320_5420.root',
                     'Workspace': 'workspace',
                     'TemplateName': 'kFactor_Bd2DK_both',
+                    'VarName': 'kfactorVar', },
+                'Bd2DPi': {
+                    'File': os.environ['B2DXFITTERSROOT']+'/data/workspace/MDFitter/template_MC_KFactor_BsDsK_5320_5420.root',
+                    'Workspace': 'workspace',
+                    'TemplateName': 'kFactor_Bd2DPi_both',
                     'VarName': 'kfactorVar', },
                 },
         'AcceptanceFunction': 'Spline',
@@ -210,9 +235,4 @@
             '.+_Mistag[0-9]+Calib(B|Bbar)_p[0-9]+',
             'Bs2DsKst_TagEff[0-9]', 'Bs2DsKst_delta', 'Bs2DsKst_lambda', 'Bs2DsKst_phi_w',
             ],
-        'Constraints': {
-                'Bd2DPi_lambda': 0.3 * 0.0187,
-                'Bd2DPi_avgSSbar': [ '0.5*(@0+@1)', ['Bd2DPi_S', 'Bd2DPi_Sbar'], +0.046, 0.023 ],
-                'Bd2DPi_difSSbar': [ '0.5*(@0-@1)', ['Bd2DPi_S', 'Bd2DPi_Sbar'], -0.022, 0.021 ],
-                },
 }
