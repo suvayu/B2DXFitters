@@ -865,7 +865,7 @@ RooArgList DecRateCoeff::CacheElem::containedArgs(Action)
 double DecRateCoeff::CacheElem::qfpdf(const int qf) const
 {
     assert(std::abs(qf) == 1);
-    return 1. + double(qf) * double(m_parent.m_aprod);
+    return 1. + double(qf) * double(m_parent.m_adet);
 }
 
 double DecRateCoeff::CacheElem::qtetapdf(const int qf, const int qt,

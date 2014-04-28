@@ -4,6 +4,10 @@
 ! Purpose     : RooFit-based fitters for B -> D X
 !-----------------------------------------------------------------------------
 
+! 2014-04-29 - Manuel Tobias Schiller
+ - DecRateCoeff: fix bad bug: apply detection asymmetry where the final state
+   charge is concerned
+
 ! 2014-04-28 - V. Gligorov
  - Update sFit to be able to fit with non-zero signal production and detection
    asymmetries.
