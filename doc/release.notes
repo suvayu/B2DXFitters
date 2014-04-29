@@ -5,6 +5,9 @@
 !-----------------------------------------------------------------------------
 
 ! 2014-04-29 - Manuel Tobias Schiller
+ - add WS and GaussianConstraintBuilder to the python/B2DXFitters subdirectory
+
+! 2014-04-29 - Manuel Tobias Schiller
  - DecRateCoeff: fix bad bug: apply detection asymmetry where the final state
    charge is concerned
 
