@@ -65,7 +65,7 @@ class GaussianConstraintBuilder:
             raise TypeError(
                     'ERROR: Variable %s to constrain not found' % parname)
         mean = WS(ws, RooConstVar('%s_mean' % parname, '%s_mean' % parname,
-            parname.getVal()))
+            par.getVal()))
         err = WS(ws, RooConstVar('%s_err' % parname, '%s_err' % parname,
             error))
         # re-float par (if par was set constant)
@@ -80,7 +80,7 @@ class GaussianConstraintBuilder:
             paramnamelist, mean, error):
         """ build a RooFormulaVar constraint """
         from WS import WS as WS
-        from ROOT import RooFormulaVar, RooArgList, RooConstVar
+        from ROOT import RooFormulaVar, RooArgList, RooConstVar, RooGaussian
         al = RooArgList()
         for arg in paramnamelist:
             al.add(ws.obj(arg))
@@ -97,7 +97,8 @@ class GaussianConstraintBuilder:
         """ build multivariate Gaussian constraint """
         from math import sqrt
         from WS import WS as WS
-        from ROOT import RooConstVar, RooArgList, TMatrixDSym, RooMultiVarGaussian
+        from ROOT import ( RooConstVar, RooArgList, TMatrixDSym,
+                RooMultiVarGaussian, TDecompChol )
         params = RooArgList()
         mus = RooArgList()
         for arg in paramnamelist:
@@ -122,7 +123,7 @@ class GaussianConstraintBuilder:
                     el = 0.5 * (mat[i][j] + mat[j][i])
                     # check if we're too far off
                     if ((abs(el) < 1e-15 and abs(mat[i][j]-mat[j][i]) > 1e-15) or
-                            (abs(mat[i][j]-mat[j][i]) / el > 1e-15)):
+                            (abs(el) >= 1e-15 and abs(mat[i][j]-mat[j][i]) / el > 1e-15)):
                         raise ValueError('Covariance matrix not even approximately symmetric')
                     cov[i][j] = el
                     cov[j][i] = el # ROOT's insanity requires this
@@ -149,7 +150,7 @@ class GaussianConstraintBuilder:
                     el = 0.5 * (correl[i][j] + correl[j][i])
                     # check if we're too far off
                     if ((abs(el) < 1e-15 and abs(correl[i][j]-correl[j][i]) > 1e-15) or
-                            (abs(correl[i][j]-correl[j][i]) / el > 1e-15)):
+                            (abs(el) >= 1e-15 and abs(correl[i][j]-correl[j][i]) / el > 1e-15)):
                         raise ValueError('Correlation matrix not even approximately symmetric')
                     if abs(el) > 1.:
                         raise ValueError('Off-diagonal elements too large to form valid correlation')
@@ -157,6 +158,20 @@ class GaussianConstraintBuilder:
                     el = el * sqrt(cov[i][i] * cov[j][j])
                     cov[i][j] = el
                     cov[j][i] = el # ROOT's insanity requires this
+        # verify we can invert covariance matrix with Cholesky decomposition
+        # (this will catch negative and zero Eigenvalues)
+        decomp = TDecompChol(cov)
+        isposdef = decomp.Decompose()
+        if not isposdef:
+            # not pos. def. - print Eigenvalue spectrum
+            from ROOT import TVectorD
+            v = TVectorD()
+            cov.EigenVectors(v)
+            print 'ERROR: Covariance matrix not positive definite:'
+            cov.Print()
+            print 'ERROR: Dumping Eigenvalue spectrum for diagnosis:'
+            v.Print()
+            raise ValueError('Covariance matrix not positive definite!')
         # all set up, construct final multivariate Gaussian
         mvg = WS(ws, RooMultiVarGaussian(name, name, params, mus, cov))
         # make sure we float all parameters given
@@ -183,7 +198,7 @@ class GaussianConstraintBuilder:
                    using the parameter's current value as the desired mean)
         error   -- width of the Gaussian constraint
         """
-        self._constraintlist.add(
+        self._constraintlist.append(
                 self.__buildSimpleConstraint(self._ws, parname, error))
     
     def addMultiVarConstraint(self, name, paramnamelist, errorsOrCovariance,
@@ -202,7 +217,7 @@ class GaussianConstraintBuilder:
         supplied during construction; their mean values are taken to be the
         current values of the variables named in paramnamelist
         """
-        self._constraintlist.add(self.__buildMultiVarConstraint(
+        self._constraintlist.append(self.__buildMultiVarConstraint(
             self._ws, name, paramnamelist, errorsOrCovariance, correlation))
 
     def addFormulaVarConstraint(self, formulaname, formulaexpression,
@@ -219,7 +234,7 @@ class GaussianConstraintBuilder:
         paramnamelist is a list of variables to be looked up in the workspace
         supplied during construction
         """
-        self._constraintlist.add(self.__buildFormulaVarConstraint(
+        self._constraintlist.append(self.__buildFormulaVarConstraint(
             self._ws, formulaname, formulaexpression, paramnamelist, mean, error))
 
     def getSetOfConstraints(self):

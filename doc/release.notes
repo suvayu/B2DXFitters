@@ -4,6 +4,10 @@
 ! Purpose     : RooFit-based fitters for B -> D X
 !-----------------------------------------------------------------------------
 
+! 2014-04-30 - Manuel Tobias Schiller
+ - standalone/taggingtoy/eps.c: combine tagging efficiencies/asymmetries
+ - bug fixes in GaussianConstraintBuilder
+
 ! 2014-04-29 - Manuel Tobias Schiller
  - add WS and GaussianConstraintBuilder to the python/B2DXFitters subdirectory
 
