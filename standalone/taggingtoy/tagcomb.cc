@@ -413,9 +413,9 @@ class OutCalibration
 	    }
 
 	    os << std::endl << "Correlations:" << std::endl;
-	    os << "   ";
+	    os << "  ";
 	    for (unsigned i = 0; i < 12; ++i)
-		os << " " << std::setw(6) << i;
+		os << " " << std::setw(12) << i;
 	    os << std::endl;
 	    for (unsigned i = 0; i < 12; ++i) {
 		os << std::setw(2) << i;
@@ -427,8 +427,8 @@ class OutCalibration
 		    const unsigned jidx = ((j * (j + 1)) / 2 + j);
 		    const double correl = m_cov[idx] /
 			std::sqrt(m_cov[iidx] * m_cov[jidx]);
-		    os << " " << std::setw(6) <<
-			std::setprecision(3) << correl;
+		    os << " " << std::setw(12) <<
+			std::setprecision(9) << correl;
 		}
 		os << std::endl;
 	    }
@@ -790,12 +790,12 @@ int main(int argc, char* argv[])
 	Calibration(0.4097, 0.0071, 0.104)  // SSK
     };
     const Calibration deltaPHalf[2] = {
-	Calibration(0.3813, 0.0124, 0.095), // OS
-	Calibration(0.4097, -0.020, -0.01)  // SSK
+	Calibration(0.3813, 0.5 * 0.0124, 0.5 * 0.095), // OS
+	Calibration(0.4097, 0.5 * -0.020, 0.5 * -0.01)  // SSK
     };
     const Calibration deltaPHalfErr[2] = {
-	Calibration(0.3813, 0.0021, 0.024), // OS
-	Calibration(0.4097,  0.004,  0.03)  // SSK
+	Calibration(0.3813, 0.5 * 0.0021, 0.5 * 0.024), // OS
+	Calibration(0.4097, 0.5 *  0.004, 0.5 *  0.03)  // SSK
     };
 
     CombinerSimulation up(
