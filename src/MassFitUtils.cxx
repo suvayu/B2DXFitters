@@ -1923,6 +1923,10 @@ TCut GetCutMCBkg( MDFitterSettings* mdSet, TString mode, TString hypo, TString D
       ftree->SetBranchAddress("lab1_PY", &h_PY);
       ftree->SetBranchAddress("lab1_PZ", &h_PZ);
 
+      const unsigned maxpv(8);
+      float ctau[maxpv];
+      ftree->SetBranchAddress("lab0_LifetimeFit_ctau", &ctau);
+
       long long nentries = ftree->GetEntries();
 
       std::string dname ("kfactor_dataset_" + mode[i] + "_" + smp[i]);
@@ -1948,6 +1952,12 @@ TCut GetCutMCBkg( MDFitterSettings* mdSet, TString mode, TString hypo, TString D
       double mDdiff(0.0), mhdiff(0.0);
       mBresn.Branch("mDdiff", &mDdiff, "mDdiff/D");
       mBresn.Branch("mhdiff", &mhdiff, "mhdiff/D");
+
+      double time(0.0), wt(0.0);
+      mBresn.Branch("time", &time, "time/D");
+      mBresn.Branch("wt", &wt, "wt/D");
+      mBresn.Branch("Bid", &BPID, "Bid/I");
+      mBresn.Branch("hid", &hPID, "hid/I");
 
       unsigned long fill_counter(0), loop_counter(0);
 
@@ -2235,6 +2245,10 @@ TCut GetCutMCBkg( MDFitterSettings* mdSet, TString mode, TString hypo, TString D
 	  mBdiff = Bs_rec.M() - Bs_ref.M();
 	  mDdiff = Ds.M() - Ds_ref.M();
 	  mhdiff = bach.M() - bach_ref.M();
+
+	  // divide flight distance by speed of light (0.3mm/ps)
+	  time = ctau[0]/0.3;
+	  wt = wMC*wRW*globalWeight;
 
 	  // Fill selected events
 	  mBresn.Fill();
