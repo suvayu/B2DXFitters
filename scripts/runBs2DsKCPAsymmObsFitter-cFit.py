@@ -472,35 +472,7 @@ def setConstantIfSoConfigured(config, obj, recache = {}):
         # ignore everything else
         pass
 
-# "swallow" object into a workspace, returns swallowed object
-def WS(ws, obj, opts = [RooFit.RecycleConflictNodes(), RooFit.Silence()]):
-    name = obj.GetName()
-    wsobj = ws.obj(name)
-    if obj.InheritsFrom('RooAbsArg') or obj.InheritsFrom('RooAbsData'):
-        if None == wsobj:
-            if len(opts) > 0:
-                ws.__getattribute__('import')(obj, *opts)
-            else:
-                ws.__getattribute__('import')(obj)
-            wsobj = ws.obj(name)
-        else:
-            if wsobj.Class() != obj.Class():
-                raise TypeError()
-    elif obj.InheritsFrom('RooArgSet'):
-        if None == wsobj:
-            ws.defineSet(name, obj, True)
-            wsobj = ws.set(name)
-        else:
-            if wsobj.Class() != obj.Class():
-                raise TypeError()
-    else:
-        if None == wsobj:
-            ws.__getattribute__('import')(obj, name)
-            wsobj = ws.obj(name)
-        else:
-            if wsobj.Class() != obj.Class():
-                raise TypeError()
-    return wsobj
+from B2DXFitters.WS import WS as WS
 
 # read dataset from workspace
 def readDataSet(
@@ -3372,53 +3344,22 @@ def getMasterPDF(config, name, debug = False):
     # set variables constant if they are supposed to be constant
     setConstantIfSoConfigured(config, totEPDF)
     # apply any additional constraints
+    from B2DXFitters.GaussianConstraintBuilder import GaussianConstraintBuilder
     if 'FIT' in config['Context']:
-        for vname in config['Constraints']:
-            constraint = config['Constraints'][vname]
-            if type(constraint) == list or type(constraint) == tuple:
-                from ROOT import RooFormulaVar
-                fvarformula = constraint[0]
-                fvarargs = constraint[1]
-                mean, sigma = constraint[2], constraint[3]
-                al = RooArgList()
-                for arg in fvarargs:
-                    al.add(ws.obj(arg))
-                del fvarargs
-                fvar = WS(ws, RooFormulaVar(vname, fvarformula, al))
-                del al
-                del fvarformula
-                mean = WS(ws, RooConstVar('%s_mean' % vname, '%s_mean' % vname,
-                    mean))
-                err = WS(ws, RooConstVar('%s_err' % vname, '%s_err' % vname,
-                    sigma))
-                constraints.append(WS(ws, RooGaussian(
-                    '%s_constraint' % vname, '%s_constraint' % vname,
-                    fvar, mean, err)))
-                del fvar
-                del mean
-                del err
-            else:
-                v = ws.obj(vname)
-                if (None == v or not v.InheritsFrom('RooAbsReal') or
-                        v.InheritsFrom('RooConstVar')):
-                    print 'ERROR: Variable %s to constrain not found' % vname
-                    return None
-                mean = WS(ws, RooConstVar('%s_mean' % vname, '%s_mean' % vname,
-                    v.getVal()))
-                err = WS(ws, RooConstVar('%s_err' % vname, '%s_err' % vname,
-                    constraint))
-                # re-float v (if v was set constant)
-                v.setConstant(False)
-                v.setError(err.getVal())
-                # append to list of constraints
-                constraints.append(WS(ws, RooGaussian(
-                    '%s_constraint' % vname, '%s_constraint' % vname,
-                    v, mean, err)))
-            del constraint
+        constraintbuilder = GaussianConstraintBuilder(ws, config['Constraints'])
+    else:
+        constraintbuilder = GaussianConstraintBuilder(ws)
 
-    constr = RooArgSet('constraints')
     for c in constraints:
-        constr.add(WS(ws, c))
+        constraintbuilder.addUserConstraint(c)
+
+    constr = constraintbuilder.getSetOfConstraints()
+    constraints = [ ]
+    it = constr.fwdIterator()
+    while True:
+        arg = it.next()
+        if None == arg: break
+        constraints.append(arg)
 
     print 72 * '#'
     print 'Configured master pdf %s' % totEPDF.GetName()

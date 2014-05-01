@@ -4,6 +4,10 @@
 ! Purpose     : RooFit-based fitters for B -> D X
 !-----------------------------------------------------------------------------
 
+! 2014-05-01 - Manuel Tobias Schiller
+ - cFit: use GaussianConstraintBuilder class instead of our own code, update
+   data fit for DsK to use 12D constraint on tagging calib params
+
 ! 2014-04-30 - Manuel Tobias Schiller
  - standalone/taggingtoy/eps.c: combine tagging efficiencies/asymmetries
  - bug fixes in GaussianConstraintBuilder
