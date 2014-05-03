@@ -955,6 +955,7 @@ def getKFactorTemplates(
     templates = {}
     rmin, rmax = k.getMin(), k.getMax()
     for mode in config['Modes']:
+        k.setRange(rmin, rmax)
         tmp = (config['KFactorTemplates'][mode] if mode in
                 config['KFactorTemplates'] else None)
         templates[mode] = (readTemplate1D(tmp['File'], tmp['Workspace'],
@@ -3184,21 +3185,31 @@ def getMasterPDF(config, name, debug = False):
                 asyms['Prod'], asyms['Det'], asyms['TagEff'])
 
     ########################################################################
-    # Bs -> Ds Pi like modes
+    # Bs -> Ds Pi like modes, and Lb modes (non-oscillating)
     ########################################################################
     for mode in ( 'Bs2DsPi', 'Bs2DsstPi', 'Bs2DsRho', 'Bs2DsstRho',
-            'Bd2DsK', 'Bd2DK', 'Bd2DsPi' ):
+            'Bd2DsK', 'Bd2DK', 'Bd2DsPi',
+            'Lb2Dsp', 'Lb2Dsstp', 'Lb2LcK', 'Lb2LcPi'):
         if mode not in config['Modes']:
             continue
         if mode.startswith('Bs'):
             gamma, deltagamma, deltam = gammas, deltaGammas, deltaMs
             modenick = 'Bs2DsPi'
+            C = one
         elif mode.startswith('Bd'):
             gamma, deltagamma, deltam = gammad, deltaGammad, deltaMd
             modenick = 'Bd2DsK'
+            C = one
+        elif mode.startswith('Lb'):
+            gamma = WS(ws, RooConstVar('GammaLb', '#Gamma_{#Lambda_{b}}',
+                config['GammaLb']))
+            deltagamma, deltam = zero, zero
+            modenick = 'Lb'
+            C = zero
         else:
             gamma, deltagamma, deltam = None, None, None
             modenick = mode
+            C = zero
         # figure out asymmetries to use
         asyms = { 'Prod': None, 'Det': None, 'TagEff': None }
         for k in asyms.keys():
@@ -3222,7 +3233,7 @@ def getMasterPDF(config, name, debug = False):
         tageff = makeTagEff(config, ws, modenick, y)
         timepdfs[mode] = buildBDecayTimePdf(config, mode, ws,
                 time, timeerr, qt, qf, mistagCals[mode], tageff,
-                gamma, deltagamma, deltam, one, zero, zero, zero, zero,
+                gamma, deltagamma, deltam, C, zero, zero, zero, zero,
                 trm, tacc, terrpdfs[mode], mistagtemplates[mode],
                 mistag, kfactorpdf, kfactor,
                 asyms['Prod'], asyms['Det'], asyms['TagEff'])
@@ -3230,8 +3241,8 @@ def getMasterPDF(config, name, debug = False):
     ########################################################################
     # non-osciallating modes
     ########################################################################
-    # Lb->X modes first, then CombBkg
-    for mode in ('Lb2Dsp', 'Lb2Dsstp', 'Lb2LcK', 'Lb2LcPi', 'CombBkg'):
+    # CombBkg
+    for mode in ('CombBkg',):
         if mode not in config['Modes']:
             continue
         if (config['UseKFactor'] and config['Modes'][0] != mode and mode in
@@ -3291,23 +3302,22 @@ def getMasterPDF(config, name, debug = False):
         pdfs = RooArgList()
         yields = RooArgList()
         for mode in config['Modes']:
-            if not mode in components:
-                components[mode] = [ ]
             tpdf = timepdfs[mode]
             mpdf = masstemplates[mode][sname]
+            if not mode in components:
+                components[mode] = [ ]
             # skip zero yield components
-            if (0. == abs(mpdf['yield'].getVal()) and
+            if (mpdf['yield'].getVal() < 1e-3 and
                     mpdf['yield'].isConstant()):
                 # if it doesn't have a yield, we might as well skip this
                 # component
                 continue
+            if 'sFit' in config['FitMode']:
+		mtpdf = tpdf
             else:
-                if 'sFit' in config['FitMode']:
-                    mtpdf = tpdf
-                else:
-                    mtpdf = WS(ws, RooProdPdf('%s_%s_PDF' % (mode, sname),
-                        '%s_%s_PDF' % (mode, sname), mpdf['pdf'], tpdf))
-                components[mode] += [ sname ]
+		mtpdf = WS(ws, RooProdPdf('%s_%s_PDF' % (mode, sname),
+		    '%s_%s_PDF' % (mode, sname), mpdf['pdf'], tpdf))
+            components[mode] += [ sname ]
             pdfs.add(mtpdf)
             yields.add(mpdf['yield'])
         totyield = WS(ws, RooAddition(
@@ -3317,7 +3327,7 @@ def getMasterPDF(config, name, debug = False):
         fractions = RooArgList()
         for mode in config['Modes']:
             mpdf = masstemplates[mode][sname]
-            if (0. == abs(mpdf['yield'].getVal()) and
+            if (mpdf['yield'].getVal() < 1e-3 and
                     mpdf['yield'].isConstant()):
                 continue
             f = WS(ws, RooProduct(
@@ -3350,10 +3360,26 @@ def getMasterPDF(config, name, debug = False):
     else:
         constraintbuilder = GaussianConstraintBuilder(ws)
 
+    # add other constraints we have
     for c in constraints:
         constraintbuilder.addUserConstraint(c)
-
+    # remove constraints for modes which are not included
     constr = constraintbuilder.getSetOfConstraints()
+    for mode in config['Modes']:
+	# skip modes with contributions to pdf
+	if len(components[mode]) > 0: continue
+	again = True
+	while again:
+	    again = False
+            it = constr.fwdIterator()
+            while True:
+                arg = it.next()
+                if None == arg: break
+		if -1 != arg.GetName().find(mode):
+		    constr.remove(arg)
+		    again = True
+		    break
+
     constraints = [ ]
     it = constr.fwdIterator()
     while True:

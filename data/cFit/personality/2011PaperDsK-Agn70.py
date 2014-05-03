@@ -11,9 +11,10 @@
         'SampleCategories': [
             'nonres', 'phipi', 'kstk', 'kpipi', 'pipipi'
             ],
+	'DGsOverGs':                    -0.105/0.661, # DeltaGammas / Gammas
         'DeltaMs':                      17.768, # in ps^{-1}
         'GammaLb':			0.700, # in ps^{-1}
-        'GammaCombBkg':			0.971, # in ps^{-1}
+        'GammaCombBkg':			0.800, # in ps^{-1}
         'WeakPhase': {
             'Bs2DsK':           70. / 180. * pi,
             'Bs2DsstK':         70. / 180. * pi,
@@ -26,8 +27,15 @@
             'Bs2DsstK':         -150. / 180. * pi,
             'Bs2DsKst':         -150. / 180. * pi,
             'Bs2DsstKst':       30. / 180. * pi,
-            'Bd2DPi':           30. / 180. * pi
+            'Bd2DPi':           20. / 180. * pi
             },
+        'ModLf': {
+	    'Bs2DsK': 	0.372,
+	    'Bs2DsstK': 	0.372,
+	    'Bs2DsKst': 	0.372,
+	    'Bs2DsstKst': 	0.372,
+	    'Bd2DPi':       0.015
+	    },
         'AcceptanceCorrectionFile': None,
         'CombineModesForEffCPObs': [ ],
         'NEvents':			[ 3474. ],
@@ -114,12 +122,45 @@
                     ],
                 },
         'Constraints': {
-                'Bd2DPi_lambda': 0.3 * 0.0187,
+                'Bd2DPi_lambda': 0.3 * 0.015,
                 'Bd2DPi_avgSSbar': [ '0.5*(@0+@1)', ['Bd2DPi_S', 'Bd2DPi_Sbar'], +0.046, 0.023 ],
                 'Bd2DPi_difSSbar': [ '0.5*(@0-@1)', ['Bd2DPi_S', 'Bd2DPi_Sbar'], -0.022, 0.021 ],
+		'Bd_AsymProd': 0.01,
+		'Bs_AsymProd': 0.01,
+		'Lb_AsymProd': 0.03,
+		'Bd2DK_AsymDet':	0.01,
+		'Bd2DPi_AsymDet':	0.01,
+		'Bd2DsK_AsymDet':	0.01,
+		'Bs2DsPi_AsymDet':	0.01,
+		'Lb2LcK_AsymDet':	0.03,
+		'Lb2LcPi_AsymDet':	0.03,
+		'CombBkg_AsymDet':	0.01,
+		'Lb2Dsp_AsymDet':	0.03,
+		'Lb2Dsstp_AsymDet':	0.03,
+		'Bs2DsstPi_AsymDet':	0.01,
+		'Bs2DsRho_AsymDet':	0.01,
                 },
         'Asymmetries': {
-                'Prod': {}, 'Det': { }, 'TagEff': {}, 'TagEff_t': {}, 'TagEff_f': {},
+                'Prod': {
+		    'Bs': -0.014,
+		    'Bd': 0.011,
+		    'Lb': 0.03,
+		    },
+		'Det': {
+		        'Bs2DsK':	0.01,
+			'Bd2DK':	0.01,
+			'Bd2DPi':	0.005,
+			'Bd2DsK':	0.01,
+			'Bs2DsPi':	0.005,
+			'Lb2LcK':	0.01,
+			'Lb2LcPi':	0.005,
+			'CombBkg':	0.01,
+			'Lb2Dsp':	0.02,
+			'Lb2Dsstp':	0.02,
+			'Bs2DsstPi':	0.005,
+			'Bs2DsRho':	0.005,
+		    },
+		'TagEff': {}, 'TagEff_t': {}, 'TagEff_f': {},
                 },
         'DecayTimeResolutionModel':	'GaussianWithPEDTE',
         'DecayTimeResolutionScaleFactor': 1.37,
@@ -221,18 +262,29 @@
                     'Workspace': 'workspace',
                     'TemplateName': 'kFactor_Bd2DK_both',
                     'VarName': 'kfactorVar', },
-                'Bd2DPi': {
-                    'File': os.environ['B2DXFITTERSROOT']+'/data/workspace/MDFitter/template_MC_KFactor_BsDsK_5320_5420.root',
-                    'Workspace': 'workspace',
-                    'TemplateName': 'kFactor_Bd2DPi_both',
-                    'VarName': 'kfactorVar', },
+                #'Bd2DPi': {
+                #    'File': os.environ['B2DXFITTERSROOT']+'/data/workspace/MDFitter/template_MC_KFactor_BsDsK_5320_5420.root',
+                #    'Workspace': 'workspace',
+                #    'TemplateName': 'kFactor_Bd2DPi_both',
+                #    'VarName': 'kfactorVar', },
                 },
         'AcceptanceFunction': 'Spline',
-        'constParams': [
+	'AcceptanceSplineCoeffs':   { # dspi data dsk mc dspi mc
+	    'MC': {
+		'Bs2DsPi':      [ 0.179, 0.294, 0.690, 1.125, 1.245, 1.270 ],
+		'Bs2DsK':       [ 1.77520e-01, 2.89603e-01, 6.79455e-01, 1.11726e+00, 1.23189e+00, 1.26661e+00 ],
+		},
+	    'DATA': {
+		'Bs2DsPi':      [ 0.145, 0.210, 0.625, 1.029, 1.258, 1.241 ],
+		'Bs2DsK':       [ 0.128, 0.193, 0.590, 1.023, 1.250, 1.253 ],
+		}
+	    },
+    'constParams': [
             'Gammas', 'deltaGammas', 'deltaMs',
             'Gammad', 'deltaGammad', 'deltaMd',
             'mistag', 'timeerr_bias', 'timeerr_scalefactor',
             '.+_Mistag[0-9]+Calib(B|Bbar)_p[0-9]+',
             'Bs2DsKst_TagEff[0-9]', 'Bs2DsKst_delta', 'Bs2DsKst_lambda', 'Bs2DsKst_phi_w',
+	    '.+Asym.+',
             ],
 }
