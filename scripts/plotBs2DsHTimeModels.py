@@ -103,7 +103,7 @@ import os, sys
 bName = 'B_{s}'
 isDsK = True
 
-nBinsTime = 30 if isDsK else 66
+nBinsTime = 57 if isDsK else 125
 defaultModes = (
         # modes for DsK
         ['Bs2DsK', 'Bs2DsKst', 'Bs2DsPi', 'Bs2DsstPi', 'Bs2DsRho', 'Bd2DK',
@@ -315,7 +315,6 @@ if __name__ == '__main__' :
                       (options.wsname, FILENAME))
 
     time = w.var('time')
-    time.setRange(time.getMin(), 8.0)
     time.setBins(nBinsTime)
     mass = w.var('mass')
     mass.setBins(25)
@@ -327,21 +326,37 @@ if __name__ == '__main__' :
             [ ('B_{s} #rightarrow D_{s}^{-}K^{+} + #bar{B_{s}} #rightarrow D_{s}^{+}K^{-}'
                 if isDsK else
                 'B_{s} #rightarrow D_{s}^{-}#pi^{+} + #bar{B_{s}} #rightarrow D_{s}^{+}#pi^{-}'),
-                [ RooFit.Cut("+1 == qf*qt") ],
-                [ [ RooFit.Slice(w.cat('qt'), 'B'),
-                    RooFit.Slice(w.cat('qf'), 'h+') ],
-                    [ RooFit.Slice(w.cat('qt'), 'Bbar'),
-                        RooFit.Slice(w.cat('qf'), 'h-') ] ]
+                [ RooFit.Cut("qf*qt > 0") ],
+		[ [ RooFit.Slice(w.cat('qt'), 'B_1'),
+		RooFit.Slice(w.cat('qf'), 'h+') ],
+		[ RooFit.Slice(w.cat('qt'), 'B_2'),
+		RooFit.Slice(w.cat('qf'), 'h+') ],
+		[ RooFit.Slice(w.cat('qt'), 'B_3'),
+		RooFit.Slice(w.cat('qf'), 'h+') ],
+		[ RooFit.Slice(w.cat('qt'), 'Bbar_1'),
+		RooFit.Slice(w.cat('qf'), 'h-') ],
+		[ RooFit.Slice(w.cat('qt'), 'Bbar_2'),
+		RooFit.Slice(w.cat('qf'), 'h-') ],
+		[ RooFit.Slice(w.cat('qt'), 'Bbar_3'),
+		RooFit.Slice(w.cat('qf'), 'h-') ] ]
                 ],
             [ ('B_{s} #rightarrow D_{s}^{+}K^{-} + #bar{B_{s}} #rightarrow D_{s}^{-}#K^{+}'
                 if isDsK else
                 'B_{s} #rightarrow D_{s}^{+}#pi^{-} + #bar{B_{s}} #rightarrow D_{s}^{-}#pi^{+}'),
-                [ RooFit.Cut("-1 == qf*qt") ],
-                 [ [ RooFit.Slice(w.cat('qt'), 'B'),
-                     RooFit.Slice(w.cat('qf'), 'h-') ],
-                     [ RooFit.Slice(w.cat('qt'), 'Bbar'),
-                         RooFit.Slice(w.cat('qf'), 'h+') ] ]
-                ]
+                [ RooFit.Cut("qf*qt < 0") ],
+		[ [ RooFit.Slice(w.cat('qt'), 'B_1'),
+		RooFit.Slice(w.cat('qf'), 'h-') ],
+		[ RooFit.Slice(w.cat('qt'), 'B_2'),
+		RooFit.Slice(w.cat('qf'), 'h-') ],
+		[ RooFit.Slice(w.cat('qt'), 'B_3'),
+		RooFit.Slice(w.cat('qf'), 'h-') ],
+		[ RooFit.Slice(w.cat('qt'), 'Bbar_1'),
+		RooFit.Slice(w.cat('qf'), 'h+') ],
+		[ RooFit.Slice(w.cat('qt'), 'Bbar_2'),
+		RooFit.Slice(w.cat('qf'), 'h+') ],
+		[ RooFit.Slice(w.cat('qt'), 'Bbar_3'),
+		RooFit.Slice(w.cat('qf'), 'h+') ] ]
+                ],
             ]
 
     iplot = 0
