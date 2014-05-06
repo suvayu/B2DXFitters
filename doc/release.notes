@@ -4,6 +4,16 @@
 ! Purpose     : RooFit-based fitters for B -> D X
 !-----------------------------------------------------------------------------
 
+! 2014-05-06 - Manuel Tobias Schiller
+ - cFit:
+   * small changes to allow cuts to be applied when reading a data set
+   * tracability improvement when importing dataset from external source:
+     print if the automagical conversion factor 1e9 nm / c[m/s] is applied
+   * spline acceptances can now be per mode
+   * this requires changes to decay time resolution model handling
+   * allow tagging efficiency asymmetries per tagger (as it should be)
+   All these changes do not affect fit results in standard configuration
+
 ! 2014-05-01 - Manuel Tobias Schiller
  - cFit: use GaussianConstraintBuilder class instead of our own code, update
    data fit for DsK to use 12D constraint on tagging calib params

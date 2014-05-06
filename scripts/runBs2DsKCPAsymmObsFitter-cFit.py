@@ -276,10 +276,18 @@ defaultConfig = {
     # spline acceptance parameters
     'AcceptanceSplineKnots':    [ 0.25, 0.5, 1.0, 2.0, 3.0, 12.0 ],
     'AcceptanceSplineCoeffs':   {
-            # dspi data dsk mc dspi mc
+            # first index: DATA for data fits, MC for MC/toy fits
             'MC': {
+                # second index: Bs2DsK or Bs2DsPi, depending on what the
+                # signal mode is
                 'Bs2DsPi':      [ 0.179, 0.294, 0.690, 1.125, 1.245, 1.270 ],
                 'Bs2DsK':       [ 0.159, 0.271, 0.655, 1.124, 1.244, 1.296 ],
+                # alternatively, you could have per-mode acceptances:
+                # 'Bs2DsK': {
+                #    'Bs2DsK': [ ... ],
+                #    'Bs2DsPi': [ ... ],
+                #    'Lb': [ ... ],
+                # }
                 },
             'DATA': {
                 'Bs2DsPi':      [ 0.145, 0.210, 0.625, 1.029, 1.258, 1.241 ],
@@ -406,6 +414,7 @@ defaultConfig = {
             'down_kpipi':	'dataSetBsDsK_down_kpipi',
             'down_pipipi':	'dataSetBsDsK_down_pipipi'
             },
+    'DataSetCuts': None,                # cut string or None
     # variable name mapping: our name -> name in dataset
     'DataSetVarNameMapping': {
             'sample':   'sample',
@@ -617,6 +626,13 @@ def readDataSet(
     def doIt(config, rangeName, dsname, sname, names, dmap, dset, ddata, fws):
         sdata = fws.obj(dsname)
         if None == sdata: return 0
+        if None != config['DataSetCuts']:
+            # apply any user-supplied cuts
+            newsdata = sdata.reduce(config['DataSetCuts'])
+            ROOT.SetOwnership(newsdata, True)
+            del sdata
+            sdata = newsdata
+            del newsdata
         sset = sdata.get()
         smap = { }
         for k in names:
@@ -634,6 +650,8 @@ def readDataSet(
                 meantime <= dmap['time'].getMax() and config['IsToy']) or
                 not config['IsToy']):
             timeConvFactor = 1.
+        print 'DEBUG: Importing data sample meantime = %f, timeConvFactor = %f' % (
+                meantime, timeConvFactor)
         # loop over all entries of data set
         ninwindow = 0
         if None != sname:
@@ -794,6 +812,276 @@ def readAcceptanceCorrection(
     del f
     return retVal
 
+def buildSplineAcceptance(
+        ws,     # workspace into which to import
+        time,   # time variable
+        pfx,    # prefix to be used in names
+        knots,  # knots
+        coeffs, # acceptance coefficients
+        floatParams = False # float acceptance parameters
+        ): 
+    # build acceptance function
+    from copy import deepcopy
+    myknots = deepcopy(knots)
+    mycoeffs = deepcopy(coeffs)
+    from ROOT import (RooBinning, RooArgList, RooPolyVar, RooCubicSplineFun,
+            RooConstVar, RooProduct)
+    if (len(myknots) != len(mycoeffs) or 0 >= min(len(myknots), len(mycoeffs))):
+        raise ValueError('ERROR: Spline knot position list and/or coefficient'
+                'list mismatch')
+    one = WS(ws, RooConstVar('one', '1', 1.0))
+    # create the knot binning
+    knotbinning = WS(ws, RooBinning(time.getMin(), time.getMax(),
+        '%s_knotbinning' % pfx))
+    for v in myknots:
+        knotbinning.addBoundary(v)
+    knotbinning.removeBoundary(time.getMin())
+    knotbinning.removeBoundary(time.getMax())
+    knotbinning.removeBoundary(time.getMin())
+    knotbinning.removeBoundary(time.getMax())
+    oldbinning, lo, hi = time.getBinning(), time.getMin(), time.getMax()
+    time.setBinning(knotbinning, '%s_knotbinning' % pfx)
+    time.setBinning(oldbinning)
+    time.setRange(lo, hi)
+    del knotbinning
+    del oldbinning
+    del lo
+    del hi
+    # create the knot coefficients
+    coefflist = RooArgList()
+    i = 0
+    for v in mycoeffs:
+        if floatParams:
+            coefflist.add(WS(ws, RooRealVar('%s_SplineAccCoeff%u' % (pfx, i),
+                '%s_SplineAccCoeff%u' % (pfx, i), v, 0., 2.)))
+        else:
+            coefflist.add(WS(ws, RooConstVar('%s_SplineAccCoeff%u' % (pfx, i),
+                '%s_SplineAccCoeff%u' % (pfx, i), v)))
+        i = i + 1
+    del mycoeffs
+    coefflist.add(one)
+    i = i + 1
+    myknots.append(time.getMax())
+    myknots.reverse()
+    fudge = (myknots[0] - myknots[1]) / (myknots[2] - myknots[1])
+    lastmycoeffs = RooArgList(
+            WS(ws, RooConstVar('%s_SplineAccCoeff%u_coeff0' % (pfx, i),
+                '%s_SplineAccCoeff%u_coeff0' % (pfx, i), 1. - fudge)),
+            WS(ws, RooConstVar('%s_SplineAccCoeff%u_coeff1' % (pfx, i),
+                '%s_SplineAccCoeff%u_coeff1' % (pfx, i), fudge)))
+    del myknots
+    coefflist.add(WS(ws, RooPolyVar(
+        '%s_SplineAccCoeff%u' % (pfx, i), '%s_SplineAccCoeff%u' % (pfx, i),
+        coefflist.at(coefflist.getSize() - 2), lastmycoeffs)))
+    del i
+    # create the spline itself
+    tacc = WS(ws, RooCubicSplineFun('%s_SplineAcceptance' % pfx,
+        '%s_SplineAcceptance' % pfx, time, '%s_knotbinning' % pfx,
+        coefflist))
+    del lastmycoeffs
+    if not floatParams:
+        # make sure the acceptance is <= 1 for generation
+        m = max([coefflist.at(j).getVal() for j in
+            xrange(0, coefflist.getSize())])
+        c = WS(ws, RooConstVar('%s_SplineAccNormCoeff' % pfx,
+            '%s_SplineAccNormCoeff' % pfx, 0.99 / m))
+        tacc_norm = WS(ws, RooProduct('%s_SplineAcceptanceNormalised' % pfx,
+            '%s_SplineAcceptanceNormalised' % pfx, RooArgList(tacc, c)))
+        del c
+        del m
+    del coefflist
+    return tacc, tacc_norm
+
+def getAcceptance(
+        ws,
+        config,
+        mode,
+        time):
+    if (None == config['AcceptanceFunction'] or 'None' ==
+            config['AcceptanceFunction']):
+        # no acceptance function
+        return None
+    if 'BdPTAcceptance' == config['AcceptanceFunction']:
+        tacc_slope  = WS(ws, RooRealVar('tacc_slope' , 'BdPTAcceptance_slope',
+            config['BdPTAcceptance_slope']))
+        tacc_offset = WS(ws, RooRealVar('tacc_offset', 'BdPTAcceptance_offset',
+            config['BdPTAcceptance_offset']))
+        tacc_beta = WS(ws, RooRealVar('tacc_beta', 'BdPTAcceptance_beta',
+            config['BdPTAcceptance_beta']))
+        tacc = WS(ws, BdPTAcceptance('BsPTAccFunction',
+            'decay time acceptance function',
+            time, tacc_beta, tacc_slope, tacc_offset))
+        tacc_norm = tacc
+    elif 'PowLawAcceptance' == config['AcceptanceFunction']:
+        acc_corr = readAcceptanceCorrection(config, ws, time)
+        tacc_beta = WS(ws, RooRealVar('tacc_beta', 'tacc_beta',
+            config['PowLawAcceptance_beta']))
+        tacc_expo = WS(ws, RooRealVar('tacc_expo', 'tacc_expo',
+            config['PowLawAcceptance_expo']))
+        tacc_offset = WS(ws, RooRealVar('tacc_offset', 'tacc_offset',
+            config['PowLawAcceptance_offset']))
+        tacc_turnon = WS(ws, RooRealVar('tacc_turnon', 'tacc_turnon',
+            config['PowLawAcceptance_turnon']))
+        if None != acc_corr:
+            tacc = WS(ws, PowLawAcceptance('PowLawAcceptance',
+                'decay time acceptance', tacc_turnon, time, tacc_offset,
+                tacc_expo, tacc_beta, acc_corr))
+        else:
+            tacc = WS(ws, PowLawAcceptance('PowLawAcceptance',
+                'decay time acceptance', tacc_turnon, time, tacc_offset,
+                tacc_expo, tacc_beta))
+        tacc_norm = tacc
+    elif 'Spline' == config['AcceptanceFunction']:
+        # ok, spline based acceptance function
+        kind = 'MC' if config['IsToy'] else 'DATA'
+        knots = config['AcceptanceSplineKnots']
+        coeffs = config['AcceptanceSplineCoeffs'][kind][config['Modes'][0]]
+        print coeffs
+        if type(coeffs) == list or type(coeffs) == tuple:
+            # same acceptance for all modes
+            tacc, tacc_norm = buildSplineAcceptance(ws, time,
+                    config['Modes'][0], knots, coeffs)
+        elif type(coeffs) == dict:
+            mymode = mode
+            if (mymode not in coeffs):
+                mymode = mode[0:2]
+            if (mymode not in coeffs):
+                mymode = config['Modes'][0]
+            if (mymode not in coeffs):
+                raise ValueError('Unable to find spline acceptance '
+                        'coefficients for mode %s' % mode)
+            tacc, tacc_norm = buildSplineAcceptance(ws, time, mymode, knots,
+                    coeffs[mymode])
+        else:
+            raise TypeError('Spline acceptance coefficients have invalid type')
+    else:
+        raise TypeError('ERROR: unknown acceptance function: %s' %
+                config['AcceptanceFunction'])
+    if (0 < config['NBinsAcceptance'] and
+            'Spline' != config['AcceptanceFunction']):
+        if config['StaticAcceptance']:
+            from ROOT import RooDataHist, RooHistPdf
+            dhist = WS(ws, RooDataHist(
+                '%s_dhist' % tacc.GetName(), '%s_dhist' % tacc.GetName(),
+                RooArgSet(time), 'acceptanceBinning'))
+            tacc.fillDataHist(dhist, RooArgSet(time), 1.)
+            dhist.SetNameTitle('%s_dhist' % tacc.GetName(),
+                    '%s_dhist' % tacc.GetName())
+            tacc = WS(ws, RooHistPdf('%s_binned' % tacc.GetName(),
+                '%s_binned' % tacc.GetName(), RooArgSet(time), dhist, 0))
+        elif config['AcceptanceInterpolation']:
+            from ROOT import RooBinned1DQuinticBase, RooAbsReal
+            RooBinned1DQuintic = RooBinned1DQuinticBase(RooAbsReal)
+            obins = time.getBins()
+            time.setBins(config['NBinsAcceptance'])
+            hist = tacc.createHistogram('%s_hist' % tacc, time)
+            hist.Scale(1. / hist.Integral())
+            ROOT.SetOwnership(hist, True)
+            tacc = WS(ws, RooBinned1DQuintic(
+                '%s_binned' % tacc.GetName(), '%s_binned' % tacc.GetName(),
+                hist, time))
+            time.setBins(obins)
+        tacc_norm = tacc
+    return (tacc if 'GEN' not in config['Context'] else tacc_norm)
+
+def getResolutionModel(
+        ws,             # workspace
+        config,         # config dictionary
+        time,           # time observable
+        timeerr,        # time error observable (if applicable)
+        tacc            # acceptance (if applicable)
+        ):
+    if (type(config['DecayTimeResolutionModel']) == list or
+    type(config['DecayTimeResolutionModel']) == tuple):
+        # ok, we got a list of: [sigma_0,sigma_1, ...] and [f0,f1,...]
+        # build specified resolution model on the fly
+        from ROOT import ( RooArgList, RooRealVar, RooGaussModel,
+                RooGaussEfficiencyModel, RooAddModel )
+        if 2 != len(config['DecayTimeResolutionModel']):
+            raise TypeError('Unknown type of resolution model')
+        ncomp = len(config['DecayTimeResolutionModel'][0])
+        if ncomp < 1:
+            raise TypeError('Unknown type of resolution model')
+        if ncomp != len(config['DecayTimeResolutionModel'][1]) and \
+                ncomp - 1 != len(config['DecayTimeResolutionModel'][1]):
+            raise TypeError('Unknown type of resolution model')
+        pdfs = RooArgList()
+        fracs = RooArgList()
+        i = 0
+        for s in config['DecayTimeResolutionModel'][0]:
+            sigma = WS(ws, RooRealVar('resmodel%02d_sigma' % i,
+                'resmodel%02d_sigma' % i, s, 'ps'))
+            bias = WS(ws, RooRealVar('timeerr_bias',
+                'timeerr_bias', config['DecayTimeResolutionBias']))
+            sf = WS(ws, RooRealVar('timeerr_scalefactor',
+                'timeerr_scalefactor',
+                config['DecayTimeResolutionScaleFactor'], .5, 2.))
+            if 'Spline' != config['AcceptanceFunction'] or 'GEN' in config['Context']:
+                pdfs.add(WS(ws, RooGaussModel('resmodel%02d' % i, 'resmodel%02d' % i,
+                    time, bias, sigma, sf)))
+            else:
+                # spline acceptance
+                pdfs.add(WS(ws, RooGaussEfficiencyModel(
+                    '%s_resmodel%02d' % (tacc.GetName(), i),
+                    '%s_resmodel%02d' % (tacc.GetName(), i),
+                    time, tacc, bias, sigma, sf, sf)))
+            del sf
+            del bias
+            i += 1
+        i = 0
+        for s in config['DecayTimeResolutionModel'][1]:
+            fracs.add(WS(ws, RooRealVar('resmodel%02d_frac' % i,
+                'resmodel%02d_frac' % i, s, 'ps')))
+            i += 1
+        del s
+        del i
+        trm = WS(ws, RooAddModel('%s_resmodel' % tacc.GetName(),
+            '%s_resmodel' % tacc.GetName(), pdfs, fracs))
+        del pdfs
+        del fracs
+        del ncomp
+        if ('Spline' == config['AcceptanceFunction'] and
+                not 'GEN' in config['Context']):
+            # if we're using a spline acceptance, we're done
+            tacc = None
+    elif type(config['DecayTimeResolutionModel']) == str:
+        if 'PEDTE' not in config['DecayTimeResolutionModel']:
+            if 'Spline' == config['AcceptanceFunction']:
+                print ('ERROR: decay time resolution model %s'
+                        'incompatible with spline acceptance') % (
+                                config['DecayTimeResolutionModel'])
+                return None
+            PTResModels = ROOT.PTResModels
+            trm = WS(ws, PTResModels.getPTResolutionModel(
+                config['DecayTimeResolutionModel'],
+                time, 'Bs', debug,
+                config['DecayTimeResolutionScaleFactor'],
+                config['DecayTimeResolutionBias']))
+        else :
+            from ROOT import RooRealVar, RooGaussModel, RooGaussEfficiencyModel
+            # time, mean, timeerr, scale
+            bias = WS(ws, RooRealVar('timeerr_bias',
+                'timeerr_bias', config['DecayTimeResolutionBias']))
+            sf = WS(ws, RooRealVar('timeerr_scalefactor',
+                'timeerr_scalefactor',
+                config['DecayTimeResolutionScaleFactor'], .5, 2.))
+            if ('Spline' != config['AcceptanceFunction'] or
+                    'GEN' in config['Context']):
+                trm = WS(ws, RooGaussModel('GaussianWithPEDTE',
+                    'GaussianWithPEDTE', time, bias, timeerr, sf))
+            else:
+                trm = WS(ws, RooGaussEfficiencyModel(
+                    '%s_GaussianWithPEDTE' % tacc.GetName(),
+                    '%s_GaussianWithPEDTE' % tacc.GetName(),
+                    time, tacc, bias, timeerr, sf, sf))
+                # if we're using a spline acceptance, we're done
+                tacc = None
+            del bias
+            del sf
+    else:
+        raise TypeError('Unknown type of resolution model')
+    return trm, tacc
+
 def readTemplate1D(
     fromfile,           # file to read from
     fromws,             # workspace to read from
@@ -886,6 +1174,8 @@ def readTemplate1D(
     ROOT.SetOwnership(hist, True)
     hist.SetNameTitle('%sPdf_hist' % pfx, '%sPdf_hist' % pfx)
     hist.SetDirectory(None)
+    if hist.Integral() < 1e-15:
+        raise ValueError('Histogram empty!')
     # recreate datahist
     dh = RooDataHist('%sPdf_dhist' % pfx, '%sPdf_dhist' % pfx,
             RooArgList(variable), hist)
@@ -1515,6 +1805,7 @@ def getMassTemplates(
             '2011PaperDsK-Agn70-sFit': getMassTemplateOneMode2011Paper,
             '2011PaperDsK-Agn140-sFit': getMassTemplateOneMode2011Paper,
             '2011PaperDsPi-Agn70-sFit': getMassTemplateOneMode2011Paper,
+            '2011PaperDsK-MC': getMassTemplateOneMode2011Paper,
             }
     import sys
     if None == snames:
@@ -2536,15 +2827,27 @@ def getMasterPDF(config, name, debug = False):
         del mistagCal
     # read in templates
     if config['PerEventMistag']:
+        observables.append(mistag)
         mistagtemplates = { }
-        for mode in config['Modes']:
-            mistagtemplates[mode] = [
-                    getMistagTemplate(config, ws, mistag, mode, i) for i in
-                    xrange(0, config['NTaggers']) ]
-            if None in mistagtemplates[mode]:
-                print ('ERROR: Unable to get decay time error template(s)'
-                        ' for mode %s') % mode
-                return None
+        if not config['TrivialMistag']:
+            for mode in config['Modes']:
+                mistagtemplates[mode] = [
+                        getMistagTemplate(config, ws, mistag, mode, i) for i in
+                        xrange(0, config['NTaggers']) ]
+                if None in mistagtemplates[mode]:
+                    raise ValueErrror('ERROR: Unable to get mistag template(s)'
+                            ' for mode %s' % mode)
+        else:
+            from ROOT import MistagDistribution
+            omega0 = WS(ws, RooConstVar('omega0', 'omega0', 0.07))
+            omegaf = WS(ws, RooConstVar('omegaf', 'omegaf', 0.25))
+            omegaa = WS(ws, RooConstVar('omegaa', 'omegaa', config['TagOmegaSig']))
+            trivialMistagPDF = [ WS(ws, MistagDistribution(
+                'TrivialMistagPDF', 'TrivialMistagPDF',
+                mistag, omega0, omegaa, omegaf)) ]
+            for mode in config['Modes']:
+                mistagtemplates[modes] = [ trivialMistagPDF for i in
+                        xrange(0, config['NTaggers']) ]
     else:
         mistagtemplates = None
 
@@ -2558,7 +2861,7 @@ def getMasterPDF(config, name, debug = False):
 
     # ok, since the mistagtemplate often is a RooHistPdf, we can fine-tune
     # ranges and binning to match the histogram
-    if config['PerEventMistag']:
+    if config['PerEventMistag'] and not config['TrivialMistag']:
         for mode in mistagtemplates:
             newmistagtemplate = []
             for mtt in mistagtemplates[mode]:
@@ -2701,233 +3004,12 @@ def getMasterPDF(config, name, debug = False):
         observables.append(tagcat)
 
     timepdfs = { }
-
-    # Decay time acceptance function
-    # ------------------------------
-    if (config['AcceptanceFunction'] and not (
-        None == config['AcceptanceFunction'] == None or
-        'None' == config['AcceptanceFunction'])):
-        acc_corr = readAcceptanceCorrection(config, ws, time)
-        if 'BdPTAcceptance' == config['AcceptanceFunction']:
-            tacc_slope  = WS(ws, RooRealVar('tacc_slope' , 'BdPTAcceptance_slope',
-                config['BdPTAcceptance_slope']))
-            tacc_offset = WS(ws, RooRealVar('tacc_offset', 'BdPTAcceptance_offset',
-                config['BdPTAcceptance_offset']))
-            tacc_beta = WS(ws, RooRealVar('tacc_beta', 'BdPTAcceptance_beta',
-                config['BdPTAcceptance_beta']))
-            tacc = WS(ws, BdPTAcceptance('BsPTAccFunction',
-                'decay time acceptance function',
-                time, tacc_beta, tacc_slope, tacc_offset))
-        elif 'PowLawAcceptance' == config['AcceptanceFunction']:
-            tacc_beta = WS(ws, RooRealVar('tacc_beta', 'tacc_beta',
-                config['PowLawAcceptance_beta']))
-            tacc_expo = WS(ws, RooRealVar('tacc_expo', 'tacc_expo',
-                config['PowLawAcceptance_expo']))
-            tacc_offset = WS(ws, RooRealVar('tacc_offset', 'tacc_offset',
-                config['PowLawAcceptance_offset']))
-            tacc_turnon = WS(ws, RooRealVar('tacc_turnon', 'tacc_turnon',
-                config['PowLawAcceptance_turnon']))
-            if None != acc_corr:
-                tacc = WS(ws, PowLawAcceptance('PowLawAcceptance',
-                    'decay time acceptance', tacc_turnon, time, tacc_offset,
-                    tacc_expo, tacc_beta, acc_corr))
-            else:
-                tacc = WS(ws, PowLawAcceptance('PowLawAcceptance',
-                    'decay time acceptance', tacc_turnon, time, tacc_offset,
-                    tacc_expo, tacc_beta))
-        elif 'Spline' == config['AcceptanceFunction']:
-            from ROOT import (RooBinning, RooArgList, RooPolyVar,
-                    RooCubicSplineFun)
-            knots = config['AcceptanceSplineKnots']
-            mode = config['Modes'][0]
-            sampletype = 'MC' if config['IsToy'] else 'DATA'
-            coeffs = config['AcceptanceSplineCoeffs'][sampletype][mode]
-            del mode
-            del sampletype
-            if (len(knots) != len(coeffs) or 0 >= min(len(knots),
-                len(coeffs))):
-                print ('ERROR: Spline knot position list and/or coefficient'
-                        'list mismatch')
-                return None
-            # create the knot binning
-            knotbinning = RooBinning(
-                    time.getMin(), time.getMax(), 'knotbinning')
-            for v in knots:
-                knotbinning.addBoundary(v)
-            knotbinning.removeBoundary(time.getMin())
-            knotbinning.removeBoundary(time.getMax())
-            knotbinning.removeBoundary(time.getMin())
-            knotbinning.removeBoundary(time.getMax())
-            oldbinning = time.getBinning()
-            lo, hi = time.getMin(), time.getMax()
-            time.setBinning(knotbinning, 'knotbinning')
-            time.setBinning(oldbinning)
-            time.setRange(lo, hi)
-            del knotbinning
-            del oldbinning
-            del lo
-            del hi
-            # create the knot coefficients
-            coefflist = RooArgList()
-            i = 0
-            for v in coeffs:
-                coefflist.add(WS(ws, RooRealVar(
-                    'SplineAccCoeff%u' % i, 'SplineAccCoeff%u' % i, v)))
-                i = i + 1
-            del coeffs
-            coefflist.add(one)
-            i = i + 1
-            knots.append(time.getMax())
-            knots.reverse()
-            fudge = (knots[0] - knots[1]) / (knots[2] - knots[1])
-            lastcoeffs = RooArgList(
-                    WS(ws, RooConstVar('SplineAccCoeff%u_coeff0' % i,
-                        'SplineAccCoeff%u_coeff0' % i, 1. - fudge)),
-                    WS(ws, RooConstVar('SplineAccCoeff%u_coeff1' % i,
-                        'SplineAccCoeff%u_coeff1' % i, fudge)))
-            del knots
-            coefflist.add(WS(ws, RooPolyVar(
-                'SplineAccCoeff%u' % i, 'SplineAccCoeff%u' % i,
-                coefflist.at(coefflist.getSize() - 2), lastcoeffs)))
-            del i
-            # create the spline itself
-            tacc = WS(ws, RooCubicSplineFun('SplineAcceptance',
-                'SplineAcceptance', time, 'knotbinning', coefflist))
-            del lastcoeffs
-            if 'GEN' in config['Context']:
-                # make sure the acceptance is <= 1 for generation
-                m = max([coefflist.at(j).getVal() for j in
-                    xrange(0, coefflist.getSize())])
-                from ROOT import RooProduct
-                c = WS(ws, RooConstVar('SplineAccNormCoeff',
-                    'SplineAccNormCoeff', 0.99 / m))
-                tacc = WS(ws, RooProduct('SplineAcceptanceNormalised',
-                    'SplineAcceptanceNormalised', RooArgList(tacc, c)))
-                del c
-                del m
-            del coefflist
-        else:
-            print 'ERROR: unknown acceptance function: ' + config['AcceptanceFunction']
-            sys.exit(1)
-        if (0 < config['NBinsAcceptance'] and
-                'Spline' != config['AcceptanceFunction']):
-            if config['StaticAcceptance']:
-                from ROOT import RooDataHist, RooHistPdf
-                dhist = WS(ws, RooDataHist(
-                    '%s_dhist' % tacc.GetName(), '%s_dhist' % tacc.GetName(),
-                    RooArgSet(time), 'acceptanceBinning'))
-                tacc.fillDataHist(dhist, RooArgSet(time), 1.)
-                dhist.SetNameTitle('%s_dhist' % tacc.GetName(),
-                        '%s_dhist' % tacc.GetName())
-                tacc = WS(ws, RooHistPdf('%s_binned' % tacc.GetName(),
-                    '%s_binned' % tacc.GetName(), RooArgSet(time), dhist, 0))
-            elif config['AcceptanceInterpolation']:
-                from ROOT import RooBinned1DQuinticBase, RooAbsReal
-                RooBinned1DQuintic = RooBinned1DQuinticBase(RooAbsReal)
-                obins = time.getBins()
-                time.setBins(config['NBinsAcceptance'])
-                hist = tacc.createHistogram('%s_hist' % tacc, time)
-                hist.Scale(1. / hist.Integral())
-                ROOT.SetOwnership(hist, True)
-                tacc = WS(ws, RooBinned1DQuintic(
-                    '%s_binned' % tacc.GetName(), '%s_binned' % tacc.GetName(),
-                    hist, time))
-                time.setBins(obins)
-    else:
-        tacc = None
-
-    # Decay time resolution model
-    # ---------------------------
-    if type(config['DecayTimeResolutionModel']) == type([]):
-        # ok, we got a list of: [sigma_0,sigma_1, ...] and [f0,f1,...]
-        # build specified resolution model on the fly
-        from ROOT import ( RooArgList, RooRealVar, RooGaussModel,
-                RooGaussEfficiencyModel, RooAddModel )
-        if 2 != len(config['DecayTimeResolutionModel']):
-            raise TypeError('Unknown type of resolution model')
-        ncomp = len(config['DecayTimeResolutionModel'][0])
-        if ncomp < 1:
-            raise TypeError('Unknown type of resolution model')
-        if ncomp != len(config['DecayTimeResolutionModel'][1]) and \
-                ncomp - 1 != len(config['DecayTimeResolutionModel'][1]):
-            raise TypeError('Unknown type of resolution model')
-        pdfs = RooArgList()
-        fracs = RooArgList()
-        i = 0
-        for s in config['DecayTimeResolutionModel'][0]:
-            sigma = WS(ws, RooRealVar('resmodel%02d_sigma' % i,
-                'resmodel%02d_sigma' % i, s, 'ps'))
-            bias = WS(ws, RooRealVar('timeerr_bias',
-                'timeerr_bias', config['DecayTimeResolutionBias']))
-            sf = WS(ws, RooRealVar('timeerr_scalefactor',
-                'timeerr_scalefactor',
-                config['DecayTimeResolutionScaleFactor'], .5, 2.))
-            if 'Spline' != config['AcceptanceFunction'] or 'GEN' in config['Context']:
-                pdfs.add(WS(ws, RooGaussModel('resmodel%02d' % i, 'resmodel%02d' % i,
-                    time, bias, sigma, sf)))
-            else:
-                # spline acceptance
-                pdfs.add(WS(ws, RooGaussEfficiencyModel(
-                    'resmodel%02d' % i, 'resmodel%02d' % i,
-                    time, tacc, bias, sigma, sf, sf)))
-            del sf
-            del bias
-            i += 1
-        i = 0
-        for s in config['DecayTimeResolutionModel'][1]:
-            fracs.add(WS(ws, RooRealVar('resmodel%02d_frac' % i,
-                'resmodel%02d_frac' % i, s, 'ps')))
-            i += 1
-        del s
-        del i
-        trm = WS(ws, RooAddModel('resmodel', 'resmodel', pdfs, fracs))
-        del pdfs
-        del fracs
-        del ncomp
-        if ('Spline' == config['AcceptanceFunction'] and
-                not 'GEN' in config['Context']):
-            # if we're using a spline acceptance, we're done
-            tacc = None
-    elif type(config['DecayTimeResolutionModel']) == type(''):
-        if 'PEDTE' not in config['DecayTimeResolutionModel']:
-            if 'Spline' == config['AcceptanceFunction']:
-                print ('ERROR: decay time resolution model %s'
-                        'incompatible with spline acceptance') % (
-                                config['DecayTimeResolutionModel'])
-                return None
-            PTResModels = ROOT.PTResModels
-            trm = WS(ws, PTResModels.getPTResolutionModel(
-                config['DecayTimeResolutionModel'],
-                time, 'Bs', debug,
-                config['DecayTimeResolutionScaleFactor'],
-                config['DecayTimeResolutionBias']))
-        else :
-            from ROOT import RooRealVar, RooGaussModel, RooGaussEfficiencyModel
-            # the decay time error is an extra observable!
-            observables.append(timeerr)
-            # time, mean, timeerr, scale
-            bias = WS(ws, RooRealVar('timeerr_bias',
-                'timeerr_bias', config['DecayTimeResolutionBias']))
-            sf = WS(ws, RooRealVar('timeerr_scalefactor',
-                'timeerr_scalefactor',
-                config['DecayTimeResolutionScaleFactor'], .5, 2.))
-            if ('Spline' != config['AcceptanceFunction'] or
-                    'GEN' in config['Context']):
-                trm = WS(ws, RooGaussModel('GaussianWithPEDTE',
-                    'GaussianWithPEDTE', time, bias, timeerr, sf))
-            else:
-                trm = WS(ws, RooGaussEfficiencyModel('GaussianWithPEDTE',
-                    'GaussianWithPEDTE', time, tacc, bias, timeerr, sf, sf))
-                # if we're using a spline acceptance, we're done
-                tacc = None
-            del bias
-            del sf
-    else:
-        raise TypeError('Unknown type of resolution model')
  
     # Decay time error distribution
     # -----------------------------
     if 'PEDTE' in config['DecayTimeResolutionModel']:
+        # decay time error is extra observable!
+        observables.append(timeerr)
         if (None != config['DecayTimeErrorTemplates'] and
                 len(config['DecayTimeErrorTemplates']) > 0):
             terrpdfs = { }
@@ -2984,20 +3066,6 @@ def getMasterPDF(config, name, debug = False):
         for mode in config['Modes']:
             terrpdfs[mode] = None
     
-    if config['PerEventMistag']:
-        observables.append(mistag)
-        if config['TrivialMistag']:
-            from ROOT import MistagDistribution
-            omega0 = WS(ws, RooConstVar('omega0', 'omega0', 0.07))
-            omegaf = WS(ws, RooConstVar('omegaf', 'omegaf', 0.25))
-            omegaa = WS(ws, RooConstVar('omegaa', 'omegaa', config['TagOmegaSig']))
-            trivialMistagPDF = [ WS(ws, MistagDistribution(
-                'TrivialMistagPDF', 'TrivialMistagPDF',
-                mistag, omega0, omegaa, omegaf)) ]
-            for mode in config['Modes']:
-                mistagtemplates[modes] = [ trivialMistagPDF for i in
-                        xrange(0, config['NTaggers']) ]
-
     # produce a pretty-printed yield dump in the signal region
     yielddict = {}
     totyielddict = { }
@@ -3048,6 +3116,8 @@ def getMasterPDF(config, name, debug = False):
     for mode in ( 'Bs2DsK', 'Bs2DsstK', 'Bs2DsKst', 'Bs2DsstKst', 'Bd2DPi' ):
         if mode not in config['Modes']:
             continue
+        tacc = getAcceptance(ws, config, mode, time)
+        trm, tacc = getResolutionModel(ws, config, time, timeerr, tacc)
         # limits in which CP observables are allowed to vary
         limit = 3.0
         if 'Bs2DsK' == mode and config['Bs2DsKCPObs'].startswith('CDS'):
@@ -3156,10 +3226,27 @@ def getMasterPDF(config, name, debug = False):
         for k in asyms.keys():
             for n in (mode, modenick, mode.split('2')[0]):
                 if n in config['Asymmetries'][k]:
-                    asyms[k] = WS(ws, RooRealVar(
-                        '%s_Asym%s' % (n, k), '%s_Asym%s' % (n, k),
-                        config['Asymmetries'][k][n], -1., 1.))
-                    asyms[k].setError(0.25)
+                    if type(config['Asymmetries'][k][n]) == float:
+                        asyms[k] = WS(ws, RooRealVar(
+                            '%s_Asym%s' % (n, k), '%s_Asym%s' % (n, k),
+                            config['Asymmetries'][k][n], -1., 1.))
+                        asyms[k].setError(0.25)
+                    elif (type(config['Asymmetries'][k][n]) == list and
+                            'TagEff' == k):
+                        if (len(config['Asymmetries'][k][n]) !=
+                                config['NTaggers']):
+                            raise TypeError('Wrong number of asymmetries')
+                        asyms[k] = [ ]
+                        for asymval in config['Asymmetries'][k][n]:
+                            asymstmp = WS(ws, RooRealVar(
+                                '%s_Asym%s%u' % (n, k, len(asyms[k])),
+                                '%s_Asym%s%u' % (n, k, len(asyms[k])),
+                                asymval, -1., 1.))
+                            asymstmp.setError(0.25)
+                            asyms[k].append(asymstmp)
+                            del asymstmp
+                    else:
+                        raise TypeError('Unsupported type for asymmetry')
                     break
         if (config['UseKFactor'] and config['Modes'][0] != mode and mode in
                 ktemplates and None != ktemplates[mode]):
@@ -3192,6 +3279,8 @@ def getMasterPDF(config, name, debug = False):
             'Lb2Dsp', 'Lb2Dsstp', 'Lb2LcK', 'Lb2LcPi'):
         if mode not in config['Modes']:
             continue
+        tacc = getAcceptance(ws, config, mode, time)
+        trm, tacc = getResolutionModel(ws, config, time, timeerr, tacc)
         if mode.startswith('Bs'):
             gamma, deltagamma, deltam = gammas, deltaGammas, deltaMs
             modenick = 'Bs2DsPi'
@@ -3215,10 +3304,27 @@ def getMasterPDF(config, name, debug = False):
         for k in asyms.keys():
             for n in (mode, modenick, mode.split('2')[0]):
                 if n in config['Asymmetries'][k]:
-                    asyms[k] = WS(ws, RooRealVar(
-                        '%s_Asym%s' % (n, k), '%s_Asym%s' % (n, k),
-                        config['Asymmetries'][k][n], -1., 1.))
-                    asyms[k].setError(0.25)
+                    if type(config['Asymmetries'][k][n]) == float:
+                        asyms[k] = WS(ws, RooRealVar(
+                            '%s_Asym%s' % (n, k), '%s_Asym%s' % (n, k),
+                            config['Asymmetries'][k][n], -1., 1.))
+                        asyms[k].setError(0.25)
+                    elif (type(config['Asymmetries'][k][n]) == list and
+                            'TagEff' == k):
+                        if (len(config['Asymmetries'][k][n]) !=
+                                config['NTaggers']):
+                            raise TypeError('Wrong number of asymmetries')
+                        asyms[k] = [ ]
+                        for asymval in config['Asymmetries'][k][n]:
+                            asymstmp = WS(ws, RooRealVar(
+                                '%s_Asym%s%u' % (n, k, len(asyms[k])),
+                                '%s_Asym%s%u' % (n, k, len(asyms[k])),
+                                asymval, -1., 1.))
+                            asymstmp.setError(0.25)
+                            asyms[k].append(asymstmp)
+                            del asymstmp
+                    else:
+                        raise TypeError('Unsupported type for asymmetry')
                     break
         # Bd2DsK does not need k-factor (delta(k))
         if (config['UseKFactor'] and config['Modes'][0] != mode and mode in
@@ -3245,6 +3351,8 @@ def getMasterPDF(config, name, debug = False):
     for mode in ('CombBkg',):
         if mode not in config['Modes']:
             continue
+        tacc = getAcceptance(ws, config, mode, time)
+        trm, tacc = getResolutionModel(ws, config, time, timeerr, tacc)
         if (config['UseKFactor'] and config['Modes'][0] != mode and mode in
                 ktemplates and None != ktemplates[mode]):
             kfactorpdf, kfactor = ktemplates[mode], kvar
@@ -3264,9 +3372,27 @@ def getMasterPDF(config, name, debug = False):
         for k in asyms.keys():
             for n in (mode, modenick, mode.split('2')[0]):
                 if n in config['Asymmetries'][k]:
-                    asyms[k] = WS(ws, RooRealVar(
-                        '%s_Asym%s' % (n, k), '%s_Asym%s' % (n, k),
-                        config['Asymmetries'][k][n], -1., 1.))
+                    if type(config['Asymmetries'][k][n]) == float:
+                        asyms[k] = WS(ws, RooRealVar(
+                            '%s_Asym%s' % (n, k), '%s_Asym%s' % (n, k),
+                            config['Asymmetries'][k][n], -1., 1.))
+                        asyms[k].setError(0.25)
+                    elif (type(config['Asymmetries'][k][n]) == list and
+                            k.startswith('TagEff')):
+                        if (len(config['Asymmetries'][k][n]) !=
+                                config['NTaggers']):
+                            raise TypeError('Wrong number of asymmetries')
+                        asyms[k] = [ ]
+                        for asymval in config['Asymmetries'][k][n]:
+                            asymstmp = WS(ws, RooRealVar(
+                                '%s_Asym%s%u' % (n, k, len(asyms[k])),
+                                '%s_Asym%s%u' % (n, k, len(asyms[k])),
+                                asymval, -1., 1.))
+                            asymstmp.setError(0.25)
+                            asyms[k].append(asymstmp)
+                            del asymstmp
+                    else:
+                        raise TypeError('Unsupported type for asymmetry')
                     break
         y = 0.
         for lmode in yielddict:
@@ -3336,7 +3462,7 @@ def getMasterPDF(config, name, debug = False):
             fractions.add(f)
         # remove the last fraction added, so RooFit recognises that we
         # want a normal PDF from RooAddPdf, not an extended one
-        fractions.remove(f)
+        if 0 > fractions.getSize(): fractions.remove(f)
         # add all pdfs contributing yield in this sample category
         totEPDF.addPdf(WS(ws, RooAddPdf(
             '%s_EPDF' % sname, '%s_EPDF' % sname, pdfs, yields)), sname)
