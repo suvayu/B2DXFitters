@@ -3353,21 +3353,10 @@ def getMasterPDF(config, name, debug = False):
             continue
         tacc = getAcceptance(ws, config, mode, time)
         trm, tacc = getResolutionModel(ws, config, time, timeerr, tacc)
-        if (config['UseKFactor'] and config['Modes'][0] != mode and mode in
-                ktemplates and None != ktemplates[mode]):
-            kfactorpdf, kfactor = ktemplates[mode], kvar
-        else:
-            kfactorpdf, kfactor = None, None
-        if mode.startswith('Lb'):
-            modenick = 'Lb'
-            gamma = WS(ws, RooConstVar('GammaLb', '#Gamma_{#Lambda_{b}}',
-                config['GammaLb']))
-        else:
-            modenick = mode
-            gamma = WS(ws, RooConstVar('GammaCombBkg', '#Gamma_{CombBkg}',
-                config['GammaCombBkg']))
+        modenick = mode
+        gamma = WS(ws, RooConstVar('GammaCombBkg', '#Gamma_{CombBkg}',
+            config['GammaCombBkg']))
         # figure out asymmetries to use
-        # FIXME: Det is not per tagger, the other two are...
         asyms = { 'Det': None, 'TagEff_f': None, 'TagEff_t': None }
         for k in asyms.keys():
             for n in (mode, modenick, mode.split('2')[0]):
