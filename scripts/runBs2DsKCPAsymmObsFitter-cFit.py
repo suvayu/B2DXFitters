@@ -3354,6 +3354,7 @@ def getMasterPDF(config, name, debug = False):
         tacc = getAcceptance(ws, config, mode, time)
         trm, tacc = getResolutionModel(ws, config, time, timeerr, tacc)
         modenick = mode
+        kfactorpdf, kfactor = None, None
         gamma = WS(ws, RooConstVar('GammaCombBkg', '#Gamma_{CombBkg}',
             config['GammaCombBkg']))
         # figure out asymmetries to use
