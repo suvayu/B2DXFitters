@@ -349,8 +349,9 @@ class FitResult:
                 (oidx not in other._finalparam)) and 
                     ((sidx in self._finalparam) or
                         (oidx in other._finalparam))):
-                raise ('Parameter %s constant in one FitResult, but '
+                print ('WARNING: Parameter %s constant in one FitResult, but '
                         'floating in the other' % n)
+                continue
             if sidx not in self._finalparam: continue
             retVal._name2Index[n] = idx
             retVal._index2Name[idx] = n
@@ -395,11 +396,15 @@ class FitResult:
             if n not in other._name2Index: continue
             sidx = self._name2Index[n]
             oidx = other._name2Index[n]
-            if sidx not in self._constparam: continue
+            if (sidx not in self._constparam and oidx not in
+                    other._constparam): continue
+            if sidx in self._constparam: sval = self._constparam[sidx]
+            else: sval = self._finalparam[sidx]
+            if oidx in other._constparam: oval = other._constparam[oidx]
+            else: oval = other._finalparam[oidx]
             retVal._name2Index[n] = idx
             retVal._index2Name[idx] = n
-            retVal._constparam[idx] = (self._constparam[sidx] -
-                    other._constparam[oidx])
+            retVal._constparam[idx] = (sval - oval)
         return retVal
 
     def __str__(self):

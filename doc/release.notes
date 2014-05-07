@@ -4,6 +4,11 @@
 ! Purpose     : RooFit-based fitters for B -> D X
 !-----------------------------------------------------------------------------
 
+! 2014-05-07 - Manuel Tobias Schiller
+ - FitResult (python class for blinding): fix small bug which prevented fit
+   results from being compared where one fit has a parameter floating and the
+   other has that parameter fixed
+
 ! 2014-05-06 - Manuel Tobias Schiller
  - cFit:
    * small changes to allow cuts to be applied when reading a data set
