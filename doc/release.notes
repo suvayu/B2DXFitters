@@ -5,6 +5,10 @@
 !-----------------------------------------------------------------------------
 
 ! 2014-05-07 - Manuel Tobias Schiller
+ - cFit: update toy personality for the official toys for v3 of the ANA note
+   (Vava's toys with det./prod. asymmetry, but without k-factors)
+
+! 2014-05-07 - Manuel Tobias Schiller
  - FitResult (python class for blinding): fix small bug which prevented fit
    results from being compared where one fit has a parameter floating and the
    other has that parameter fixed

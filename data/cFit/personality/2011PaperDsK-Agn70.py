@@ -1,5 +1,6 @@
 # personality for 2011 Paper - mode DsK
 {
+	'UseKFactor': False,
         'Modes': [
             'Bs2DsK',
             'Bs2DsKst',
@@ -39,8 +40,8 @@
         'AcceptanceCorrectionFile': None,
         'CombineModesForEffCPObs': [ ],
         'NEvents':			[ 3474. ],
-        'DataFileName':         ('/afs/cern.ch/work/g/gligorov/public/Bs2DsKToys/For1fbPaper/Gamma70_5M_2T_MD/MassFitResults/Nominal/DsK_Toys_Work_ForMassPlot_%d.root' if haveAFS else
-            os.environ['B2DXFITTERSROOT']+'/scripts/paper-dsk-agn70-nominal/data/DsK_Toys_Work_ForMassPlot_%d.root') % TOY_NUMBER,
+        'DataFileName':         ('/afs/cern.ch/work/g/gligorov/public/Bs2DsKToys/For1fbPaper/Gamma70_WProdDetAsy_NoKFactors_5M_2T_MD/MassFitResults/Nominal/DsK_Toys_Work_ForMassPlot_%d.root' if haveAFS else
+            os.environ['B2DXFITTERSROOT']+'/scripts/paper-dsk-agn70-nominal/data-nok/DsK_Toys_Work_ForMassPlot_%d.root') % TOY_NUMBER,
         'DataWorkSpaceName':    'FitMeToolWS',
         'DataSetNames':         'combData',
 	'DataSetVarNameMapping': {
@@ -55,8 +56,8 @@
             'qt':       'tagDecComb',
             'weight':   'nSig_both_nonres_Evts_sw+nSig_both_phipi_Evts_sw+nSig_both_kstk_Evts_sw+nSig_both_kpipi_Evts_sw+nSig_both_pipipi_Evts_sw'
             },
-        'MassTemplateFile':             ('/afs/cern.ch/work/g/gligorov/public/Bs2DsKToys/For1fbPaper/Gamma70_5M_2T_MD/MassFitResults/Nominal/DsK_Toys_Work_ForMassPlot_%d.root' if haveAFS else
-            os.environ['B2DXFITTERSROOT']+'/scripts/paper-dsk-agn70-nominal/data/DsK_Toys_Work_ForMassPlot_%d.root') % TOY_NUMBER,
+        'MassTemplateFile':             ('/afs/cern.ch/work/g/gligorov/public/Bs2DsKToys/For1fbPaper/Gamma70_WProdDetAsy_NoKFactors_5M_2T_MD/MassFitResults/Nominal/DsK_Toys_Work_ForMassPlot_%d.root' if haveAFS else
+            os.environ['B2DXFITTERSROOT']+'/scripts/paper-dsk-agn70-nominal/data-nok/DsK_Toys_Work_ForMassPlot_%d.root') % TOY_NUMBER,
         'MassTemplateWorkspace':	'FitMeToolWS',
         'MassInterpolation':		False,
         'NTaggers':                     3,
@@ -91,7 +92,7 @@
                     'VarName': 'tagOmegaComb', },
                 {   'File': os.environ['B2DXFITTERSROOT']+'/data/workspace/MDFitter/template_Data_Mistag_BDPi.root',
                     'Workspace': 'workspace',
-                    'TemplateName': 'sigMistagPdf_3',
+                    'TemplateName': 'sigMistagPdf_1',
                     'VarName': 'tagOmegaComb', },
                 ],
             'CombBkg': [
@@ -262,11 +263,11 @@
                     'Workspace': 'workspace',
                     'TemplateName': 'kFactor_Bd2DK_both',
                     'VarName': 'kfactorVar', },
-                #'Bd2DPi': {
-                #    'File': os.environ['B2DXFITTERSROOT']+'/data/workspace/MDFitter/template_MC_KFactor_BsDsK_5320_5420.root',
-                #    'Workspace': 'workspace',
-                #    'TemplateName': 'kFactor_Bd2DPi_both',
-                #    'VarName': 'kfactorVar', },
+                'Bd2DPi': {
+                    'File': os.environ['B2DXFITTERSROOT']+'/data/workspace/MDFitter/template_MC_KFactor_BsDsK_5320_5420.root',
+                    'Workspace': 'workspace',
+                    'TemplateName': 'kFactor_Bd2DPi_both',
+                    'VarName': 'kfactorVar', },
                 },
         'AcceptanceFunction': 'Spline',
 	'AcceptanceSplineCoeffs':   { # dspi data dsk mc dspi mc
