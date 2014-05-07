@@ -5,6 +5,11 @@
 !-----------------------------------------------------------------------------
 
 ! 2014-05-07 - Manuel Tobias Schiller
+ - cFit: add "magnet polarity search path" to (mBs, mDs, PIDK) template and
+   yield import routine, so I can read the templates for the MagUp/MagDown
+   splits
+
+! 2014-05-07 - Manuel Tobias Schiller
  - cFit: update cFit fitback loop personality
 
 ! 2014-05-07 - Manuel Tobias Schiller

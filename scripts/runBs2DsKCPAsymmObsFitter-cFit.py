@@ -348,6 +348,8 @@ defaultConfig = {
     'MassTemplateFile':		os.environ['B2DXFITTERSROOT']+'/data/workspace/WS_Mass_DsK.root',
     'MassTemplateWorkspace':	'FitMeToolWS',
     'MassInterpolation':	False,
+    # fudge the default template lookup order
+    'MassTemplatePolaritySearch':	[ 'both' ],
     # either one element or 6 (kkpi,kpipi,pipipi)x(up,down) in "sample" order
     'NEvents':			[ 1731. ],
     # target S/B: None means keep default
@@ -1544,128 +1546,131 @@ def getMassTemplateOneMode2011Paper(
 
     # ok, depending on mode, we try to load a suitable pdf
     pdf, nYield = None, None
-    if mode == config['Modes'][0]:
-        pdf = fromws.pdf('SigProdPDF_both_%s' % sname)
-        nYield = fromws.var('nSig_both_%s_Evts' % sname)
-        if None != nYield: nYield = nYield.getVal()
-    elif mode == 'CombBkg':
-        pdf = fromws.pdf('CombBkgPDF_m_both_%s_Tot' % sname)
-        if None == pdf:
-            pdf = fromws.pdf('PhysBkgCombBkgPdf_m_both_%s_Tot' % sname)
-        nYield = fromws.var('nCombBkg_both_%s_Evts' % sname)
-        if None != nYield: nYield = nYield.getVal()
-    else:
-        # any other mode may or may not have separate samples for
-        # magnet polarity, Ds decay mode, ...
-        #
-        # we therefore constuct a list of successively less specialised name
-        # suffices so we can get the most specific pdf from the workspace
-        modemap = {
-                'Bs2DsKst': 'Bs2DsDsstKKst',
-                'Bd2DsK': 'Bs2DsDsstKKst',
-                'Bs2DsstPi': ('BsLb2DsDsstPPiRho' if
-                    'Bs2DsK' == config['Modes'][0] else 'Bs2DsDsstPi'),
-                'Bs2DsRho': ('Bs2DsDsstPiRho' if
-                    'Bs2DsPi' == config['Modes'][0] else 'BsLb2DsDsstPPiRho'),
-                'Bs2DsstRho': 'Bs2DsDsstPiRho',
-                'Lb2Dsp': ('Lb2DsDsstP' if
-                    'Bs2DsPi' == config['Modes'][0] else 'BsLb2DsDsstPPiRho'),
-                'Lb2Dsstp': ('Lb2DsDsstP' if
-                    'Bs2DsPi' == config['Modes'][0] else 'BsLb2DsDsstPPiRho'),
-                'Bs2DsPi': 'Bs2DsPi',
-                'Lb2LcK': 'Lb2DsK',
-                'Lb2LcPi': 'Lb2DsPi',
-                'Bd2DK': 'Bd2DK',
-                'Bd2DPi': 'Bd2DPi',
-                'Bd2DsPi': ('Bs2DsDsstPi' if
-                    'Bs2DsPi' == config['Modes'][0] else 'BsLb2DsDsstPPiRho'),
-                'Bs2DsPi': ('Bs2DsPi' if
-                    'Bs2DsPi' == config['Modes'][0] else 'BsLb2DsDsstPPiRho'),
-                'Bs2DsK': 'Bs2DsK'
-                }
-        trysfx = [
-            '%sPdf_m_both_%s_Tot' % (mode, sname),
-            '%sPdf_m_both_Tot' % mode,
-            '%sPdf_m_both_%s_Tot' % (modemap[mode], sname),
-            '%sPdf_m_both_Tot' % modemap[mode],
-            # "modeless" names for single-mode DsPi toys (only in DsK, I
-            # think, but we need the fallback solution at least once)
-            '%sPdf_m_both_%s_Tot' % (mode, ''),
-            '%sPdf_m_both_%s_Tot' % (modemap[mode], ''),
-            ]
-        for sfx in trysfx:
-            pdf = fromws.pdf('PhysBkg%s' % sfx)
-            if None != pdf:
-                break
-        tryyieldsfx = [
-            'n%s_both_%s_Evts' % (mode, sname),
-            'n%s_both_%s_Evts' % (mode.replace('Dsst', 'Dss'), sname),
-            'n%s_both_%s_Evts' % (mode.replace('DsstP', 'Dsstp'), sname),
-            'n%s_both_%s_Evts' % (mode.replace('DsstPi', 'DsstPiRho'), sname),
-            'n%s_both_%s_Evts' % (modemap[mode], sname),
-            'n%s_both_%s_Evts' % (modemap[mode].replace('Dsst', 'Dss'), sname),
-            'n%s_both_%s_Evts' % (modemap[mode].replace('DsstP', 'Dsstp'), sname),
-            'n%s_both_%s_Evts' % (modemap[mode].replace('DsstPi', 'DsstPiRho'), sname),
-            ]
-        for sfx in tryyieldsfx:
-            nYield = fromws.var(sfx)
-            if None != nYield:
-                nYield = nYield.getVal()
-                break
-        if None == nYield and mode in ('Bd2DK', 'Bd2DPi', 'Lb2LcK',
-                'Lb2LcPi'):
-            # Agnieszka's yield-removal for modes that were not found
-            nYield = 0.
-        if tryyieldsfx[0] != sfx and tryyieldsfx[1] != sfx and 0. != nYield:
-            # ok, we're in one of the modes which have a shared yield and a
-            # fraction, so get the fraction, and fix up the yield 
-            if 'Bs2DsDsstKKst' in sfx or 'Bs2DsDssKKst' in sfx:
-                f = fromws.var('g1_f1_frac')
-                if 'Bd2DsK' == mode:
-                    f = f.getVal() if None != f else 0.
-                elif 'Bs2DsKst' == mode: 
-                    f = (1. - f.getVal()) if None != f else 0.
+    for polsearch in config['MassTemplatePolaritySearch']:
+        if mode == config['Modes'][0]:
+            pdf = fromws.pdf('SigProdPDF_%s_%s' % (polsearch, sname))
+            nYield = fromws.var('nSig_%s_%s_Evts' % (polsearch, sname))
+            if None != nYield: nYield = nYield.getVal()
+        elif mode == 'CombBkg':
+            pdf = fromws.pdf('CombBkgPDF_m_%s_%s_Tot' % (polsearch, sname))
+            if None == pdf:
+                pdf = fromws.pdf('PhysBkgCombBkgPdf_m_%s_%s_Tot' % (polsearch, sname))
+            nYield = fromws.var('nCombBkg_%s_%s_Evts' % (polsearch, sname))
+            if None != nYield: nYield = nYield.getVal()
+        else:
+            # any other mode may or may not have separate samples for
+            # magnet polarity, Ds decay mode, ...
+            #
+            # we therefore constuct a list of successively less specialised name
+            # suffices so we can get the most specific pdf from the workspace
+            modemap = {
+                    'Bs2DsKst': 'Bs2DsDsstKKst',
+                    'Bd2DsK': 'Bs2DsDsstKKst',
+                    'Bs2DsstPi': ('BsLb2DsDsstPPiRho' if
+                        'Bs2DsK' == config['Modes'][0] else 'Bs2DsDsstPi'),
+                    'Bs2DsRho': ('Bs2DsDsstPiRho' if
+                        'Bs2DsPi' == config['Modes'][0] else 'BsLb2DsDsstPPiRho'),
+                    'Bs2DsstRho': 'Bs2DsDsstPiRho',
+                    'Lb2Dsp': ('Lb2DsDsstP' if
+                        'Bs2DsPi' == config['Modes'][0] else 'BsLb2DsDsstPPiRho'),
+                    'Lb2Dsstp': ('Lb2DsDsstP' if
+                        'Bs2DsPi' == config['Modes'][0] else 'BsLb2DsDsstPPiRho'),
+                    'Bs2DsPi': 'Bs2DsPi',
+                    'Lb2LcK': 'Lb2DsK',
+                    'Lb2LcPi': 'Lb2DsPi',
+                    'Bd2DK': 'Bd2DK',
+                    'Bd2DPi': 'Bd2DPi',
+                    'Bd2DsPi': ('Bs2DsDsstPi' if
+                        'Bs2DsPi' == config['Modes'][0] else 'BsLb2DsDsstPPiRho'),
+                    'Bs2DsPi': ('Bs2DsPi' if
+                        'Bs2DsPi' == config['Modes'][0] else 'BsLb2DsDsstPPiRho'),
+                    'Bs2DsK': 'Bs2DsK'
+                    }
+            trysfx = [
+                '%sPdf_m_%s_%s_Tot' % (mode, polsearch, sname),
+                '%sPdf_m_%s_Tot' % (mode, polsearch),
+                '%sPdf_m_%s_%s_Tot' % (modemap[mode], polsearch, sname),
+                '%sPdf_m_%s_Tot' % (modemap[mode], polsearch),
+                # "modeless" names for single-mode DsPi toys (only in DsK, I
+                # think, but we need the fallback solution at least once)
+                '%sPdf_m_%s_%s_Tot' % (mode, polsearch, ''),
+                '%sPdf_m_%s_%s_Tot' % (modemap[mode], polsearch, ''),
+                ]
+            for sfx in trysfx:
+                pdf = fromws.pdf('PhysBkg%s' % sfx)
+                if None != pdf:
+                    break
+            tryyieldsfx = [
+                'n%s_%s_%s_Evts' % (mode, polsearch, sname),
+                'n%s_%s_%s_Evts' % (mode.replace('Dsst', 'Dss'), polsearch, sname),
+                'n%s_%s_%s_Evts' % (mode.replace('DsstP', 'Dsstp'), polsearch, sname),
+                'n%s_%s_%s_Evts' % (mode.replace('DsstPi', 'DsstPiRho'), polsearch, sname),
+                'n%s_%s_%s_Evts' % (modemap[mode], polsearch, sname),
+                'n%s_%s_%s_Evts' % (modemap[mode].replace('Dsst', 'Dss'), polsearch, sname),
+                'n%s_%s_%s_Evts' % (modemap[mode].replace('DsstP', 'Dsstp'), polsearch, sname),
+                'n%s_%s_%s_Evts' % (modemap[mode].replace('DsstPi', 'DsstPiRho'), polsearch, sname),
+                ]
+            for sfx in tryyieldsfx:
+                nYield = fromws.var(sfx)
+                if None != nYield:
+                    nYield = nYield.getVal()
+                    break
+	    if None == nYield and None == pdf: continue
+            if None == nYield and mode in ('Bd2DK', 'Bd2DPi', 'Lb2LcK',
+                    'Lb2LcPi'):
+                # Agnieszka's yield-removal for modes that were not found
+                nYield = 0.
+            if tryyieldsfx[0] != sfx and tryyieldsfx[1] != sfx and 0. != nYield:
+                # ok, we're in one of the modes which have a shared yield and a
+                # fraction, so get the fraction, and fix up the yield 
+                if 'Bs2DsDsstKKst' in sfx or 'Bs2DsDssKKst' in sfx:
+                    f = fromws.var('g1_f1_frac')
+                    if 'Bd2DsK' == mode:
+                        f = f.getVal() if None != f else 0.
+                    elif 'Bs2DsKst' == mode: 
+                        f = (1. - f.getVal()) if None != f else 0.
+                    else:
+                        f = None
+                elif ('BsLb2DsDsstPPiRho' in sfx and 'Bs2DsK' == config['Modes'][0]
+                        and 'Bs2Ds' in mode):
+                    f = fromws.var('g2_f2_frac')
+                    if 'Bs2DsstPi' == mode:
+                        f = f.getVal()
+                    elif 'Bs2DsRho' == mode:
+                        f = 1. - f.getVal()
+                    elif 'Bs2DsPi' == mode:
+                        f = fromws.var('g2_f1_frac').getVal()
+                    else:
+                        f = None
+                    if None != f and 'Bs2DsPi' != mode:
+                        f *= (1. - fromws.var('g2_f1_frac').getVal())
+                    if None != f:
+                        f *= fromws.var('g5_f1_frac').getVal()
+                elif ('Lb2DsDsstP' in sfx or 'Lb2DsDsstp' in sfx or
+                        ('Lb2Ds' in mode and 'BsLb2DsDsstPPiRho' in sfx)):
+                    f = fromws.var('g3_f1_frac')
+                    if 'Lb2Dsp' == mode:
+                        f = f.getVal()
+                    elif 'Lb2Dsstp' == mode:
+                        f = 1. - f.getVal()
+                    else:
+                        f = None
+                    if None != f and 'Bs2DsK' == config['Modes'][0]:
+                        f *= (1. - fromws.var('g5_f1_frac').getVal())
+                elif 'Bs2DsDsstPiRho' in sfx and 'Bs2DsPi' == config['Modes'][0]:
+                    f = fromws.var('g1_f1_frac')
+                    if 'Bs2DsstPi' == mode:
+                        f = f.getVal()
+                    elif 'Bd2DsPi' == mode:
+                        f = 1. - f.getVal()
+                    else:
+                        f = None
                 else:
-                    f = None
-            elif ('BsLb2DsDsstPPiRho' in sfx and 'Bs2DsK' == config['Modes'][0]
-                    and 'Bs2Ds' in mode):
-                f = fromws.var('g2_f2_frac')
-                if 'Bs2DsstPi' == mode:
-                    f = f.getVal()
-                elif 'Bs2DsRho' == mode:
-                    f = 1. - f.getVal()
-                elif 'Bs2DsPi' == mode:
-                    f = fromws.var('g2_f1_frac').getVal()
-                else:
-                    f = None
-                if None != f and 'Bs2DsPi' != mode:
-                    f *= (1. - fromws.var('g2_f1_frac').getVal())
-                if None != f:
-                    f *= fromws.var('g5_f1_frac').getVal()
-            elif ('Lb2DsDsstP' in sfx or 'Lb2DsDsstp' in sfx or
-                    ('Lb2Ds' in mode and 'BsLb2DsDsstPPiRho' in sfx)):
-                f = fromws.var('g3_f1_frac')
-                if 'Lb2Dsp' == mode:
-                    f = f.getVal()
-                elif 'Lb2Dsstp' == mode:
-                    f = 1. - f.getVal()
-                else:
-                    f = None
-                if None != f and 'Bs2DsK' == config['Modes'][0]:
-                    f *= (1. - fromws.var('g5_f1_frac').getVal())
-            elif 'Bs2DsDsstPiRho' in sfx and 'Bs2DsPi' == config['Modes'][0]:
-                f = fromws.var('g1_f1_frac')
-                if 'Bs2DsstPi' == mode:
-                    f = f.getVal()
-                elif 'Bd2DsPi' == mode:
-                    f = 1. - f.getVal()
-                else:
-                    f = None
-            else:
-                print 'ERROR: Don\'t know how to fix mode %s/%s' % (sfx, mode)
-                return None
-            # ok, fix the yield with the right fraction
-            nYield = (nYield * f) if (0. != f) else 0.
+                    print 'ERROR: Don\'t know how to fix mode %s/%s' % (sfx, mode)
+                    return None
+                # ok, fix the yield with the right fraction
+                nYield = (nYield * f) if (0. != f) else 0.
+        if None != pdf and None != nYield: break
     # ok, we should have all we need for now
     if None == pdf or None == nYield:
         if None == pdf and 0. != nYield:
