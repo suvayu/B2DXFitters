@@ -5,6 +5,9 @@
 !-----------------------------------------------------------------------------
 
 ! 2014-05-07 - Manuel Tobias Schiller
+ - cFit: update cFit fitback loop personality
+
+! 2014-05-07 - Manuel Tobias Schiller
  - cFit:
    - allow lifetimes of Lb and CombBkg to be constrained
    - adjust data fit personality to latest nominal config
