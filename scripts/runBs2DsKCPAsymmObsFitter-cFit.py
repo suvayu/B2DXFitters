@@ -3290,7 +3290,7 @@ def getMasterPDF(config, name, debug = False):
             modenick = 'Bd2DsK'
             C = one
         elif mode.startswith('Lb'):
-            gamma = WS(ws, RooConstVar('GammaLb', '#Gamma_{#Lambda_{b}}',
+            gamma = WS(ws, RooRealVar('GammaLb', '#Gamma_{#Lambda_{b}}',
                 config['GammaLb']))
             deltagamma, deltam = zero, zero
             modenick = 'Lb'
@@ -3355,7 +3355,7 @@ def getMasterPDF(config, name, debug = False):
         trm, tacc = getResolutionModel(ws, config, time, timeerr, tacc)
         modenick = mode
         kfactorpdf, kfactor = None, None
-        gamma = WS(ws, RooConstVar('GammaCombBkg', '#Gamma_{CombBkg}',
+        gamma = WS(ws, RooRealVar('GammaCombBkg', '#Gamma_{CombBkg}',
             config['GammaCombBkg']))
         # figure out asymmetries to use
         asyms = { 'Det': None, 'TagEff_f': None, 'TagEff_t': None }

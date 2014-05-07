@@ -5,6 +5,11 @@
 !-----------------------------------------------------------------------------
 
 ! 2014-05-07 - Manuel Tobias Schiller
+ - cFit:
+   - allow lifetimes of Lb and CombBkg to be constrained
+   - adjust data fit personality to latest nominal config
+
+! 2014-05-07 - Manuel Tobias Schiller
  - standalone/taggingtoy/eps.c: print the full double precision for the
    correlation matrix (because we're pretty damn close to being singular)
  - python/B2DXFitters/GaussianConstraintBuilder.py: put in code that guards
