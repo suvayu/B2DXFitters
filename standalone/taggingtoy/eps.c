@@ -99,7 +99,7 @@ int main(int argc, char* argv[])
 	    const double cjj = cov[(j * (j + 1)) / 2 + j];
 	    const double cij = (i >= j) ?
 		cov[(i * (i + 1)) / 2 + j] : cov[(j * (j + 1)) / 2 + i];
-	    printf(" % 12.9f", cij / sqrt(cii * cjj));
+	    printf(" % 24.16e", cij / sqrt(cii * cjj));
 	}
 	printf("\n");
     }

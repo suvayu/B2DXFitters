@@ -102,6 +102,7 @@ class GaussianConstraintBuilder:
         params = RooArgList()
         mus = RooArgList()
         for arg in paramnamelist:
+            print arg
             param = ws.obj(arg)
             params.add(param)
             mus.add(WS(ws, RooConstVar('%s_mean' % arg, '%s_mean' % arg,
@@ -160,18 +161,32 @@ class GaussianConstraintBuilder:
                     cov[j][i] = el # ROOT's insanity requires this
         # verify we can invert covariance matrix with Cholesky decomposition
         # (this will catch negative and zero Eigenvalues)
-        decomp = TDecompChol(cov)
-        isposdef = decomp.Decompose()
-        if not isposdef:
-            # not pos. def. - print Eigenvalue spectrum
+        isposdef = False
+        while not isposdef:
+            decomp = TDecompChol(cov)
+            isposdef = decomp.Decompose()
+            if not isposdef:
+                print 'ERROR: Covariance matrix not positive definite!'
             from ROOT import TVectorD
-            v = TVectorD()
-            cov.EigenVectors(v)
-            print 'ERROR: Covariance matrix not positive definite:'
-            cov.Print()
-            print 'ERROR: Dumping Eigenvalue spectrum for diagnosis:'
-            v.Print()
-            raise ValueError('Covariance matrix not positive definite!')
+            vv = TVectorD()
+            cov.EigenVectors(vv)
+            v = [ vv[i] for i in xrange(0, n) ]
+            if min(v) < 1e-16 or isposdef:
+                if min(v) <= 0.:
+                    print 'WARNING: Attempting to fix non-postive-definiteness...'
+                else:
+                    print 'WARNING: Covariance matrix very close to singular, trying to regularise...'
+                print 'DEBUG: Covariance matrix before fix:'
+                cov.Print()
+                print 'DEBUG: Eigenvalue spectrum:'
+                vv.Print()
+                eps = 1.1 * abs(min(v))
+                if eps < 1e-9: eps = 1e-9
+                print 'DEBUG: adding %e to diagonal' % eps
+                for i in xrange(0, n):
+                    cov[i][i] = cov[i][i] + eps
+                print 'DEBUG: Covariance matrix after fix:'
+                cov.Print()
         # all set up, construct final multivariate Gaussian
         mvg = WS(ws, RooMultiVarGaussian(name, name, params, mus, cov))
         # make sure we float all parameters given

@@ -5,6 +5,26 @@
 !-----------------------------------------------------------------------------
 
 ! 2014-05-07 - Manuel Tobias Schiller
+ - standalone/taggingtoy/eps.c: print the full double precision for the
+   correlation matrix (because we're pretty damn close to being singular)
+ - python/B2DXFitters/GaussianConstraintBuilder.py: put in code that guards
+   against singular/non-pos.def. matrices:
+   - if the eigenvalue spectrum of the cov. matrix of a multivariate
+     constraint goes very close to zero (or even below) because of excessive
+     correlations among the constraint parameters, the code will add a
+     constant to the diagonal of the covariance matrix (at least 1e-9, or more
+     if the negative eigenvalue is more negative)
+   - the pratical upshot of this is that the uncertainties given in the
+     constraints are blown up a tiny bit (the largest relative effect is for
+     one of the tagging efficiency asymmetries, where this is a 0.5 permille
+     increase over the specified uncertainty)
+   - it will also decrease the absolute value of the specified correlations
+     somewhat (i.e. towards zero correlation), this is at most an effect official
+     order sqrt(1+1e-9) - 1 relative, i.e. totally negligible
+   - in conclusion, I would say these changes will not impact our results (at
+     the present level of uncertainties and correlations)
+
+! 2014-05-07 - Manuel Tobias Schiller
  - cFit: update toy personality for the official toys for v3 of the ANA note
    (Vava's toys with det./prod. asymmetry, but without k-factors)
 
