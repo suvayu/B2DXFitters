@@ -115,14 +115,18 @@ parser.add_option('--unblind', action='store_false', dest='blinding',
 parser.add_option('-e', '--exclude', type='string', action='append', default=[],
         dest='exclude', help='exclude the (comma separated) list of toys')
 parser.add_option('--diff', action='store_true', dest='diff', default=False,
-        help='diff mode (toy-by-toy differences etc., i.e. same data set')
+        help='diff mode (toy-by-toy differences etc., i.e. same data set)')
 parser.add_option('--debug', action='store_true', dest='debug', default=False,
         help='print debugging info')
 parser.add_option('--extension', action='store', dest='extension', default='pdf',
         type='string', help='graphics extension to save plots (default pdf)')
-
+parser.add_option('--systematic', action='store_true', dest='systematic',
+	default=False, help='evaluate systematic (implies --diff; list the '
+	'nominal files first)')
 (options, args) = parser.parse_args()
 if '-' == args[0]: args.pop(0)
+
+if options.systematic: options.diff = True
 
 if None == options.isData:
     raise ValueError('You need to specify if you are running on DATA or TOYS (--data/--toy)')
@@ -156,6 +160,8 @@ print '\tMode: %s%s' % (
         'DATA' if options.isData else 'TOY', ', BLINDED' if options.blinding else '')
 if options.diff:
     print '\tRunning in difference mode (toy-by-toy etc.)'
+if options.systematic:
+    print '\tRunning in systematic mode'
 print '\tExtension: .%s' % options.extension
 print '\tExclude: %s' % str(exclude)
 print
@@ -197,6 +203,36 @@ gc.collect()
 # verify we have the correct number of results per toy number
 # (do the toy-by-toy subtraction when in diff mode while we're at it)
 tmpfitresults = []
+if options.systematic:
+    # set up tree for systrmatic studies
+    from ROOT import TFile, TTree
+    import ctypes
+    branches = {
+	'toyID':        ctypes.c_int(),
+        'C':            ctypes.c_double(),
+        'S':            ctypes.c_double(),
+        'Sb':           ctypes.c_double(),
+        'D':            ctypes.c_double(),
+        'Db':           ctypes.c_double(),
+        'C_err':        ctypes.c_double(),
+        'S_err':        ctypes.c_double(),
+        'Sb_err':       ctypes.c_double(),
+        'D_err':        ctypes.c_double(),
+        'Db_err':       ctypes.c_double(),
+        'C_shift':      ctypes.c_double(),
+        'S_shift':      ctypes.c_double(),
+        'Sb_shift':     ctypes.c_double(),
+        'D_shift':      ctypes.c_double(),
+        'Db_shift':     ctypes.c_double(),
+        'C_shift_err':  ctypes.c_double(),
+        'S_shift_err':  ctypes.c_double(),
+        'Sb_shift_err': ctypes.c_double(),
+        'D_shift_err':  ctypes.c_double(),
+        'Db_shift_err': ctypes.c_double(),
+    }
+    bnamemap = { 'Bs2DsK_C': 'C', 'Bs2DsK_D': 'D', 'Bs2DsK_Dbar': 'Db',
+        'Bs2DsK_S': 'S', 'Bs2DsK_Sbar': 'Sb' }
+    outfile = None
 for toynr in fitresults:
     if not options.diff:
         if len(fitresults[toynr]) != 1:
@@ -211,10 +247,40 @@ for toynr in fitresults:
             continue
         if len(fitresults[toynr]) > 2:
             raise ValueError('More than two FitResult for toy %u, do not know '
-                    'how to diffi that' % toynr)
-        fitresults[toynr][0].setOptions(['SameDataSet'])
-        fitresults[toynr][1].setOptions(['SameDataSet'])
+                    'how to diff that' % toynr)
+	if options.systematic:
+            fitresults[toynr][0].setOptions(['Systematic'])
+            fitresults[toynr][1].setOptions(['Systematic'])
+	else:
+            fitresults[toynr][0].setOptions(['SameDataSet'])
+            fitresults[toynr][1].setOptions(['SameDataSet'])
+        if options.systematic:
+	    if None == outfile:
+                outfile = TFile('systematic.root', 'RECREATE')
+                tree = TTree('resultstree', 'resultstree')
+                tree.SetDirectory(outfile)
+                for bname in branches:
+		    tree.Branch(bname, branches[bname], '%s/%s' % (bname, 'I' if 'toyID' == bname else 'D'))
+	    # write tuple for Moritz...
+	    branches['toyID'].value = toynr
+	    p1, p2 = fitresults[toynr][0].params(), fitresults[toynr][1].params()
+	    e1, e2 = fitresults[toynr][0].errors(), fitresults[toynr][1].errors()
+	    for vname in p1:
+		if vname in bnamemap:
+		    vnmapped = bnamemap[vname]
+		    branches['%s' % vnmapped].value = p1[vname]
+		    branches['%s_err' % vnmapped].value = e1[vname]
+		    branches['%s_shift' % vnmapped].value = p2[vname]
+		    branches['%s_shift_err' % vnmapped].value = e2[vname]
+	    tree.Fill()
         tmpfitresults.append(fitresults[toynr][0]-fitresults[toynr][1])
+if options.systematic and None != outfile:
+    outfile.WriteTObject(tree)
+    del tree
+    outfile.Close()
+    del outfile
+    del branches
+    del bnamemap
 fitresults = tmpfitresults
 del tmpfitresults
 print

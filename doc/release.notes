@@ -5,6 +5,10 @@
 !-----------------------------------------------------------------------------
 
 ! 2014-05-11 - Manuel Tobias Schiller
+ - patch FitResult and make_histos to (optionally) calculate systematic shifts
+   etc., and output systematic tuple for Moritz
+
+! 2014-05-11 - Manuel Tobias Schiller
  - FitResult.py: tiny bug fix for pulls
  - FitResultGrabberUtils.py: utility routine to grab fit result from ROOT
    file(s), either cFit or sFit style
