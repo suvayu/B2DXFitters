@@ -374,7 +374,7 @@ def rootSettings():
 
 rootSettings()
 from ROOT import TFile, gPad
-outfile = TFile('results.root', 'RECREATE')
+outfile = TFile('diffresults.root' if options.diff else 'results.root', 'RECREATE')
 results = { 'value': {}, 'pull': {} }
 for t in ('value', 'pull'):
     for vname in histos[t]:
