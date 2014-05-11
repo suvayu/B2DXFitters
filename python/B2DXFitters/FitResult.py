@@ -282,7 +282,7 @@ class FitResult:
         for idx in self._finalparam:
             pull = (self._finalparam[idx] - self._initialparam[idx])
             pull = pull / sqrt(self._cov[idx][idx])
-            if self._blindingOffsets != 0.:
+            if self._blindingOffsets[idx] != 0.:
                 pull = float('NaN')
             retVal[self._index2Name[idx]] = pull
         return retVal

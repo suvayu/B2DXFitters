@@ -4,6 +4,15 @@
 ! Purpose     : RooFit-based fitters for B -> D X
 !-----------------------------------------------------------------------------
 
+! 2014-05-11 - Manuel Tobias Schiller
+ - FitResult.py: tiny bug fix for pulls
+ - FitResultGrabberUtils.py: utility routine to grab fit result from ROOT
+   file(s), either cFit or sFit style
+ - make_histos.py: mostly rewrite, can now print/plot values and pulls, or
+   toy-by-toy differences (try --help)
+ - printBlinded.py: use FitResultGrabberUtils.py
+ - runBs2DsKCPAsymmObsFitter-cFit: new personality for fullMC, make --help work
+
 ! 2014-05-11 - Marco Clemencic
  - Minor change to work with the latest changes in the reflex dictionary pattern,
    needed for ROOT 6's PCMs.

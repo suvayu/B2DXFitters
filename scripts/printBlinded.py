@@ -89,7 +89,7 @@ ulimit -v $((2048 * 1024))
 ulimit -s $((   8 * 1024))
 
 # trampoline into python
-exec $schedtool /usr/bin/time -v env python -O -- "$0" "$@"
+exec $schedtool /usr/bin/time -v env python -O "$0" - "$@"
 """
 __doc__ = """ real docstring """
 # -----------------------------------------------------------------------------
@@ -102,58 +102,15 @@ import os, sys, gc
 import B2DXFitters
 import ROOT
 from ROOT import RooFit
+from B2DXFitters.FitResultGrabberUtils import grabResult
 
-def grabResult(filename):
-    from B2DXFitters.FitResult import FitResult
-    from ROOT import TFile, RooFitResult, TClass
-    # common setup: rename list, blinding specification
-    renames = { 'C': 'Bs2DsK_C', 'D': 'Bs2DsK_D',
-                  'Dbar': 'Bs2DsK_Dbar', 'S': 'Bs2DsK_S',
-                  'Sbar': 'Bs2DsK_Sbar', 'DeltaMs': 'deltaMs',
-                  'p0_0': 'Bs2DsK_Mistag0CalibB_p0',
-                  'p0_1': 'Bs2DsK_Mistag1CalibB_p0',
-                  'p0_2': 'Bs2DsK_Mistag2CalibB_p0',
-                  'p1_0': 'Bs2DsK_Mistag0CalibB_p1',
-                  'p1_1': 'Bs2DsK_Mistag1CalibB_p1',
-                  'p1_2': 'Bs2DsK_Mistag2CalibB_p1',
-                  }
-    blinds = {
-            # CP parameters blinded with random offset from 13 ... 17
-            '^Bs2DsK_(C|D|Dbar|S|Sbar)$': [ 13.0, 17.0 ],
-            # everything else connected with DsK is blinded with random offset
-            # from +3 ... +7 (efficiencies, calibrations, ...)
-            '^Bs2DsK': [ 3.0, 7.0 ],
-            }
-    f = TFile(filename, "READ")
-    # try to read cFit style fitresult
-    for key in f.GetListOfKeys():
-        if not TClass.GetClass(key.GetClassName()).InheritsFrom('RooFitResult'):
-            continue
-        fitresult = key.ReadObj()
-        retVal = FitResult(fitresult, renames, blinds)
-        del fitresult
-        f.Close()
-        return retVal
-    # ok, not successful, try sFit next
-    namelist = ('fitresult_signal_TimeTimeerrPdf_BDTGA_dataSet_time_BsDsK', )
-    for key in f.GetListOfKeys():
-        if not TClass.GetClass(key.GetClassName()).InheritsFrom('RooWorkspace'):
-            continue
-        ws = key.ReadObj()
-        if None == ws: continue
-        for n in namelist:
-            obj = ws.obj(n)
-            if None == obj: continue
-            if not obj.InheritsFrom('RooFitResult'): continue
-            retVal = FitResult(obj, renames, blinds)
-            del obj
-            f.Close()
-            return retVal
+isData = True
+blinding = True
 
 if len(sys.argv) not in (2, 3):
     print 'usage: %s file1 [file2]' % sys.argv[0]
 
-res1 = grabResult(sys.argv[1])
+res1 = grabResult(isData, blinding, sys.argv[1])
 print 72 * '*'
 print 'FIT1 RESULT'
 print 72 * '*'
@@ -161,7 +118,7 @@ print res1
 print 72 * '*'
 
 if len(sys.argv) > 2:
-    res2 = grabResult(sys.argv[2])
+    res2 = grabResult(isData, blinding, sys.argv[2])
     # inform that these are for the same data set
     for r in (res1, res2): r.setOptions(['SameDataSet'])
     

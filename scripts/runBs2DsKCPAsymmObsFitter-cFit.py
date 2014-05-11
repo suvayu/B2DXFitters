@@ -100,7 +100,7 @@ ulimit -v $((3072 * 1024))
 ulimit -s $((   8 * 1024))
 
 # trampoline into python
-exec $schedtool /usr/bin/time -v env python -O -- "$0" "$@"
+exec $schedtool /usr/bin/time -v env python -O "$0" - "$@"
 """
 __doc__ = """ real docstring """
 # -----------------------------------------------------------------------------
