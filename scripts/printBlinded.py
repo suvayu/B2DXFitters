@@ -107,6 +107,7 @@ from B2DXFitters.FitResultGrabberUtils import grabResult
 isData = True
 blinding = True
 
+if sys.argv[1] == '-': sys.argv.pop(1)
 if len(sys.argv) not in (2, 3):
     print 'usage: %s file1 [file2]' % sys.argv[0]
 

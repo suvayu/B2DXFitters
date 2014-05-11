@@ -4054,6 +4054,7 @@ if __name__ == '__main__' :
     # fitConfig.update({'Gammas': 0.700})
 
     (options, args) = parser.parse_args()
+    if '-' == args[0]: args.pop(0)
 
     if len(args) != 1 :
         parser.print_help()

@@ -122,6 +122,8 @@ parser.add_option('--extension', action='store', dest='extension', default='pdf'
         type='string', help='graphics extension to save plots (default pdf)')
 
 (options, args) = parser.parse_args()
+if '-' == args[0]: args.pop(0)
+
 if None == options.isData:
     raise ValueError('You need to specify if you are running on DATA or TOYS (--data/--toy)')
 debug = options.debug
