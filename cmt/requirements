@@ -41,7 +41,7 @@ apply_pattern reflex_dictionary_src                                             
 # Component library building rule
 #============================================================================
 library  B2DXFittersLib ../src/*.cxx \
-         ../$(tag)/dict/B2DXFitters/B2DXFittersDict_dict_classdef.cpp
+         ../$(tag)/dict/B2DXFitters/B2DXFitters*_classdef.cpp
 
 macro_append B2DXFittersLib_cppflags " -g"
 #============================================================================

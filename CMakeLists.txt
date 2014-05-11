@@ -16,7 +16,7 @@ reflex_generate_dictionary(B2DXFittersDict
 add_definitions(-UNDEBUG)
 gaudi_add_library(B2DXFittersLib
                   src/*.cxx
-                  B2DXFittersDict_dict_classdef.cpp
+                  B2DXFitters*_classdef.cpp
                   PUBLIC_HEADERS B2DXFitters
                   INCLUDE_DIRS ROOT
                   LINK_LIBRARIES ROOT)
