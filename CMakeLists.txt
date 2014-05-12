@@ -9,20 +9,20 @@ find_package(ROOT COMPONENTS Core Cint RooFitCore RooStats RooFit Hist Tree RIO
 
 
 include_directories(${ROOT_INCLUDE_DIRS})
-reflex_generate_dictionary(B2DXFittersDict
+reflex_generate_dictionary(B2DXFitters
                            dict/B2DXFittersDict.h dict/B2DXFittersDict.xml
                            SPLIT_CLASSDEF)
 
 add_definitions(-UNDEBUG)
 gaudi_add_library(B2DXFittersLib
                   src/*.cxx
-                  B2DXFitters*_classdef.cpp
+                  B2DXFittersDict_classdef.cpp
                   PUBLIC_HEADERS B2DXFitters
                   INCLUDE_DIRS ROOT
                   LINK_LIBRARIES ROOT)
 
 # ensure that genreflex is not called twice (in parallel builds)
-add_dependencies(B2DXFittersLib B2DXFittersDictGen)
+add_dependencies(B2DXFittersLib B2DXFittersGen)
 
 gaudi_install_python_modules()
 

@@ -4,6 +4,9 @@
 ! Purpose     : RooFit-based fitters for B -> D X
 !-----------------------------------------------------------------------------
 
+! 2014-05-12 - Marco Clemencic
+ - Fixed CMake configuration.
+
 ! 2014-05-11 - Manuel Tobias Schiller
  - patch FitResult and make_histos to (optionally) calculate systematic shifts
    etc., and output systematic tuple for Moritz
