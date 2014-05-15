@@ -32,7 +32,7 @@ def getconfig() :
        
     configdict["Terr"]       = [0.01,    0.1     ]
     configdict["BachCharge"] = [-1000.0, 1000.0  ]
-    configdict["BDTG"]       = [0.3,     1.0     ]
+    configdict["BDTG"]       = [0.45,     1.0     ]
 
     configdict["AdditionalVariables"] = [ "lab0_SS_Kaon_PROB", "lab0_SS_Kaon_DEC", 
                                           "lab0_OS_Muon_PROB" , "lab0_OS_Muon_DEC",
@@ -167,22 +167,22 @@ def getconfig() :
                                           5,8,
                                           10,16]
 
-    configdict["nLbLcKEvts"]           = [15.0/2.0, 15.0/2.0,
-                                          2.0/2.0,  2.0/2.0,
-                                          4.0/2.0,  4.0/2.0,
+    configdict["nLbLcKEvts"]           = [15.0/2.0*0.95, 15.0/2.0*0.95,
+                                          2.0/2.0*0.95,  2.0/2.0*0.95,
+                                          4.0/2.0*0.95,  4.0/2.0*0.95,
                                           0, 0,
                                           0, 0]
     
-    configdict["nLbLcPiEvts"]           = [11.0/2.0, 11.0/2.0,
-                                           1.0/2.0,  1.0/2.0,
-                                           3.0/2.0,  3.0/2.0,
+    configdict["nLbLcPiEvts"]           = [11.0/2.0*0.95, 11.0/2.0*0.95,
+                                           1.0/2.0*0.95,  1.0/2.0*0.95,
+                                           3.0/2.0*0.95,  3.0/2.0*0.95,
                                            0, 0,
                                            0, 0]
     
     
-    configdict["nBdDKEvts"]            = [17.0/2.0, 17.0/2.0,
+    configdict["nBdDKEvts"]            = [17.0/2.0*0.95, 17.0/2.0*0.95,
                                           0.0/2.0,  0.0/2.0,
-                                          5.0/2.0,  5.0/2.0,
+                                          5.0/2.0*0.95,  5.0/2.0*0.95,
                                           0, 0,
                                           0, 0]
     

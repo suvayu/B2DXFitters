@@ -28,7 +28,7 @@ def getconfig() :
                                                
     configdict["Terr"]       = [0.01,    0.1     ]
     configdict["BachCharge"] = [-1000.0, 1000.0  ]
-    configdict["BDTG"]       = [0.3,     1.0     ]
+    configdict["BDTG"]       = [0.75,     1.0     ]
         
     configdict["AdditionalVariables"] = [ "lab0_SS_Kaon_PROB", "lab0_SS_Kaon_DEC", 
                                           "lab0_OS_Muon_PROB" , "lab0_OS_Muon_DEC",
@@ -144,9 +144,9 @@ def getconfig() :
     configdict["fracComb"]  = [0.88620,      0.37379,      0.59093,     1.0,         1.0]          
 
     #expected Events
-    configdict["BdDPiEvents"]  = [374.0, 6.0,  93.0, 30.0, 0.0]
-    configdict["LbLcPiEvents"] = [290.0, 36.0, 69.0, 1.0,  0.0] #[312.0, 38.0, 69.0, 17.0,  0.0] #[301.0, 30.0, 68.0, 0.0,  0.0]
-    configdict["BsDsKEvents"]  = [40.0,  47.0, 40.0, 8.0,  21.0]
+    configdict["BdDPiEvents"]  = [374.0*0.75, 6.0*0.75,  93.0*0.75, 30.0*0.75, 0.0*0.75]
+    configdict["LbLcPiEvents"] = [290.0*0.75, 36.0*0.75, 69.0*0.75, 1.0*0.75,  0.0*0.75] #[312.0, 38.0, 69.0, 17.0,  0.0] #[301.0, 30.0, 68.0, 0.0,  0.0]
+    configdict["BsDsKEvents"]  = [40.0*0.75,  47.0*0.75, 40.0*0.75, 8.0*0.75,  21.0*0.75]
         
     configdict["assumedSig"]   = [10146.7, 13952.8,
                                   10146.7, 13952.8,

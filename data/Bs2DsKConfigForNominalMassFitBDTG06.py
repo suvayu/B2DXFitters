@@ -32,7 +32,7 @@ def getconfig() :
        
     configdict["Terr"]       = [0.01,    0.1     ]
     configdict["BachCharge"] = [-1000.0, 1000.0  ]
-    configdict["BDTG"]       = [0.3,     1.0     ]
+    configdict["BDTG"]       = [0.6,     1.0     ]
 
     configdict["AdditionalVariables"] = [ "lab0_SS_Kaon_PROB", "lab0_SS_Kaon_DEC", 
                                           "lab0_OS_Muon_PROB" , "lab0_OS_Muon_DEC",
@@ -40,9 +40,6 @@ def getconfig() :
                                           "lab0_OS_Kaon_PROB",  "lab0_OS_Kaon_DEC",
                                           "lab0_OS_nnetKaon_PROB", "lab0_OS_nnetKaon_DEC",
                                           "lab0_VtxCharge_PROB", "lab0_VtxCharge_DEC" ]
-
-    configdict["AdditionalDataCuts"] = "lab2_TAU>0"
-    configdict["AdditionalMCCuts"] = "lab2_TAU>0"
 
     configdict["lab0_SS_Kaon_PROB"]      = [ -3.0, 1,0 ]
     configdict["lab0_SS_Kaon_DEC"]       = [ -2.0, 2.0 ]
@@ -167,29 +164,29 @@ def getconfig() :
                                           5,8,
                                           10,16]
 
-    configdict["nLbLcKEvts"]           = [15.0/2.0, 15.0/2.0,
-                                          2.0/2.0,  2.0/2.0,
-                                          4.0/2.0,  4.0/2.0,
+    configdict["nLbLcKEvts"]           = [15.0/2.0*0.9, 15.0/2.0*0.9,
+                                          2.0/2.0*0.9,  2.0/2.0*0.9,
+                                          4.0/2.0*0.9,  4.0/2.0*0.9,
                                           0, 0,
                                           0, 0]
     
-    configdict["nLbLcPiEvts"]           = [11.0/2.0, 11.0/2.0,
-                                           1.0/2.0,  1.0/2.0,
-                                           3.0/2.0,  3.0/2.0,
+    configdict["nLbLcPiEvts"]           = [11.0/2.0*0.9, 11.0/2.0*0.9,
+                                           1.0/2.0*0.9,  1.0/2.0*0.9,
+                                           3.0/2.0*0.9,  3.0/2.0*0.9,
                                            0, 0,
                                            0, 0]
     
     
-    configdict["nBdDKEvts"]            = [17.0/2.0, 17.0/2.0,
-                                          0.0/2.0,  0.0/2.0,
-                                          5.0/2.0,  5.0/2.0,
+    configdict["nBdDKEvts"]            = [17.0/2.0*0.9, 17.0/2.0*0.9,
+                                          0.0/2.0*0.9,  0.0/2.0*0.9,
+                                          5.0/2.0*0.9,  5.0/2.0*0.9,
                                           0, 0,
                                           0, 0]
     
-    configdict["nBdDPiEvts"]            = [14.0/2.0, 14.0/2.0,
-                                           0.0/2.0,  0.0/2.0,
-                                           3.0/2.0,  3.0/2.0,
-                                           3.0/2.0,  3.0/2.0,
+    configdict["nBdDPiEvts"]            = [14.0/2.0*0.9, 14.0/2.0*0.9,
+                                           0.0/2.0*0.9,  0.0/2.0*0.9,
+                                           3.0/2.0*0.9,  3.0/2.0*0.9,
+                                           3.0/2.0*0.9,  3.0/2.0*0.9,
                                            0, 0]
 
                 

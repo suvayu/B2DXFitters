@@ -8,7 +8,7 @@ def getconfig() :
     # PHYSICAL PARAMETERS
     configdict["BMass"]      = [5300,    5800    ]
     configdict["DMass"]      = [1930,    2015    ]
-    configdict["Time"]       = [0.4,     15.0    ]
+    configdict["Time"]       = [0.75,     15.0    ]
     configdict["Momentum"]   = [3000.0,  650000.0]
     configdict["TrMom"]      = [400.0,   45000.0 ]
     configdict["PIDK"]       = [0.0,     150.0   ]
@@ -28,7 +28,7 @@ def getconfig() :
                                                
     configdict["Terr"]       = [0.01,    0.1     ]
     configdict["BachCharge"] = [-1000.0, 1000.0  ]
-    configdict["BDTG"]       = [0.3,     1.0     ]
+    configdict["BDTG"]       = [0.9,     1.0     ]
         
     configdict["AdditionalVariables"] = [ "lab0_SS_Kaon_PROB", "lab0_SS_Kaon_DEC", 
                                           "lab0_OS_Muon_PROB" , "lab0_OS_Muon_DEC",
@@ -144,9 +144,9 @@ def getconfig() :
     configdict["fracComb"]  = [0.88620,      0.37379,      0.59093,     1.0,         1.0]          
 
     #expected Events
-    configdict["BdDPiEvents"]  = [374.0, 6.0,  93.0, 30.0, 0.0]
-    configdict["LbLcPiEvents"] = [290.0, 36.0, 69.0, 1.0,  0.0] #[312.0, 38.0, 69.0, 17.0,  0.0] #[301.0, 30.0, 68.0, 0.0,  0.0]
-    configdict["BsDsKEvents"]  = [40.0,  47.0, 40.0, 8.0,  21.0]
+    configdict["BdDPiEvents"]  = [374.0*0.40, 6.0*0.40,  93.0*0.40, 30.0*0.4, 0.0*0.4]
+    configdict["LbLcPiEvents"] = [290.0*0.40, 36.0*0.40, 69.0*0.40, 1.0*0.4,  0.0*0.4] #[312.0, 38.0, 69.0, 17.0,  0.0] #[301.0, 30.0, 68.0, 0.0,  0.0]
+    configdict["BsDsKEvents"]  = [40.0*0.40,  47.0*0.40, 40.0*0.40, 8.0*0.4,  21.0*0.4]
         
     configdict["assumedSig"]   = [10146.7, 13952.8,
                                   10146.7, 13952.8,
