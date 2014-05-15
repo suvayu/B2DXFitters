@@ -187,6 +187,8 @@ defaultConfig = {
         'DeltaMs':			17.719, # in ps^{-1}
         'GammaLb':			0.719, # in ps^{-1}
         'GammaCombBkg':			0.800, # in ps^{-1}
+        'DGammaCombBkg':                0.000, # in ps^{-1}
+        'CombBkg_D':                    0.000, # D parameter (common for both final states)
         # CP observables
         'StrongPhase': {
             'Bs2DsK':		20. / 180. * pi,
@@ -3281,7 +3283,8 @@ def getMasterPDF(config, name, debug = False):
     ########################################################################
     for mode in ( 'Bs2DsPi', 'Bs2DsstPi', 'Bs2DsRho', 'Bs2DsstRho',
             'Bd2DsK', 'Bd2DK', 'Bd2DsPi',
-            'Lb2Dsp', 'Lb2Dsstp', 'Lb2LcK', 'Lb2LcPi'):
+            'Lb2Dsp', 'Lb2Dsstp', 'Lb2LcK', 'Lb2LcPi',
+            'CombBkg'):
         if mode not in config['Modes']:
             continue
         tacc = getAcceptance(ws, config, mode, time)
@@ -3289,16 +3292,25 @@ def getMasterPDF(config, name, debug = False):
         if mode.startswith('Bs'):
             gamma, deltagamma, deltam = gammas, deltaGammas, deltaMs
             modenick = 'Bs2DsPi'
-            C = one
+            C, D = one, zero
         elif mode.startswith('Bd'):
             gamma, deltagamma, deltam = gammad, deltaGammad, deltaMd
             modenick = 'Bd2DsK'
-            C = one
+            C, D = one, zero
         elif mode.startswith('Lb'):
             gamma = WS(ws, RooRealVar('GammaLb', '#Gamma_{#Lambda_{b}}',
                 config['GammaLb']))
             deltagamma, deltam = zero, zero
             modenick = 'Lb'
+            C, D = zero, zero
+        elif mode == 'CombBkg':
+            gamma = WS(ws, RooRealVar('GammaCombBkg', '#Gamma_{CombBkg}}',
+                config['GammaCombBkg']))
+            dGamma = WS(ws, RooRealVar('DeltaGammaCombBkg', '#Delta#Gamma_{CombBkg}}',
+                config['DGammaCombBkg']))
+            D = WS(ws, RooRealVar('CombBkg_D', 'CombBkg_D', config['CombBkg_D']))
+            deltam = zero
+            modenick = mode
             C = zero
         else:
             gamma, deltagamma, deltam = None, None, None
@@ -3344,7 +3356,7 @@ def getMasterPDF(config, name, debug = False):
         tageff = makeTagEff(config, ws, modenick, y)
         timepdfs[mode] = buildBDecayTimePdf(config, mode, ws,
                 time, timeerr, qt, qf, mistagCals[mode], tageff,
-                gamma, deltagamma, deltam, C, zero, zero, zero, zero,
+                gamma, deltagamma, deltam, C, D, D, zero, zero,
                 trm, tacc, terrpdfs[mode], mistagtemplates[mode],
                 mistag, kfactorpdf, kfactor,
                 asyms['Prod'], asyms['Det'], asyms['TagEff'])
@@ -3353,52 +3365,52 @@ def getMasterPDF(config, name, debug = False):
     # non-osciallating modes
     ########################################################################
     # CombBkg
-    for mode in ('CombBkg',):
-        if mode not in config['Modes']:
-            continue
-        tacc = getAcceptance(ws, config, mode, time)
-        trm, tacc = getResolutionModel(ws, config, time, timeerr, tacc)
-        modenick = mode
-        kfactorpdf, kfactor = None, None
-        gamma = WS(ws, RooRealVar('GammaCombBkg', '#Gamma_{CombBkg}',
-            config['GammaCombBkg']))
-        # figure out asymmetries to use
-        asyms = { 'Det': None, 'TagEff_f': None, 'TagEff_t': None }
-        for k in asyms.keys():
-            for n in (mode, modenick, mode.split('2')[0]):
-                if n in config['Asymmetries'][k]:
-                    if type(config['Asymmetries'][k][n]) == float:
-                        asyms[k] = WS(ws, RooRealVar(
-                            '%s_Asym%s' % (n, k), '%s_Asym%s' % (n, k),
-                            config['Asymmetries'][k][n], -1., 1.))
-                        asyms[k].setError(0.25)
-                    elif (type(config['Asymmetries'][k][n]) == list and
-                            k.startswith('TagEff')):
-                        if (len(config['Asymmetries'][k][n]) !=
-                                config['NTaggers']):
-                            raise TypeError('Wrong number of asymmetries')
-                        asyms[k] = [ ]
-                        for asymval in config['Asymmetries'][k][n]:
-                            asymstmp = WS(ws, RooRealVar(
-                                '%s_Asym%s%u' % (n, k, len(asyms[k])),
-                                '%s_Asym%s%u' % (n, k, len(asyms[k])),
-                                asymval, -1., 1.))
-                            asymstmp.setError(0.25)
-                            asyms[k].append(asymstmp)
-                            del asymstmp
-                    else:
-                        raise TypeError('Unsupported type for asymmetry')
-                    break
-        y = 0.
-        for lmode in yielddict:
-            if lmode.startswith(modenick): y += yielddict[lmode]
-        y = max(y, 1.)
-        tageff = makeTagEff(config, ws, modenick, y)
-        timepdfs[mode] = buildNonOscDecayTimePdf(config, mode, ws,
-                time, timeerr, qt, qf, mistag, tageff, gamma,
-                trm, tacc, terrpdfs[mode], mistagtemplates[mode],
-                kfactorpdf, kfactor,
-                asyms['Det'], asyms['TagEff_f'], asyms['TagEff_t'])
+    #for mode in ('CombBkg',):
+    #    if mode not in config['Modes']:
+    #        continue
+    #    tacc = getAcceptance(ws, config, mode, time)
+    #    trm, tacc = getResolutionModel(ws, config, time, timeerr, tacc)
+    #    modenick = mode
+    #    kfactorpdf, kfactor = None, None
+    #    gamma = WS(ws, RooRealVar('GammaCombBkg', '#Gamma_{CombBkg}',
+    #        config['GammaCombBkg']))
+    #    # figure out asymmetries to use
+    #    asyms = { 'Det': None, 'TagEff_f': None, 'TagEff_t': None }
+    #    for k in asyms.keys():
+    #        for n in (mode, modenick, mode.split('2')[0]):
+    #            if n in config['Asymmetries'][k]:
+    #                if type(config['Asymmetries'][k][n]) == float:
+    #                    asyms[k] = WS(ws, RooRealVar(
+    #                        '%s_Asym%s' % (n, k), '%s_Asym%s' % (n, k),
+    #                        config['Asymmetries'][k][n], -1., 1.))
+    #                    asyms[k].setError(0.25)
+    #                elif (type(config['Asymmetries'][k][n]) == list and
+    #                        k.startswith('TagEff')):
+    #                    if (len(config['Asymmetries'][k][n]) !=
+    #                            config['NTaggers']):
+    #                        raise TypeError('Wrong number of asymmetries')
+    #                    asyms[k] = [ ]
+    #                    for asymval in config['Asymmetries'][k][n]:
+    #                        asymstmp = WS(ws, RooRealVar(
+    #                            '%s_Asym%s%u' % (n, k, len(asyms[k])),
+    #                            '%s_Asym%s%u' % (n, k, len(asyms[k])),
+    #                            asymval, -1., 1.))
+    #                        asymstmp.setError(0.25)
+    #                        asyms[k].append(asymstmp)
+    #                        del asymstmp
+    #                else:
+    #                    raise TypeError('Unsupported type for asymmetry')
+    #                break
+    #    y = 0.
+    #    for lmode in yielddict:
+    #        if lmode.startswith(modenick): y += yielddict[lmode]
+    #    y = max(y, 1.)
+    #    tageff = makeTagEff(config, ws, modenick, y)
+    #    timepdfs[mode] = buildNonOscDecayTimePdf(config, mode, ws,
+    #            time, timeerr, qt, qf, mistag, tageff, gamma,
+    #            trm, tacc, terrpdfs[mode], mistagtemplates[mode],
+    #            kfactorpdf, kfactor,
+    #            asyms['Det'], asyms['TagEff_f'], asyms['TagEff_t'])
     
     obs = RooArgSet('observables')
     for o in observables:
