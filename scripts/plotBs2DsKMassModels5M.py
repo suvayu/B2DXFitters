@@ -205,12 +205,17 @@ def getTotPDF(w, sam, mod, merge, comp, debug):
     for s in sp:
         for m in md:
             for p in comp:
-                if p == "Sig":
-                    c.append("n%s_%s_%s_Evts*%sEPDF_%s_%s"%(p,s,m,p,s,m))
+                var = w.var("n%s_%s_%s_Evts"%(p,s,m))
+                if var:
+                    if p == "Sig":
+                        c.append("n%s_%s_%s_Evts*%sEPDF_%s_%s"%(p,s,m,p,s,m))
+                    else:
+                        c.append("n%s_%s_%s_Evts*%sEPDF_m_%s_%s"%(p,s,m,p,s,m))
+                    n.append("n%s_%s_%s_Evts"%(p,s,m))
                 else:
-                    c.append("n%s_%s_%s_Evts*%sEPDF_m_%s_%s"%(p,s,m,p,s,m))
-                n.append("n%s_%s_%s_Evts"%(p,s,m))
-    
+                    c.append("")
+                    n.append("")
+
     if sam == "up" or sam == "down" or (sam == "both" and merge == True):
         pdfcomp = c[0]
         for i in range(1,c.__len__()):
@@ -296,31 +301,44 @@ def plotFitModel( model, frame, var, sam, mode, comp, color) :
 
     md = GeneralUtils.GetMode(mod,debug)
     c = []
+    nc = []
     for s in sp:
         for m in md:
             for p in comp:
                 if p == "Sig":
-                    c.append("%sEPDF_%s_%s"%(p,s,m))
+                    pdfName = "%sEPDF_%s_%s"%(p,s,m)
                 elif (p == "Lb2DsDsstP" or p == "Bs2DsDsstPiRho"):
-                    c.append("PhysBkg%sPdf_m_%s_%s_Tot"%(p,s,m))
+                    pdfName = "PhysBkg%sPdf_m_%s_%s_Tot"%(p,s,m)
                 else:
-                    c.append("%sEPDF_m_%s_%s"%(p,s,m))
-                    
+                    pdfName = "%sEPDF_m_%s_%s"%(p,s,m)
+                pdf = w.pdf(pdfName)
+                if pdf:
+                    c.append(pdfName)
+                else:
+                    c.append("")
+                        
     numBkg = comp.__len__()                
     numCom = c.__len__()
     numSM = int(numCom/numBkg)
     numColor = color.__len__()
-    
+
     pdfcomp = []
     for j in range(0,numBkg):
         for i in range(0,numSM):
             if i == 0:
                 pdfcomp.append(c[j+i*numBkg])
-            else:    
+            else:
+                if c[j+i*numBkg] == "": continue
                 pdfcomp[j] = pdfcomp[j]+","+c[j+i*numBkg]
+    
+    for n in pdfcomp:
+        print "PDF to plot: %s"%(n)
 
     for i in range(0,numBkg):
         if i == 0 or i == 1: continue
+        #if pdfcomp[i] == "": 
+            #m = pdfcomp[i-1]
+            #continue
         pdfcomp[i] = pdfcomp[i]+","+pdfcomp[i-1]
             
     for n in pdfcomp:    
@@ -481,7 +499,7 @@ if __name__ == '__main__' :
     if plotModel : plotFitModel( modelPDF, frame_m, mVarTS, sam, mod, compPDF, color )
     if plotData : plotDataSet( dataset, frame_m,  Bin )
 
-    frame_m.GetYaxis().SetRangeUser(1,frame_m.GetMaximum()*1.1)
+    frame_m.GetYaxis().SetRangeUser(0.001,frame_m.GetMaximum()*1.1)
                                
     canvas = TCanvas("canvas", "canvas", 1200, 1000)
     canvas.cd()
