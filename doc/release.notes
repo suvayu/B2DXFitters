@@ -4,6 +4,12 @@
 ! Purpose     : RooFit-based fitters for B -> D X
 !-----------------------------------------------------------------------------
 
+! 2014-05-15 - V. Gligorov
+ - Make fitSplineAcc do a binned fit, because life is just Too$hort.
+  (200 bins, for those who care)
+ - Also make a few other nicefications. See Csh/run_splines* for examples
+   of how to launch things.
+
 ! 2014-05-12 - Marco Clemencic
  - Fixed CMake configuration.
 
