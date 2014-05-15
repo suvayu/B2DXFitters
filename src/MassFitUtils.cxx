@@ -132,6 +132,8 @@ namespace MassFitUtils {
     RooRealVar* nTracks       = mdSet->GetObs(mdSet->GetTracksVar(), true);
     RooRealVar* lab1_P        = mdSet->GetObs(mdSet->GetMomVar(), true); 
     RooRealVar* lab1_PT       = mdSet->GetObs(mdSet->GetTrMomVar(), true);
+    //RooRealVar* lab0_TRUETAU  = new RooRealVar("lab0_TAU","lab0_TAU",0.2,     15.0);
+    //RooRealVar* lab0_TRUETAUERR  = new RooRealVar("lab0_TAUTERR","lab0_TAUTERR", 0.01,  0.1 );
       
     std::vector <RooRealVar*> addVar;  
     if( mdSet->CheckAddVar() == true )
@@ -171,6 +173,9 @@ namespace MassFitUtils {
     obs->add(*lab1_PT);
     obs->add(*lab1_P);
     obs->add(*nTracks);
+    //obs->add(*lab0_TRUETAU);
+    //obs->add(*lab0_TRUETAUERR);
+
     if( mdSet->CheckAddVar() == true )
       {
 	for(int i = 0; i<mdSet->GetNumAddVar(); i++)
@@ -231,9 +236,9 @@ namespace MassFitUtils {
     TCut massD_cut  = mdSet->GetCut(mdSet->GetMassDVar()); 
     Float_t c = 299792458.0;
     Float_t corr = c/1e9;
-    TCut Time_cut = Form("%s > %f && %s < %f", mdSet->GetTimeVar().Data(), mdSet->GetTimeRangeDown()*corr,
+    TCut Time_cut = Form("%s[0] > %f && %s[0] < %f", mdSet->GetTimeVar().Data(), mdSet->GetTimeRangeDown()*corr,
 			 mdSet->GetTimeVar().Data(), mdSet->GetTimeRangeUp()*corr);
-    TCut Terr_cut = Form("%s > %f && %s < %f", mdSet->GetTerrVar().Data(), mdSet->GetTerrRangeDown()*corr,
+    TCut Terr_cut = Form("%s[0] > %f && %s[0] < %f", mdSet->GetTerrVar().Data(), mdSet->GetTerrRangeDown()*corr,
 			 mdSet->GetTerrVar().Data(), mdSet->GetTerrRangeUp()*corr);  
     
     TCut FDCHI2 = "";
@@ -268,6 +273,7 @@ namespace MassFitUtils {
 		treetmp = TreeCut(tree[i],All_cut,smp[i],mode, debug);
 	
 		Float_t lab0_MM3, lab0_TAU3[10], lab0_TAUERR3[10];
+		Double_t lab0_TRUETAU3, lab0_TRUETAUERR3;
 		Double_t lab2_MM3, lab1_PIDK3;
 		Int_t lab1_ID3, nTracks3;
 		Double_t lab1_P3, lab1_PT3;
@@ -275,6 +281,8 @@ namespace MassFitUtils {
 		treetmp->SetBranchAddress(mdSet->GetMassBVar().Data(),    &lab0_MM3);
 		treetmp->SetBranchAddress(mdSet->GetTimeVar().Data(),     &lab0_TAU3);
 		treetmp->SetBranchAddress(mdSet->GetTerrVar().Data(),     &lab0_TAUERR3);
+		//treetmp->SetBranchAddress("lab0_TAU",     &lab0_TRUETAU3);
+                //treetmp->SetBranchAddress("lab0_TAUERR",  &lab0_TRUETAUERR3);
 		//treetmp->SetBranchAddress(mdSet->GetTagVar().Data(),      &lab0_TAG3);
 		//treetmp->SetBranchAddress(mdSet->GetTagOmegaVar().Data(), &lab0_TAGOMEGA3);
 		treetmp->SetBranchAddress(mdSet->GetIDVar().Data(),       &lab1_ID3);
@@ -322,7 +330,10 @@ namespace MassFitUtils {
 		  lab0_MM->setVal(lab0_MM3);
 		  lab0_TAU->setVal(lab0_TAU3[0]/corr);
 		  lab0_TAUERR->setVal(lab0_TAUERR3[0]/corr);
-		  
+		  //lab0_TRUETAU->setVal(lab0_TRUETAU3*1000);
+                  //lab0_TRUETAUERR->setVal(lab0_TRUETAUERR3*1000);
+		  //std::cout<<lab0_TRUETAU3*1000<<" "<<lab0_TRUETAUERR3*1000<<std::endl;
+
 		  if (lab1_ID3 > 0) { lab1_ID->setIndex(1); } else { lab1_ID->setIndex(-1); }
 		  
 		  lab2_MM->setVal(lab2_MM3);
@@ -446,6 +457,8 @@ namespace MassFitUtils {
 		    SaveDataSet(dataSet[i], lab1_PIDK      , s, mode, plotSet, debug);
 		    SaveDataSet(dataSet[i], lab0_TAU       , s, mode, plotSet, debug);
 		    SaveDataSet(dataSet[i], lab0_TAUERR    , s, mode, plotSet, debug);
+		    //SaveDataSet(dataSet[i], lab0_TRUETAU       , s, mode, plotSet, debug);
+                    //SaveDataSet(dataSet[i], lab0_TRUETAUERR    , s, mode, plotSet, debug);
 		    //SaveDataSet(dataSet[i], lab0_TAG       , s, mode, plotSet, debug);
 		    //SaveDataSet(dataSet[i], lab0_TAGOMEGA  , s, mode, plotSet, debug);
 		    SaveDataSet(dataSet[i], lab1_PT        , s, mode, plotSet, debug);
@@ -520,11 +533,16 @@ namespace MassFitUtils {
     RooRealVar* nTracks       = mdSet->GetObs(mdSet->GetTracksVar(), true);
     RooRealVar* lab1_P        = mdSet->GetObs(mdSet->GetMomVar(), true);
     RooRealVar* lab1_PT       = mdSet->GetObs(mdSet->GetTrMomVar(), true);
-           
+    //RooRealVar* lab0_TAU2  = new RooRealVar("lab0_TAU","lab0_TAU",0.2,     15.0);
+    //RooRealVar* lab0_TAU2ERR  = new RooRealVar("lab0_TAUTERR","lab0_TAUTERR", 0.01,  0.1 );
+
     RooArgSet* obs = new RooArgSet(*lab0_MM,*lab2_MM,*lab1_PIDK,
 				   *lab1_PT, *lab1_P, *nTracks);
     
     obs->add(*lab0_TAUERR); 
+    //obs->add(*lab0_TAU2);
+    //obs->add(*lab0_TAU2ERR);
+
     
     std::vector <std::string> FileName;
     TString PID = "#PID";
@@ -620,7 +638,10 @@ namespace MassFitUtils {
       Double_t lab2_MM3, lab1_PIDK3;
       Int_t nTracks3;
       Double_t lab1_PT3;
-      
+      //Double_t lab0_TAU23, lab0_TAU2TERR3;
+
+      //treetmp->SetBranchAddress("lab0_TAU",     &lab0_TAU23);
+      //treetmp->SetBranchAddress("lab0_TAUERR",  &lab0_TAU2TERR3);
       treetmp->SetBranchAddress(mdSet->GetTerrVar().Data(), &lab0_TAUERR3);
       treetmp->SetBranchAddress(mdSet->GetMassDVar().Data(),    &lab2_MM3);
       treetmp->SetBranchAddress(mdSet->GetPIDKVar().Data(),     &lab1_PIDK3);
@@ -652,7 +673,8 @@ namespace MassFitUtils {
 	    lab1_PIDK->setVal(log(lab1_PIDK3));
 	    nTracks->setVal(log(nTracks3));
 	    lab1_PT->setVal(log(lab1_PT3));
-	    
+	    //lab0_TAU2->setVal(lab0_TAU23*1000);
+	    //lab0_TAU2ERR->setVal(lab0_TAU2TERR3*1000);
 	    lab0_TAUERR->setVal(lab0_TAUERR3[0]*corr);
 		    
 	    dataSet[i]->add(*obs,wA,0);
@@ -670,6 +692,7 @@ namespace MassFitUtils {
 	}
       
       // create RooKeysPdf for misID background //
+      
       name="PhysBkgBs2DsPiPdf_m_"+s;
       TString name2=name+"_Ds";
       
@@ -747,12 +770,16 @@ namespace MassFitUtils {
     RooRealVar* nTracks       = mdSet->GetObs(mdSet->GetTracksVar(), true);
     RooRealVar* lab1_P        = mdSet->GetObs(mdSet->GetMomVar(), true);
     RooRealVar* lab1_PT       = mdSet->GetObs(mdSet->GetTrMomVar(), true);
+    //RooRealVar* lab0_TAU2  = new RooRealVar("lab0_TAU","lab0_TAU",0.2,     15.0);
+    //RooRealVar* lab0_TAU2ERR  = new RooRealVar("lab0_TAUTERR","lab0_TAUTERR", 0.01,  0.1 );
 
     RooArgSet* obs = new RooArgSet(*lab0_MM,*lab2_MM,*lab1_PIDK,
                                    *lab1_PT, *lab1_P, *nTracks);
 
     obs->add(*lab0_TAUERR);
-    
+    //obs->add(*lab0_TAU2);
+    //obs->add(*lab0_TAU2ERR);
+
 
     std::vector <std::string> FileName;
     
@@ -855,7 +882,7 @@ namespace MassFitUtils {
 //create new data set //
 
       treetmp = TreeCut(tree[i],All_cut,smp[i],md[i],debug);  // obtain new tree after applied all cuts //
-      
+      //Double_t lab0_TAU23, lab0_TAU2TERR3;
       // Load all necessary variables to change hypo D->Ds from tree //
       Double_t lab1_P2, lab1_PT2;
       Double_t lab1_PX2, lab1_PY2, lab1_PZ2;
@@ -864,7 +891,10 @@ namespace MassFitUtils {
       Double_t lab5_PX2, lab5_PY2, lab5_PZ2;
       Double_t lab1_M2;
       Double_t masshypo(0.0), phypo(0.0), masshypod(0.0), phypolc(0.0), masshypolb(0.0), p2(0.0);
-                 
+
+      //treetmp->SetBranchAddress("lab0_TAU",     &lab0_TAU23);
+      //treetmp->SetBranchAddress("lab0_TAUERR",  &lab0_TAU2TERR3);
+
       treetmp->SetBranchAddress("lab1_P",  &lab1_P2);
       treetmp->SetBranchAddress("lab1_PT", &lab1_PT2);
       treetmp->SetBranchAddress("lab1_PX", &lab1_PX2);
@@ -974,6 +1004,8 @@ namespace MassFitUtils {
 		  lab1_P->setVal(log(lab1_P2));
 		  lab1_PT->setVal(log(lab1_PT2));
 		  nTracks->setVal(log(nTracks3));
+		  //lab0_TAU2->setVal(lab0_TAU23*1000);
+		  //lab0_TAU2ERR->setVal(lab0_TAU2TERR3*1000);
 		  lab1_PIDK->setVal(-lab1_PIDK3);
 		  Double_t w1=1.0;
 		  if ( fabs(masshypolb -2285)<30 )  {  w1 = hmisIDL.GetWeight(phypolc,smp[i]);    }
@@ -1006,14 +1038,15 @@ namespace MassFitUtils {
 	}
 
       //Create RooKeysPdf for misID background//
-                  
+      
+      
       name="PhysBkgBd2DPiPdf_m_"+s;
       pdfDataMiss[i] = new RooKeysPdf(name.Data(),name.Data(),*lab0_MM,*dataSet[i],RooKeysPdf::MirrorBoth,1.5);
       
       TString nameD=name+"_Ds";
       pdfDataDMiss[i] = new RooKeysPdf(nameD.Data(),nameD.Data(),*lab2_MM,*dataSet[i], RooKeysPdf::MirrorBoth,1.5);
 
-
+      
       if (debug == true) 
 	{
 	  if( pdfDataMiss[i] != NULL ){ std::cout<<"=====> Create RooKeysPdf for misID BdDPi: "<<pdfDataMiss[i]->GetName()<<std::endl;} 
@@ -1358,6 +1391,9 @@ TCut GetCutMCBkg( MDFitterSettings* mdSet, TString mode, TString hypo, TString D
     RooRealVar* nTracks       = mdSet->GetObs(mdSet->GetTracksVar(), true);
     RooRealVar* lab1_P        = mdSet->GetObs(mdSet->GetMomVar(), true);
     RooRealVar* lab1_PT       = mdSet->GetObs(mdSet->GetTrMomVar(), true);
+    //RooRealVar* lab0_TAU2  = new RooRealVar("lab0_TAU","lab0_TAU",0.2,     15.0);
+    //RooRealVar* lab0_TAU2ERR  = new RooRealVar("lab0_TAUTERR","lab0_TAUTERR", 0.01,  0.1 );
+
              
     RooArgSet* obs = new RooArgSet(*lab0_MM,*lab2_MM,*lab1_P,*lab1_PT, *nTracks, *lab1_PIDK); 
     std::vector <RooRealVar*> lab0_TAG;
@@ -1382,7 +1418,8 @@ TCut GetCutMCBkg( MDFitterSettings* mdSet, TString mode, TString hypo, TString D
     
     obs->add(*lab0_TAUERR);
     obs->add(*lab0_TAU); 
-					      
+    //obs->add(*lab0_TAU2);
+    //obs->add(*lab0_TAU2ERR); 
 					      
  
 
@@ -1500,10 +1537,14 @@ TCut GetCutMCBkg( MDFitterSettings* mdSet, TString mode, TString hypo, TString D
 	
 	//load from tree all necessary variable (which have to be reweighted) and observable // 
 	Float_t lab0_MM2, lab0_TAUERR3[10], lab0_TAU3[10];
+	//Double_t lab0_TAU23, lab0_TAU2TERR3;
 	Double_t  lab1_P2, lab4_P2, lab2_MM2, lab1_PT2, lab5_P2;
 	Int_t nTr;
 	Double_t PIDK2;  
-	
+
+	//treetmp[i]->SetBranchAddress("lab0_TAU",     &lab0_TAU23);
+	//treetmp[i]->SetBranchAddress("lab0_TAUERR",  &lab0_TAU2TERR3);
+
 	treetmp[i]->SetBranchAddress(mdSet->GetMomVar().Data(),      &lab1_P2);
 	treetmp[i]->SetBranchAddress(mdSet->GetMassBVar().Data(),    &lab0_MM2);
 	treetmp[i]->SetBranchAddress(Form("%s_P",DsCh2Prefix.Data()),&lab4_P2);
@@ -1685,7 +1726,9 @@ TCut GetCutMCBkg( MDFitterSettings* mdSet, TString mode, TString hypo, TString D
 	      
 	      lab0_TAUERR->setVal(lab0_TAUERR3[0]*corr);
 	      lab0_TAU->setVal(lab0_TAU3[0]*corr);
-	      
+	      //lab0_TAU2->setVal(lab0_TAU23*1000);
+	      //lab0_TAU2ERR->setVal(lab0_TAU2TERR3*1000);
+
 	      if(  mdSet->CheckTagVar() == true )
 		{
 		  for(int k = 0; k<mdSet->GetNumTagVar(); k++)
@@ -2403,7 +2446,7 @@ TCut GetCutMCBkg( MDFitterSettings* mdSet, TString mode, TString hypo, TString D
     TCut MCD        = mdSet->GetCut(mdSet->GetMassDVar());
     Float_t c = 299792458.0;
     Float_t corr = c/1e9;
-    TCut Time_cut = Form("%s > %f && %s < %f", mdSet->GetTimeVar().Data(), mdSet->GetTimeRangeDown()*corr,
+    TCut Time_cut = Form("%s[0] > %f && %s[0] < %f", mdSet->GetTimeVar().Data(), mdSet->GetTimeRangeDown()*corr,
                          mdSet->GetTimeVar().Data(), mdSet->GetTimeRangeUp()*corr);
 
 
@@ -2533,12 +2576,17 @@ TCut GetCutMCBkg( MDFitterSettings* mdSet, TString mode, TString hypo, TString D
     RooRealVar* lab1_P        = mdSet->GetObs(mdSet->GetMomVar(), true);
     RooRealVar* lab1_PT       = mdSet->GetObs(mdSet->GetTrMomVar(), true);
     RooRealVar* lab0_TRUETAU  = new RooRealVar("lab0_TRUETAU", "lab0_TRUETAU", 0.2,15.0);
+    //RooRealVar* lab0_TAU2  = new RooRealVar("lab0_TAU","lab0_TAU",0.2,     15.0);
+    //RooRealVar* lab0_TAU2ERR  = new RooRealVar("lab0_TAUTERR","lab0_TAUTERR", 0.01,  0.1 );
+
 
     RooArgSet* obs = new RooArgSet(*lab0_MM,*lab2_MM, *lab1_PIDK,
                                    *lab1_P, *lab1_PT, *nTracks);
     obs->add(*lab0_TAU);
     obs->add(*lab0_TAUERR);
     obs->add(*lab0_TRUETAU);
+    //obs->add(*lab0_TAU2);
+    //obs->add(*lab0_TAU2ERR); 
 
     std::vector <RooRealVar*> lab0_TAG;
     std::vector <RooRealVar*> lab0_TAGOMEGA;
@@ -2655,10 +2703,16 @@ TCut GetCutMCBkg( MDFitterSettings* mdSet, TString mode, TString hypo, TString D
       Int_t nentriesMC = treetmp->GetEntries();
       
       Float_t lab0_MM3, lab0_TAU3[10], lab0_TAUERR3[10];
+      //Double_t lab0_TAU23, lab0_TAU2TERR3; 
       Double_t lab0_TRUETAU3[10];
       Double_t lab2_MM3, lab1_P3, lab1_PT3, lab1_PIDK3;
       Int_t lab1_ID3,  nTr3;
-      
+      //Bool_t lab0_TOS;
+
+      //treetmp->SetBranchAddress("lab0_TAU",     &lab0_TAU23);
+      //treetmp->SetBranchAddress("lab0_TAUERR",  &lab0_TAU2TERR3);
+
+      //treetmp->SetBranchAddress("lab0_L0HadronDecision_TOS",    &lab0_TOS);
       treetmp->SetBranchAddress(mdSet->GetMassBVar().Data(),    &lab0_MM3);
       treetmp->SetBranchAddress(mdSet->GetTimeVar().Data(),     &lab0_TAU3);
       treetmp->SetBranchAddress(mdSet->GetTerrVar().Data(),     &lab0_TAUERR3);
@@ -2699,7 +2753,8 @@ TCut GetCutMCBkg( MDFitterSettings* mdSet, TString mode, TString hypo, TString D
       TString name="dataSetMC_"+mode+"_"+smp[i]+"_"+md[i];
       TString namehist = "dataHistMC"+mode+"_"+smp[i];
       dataSetMC[i] = NULL;
-         
+
+      
       if (reweight == true)
 	{
 	  dataSetMC[i] = new RooDataSet(name.Data(),name.Data(), *obs, wname.Data());
@@ -2708,7 +2763,8 @@ TCut GetCutMCBkg( MDFitterSettings* mdSet, TString mode, TString hypo, TString D
 	{
 	  dataSetMC[i] = new RooDataSet(name.Data(),name.Data(), *obs);
 	}
-      
+	
+
       dataSetMCtmp[i] = new RooDataSet(name.Data(),name.Data(), *obs, wname.Data());
       for (Long64_t jentry=0; jentry<nentriesMC; jentry++) {
 	treetmp->GetEntry(jentry); 
@@ -2719,6 +2775,9 @@ TCut GetCutMCBkg( MDFitterSettings* mdSet, TString mode, TString hypo, TString D
 		
 	lab0_MM->setVal(lab0_MM3);
 	lab2_MM->setVal(lab2_MM3);
+	//lab0_TAU2->setVal(lab0_TAU23*1000);
+	//lab0_TAU2ERR->setVal(lab0_TAU2TERR3*1000);
+
 	Float_t time = lab0_TAU3[0]*factor;
 	lab0_TAU->setVal(time);
 	Float_t timeerr = lab0_TAUERR3[0]*factor; 
@@ -2769,9 +2828,12 @@ TCut GetCutMCBkg( MDFitterSettings* mdSet, TString mode, TString hypo, TString D
 	else{ weight->setVal(wE*globalWeight); }
 
 	
-	if (reweight == true) { dataSetMC[i]->add(*obs,wRW*wE*globalWeight,0); }
-	else { dataSetMC[i]->add(*obs); }
-	    
+	//if ( lab0_TOS == true )
+	//  {
+	    if (reweight == true) { dataSetMC[i]->add(*obs,wRW*wE*globalWeight,0); }
+	    else { dataSetMC[i]->add(*obs); }
+	    //  }
+
 	if (mode.Contains("Pi"))
 	  {
 	    if ( -lab1_PIDK3 > mdSet->GetPIDBach())

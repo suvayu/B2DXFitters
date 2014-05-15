@@ -178,11 +178,31 @@ namespace SFitUtils {
 	  }
 	else
 	  {
-	    s.push_back("both_nonres");
-	    s.push_back("both_phipi");
-	    s.push_back("both_kstk");
-	    s.push_back("both_kpipi");
-	    s.push_back("both_pipipi");
+	    if ( pathFile.Contains("both") == true )
+              {
+		s.push_back("both_nonres");
+                s.push_back("both_phipi");
+                s.push_back("both_kstk");
+                s.push_back("both_kpipi");
+                s.push_back("both_pipipi");
+              }
+            else if ( pathFile.Contains("up") == true )
+              {
+                s.push_back("up_nonres");
+                s.push_back("up_phipi");
+                s.push_back("up_kstk");
+                s.push_back("up_kpipi");
+		s.push_back("up_pipipi");
+              }
+            else if ( pathFile.Contains("down") == true )
+              {
+                s.push_back("down_nonres");
+                s.push_back("down_phipi");
+                s.push_back("down_kstk");
+                s.push_back("down_kpipi");
+                s.push_back("down_pipipi");
+              }
+
 	  }
       }
     
@@ -321,6 +341,10 @@ namespace SFitUtils {
     Double_t sqSumsW = 0;
     double correction=0.0;
  
+    Double_t tagEff[2];
+    tagEff[0] = 0;
+    tagEff[1] = 0;
+
     for (Long64_t jentry=0; jentry<treeSW->GetEntries(); jentry++) {
       treeSW->GetEntry(jentry);
       double m = 0; 
@@ -370,6 +394,12 @@ namespace SFitUtils {
       //lab1_PIDp->setVal(PIDp);  
       //lab0_MM->setVal(mass);
 
+      Double_t sum_sw=0;
+      for (int i = 0; i<bound; i++) {
+	sum_sw += sw[i];
+      }
+
+      
       if (ID > 0) { qf->setIndex(1); } else { qf->setIndex(-1); }
       if( toys == false)
 	{
@@ -377,8 +407,8 @@ namespace SFitUtils {
 	    {
 	      for(int k = 0; k<mdSet->GetNumTagVar(); k++)
 		{
-		  if( tag[k] > 0.1 ) {   tag[k] = 1; }
-		  else if ( tag[k] < -0.1 ) { tag[k] = -1;}
+		  if( tag[k] > 0.1 ) {   tag[k] = 1; tagEff[k] += sum_sw; }
+		  else if ( tag[k] < -0.1 ) { tag[k] = -1; tagEff[k] += sum_sw; }
 		  else{ tag[k]=0; }
 		  
 		  lab0_TAG[k]->setIndex(tag[k]);
@@ -399,22 +429,20 @@ namespace SFitUtils {
 	  lab0_TAGOMEGA[0]->setVal(omega[0]);
 	}
 
-
-      Double_t sum_sw=0;
-      for (int i = 0; i<bound; i++) {
-	      sum_sw += sw[i];
-	  }
       //sum_sw = 1.0;
       weights->setVal(sum_sw);
       sqSumsW += sum_sw*sum_sw;
-      if (weighted == true )
-	{
-	  dataSet->add(*obs,sum_sw,0);
-	}
-      else
-	{
-	  dataSet->add(*obs);
-	}
+      //if ( m > mdSet->GetTimeRangeDown() && m < mdSet->GetTimeRangeUp())
+      //	{
+	  if (weighted == true )
+	    {
+	      dataSet->add(*obs,sum_sw,0);
+	    }
+	  else
+	    {
+	      dataSet->add(*obs);
+	    }
+	  //	}
       //std::cout << "this event has time = " << m << " and error = " << merr << " with weight = " << sum_sw << std::endl;  
       
     }
@@ -427,6 +455,8 @@ namespace SFitUtils {
 	} else { std::cout<<"Error in create dataset"<<std::endl; }
     }
 
+    std::cout<<"tagEff1: "<<tagEff[0]/dataSet->sumEntries()<<" = "<<tagEff[0]<<" / "<<dataSet->sumEntries()<<std::endl;
+    std::cout<<"tagEff2: "<<tagEff[1]/dataSet->sumEntries()<<" = "<<tagEff[0]<<" / "<<dataSet->sumEntries()<<std::endl;
     if ( toys == false)
       {
 	RooArgList* tagList= new RooArgList();

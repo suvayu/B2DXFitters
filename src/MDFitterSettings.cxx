@@ -674,30 +674,64 @@ TCut MDFitterSettings::GetCut(TString var, bool sideband)
 
   if ( sideband == false )
     {
-      if ( range0 != 1234.456 )
+      if ( var.Contains("LifetimeFit") == true )
 	{
-	  cut1  = Form("%s > %f", var.Data(), range0); 
+	  std::cout<<"I am here, ok!"<<std::endl; 
+	  if ( range0 != 1234.456 )
+            {
+              cut1  = Form("%s[0] > %f", var.Data(), range0);
+            }
+
+          if ( range1 != 1234.456 )
+            {
+              cut2  = Form("%s[0] < %f", var.Data(), range1);
+            }
+          cut = cut1&&cut2;
 	}
-      
-      if ( range1 != 1234.456 )
+      else
 	{
-	  cut2  = Form("%s < %f", var.Data(), range1);
+	  if ( range0 != 1234.456 )
+	    {
+	      cut1  = Form("%s > %f", var.Data(), range0); 
+	    }
+	  
+	  if ( range1 != 1234.456 )
+	    {
+	      cut2  = Form("%s < %f", var.Data(), range1);
+	    }
+	  cut = cut1&&cut2;
 	}
-      cut = cut1&&cut2;
     }
   else
     {
-      if ( range0 != 1234.456 )
-        {
-          cut1  = Form("%s < %f", var.Data(), range0);
-        }
+      if ( var.Contains("LifetimeFit") == true )
+	{
+	  if ( range0 != 1234.456 )
+	    {
+	      cut1  = Form("%s[0] < %f", var.Data(), range0);
+	    }
+	  
+	  if ( range1 != 1234.456 )
+	    {
+	      cut2  = Form("%s[0] > %f", var.Data(), range1);
+	    }
+	  cut = cut1||cut2;
+	}
+      else
+	{
+	  if ( range0 != 1234.456 )
+            {
+              cut1  = Form("%s < %f", var.Data(), range0);
+            }
 
-      if ( range1 != 1234.456 )
-        {
-          cut2  = Form("%s > %f", var.Data(), range1);
-        }
-      cut = cut1||cut2;
+          if ( range1 != 1234.456 )
+            {
+              cut2  = Form("%s > %f", var.Data(), range1);
+            }
+          cut = cut1||cut2;
+	}
     }
+  std::cout<<cut<<std::endl; 
   return cut;
   
 }
