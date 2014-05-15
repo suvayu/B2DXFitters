@@ -23,9 +23,14 @@ class FitResult:
                                 # covariance matrix probably don't mean
                                 # much; if this is absent, the covariances
                                 # are added, as usual
+
             'PrettyPrint',      # pretty-print the result when converting to
                                 # string (not all significant digits, might
                                 # have other effects in the future
+
+	    'Systematic',	# systematic study, differences for pulls
+	    			# are divided by errors of first (nominal)
+				# result
             )
 
     def __convArgList(self, al):
@@ -79,7 +84,7 @@ class FitResult:
           (otherwise, you could tell from the initial parameter what the
           blinding offset is)
         - options is a list of options, currently, the only supported value
-          is 'SameDataSet'
+          is 'SameDataSet', 'Systematic', or 'PrettyPrint'
         - in case more than one regex in blindmap matches, the longest match
           wins
 
@@ -321,6 +326,8 @@ class FitResult:
         - if the 'SameDataSet' option is set on one of the two data sets,
           the covariances are subtracted from each other, and the absolute
           value of the differences is saved in each element
+	- if the 'Systematic' option is set, the covariance matrix of the
+	  first (nominal) result is kept
         - otherwise, the two covariance matrices are added
         - result has the union of options set
         - result has the blinding undone
@@ -375,6 +382,7 @@ class FitResult:
 
         # covariance matrix
         isSameDataSet = 'SameDataSet' in retVal._options
+	isSystematic = 'Systematic' in retVal._options
         for i in xrange(0, len(retVal._index2Name)):
             n = retVal._index2Name[i]
             sidx = self._name2Index[n]
@@ -384,10 +392,11 @@ class FitResult:
                 o = retVal._index2Name[j]
                 sidy = self._name2Index[o]
                 oidy = other._name2Index[o]
-                val = (
+                val = ( (
                         abs(self._cov[sidx][sidy] - other._cov[oidx][oidy])
                         if isSameDataSet else
-                        (self._cov[sidx][sidy] + other._cov[oidx][oidy]))
+                        (self._cov[sidx][sidy] + other._cov[oidx][oidy])) if
+			not isSystematic else self._cov[sidx][sidy])
                 retVal._cov[i][j] = val
                 if (i != j): retVal._cov[j][i] = val
         # loop over constant parameters
