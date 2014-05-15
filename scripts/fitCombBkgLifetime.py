@@ -130,18 +130,67 @@ ws = RooWorkspace('ws')
 
 gamma =         WS(ws, RooRealVar('Gamma',      'Gamma',        1.0, 0.1, 2.5))
 dGamma =        WS(ws, RooRealVar('dGamma',     'dGamma',       0.5, -2.0, 2.0))
-dM =            WS(ws, RooConstVar('dM',        'dM',           17.800))
 SF =            WS(ws, RooConstVar('SF',        'SF',           1.37))
 tau = WS(ws, Inverse('tau', 'tau', gamma))
 
-knots = [ 0.5, 1.0, 1.5, 2.0, 3.0, 12.0 ]
-coeffs = [ 4.5832e-01, 6.8915e-01, 8.8511e-01, 1.1294e+00, 1.2233e+00, 1.2277e+00 ]
-
+isDsK = True
 BDTGRange =    (0.3, 1.0)
 MassRange =    (5700., 10000.)
-TimeRange =    (0.4, 15.0)
+TimeRange =    (0.4, 15.0) if (0.9, 1.0) != BDTGRange else (0.75, 15.0)
 TimeErrRange = (0.01, 0.1)
-isDsK = not True
+
+knots = {
+        (0.3, 1.0): [ 0.5, 1.0, 1.5, 2.0, 3.0, 12.0 ],
+        (0.6, 1.0): [ 0.5, 1.0, 1.5, 2.0, 3.0, 12.0 ],
+        (0.3, 0.9): [ 0.5, 1.0, 1.5, 2.0, 3.0, 12.0 ],
+        (0.9, 1.0): [ 0.8, 1.0, 1.5, 2.0, 3.0, 12.0 ],
+        }
+coeffs = {
+        True: { # DsK
+            (0.3, 1.0): [
+                4.5832e-01*5.03902e-01/5.26256e-01,
+                6.8898e-01*7.32741e-01/7.40768e-01,
+                8.8522e-01*9.98736e-01/1.02107e+00,
+                1.1292e+00*1.16514e+00/1.13483e+00,
+                1.2233e+00*1.25167e+00/1.24545e+00,
+                1.2277e+00*1.28624e+00/1.23243e+00],
+            (0.6, 1.0): [
+                3.5794e-01*4.02721e-01/4.31571e-01,
+                5.6367e-01*6.07470e-01/6.32075e-01,
+                7.6897e-01*8.85530e-01/9.22715e-01,
+                1.0536e+00*1.11358e+00/1.10114e+00,
+                1.2016e+00*1.23842e+00/1.23988e+00,
+                1.2326e+00*1.30685e+00/1.26593e+00],
+            (0.3, 0.9): [
+                1.6193e+00*2.12678e+00/2.17377e+00,
+                2.2657e+00*2.86635e+00/2.78740e+00,
+                2.4050e+00*2.94977e+00/2.96311e+00,
+                2.4591e+00*2.76718e+00/2.59706e+00,
+                1.9576e+00*1.99964e+00/2.01983e+00,
+                6.5246e-01*1.93623e-01/3.67405e-01],
+            (0.9, 1.0): [
+                2.4916e-01*2.78114e-01/2.96063e-01,
+                2.7606e-01*3.23047e-01/3.43090e-01,
+                4.0406e-01*5.18790e-01/5.45970e-01,
+                6.8334e-01*7.33678e-01/7.37678e-01,
+                9.6386e-01*1.03067e+00/1.02475e+00,
+                1.4528e+00*1.57981e+00/1.47536e+00],
+            },
+        False: { #DsPi
+            (0.3, 1.0): [
+                4.5832e-01, 6.8898e-01, 8.8522e-01,
+                1.1292e+00, 1.2233e+00, 1.2277e+00],
+            (0.6, 1.0): [
+                3.5794e-01, 5.6367e-01, 7.6897e-01,
+                1.0536e+00, 1.2016e+00, 1.2326e+00],
+            (0.3, 0.9): [
+                1.6193e+00, 2.2657e+00, 2.4050e+00,
+                2.4591e+00, 1.9576e+00, 6.5246e-01],
+            (0.9, 1.0): [
+                2.4916e-01, 2.7606e-01, 4.0406e-01,
+                6.8334e-01, 9.6386e-01, 1.4528e+00],
+            },
+        }
 
 one =           WS(ws, RooConstVar('one',      'one',          1.))
 zero =          WS(ws, RooConstVar('zero',     'zero',         0.))
@@ -262,7 +311,7 @@ def accbuilder(time, knots, coeffs):
     del coefflist
     return tacc, tacc_norm
 
-tacc, tacc_norm = accbuilder(time, knots, coeffs)
+tacc, tacc_norm = accbuilder(time, knots[BDTGRange], coeffs[isDsK][BDTGRange])
 
 ds = getDataSet(ws, cuts, files)
 
@@ -279,7 +328,7 @@ D = WS(ws, RooRealVar('D', 'D', 0., -1., 1.))
 fit_resmodel = WS(ws, RooGaussEfficiencyModel(
     'fit_resmodel', 'fit_resmodel', time, tacc, zero, timeerr, SF, SF))
 fit_pdf = WS(ws, RooBDecay('fit_pdf', 'fit_pdf',
-    time, tau, dGamma, one, D, zero, zero, dM, fit_resmodel,
+    time, tau, dGamma, one, D, zero, zero, zero, fit_resmodel,
     RooBDecay.SingleSided))
 
 # ok, fit back
@@ -295,4 +344,5 @@ fit_pdf.fitTo(ds, RooFit.Timer(), RooFit.Verbose(), RooFit.Strategy(2),
 fit_pdf.plotOn(fr, RooFit.ProjWData(timeerrargset, ds, True))
 fr.Draw()
 ROOT.gPad.SetLogy()
-ROOT.gPad.Print('CombBkgLifetimeFit_%s.eps' % ('DsK' if isDsK else 'DsPi'))
+ROOT.gPad.Print('CombBkgLifetimeFit_%s_BDTG%g-%g.pdf' % ('DsK' if isDsK else
+        'DsPi', BDTGRange[0], BDTGRange[1]))
