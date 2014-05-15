@@ -170,6 +170,8 @@ def runBdGammaFitterOnData(debug, wsname,
     # Reading data set
     #-----------------------
                                
+    #tVar = "lab0_TAU"
+    #terrVar = "lab0_TAUTERR"
     config = TString("../data/")+TString(configNameMD)+TString(".py")
     MDSettings = MDFitterSettings("MDSettings","MDFSettings",config)
     MDSettings.SetTimeVar(TString(tVar))
@@ -191,6 +193,10 @@ def runBdGammaFitterOnData(debug, wsname,
         
     workspace =[]
     workspaceW = []
+
+    from B2DXFitters.WS import WS as WS
+    ws = RooWorkspace("intWork","intWork")
+
     part = "BsDsPi"
     for i in range (0,bound):
         workspace.append(SFitUtils.ReadDataFromSWeights(TString(pathName), TString(treeName), MDSettings, TString(part),
@@ -216,7 +222,7 @@ def runBdGammaFitterOnData(debug, wsname,
         data.append(GeneralUtils.GetDataSet(workspace[i],   nameData, debug))
         dataW.append(GeneralUtils.GetDataSet(workspaceW[i],   nameData, debug))
         
-    dataWA = data[0]
+    dataWA = dataW[0]
     if BDTGbins:
         dataWA.append(dataW[1])
         dataWA.append(dataW[2])
@@ -231,13 +237,13 @@ def runBdGammaFitterOnData(debug, wsname,
     tag = obs.find("tagDecComb")
     mistag = obs.find("tagOmegaComb")
     mistag.setRange(0, 0.5)
-    weight = obs.find("sWeights")
+    #weight = obs.find("sWeights")
     observables = RooArgSet(time,tag,id)
-    weight.setRange(-1,1.5)
-    if debug:
-        name = TString("pdf")
-        swpdf = GeneralUtils.CreateHistPDF(dataWA, weight, name, 100, debug)
-        GeneralUtils.SaveTemplate(dataWA, swpdf, weight, name)
+    #weight.setRange(-1,1.5)
+    #if debug:
+    #    name = TString("pdf")
+    #    swpdf = GeneralUtils.CreateHistPDF(dataWA, weight, name, 100, debug)
+    #    GeneralUtils.SaveTemplate(dataWA, swpdf, weight, name)
         #exit(0)
     
     # Physical parameters
@@ -256,25 +262,28 @@ def runBdGammaFitterOnData(debug, wsname,
                                         
     # Decay time acceptance model
     # ---------------------------
-        
+
+    tMax = time.getMax()
+    tMin = time.getMin()
     binName = TString("splineBinning")
-    TimeBin = RooBinning(0.2,15,binName.Data())
+    TimeBin = RooBinning(tMin,tMax,binName.Data())
     for i in range(0, myconfigfile["tacc_size"]):
+        print " knot %s in place %s with value %s "%(str(i), str(myconfigfile["tacc_knots"][i]), str(myconfigfile["tacc_values"][i]))
         TimeBin.addBoundary(myconfigfile["tacc_knots"][i])
             
-    TimeBin.removeBoundary(0.2)
-    TimeBin.removeBoundary(15.0)
-    TimeBin.removeBoundary(0.2)
-    TimeBin.removeBoundary(15.0)
+    TimeBin.removeBoundary(tMin)
+    TimeBin.removeBoundary(tMax)
+    TimeBin.removeBoundary(tMin)
+    TimeBin.removeBoundary(tMax)
     TimeBin.Print("v")
     time.setBinning(TimeBin, binName.Data())
-    time.setRange(0.2, 15.0)
+    time.setRange(tMin, tMax)
     listCoeff = GeneralUtils.GetCoeffFromBinning(TimeBin, time)
     
     tacc_list = RooArgList()
     tacc_var = []
     for i in range(0,myconfigfile["tacc_size"]):
-        tacc_var.append(RooRealVar("var"+str(i+1), "var"+str(i+1), myconfigfile["tacc_values"][i], 0.0, 2.0))
+        tacc_var.append(RooRealVar("var"+str(i+1), "var"+str(i+1), myconfigfile["tacc_values"][i], 0.0, 3.0))
         print tacc_var[i].GetName()
         tacc_list.add(tacc_var[i])
     tacc_var.append(RooRealVar("var"+str(myconfigfile["tacc_size"]+1), "var"+str(myconfigfile["tacc_size"]+1), 1.0))
@@ -319,37 +328,55 @@ def runBdGammaFitterOnData(debug, wsname,
         terrWork = GeneralUtils.LoadWorkspace(TString(myconfigfile["TerrFile"]), TString(myconfigfile["TerrWork"]), debug)
         terrpdf = []
         for i in range(0,bound):
-            terrpdf.append(Bs2Dsh2011TDAnaModels.GetRooHistPdfFromWorkspace(terrWork, TString(myconfigfile["TerrTempName"]), debug))
-            
-    # Tagging
-    # -------
-    tagEffSigList = RooArgList()
-    tagEffSig = []
-    for i in range(0,3):
-        tagEffSig.append(RooRealVar('tagEffSig_'+str(i+1), 'Signal tagging efficiency', myconfigfile["TagEffSig"][i]))
-        print tagEffSig[i].GetName()
-        tagEffSigList.add(tagEffSig[i])
-        #setConstantIfSoConfigured(tagEffSig,myconfigfile)
+            #terrpdf.append(Bs2Dsh2011TDAnaModels.GetRooHistPdfFromWorkspace(terrWork, TString(myconfigfile["TerrTempName"]), debug))
+            terrpdf.append((GeneralUtils.CreateHistPDF(dataWA, terr, TString("TimeErrorPDF"), 20, debug)))
 
     # Per-event mistag
     # ---------------------------
     
-    if pereventmistag :
+    if pereventmistag:
         # we need calibrated mistag
-        observables.add( mistag )
-        
-        mistagCalibList = RooArgList()
-        for i in range(0,3):
-            mistagCalibList.add(mistag)
+        p0B = []
+        p0Bbar = []
+        p1B = []
+        p1Bbar = []
+        avB = []
+        avBbar = []
 
-        mistagWork = GeneralUtils.LoadWorkspace(TString(myconfigfile["MistagFile"]), TString(myconfigfile["MistagWork"]), debug)
-        mistagPDF = []
-        mistagPDFList = RooArgList()
+        mistagCalibList = RooArgList()
+        constList = RooArgSet()
+        mistagCalibB = []
+        mistagCalibBbar = []
+        mistagCalibListB = RooArgList()
+        mistagCalibListBbar = RooArgList()
+
+
         for i in range(0,3):
-            mistagPDF.append(Bs2Dsh2011TDAnaModels.GetRooHistPdfFromWorkspace(mistagWork, TString(myconfigfile["MistagTempName"][i]), debug))
-            mistagPDFList.add(mistagPDF[i])                 
-                             
-        #mistagPDF = SFitUtils.CreateMistagTemplates(dataWA,MDSettings,50,true, debug)
+            p0B.append(WS(ws,RooRealVar('p0_B_'+str(i), 'p0_B_'+str(i), myconfigfile["constr_p0_B"][i]))) #, 0., 0.5)))
+            p1B.append(WS(ws,RooRealVar('p1_B_'+str(i), 'p1_B_'+str(i), myconfigfile["constr_p1_B"][i]))) #, 0.5, 1.5)))
+            avB.append(WS(ws,RooRealVar('av_B_'+str(i), 'av_B_'+str(i), myconfigfile["constr_av_B"][i])))
+            mistagCalibB.append(MistagCalibration("mistagCalib_B_"+str(i), "mistagCalib_B_"+str(i), mistag, p0B[i], p1B[i], avB[i]))
+            mistagCalibListB.add(mistagCalibB[i])
+            print myconfigfile["constr_p0_B"][i], myconfigfile["constr_p1_B"][i], myconfigfile["constr_av_B"][i]
+
+        for i in range(0,3):
+            p0Bbar.append(WS(ws,RooRealVar('p0_Bbar_'+str(i), 'p0_B_'+str(i), myconfigfile["constr_p0_Bbar"][i]))) #, 0., 0.5)))
+            p1Bbar.append(WS(ws,RooRealVar('p1_Bbar_'+str(i), 'p1_B_'+str(i), myconfigfile["constr_p1_Bbar"][i]))) #, 0.5, 1.5)))
+            avBbar.append(WS(ws,RooRealVar('av_Bbar_'+str(i), 'av_B_'+str(i), myconfigfile["constr_av_Bbar"][i])))
+            mistagCalibBbar.append(MistagCalibration("mistagCalib_Bbar_"+str(i), "mistagCalib_B_"+str(i), mistag, p0Bbar[i], p1Bbar[i], avBbar[i]))
+            mistagCalibListBbar.add(mistagCalibBbar[i])
+            print myconfigfile["constr_p0_Bbar"][i], myconfigfile["constr_p1_Bbar"][i], myconfigfile["constr_av_Bbar"][i]
+    
+
+        #mistagWork = GeneralUtils.LoadWorkspace(TString(myconfigfile["MistagFile"]), TString(myconfigfile["MistagWork"]), debug)
+        #mistagPDF = []
+        #mistagPDFList = RooArgList()
+        #for i in range(0,3):
+        #    mistagPDF.append(Bs2Dsh2011TDAnaModels.GetRooHistPdfFromWorkspace(mistagWork, TString(myconfigfile["MistagTempName"][i]), debug))
+        #    mistagPDFList.add(mistagPDF[i])                 
+        #    n = TString("mistag_")+TString(str(i))
+        #    GeneralUtils.SaveTemplate(NULL, mistagPDF[i], mistag, n)
+        mistagPDFList = SFitUtils.CreateMistagTemplates(dataWA,MDSettings,40,true, debug)
         #calibration_p1   = RooRealVar('calibration_p1','calibration_p1',myconfigfile["calibration_p1"])
         #calibration_p0   = RooRealVar('calibration_p0','calibration_p0',myconfigfile["calibration_p0"])
         #avmistag = RooRealVar('avmistag','avmistag',myconfigfile["TagOmegaSig"])
@@ -372,18 +399,47 @@ def runBdGammaFitterOnData(debug, wsname,
     Dbar = RooRealVar('Dbar', 'Dbar coeff.', 0.)
                             
     
+    # Tagging                                                                                                                                                                                       
+    # -------                                                                                                                                                                                       
+    tagEffSigList = RooArgList()
+    tagEffSig = []
+    for i in range(0,3):
+        tagEffSig.append(WS(ws,RooRealVar('tagEffSig_'+str(i+1), 'Signal tagging efficiency', myconfigfile["TagEffSig"][i]))) #, 0.0, 1.0)))
+        print tagEffSig[i].GetName()
+        tagEffSigList.add(tagEffSig[i])
+
     # Production, detector and tagging asymmetries
     # --------------------------------------------
          
-    aProd = RooConstVar("aProd","aProd",0.0)  #zero     # production asymmetry
-    aDet = RooConstVar("aDet","aDet",0.0)     #zero      # detector asymmetry
-    
     aTagEffSig = []
     aTagEffSigList = RooArgList()
     for i in range(0,3):
-        aTagEffSig.append(RooRealVar('aTagEff_'+str(i+1), 'atageff', myconfigfile["aTagEffSig"][i]))
+        aTagEffSig.append(WS(ws,RooRealVar('aTagEff_'+str(i+1), 'atageff', myconfigfile["aTagEffSig"][i]))) #, -0.05, 0.05)))
         print aTagEffSig[i].GetName()
         aTagEffSigList.add(aTagEffSig[i])
+
+    if not toys:
+        ws.Print("v")
+        from B2DXFitters.GaussianConstraintBuilder import GaussianConstraintBuilder
+        #constraintbuilder = GaussianConstraintBuilder(ws,  myconfigfile['Constrains'])
+            # remove constraints for modes which are not included                                                                                                                                   
+        #constList = constraintbuilder.getSetOfConstraints()
+        #constList.Print("v")
+
+    aProd = zero     # production asymmetry                                                                                                                                                         
+    aDet = zero      # detector asymmetry                                                                                                                                                           
+    aDet_const_mean = zero
+    aDet_const_err  = zero
+    aDet_const_g    = zero
+    if myconfigfile.has_key('aprod_Signal') :
+        aProd = RooConstVar('aprod_Signal','aprod_Signal',myconfigfile["aprod_Signal"])
+    if myconfigfile.has_key('adet') :
+        aDet = RooRealVar('adet','adet', 0.0) #myconfigfile["adet"],-0.05,0.05)
+        aDet_const_mean = RooConstVar('aDet_const_mean','aDet_const_mean',myconfigfile["adet"])
+        aDet_const_err  = RooConstVar('aDet_const_err', 'aDet_const_err', 0.005)
+        aDet_const_g    = RooGaussian('aDet_const_g','aDet_const_g',aDet,aDet_const_mean,aDet_const_err)
+        constList.add(aDet_const_g)
+
 
     # Coefficient in front of sin, cos, sinh, cosh
     # --------------------------------------------
@@ -394,7 +450,8 @@ def runBdGammaFitterOnData(debug, wsname,
         otherargs = [ mistag, mistagPDFList, tagEffSigList ]
     else:
         otherargs = [ tagEffSigList ]
-    otherargs.append(mistagCalibList) 
+    otherargs.append(mistagCalibListB)
+    otherargs.append(mistagCalibListBbar) 
     otherargs.append(aProd)
     otherargs.append(aDet)
     otherargs.append(aTagEffSigList)
@@ -516,7 +573,7 @@ def runBdGammaFitterOnData(debug, wsname,
         RooMsgService.instance().deleteStream(1002)
         if debug:
             print "Likelihood scan performing"
-        nll= RooNLLVar("nll","-log(sig)",totPDF,data, RooFit.NumCPU(4), RooFit.Silence(True))
+        nll= RooNLLVar("nll","-log(sig)",totPDF[0],dataWA, RooFit.NumCPU(4), RooFit.Silence(True))
         pll  = RooProfileLL("pll",  "",  nll, RooArgSet(deltaMs))
         h = pll.createHistogram("h",deltaMs,RooFit.Binning(200))
         h.SetLineColor(kRed)
@@ -536,10 +593,10 @@ def runBdGammaFitterOnData(debug, wsname,
     if toys or not Blinding: #Unblind yourself
         if Cat:
             myfitresult = totPDFSim.fitTo(combData, RooFit.Save(1), RooFit.Optimize(2), RooFit.Strategy(2),
-                                          RooFit.Verbose(False), RooFit.SumW2Error(True), RooFit.Extended(False))
+                                          RooFit.Verbose(False), RooFit.SumW2Error(True), RooFit.Extended(False)) #,  RooFit.ExternalConstraints(constList))
         else:    
             myfitresult = totPDF[0].fitTo(dataWA, RooFit.Save(1), RooFit.Optimize(2), RooFit.Strategy(2),
-                                          RooFit.Verbose(True), RooFit.SumW2Error(True), RooFit.Extended(False))
+                                          RooFit.Verbose(True), RooFit.SumW2Error(True), RooFit.Extended(False)) #,  RooFit.ExternalConstraints(constList))
             
         myfitresult.Print("v")
         myfitresult.correlationMatrix().Print()
@@ -547,10 +604,10 @@ def runBdGammaFitterOnData(debug, wsname,
     else :    #Don't
         if Cat:
             myfitresult = pdf.fitTo(combData, RooFit.Save(1), RooFit.Optimize(2), RooFit.Strategy(2),
-                                    RooFit.Verbose(False), RooFit.SumW2Error(True), RooFit.Extended(False))
+                                    RooFit.Verbose(False), RooFit.SumW2Error(True), RooFit.Extended(False)) #,  RooFit.ExternalConstraints(constList))
         else:
             myfitresult = totPDF.fitTo(dataWA, RooLinkedList(RooFit.Save(1), RooFit.Optimize(2), RooFit.Strategy(2),
-                                                            RooFit.SumW2Error(True), RooFit.PrintLevel(-1)))
+                                                            RooFit.SumW2Error(True), RooFit.PrintLevel(-1))) #,  RooFit.ExternalConstraints(constList))
             
         print 'Matrix quality is',myfitresult.covQual()
         par = myfitresult.floatParsFinal() 
