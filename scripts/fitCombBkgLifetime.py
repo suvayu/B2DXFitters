@@ -134,7 +134,7 @@ SF =            WS(ws, RooConstVar('SF',        'SF',           1.37))
 tau = WS(ws, Inverse('tau', 'tau', gamma))
 
 isDsK = True
-BDTGRange =    (0.3, 1.0)
+BDTGRange =    (0.9, 1.0)
 MassRange =    (5700., 10000.)
 TimeRange =    (0.4, 15.0) if (0.9, 1.0) != BDTGRange else (0.75, 15.0)
 TimeErrRange = (0.01, 0.1)
@@ -325,6 +325,13 @@ fr.Draw()
 # - then, apply acceptance
 D = WS(ws, RooRealVar('D', 'D', 0., -1., 1.))
 
+if (0.9, 1.0) == BDTGRange and isDsK:
+    # single gaussian for DsK for BDTG in [0.9, 1.0] because there's virtually
+    # no events there
+    D.setConstant(True)
+    dGamma.setVal(0.)
+    dGamma.setConstant(True)
+
 fit_resmodel = WS(ws, RooGaussEfficiencyModel(
     'fit_resmodel', 'fit_resmodel', time, tacc, zero, timeerr, SF, SF))
 fit_pdf = WS(ws, RooBDecay('fit_pdf', 'fit_pdf',
@@ -333,11 +340,13 @@ fit_pdf = WS(ws, RooBDecay('fit_pdf', 'fit_pdf',
 
 # ok, fit back
 timeerrargset = RooArgSet(timeerr)
-for v in (D, dGamma): v.setConstant(True)
+if not ((0.9, 1.0) == BDTGRange and isDsK):
+    for v in (D, dGamma): v.setConstant(True)
 fit_pdf.fitTo(ds, RooFit.Timer(), RooFit.Verbose(), RooFit.Strategy(2),
         RooFit.Optimize(2), RooFit.Offset(), RooFit.Save(),
         RooFit.ConditionalObservables(timeerrargset))
-for v in (D, dGamma): v.setConstant(False)
+if not ((0.9, 1.0) == BDTGRange and isDsK):
+    for v in (D, dGamma): v.setConstant(False)
 fit_pdf.fitTo(ds, RooFit.Timer(), RooFit.Verbose(), RooFit.Strategy(2),
         RooFit.Optimize(2), RooFit.Offset(), RooFit.Save(),
         RooFit.ConditionalObservables(timeerrargset))
