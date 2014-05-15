@@ -108,16 +108,12 @@ gROOT.SetBatch()
 
 P_down = 0.0
 P_up = 650000000.0
-Time_down = 0.2
-Time_up = 15.0
 PT_down  = 500.0
 PT_up = 45000.0
-nTr_down = 1.0
+nTr_down = 15.0
 nTr_up = 1000.0
-Terr_down = 0.01
+Terr_down = 0.005
 Terr_up = 0.1
-BDTG_down = 0.3
-BDTG_up = 1.0
 
 tauH = 1.536875
 tauL = 1.407125
@@ -131,8 +127,14 @@ dataName      = '../data/config_fitSignal.txt'
 
 
 #------------------------------------------------------------------------------
-def runFitSplineAcc( debug, var , mode, modeDs, spline, read, fileName, workName ) :
+def runFitSplineAcc( debug, var , mode, modeDs, spline, read, fileNameIn, fileNameOut,
+                     workName,BDTG_down,BDTG_up,Time_down,Time_up ) :
 
+    #convert to floats
+    BDTG_down = float(BDTG_down)
+    BDTG_up = float(BDTG_up)
+    Time_down = float(Time_down)
+    Time_up = float(Time_up)
     
     RooAbsData.setDefaultStorageType(RooAbsData.Tree)
     
@@ -151,6 +153,8 @@ def runFitSplineAcc( debug, var , mode, modeDs, spline, read, fileName, workName
     MDSettings.SetMomVar(TString("lab1_P"))
     MDSettings.SetTrMomVar(TString("lab1_PT"))
     MDSettings.SetTracksVar(TString("nTracks"))
+    MDSettings.SetAddMCCuts(TString("lab2_TAU>0"))
+    MDSettings.SetAddDataCuts(TString("lab2_TAU>0"))
 
     dataTS = TString(dataName)
     modeTS = TString(mode)
@@ -238,13 +242,16 @@ def runFitSplineAcc( debug, var , mode, modeDs, spline, read, fileName, workName
             i+=1
 
         if mode == "BsDsPi":    
-            GeneralUtils.SaveWorkspace(workspace,TString("work_dspi_spline.root"), debug)
+            GeneralUtils.SaveWorkspace(workspace,TString(fileNameOut+"work_dspi_spline_"+str(BDTG_down)+"_"+str(BDTG_up)+"_"+str(Time_down)+"_"+str(Time_up)+".root"), debug)
         else:
-            GeneralUtils.SaveWorkspace(workspace,TString("work_dsk_spline.root"), debug)
+            GeneralUtils.SaveWorkspace(workspace,TString(fileNameOut+"work_dsk_spline_"+str(BDTG_down)+"_"+str(BDTG_up)+"_"+str(Time_down)+"_"+str(Time_up)+".root"), debug)
     
     
     else:
-        workspace = GeneralUtils.LoadWorkspace(TString(fileName), TString(workName),debug)
+        if mode == "BsDsPi":
+            workspace = GeneralUtils.LoadWorkspace(TString(fileNameIn+"work_dspi_spline_"+str(BDTG_down)+"_"+str(BDTG_up)+"_"+str(Time_down)+"_"+str(Time_up)+".root"), TString(workName),debug)
+        else :
+            workspace = GeneralUtils.LoadWorkspace(TString(fileNameIn+"work_dsk_spline_"+str(BDTG_down)+"_"+str(BDTG_up)+"_"+str(Time_down)+"_"+str(Time_up)+".root"), TString(workName),debug)
         workspace.Print("v")
 
     time = GeneralUtils.GetObservable(workspace,obsTS, debug)
@@ -280,7 +287,9 @@ def runFitSplineAcc( debug, var , mode, modeDs, spline, read, fileName, workName
         data[0].append(data[1])
         data[0].Print()
 
-    dataF = RooDataSet("data_fit", "data_fit", data[0].get(), RooFit.Import(data[0]), RooFit.WeightVar("weights")) 
+    time.setBins(200)
+    dataF = RooDataSet("data_fit", "data_fit", data[0].get(), RooFit.Import(data[0]), RooFit.WeightVar("weights"))
+    dataF_binned = RooDataHist("data_fit_binned","data_fit_binned",RooArgSet(time,weight),dataF)
     
     #terr = GeneralUtils.GetObservable(workspace,TString("lab0_LifetimeFit_ctauErr"), debug)
     #nameTerrPDF = "sigTimeErrorPdf_"+mode
@@ -298,23 +307,20 @@ def runFitSplineAcc( debug, var , mode, modeDs, spline, read, fileName, workName
     
     if spline:
         binName = TString("splineBinning")
-        TimeBin = RooBinning(0.2,15,binName.Data())
-        TimeBin.addBoundary(0.25)
-        TimeBin.addBoundary(0.5)
+        TimeBin = RooBinning(Time_down,Time_up,binName.Data())
+        if (Time_down < 0.5) :
+            TimeBin.addBoundary(0.5)
+        else :
+            TimeBin.addBoundary(0.8)
         TimeBin.addBoundary(1.0)
+        TimeBin.addBoundary(1.5)
         TimeBin.addBoundary(2.0)
         TimeBin.addBoundary(3.0)
-        #TimeBin.addBoundary(7.0) #(was 8) 
         TimeBin.addBoundary(12.0) #(was 10)
-        #TimeBin.addBoundary(12.5)
-        TimeBin.removeBoundary(0.2)
-        TimeBin.removeBoundary(15.0)
-        TimeBin.removeBoundary(0.2)
-        TimeBin.removeBoundary(15.0)
-        TimeBin.Print("v")
-        time.setBinning(TimeBin, binName.Data())
-        time.setRange(0.2, 15.0)
-        listCoeff = GeneralUtils.GetCoeffFromBinning(TimeBin, time)
+        TimeBin.removeBoundary(Time_down)
+        TimeBin.removeBoundary(Time_up)
+        TimeBin.removeBoundary(Time_down)
+        TimeBin.removeBoundary(Time_up)
         
         var1 = RooRealVar("var1", "var1", 0.16, 0.0, 3.0) #1.56933e-01) #1.77520e-01, 0.0, 3.0) 
         var2 = RooRealVar("var2", "var2", 0.27, 0.0, 3.0) #2.69653e-01) #2.89603e-01, 0.0, 3.0)  
@@ -322,12 +328,31 @@ def runFitSplineAcc( debug, var , mode, modeDs, spline, read, fileName, workName
         var4 = RooRealVar("var4", "var4", 1.11, 0.0, 3.0) #1.11342e+00) #1.11726e+00, 0.0, 3.0) 
         var5 = RooRealVar("var5", "var5", 1.23, 0.0, 3.0) #1.23416e+00) #1.23189e+00, 0.0, 3.0) 
         var6 = RooRealVar("var6", "var6", 1.28, 0.0, 3.0) 
-        #var7 = RooRealVar("var7", "var7", 1.0, 0.0, 3.0) #1.28603e+00) #1.26661e+00, 0.0, 3.0)
-        var8 = RooRealVar("var8", "var8", 1.0)  
-        var9 = RooAddition("var9","var9", RooArgList(var6,var8), listCoeff)
-        #var9 = RooRealVar("var9","var9",1.0, 0.0, 3.0)
-        
-        Var = RooArgList(var1,var2,var3,var4,var5,var6,var8,var9)
+        var8 = RooRealVar("var8", "var8", 1.0,0.0,3.0)  
+        if (BDTG_down > 0.6) or (BDTG_up < 1.0) :
+            TimeBin.addBoundary(6)
+            TimeBin.addBoundary(11)
+            TimeBin.addBoundary(14)
+            TimeBin.removeBoundary(12.0)
+            TimeBin.removeBoundary(12.0)
+            time.setBinning(TimeBin, binName.Data())
+            time.setRange(Time_down,Time_up)
+            TimeBin.Print("v")
+            var9 = RooRealVar("var9","var9",1.0,0.0,3.0)
+            listCoeff = GeneralUtils.GetCoeffFromBinning(TimeBin, time)
+            var10 = RooRealVar("var10","var10",1.0)
+            var11 = RooAddition("var11","var11", RooArgList(var9,var10), listCoeff)
+            Var = RooArgList(var1,var2,var3,var4,var5,var6,var8,var9)
+            Var.add(var10)
+            Var.add(var11)
+        else :
+            time.setBinning(TimeBin, binName.Data())
+            time.setRange(Time_down,Time_up)
+            TimeBin.Print("v")
+            listCoeff = GeneralUtils.GetCoeffFromBinning(TimeBin, time)
+            var8.setConstant(1)
+            var9 = RooAddition("var9","var9", RooArgList(var6,var8), listCoeff) 
+            Var = RooArgList(var1,var2,var3,var4,var5,var6,var8,var9)
         
         spl = RooCubicSplineFun("spline", "spline", time, "splineBinning", Var)
         
@@ -398,7 +423,7 @@ def runFitSplineAcc( debug, var , mode, modeDs, spline, read, fileName, workName
         pdf = RooEffProd('Bdecay','Bdecay',pdfD,tacc)
 
         
-    myfitresult = pdf.fitTo(dataF, RooFit.Save(1), RooFit.Optimize(2), RooFit.Strategy(2),
+    myfitresult = pdf.fitTo(dataF_binned, RooFit.Save(1), RooFit.Optimize(2), RooFit.Strategy(2),
                             RooFit.Verbose(True), RooFit.SumW2Error(True), RooFit.Extended(False),
                             RooFit.Offset(True))
 
@@ -582,11 +607,11 @@ def runFitSplineAcc( debug, var , mode, modeDs, spline, read, fileName, workName
     else:
         suf = "powlaw"
 
-    namePDF = "data_sPline_"+mode+"_"+suf+".pdf"    
-    nameROOT = "data_sPline_"+mode+"_"+suf+".root"
+    namePDF = fileNameOut+"data_sPline_"+mode+"_"+suf+"_"+str(BDTG_down)+"_"+str(BDTG_up)+"_"+str(Time_down)+"_"+str(Time_up)+".pdf"    
+    nameROOT = fileNameOut+"data_sPline_"+mode+"_"+suf+"_"+str(BDTG_down)+"_"+str(BDTG_up)+"_"+str(Time_down)+"_"+str(Time_up)+".root"
     canvas.SaveAs(namePDF)
     canvas.SaveAs(nameROOT)
-    
+    return canvas 
                 
 #------------------------------------------------------------------------------
 _usage = '%prog [options]'
@@ -612,6 +637,26 @@ parser.add_option( '-m', '--mode',
                    help = 'set observable '
                    )
 
+parser.add_option( '--BDTG_down',
+                    dest = 'BDTG_down',
+                    default = '0.3',
+                    )
+
+parser.add_option( '--BDTG_up',
+                    dest = 'BDTG_up',
+                    default = '1.0',
+                    )  
+
+parser.add_option( '--Time_down',
+                    dest = 'Time_down',
+                    default = '0.4',
+                    )   
+
+parser.add_option( '--Time_up',
+                    dest = 'Time_up',
+                    default = '15.0',
+                    )
+
 parser.add_option( '--modeDs',
                    dest = 'modeDs',
                    default = 'All',
@@ -628,11 +673,16 @@ parser.add_option( '--read',
                    action = 'store_true',
                    default = False,
                    )
-parser.add_option( '--fileName',
-                   dest = 'file',
-                   default = 'work_spline.root',
+parser.add_option( '--fileNameIn',
+                   dest = 'fileIn',
+                   default = '/afs/cern.ch/work/g/gligorov//public/Bs2DsKPlotsForPaper/NominalFit/',
                    help = 'set observable '
                    )
+
+parser.add_option( '--fileNameOut',
+                   dest = 'fileOut',
+                   default = '/afs/cern.ch/work/g/gligorov//public/Bs2DsKPlotsForPaper/NominalFit/')
+
 parser.add_option( '--workName',
                    dest = 'work',
                    default = 'workspace',
@@ -653,6 +703,7 @@ if __name__ == '__main__' :
     sys.path.append("../data/")
 
     runFitSplineAcc( options.debug, options.var, options.mode, options.modeDs, options.spline,
-                     options.read, options.file, options.work)                                
+                     options.read, options.fileIn, options.fileOut, options.work,
+                     options.BDTG_down,options.BDTG_up,options.Time_down,options.Time_up)
 # -----------------------------------------------------------------------------
                                 
