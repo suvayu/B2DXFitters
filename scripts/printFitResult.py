@@ -112,16 +112,29 @@ parser.add_option('-t', '--toy', action='store_false', dest='isData',
 parser.add_option('--unblind', action='store_false', dest='blinding',
         default=True, help='unblind data (USE WITH CARE!)')
 parser.add_option('--diff', action='store_true', dest='diff', default=False,
-        help='diff mode (toy-by-toy differences etc., i.e. same data set)')
+        help='diff mode (toy-by-toy differences etc., either indep. '
+        'samples or same data set)')
+parser.add_option('--systematic', action='store_true', dest='systematic',
+	default=False, help='evaluate systematic (implies --diff --samesample;'
+        ' list the nominal files first)')
+parser.add_option('--samesample', action='store_true', dest='sameData',
+        default=True, help='fit results obtained on same sample (default)')
+parser.add_option('--indepsamples', action='store_false', dest='sameData',
+        help='fit results represent two independent samples')
+parser.add_option('--nosamesample', action='store_false', dest='sameData',
+        help='alias for --indepsamples')
+parser.add_option('--noindepsamples', action='store_true', dest='sameData',
+        help='alias for --samesample')
 parser.add_option('--debug', action='store_true', dest='debug', default=False,
         help='print debugging info')
-parser.add_option('--systematic', action='store_true', dest='systematic',
-	default=False, help='evaluate systematic (implies --diff; list the '
-	'nominal files first)')
 (options, args) = parser.parse_args()
 if '-' == args[0]: args.pop(0)
 
-if options.systematic: options.diff = True
+if options.systematic:
+    options.diff = True
+    if not options.sameData:
+        raise ValueError('Systematic mode needs to run on fit results for '
+                'the same data sample!')
 
 if None == options.isData:
     raise ValueError('You need to specify if you are running on DATA or TOYS (--data/--toy)')
@@ -140,6 +153,9 @@ if options.diff:
     print '\tRunning in difference mode (toy-by-toy etc.)'
 if options.systematic:
     print '\tRunning in systematic mode'
+if options.diff:
+    print '\tAssuming fit results were obtained from %s' % ('same data sample'
+            if options.sameData else 'independent data samples')
 print
 gc.collect()
 
@@ -160,7 +176,8 @@ for fname in args:
 if options.diff or options.systematic:
     for r in (res, oldres):
         if options.systematic: r.setOptions(['Systematic'])
-        elif options.diff: r.setOptions(['SameDataSet'])
+        elif options.diff:
+            if options.sameData: r.setOptions(['SameDataSet'])
     print 72 * '*'
     print 'DIFFERENCE (FIT2 - FIT1) - IGNORE CORRELATIONS, AT LIMIT WARNINGS'
     print 72 * '*'
