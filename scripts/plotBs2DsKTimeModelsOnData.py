@@ -122,8 +122,8 @@ plotModel =  True
 debug = True
 bName = 'B_{s}'
 
-timeDown = 0.2
-timeUp = 15.0
+#timeDown = 0.2
+#timeUp = 15.0
 
 dataSetToPlot  = 'dataSet_time_BsDsK'
 pdfToPlot = 'time_signal_BDTGA'
@@ -259,6 +259,9 @@ if __name__ == '__main__' :
     f.Close()
     time = w.var('lab0_LifetimeFit_ctau')
     time.setBins(bin)
+    #time.setRange(0.2,15)
+    timeDown = time.getMin()
+    timeUp = time.getMax()
     #time.setRange(timeDown,timeUp)   
  
     modelPDF = w.pdf(pdfToPlot) 
