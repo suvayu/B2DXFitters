@@ -4,6 +4,16 @@
 ! Purpose     : RooFit-based fitters for B -> D X
 !-----------------------------------------------------------------------------
 
+! 2014-05-16 - Manuel Tobias Schiller
+ - small fixes to make_histos.py
+ - rename printBlinded.py to printFitResult.py, generalise, so it understands
+   basically the same options as make_histos.py
+ - add fitCombBkgLifetime.py: fit the combo lifetime with full bells and
+   whistles
+ - add overlayMCWithSplineAcc.py: plot Ds*Pi and DsRho MC under the DsK mass
+   hypothesis with k-factors, per-event time errors and the DsK MC acceptance
+   to check if same acceptance for BG and signal is good enough an assumption
+
 ! 2014-05-15 - V. Gligorov
  - Make fitSplineAcc do a binned fit, because life is just Too$hort.
   (200 bins, for those who care)

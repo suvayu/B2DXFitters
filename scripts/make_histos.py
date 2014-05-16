@@ -130,6 +130,7 @@ if options.systematic: options.diff = True
 
 if None == options.isData:
     raise ValueError('You need to specify if you are running on DATA or TOYS (--data/--toy)')
+if not isData: options.blinding = False
 debug = options.debug
 gc.collect()
 
