@@ -145,12 +145,12 @@ def handler(signum, frame):
     os._exit(1)
 #------------------------------------------------------------------------------
 def runBdGammaFitterOnData(debug, wsname, 
-                           tVar, terrVar, tagVar, tagOmegaVar, idVar, mVar,
+                           tVar, terrVar, idVar, mVar,
                            pereventmistag, pereventterr,
                            toys,pathName,
                            treeName, configName, configNameMD, nokfactcorr,
                            smearaccept, accsmearfile, accsmearhist,
-                           BDTGbins, pathName2, pathName3, Cat) :
+                           BDTGbins, Cat) :
 
     #if not Blinding and not toys :
     #    print "RUNNING UNBLINDED!"
@@ -192,14 +192,10 @@ def runBdGammaFitterOnData(debug, wsname,
     # Reading data set
     #-----------------------
 
-    #tVar = "lab0_TAU"
-    #terrVar = "lab0_TAUTERR"
     config = TString("../data/")+TString(configNameMD)+TString(".py")
     MDSettings = MDFitterSettings("MDSettings","MDFSettings",config)
     MDSettings.SetTimeVar(TString(tVar))
     MDSettings.SetTerrVar(TString(terrVar))
-    #MDSettings.SetTagVar(TString(tagVar))
-    #MDSettings.SetTagOmegaVar(TString(tagOmegaVar))
     MDSettings.SetIDVar(TString(idVar))
     MDSettings.SetMassBVar(TString(mVar))
     
@@ -231,10 +227,6 @@ def runBdGammaFitterOnData(debug, wsname,
         workspaceW.append(SFitUtils.ReadDataFromSWeights(TString(pathName), TString(treeName),  MDSettings, TString(part),
                                                          true, toys, applykfactor, debug))
         
-    #workspace[0].Print()
-    #workspaceW[0].Print()
-    
-    #exit(0)
     zero = RooConstVar('zero', '0', 0.)
     one = RooConstVar('one', '1', 1.)
     minusone = RooConstVar('minusone', '-1', -1.)
@@ -275,33 +267,6 @@ def runBdGammaFitterOnData(debug, wsname,
     weight = obs.find("sWeights")
     observables = RooArgSet(time,tag,id)
 
-    #if debug:
-    #    name = TString("pdf")
-    #    swpdf = GeneralUtils.CreateHistPDF(dataWA, weight, name, 100, debug)
-    #    GeneralUtils.SaveTemplate(dataWA, swpdf, weight, name)
-    #exit(0)
-    
-    '''    
-    frame = time.frame()
-    #time.setBins(120)
-    can = TCanvas("can","can",800,600)
-    #sliceData_1 = dataWA.reduce(observables,"(tagDecComb < -0.5)")
-    #sliceData_2 = dataWA.reduce(observables,"(tagDecComb > 0.5)")
-    sliceData_1 = dataWA.reduce(observables,"(qf == 1)")
-    sliceData_2= dataWA.reduce(observables,"(qf == -1)")
-    #dataWA.plotOn(frame)
-    dataWA.plotOn(frame)
-    sliceData_1.plotOn(frame,RooFit.MarkerColor(kRed),)
-    sliceData_2.plotOn(frame,RooFit.MarkerColor(kBlue))
-    can.cd()
-    frame.Draw()
-    gStyle.SetOptLogy(1)
-    can.Update()
-    can.SaveAs("plot.root")
-    
-    
-    exit(0)                        
-    '''
     # Physical parameters
     #-----------------------
     
@@ -334,7 +299,6 @@ def runBdGammaFitterOnData(debug, wsname,
     TimeBin.removeBoundary(tMax)
     TimeBin.Print("v")
     time.setBinning(TimeBin, binName.Data())
-    #time.setRange(tMin, tMax)
     listCoeff = GeneralUtils.GetCoeffFromBinning(TimeBin, time)
     print "[Info] Time range modified to be: [%lf, %lf]"%(tMin,tMax)
 
@@ -466,13 +430,12 @@ def runBdGammaFitterOnData(debug, wsname,
     setConstantIfSoConfigured(sigDbar,myconfigfile)    
     print "lower limit: %s, upper limit: %s"%(str(param_limits["lower"]), str(param_limits["upper"]))
 
-
-    # Tagging                                                                                                                                                                                  
-    # -------                                                                                                                                                                                  
+    # Tagging
+    # -------
     tagEffSigList = RooArgList()
     tagEffSig = []
     for i in range(0,3):
-        tagEffSig.append(WS(ws,RooRealVar('tagEffSig_'+str(i+1), 'Signal tagging efficiency', myconfigfile["TagEffSig"][i], 0.0, 1.0)))                                                   
+        tagEffSig.append(WS(ws,RooRealVar('tagEffSig_'+str(i+1), 'Signal tagging efficiency', myconfigfile["TagEffSig"][i], 0.0, 1.0))) 
         if toys:
             tagEffSig[i].setConstant()
             print "[INFO] %s set to be constant: %s"%(tagEffSig[i].GetName(),tagEffSig[i].getVal())
@@ -500,22 +463,19 @@ def runBdGammaFitterOnData(debug, wsname,
         constList = constraintbuilder.getSetOfConstraints()
         constList.Print("v")
     
-    aProd = zero     # production asymmetry                                                                                                                                                
+    aProd = zero     # production asymmetry                                                   
     aDet = zero      # detector asymmetry          
     aDet_const_mean = zero
     aDet_const_err  = zero
     aDet_const_g    = zero
     if myconfigfile.has_key('aprod_Signal') :
         aProd = RooConstVar('aprod_Signal','aprod_Signal',myconfigfile["aprod_Signal"])
-    if myconfigfile.has_key('adet') :
-        if not toys:
-            aDet = RooRealVar('adet','adet', myconfigfile["adet"],-0.05,0.05)
-            aDet_const_mean = RooConstVar('aDet_const_mean','aDet_const_mean',myconfigfile["adet"])
-            aDet_const_err  = RooConstVar('aDet_const_err', 'aDet_const_err', 0.005)
-            aDet_const_g    = RooGaussian('aDet_const_g','aDet_const_g',aDet,aDet_const_mean,aDet_const_err)
-            constList.add(aDet_const_g)
-            
-    
+    if myconfigfile.has_key('adet_Signal') :
+        aDet = RooRealVar('adet','adet', myconfigfile["adet_Signal"],-0.05,0.05)
+        aDet_const_mean = RooConstVar('aDet_const_mean','aDet_const_mean',myconfigfile["adet_Signal"])
+        aDet_const_err  = RooConstVar('aDet_const_err', 'aDet_const_err', 0.005)
+        aDet_const_g    = RooGaussian('aDet_const_g','aDet_const_g',aDet,aDet_const_mean,aDet_const_err)
+        constList.add(aDet_const_g)
 
     # Coefficient in front of sin, cos, sinh, cosh
     # --------------------------------------------
@@ -540,24 +500,6 @@ def runBdGammaFitterOnData(debug, wsname,
     cos  = DecRateCoeff('signal_cos' , 'signal_cos' , DecRateCoeff.CPOdd, id, tag, sigC, sigC, *otherargs)
     sin  = DecRateCoeff('signal_sin' , 'signal_sin' , flag | DecRateCoeff.CPOdd | DecRateCoeff.Minus, id, tag, sigS, sigSbar, *otherargs)
         
-    # Set the signal handler and a 5-second alarm
-    #signal.signal(signal.SIGALRM, handler)
-    #signal.alarm(120)
-
-    #if debug :
-    #    print 'DATASET NOW CONTAINS', nEntries, 'ENTRIES!!!!'
-    #    data.Print("v")
-    #    for i in range(0,nEntries) :
-    #        obs = data.get(i)
-    #        obs.Print("v")
-    #        #data.get(i).Print("v")
-    #        print data.weight()
-    #        print cos.getValV(obs)
-    #        print sin.getValV(obs)
-    #        print cosh.getValV(obs)
-    #        print sinh.getValV(obs)
-    
-
     # Total time PDF
     # ---------------------------
         
@@ -633,12 +575,13 @@ def runBdGammaFitterOnData(debug, wsname,
     if toys or not Blinding: #Unblind yourself
         if BDTGbins or Cat:
             myfitresult = pdf.fitTo(combData, RooFit.Save(1), RooFit.Optimize(2), RooFit.Strategy(2),\
-                                    RooFit.Verbose(False), RooFit.SumW2Error(True), RooFit.Offset(True))
-                                    #RooFit.ExternalConstraints(constList))
+                                    RooFit.Verbose(False),RooFit.SumW2Error(True), RooFit.Offset(True),
+                                    RooFit.ExternalConstraints(constList))
             
         else:
             myfitresult = totPDF[0].fitTo(dataWA, RooFit.Save(1), RooFit.Optimize(2), RooFit.Strategy(2),\
-                                          RooFit.Verbose(False), RooFit.SumW2Error(True), RooFit.Offset(True)) # , RooFit.ExternalConstraints(constList))
+                                          RooFit.Verbose(False), RooFit.SumW2Error(True), RooFit.Offset(True), 
+                                          RooFit.ExternalConstraints(constList))
             
         myfitresult.Print("v")
         myfitresult.correlationMatrix().Print()
@@ -716,17 +659,6 @@ parser.add_option( '--timeerr',
                    default = 'lab0_LifetimeFit_ctauErr',
                    help = 'set observable '
                    )
-parser.add_option( '--tagvar',
-                   dest = 'tagvar',
-                   default = 'lab0_BsTaggingTool_TAGDECISION_OS',
-                   help = 'set observable '
-                   )
-parser.add_option( '--tagomegavar',
-                   dest = 'tagomegavar',
-                   default = 'lab0_BsTaggingTool_TAGOMEGA_OS',
-                   help = 'set observable '
-                   )
-
 parser.add_option( '--idvar',
                    dest = 'idvar',
                    default = 'lab1_ID',
@@ -765,18 +697,6 @@ parser.add_option( '--pathName',
                    default = '/afs/cern.ch/work/a/adudziak/public/sWeights/sWeights_BsDsK_all_both.root',
                    help = 'name of the inputfile'
                    )   
-
-parser.add_option( '--pathName2',
-                   dest = 'pathName2',
-                   default = '/afs/cern.ch/work/a/adudziak/public/sWeights/sWeights_BsDsK_all_both.root',
-                   help = 'name of the inputfile'
-                   )
-
-parser.add_option( '--pathName3',
-                   dest = 'pathName3',
-                   default = '/afs/cern.ch/work/a/adudziak/public/sWeights/sWeights_BsDsK_all_both.root',
-                   help = 'name of the inputfile'
-                   )
 
 parser.add_option( '--BDTGbins',
                    dest = 'BDTGbins',
@@ -843,8 +763,6 @@ if __name__ == '__main__' :
                                      options.wsname,
                                      options.tvar,
                                      options.terrvar,
-                                     options.tagvar,
-                                     options.tagomegavar,
                                      options.idvar,
                                      options.mvar,
                                      options.pereventmistag,
@@ -859,8 +777,6 @@ if __name__ == '__main__' :
                                      options.accsmearfile,
                                      options.accsmearhist,
                                      options.BDTGbins,
-                                     options.pathName2,
-                                     options.pathName3,
                                      options.cat
                                      )
 
