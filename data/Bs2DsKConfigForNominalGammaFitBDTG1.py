@@ -43,48 +43,20 @@ def getconfig() :
     #configdict["calibration_p1"]  = [0.9818, 1.2550]
     #configdict["calibration_av"]  = [0.3919, 0.4097]
     
-    configdict["tacc_size"]   = 6
-    configdict["tacc_knots"]  = [0.5, 1.0, 1.5, 2.0, 3.0, 12.0]
+    configdict["tacc_size"]   = 8
+    configdict["tacc_knots"]  = [0.5, 1.0, 1.5, 2.0, 3.0, 6.0, 11.0, 14.0]
     
-    configdict["tacc_values"] = [1.6193e+00*2.12678e+00/2.17377e+00,                                                                                                                      
-                                 2.2657e+00*2.86635e+00/2.78740e+00, 
-                                 2.4050e+00*2.94977e+00/2.96311e+00,                                                                                                                   
-                                 2.4591e+00*2.76718e+00/2.59706e+00,                                                                                                                
-                                 1.9576e+00*1.99964e+00/2.01983e+00,                                                                                                                 
-                                 6.5246e-01*1.93623e-01/3.67405e-01]
-    '''
-    configdict["tacc_values"] = [1.2972e+00*2.03851e+00/1.94188e+00,
-                                 1.8198e+00*2.73781e+00/2.48590e+00,
-                                 1.9459e+00*2.88561e+00/2.69664e+00,
-                                 1.9896e+00*2.63588e+00/2.31123e+00,
-                                 1.6648e+00*2.05790e+00/1.92327e+00,
-                                 1.1098e+00*1.06623e+00/1.08746e+00]
-    '''     
-    #configdict["tacc_values"] = [7.0603e-02*9.29533e-02/1.12427e-01,
-    #                             1.4041e-01*1.87802e-01/2.11707e-01,
-    #                             4.9038e-01*5.28493e-01/5.70673e-01,
-    #                             9.0907e-01*1.02144e+00/1.04198e+00,
-    #                             1.2189e+00*1.23007e+00/1.23634e+00,
-    #                             1.2188e+00*1.30317e+00/1.28689e+00]
-
-    #configdict["tacc_values"] = [4.7794e-01*7.08646e-01/8.18092e-01,
-    #                             6.4300e-01*1.24187e+00/1.37873e+00,
-    #                             1.5600e+00*2.57437e+00/2.70460e+00,
-    #                             2.0000e+00*2.94473e+00/2.92620e+00,
-    #                             1.5417e+00*2.01444e+00/2.08267e+00,
-    #                             2.4872e-01*2.07889e-01/4.16271e-01]
-
     #configdict["tacc_values"] = [1.4525e-01*1.86413e-01/1.93184e-01,
     #                             2.0995e-01*2.83214e-01/3.35302e-01,
     #                             6.2524e-01*7.24952e-01/7.39033e-01,
     #                             1.0291e+00*1.18847e+00/1.16141e+00,
     #                             1.2577e+00*1.33798e+00/1.29660e+00,
     #                             1.2405e+00*1.32593e+00/1.31712e+00]
-    #configdict["tacc_values"] = [0.128, 0.193, 0.590, 1.023, 1.250, 1.253]
-    
-    configdict["tagEff_OS"] = 0.403088 #0.387
-    configdict["tagEff_SS"] = 0.451318 #0.4772
-    configdict["adet"] = 0.01
+    configdict["tacc_values"] = [1.6328502485808116, 2.4444591371859223, 2.5050132259932814, 2.6813001103947864, 2.092193347193347, 1.207535833382086, 1.0234927917015773, 0.862617833835145]
+   
+    configdict["tagEff_OS"] = 0.387
+    configdict["tagEff_SS"] = 0.4772
+    configdict["adet_Signal"] = 0.01
     configdict["TagEffSig"]    = [configdict["tagEff_OS"] - configdict["tagEff_OS"]*configdict["tagEff_SS"],
                                   configdict["tagEff_SS"] - configdict["tagEff_OS"]*configdict["tagEff_SS"],
                                   configdict["tagEff_OS"]*configdict["tagEff_SS"]]
@@ -104,7 +76,7 @@ def getconfig() :
     configdict["MistagWork"]     = "workspace"
     configdict["MistagTempName"] = ["sigMistagPdf_1", "sigMistagPdf_2", "sigMistagPdf_3"]
     
-    configdict["TerrFile"]     = "../data/workspace/MDFitter/template_Data_Terr_BsDsK.root"
+    configdict["TerrFile"]     = "../data/workspace/MDFitter/template_Data_Terr_Bs2DsK_BDTG1.root"
     configdict["TerrWork"]     = "workspace"
     configdict["TerrTempName"] = "TimeErrorPdf_Bs2DsK"
 
