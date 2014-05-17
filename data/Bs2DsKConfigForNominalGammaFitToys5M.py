@@ -19,6 +19,14 @@ def getconfig() :
     configdict["calibration_p0"]  = [0.3927, 0.4244]
     configdict["calibration_p1"]  = [0.9818, 1.2550]
     configdict["calibration_av"]  = [0.3919, 0.4097]
+
+    configdict["constr_p0_B"] = [0.0, 0.0, 0.0]
+    configdict["constr_p1_B"] = [1.0, 1.0, 1.0]
+    configdict["constr_av_B"] = [0.0, 0.0, 0.0]
+
+    configdict["constr_p0_Bbar"] = [0.0, 0.0, 0.0]
+    configdict["constr_p1_Bbar"] = [1.0, 1.0, 1.0]
+    configdict["constr_av_Bbar"] = [0.0, 0.0, 0.0]
                     
     configdict["resolutionScaleFactor"] = 1.37 
     configdict["resolutionMeanBias"]    = 0.
@@ -59,5 +67,20 @@ def getconfig() :
     configdict["constParams"].append('tacc_offset')
     configdict["constParams"].append('tacc_beta')
     configdict["constParams"].append('tacc_turnon')
+    
+    configdict["constParams"].append('p0_B_0')
+    configdict["constParams"].append('p0_B_1')
+    configdict["constParams"].append('p0_B_2')
+    configdict["constParams"].append('p0_Bbar_0')
+    configdict["constParams"].append('p0_Bbar_1')
+    configdict["constParams"].append('p0_Bbar_2')
+
+    configdict["constParams"].append('p1_B_0')
+    configdict["constParams"].append('p1_B_1')
+    configdict["constParams"].append('p1_B_2')
+    configdict["constParams"].append('p1_Bbar_0')
+    configdict["constParams"].append('p1_Bbar_1')
+    configdict["constParams"].append('p1_Bbar_2')
+
 
     return configdict
