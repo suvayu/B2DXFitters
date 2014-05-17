@@ -275,17 +275,6 @@ def runBdGammaFitterOnData(debug, wsname,
     weight = obs.find("sWeights")
     observables = RooArgSet(time,tag,id)
 
-
-    #nameTerrPDF = "TimeErrorPdf_Bs2DsPi"
-    #terrpdf = GeneralUtils.CreateHistPDF(dataWA, terr, TString(nameTerrPDF), 20, debug)
-    #workout = RooWorkspace("workspace","workspace")
-    #getattr(workout,'import')(terrpdf)
-    #getattr(workout,'import')(dataWA)
-    #saveName = "template_Data_Terr_Bs2DsPi_BDTG3.root"
-    #workout.Print()
-    #GeneralUtils.SaveWorkspace(workout,TString(saveName), debug)
-    #exit(0)
-
     #if debug:
     #    name = TString("pdf")
     #    swpdf = GeneralUtils.CreateHistPDF(dataWA, weight, name, 100, debug)
@@ -326,7 +315,7 @@ def runBdGammaFitterOnData(debug, wsname,
     setConstantIfSoConfigured(deltaGammas,myconfigfile)
     
     deltaMs = RooRealVar('deltaMs', '#Delta m_{s}', myconfigfile["DeltaMs"], 17.6, 17.9, 'ps^{-1}')
-    #setConstantIfSoConfigured(deltaMs,myconfigfile)
+    setConstantIfSoConfigured(deltaMs,myconfigfile)
 
     # Decay time acceptance model
     # ---------------------------
@@ -396,11 +385,9 @@ def runBdGammaFitterOnData(debug, wsname,
         terrWork = GeneralUtils.LoadWorkspace(TString(myconfigfile["TerrFile"]), TString(myconfigfile["TerrWork"]), debug)
         terrpdf = []
         for i in range(0,bound):
-            #terrpdf.append(Bs2Dsh2011TDAnaModels.GetRooHistPdfFromWorkspace(terrWork, TString(myconfigfile["TerrTempName"]), debug))
-            terrpdf.append((GeneralUtils.CreateHistPDF(dataWA, terr, TString("TimeErrorPDF"), 20, debug)))
-            
-    #setConstantIfSoConfigured(tagEffSig,myconfigfile)
-                                     
+            terrpdf.append(Bs2Dsh2011TDAnaModels.GetRooHistPdfFromWorkspace(terrWork, TString(myconfigfile["TerrTempName"]), debug))
+            #terrpdf.append((GeneralUtils.CreateHistPDF(dataWA, terr, TString("TimeErrorPDF"), 20, debug)))
+    
     # Per-event mistag
     # ---------------------------
         
@@ -419,78 +406,32 @@ def runBdGammaFitterOnData(debug, wsname,
         mistagCalibListB = RooArgList()
         mistagCalibListBbar = RooArgList()
         
-
         for i in range(0,3):
-            p0B.append(WS(ws,RooRealVar('p0_B_'+str(i), 'p0_B_'+str(i), myconfigfile["constr_p0_B"][i]-myconfigfile["constr_p0_B_err"][i], 0., 0.5)))
-            p1B.append(WS(ws,RooRealVar('p1_B_'+str(i), 'p1_B_'+str(i), myconfigfile["constr_p1_B"][i]-myconfigfile["constr_p1_B_err"][i], 0.5, 1.5)))
+            p0B.append(WS(ws,RooRealVar('p0_B_'+str(i), 'p0_B_'+str(i), myconfigfile["constr_p0_B"][i], 0., 0.5)))
+            p1B.append(WS(ws,RooRealVar('p1_B_'+str(i), 'p1_B_'+str(i), myconfigfile["constr_p1_B"][i], 0.5, 1.5)))
             avB.append(WS(ws,RooRealVar('av_B_'+str(i), 'av_B_'+str(i), myconfigfile["constr_av_B"][i])))
+            setConstantIfSoConfigured(p0B[i],myconfigfile)
+            setConstantIfSoConfigured(p1B[i],myconfigfile)
             mistagCalibB.append(MistagCalibration("mistagCalib_B_"+str(i), "mistagCalib_B_"+str(i), mistag, p0B[i], p1B[i], avB[i]))
             mistagCalibListB.add(mistagCalibB[i])    
             print myconfigfile["constr_p0_B"][i], myconfigfile["constr_p1_B"][i], myconfigfile["constr_av_B"][i]
-
+            
         for i in range(0,3):
-            p0Bbar.append(WS(ws,RooRealVar('p0_Bbar_'+str(i), 'p0_B_'+str(i), myconfigfile["constr_p0_Bbar"][i]-myconfigfile["constr_p0_Bbar_err"][i], 0., 0.5)))
-            p1Bbar.append(WS(ws,RooRealVar('p1_Bbar_'+str(i), 'p1_B_'+str(i), myconfigfile["constr_p1_Bbar"][i]-myconfigfile["constr_p1_Bbar_err"][i], 0.5, 1.5)))
+            p0Bbar.append(WS(ws,RooRealVar('p0_Bbar_'+str(i), 'p0_B_'+str(i), myconfigfile["constr_p0_Bbar"][i], 0., 0.5)))
+            p1Bbar.append(WS(ws,RooRealVar('p1_Bbar_'+str(i), 'p1_B_'+str(i), myconfigfile["constr_p1_Bbar"][i], 0.5, 1.5)))
             avBbar.append(WS(ws,RooRealVar('av_Bbar_'+str(i), 'av_B_'+str(i), myconfigfile["constr_av_Bbar"][i])))
+            setConstantIfSoConfigured(p0Bbar[i],myconfigfile)
+            setConstantIfSoConfigured(p1Bbar[i],myconfigfile)
             mistagCalibBbar.append(MistagCalibration("mistagCalib_Bbar_"+str(i), "mistagCalib_B_"+str(i), mistag, p0Bbar[i], p1Bbar[i], avBbar[i]))
             mistagCalibListBbar.add(mistagCalibBbar[i])    
             print myconfigfile["constr_p0_Bbar"][i], myconfigfile["constr_p1_Bbar"][i], myconfigfile["constr_av_Bbar"][i]
-            
-        ''' 
-        for i in range(0, 3):
-            p0.append(RooRealVar('p0_'+str(i), 'p0_'+str(i), p0mean_val[i], 0., 0.5))
-            p0mean.append(RooConstVar('p0mean_'+str(i), 'p0mean_'+str(i), p0mean_val[i] ))
-            p0err.append(RooConstVar('p0err_'+str(i), 'p0err_'+str(i), p0err_val[i]))
-            p0_con.append(RooGaussian('p0_constraint_'+str(i), 'p0_constraint_'+str(i), p0[i], p0mean[i], p0err[i]))
-
-            print p0mean_val[i]
-            print p0err_val[i]
-            print p0[i].GetName()
-            print p0_con[i].GetName()
-
-            constList.add(p0_con[i])
-
-            p1.append(RooRealVar('p1_'+str(i), 'p1_'+str(i), p1mean_val[i], 0.5, 1.5))
-            p1mean.append(RooConstVar('p1mean_'+str(i), 'p1mean_'+str(i), p1mean_val[i] ))
-            p1err.append(RooConstVar('p1err_'+str(i), 'p1err_'+str(i), p1err_val[i]))
-            p1_con.append(RooGaussian('p1_constraint_'+str(i), 'p1_constraint_'+str(i), p1[i], p1mean[i], p1err[i]))
-
-            print p1mean_val[i]
-            print p1err_val[i]
-            print p1[i].GetName()
-            print p1_con[i].GetName()
-
-            constList.add(p1_con[i])
-            
-            av.append(RooConstVar('av_'+str(i), 'av_'+str(i), av_val[i])) 
-
-            mistagCalib.append(MistagCalibration("mistagCalib_"+str(i), "mistagCalib_"+str(i), mistag, p0[i], p1[i], av[i]))
-            
-            mistagCalibList.add(mistagCalib[i])
-        '''  
-  
-        #for c in constraints:
-        #    constraintbuilder.addUserConstraint(c)
-            # remove constraints for modes which are not included
-        #    constList = constraintbuilder.getSetOfConstraints()
-
-        
-        #if not toys:
-        #    from B2DXFitters.GaussianConstraintBuilder import GaussianConstraintBuilder
-        #    constraintbuilder = GaussianConstraintBuilder(ws,  myconfigfile['Constrains'])
-            # remove constraints for modes which are not included                                                                                                                              
-        #    constList = constraintbuilder.getSetOfConstraints()
-
-        #constList.Print("v")
-        
-        #exit(0)
-        mistagPDFList = SFitUtils.CreateMistagTemplates(dataWA,MDSettings,40,true, debug)
-        #mistagWork = GeneralUtils.LoadWorkspace(TString(myconfigfile["MistagFile"]), TString(myconfigfile["MistagWork"]), debug)
-        #mistagPDF = []
-        #mistagPDFList = RooArgList()
-        #for i in range(0,3):
-        #    mistagPDF.append(Bs2Dsh2011TDAnaModels.GetRooHistPdfFromWorkspace(mistagWork, TString(myconfigfile["MistagTempName"][i]), debug))
-        #    mistagPDFList.add(mistagPDF[i])
+               
+        mistagWork = GeneralUtils.LoadWorkspace(TString(myconfigfile["MistagFile"]), TString(myconfigfile["MistagWork"]), debug)
+        mistagPDF = []
+        mistagPDFList = RooArgList()
+        for i in range(0,3):
+            mistagPDF.append(Bs2Dsh2011TDAnaModels.GetRooHistPdfFromWorkspace(mistagWork, TString(myconfigfile["MistagTempName"][i]), debug))
+            mistagPDFList.add(mistagPDF[i])
                                                                                   
         observables.add( mistag )
                 
@@ -532,6 +473,9 @@ def runBdGammaFitterOnData(debug, wsname,
     tagEffSig = []
     for i in range(0,3):
         tagEffSig.append(WS(ws,RooRealVar('tagEffSig_'+str(i+1), 'Signal tagging efficiency', myconfigfile["TagEffSig"][i], 0.0, 1.0)))                                                   
+        if toys:
+            tagEffSig[i].setConstant()
+            print "[INFO] %s set to be constant: %s"%(tagEffSig[i].GetName(),tagEffSig[i].getVal())
         print tagEffSig[i].GetName()
         tagEffSigList.add(tagEffSig[i])
 
@@ -543,14 +487,16 @@ def runBdGammaFitterOnData(debug, wsname,
     aTagEffSigList = RooArgList()
     for i in range(0,3):
         aTagEffSig.append(WS(ws,RooRealVar('aTagEff_'+str(i+1), 'atageff', myconfigfile["aTagEffSig"][i], -0.05, 0.05)))
+        if toys:
+            aTagEffSig[i].setConstant()
+            print "[INFO] %s set to be constant: %s"%(aTagEffSig[i].GetName(),aTagEffSig[i].getVal())
         print aTagEffSig[i].GetName()
         aTagEffSigList.add(aTagEffSig[i])
 
     if not toys:
-        ws.Print("v") 
+        print "[INFO] Running on data, setting constrains" 
         from B2DXFitters.GaussianConstraintBuilder import GaussianConstraintBuilder
         constraintbuilder = GaussianConstraintBuilder(ws,  myconfigfile['Constrains'])
-            # remove constraints for modes which are not included                                                                                                                              
         constList = constraintbuilder.getSetOfConstraints()
         constList.Print("v")
     
@@ -562,12 +508,13 @@ def runBdGammaFitterOnData(debug, wsname,
     if myconfigfile.has_key('aprod_Signal') :
         aProd = RooConstVar('aprod_Signal','aprod_Signal',myconfigfile["aprod_Signal"])
     if myconfigfile.has_key('adet') :
-        aDet = RooRealVar('adet','adet', myconfigfile["adet"],-0.05,0.05)
-        aDet_const_mean = RooConstVar('aDet_const_mean','aDet_const_mean',myconfigfile["adet"])
-        aDet_const_err  = RooConstVar('aDet_const_err', 'aDet_const_err', 0.005)
-        aDet_const_g    = RooGaussian('aDet_const_g','aDet_const_g',aDet,aDet_const_mean,aDet_const_err)
-        constList.add(aDet_const_g)
-     
+        if not toys:
+            aDet = RooRealVar('adet','adet', myconfigfile["adet"],-0.05,0.05)
+            aDet_const_mean = RooConstVar('aDet_const_mean','aDet_const_mean',myconfigfile["adet"])
+            aDet_const_err  = RooConstVar('aDet_const_err', 'aDet_const_err', 0.005)
+            aDet_const_g    = RooGaussian('aDet_const_g','aDet_const_g',aDet,aDet_const_mean,aDet_const_err)
+            constList.add(aDet_const_g)
+            
     
 
     # Coefficient in front of sin, cos, sinh, cosh
@@ -686,12 +633,12 @@ def runBdGammaFitterOnData(debug, wsname,
     if toys or not Blinding: #Unblind yourself
         if BDTGbins or Cat:
             myfitresult = pdf.fitTo(combData, RooFit.Save(1), RooFit.Optimize(2), RooFit.Strategy(2),\
-                                    RooFit.Verbose(False), RooFit.SumW2Error(True), RooFit.Offset(True) ,
-                                    RooFit.ExternalConstraints(constList))
+                                    RooFit.Verbose(False), RooFit.SumW2Error(True), RooFit.Offset(True))
+                                    #RooFit.ExternalConstraints(constList))
             
         else:
             myfitresult = totPDF[0].fitTo(dataWA, RooFit.Save(1), RooFit.Optimize(2), RooFit.Strategy(2),\
-                                          RooFit.Verbose(False), RooFit.SumW2Error(True), RooFit.Offset(True), RooFit.ExternalConstraints(constList))
+                                          RooFit.Verbose(False), RooFit.SumW2Error(True), RooFit.Offset(True)) # , RooFit.ExternalConstraints(constList))
             
         myfitresult.Print("v")
         myfitresult.correlationMatrix().Print()
