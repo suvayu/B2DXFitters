@@ -26,7 +26,6 @@ def getconfig() :
     configdict["constr_p1_Bbar"] = [1.048155, 0.995879, 1.027861]
     configdict["constr_av_Bbar"] = [0.371147, 0.414892, 0.338493]
 
-
     configdict["constr_p0_B_err"] = [0.00, 0.00, 0.00]
     configdict["constr_p1_B_err"] = [0.00, 0.00, 0.00]
     configdict["constr_p0_Bbar_err"] = [0.00, 0.00, 0.00]
@@ -44,34 +43,20 @@ def getconfig() :
     #configdict["calibration_p1"]  = [0.9818, 1.2550]
     #configdict["calibration_av"]  = [0.3919, 0.4097]
     
-    configdict["tacc_size"]   = 6
-    configdict["tacc_knots"]  = [0.8, 1.0, 1.5, 2.0, 3.0, 12.0]
-
-    #configdict["tacc_values"] = [7.0603e-02*9.29533e-02/1.12427e-01,
-    #                             1.4041e-01*1.87802e-01/2.11707e-01,
-    #                             4.9038e-01*5.28493e-01/5.70673e-01,
-    #                             9.0907e-01*1.02144e+00/1.04198e+00,
-    #                             1.2189e+00*1.23007e+00/1.23634e+00,
-    #                             1.2188e+00*1.30317e+00/1.28689e+00]
-
-    configdict["tacc_values"] = [2.4916e-01*2.78114e-01/2.96063e-01,
-                                 2.7606e-01*3.23047e-01/3.43090e-01,
-                                 4.0406e-01*5.18790e-01/5.45970e-01,
-                                 6.8334e-01*7.33678e-01/7.37678e-01,
-                                 9.6386e-01*1.03067e+00/1.02475e+00,
-                                 1.4528e+00*1.57981e+00/1.47536e+00]
-
+    configdict["tacc_size"]   = 8
+    configdict["tacc_knots"]  = [0.8, 1.0, 1.5, 2.0, 3.0, 6.0, 11.0, 14.0]
+    
     #configdict["tacc_values"] = [1.4525e-01*1.86413e-01/1.93184e-01,
     #                             2.0995e-01*2.83214e-01/3.35302e-01,
     #                             6.2524e-01*7.24952e-01/7.39033e-01,
     #                             1.0291e+00*1.18847e+00/1.16141e+00,
     #                             1.2577e+00*1.33798e+00/1.29660e+00,
     #                             1.2405e+00*1.32593e+00/1.31712e+00]
-    #configdict["tacc_values"] = [0.128, 0.193, 0.590, 1.023, 1.250, 1.253]
-    
+    configdict["tacc_values"] = [0.3179508367100349, 0.3891084807580304, 0.49545134083772097, 0.9675573920546391, 1.2935638872624686, 1.74025928198834, 1.6445597335295945, 1.4398879074321163]
+   
     configdict["tagEff_OS"] = 0.387
     configdict["tagEff_SS"] = 0.4772
-    configdict["adet"] = 0.01
+    configdict["adet_Signal"] = 0.01
     configdict["TagEffSig"]    = [configdict["tagEff_OS"] - configdict["tagEff_OS"]*configdict["tagEff_SS"],
                                   configdict["tagEff_SS"] - configdict["tagEff_OS"]*configdict["tagEff_SS"],
                                   configdict["tagEff_OS"]*configdict["tagEff_SS"]]
@@ -91,7 +76,7 @@ def getconfig() :
     configdict["MistagWork"]     = "workspace"
     configdict["MistagTempName"] = ["sigMistagPdf_1", "sigMistagPdf_2", "sigMistagPdf_3"]
     
-    configdict["TerrFile"]     = "../data/workspace/MDFitter/template_Data_Terr_BsDsK.root"
+    configdict["TerrFile"]     = "../data/workspace/MDFitter/template_Data_Terr_Bs2DsK_BDTG3.root"
     configdict["TerrWork"]     = "workspace"
     configdict["TerrTempName"] = "TimeErrorPdf_Bs2DsK"
 
