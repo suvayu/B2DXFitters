@@ -26,8 +26,6 @@ def getconfig() :
     configdict["constr_p1_Bbar"] = [1.048155, 0.995879, 1.027861]
     configdict["constr_av_Bbar"] = [0.371147, 0.414892, 0.338493]
 
-
-
     configdict["constr_p0_B_err"] = [0.00, 0.00, 0.00]
     configdict["constr_p1_B_err"] = [0.00, 0.00, 0.00]
     configdict["constr_p0_Bbar_err"] = [0.00, 0.00, 0.00]
@@ -46,7 +44,7 @@ def getconfig() :
     #configdict["calibration_av"]  = [0.3919, 0.4097]
     
     configdict["tacc_size"]   = 6
-    configdict["tacc_knots"]  = [0.25, 0.5, 1.0, 2.0, 3.0, 12.0]
+    configdict["tacc_knots"]  = [0.5, 1.0, 1.5, 2.0, 3.0, 12.0]
     
     #configdict["tacc_values"] = [1.4525e-01*1.86413e-01/1.93184e-01,
     #                             2.0995e-01*2.83214e-01/3.35302e-01,
@@ -54,11 +52,11 @@ def getconfig() :
     #                             1.0291e+00*1.18847e+00/1.16141e+00,
     #                             1.2577e+00*1.33798e+00/1.29660e+00,
     #                             1.2405e+00*1.32593e+00/1.31712e+00]
-    configdict["tacc_values"] = [0.128, 0.193, 0.590, 1.023, 1.250, 1.253]
+    configdict["tacc_values"] = [0.4386639196740595, 0.6808859113357736, 0.8675185076604021, 1.1574864725202538, 1.2293201018711186, 1.2798297803361656]
     
     configdict["tagEff_OS"] = 0.387
     configdict["tagEff_SS"] = 0.4772
-    configdict["adet"] = 0.01
+    configdict["adet_Signal"] = 0.01
     configdict["TagEffSig"]    = [configdict["tagEff_OS"] - configdict["tagEff_OS"]*configdict["tagEff_SS"],
                                   configdict["tagEff_SS"] - configdict["tagEff_OS"]*configdict["tagEff_SS"],
                                   configdict["tagEff_OS"]*configdict["tagEff_SS"]]
@@ -78,7 +76,7 @@ def getconfig() :
     configdict["MistagWork"]     = "workspace"
     configdict["MistagTempName"] = ["sigMistagPdf_1", "sigMistagPdf_2", "sigMistagPdf_3"]
     
-    configdict["TerrFile"]     = "../data/workspace/MDFitter/template_Data_Terr_BsDsK.root"
+    configdict["TerrFile"]     = "../data/workspace/MDFitter/template_Data_Terr_Bs2DsK_BDTGA.root"
     configdict["TerrWork"]     = "workspace"
     configdict["TerrTempName"] = "TimeErrorPdf_Bs2DsK"
 
