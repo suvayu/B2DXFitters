@@ -178,7 +178,7 @@ namespace SFitUtils {
 	  }
 	else
 	  {
-	    if ( pathFile.Contains("both") == true )
+	    if ( pathFile.Contains("both") == true || toys == true)
               {
 		s.push_back("both_nonres");
                 s.push_back("both_phipi");
@@ -289,7 +289,6 @@ namespace SFitUtils {
     TString nameID = mdSet->GetIDVar()+"_idx"; 
     treeSW->SetBranchAddress(nameID.Data(), &ID);
     treeSW->SetBranchAddress(mdSet->GetMassBVar().Data(), &mass);
-    std::cout<<"halo"<<std::endl;
     Int_t tag[mdSet->GetNumTagVar()];
     Double_t omega[mdSet->GetNumTagOmegaVar()];
     
