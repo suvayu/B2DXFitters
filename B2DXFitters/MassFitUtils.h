@@ -84,6 +84,7 @@ namespace MassFitUtils {
 				   TString& mode,
 				   RooWorkspace* workspace = NULL, 
 				   PlotSettings* plotSet = NULL,
+				   bool  pdf = true,
 				   bool        debug = false);
 
   //===========================================================================
@@ -106,6 +107,7 @@ namespace MassFitUtils {
 				    TString& mode,
 				    RooWorkspace* workspace = NULL, 
 				    PlotSettings* plotSet = NULL,
+				    bool pdf = true, 
 				    bool        debug = false);
 
   //===========================================================================
