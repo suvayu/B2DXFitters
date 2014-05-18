@@ -4,6 +4,14 @@
 ! Purpose     : RooFit-based fitters for B -> D X
 !-----------------------------------------------------------------------------
 
+! 2014-05-18 - V. Gligorov
+ - Add latest mistag and time error templates to data/workspace/MDFitter/
+ - Add CalculateDsKAcceptances.py script which prints out the DsK data
+   acceptance from the DsPi data acceptance and the DsPi/K MC acceptances
+ - Add a load of configuration files and shell scripts in the data and
+   scripts/Csh directories to run versions of the fitter needed for the final
+   note 
+
 ! 2014-05-16 - Manuel Tobias Schiller
  - small fixes to make_histos.py
  - rename printBlinded.py to printFitResult.py, generalise, so it understands
