@@ -115,16 +115,12 @@ gROOT.SetBatch()
 # -----------------------------------------------------------------------------
 # Configuration settings
 # -----------------------------------------------------------------------------
-
-saveName      = 'work_'
-
-
 #------------------------------------------------------------------------------
 def prepareBsDsKMassFitterOnData( debug,
                                   mVar, tVar, terrVar, tagVar, tagOmegaVar, idVar,
                                   mdVar, pidkVar, bdtgVar, pVar, ptVar, ntracksVar,
                                   save, OmegaPdf, TagTool, configName,
-                                  Data, DsPi, DsPiPID, MC, MCPID, Signal, SignalPID, CombPID ) : 
+                                  Data, DsPi, DsPiPID, MC, MCPID, Signal, SignalPID, CombPID, rookeypdf ) : 
 
     # Get the configuration file
     myconfigfilegrabber = __import__(configName,fromlist=['getconfig']).getconfig
@@ -141,7 +137,7 @@ def prepareBsDsKMassFitterOnData( debug,
     print "=========================================================="
 
     RooAbsData.setDefaultStorageType(RooAbsData.Tree)
-    saveNameTS = TString(saveName)+TString(save)+TString(".root")
+    saveNameTS = TString(saveName)
 
     #plot settings:
     plotSettings = PlotSettings("plotSettings","plotSettings", "PlotBs2DsK3DBDTGA", "pdf", 100, true, false, true)
@@ -202,7 +198,7 @@ def prepareBsDsKMassFitterOnData( debug,
 
         for i in range(0,5):
             workspace = MassFitUtils.ObtainMissForBsDsK(TString(myconfigfile["dataName"]), DsPiNames[i], MDSettings,
-                                                        TString("BsDsPi"), workspace, plotSettings, debug)
+                                                        TString("BsDsPi"), workspace, plotSettings, rookeypdf, debug)
 
                 
     GeneralUtils.SaveWorkspace(workspace,saveNameTS, debug)
@@ -235,35 +231,11 @@ def prepareBsDsKMassFitterOnData( debug,
         workspace = MassFitUtils.ObtainSpecBack(TString(myconfigfile["dataName"]), TString("#MC FileName MU"), TString("#MC TreeName"),
                                                 MDSettings, TString("BsDsK"), workspace, true, MURatio, plotSettings, debug)
 
-        workspace = MassFitUtils.CreatePdfSpecBackground(dataTS, TString("#MC FileName MD"),
-                                                         dataTS, TString("#MC FileName MU"),
-                                                         MDSettings, workspace, true, plotSettings, debug)
-        
+        if rookeypdf:
+            workspace = MassFitUtils.CreatePdfSpecBackground(dataTS, TString("#MC FileName MD"),
+                                                             dataTS, TString("#MC FileName MU"),
+                                                             MDSettings, workspace, true, plotSettings, debug)
 
-    '''                                        
-    workspace = RooWorkspace("workspace","workspace")
-    workspace = SFitUtils.ReadLbLcPiFromSWeights(TString(myconfigfile["pathFileLcPi"]),
-                                                 TString(myconfigfile["treeNameLcPi"]),
-                                                 myconfigfile["PDown"], myconfigfile["PUp"],
-                                                 myconfigfile["PTDown"], myconfigfile["PTUp"],
-                                                 myconfigfile["nTracksDown"], myconfigfile["nTracksUp"],
-                                                 myconfigfile["PIDDown"], myconfigfile["PIDUp"],                              
-                                                 mVarTS,
-                                                 mdVarTS,
-                                                 TString("lab1_P"),
-                                                 TString("lab1_PT"),
-                                                 TString("nTracks"),
-                                                 mProbVarTS,
-                                                 workspace,
-                                                 debug
-                                                 )
-
-    saveNameTS = TString("work_lblcpi_sw_PIDK10.root")
-    GeneralUtils.SaveWorkspace(workspace,saveNameTS, debug)
-    workspace.Print()
-    '''
-
-        
     if MCPID:
 
         MCDownNames = [TString("MC BsDsK Kaon Down"),
@@ -285,18 +257,6 @@ def prepareBsDsKMassFitterOnData( debug,
             workspace.Print()
             GeneralUtils.SaveWorkspace(workspace,saveNameTS, debug)
             
-            workspace = WeightingUtils.ObtainHistRatio(TString(myconfigfile["dataName"]), TString("#MC FileName MD"),
-                                                       MDSettings, MCDownNames[i], workspace, plotSettings, debug)
-            
-            workspace = WeightingUtils.ObtainHistRatio(TString(myconfigfile["dataName"]), TString("#MC FileName MU"),
-                                                       MDSettings, MCUpNames[i], workspace, plotSettings, debug)
-            
-            workspace.Print()
-            GeneralUtils.SaveWorkspace(workspace,saveNameTS, debug)
-
-            workspace.Print()
-            GeneralUtils.SaveWorkspace(workspace,saveNameTS, debug)
-
             workspace = WeightingUtils.ObtainPIDShapeFromCalibSample(TString(myconfigfile["dataName"]), TString("#MC FileName MD"),
                                                                      MDSettings, MCDownNames[i], workspace, plotSettings, debug)
             
@@ -305,14 +265,8 @@ def prepareBsDsKMassFitterOnData( debug,
             
             workspace.Print()
             GeneralUtils.SaveWorkspace(workspace,saveNameTS, debug)
-            
-            workspace = WeightingUtils.ObtainPIDShapeFromCalibSample(TString(myconfigfile["dataName"]), TString("#MC FileName MD"),
-                                                                     MDSettings, MCDownNames[i], workspace, plotSettings, debug)
-            
-            workspace = WeightingUtils.ObtainPIDShapeFromCalibSample(TString(myconfigfile["dataName"]), TString("#MC FileName MU"),
-                                                                     MDSettings, MCUpNames[i], workspace, plotSettings, debug)
-            
-      
+
+
     
     if Signal:
         signalNames = [ TString("#Signal BsDsK NonRes"),
@@ -353,7 +307,6 @@ def prepareBsDsKMassFitterOnData( debug,
         workspace.Print()
 
     if CombPID:
-        #workspace  = GeneralUtils.LoadWorkspace(TString("work_dsk_pid_53005800_PIDK5_5M_BDTGA.root"), TString("workspace"),debug)
         workspaceL = GeneralUtils.LoadWorkspace(TString("/afs/cern.ch/work/a/adudziak/public/workspace/work_Comb_DsK_5358.root"),TString("workspace"),debug)
         combNames = [TString("CombK Pion Down"),
                      TString("CombK Pion Up"),
@@ -370,7 +323,6 @@ def prepareBsDsKMassFitterOnData( debug,
             workspace.Print()
             GeneralUtils.SaveWorkspace(workspace,saveNameTS, debug)
 
-    saveNameTS = TString(saveName)+TString(save)+TString(".root")
     GeneralUtils.SaveWorkspace(workspace,saveNameTS, debug)
     workspace.Print()
     
@@ -532,7 +484,13 @@ parser.add_option( '--CombPID',
                    default = False,
                    help= 'create data'
                    )
-                                                                            
+parser.add_option( '--noRooKeysPdf',
+                   dest = 'rookeypdf',
+                   action = 'store_true',
+                   default = True,
+                   help= 'obtain rookeyspdf'
+                   )
+
 
 # -----------------------------------------------------------------------------
 
@@ -555,6 +513,6 @@ if __name__ == '__main__' :
                                    options.DsPi, options.DsPiPID,
                                    options.MC, options.MCPID,
                                    options.Signal, options.SignalPID,
-                                   options.CombPID)
+                                   options.CombPID, options.rookeyspdf)
 
 # -----------------------------------------------------------------------------

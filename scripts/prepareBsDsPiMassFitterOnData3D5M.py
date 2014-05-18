@@ -117,14 +117,13 @@ gROOT.SetBatch()
 # -----------------------------------------------------------------------------
 # Configuration settings
 # -----------------------------------------------------------------------------
-saveName      = 'work_'
 #------------------------------------------------------------------------------
 def prepareBsDsPiMassFitterOnData( debug,
                                    mVar, tVar, terrVar, tagVar, tagOmegaVar, idVar, mdVar,
                                    pidkVar, bdtgVar, pVar, ptVar, ntracksVar,
                                    TagTool, configName,
                                    Data, DPi, DPiPID, MC, MCPID, Signal, SignalPID, CombPID,
-                                   save) :
+                                   save, rookeypdf) :
 
     # Get the configuration file
     myconfigfilegrabber = __import__(configName,fromlist=['getconfig']).getconfig
@@ -187,7 +186,7 @@ def prepareBsDsPiMassFitterOnData( debug,
         
     if DPi:
         workspace = MassFitUtils.ObtainMissForBsDsPi(dataTS, TString("#BdPi"), TString("nonres"),  
-                                                     MDSettings, TString("Bd2DPi"),workspace, plotSettings, debug)
+                                                     MDSettings, TString("Bd2DPi"),workspace, plotSettings, rookeypdf, debug)
         
     workspace.Print()
     GeneralUtils.SaveWorkspace(workspace,saveNameTS, debug)
@@ -209,11 +208,12 @@ def prepareBsDsPiMassFitterOnData( debug,
         
         workspace = MassFitUtils.ObtainSpecBack(dataTS, TString("#MC FileName MU"), TString("#MC TreeName"),
                                                 MDSettings, TString("BsDsPi"), workspace, true, MURatio, plotSettings, debug)
-        
-        workspace = MassFitUtils.CreatePdfSpecBackground(dataTS, TString("#MC FileName MD"),
-                                                         dataTS, TString("#MC FileName MU"),
-                                                         MDSettings, workspace, true, plotSettings, debug)
-        
+
+        if rookeypdf:
+            workspace = MassFitUtils.CreatePdfSpecBackground(dataTS, TString("#MC FileName MD"),
+                                                             dataTS, TString("#MC FileName MU"),
+                                                             MDSettings, workspace, true, plotSettings, debug)
+            
     workspace.Print()
     GeneralUtils.SaveWorkspace(workspace,saveNameTS, debug)
           
@@ -471,7 +471,12 @@ parser.add_option( '--CombPID',
                    help= 'create data'
                    )
 
-
+parser.add_option( '--noRooKeysPdf',
+                   dest = 'rookeypdf',
+                   action = 'store_true',
+                   default = True,
+                   help= 'create data'
+                   )
 # -----------------------------------------------------------------------------
 
 if __name__ == '__main__' :
@@ -492,7 +497,7 @@ if __name__ == '__main__' :
                                     options.DPi, options.DPiPID,
                                     options.MC, options.MCPID,
                                     options.Signal, options.SignalPID,
-                                    options.CombPID, options.save)
+                                    options.CombPID, options.save, options.norookeypdf)
     
 
 # -----------------------------------------------------------------------------
