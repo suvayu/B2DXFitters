@@ -885,6 +885,6 @@ if __name__ == '__main__' :
                                 options.tagvar, options.tagomegavar, options.idvar,\
                                 options.mode, options.sweight, \
                                 options.fileNameAll, options.fileNameToys,
-                                options.workName, options.configName, options.wide, options.dim, options.merge)
+                                options.workName, options.configName, options.wide, options.dim, options.merge,options.fileData)
 
 # -----------------------------------------------------------------------------

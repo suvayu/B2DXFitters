@@ -112,25 +112,26 @@ myconfigfile = myconfigfilegrabber()
 
 splitCharge = False
 largeToys = False
-saveplots = True
-tbtd = False
+saveplots = False
+tbtd = True
 tagEffPlot = False
 
 nbinspull = 60
-lowerpullrange = -3
-upperpullrange = 3
+lowerpullrange = -5
+upperpullrange = 5
 if tbtd :
-    nbinspull = 200
-    lowerpullrange = -0.1
-    upperpullrange = 0.1   
+    nbinspull = 60
+    lowerpullrange = -3.0
+    upperpullrange = 3.0   
 
 useavgmistag = False
 avgmistagsuffix = "AvgMistag_"
 
 ntoys                   = 1000
-toysdir                 = '/afs/cern.ch/work/g/gligorov/public/Bs2DsKToys/For1fbPaper/Gamma70_WProdDetAsy_5M_2T_MD/TimeFitResults/'
-toysdir_md              = '/afs/cern.ch/work/g/gligorov/public/Bs2DsKToys/For1fbPaper/Gamma70_WProdDetAsy_5M_2T_MD/MassFitResults/'
-toysdir_tbtd            = '/afs/cern.ch/work/g/gligorov/public/Bs2DsKToys/For1fbPaper/Gamma70_5M_2T_MD/TimeFitResults/Systematics/FixedBackgrounds/'
+toysdir                 = '/afs/cern.ch/work/g/gligorov/public/Bs2DsKToys/For1fbPaper/Gamma70_WProdDetAsy_NoKFactors_5M_2T_MD/TimeFitResults/Nominal/'
+toysdir_md              = '/afs/cern.ch/work/g/gligorov/public/Bs2DsKToys/For1fbPaper/Gamma70_WProdDetAsy_NoKFactors_5M_2T_MD/MassFitResults/Nominal/'
+toysdir_tbtd            = '/afs/cern.ch/work/a/adudziak/public/Bs2DsKToys/Gamma70_5M_2T_BDTG06/'
+#'/afs/cern.ch/work/g/gligorov/public/Bs2DsKToys/For1fbPaper/Gamma70_WProdDetAsy_NoKFactors_5M_2T_MD/TimeFitResults/Systematics/DetAsy_neg/'
 toysresultprefix        = 'DsK_Toys_TimeFitResult_'
 toysresultprefix_md     = 'DsK_Toys_MassFitResult_'
 toysresultprefix_tbtd   = 'DsK_Toys_TimeFitResult_'
@@ -138,9 +139,10 @@ toysresultprefix_tbtd   = 'DsK_Toys_TimeFitResult_'
 if useavgmistag : toysresultprefix += avgmistagsuffix
 if largeToys    : toysresultprefix = 'DsK_Toys_FullLarge_TimeFitResult_'
 toysresultsuffix    = '.log'    
-outputdir = '/afs/cern.ch/work/g/gligorov/public/Bs2DsKToys/For1fbPaper/Gamma70_WProdDetAsy_5M_2T_MD/PullPlots/Time/'
+outputdir = '/afs/cern.ch/work/g/gligorov/public/Bs2DsKToys/For1fbPaper/Gamma70_WProdDetAsy_NoKFactors_5M_2T_MD/PullPlots/Nominal/Time/'
+#outputdir = '/afs/cern.ch/work/g/gligorov/public/Bs2DsKToys/For1fbPaper/Gamma70_WProdDetAsy_5M_2T_MD/PullPlots/Systematics/DetAsy_neg/Time/'
 
-additionalsuffix = 'Nominal'
+additionalsuffix = 'BDTG06_SYST'
 
 from B2DXFitters import taggingutils, cpobservables
 theseobservables = cpobservables.AsymmetryObservables(myconfigfile["ArgLf_s"],myconfigfile["ArgLbarfbar_s"],myconfigfile["ModLf_s"])
@@ -419,12 +421,16 @@ errf_Sbar.GetXaxis().SetTitle("Fitted error")
 pull_Sbar   = TH1F("pull_Sbar","pull_Sbar",nbinspull,lowerpullrange,upperpullrange)
 pull_Sbar.GetXaxis().SetTitle("Fitted Pull")
 
+over = 0
 for thistoy in range(0,ntoys) :
     if thistoy in nfailed : continue
     if dmsfitted["Sbar"][thistoy][1] == 0 : continue
     fitted_Sbar.Fill(dmsfitted["Sbar"][thistoy][0])
     errf_Sbar.Fill(dmsfitted["Sbar"][thistoy][1])
     pull_Sbar.Fill((dmsgenera["Sbar"][thistoy][0]-dmsfitted["Sbar"][thistoy][0])/dmsfitted["Sbar"][thistoy][1])
+    if abs((dmsgenera["Sbar"][thistoy][0]-dmsfitted["Sbar"][thistoy][0])/dmsfitted["Sbar"][thistoy][1]) > 1.07 :
+        over += 1
+print over
 
 pullcanvasSbar = TCanvas("pullcanvasSbar","pullcanvasSbar",1500,500)
 pullcanvasSbar.Divide(3,1)

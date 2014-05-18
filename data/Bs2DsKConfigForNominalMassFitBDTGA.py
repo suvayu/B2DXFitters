@@ -22,10 +22,6 @@ def getconfig() :
     configdict["lab0_TAGOMEGA_OS"]  = [0.0, 0.5]
     configdict["lab0_SS_nnetKaon_PROB"] = [0.0, 0.5]
 
-    #configdict["calibration_p0"]  = [0.3927, 0.4244]
-    #configdict["calibration_p1"]  = [0.9818, 1.2550]
-    #configdict["calibration_av"]  = [0.3919, 0.4097]
-
     configdict["calibration_p0"]  = [0.3834, 0.4244]
     configdict["calibration_p1"]  = [0.9720, 1.2180]
     configdict["calibration_av"]  = [0.3813, 0.4097]
@@ -57,13 +53,12 @@ def getconfig() :
     configdict["lab0_VtxCharge_PROB"]    = [-3.0, 1.0 ]
     configdict["lab0_VtxCharge_DEC"]     = [-2.0, 2.0 ]
     
-    
     configdict["Bin1"]      = 20
     configdict["Bin2"]      = 20
     configdict["Bin3"]      = 10
     configdict["Var1"]      = "lab1_PT"
     configdict["Var2"]      = "nTracks"
-    configdict["Var3"]       = "lab1_P"
+    configdict["Var3"]      = "lab1_P"
     configdict["WeightingDimensions"] = 2
   
     configdict["PIDBach"]    = 5
@@ -106,7 +101,6 @@ def getconfig() :
     configdict["n1_old"]      = [1.1123,  1.5879,  1.3059,  1.0988,  1.3397 ]
     configdict["n2_old"]      = [1.3312,  5.1315,  4.2083,  0.96197,  1.2083 ]
     configdict["frac_old"]    = [0.42743, 0.43480, 0.61540, 0.38142, 0.37901]
-    
 
     configdict["sigma1Bsfrac"] = 1.22 
     configdict["sigma2Bsfrac"] = 1.28
@@ -117,7 +111,6 @@ def getconfig() :
     configdict["ratio2"]  = 1.00022181515
 
     configdict["meanDs"]    = [1968.49, 1968.49, 1968.49, 1968.49, 1968.49]
-    
     
     configdict["sigma1Ds_bc"]  = [5.3468e+00,  8.2412e+00,  6.0845e+00,  8.8531e+00,  8.0860e+00 ]  
     configdict["sigma2Ds_bc"]  = [5.1848e+00,  4.4944e+00,  5.1266e+00,  5.2073e+00,  7.3773e+00 ]

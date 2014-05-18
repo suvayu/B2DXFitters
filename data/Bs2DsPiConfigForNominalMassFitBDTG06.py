@@ -37,6 +37,9 @@ def getconfig() :
                                           "lab0_OS_nnetKaon_PROB", "lab0_OS_nnetKaon_DEC",
                                           "lab0_VtxCharge_PROB", "lab0_VtxCharge_DEC" ]
 
+    configdict["AdditionalDataCuts"] = "lab2_TAU>0"
+    configdict["AdditionalMCCuts"] = "lab2_TAU>0"
+
     configdict["lab0_SS_Kaon_PROB"]      = [ -3.0, 1,0 ]
     configdict["lab0_SS_Kaon_DEC"]       = [ -2.0, 2.0 ]
     configdict["lab0_OS_Muon_PROB"]      = [ -3.0, 1.0 ]

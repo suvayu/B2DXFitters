@@ -16,10 +16,16 @@ def getconfig() :
     configdict["ArgLbarfbar"]   = configdict["StrongPhase"] + configdict["WeakPhase"]
     configdict["ModLf"]         = 0.372
 
-    configdict["tacc_size"]   = 8
-    configdict["tacc_knots"]  = [0.8, 1.0, 1.5, 2.0, 3.0, 6.0, 11.0,14.0]
-    configdict["tacc_values"] = [0.34116, 0.38428, 0.54798, 0.95187, 1.2994, 1.6459, 1.6073, 1.435]
-    
+    configdict["tacc_size"]   = 6
+    #configdict["tacc_knots"]  = [0.25, 0.5, 1.0, 2.0, 3.0, 12.0]
+    #configdict["tacc_values"] = [1.93184e-01, 3.35302e-01, 7.39033e-01, 1.16141e+00, 1.29660e+00, 1.31712e+00]
+
+    configdict["tacc_knots"]  = [0.50, 1.0,  1.5, 2.0, 3.0, 12.0] #tac varr 7                                                                                                              
+    #configdict["tacc_values"] = [1.0, 1.0, 1.0, 1.0, 1.0, 1.0 ] #1.93184e-01, 3.35302e-01, 7.39033e-01, 1.16141e+00, 1.29660e+00, 1.31712e+00]                                            
+    configdict["tacc_values"] = [3.5597e-01,5.7337e-01,7.6264e-01,1.0567e+00,1.2018e+00,1.2346e+00]
+    #configdict["tacc_values"] = [2.0, 2.0, 2.0,2.0, 2.0, 2.0]
+    #configdict["tacc_values"] = [4.4822e-01, 5.4895e-01, 7.4500e-01, 1.0435e+00, 1.2516e+00, 1.2256e+00]                            
+
     configdict["calibration_p0"]  = [0.3834, 0.4244]
     configdict["calibration_p1"]  = [0.9720, 1.2180]
     configdict["calibration_av"]  = [0.3813, 0.4097]
@@ -36,11 +42,11 @@ def getconfig() :
     configdict["constr_p1_B_err"] = [0.00, 0.00, 0.00]
     configdict["constr_p0_Bbar_err"] = [0.00, 0.00, 0.00]
     configdict["constr_p1_Bbar_err"] = [0.00, 0.00, 0.00]
-
-    configdict["adet"] = 0.01
            
     configdict["tagEff_OS"] = 0.387
     configdict["tagEff_SS"] = 0.4772
+
+    configdict["adet"] = 0.01
     
     configdict["TagEffSig"]    = [configdict["tagEff_OS"] - configdict["tagEff_OS"]*configdict["tagEff_SS"],
                                   configdict["tagEff_SS"] - configdict["tagEff_OS"]*configdict["tagEff_SS"],
@@ -61,7 +67,7 @@ def getconfig() :
     configdict["MistagWork"]     = "workspace"
     configdict["MistagTempName"] = ["sigMistagPdf_1", "sigMistagPdf_2", "sigMistagPdf_3"]
         
-    configdict["TerrFile"]     = "../data/workspace/MDFitter/template_Data_Terr_Bs2DsPi_BDTG3.root"
+    configdict["TerrFile"]     = "../data/workspace/MDFitter/template_Data_Terr_Bs2DsPi_BDTG06.root"
     configdict["TerrWork"]     = "workspace"
     configdict["TerrTempName"] = "TimeErrorPdf_Bs2DsPi"
 

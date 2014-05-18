@@ -1,5 +1,5 @@
-set diroutput = '/afs/cern.ch/work/g/gligorov//public/Bs2DsKToys/For1fbPaper/Gamma70_WProdDetAsy_5M_2T_MD/GeneratorOutput/'
-set configfile = 'Bs2DsKConfigForGenerator5M_Syst_ProdDetAsy'
+set diroutput = '/afs/cern.ch/work/g/gligorov//public/Bs2DsKToys/For1fbPaper/Gamma70_WProdDetAsy_NoKFactors_5M_2T_MD/GeneratorOutput/'
+set configfile = 'Bs2DsKConfigForGenerator5M_WithProdDetAsy'
 
 @ thissample = $1
 @ ten = 100
@@ -20,7 +20,7 @@ while ($thissample < $2)
 
    rm $diroutput$logfile$thissamplestr$logfileext 
  
-   python GenerateToySWeights_DsK_5M.py --genwithkfactors --configName $configfile --dir $diroutput --start $thissample --end $thissampleU --seed $seed >& $diroutput$logfile$thissamplestr$logfileext
+   python GenerateToySWeights_DsK_5M.py --configName $configfile --dir $diroutput --start $thissample --end $thissampleU --seed $seed >& $diroutput$logfile$thissamplestr$logfileext
    @ thissample++  
 
 end

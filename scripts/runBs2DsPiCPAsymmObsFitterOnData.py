@@ -283,7 +283,7 @@ def runBdGammaFitterOnData(debug, wsname,
     tacc_list = RooArgList()
     tacc_var = []
     for i in range(0,myconfigfile["tacc_size"]):
-        tacc_var.append(RooRealVar("var"+str(i+1), "var"+str(i+1), myconfigfile["tacc_values"][i], 0.0, 3.0))
+        tacc_var.append(RooRealVar("var"+str(i+1), "var"+str(i+1), myconfigfile["tacc_values"][i], 0.0, 10.0))
         print tacc_var[i].GetName()
         tacc_list.add(tacc_var[i])
     tacc_var.append(RooRealVar("var"+str(myconfigfile["tacc_size"]+1), "var"+str(myconfigfile["tacc_size"]+1), 1.0))
@@ -368,22 +368,15 @@ def runBdGammaFitterOnData(debug, wsname,
             print myconfigfile["constr_p0_Bbar"][i], myconfigfile["constr_p1_Bbar"][i], myconfigfile["constr_av_Bbar"][i]
     
 
-        #mistagWork = GeneralUtils.LoadWorkspace(TString(myconfigfile["MistagFile"]), TString(myconfigfile["MistagWork"]), debug)
-        #mistagPDF = []
-        #mistagPDFList = RooArgList()
-        #for i in range(0,3):
-        #    mistagPDF.append(Bs2Dsh2011TDAnaModels.GetRooHistPdfFromWorkspace(mistagWork, TString(myconfigfile["MistagTempName"][i]), debug))
-        #    mistagPDFList.add(mistagPDF[i])                 
-        #    n = TString("mistag_")+TString(str(i))
-        #    GeneralUtils.SaveTemplate(NULL, mistagPDF[i], mistag, n)
-        mistagPDFList = SFitUtils.CreateMistagTemplates(dataWA,MDSettings,40,true, debug)
-        #calibration_p1   = RooRealVar('calibration_p1','calibration_p1',myconfigfile["calibration_p1"])
-        #calibration_p0   = RooRealVar('calibration_p0','calibration_p0',myconfigfile["calibration_p0"])
-        #avmistag = RooRealVar('avmistag','avmistag',myconfigfile["TagOmegaSig"])
-        #
-        #mistagCalibrated = MistagCalibration('mistag_calibrated','mistag_calibrated',
-        #                                     mistag, calibration_p0,calibration_p1,avmistag)
-    else:
+        mistagWork = GeneralUtils.LoadWorkspace(TString(myconfigfile["MistagFile"]), TString(myconfigfile["MistagWork"]), debug)
+        mistagPDF = []
+        mistagPDFList = RooArgList()
+        for i in range(0,3):
+            mistagPDF.append(Bs2Dsh2011TDAnaModels.GetRooHistPdfFromWorkspace(mistagWork, TString(myconfigfile["MistagTempName"][i]), debug))
+            mistagPDFList.add(mistagPDF[i])                 
+            n = TString("mistag_")+TString(str(i))
+            GeneralUtils.SaveTemplate(NULL, mistagPDF[i], mistag, n)
+    else :
         mistagHistPdf = None 
         mistagCalibrated =  mistag 
 
@@ -589,7 +582,9 @@ def runBdGammaFitterOnData(debug, wsname,
         
     # Fitting
     # ---------------------------
-        
+    #time.setBins(250)
+    #terr.setBins(20)
+    #dataWA_binned = RooDataHist("dataWA_binned","dataWA_binned",observables,dataWA)    
     if toys or not Blinding: #Unblind yourself
         if Cat:
             myfitresult = totPDFSim.fitTo(combData, RooFit.Save(1), RooFit.Optimize(2), RooFit.Strategy(2),

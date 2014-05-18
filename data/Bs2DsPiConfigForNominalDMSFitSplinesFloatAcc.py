@@ -7,7 +7,7 @@ def getconfig() :
     # PHYSICAL PARAMETERS
     configdict["Gammas"]        =  0.661   # in ps^{-1}
     configdict["DeltaGammas"]   =  -0.105
-    configdict["DeltaMs"]       = 17.6   # in ps^{-1}
+    configdict["DeltaMs"]       = 17.768   # in ps^{-1}
     configdict["TagEffSig"]     = 0.403
     configdict["TagOmegaSig"]   = 0.391
     configdict["StrongPhase"]   = 20. / 180. * pi
@@ -22,7 +22,7 @@ def getconfig() :
 
     configdict["tacc_knots"]  = [0.50, 1.0,  1.5, 2.0, 3.0, 12.0] #tac varr 7                                                                                                              
     #configdict["tacc_values"] = [1.0, 1.0, 1.0, 1.0, 1.0, 1.0 ] #1.93184e-01, 3.35302e-01, 7.39033e-01, 1.16141e+00, 1.29660e+00, 1.31712e+00]                                            
-    configdict["tacc_values"] = [1.93184e-01, 3.35302e-01, 7.39033e-01, 1.16141e+00, 1.29660e+00, 1.31712e+00]                                                                            
+    configdict["tacc_values"] = [4.5579e-01,7.0310e-01,8.7709e-01,1.1351e+00,1.2233e+00,1.2323e+00]
     #configdict["tacc_values"] = [2.0, 2.0, 2.0,2.0, 2.0, 2.0]
     #configdict["tacc_values"] = [4.4822e-01, 5.4895e-01, 7.4500e-01, 1.0435e+00, 1.2516e+00, 1.2256e+00]                            
 
@@ -67,7 +67,7 @@ def getconfig() :
     configdict["MistagWork"]     = "workspace"
     configdict["MistagTempName"] = ["sigMistagPdf_1", "sigMistagPdf_2", "sigMistagPdf_3"]
         
-    configdict["TerrFile"]     = "../data/workspace/MDFitter/template_Data_Terr_BsDsPi.root"
+    configdict["TerrFile"]     = "../data/workspace/MDFitter/template_Data_Terr_Bs2DsPi_BDTGA.root"
     configdict["TerrWork"]     = "workspace"
     configdict["TerrTempName"] = "TimeErrorPdf_Bs2DsPi"
 

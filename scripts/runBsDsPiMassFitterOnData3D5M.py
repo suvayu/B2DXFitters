@@ -121,7 +121,7 @@ def runBsDsKMassFitterOnData( debug, sample,
                               mVar, mdVar, tVar, terrVar, tagVar, tagOmegaVar, idVar,
                               mode, sweight,  
                               fileNameAll, fileNameToys, workName,logoutputname,
-                              tagTool, configName, wider, merge, dim ) :
+                              tagTool, configName, wider, merge, dim,fileDataName ) :
 
     # Get the configuration file
     myconfigfilegrabber = __import__(configName,fromlist=['getconfig']).getconfig
@@ -604,7 +604,10 @@ def runBsDsKMassFitterOnData( debug, sample,
         else:
             cB2Var.append(RooRealVar(name.Data(), name.Data(), myconfigfile["cB2"][i]))
             name = TString("CombBkg_fracBsComb_")+m[j]
-            fracBsComb.append(RooRealVar(name.Data(), name.Data(), myconfigfile["fracBsComb"][i], 0.0, 1.0))
+            if ( sm[i].Contains("kpipi") == true or sm[i].Contains("pipipi") == true ):
+                fracBsComb.append(RooRealVar(name.Data(), name.Data(),1.0))
+            else :
+                fracBsComb.append(RooRealVar(name.Data(), name.Data(), myconfigfile["fracBsComb"][i], 0.0, 1.0))
         print name    
         name = TString("CombBkg_slope_Ds_")+m[j]
         print name

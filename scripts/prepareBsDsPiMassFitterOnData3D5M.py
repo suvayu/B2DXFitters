@@ -140,7 +140,7 @@ def prepareBsDsPiMassFitterOnData( debug,
     #print "=========================================================="
 
     RooAbsData.setDefaultStorageType(RooAbsData.Tree)
-    saveNameTS = TString(saveName)+TString(save)+TString(".root")
+    saveNameTS = TString(save)+TString(".root")
 
     #plot settings:
     plotSettings = PlotSettings("plotSettings","plotSettings", "PlotBs2DsPi3DBDTGA", "pdf", 100, true, false, true)

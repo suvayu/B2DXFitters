@@ -235,7 +235,6 @@ def prepareBsDsKMassFitterOnData( debug,
             workspace = MassFitUtils.CreatePdfSpecBackground(dataTS, TString("#MC FileName MD"),
                                                              dataTS, TString("#MC FileName MU"),
                                                              MDSettings, workspace, true, plotSettings, debug)
-
     if MCPID:
 
         MCDownNames = [TString("MC BsDsK Kaon Down"),
@@ -285,6 +284,7 @@ def prepareBsDsKMassFitterOnData( debug,
            
                 
     if SignalPID:
+        #workspace  = GeneralUtils.LoadWorkspace(TString("/afs/cern.ch/work/g/gligorov//public/Bs2DsKPlotsForPaper/NominalFit/work_dsk_pid_53005800_PIDK5_5M_BDTG06.root"),TString("workspace"),debug)
         signalPIDNames = [ TString("MC BsDsK KKPi NonRes Kaon Down"),
                            TString("MC BsDsK KKPi KstK Kaon Down"),
                            TString("MC BsDsK KKPi PhiPi Kaon Down"),
@@ -302,7 +302,6 @@ def prepareBsDsKMassFitterOnData( debug,
             workspace = WeightingUtils.ObtainPIDShapeFromCalibSampleOneSample(MDSettings, signalPIDNames[i], workspace, plotSettings, debug)
                         
             
-        saveNameTS = TString(saveName)+TString(save)+TString(".root")
         GeneralUtils.SaveWorkspace(workspace,saveNameTS, debug)
         workspace.Print()
 

@@ -10,7 +10,7 @@ def getconfig() :
     baselineconfig["aprod_Bs2DsPi"]      = -0.014 # 3
     baselineconfig["aprod_Lb2LcK"]       = 0.03 # 3
     baselineconfig["aprod_Lb2LcPi"]      = 0.03 # 3
-    baselineconfig["aprod_Combo"]        = 0.0 #3
+    baselineconfig["aprod_Combo"]        = -0.01 #3
     baselineconfig["aprod_Lb2Dsp"]       = 0.03 #3
     baselineconfig["aprod_Lb2Dsstp"]     = 0.03 #3
     baselineconfig["aprod_LM1"]          = 0.03 #3
@@ -18,15 +18,15 @@ def getconfig() :
     baselineconfig["aprod_Bs2DsRho"]     = -0.014 #3
 
     baselineconfig["adet_Signal"]       = 0.01
-    baselineconfig["adet_Bd2DK"]        = 0.01
-    baselineconfig["adet_Bd2DPi"]       = 0.005
+    baselineconfig["adet_Bd2DK"]        = 0.02
+    baselineconfig["adet_Bd2DPi"]       = 0.01
     baselineconfig["adet_Bd2DsK"]       = 0.01
     baselineconfig["adet_Bs2DsPi"]      = 0.005
-    baselineconfig["adet_Lb2LcK"]       = 0.01
-    baselineconfig["adet_Lb2LcPi"]      = 0.005
+    baselineconfig["adet_Lb2LcK"]       = -0.01
+    baselineconfig["adet_Lb2LcPi"]      = -0.02
     baselineconfig["adet_Combo"]        = 0.01
-    baselineconfig["adet_Lb2Dsp"]       = 0.02
-    baselineconfig["adet_Lb2Dsstp"]     = 0.02
+    baselineconfig["adet_Lb2Dsp"]       = 0.03
+    baselineconfig["adet_Lb2Dsstp"]     = 0.03
     baselineconfig["adet_LM1"]          = 0.01
     baselineconfig["adet_Bs2DsstPi"]    = 0.005
     baselineconfig["adet_Bs2DsRho"]     = 0.005

@@ -1,11 +1,11 @@
-set dirinput =  '/afs/cern.ch/work/g/gligorov//public/Bs2DsKToys/For1fbPaper/Gamma70_WProdDetAsy_5M_2T_MD/GeneratorOutput/'
-set diroutput = '/afs/cern.ch/work/g/gligorov//public/Bs2DsKToys/For1fbPaper/Gamma70_WProdDetAsy_5M_2T_MD/MassFitResults/'
-set sweightsdiroutput = '/afs/cern.ch/work/g/gligorov//public/Bs2DsKToys/For1fbPaper/Gamma70_WProdDetAsy_5M_2T_MD/sWeightsForTimeFit/'
+set dirinput =  '/afs/cern.ch/work/g/gligorov//public/Bs2DsKToys/For1fbPaper/Gamma70_WProdDetAsy_NoKFactors_5M_2T_MD/GeneratorOutput/'
+set diroutput = '/afs/cern.ch/work/g/gligorov//public/Bs2DsKToys/For1fbPaper/Gamma70_WProdDetAsy_NoKFactors_5M_2T_MD/MassFitResults/Nominal/'
+set sweightsdiroutput = '/afs/cern.ch/work/g/gligorov//public/Bs2DsKToys/For1fbPaper/Gamma70_WProdDetAsy_NoKFactors_5M_2T_MD/sWeightsForTimeFit/Nominal/'
 
 set outputprefix = 'DsK_Toys_MassFitResult_'
 set outputsuffix = '.log'
 
-set inputprefix = 'DsK_Toys_WithKFactors_Work_'
+set inputprefix = 'DsK_Toys_Work_'
 set inputsuffix = '.root'
 
 set sweightsprefix = 'DsK_Toys_sWeights_ForTimeFit_'
