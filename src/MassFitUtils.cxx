@@ -511,6 +511,7 @@ namespace MassFitUtils {
 				   TString& mode,
 				   RooWorkspace* workspace, 
 				   PlotSettings* plotSet,
+				   bool pdf,
 				   bool debug)
   {
     if ( debug == true)
@@ -695,27 +696,30 @@ namespace MassFitUtils {
       
       name="PhysBkgBs2DsPiPdf_m_"+s;
       TString name2=name+"_Ds";
-      
-      pdfDataMiss[i] = new RooKeysPdf(name.Data(),name.Data(),*lab0_MM,*dataSet[i]);
-      pdfDataDMiss[i] = new RooKeysPdf(name2.Data(),name2.Data(),*lab2_MM,*dataSet[i]);
-      if ( debug == true) 
-	{
-	  if( pdfDataMiss[i] != NULL ){ std::cout<<"=====> Create RooKeysPdf for misID BsDsPi: "<<pdfDataMiss[i]->GetName()<<std::endl;}
-	  else { std::cout<<"Cannot create RooKeysPdf for BsDsPi under BsDsK."<<std::endl;}
-	  
-	  if( pdfDataDMiss[i] != NULL ){ std::cout<<"=====> Create RooKeysPdf for Ds mass misID BsDsPi: "<<pdfDataDMiss[i]->GetName()<<std::endl;}
-          else { std::cout<<"Cannot create RooKeysPdf for Ds mass BsDsPi under BsDsK."<<std::endl;}
 
-	}
-            
-      if (plotSet->GetStatus() == true )
+      if ( pdf == true )
 	{
-	  SaveTemplate(dataSet[i], pdfDataMiss[i],  lab0_MM, s, mode, plotSet, debug);
-	  SaveTemplate(dataSet[i], pdfDataDMiss[i], lab2_MM, s, mode, plotSet, debug);
+	  pdfDataMiss[i] = new RooKeysPdf(name.Data(),name.Data(),*lab0_MM,*dataSet[i]);
+	  pdfDataDMiss[i] = new RooKeysPdf(name2.Data(),name2.Data(),*lab2_MM,*dataSet[i]);
+	  if ( debug == true) 
+	    {
+	      if( pdfDataMiss[i] != NULL ){ std::cout<<"=====> Create RooKeysPdf for misID BsDsPi: "<<pdfDataMiss[i]->GetName()<<std::endl;}
+	      else { std::cout<<"Cannot create RooKeysPdf for BsDsPi under BsDsK."<<std::endl;}
+	      
+	      if( pdfDataDMiss[i] != NULL ){ std::cout<<"=====> Create RooKeysPdf for Ds mass misID BsDsPi: "<<pdfDataDMiss[i]->GetName()<<std::endl;}
+	      else { std::cout<<"Cannot create RooKeysPdf for Ds mass BsDsPi under BsDsK."<<std::endl;}
+	      
+	    }
+	  
+	  if (plotSet->GetStatus() == true )
+	    {
+	      SaveTemplate(dataSet[i], pdfDataMiss[i],  lab0_MM, s, mode, plotSet, debug);
+	      SaveTemplate(dataSet[i], pdfDataDMiss[i], lab2_MM, s, mode, plotSet, debug);
+	    }
+	  work->import(*pdfDataMiss[i]);
+	  work->import(*pdfDataDMiss[i]);
 	}
-      work->import(*pdfDataMiss[i]);
-      work->import(*pdfDataDMiss[i]);
-      
+
       work->import(*dataSet[i]);
            
 
@@ -744,7 +748,8 @@ namespace MassFitUtils {
 				    MDFitterSettings* mdSet,
 				    TString& mode,
 				    RooWorkspace* workspace, 
-				    PlotSettings* plotSet, 
+				    PlotSettings* plotSet,
+				    bool pdf, 
 				    bool debug)
   {
     if ( debug == true)
@@ -1039,39 +1044,46 @@ namespace MassFitUtils {
 
       //Create RooKeysPdf for misID background//
       
-      
-      name="PhysBkgBd2DPiPdf_m_"+s;
-      pdfDataMiss[i] = new RooKeysPdf(name.Data(),name.Data(),*lab0_MM,*dataSet[i],RooKeysPdf::MirrorBoth,1.5);
-      
-      TString nameD=name+"_Ds";
-      pdfDataDMiss[i] = new RooKeysPdf(nameD.Data(),nameD.Data(),*lab2_MM,*dataSet[i], RooKeysPdf::MirrorBoth,1.5);
-
-      
-      if (debug == true) 
+      if ( pdf == true )
 	{
-	  if( pdfDataMiss[i] != NULL ){ std::cout<<"=====> Create RooKeysPdf for misID BdDPi: "<<pdfDataMiss[i]->GetName()<<std::endl;} 
-	  else {std::cout<<"Cannot create pdf"<<std::endl;}
+	  name="PhysBkgBd2DPiPdf_m_"+s;
+	  pdfDataMiss[i] = new RooKeysPdf(name.Data(),name.Data(),*lab0_MM,*dataSet[i],RooKeysPdf::MirrorBoth,1.5);
 	  
-	  if( pdfDataDMiss[i] != NULL ){ std::cout<<"=====> Create RooKeysPdf for Ds mass misID BdDPi: "<<pdfDataDMiss[i]->GetName()<<std::endl;}
-          else {std::cout<<"Cannot create pdf"<<std::endl;}
-
+	  TString nameD=name+"_Ds";
+	  pdfDataDMiss[i] = new RooKeysPdf(nameD.Data(),nameD.Data(),*lab2_MM,*dataSet[i], RooKeysPdf::MirrorBoth,1.5);
+	  
+	  
+	  if (debug == true) 
+	    {
+	      if( pdfDataMiss[i] != NULL ){ std::cout<<"=====> Create RooKeysPdf for misID BdDPi: "<<pdfDataMiss[i]->GetName()<<std::endl;} 
+	      else {std::cout<<"Cannot create pdf"<<std::endl;}
+	      
+	      if( pdfDataDMiss[i] != NULL ){ std::cout<<"=====> Create RooKeysPdf for Ds mass misID BdDPi: "<<pdfDataDMiss[i]->GetName()<<std::endl;}
+	      else {std::cout<<"Cannot create pdf"<<std::endl;}
+	      
+	    }
 	}
-      
+
       if( plotSet->GetStatus() == true )
 	{
 	  TString s = smp[i]+"_"+md[i]; 
 	  SaveDataSet(dataSet[i],  lab1_PT, s, mode, plotSet, debug);
 	  SaveDataSet(dataSet[i],  nTracks, s, mode, plotSet, debug);
 	  SaveDataSet(dataSet[i],  lab1_PIDK, s, mode, plotSet, debug);
-	  SaveTemplate(dataSet[i], pdfDataMiss[i],  lab0_MM, s, mode, plotSet, debug);
-	  SaveTemplate(dataSet[i], pdfDataDMiss[i], lab2_MM, s, mode, plotSet, debug);
+	  if (pdf == true )
+	    {
+	      SaveTemplate(dataSet[i], pdfDataMiss[i],  lab0_MM, s, mode, plotSet, debug);
+	      SaveTemplate(dataSet[i], pdfDataDMiss[i], lab2_MM, s, mode, plotSet, debug);
+	    }
 	}
       
       work->import(*dataSet[i]);
       
-      work->import(*pdfDataMiss[i]);
-      work->import(*pdfDataDMiss[i]);
-                  
+      if ( pdf == true )
+	{
+	  work->import(*pdfDataMiss[i]);
+	  work->import(*pdfDataDMiss[i]);
+	} 
     }
     return work;
   }
@@ -1714,8 +1726,10 @@ TCut GetCutMCBkg( MDFitterSettings* mdSet, TString mode, TString hypo, TString D
 	  if (hypo.Contains("Bd") == true && ( mode[i] == "Bs2DsPi" || mode[i] == "Bs2Dspi" ) && jentry%8 != 0 ) continue;
 	  if (hypo.Contains("Bd") == true && ( mode[i] == "Bd2DK" ) && jentry%4 != 0 ) continue;
 	  if (hypo.Contains("Bd") == true && ( mode[i] == "Bd2DstPi" ) && jentry%2 != 0 ) continue;
-	  if (hypo.Contains("DsPi") == true && ( mode[i] == "Bs2DsK" ) && jentry%8 != 0 ) continue;
-	  if (hypo.Contains("DsK") == true && ( mode[i] == "Bs2DsPi" ) && jentry%8 != 0 ) continue;
+	  if (hypo.Contains("DsPi") == true && ( mode[i] == "Bs2DsK" ) && jentry%16 != 0 ) continue;
+	  if (hypo.Contains("DsK") == true && ( mode[i] == "Bs2DsPi" ) && jentry%16 != 0 ) continue;
+	  if (hypo.Contains("DsK") == true && ( mode[i] == "Bd2DK" ) && jentry%2 != 0 ) continue;
+
 
 	  if (5320 < lab0_MM2 and lab0_MM2 < 5420) sa_counter++;
 	  if (mdSet->GetMassBRangeDown() < lab0_MM2 and lab0_MM2 < mdSet->GetMassBRangeUp()) ag_counter++;
