@@ -144,10 +144,12 @@ def runBsDsKMassFitterOnData( debug, sample,
     MDSettings = MDFitterSettings("MDSettings","MDFSettings",config)    
            
     workNameTS = TString(workName)
-    #workData = GeneralUtils.LoadWorkspace(TString("work_dspi_data.root"),workNameTS,debug)
     workspace = []
-    workspace.append(GeneralUtils.LoadWorkspace(TString(fileNameAll),workNameTS,debug))
-    workData = workspace[0]
+    workspace.append(GeneralUtils.LoadWorkspace(TString(fileNameAll),workNameTS, debug))
+    if fileDataName == "":
+        workData = workspace[0]
+    else:
+        workData = GeneralUtils.LoadWorkspace(TString(fileDataName),workNameTS, debug)
 
     obsTS = TString(mVar)
     
@@ -299,16 +301,6 @@ def runBsDsKMassFitterOnData( debug, sample,
                         countDsK[j] += 1
                     if abs(trueid.getValV(obs2)-10.0) < 0.5 :
                         countCombo[j] += 1
-
-        #s = [sampleTS, sampleTS]
-        #m = [modeTS]
-        #sm.append(s[0]+t+m[0])
-        #data.append(GeneralUtils.GetDataSet(workspaceToys,datasetTS+TString("toys"),debug))
-        #nEntries.append(data[0].numEntries())
-        #sam.defineType(sm[0].Data())
-        #combData = RooDataSet("combData","combined data",RooArgSet(observables),
-        #                      RooFit.Index(sam),
-        #                      RooFit.Import(sm
     else:
         combData =  GeneralUtils.GetDataSet(workspace[0], observables, sam, datasetTS, sampleTS, modeTS, merge, debug )
         sm = GeneralUtils.GetSampleMode(sampleTS, modeTS, merge, debug )
@@ -728,11 +720,7 @@ def runBsDsKMassFitterOnData( debug, sample,
     result.Print("v")
     floatpar = result.floatParsFinal()
 
-    if (not toys ):
-        BDTGTS = GeneralUtils.CheckBDTGBin(confTS, debug)
-        name = TString("./sWeights_BsDsPi_")+modeTS+TString("_")+sampleTS+TString("_")+BDTGTS+TString(".root")
-    else:
-        name = TString(options.sweightoutputname)
+    name = TString(options.sweightoutputname)
         
     #Now includes setting things constant
     if sweight:
@@ -819,7 +807,7 @@ parser.add_option( '-s', '--save',
 
 parser.add_option( '--sweightoutputname',
                    dest = 'sweightoutputname',
-                   default = '/afs/cern.ch/work/g/gligorov/public/Bs2DsKToys/sWeightToys/DsPi_Toys_Full_sWeights_ForTimeFit_0.root', 
+                   default = 'sWeights_BsDsPi_both_all_BDTGA.root', 
                    help = 'save the model PDF and generated dataset to file "WS_WSNAME.root"'
                    )   
 
@@ -939,7 +927,11 @@ parser.add_option( '--dim',
                    dest = 'dim',
                    default = 3)
 
-
+parser.add_option( '--fileData',
+                   dest = 'fileData',
+                   default = '',
+                   help = 'you can use it if you have separate files with templates and data'
+                   )
 # -----------------------------------------------------------------------------
 
 if __name__ == '__main__' :
@@ -957,6 +949,7 @@ if __name__ == '__main__' :
                               options.tagvar, options.tagomegavar, options.idvar,\
                               options.mode, options.sweight, 
                               options.fileNameAll, options.fileNameToys, options.workName,
-                              options.logoutputname,options.tagTool, options.configName, options.wider, options.merge, options.dim)
+                              options.logoutputname,options.tagTool, options.configName, options.wider, options.merge, options.dim,
+                              options.fileData)
 
 # -----------------------------------------------------------------------------

@@ -117,7 +117,7 @@ bName = 'Bs'
 dName = 'Ds'
 #------------------------------------------------------------------------------
 def runBsDsKMassFitterOnData( debug, sample, mVar, mdVar, tVar, terrVar, tagVar, tagOmegaVar, idVar, mode,
-                              sweight,  fileNameAll, fileNameToys, workName, configName, wide, dim, merge ) :
+                              sweight,  fileNameAll, fileNameToys, workName, configName, wide, dim, merge, fileDataName ) :
 
 
     # Get the configuration file
@@ -162,8 +162,10 @@ def runBsDsKMassFitterOnData( debug, sample, mVar, mdVar, tVar, terrVar, tagVar,
 
     workspace = []
     workspace.append(GeneralUtils.LoadWorkspace(TString(fileNameAll),workNameTS, debug))
-    #workData = GeneralUtils.LoadWorkspace(TString("work_dsk_data.root"),workNameTS, debug)
-    workData = workspace[0]
+    if fileDataName == "":
+        workData = workspace[0]
+    else:    
+        workData = GeneralUtils.LoadWorkspace(TString(fileDataName),workNameTS, debug)
      
     obsTS = TString(mVar)
     
@@ -665,11 +667,7 @@ def runBsDsKMassFitterOnData( debug, sample, mVar, mdVar, tVar, terrVar, tagVar,
     result.Print("v")
     floatpar = result.floatParsFinal()
 
-    if ( not toys):
-        BDTGTS = GeneralUtils.CheckBDTGBin(confTS, debug)
-        name = TString("./sWeights_BsDsK_")+modeTS+TString("_")+sampleTS+TString("_")+BDTGTS+TString(".root")
-    else:
-        name = TString(options.sweightoutputname)
+    name = TString(options.sweightoutputname)
      
     if (sweight):
         RooMsgService.instance().Print('v')
@@ -765,7 +763,7 @@ parser.add_option( '-s', '--save',
                    )
 parser.add_option( '--sweightoutputname',
                    dest = 'sweightoutputname',
-                   default = '/afs/cern.ch/work/a/adudziak/public/Bs2DsKToys/DsKToys_sWeights_ForTimeFit_0.root', 
+                   default = 'sWeights_BsDsK_both_all_BDTGA.root', 
                    help = 'save the model PDF and generated dataset to file "WS_WSNAME.root"'
                    )   
 parser.add_option( '-i', '--initial-vars',
@@ -864,6 +862,12 @@ parser.add_option( '--merge',
 parser.add_option( '--dim',
                    dest = 'dim',
                    default = 3)
+
+parser.add_option( '--fileData',
+                   dest = 'fileData',
+                   default = '',
+                   help = 'you can use it if you have separate files with templates and data'
+                   )
 
 # -----------------------------------------------------------------------------
 
