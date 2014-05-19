@@ -15,7 +15,7 @@ mode = options.mode
 bins = options.bins
 plotfile = options.plotfile
 
-assert(tpfile and mode)
+assert(rfile and tpfile and mode)
 if not plotfile:
     plotfile = '{}.pdf'.format(rfile.rsplit('.',1)[0])
 
