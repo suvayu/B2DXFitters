@@ -6,11 +6,13 @@ optparser = argparse.ArgumentParser(description=__doc__)
 optparser.add_argument('-w', '--wspace', dest='rfile', help='Workspace filename')
 optparser.add_argument('-t', '--tuple', dest='tpfile', help='Tuple filename')
 optparser.add_argument('-m', '--mode', dest='mode', help='Decay mode')
+optparser.add_argument('-b', '--bins', dest='bins', type=int, default=500, help='No. of time bins')
 optparser.add_argument('-o', '--output', dest='plotfile', help='Output filename (pdf)')
 options = optparser.parse_args()
 rfile = options.rfile
 tpfile = options.tpfile
 mode = options.mode
+bins = options.bins
 plotfile = options.plotfile
 
 assert(tpfile and mode)
@@ -54,8 +56,8 @@ assert(mykpdf)
 
 ## variables
 time = RooRealVar('time', 'Time [ps]', 0.2, 15.0)
-time.setBins(500)
-time.setBins(1500, 'cache')
+time.setBins(bins)
+time.setBins(bins*3, 'cache')
 
 kfactor = workspace.var('kfactorVar')
 kfactor.setRange(0.85, 1.05)
