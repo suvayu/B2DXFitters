@@ -145,3 +145,40 @@ def get_workspace(fname, wname):
     ffile = get_file(fname, 'read')
     workspace = ffile.Get(wname)
     return workspace, ffile
+
+
+# plotting utilities
+def get_title_from_mode(mode):
+    """Parse mode name, and return ROOT flavoured LaTeX for titles."""
+    title = mode
+    title = title.replace('Bs', 'B_{s}')
+    title = title.replace('Lb', '#Lambda_{b}')
+    title = title.replace('2', ' #rightarrow ')
+    title = title.replace('Ds', 'D_{s}')
+    title = title.replace('st', '*')
+    title = title.replace('Pi', '#pi')
+    title = title.replace('Lc', '#Lambda_{c}')
+    return title
+
+
+# FIXME: this is a hack, fix the real issue in splines
+def rescale_roofit_pad(pad, new_xmin, new_xmax):
+    """Rescale pad with RooFit objects to new range.
+
+    Range is provided in "user coordinates".
+
+    new_xmin -- New xmin
+    new_xmax -- New xmax
+
+    """
+    from ROOT import TH1D
+    pad_objs = pad.GetListOfPrimitives()
+    for i in range(pad_objs.GetSize()):
+        # RooFit uses a dummy TH1D object to set X & Y scale.  Usually
+        # this is at the front and end of the list of primitives.
+        # Find it, rescale it, and return.
+        if isinstance(pad_objs[i], TH1D):
+            hist_obj = pad_objs[i]
+            hist_obj.GetXaxis().SetRangeUser(new_xmin, new_xmax)
+            pad.Update()
+            return

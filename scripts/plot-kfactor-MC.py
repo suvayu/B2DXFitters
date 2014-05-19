@@ -8,6 +8,7 @@ optparser.add_argument('-t', '--tuple', dest='tpfile', help='Tuple filename')
 optparser.add_argument('-n', '--nokfactor', dest='nokfactor', action='store_true', help='Exclude k-factor')
 optparser.add_argument('-m', '--mode', dest='mode', help='Decay mode')
 optparser.add_argument('-b', '--bins', dest='bins', type=int, default=500, help='No. of time bins')
+optparser.add_argument('-r', '--range', dest='trange', type=float, nargs=2, help='Plot range (in ps)')
 optparser.add_argument('-o', '--output', dest='plotfile', help='Output filename (pdf)')
 options = optparser.parse_args()
 rfile = options.rfile
@@ -15,6 +16,7 @@ tpfile = options.tpfile
 nokfactor = options.nokfactor
 mode = options.mode
 bins = options.bins
+trange = options.trange
 plotfile = options.plotfile
 
 assert(rfile and tpfile and mode)
@@ -26,7 +28,7 @@ from ROOT import TFile, TTree, TChain, TH1D, TList, TCanvas
 
 # custom
 import B2DXFitters
-from B2DXFitters.WS import WS
+from B2DXFitters.factory import get_title_from_mode, rescale_roofit_pad
 from ROOT import (RooKResModel, Inverse, RooGaussEfficiencyModel,
                   RooCubicSplineFun)
 
@@ -160,17 +162,6 @@ dst.Print()
 
 # model.fitTo(dst)
 
-def get_title_from_mode(mode):
-    title = mode
-    title = title.replace('Bs', 'B_{s}')
-    title = title.replace('Lb', '#Lambda_{b}')
-    title = title.replace('2', ' #rightarrow ')
-    title = title.replace('Ds', 'D_{s}')
-    title = title.replace('st', '*')
-    title = title.replace('Pi', '#pi')
-    title = title.replace('Lc', '#Lambda_{c}')
-    return title
-
 # plot
 tfr = time.frame()
 dst.plotOn(tfr)
@@ -183,5 +174,10 @@ else:
     k_title = 'with'
 tfr.SetTitle('{} ({} #it{{k}}-factor smearing)'.format(mode_title, k_title))
 tfr.GetYaxis().SetTitle('')
+
+# FIXME: this is a hack, fix the real issue in splines
+if trange:
+    rescale_roofit_pad(gPad, trange[0], trange[1])
+
 canvas.Print(plotfile)
 canvas.Print('{}]'.format(plotfile))
