@@ -152,11 +152,23 @@ dst.Print()
 
 # model.fitTo(dst)
 
+def get_title_from_mode(mode):
+    title = mode
+    title = title.replace('Bs', 'B_{s}')
+    title = title.replace('Lb', '#Lambda_{b}')
+    title = title.replace('2', ' #rightarrow ')
+    title = title.replace('Ds', 'D_{s}')
+    title = title.replace('st', '*')
+    title = title.replace('Pi', '#pi')
+    title = title.replace('Lc', '#Lambda_{c}')
+    return title
+
+# plot
 tfr = time.frame()
 dst.plotOn(tfr)
 model.plotOn(tfr)
 tfr.Draw()
-tfr.SetTitle('B_{s} #rightarrow D_{s}*#pi (with #it{k}-factor smearing)')
+tfr.SetTitle('{} (with #it{{k}}-factor smearing)'.format(get_title_from_mode(mode)))
 tfr.GetYaxis().SetTitle('')
 canvas.Print(plotfile)
 canvas.Print('{}]'.format(plotfile))
