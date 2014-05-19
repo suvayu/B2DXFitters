@@ -4,6 +4,9 @@
 ! Purpose     : RooFit-based fitters for B -> D X
 !-----------------------------------------------------------------------------
 
+! 2014-05-19 - Suvayu Ali
+ - Script to make k-factor MC overlay plot asked during review
+
 ! 2014-05-18 - V. Gligorov
  - Add latest mistag and time error templates to data/workspace/MDFitter/
  - Add CalculateDsKAcceptances.py script which prints out the DsK data
