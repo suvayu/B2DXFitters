@@ -5,12 +5,14 @@ import argparse
 optparser = argparse.ArgumentParser(description=__doc__)
 optparser.add_argument('-w', '--wspace', dest='rfile', help='Workspace filename')
 optparser.add_argument('-t', '--tuple', dest='tpfile', help='Tuple filename')
+optparser.add_argument('-n', '--nokfactor', dest='nokfactor', action='store_true', help='Exclude k-factor')
 optparser.add_argument('-m', '--mode', dest='mode', help='Decay mode')
 optparser.add_argument('-b', '--bins', dest='bins', type=int, default=500, help='No. of time bins')
 optparser.add_argument('-o', '--output', dest='plotfile', help='Output filename (pdf)')
 options = optparser.parse_args()
 rfile = options.rfile
 tpfile = options.tpfile
+nokfactor = options.nokfactor
 mode = options.mode
 bins = options.bins
 plotfile = options.plotfile
@@ -118,7 +120,10 @@ gres = RooGaussEfficiencyModel('{}_GaussianWithPEDTE'.format(tacc.GetName()),
                                '', time, tacc, const(0.0), const(0.044))
 # # otherwise
 # gres = RooGaussModel('gres', '', time, const(0.0), const(0.044))
-kgres = RooKResModel('kgres', '', gres, mykpdf, kfactor, RooArgSet(gamma, dM, dGamma))
+if nokfactor:
+    kgres = gres
+else:
+    kgres = RooKResModel('kgres', '', gres, mykpdf, kfactor, RooArgSet(gamma, dM, dGamma))
 model = RooBDecay('model', 'k-factor smeared model', time, tau, dGamma,
                    one, zero, C, zero, dM, kgres, RooBDecay.SingleSided)
 
@@ -171,7 +176,12 @@ tfr = time.frame()
 dst.plotOn(tfr)
 model.plotOn(tfr)
 tfr.Draw()
-tfr.SetTitle('{} (with #it{{k}}-factor smearing)'.format(get_title_from_mode(mode)))
+mode_title = get_title_from_mode(mode)
+if nokfactor:
+    k_title = 'no'
+else:
+    k_title = 'with'
+tfr.SetTitle('{} ({} #it{{k}}-factor smearing)'.format(mode_title, k_title))
 tfr.GetYaxis().SetTitle('')
 canvas.Print(plotfile)
 canvas.Print('{}]'.format(plotfile))
