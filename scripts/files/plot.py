@@ -72,8 +72,9 @@ tau = Inverse('tau', 'tau', gamma)
 # tauk = Inverse('tauk', 'tauk', kgamma)
 
 ## acceptance
-spline_knots = [ 0.25, 0.5, 1.0, 2.0, 3.0, 12.0 ]
-spline_coeffs = [ 0.179, 0.294, 0.690, 1.125, 1.245, 1.270 ]
+spline_knots = [ 0.5, 1.0, 1.5, 2.0, 3.0, 12.0 ]
+spline_coeffs = [ 5.03902e-01, 7.32741e-01, 9.98736e-01,
+                  1.16514e+00, 1.25167e+00, 1.28624e+00 ]
 assert(len(spline_knots) == len(spline_coeffs))
 
 # knot binning
