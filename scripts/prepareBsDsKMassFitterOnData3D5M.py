@@ -137,7 +137,7 @@ def prepareBsDsKMassFitterOnData( debug,
     print "=========================================================="
 
     RooAbsData.setDefaultStorageType(RooAbsData.Tree)
-    saveNameTS = TString(saveName)
+    saveNameTS = TString(save)
 
     #plot settings:
     plotSettings = PlotSettings("plotSettings","plotSettings", "PlotBs2DsK3DBDTGA", "pdf", 100, true, false, true)
@@ -485,7 +485,7 @@ parser.add_option( '--CombPID',
                    )
 parser.add_option( '--noRooKeysPdf',
                    dest = 'rookeypdf',
-                   action = 'store_true',
+                   action = 'store_false',
                    default = True,
                    help= 'obtain rookeyspdf'
                    )
@@ -512,6 +512,6 @@ if __name__ == '__main__' :
                                    options.DsPi, options.DsPiPID,
                                    options.MC, options.MCPID,
                                    options.Signal, options.SignalPID,
-                                   options.CombPID, options.rookeyspdf)
+                                   options.CombPID, options.rookeypdf)
 
 # -----------------------------------------------------------------------------
