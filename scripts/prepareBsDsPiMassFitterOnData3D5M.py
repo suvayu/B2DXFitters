@@ -140,7 +140,7 @@ def prepareBsDsPiMassFitterOnData( debug,
     #print "=========================================================="
 
     RooAbsData.setDefaultStorageType(RooAbsData.Tree)
-    saveNameTS = TString(save)+TString(".root")
+    saveNameTS = TString(save)
 
     #plot settings:
     plotSettings = PlotSettings("plotSettings","plotSettings", "PlotBs2DsPi3DBDTGA", "pdf", 100, true, false, true)
@@ -473,7 +473,7 @@ parser.add_option( '--CombPID',
 
 parser.add_option( '--noRooKeysPdf',
                    dest = 'rookeypdf',
-                   action = 'store_true',
+                   action = 'store_false',
                    default = True,
                    help= 'create data'
                    )
@@ -497,7 +497,7 @@ if __name__ == '__main__' :
                                     options.DPi, options.DPiPID,
                                     options.MC, options.MCPID,
                                     options.Signal, options.SignalPID,
-                                    options.CombPID, options.save, options.norookeypdf)
+                                    options.CombPID, options.save, options.rookeypdf)
     
 
 # -----------------------------------------------------------------------------
