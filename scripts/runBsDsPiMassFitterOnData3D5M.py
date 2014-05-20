@@ -149,6 +149,7 @@ def runBsDsKMassFitterOnData( debug, sample,
     if fileDataName == "":
         workData = workspace[0]
     else:
+        print "[INFO] Load second workspace with data"
         workData = GeneralUtils.LoadWorkspace(TString(fileDataName),workNameTS, debug)
 
     obsTS = TString(mVar)
@@ -302,11 +303,11 @@ def runBsDsKMassFitterOnData( debug, sample,
                     if abs(trueid.getValV(obs2)-10.0) < 0.5 :
                         countCombo[j] += 1
     else:
-        combData =  GeneralUtils.GetDataSet(workspace[0], observables, sam, datasetTS, sampleTS, modeTS, merge, debug )
+        combData =  GeneralUtils.GetDataSet(workData, observables, sam, datasetTS, sampleTS, modeTS, merge, debug )
         sm = GeneralUtils.GetSampleMode(sampleTS, modeTS, merge, debug )
         s = GeneralUtils.GetSample(sampleTS, debug)
         m = GeneralUtils.GetMode(modeTS,debug)
-        nEntries = GeneralUtils.GetEntriesCombData(workspace[0], datasetTS, sampleTS, modeTS, merge, debug )
+        nEntries = GeneralUtils.GetEntriesCombData(workData, datasetTS, sampleTS, modeTS, merge, debug )
         for en in nEntries:
             print en
 
@@ -448,9 +449,13 @@ def runBsDsKMassFitterOnData( debug, sample,
     if dim > 2 :
         for i in range(0,bound):
             namePID = TString("Bs2DsPi_")+sm[i]
-            k = bound%2
+            if merge:
+                k = bound%2
+            else:
+                k = 0
             sigPIDKPDF.append(Bs2Dsh2011TDAnaModels.ObtainPIDKShape(workspace[0], namePID, s[k], lumRatio, true, debug))
             getattr(workInt,'import')(sigPIDKPDF[i])
+
 
     j=0
     for i in range(0,bound):
@@ -552,14 +557,25 @@ def runBsDsKMassFitterOnData( debug, sample,
             nBd2DstPi.append(RooRealVar(nameBd2DstPi.Data() , nameBd2DstPi.Data(), 0.0))
             nBd2DRho.append(RooRealVar(nameBd2DRho.Data() , nameBd2DRho.Data(), 0.0))
 
-        if mode != "hhhpi0":    
-            nBd2DPi.append(RooRealVar( nameBd2DPi.Data(), nameBd2DPi.Data(), myconfigfile["BdDPiEvents"][i])) #, inBd2DPi*0.25, inBd2DPi*1.75))
-            nBs2DsK.append(RooRealVar( nameBs2DsK.Data(), nameBs2DsK.Data(), myconfigfile["BsDsKEvents"][i])) #, inBs2DsK*0.25, inBs2DsK*1.75))    
-            nLb2LcPi.append(RooRealVar( nameLb2LcPi.Data(), nameLb2LcPi.Data(),  myconfigfile["LbLcPiEvents"][i])) #, 0.25*inLbLcPi, 1.75*inLbLcPi ))    
+        if mode != "hhhpi0":
+            nBd2DPiFixedEvents = myconfigfile["BdDPiEvents"][i] #*(0.41)                                                                                                                 
+            nBs2DsKFixedEvents =  myconfigfile["BsDsKEvents"][i] #*(0.41)                                                                                                                 
+            nLb2LcPiFixedEvents =  myconfigfile["LbLcPiEvents"][i] #*(0.41)                                                                                                               
+            if sampleTS == "up":
+                nBd2DPiFixedEvents = nBd2DPiFixedEvents* myconfigfile["lumRatio"]
+                nBs2DsKFixedEvents = nBs2DsKFixedEvents* myconfigfile["lumRatio"]
+                nLb2LcPiFixedEvents = nLb2LcPiFixedEvents* myconfigfile["lumRatio"]
+            elif sampleTS == "down":
+                nBd2DPiFixedEvents = nBd2DPiFixedEvents* (1- myconfigfile["lumRatio"])
+                nBs2DsKFixedEvents = nBs2DsKFixedEvents* (1-myconfigfile["lumRatio"])
+                nLb2LcPiFixedEvents = nLb2LcPiFixedEvents*(1- myconfigfile["lumRatio"])
+            nBd2DPi.append(RooRealVar( nameBd2DPi.Data(), nameBd2DPi.Data(), nBd2DPiFixedEvents)) #, inBd2DPi*0.25, inBd2DPi*1.75))                                                       
+            nBs2DsK.append(RooRealVar( nameBs2DsK.Data(), nameBs2DsK.Data(), nBs2DsKFixedEvents)) #, inBs2DsK*0.25, inBs2DsK*1.75))                                                       
+            nLb2LcPi.append(RooRealVar( nameLb2LcPi.Data(), nameLb2LcPi.Data(),  nLb2LcPiFixedEvents)) #, 0.25*inLbLcPi, 1.75*inLbLcPi ))                                                 
         else:
-            nBd2DPi.append(RooRealVar( nameBd2DPi.Data(), nameBd2DPi.Data(), 0,0,nEntries[i]/4))       
+            nBd2DPi.append(RooRealVar( nameBd2DPi.Data(), nameBd2DPi.Data(), 0,0,nEntries[i]/4))
             nLb2LcPi.append(RooRealVar( nameLb2LcPi.Data(), nameLb2LcPi.Data(), 0,0,nEntries[i]/4))
-            nBd2DsstRho.append(RooRealVar(nameBd2DsstRho.Data() , nameBd2DsstRho.Data(),0))
+
 
         getattr(workInt,'import')(nCombBkg[i])
         if mode != "hhhpi0":
@@ -629,8 +645,12 @@ def runBsDsKMassFitterOnData( debug, sample,
         if merge:
             j=j+1
         else:
-            if i == 1 or i == 3:
+            if sampleTS == "both":
+                if i == 1 or i == 3:
+                    j=j+1
+            else:
                 j=j+1
+
             
         #---------------------------------------------------------------------------------------------------------------------------#                
 
