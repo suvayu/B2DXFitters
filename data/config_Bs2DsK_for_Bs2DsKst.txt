@@ -2,8 +2,8 @@
 /afs/cern.ch/work/l/lsestini/public/Data_BsDsK/
 MergedTree_Data_Bs2DsK_Ds2HHHPi0Resolved_dw.root
 MergedTree_Data_Bs2DsK_Ds2HHHPi0Resolved_up.root
-DecayTreeTuple/tuple
-DecayTreeTuple/tuple
+tuple
+tuple
 ###
 
 #PIDp
@@ -49,6 +49,8 @@ DecayTree;1
 /afs/cern.ch/work/l/lsestini/public/Data_BsDsK/MergedTree_Bd2Dsstk_Bs2DsK_Ds2HHHPi0Resolved_dw.root
 /afs/cern.ch/work/l/lsestini/public/Data_BsDsK/MergedTree_Bs2Dsstk_Bs2DsK_Ds2HHHPi0Resolved_dw.root
 /afs/cern.ch/work/l/lsestini/public/Data_BsDsK/MergedTree_Lb2Lambdack_Bs2DsK_Ds2HHHPi0Resolved_dw.root
+/afs/cern.ch/work/l/lsestini/public/Data_BsDsK/MergedTree_Bs2Dspi_Bs2DsK_Ds2HHHPi0Resolved_dw.root
+/afs/cern.ch/work/l/lsestini/public/Data_BsDsK/MergedTree_Bs2Dsstpi_Bs2DsK_Ds2HHHPi0Resolved_dw.root
 ###
 
 #MC FileName MU HHHPi0
@@ -57,6 +59,8 @@ DecayTree;1
 /afs/cern.ch/work/l/lsestini/public/Data_BsDsK/MergedTree_Bd2Dsstk_Bs2DsK_Ds2HHHPi0Resolved_up.root
 /afs/cern.ch/work/l/lsestini/public/Data_BsDsK/MergedTree_Bs2Dsstk_Bs2DsK_Ds2HHHPi0Resolved_up.root
 /afs/cern.ch/work/l/lsestini/public/Data_BsDsK/MergedTree_Lb2Lambdack_Bs2DsK_Ds2HHHPi0Resolved_up.root
+/afs/cern.ch/work/l/lsestini/public/Data_BsDsK/MergedTree_Bs2Dspi_Bs2DsK_Ds2HHHPi0Resolved_up.root
+/afs/cern.ch/work/l/lsestini/public/Data_BsDsK/MergedTree_Bs2Dsstpi_Bs2DsK_Ds2HHHPi0Resolved_up.root
 ###
 
 #MC TreeName
@@ -65,9 +69,11 @@ DecayTreeTuple/tuple;1
 DecayTreeTuple/tuple;1
 DecayTreeTuple/tuple;1
 DecayTreeTuple/tuple;1
+DecayTreeTuple/tuple;1
+DecayTreeTuple/tuple;1
 ###
 
-#Signal Bs2DsK HHHPi0
+#Signal BsDsK HHHPi0
 /afs/cern.ch/work/l/lsestini/public/Data_BsDsK/
 MergedTree_Signal_Bs2DsK_Ds2HHHPi0Resolved_dw.root
 MergedTree_Signal_Bs2DsK_Ds2HHHPi0Resolved_up.root
