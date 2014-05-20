@@ -206,8 +206,8 @@ def prepareBsDsKMassFitterOnData( debug,
     GeneralUtils.SaveWorkspace(workspace,saveNameTS, debug)
     workspace.Print()
 
-    if MC:
 
+    if MC:
         workspace = MassFitUtils.ObtainSpecBack(dataTS, 
                                                 TString("#MC FileName MD HHHPi0"), TString("#MC TreeName"),MDSettingsMC, 
                                                 TString("BsDsK"), workspace, true, MDRatio, plotSettings, debug)
@@ -215,22 +215,101 @@ def prepareBsDsKMassFitterOnData( debug,
         workspace = MassFitUtils.ObtainSpecBack(dataTS, 
                                                 TString("#MC FileName MU HHHPi0"), TString("#MC TreeName"),MDSettingsMC, 
                                                 TString("BsDsK"), workspace, true, MURatio, plotSettings, debug)
-
+  
         workspace = MassFitUtils.CreatePdfSpecBackground(dataTS, TString("#MC FileName MD HHHPi0"),
                                                          dataTS, TString("#MC FileName MU HHHPi0"),
                                                          MDSettingsMC, workspace, true, plotSettings, debug)
+       
         
     workspace.Print()
+
     GeneralUtils.SaveWorkspace(workspace,saveNameTS, debug)
+
+
+    if MCPID:
+
+        MCDownNames = [TString("MC BsDsK Kaon Down"),
+                       TString("MC BsDsK Pion Down"),
+                       TString("MC BsDsK Proton Down")]
+
+        MCUpNames = [TString("MC BsDsK Kaon Up"),
+                     TString("MC BsDsK Pion Up"),
+                     TString("MC BsDsK Proton Up")]
+        
+        for i in range(0,3):
             
+            workspace = WeightingUtils.ObtainHistRatio(TString(myconfigfile["dataName"]), TString("#MC FileName MD HHHPi0"),
+                                                       MDSettings, MCDownNames[i], workspace, plotSettings, debug)
+            
+            workspace = WeightingUtils.ObtainHistRatio(TString(myconfigfile["dataName"]), TString("#MC FileName MU HHHPi0"),
+                                                       MDSettings, MCUpNames[i], workspace, plotSettings, debug)
+            
+            workspace.Print()
+            GeneralUtils.SaveWorkspace(workspace,saveNameTS, debug)
+            
+            workspace = WeightingUtils.ObtainHistRatio(TString(myconfigfile["dataName"]), TString("#MC FileName MD HHHPi0"),
+                                                       MDSettings, MCDownNames[i], workspace, plotSettings, debug)
+            
+            workspace = WeightingUtils.ObtainHistRatio(TString(myconfigfile["dataName"]), TString("#MC FileName MU HHHPi0"),
+                                                       MDSettings, MCUpNames[i], workspace, plotSettings, debug)
+            
+            workspace.Print()
+            GeneralUtils.SaveWorkspace(workspace,saveNameTS, debug)
+
+            workspace.Print()
+            GeneralUtils.SaveWorkspace(workspace,saveNameTS, debug)
+
+            workspace = WeightingUtils.ObtainPIDShapeFromCalibSample(TString(myconfigfile["dataName"]), TString("#MC FileName MD HHHPi0"),
+                                                                     MDSettings, MCDownNames[i], workspace, plotSettings, debug)
+            
+            workspace = WeightingUtils.ObtainPIDShapeFromCalibSample(TString(myconfigfile["dataName"]), TString("#MC FileName MU HHHPi0"),
+                                                                     MDSettings, MCUpNames[i], workspace, plotSettings, debug)
+
+
+    workspace.Print()
+    GeneralUtils.SaveWorkspace(workspace,saveNameTS, debug)
     
     if Signal:
-   	workspace = MassFitUtils.ObtainSignal(TString(myconfigfile["dataName"]), TString("#Signal Bs2DsK HHHPi0"),
+   	workspace = MassFitUtils.ObtainSignal(TString(myconfigfile["dataName"]), TString("#Signal BsDsK HHHPi0"),
                                                   MDSettings, TString("BsDsK"), false, false, workspace, false,
                                                   MDSettings.GetLumDown(), MDSettings.GetLumUp(), plotSettings, debug)
 
         workspace.Print()
         GeneralUtils.SaveWorkspace(workspace,saveNameTS, debug)
+
+
+
+    if SignalPID:
+
+        signalPIDNames = [ TString("MC BsDsK HHHPi0 Kaon Down"),
+                           TString("MC BsDsK HHHPi0 Kaon Up")]
+
+        for i in range(0,2):
+            workspace = WeightingUtils.ObtainHistRatioOneSample(MDSettings, signalPIDNames[i], workspace, workspace, plotSettings, debug)
+            workspace = WeightingUtils.ObtainPIDShapeFromCalibSampleOneSample(MDSettings, signalPIDNames[i], workspace, plotSettings, debug)
+                        
+        saveNameTS = TString(saveName)+TString(save)+TString(".root")
+        GeneralUtils.SaveWorkspace(workspace,saveNameTS, debug)
+        workspace.Print()
+
+    if CombPID:
+        
+        workspaceL = GeneralUtils.LoadWorkspace(TString("/afs/cern.ch/work/a/adudziak/public/workspace/work_Comb_DsK_5358.root"),TString("workspace"),debug)
+        combNames = [TString("CombK Pion Down"),
+                     TString("CombK Pion Up"),
+                     TString("CombK Kaon Down"),
+                     TString("CombK Kaon Up"),
+                     TString("CombK Proton Down"),
+                     TString("CombK Proton Up")]
+
+        for i in range(0,6):
+            workspace = WeightingUtils.ObtainHistRatioOneSample(MDSettings, combNames[i], workspace, workspaceL, plotSettings,  debug)
+            
+            workspace = WeightingUtils.ObtainPIDShapeFromCalibSampleOneSample(MDSettings, combNames[i], workspace, plotSettings, debug)
+            
+            workspace.Print()
+            GeneralUtils.SaveWorkspace(workspace,saveNameTS, debug)
+
 
     saveNameTS = TString(saveName)+TString(save)+TString(".root")
     GeneralUtils.SaveWorkspace(workspace,saveNameTS, debug)
@@ -303,7 +382,7 @@ parser.add_option( '--pidkvar',
 
 parser.add_option( '--bdtgvar',
                    dest = 'bdtgvar',
-                   default = '',
+                   default = 'BDTGResponse_1',
                    help = 'set observable '
                    )
 parser.add_option( '--momvar',
@@ -416,4 +495,6 @@ if __name__ == '__main__' :
                                    options.CombPID)
 
 # -----------------------------------------------------------------------------
+
+
 

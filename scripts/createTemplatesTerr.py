@@ -107,95 +107,212 @@ import os, sys, gc
 gROOT.SetBatch()
 
 #------------------------------------------------------------------------------
-def runComparePDF( debug, file1, work1, obs, mode ) :
+def runComparePDF( debug, pathName, treeName, obs, mode, configName, sufix, bin ) :
 
-    work = GeneralUtils.LoadWorkspace(TString(file1),TString(work1),debug)
-    bin = 20
+    # Get the configuration file                                                                                                                                                             
+    myconfigfilegrabber = __import__(configName,fromlist=['getconfig']).getconfig
+    myconfigfile = myconfigfilegrabber()
 
-    if mode == "BsDsPi":
-        workSig = GeneralUtils.LoadWorkspace(TString("/afs/cern.ch/work/a/adudziak/public/workspace/MDFitter/templates_BsDsPi.root"), TString(work1),debug)
+    print "=========================================================="
+    print "FITTER IS RUNNING WITH THE FOLLOWING CONFIGURATION OPTIONS"
+    for option in myconfigfile :
+        if option == "constParams" :
+            for param in myconfigfile[option] :
+                print param, "is constant in the fit"
+        else :
+            print option, " = ", myconfigfile[option]
+    print "=========================================================="
+
+    RooAbsData.setDefaultStorageType(RooAbsData.Tree)
+
+    plotSettings = PlotSettings("plotSettings","plotSettings", "PlotSignal", "pdf", 100, true, false, true)
+    plotSettings.Print("v")
+
+    config = TString("../data/")+TString(configName)+TString(".py")
+    MDSettings = MDFitterSettings("MDSettings","MDFSettings",config)
+    MDSettings.SetMassBVar(TString("lab0_MassFitConsD_M"))
+    MDSettings.SetMassDVar(TString("lab2_MM"))
+    MDSettings.SetTimeVar(TString("lab0_LifetimeFit_ctau"))
+    MDSettings.SetTerrVar(TString(obs))
+    MDSettings.SetIDVar(TString("lab1_ID"))
+    MDSettings.SetPIDKVar(TString("lab1_PIDK"))
+    MDSettings.SetBDTGVar(TString("BDTGResponse_1"))
+    MDSettings.SetMomVar(TString("lab1_P"))
+    MDSettings.SetTrMomVar(TString("lab1_PT"))
+    MDSettings.SetTracksVar(TString("nTracks"))
+    MDSettings.Print("v") 
+
+    config = TString("../data/")+TString(configName)+TString(".py")
+    MDSettingsSig = MDFitterSettings("MDSettings","MDFSettings",config)
+    MDSettingsSig.SetMassBVar(TString("lab0_MassFitConsD_M"))
+    MDSettingsSig.SetMassDVar(TString("lab2_MM"))
+    MDSettingsSig.SetTimeVar(TString("lab0_LifetimeFit_ctau"))
+    MDSettingsSig.SetTerrVar(TString(obs))
+    MDSettingsSig.SetIDVar(TString("lab1_ID"))
+    MDSettingsSig.SetPIDKVar(TString("lab1_PIDK"))
+    MDSettingsSig.SetBDTGVar(TString("BDTGResponse_1"))
+    MDSettingsSig.SetMomVar(TString("lab1_P"))
+    MDSettingsSig.SetTrMomVar(TString("lab1_PT"))
+    MDSettingsSig.SetTracksVar(TString("nTracks"))
+    MDSettingsSig.SetMassBRange(5000, 5600)
+    MDSettingsSig.Print("v")
+
+    config = TString("../data/")+TString(configName)+TString(".py")
+    MDSettingsCombo = MDFitterSettings("MDSettings","MDFSettings",config)
+    MDSettingsCombo.SetMassBVar(TString("lab0_MassFitConsD_M"))
+    MDSettingsCombo.SetMassDVar(TString("lab2_MM"))
+    MDSettingsCombo.SetTimeVar(TString("lab0_LifetimeFit_ctau"))
+    MDSettingsCombo.SetTerrVar(TString(obs))
+    MDSettingsCombo.SetIDVar(TString("lab1_ID"))
+    MDSettingsCombo.SetPIDKVar(TString("lab1_PIDK"))
+    MDSettingsCombo.SetBDTGVar(TString("BDTGResponse_1"))
+    MDSettingsCombo.SetMomVar(TString("lab1_P"))
+    MDSettingsCombo.SetTrMomVar(TString("lab1_PT"))
+    MDSettingsCombo.SetTracksVar(TString("nTracks"))
+    MDSettingsCombo.SetMassBRange(5700, 7000)
+    MDSettingsCombo.Print("v")
+
+    dataTS  = TString(myconfigfile["dataName"])
+    modeTS = TString(mode) 
+    if sufix != "":
+        sufix = "_"+sufix
+
+    if modeTS == "Bs2DsPi":
+        modeTS2 = "BsDsPi"
     else:
-        workSig = GeneralUtils.LoadWorkspace(TString("/afs/cern.ch/work/a/adudziak/public/workspace/MDFitter/templates_BsDsK.root"), TString(work1),debug)
-        
-    obs   = GeneralUtils.GetObservable(work,TString(obs), debug)
-    
-    
-    if mode == "BsDsPi":
-        workSigMC = GeneralUtils.LoadWorkspace(TString("template_MC_Terr_BsDsPi.root"),
-                                               TString(work1),debug)
-        terrSigMC = Bs2Dsh2011TDAnaModels.GetRooHistPdfFromWorkspace(workSigMC, TString("sigTimeErrorPdf_BsDsPi"), debug)
-        terrSigName = "TimeErrorPdf_Bs2DsPi"
-        dataSig   = GeneralUtils.GetDataSet(workSig,TString("dataSet_time_Bs2DsPi_BDTGA"),  debug)
-        workComb = GeneralUtils.LoadWorkspace(TString("work_dspi_combbkg.root"), TString(work1),debug)
-        workComb.Print("v")
-        #exit(0)
-        dataComb = GeneralUtils.GetDataSet(workComb,TString("dataSetBsDsPi_up_"),  debug)
-        modes =["Bs2DsstPi","Lb2LcPi","Bs2DsK"]
+        modeTS2 = "BsDsK"
 
-        workBDPi = GeneralUtils.LoadWorkspace(TString("work_dspi_pid_53005800_PIDK0_5M_BDTGA.root"),TString(work1),debug)
-        workBDPi.Print("v")
-        dataBDPi =  GeneralUtils.GetDataSet(workBDPi,TString("dataSet_Miss_down_kpipi"),  debug)
-        dataBDPi2 =  GeneralUtils.GetDataSet(workBDPi,TString("dataSet_Miss_up_kpipi"),  debug)
-        dataBDPi.append(dataBDPi2)
-        terrSpec = GeneralUtils.CreateHistPDF(dataBDPi, obs, TString("TimeErrorPdf_Bd2DPi"), bin, debug)
-                
-    else:
-        workSigMC = GeneralUtils.LoadWorkspace(TString("template_MC_Terr_BsDsK.root"),
-                                               TString(work1),debug)
-        terrSigMC = Bs2Dsh2011TDAnaModels.GetRooHistPdfFromWorkspace(workSigMC, TString("sigTimeErrorPdf_BsDsK"), debug)
-        terrSigName = "TimeErrorPdf_Bs2DsK"
-        dataSig   = GeneralUtils.GetDataSet(workSig,TString("dataSet_time_Bs2DsK_BDTGA"),  debug)
-        workComb = GeneralUtils.LoadWorkspace(TString("work_dsk_combbkg.root"), TString(work1),debug)
-        workComb.Print("v")
-        #exit(0)
-        dataComb = GeneralUtils.GetDataSet(workComb,TString("dataSetBsDsK_up_"),  debug)
-        modes = ["Bs2DsRho","Bs2DsstPi", "Lb2Dsp","Lb2Dsstp", "Bd2DK", "Bd2DPi", "Lb2LcK", "Lb2LcPi"]
-        
-        workSpec = GeneralUtils.LoadWorkspace(TString("work_dspi_pid_53005800_PIDK0_5M_BDTGA.root"),TString(work1),debug)
-        workSpec.Print("v")
-        dataSpec =  GeneralUtils.GetDataSet(workSpec,TString("dataSetMC_BsDsPi_down_nonres"),  debug)
-        dataSpec1 =  GeneralUtils.GetDataSet(workSpec,TString("dataSetMC_BsDsPi_up_nonres"),  debug)
-        dataSpec2 =  GeneralUtils.GetDataSet(workSpec,TString("dataSetMC_BsDsPi_down_phipi"),  debug)
-        dataSpec3 =  GeneralUtils.GetDataSet(workSpec,TString("dataSetMC_BsDsPi_up_phipi"),  debug)
-        dataSpec4 =  GeneralUtils.GetDataSet(workSpec,TString("dataSetMC_BsDsPi_down_kstk"),  debug)
-        dataSpec5 =  GeneralUtils.GetDataSet(workSpec,TString("dataSetMC_BsDsPi_up_kstk"),  debug)
-        dataSpec6=  GeneralUtils.GetDataSet(workSpec,TString("dataSetMC_BsDsPi_down_kpipi"),  debug)
-        dataSpec7=  GeneralUtils.GetDataSet(workSpec,TString("dataSetMC_BsDsPi_up_kpipi"),  debug)
-        dataSpec8=  GeneralUtils.GetDataSet(workSpec,TString("dataSetMC_BsDsPi_down_pipipi"),  debug)
-        dataSpec9 =  GeneralUtils.GetDataSet(workSpec,TString("dataSetMC_BsDsPi_up_pipipi"),  debug)
-        
-        dataSpec.append(dataSpec1)
-        dataSpec.append(dataSpec2)
-        dataSpec.append(dataSpec3)
-        dataSpec.append(dataSpec4)
-        dataSpec.append(dataSpec5)
-        dataSpec.append(dataSpec6)
-        dataSpec.append(dataSpec7)
-        dataSpec.append(dataSpec8)
-        dataSpec.append(dataSpec9)
-        
-        terrSpec = GeneralUtils.CreateHistPDF(dataSpec, obs, TString("TimeErrorPdf_Bs2DsPi"), bin, debug)
-        
-        
-    terrSig = GeneralUtils.CreateHistPDF(dataSig, obs, TString(terrSigName), bin, debug)    
-    dataSigMC = GeneralUtils.GetDataSet(workSigMC,TString("data_fit"),  debug)
-    terrComb = GeneralUtils.CreateHistPDF(dataComb, obs, TString("combBkgTimeErrorPdf"), bin, debug)
+    workspace =[]
+    
+    #obtain combo samples
+    workCombo = RooWorkspace("workCombo","workCombo") 
+    dataNames = [ TString("#") + modeTS + TString(" NonRes"),
+                  TString("#") + modeTS + TString(" PhiPi"),
+                  TString("#") + modeTS + TString(" KstK"),
+                  TString("#") + modeTS + TString(" KPiPi"),
+                  TString("#") + modeTS + TString(" PiPiPi")]
+
+    for i in range(0,5):
+        workCombo = MassFitUtils.ObtainData(dataTS, dataNames[i],  MDSettingsCombo, TString(mode), plotSettings, workCombo, debug)
+    
+    dataCombo = []    
+    mDs = ["nonres","phipi","kstk","kpipi","pipipi"]
+    MDs = ["NonRes", "PhiPi", "KstK", "KPiPi", "PiPiPi"]
+    sample = [TString("up"),TString("down")]
+    nEntriesCombo = []
+    for m in mDs:
+        for i in range(0,2):
+            datasetTS = TString("dataSet")+modeTS+TString("_")+sample[i]+TString("_")+TString(m)
+            dataCombo.append(GeneralUtils.GetDataSet(workCombo,datasetTS, debug))
+            size = dataCombo.__len__()
+            nEntriesCombo.append(dataCombo[size-1].numEntries())
+            print "Data set: %s with number of events: %s"%(dataCombo[size-1].GetName(),nEntriesCombo[size-1])
+
+    sample = [TString("both"),TString("both")]
+    for i in range(1,10):
+        print "Add data set: %s"%(dataCombo[i].GetName())
+        dataCombo[0].append(dataCombo[i])
+
+    obs = GeneralUtils.GetObservable(workCombo,TString(obs), debug)
+    terrComb = GeneralUtils.CreateHistPDF(dataCombo[0], obs, TString("combBkgTimeErrorPdf"), bin, debug)
     terrComb.SetName("TimeErrorPdf_CombBkg")
-    #exit(0)
     
+        
+    #obtain sWeighted data set
+    workData = SFitUtils.ReadDataFromSWeights(TString(pathName), TString(treeName), MDSettings, TString(mode), true, false, false, debug)
+    nameData = TString("dataSet_time_")+TString(mode)
+    dataSig = GeneralUtils.GetDataSet(workData,  nameData, debug)
+    terrSigName = TString("TimeErrorPdf_")+TString(mode)
+    terrSig = GeneralUtils.CreateHistPDF(dataSig, obs, terrSigName, bin, debug)
     
-    '''
-    workCombBin = []
-    dataCombBin = []
-    for i in range (0,6):
-        fileName  = "work_dsk_combbkg_"+str(i+1)+".root"
-        workCombBin.append(GeneralUtils.LoadWorkspace(TString(fileName), TString(work1),debug))
-        dataCombBin.append(GeneralUtils.GetDataSet(workCombBin[i],TString("dataSetBsDsK_up_"),  debug))
+
+    #obtain signal MC samples
+    wD = (0.59)/(0.59+0.44)
+    wU = (0.44)/(0.59+0.44)
+    wGD = [0.9918, 0.9918, 0.9918, 1.5, 0.9322]
+    wGU = [0.9918, 0.9918, 0.9918, 1.5, 0.9322]
     
-    terrCombBin = []
-    for i in range(0,6):
-         terrCombBin.append(GeneralUtils.CreateHistPDF(dataCombBin[i], obs, TString("combBkgTimeErrorPdf"), bin, debug))
-    '''    
+    dataNameSig = "../data/config_fitSignal.txt"
+    dataSigMC = []
+    workSigMC = RooWorkspace("workSig","workSig")
+    i = 0 
+    for m in MDs:
+        nameTS = TString("#Signal ")+modeTS2+TString(" ")+TString(m)
+        print nameTS
+        print "global weight for down = %lf, global weight for up = %lf"%(wD*wGD[i],wU*wGU[i])
+        workSigMC = MassFitUtils.ObtainSignal(TString(dataNameSig), nameTS,
+                                              MDSettings, modeTS, false, false, workSigMC, false,
+                                              wD*wGD[i], wU*wGU[i], plotSettings, debug)
+        i=i+1
+
+    nEntriesSig = []    
+    sample = [TString("down"),TString("up")]
+    for m in mDs:
+        for i in range(0,2):
+            datasetTS = TString("dataSetMC_")+modeTS+TString("_")+sample[i]+TString("_")+TString(m)
+            dataSigMC.append(GeneralUtils.GetDataSet(workSigMC,datasetTS, debug))
+            size = dataSigMC.__len__()
+            nEntriesSig.append(dataSigMC[size-1].numEntries())
+            print "Data set: %s with number of events: %s"%(dataSigMC[size-1].GetName(),nEntriesSig[size-1])
+
+    sample = [TString("both"),TString("both")]
+    for i in range(1,10):
+        print "Add data set: %s"%(dataSigMC[i].GetName())
+        dataSigMC[0].append(dataSigMC[i])
+
+    terrSigMC = GeneralUtils.CreateHistPDF(dataSigMC[0], obs, TString("sigMCTimeErrorPdf"), bin, debug)
+                                    
+    #obtain specific background from data
+    workMiss = RooWorkspace("workMiss","workMiss")
+    if mode == "Bs2DsPi":
+        workMiss = MassFitUtils.ObtainMissForBsDsPi(dataTS, TString("#BdPi"), TString("nonres"), MDSettings, TString("Bd2DPi"), workMiss, plotSettings, false, debug)
+        dataSpec = GeneralUtils.GetDataSet(workMiss,TString("dataSet_Miss_down_kpipi"),  debug)
+        dataSpec2 = GeneralUtils.GetDataSet(workMiss,TString("dataSet_Miss_up_kpipi"),  debug)
+        dataSpec.append(dataSpec2)
+        terrSpec = GeneralUtils.CreateHistPDF(dataSpec, obs, TString("TimeErrorPdf_Bd2DPi"), bin, debug)
+    else:
+        DsPiNames = [TString("#Bs2DsPi NonRes"),
+                     TString("#Bs2DsPi PhiPi"),
+                     TString("#Bs2DsPi KstK"),
+                     TString("#Bs2DsPi KPiPi"),
+                     TString("#Bs2DsPi PiPiPi")]
+
+        DsPiDataName = [TString("dataSet_Miss_down_nonres"), 
+                        TString("dataSet_Miss_down_phipi"), 
+                        TString("dataSet_Miss_down_kstk"),
+                        TString("dataSet_Miss_down_kpipi"),
+                        TString("dataSet_Miss_down_pipipi"),
+                        TString("dataSet_Miss_up_nonres"),
+                        TString("dataSet_Miss_up_phipi"),
+                        TString("dataSet_Miss_up_kstk"),
+                        TString("dataSet_Miss_up_kpipi"),
+                        TString("dataSet_Miss_up_pipipi")]
+        dataMiss = []
+        for i in range(0,5):
+            workMiss = MassFitUtils.ObtainMissForBsDsK(TString(myconfigfile["dataName"]), DsPiNames[i], MDSettings, TString("BsDsPi"), workMiss, plotSettings, false, debug)
+        
+        for i in range(0,10):    
+            dataMiss.append(GeneralUtils.GetDataSet(workMiss,DsPiDataName[i],  debug))
+            
+        dataSpec = dataMiss[0]   
+        for i in range(0,9):
+            dataSpec.append(dataMiss[0])
+        terrSpec = GeneralUtils.CreateHistPDF(dataSpec, obs, TString("TimeErrorPdf_Bs2DsPi"), bin, debug)    
+            
+            
+    #obtain data sets for MC bkg                                    
+    if mode == "Bs2DsPi":
+        modes =["Bs2DsstPi","Lb2LcPi","Bs2DsK"]
+    else:
+        modes = ["Bs2DsRho","Bs2DsstPi", "Lb2Dsp","Lb2Dsstp", "Bd2DK", "Bd2DPi", "Lb2LcK", "Lb2LcPi"]
+
+    MDRatio= 1.0-myconfigfile["lumRatio"]
+    MURatio= myconfigfile["lumRatio"]
+
+    workSpecBkg = RooWorkspace("workSpecBkg","workSpecBkg")
+
+    workSpecBkg = MassFitUtils.ObtainSpecBack(dataTS, TString("#MC FileName MD"), TString("#MC TreeName"),MDSettings, TString(mode), workSpecBkg, true, MDRatio, plotSettings, debug)
+    workSpecBkg = MassFitUtils.ObtainSpecBack(dataTS, TString("#MC FileName MU"), TString("#MC TreeName"), MDSettings, TString(mode), workSpecBkg, true, MURatio, plotSettings, debug)      
 
     pre = "dataSetMC_"
     pol = ["down","up"]
@@ -204,9 +321,9 @@ def runComparePDF( debug, file1, work1, obs, mode ) :
     terrpdf = []
     for m in modes:
         nameD = pre+m+"_"+pol[0]
-        dataD = GeneralUtils.GetDataSet(work,TString(nameD),  debug)
+        dataD = GeneralUtils.GetDataSet(workSpecBkg,TString(nameD),  debug)
         nameU = pre+m+"_"+pol[1]
-        dataU = GeneralUtils.GetDataSet(work,TString(nameU),  debug)
+        dataU = GeneralUtils.GetDataSet(workSpecBkg,TString(nameU),  debug)
         dataU.append(dataD)
         #dataW.append(dataU)
         dataW.append(RooDataSet(dataU.GetName(), dataU.GetName(),
@@ -224,7 +341,7 @@ def runComparePDF( debug, file1, work1, obs, mode ) :
     for i in range(0,dataW.__len__()):
         histRatioName = "histRatio_"+modes[i]
         print histRatioName
-        histRatio.append(WeightingUtils.GetHistRatio(dataW[i],dataSigMC, obs, histRatioName, bin, debug))
+        histRatio.append(WeightingUtils.GetHistRatio(dataW[i],dataSigMC[0], obs, histRatioName, bin, debug))
         histWeightName = "histWeight_"+modes[i]
         print histWeightName
         histW.append(WeightingUtils.MultiplyHist(histSig, histRatio[i], obs, histWeightName, debug))
@@ -277,39 +394,11 @@ def runComparePDF( debug, file1, work1, obs, mode ) :
         l[i].SetLineStyle(kSolid)
         legend.AddEntry(l[i], modes[i] , "L")
     
-    '''
-    color = [kBlue+2, kRed, kOrange, kMagenta+3, kGreen+3, kBlue-10]
-    bins = [5800,6000,6200,6400,6600,6800,7000]
-    l = []
-    for i in range(0,terrpdf.__len__()):
-        terrCombBin[i].plotOn(frame, RooFit.LineColor(color[i]))
-        
-        l.append(TLine())
-        l[i].SetLineColor(color[i])
-        l[i].SetLineWidth(4)
-        l[i].SetLineStyle(kSolid)
-        nl = "comb in ["+str(bins[i])+","+str(bins[i+1])+"]"
-        legend.AddEntry(l[i], nl , "L")
-                                              
-        
-    terrComb.plotOn(frame, RooFit.LineColor(kCyan+3), RooFit.LineWidth(7))
-    lC = TLine()
-    lC.SetLineColor(kCyan+3)
-    lC.SetLineWidth(4)
-    lC.SetLineStyle(kSolid)
-    legend.AddEntry(lC,"combBkg", "L")
-    '''
-    
     frame.Draw()
     legend.Draw("same")
     #frame.GetYaxis().SetRangeUser(0.1,250.)
     #canv.GetPad(0).SetLogy()
-    if mode == "BsDsPi":
-        canv.Print("comparison_MC_BsDsPi.pdf")
-    else:
-        canv.Print("comparison_MC_BsDsK.pdf")
-                            
-
+    canv.Print(Form("comparison_MC_%s%s.pdf"%(mode,sufix)))  
 
     canv2 = TCanvas("canv2","canv2", 1200,1000)
     frame2 = obs.frame()
@@ -350,12 +439,7 @@ def runComparePDF( debug, file1, work1, obs, mode ) :
                 
     frame2.Draw()
     legend.Draw("same")
-    #frame.GetYaxis().SetRangeUser(0.1,250.)
-    #canv.GetPad(0).SetLogy()
-    if mode == "BsDsPi":
-        canv2.Print("comparison_Data_BsDsPi.pdf")
-    else:
-        canv2.Print("comparison_Data_BsDsK.pdf")
+    canv2.Print(Form("comparison_Data_%s%s.pdf"%(mode,sufix)))
         
     workTem = RooWorkspace("workspace","workspace")
     getattr(workTem,'import')(terrSig)
@@ -364,15 +448,12 @@ def runComparePDF( debug, file1, work1, obs, mode ) :
     for i in range(0,terrpdf.__len__()):
         getattr(workTem,'import')(pdfW[i])
     workTem.Print("v")
-    if mode == "BsDsPi":
-        workTem.SaveAs("template_Data_Terr_BsDsPi.root")
-    else:
-        workTem.SaveAs("template_Data_Terr_BsDsK.root")
+    workTem.SaveAs(Form("template_Data_Terr_%s%s.root"%(mode,sufix)))
 
     plot_components = true
     
     if plot_components:
-        if mode == "BsDsPi":
+        if mode == "Bs2DsPi":
             print "BsDsPi"
             colorPC = [kBlue-8, kRed, kGreen+3, kOrange-3 ]
             stylePC = [1,2,3,6]
@@ -444,10 +525,10 @@ def runComparePDF( debug, file1, work1, obs, mode ) :
             terrSig.plotOn(framePC[3], RooFit.LineColor(kBlack), RooFit.LineStyle(1))
             legendPC[3].AddEntry(lS, "B_{s} #rightarrow D_{s}#pi" , "L")
             
-            nameSave = ["template_Terr_MC_DsPi_SpecBkg.pdf",
-                        "template_Terr_Data_DsPi_SpecBkg.pdf",
-                        "template_Terr_Data_DsPi_CombBkg.pdf",
-                        "template_Terr_Data_DsPi_Signal.pdf"]
+            nameSave = [Form("template_Terr_MC_DsPi_SpecBkg%s.pdf"%(sufix)),
+                        Form("template_Terr_Data_DsPi_SpecBkg%s.pdf"%(sufix)),
+                        Form("template_Terr_Data_DsPi_CombBkg%s.pdf"%(sufix)),
+                        Form("template_Terr_Data_DsPi_Signal%s.pdf"%(sufix))]
 
             for i in range(0,4):
                 canPC[i].cd()
@@ -565,16 +646,16 @@ def runComparePDF( debug, file1, work1, obs, mode ) :
             terrComb.plotOn(framePC[9], RooFit.LineColor(kCyan+3), RooFit.LineStyle(1))
             legendPC[9].AddEntry(lC, "Combinatorial" , "L")
                         
-            nameSave = [ "template_Terr_MC_DsK_Bs2DsDsstPiRho.pdf",
-                         "template_Terr_MC_DsK_Lb2DsDsstp.pdf",
-                         "template_Terr_MC_DsK_Bd2DKPi.pdf",
-                         "template_Terr_MC_DsK_Lb2LcKPi.pdf",
-                         "template_Terr_Data_DsK_Bs2DsDsstPiRho.pdf",
-                         "template_Terr_Data_DsK_Lb2DsDsstp.pdf",
-                         "template_Terr_Data_DsK_Bd2DKPi.pdf",
-                         "template_Terr_Data_DsK_Lb2LcKPi.pdf",
-                         "template_Terr_Data_DsK_Signal.pdf",
-                         "template_Terr_Data_DsK_CombBkg.pdf"]
+            nameSave = [ Form("template_Terr_MC_DsK_Bs2DsDsstPiRho%s.pdf"%(sufix)),
+                         Form("template_Terr_MC_DsK_Lb2DsDsstp%s.pdf"%(sufix)),
+                         Form("template_Terr_MC_DsK_Bd2DKPi%s.pdf"%(sufix)),
+                         Form("template_Terr_MC_DsK_Lb2LcKPi%s.pdf"%(sufix)),
+                         Form("template_Terr_Data_DsK_Bs2DsDsstPiRho%s.pdf"%(sufix)),
+                         Form("template_Terr_Data_DsK_Lb2DsDsstp%s.pdf"%(sufix)),
+                         Form("template_Terr_Data_DsK_Bd2DKPi%s.pdf"%(sufix)),
+                         Form("template_Terr_Data_DsK_Lb2LcKPi%s.pdf"%(sufix)),
+                         Form("template_Terr_Data_DsK_Signal%s.pdf"%(sufix)),
+                         Form("template_Terr_Data_DsK_CombBkg%s.pdf"%(sufix))]
             
             for i in range(0,10):             
                 canPC[i].cd()
@@ -599,13 +680,15 @@ parser.add_option( '-d', '--debug',
                    help = 'print debug information while processing'
                    )
 
-parser.add_option( '--file1',
-                   dest = 'file1',
-                   default = 'work_dspi_pid_53005800_PIDK0_5M_BDTGA.root')
+parser.add_option( '--pathName',
+                   dest = 'pathName',
+                   default = '/afs/cern.ch/work/a/adudziak/public/sWeights-PAPER-1fb/sWeights_BsDsK_all_both_BDTGA.root')
 
-parser.add_option( '--work1',
-                   dest = 'work1',
-                   default = 'workspace')
+parser.add_option( '--treeName',
+                   dest = 'treeName',
+                   default = 'merged',
+                   help = 'name of the workspace'
+                   )
 
 parser.add_option( '--obs',
                    dest = 'obs',
@@ -616,7 +699,22 @@ parser.add_option( '-m', '--mode',
                    default = 'BsDsPi',
                    help = 'set observable '
                    )
+parser.add_option( '--configName',
+                    dest = 'configName',
+                    default = 'Bs2DsKConfigForNominalMassFitBDTGA')
 
+parser.add_option( '-s', '--sufix',
+                   dest = 'sufix',
+                   metavar = 'SUFIX',
+                   default = '',
+                   help = 'Add sufix to output'
+                   )
+parser.add_option( '--bin',
+                   dest = 'bin',
+                   action = 'store_true',
+                   default = 20,
+                   help = 'set number of bins'
+                   )
 
 # -----------------------------------------------------------------------------
 
@@ -632,8 +730,11 @@ if __name__ == '__main__' :
     sys.path.append("../data/")
 
     runComparePDF( options.debug,
-                   options.file1, options.work1,
-                   options.obs, options.mode
+                   options.pathName, options.treeName,
+                   options.obs, options.mode,
+                   options.configName,
+                   options.sufix,
+                   options.bin
                    )                                
 # -----------------------------------------------------------------------------
                                 

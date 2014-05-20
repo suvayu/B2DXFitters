@@ -128,7 +128,7 @@ def setConstantIfSoConfigured(var,myconfigfile) :
 def runBdGammaFitterOnData(debug, wsname,
                            tVar, terrVar, idVar, mVar,
                            pathName, treeName,
-                           configName, configNameMD, mode) :
+                           configName, configNameMD, mode, combo) :
     
     # Get the configuration file
     myconfigfilegrabber = __import__(configName,fromlist=['getconfig']).getconfig
@@ -144,31 +144,99 @@ def runBdGammaFitterOnData(debug, wsname,
             print option, " = ", myconfigfile[option] 
     print "=========================================================="
  
+
+    myconfigfilegrabber2 = __import__(configNameMD,fromlist=['getconfig']).getconfig
+    myconfigfileMD = myconfigfilegrabber2()
+
+    print "=========================================================="
+    print "FITTER IS RUNNING WITH THE FOLLOWING CONFIGURATION OPTIONS"
+    for option in myconfigfileMD :
+        if option == "constParams" :
+            for param in myconfigfileMD[option] :
+                print param, "is constant in the fit"
+        else :
+            print option, " = ", myconfigfileMD[option]
+    print "=========================================================="
+
     # tune integrator configuration
                             
+    plotSettings = PlotSettings("plotSettings","plotSettings", "Plot", "pdf", 100, true, false, true)
+    plotSettings.Print("v")
+
     config = TString("../data/")+TString(configNameMD)+TString(".py")
     MDSettings = MDFitterSettings("MDSettings","MDFSettings",config)
     MDSettings.SetTimeVar(TString(tVar))
     MDSettings.SetTerrVar(TString(terrVar))
     MDSettings.SetIDVar(TString(idVar))
     MDSettings.SetMassBVar(TString(mVar))
+    
+    config = TString("../data/")+TString(configNameMD)+TString(".py")
+    MDSettingsCombo = MDFitterSettings("MDSettings","MDFSettings",config)
+    MDSettingsCombo.SetMassBVar(TString(mVar))
+    MDSettingsCombo.SetMassDVar(TString("lab2_MM"))
+    MDSettingsCombo.SetTimeVar(TString(tVar))
+    MDSettingsCombo.SetTerrVar(TString(terrVar))
+    MDSettingsCombo.SetIDVar(TString(idVar))
+    MDSettingsCombo.SetPIDKVar(TString("lab1_PIDK"))
+    MDSettingsCombo.SetBDTGVar(TString("BDTGResponse_1"))
+    MDSettingsCombo.SetMomVar(TString("lab1_P"))
+    MDSettingsCombo.SetTrMomVar(TString("lab1_PT"))
+    MDSettingsCombo.SetTracksVar(TString("nTracks"))
+    MDSettingsCombo.SetMassBRange(5700, 7000)
 
     MDSettings.Print("v")
     workspaceW = [] 
     namePart = TString(mode)
+    if mode == "BsDsPi":
+        modeTS = TString("Bs2DsPi")
+    if mode == "BsDsK":
+        modeTS = TString("Bs2DsK") 
+    
+    if combo:
+        dataTS  = TString(myconfigfileMD["dataName"])
+        workCombo = RooWorkspace("workCombo","workCombo")
+        dataNames = [ TString("#") + modeTS + TString(" NonRes"),
+                      TString("#") + modeTS + TString(" PhiPi"),
+                      TString("#") + modeTS + TString(" KstK"),
+                      TString("#") + modeTS + TString(" KPiPi"),
+                      TString("#") + modeTS + TString(" PiPiPi")]
 
-    workspaceW.append(SFitUtils.ReadDataFromSWeights(TString(pathName), TString(treeName), MDSettings, namePart,
-                                                     true, false, false, debug))
+        for i in range(0,5):
+            workCombo = MassFitUtils.ObtainData(dataTS, dataNames[i],  MDSettingsCombo, TString(mode), plotSettings, workCombo, debug)
+            
+        dataCombo = []
+        mDs = ["nonres","phipi","kstk","kpipi","pipipi"]
+        MDs = ["NonRes", "PhiPi", "KstK", "KPiPi", "PiPiPi"]
+        sample = [TString("up"),TString("down")]
+        nEntriesCombo = []
+        for m in mDs:
+            for i in range(0,2):
+                datasetTS = TString("dataSet")+namePart+TString("_")+sample[i]+TString("_")+TString(m)
+                dataCombo.append(GeneralUtils.GetDataSet(workCombo,datasetTS, debug))
+                size = dataCombo.__len__()
+                nEntriesCombo.append(dataCombo[size-1].numEntries())
+                print "Data set: %s with number of events: %s"%(dataCombo[size-1].GetName(),nEntriesCombo[size-1])
+                
+        sample = [TString("both"),TString("both")]
+        for i in range(1,10):
+            print "Add data set: %s"%(dataCombo[i].GetName())
+            dataCombo[0].append(dataCombo[i])
+
+        mistagPDF = SFitUtils.CreateMistagTemplates(dataCombo[0],MDSettingsCombo,40,true, debug)    
+                
+    else:    
+        workspaceW.append(SFitUtils.ReadDataFromSWeights(TString(pathName), TString(treeName), MDSettings, namePart,
+                                                         true, false, false, debug))
         
-    workspaceW[0].Print()
+        workspaceW[0].Print()
           
-    # Data set
-    #-----------------------
-    nameData = TString("dataSet_time_")+namePart
-    dataWA = GeneralUtils.GetDataSet(workspaceW[0],   nameData, debug)
-    nEntries = dataWA.numEntries()                               
-    dataWA.Print("v")
-    mistagPDF = SFitUtils.CreateMistagTemplates(dataWA,MDSettings,50,true, debug)
+        # Data set
+        #-----------------------
+        nameData = TString("dataSet_time_")+namePart
+        dataWA = GeneralUtils.GetDataSet(workspaceW[0],   nameData, debug)
+        nEntries = dataWA.numEntries()                               
+        dataWA.Print("v")
+        mistagPDF = SFitUtils.CreateMistagTemplates(dataWA,MDSettings,40,true, debug)
 
 
        
@@ -235,6 +303,13 @@ parser.add_option( '--mode',
                    dest = 'mode',
                    default = 'BsDsPi')
 
+parser.add_option('--combo',
+                  dest    = 'combo',
+                  default = False,
+                  action  = 'store_true',
+                  help    = 'obtain mistag template for combinatorial'
+                  )
+
 # -----------------------------------------------------------------------------
 
 if __name__ == '__main__' :
@@ -262,6 +337,7 @@ if __name__ == '__main__' :
                             options.treeName,
                             options.configName,
                             options.configNameMD,
-                            options.mode)
+                            options.mode,
+                            options.combo)
 
 # -----------------------------------------------------------------------------
