@@ -125,8 +125,8 @@ namespace WeightingUtils {
   
     TString label ="";
     if ( check == "nTracks" ) {  label = "nTracks"; }
-    else if ( check == "lab1_P" ) {  label = Par+"_P"; }
-    else if ( check == "lab1_PT" ) {  label = Par+"_PT"; }
+    else if ( check == "lab1_P" || check == "Bac_P") {  label = Par+"_P"; }
+    else if ( check == "lab1_PT"|| check == "Bac_PT" ) {  label = Par+"_PT"; }
   
     if( debug == true) { std::cout<<"Return: "<<label<<std::endl;}
     return label;
@@ -2629,6 +2629,16 @@ namespace WeightingUtils {
       }
 
     if ( plotSet == NULL ) { plotSet = new PlotSettings("plotSet","plotSet"); }
+
+    if ( type.Contains("Comb") == true )
+	{		
+    		if( nameVar1 == "Bac_PT" ) { nameVar1 = "lab1_PT"; }
+    		else if ( nameVar1 == "Bac_P" ) { nameVar1 = "lab1_P"; }
+
+    		if( nameVar2 == "Bac_PT" ) { nameVar2 = "lab1_PT"; }
+    		else if ( nameVar2 == "Bac_P" ) { nameVar2 = "lab1_P"; }
+	}
+    
     RooRealVar* Var1 = new RooRealVar(nameVar1.Data(),nameVar1.Data(),log(Var1_down), log(Var1_up));
     RooRealVar* Var2 = new RooRealVar(nameVar2.Data(),nameVar2.Data(),log(Var2_down), log(Var2_up)); //-5,6);
 
@@ -2654,7 +2664,7 @@ namespace WeightingUtils {
     RooDataSet* dataCalib = GetDataCalibSample( fileCalib,  workCalib, Var1, Var2, plotSet, debug );
     TString histNameCalib = "hist2D_Calib";
     TH2F* histCalib = Get2DHist(dataCalib,Var1, Var2, bin1, bin2, histNameCalib, debug);
-    Save2DHist(histCalib, plotSet);
+    //Save2DHist(histCalib, plotSet);
 
     
     Double_t binMC, binData, binRatio;
@@ -2964,6 +2974,16 @@ namespace WeightingUtils {
       }
 
     if ( plotSet == NULL ) { plotSet = new PlotSettings("plotSet","plotSet"); }
+
+    if ( type.Contains("Comb") == true )
+	{
+    		if( nameVar1 == "Bac_PT" ) { nameVar1 = "lab1_PT"; }
+  		  else if ( nameVar1 == "Bac_P" ) { nameVar1 = "lab1_P"; }
+
+  		  if( nameVar2 == "Bac_PT" ) { nameVar2 = "lab1_PT"; }
+  		  else if ( nameVar2 == "Bac_P" ) { nameVar2 = "lab1_P"; }
+	}
+
     RooRealVar* Var1 = new RooRealVar(nameVar1.Data(),nameVar1.Data(),log(Var1_down), log(Var1_up));
     RooRealVar* Var2 = new RooRealVar(nameVar2.Data(),nameVar2.Data(),log(Var2_down), log(Var2_up));
     RooRealVar* lab1_PIDK = new RooRealVar(namePID.Data(), namePID.Data(), PID_down, PID_up);

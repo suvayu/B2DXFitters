@@ -1158,6 +1158,7 @@ void FitMeTool::savesWeights(const char* observableName, RooDataSet* data, TStri
               param -> GetName() );
       param -> setConstant();
     }
+    /*
     TString name = param->GetName();
     if ( name.Contains("Evts") == true && param->isConstant() == true)
       {
@@ -1175,7 +1176,7 @@ void FitMeTool::savesWeights(const char* observableName, RooDataSet* data, TStri
 	printf( "[WARNING] Variable \"%s\" set to be floated - sPlot technique requirement.\n",
 		param -> GetName() );
       }
-
+    */
     //if (vars -> contains( *param )) {
     //  param -> setConstant(kFALSE);
     //}
