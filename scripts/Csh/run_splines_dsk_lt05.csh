@@ -1,0 +1,3 @@
+python fitSplineAcc.py --spline --mode BsDsK --BDTG_down 0.3 --BDTG_up 1.0 --Time_down 0.50 --Time_up 15.0 >& /afs/cern.ch/work/g/gligorov//public/Bs2DsKPlotsForPaper/NominalFit/SplineLog_NoRead_DsKMC_03_10_05_15.out &
+python fitSplineAcc.py --spline --mode BsDsK --BDTG_down 0.6 --BDTG_up 1.0 --Time_down 0.50 --Time_up 15.0  >& /afs/cern.ch/work/g/gligorov//public/Bs2DsKPlotsForPaper/NominalFit/SplineLog_NoRead_DsKMC_06_10_05_15.out & 
+python fitSplineAcc.py --spline --mode BsDsK --BDTG_down 0.3 --BDTG_up 0.9 --Time_down 0.50 --Time_up 15.0  >& /afs/cern.ch/work/g/gligorov//public/Bs2DsKPlotsForPaper/NominalFit/SplineLog_NoRead_DsKMC_03_09_05_15.out &

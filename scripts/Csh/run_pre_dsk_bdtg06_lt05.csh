@@ -1,0 +1,1 @@
+python prepareBsDsKMassFitterOnData3D5M.py -s /afs/cern.ch/work/g/gligorov//public/Bs2DsKPlotsForPaper/NominalFit/work_dsk_pid_53005800_PIDK5_5M_BDTG06_LT05.root --debug --Data --configName Bs2DsKConfigForNominalMassFitBDTG06_LT05
