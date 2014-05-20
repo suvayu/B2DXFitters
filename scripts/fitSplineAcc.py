@@ -180,8 +180,8 @@ def runFitSplineAcc( debug, var , mode, modeDs, spline, read, fileNameIn, fileNa
         modeDsTS=TString(modeDs)
         Dmass_down = 1930
         Dmass_up = 2015
-        Bmass_down = 5000
-        Bmass_up = 5600
+        Bmass_down = 5300
+        Bmass_up = 5800
         if ( obsTS == "lab2_MM"):
             mean  =  1968.49
         else:
@@ -220,12 +220,48 @@ def runFitSplineAcc( debug, var , mode, modeDs, spline, read, fileNameIn, fileNa
     workspace = RooWorkspace("workspace","workspace")
 
     if read == false:
-        wD = (0.59)/(0.59+0.44)
-        wU = (0.44)/(0.59+0.44)
+        wD = 2*(0.59)/(0.59+0.44) #Multiply by 2 to make weights closer to 1+-epsilon 
+        wU = 2*(0.44)/(0.59+0.44) #Multiply by 2 to make weights closer to 1+-epsilon
         if modeDsTS == "All":
             mDs = ["NonRes", "PhiPi", "KstK", "KPiPi", "PiPiPi"]
-            wGD = [0.9918, 0.9918, 0.9918, 1.5, 0.9322]
-            wGU = [0.9918, 0.9918, 0.9918, 1.5, 0.9322]
+            if mode == "BsDsPi" :
+                if (BDTG_down == 0.3 and BDTG_up == 1.0) :
+                    yieldsindatafit = [4592.,10097.,7177.,1641.,4249.]
+                    sizeofmcdataset = [65688.,139404.,107608.,52179.,80699.]
+                elif (BDTG_down == 0.6 and BDTG_up == 1.0) :
+                    yieldsindatafit = [4251.,9287.,6487.,1492.,3826.]
+                    sizeofmcdataset = [60952.,130734.,98981.,48212.,74180.]
+                elif (BDTG_down == 0.9 and BDTG_up == 1.0) :
+                    yieldsindatafit = [2105.,4963.,3123.,733.,1845.]
+                    sizeofmcdataset = [33203.,73539.,51598.,25787.,38566.]
+                elif (BDTG_down == 0.3 and BDTG_up == 0.9) :
+                    yieldsindatafit = [2387.,4967.,3948.,868.,2310.]
+                    sizeofmcdataset = [31075.,62406.,53827.,25240.,40364.] 
+                datatotal = sum(yieldsindatafit)
+                mctotal = sum(sizeofmcdataset)
+                modeweights = []
+                for i in range(0,5):
+                    modeweights.append(yieldsindatafit[i]*mctotal/(sizeofmcdataset[i]*datatotal))
+            else :
+                if (BDTG_down == 0.3 and BDTG_up == 1.0) :
+                    yieldsindatafit = [305.,569.,469.,106.,297.]
+                    sizeofmcdataset = [68658.,146411.,112245.,16859.,79436.]
+                elif (BDTG_down == 0.6 and BDTG_up == 1.0) :
+                    yieldsindatafit = [278.,512.,426.,94.,276.]
+                    sizeofmcdataset = [63936.,137556.,103223.,15632.,73021.]
+                elif (BDTG_down == 0.9 and BDTG_up == 1.0) :
+                    yieldsindatafit = [138.,273.,224.,45.,118.]
+                    sizeofmcdataset = [34958.,78046.,54088.,8317.,38155.]
+                elif (BDTG_down == 0.3 and BDTG_up == 0.9) :
+                    yieldsindatafit = [163.,283.,244.,58.,171.]
+                    sizeofmcdataset = [32154.,64877.,55871.,8160.,39466.]
+                datatotal = sum(yieldsindatafit)
+                mctotal = sum(sizeofmcdataset)
+                modeweights = []
+                for i in range(0,5):
+                    modeweights.append(yieldsindatafit[i]*mctotal/(sizeofmcdataset[i]*datatotal))
+            wGD = modeweights
+            wGU = modeweights
         else:
             mDs = [modeDsTS]
             wGD = [1.0]
@@ -241,17 +277,23 @@ def runFitSplineAcc( debug, var , mode, modeDs, spline, read, fileNameIn, fileNa
                                                   wD*wGD[i], wU*wGU[i], plotSettings, debug)
             i+=1
 
+        extrastring = modeDs+"_"
+        if modeDsTS=="All" :
+            extrastring = ""
         if mode == "BsDsPi":    
-            GeneralUtils.SaveWorkspace(workspace,TString(fileNameOut+"work_dspi_spline_"+str(BDTG_down)+"_"+str(BDTG_up)+"_"+str(Time_down)+"_"+str(Time_up)+".root"), debug)
+            GeneralUtils.SaveWorkspace(workspace,TString(fileNameOut+"work_dspi_spline_"+extrastring+str(BDTG_down)+"_"+str(BDTG_up)+"_"+str(Time_down)+"_"+str(Time_up)+".root"), debug)
         else:
-            GeneralUtils.SaveWorkspace(workspace,TString(fileNameOut+"work_dsk_spline_"+str(BDTG_down)+"_"+str(BDTG_up)+"_"+str(Time_down)+"_"+str(Time_up)+".root"), debug)
+            GeneralUtils.SaveWorkspace(workspace,TString(fileNameOut+"work_dsk_spline_"+extrastring+str(BDTG_down)+"_"+str(BDTG_up)+"_"+str(Time_down)+"_"+str(Time_up)+".root"), debug)
     
     
     else:
+        extrastring = modeDs+"_"
+        if modeDsTS=="All" :
+            extrastring = ""
         if mode == "BsDsPi":
-            workspace = GeneralUtils.LoadWorkspace(TString(fileNameIn+"work_dspi_spline_"+str(BDTG_down)+"_"+str(BDTG_up)+"_"+str(Time_down)+"_"+str(Time_up)+".root"), TString(workName),debug)
+            workspace = GeneralUtils.LoadWorkspace(TString(fileNameIn+"work_dspi_spline_"+extrastring+str(BDTG_down)+"_"+str(BDTG_up)+"_"+str(Time_down)+"_"+str(Time_up)+".root"), TString(workName),debug)
         else :
-            workspace = GeneralUtils.LoadWorkspace(TString(fileNameIn+"work_dsk_spline_"+str(BDTG_down)+"_"+str(BDTG_up)+"_"+str(Time_down)+"_"+str(Time_up)+".root"), TString(workName),debug)
+            workspace = GeneralUtils.LoadWorkspace(TString(fileNameIn+"work_dsk_spline_"+extrastring+str(BDTG_down)+"_"+str(BDTG_up)+"_"+str(Time_down)+"_"+str(Time_up)+".root"), TString(workName),debug)
         workspace.Print("v")
 
     time = GeneralUtils.GetObservable(workspace,obsTS, debug)
@@ -261,6 +303,7 @@ def runFitSplineAcc( debug, var , mode, modeDs, spline, read, fileNameIn, fileNa
     if modeDsTS == "All":
         mDs2 = ["nonres","phipi","kstk","kpipi","pipipi"]
     else:
+        modeDsTS = TString(modeDs.lower())
         temp = GeneralUtils.CheckDMode(modeDsTS)
         if temp == "kkpi" or temp == "":
             temp = GeneralUtils.CheckKKPiMode(modeDsTS)
@@ -310,6 +353,8 @@ def runFitSplineAcc( debug, var , mode, modeDs, spline, read, fileNameIn, fileNa
         TimeBin = RooBinning(Time_down,Time_up,binName.Data())
         if (Time_down < 0.5) :
             TimeBin.addBoundary(0.5)
+        elif (Time_down < 0.6) :
+            TimeBin.addBoundary(0.6)
         else :
             TimeBin.addBoundary(0.8)
         TimeBin.addBoundary(1.0)
@@ -329,7 +374,7 @@ def runFitSplineAcc( debug, var , mode, modeDs, spline, read, fileNameIn, fileNa
         var5 = RooRealVar("var5", "var5", 1.23, 0.0, 10.0) #1.23416e+00) #1.23189e+00, 0.0, 3.0) 
         var6 = RooRealVar("var6", "var6", 1.28, 0.0, 10.0) 
         var8 = RooRealVar("var8", "var8", 1.00, 0.0, 10.0)  
-        if (BDTG_down > 0.6) or (BDTG_up < 1.0) :
+        if (BDTG_down > 0.6) :
             TimeBin.addBoundary(6)
             TimeBin.addBoundary(11)
             TimeBin.addBoundary(14)
@@ -343,6 +388,20 @@ def runFitSplineAcc( debug, var , mode, modeDs, spline, read, fileNameIn, fileNa
             var10 = RooRealVar("var10","var10",1.0)
             var11 = RooAddition("var11","var11", RooArgList(var9,var10), listCoeff)
             Var = RooArgList(var1,var2,var3,var4,var5,var6,var8,var9)
+            Var.add(var10)
+            Var.add(var11)
+        elif (BDTG_up < 1.0) :
+            TimeBin.addBoundary(6)
+            TimeBin.addBoundary(11)
+            TimeBin.removeBoundary(12.0)
+            TimeBin.removeBoundary(12.0)
+            time.setBinning(TimeBin, binName.Data())
+            time.setRange(Time_down,Time_up)
+            TimeBin.Print("v")
+            listCoeff = GeneralUtils.GetCoeffFromBinning(TimeBin, time)
+            var10 = RooRealVar("var10","var10",1.0)
+            var11 = RooAddition("var11","var11", RooArgList(var8,var10), listCoeff)
+            Var = RooArgList(var1,var2,var3,var4,var5,var6,var8)
             Var.add(var10)
             Var.add(var11)
         else :
@@ -607,8 +666,8 @@ def runFitSplineAcc( debug, var , mode, modeDs, spline, read, fileNameIn, fileNa
     else:
         suf = "powlaw"
 
-    namePDF = fileNameOut+"data_sPline_"+mode+"_"+suf+"_"+str(BDTG_down)+"_"+str(BDTG_up)+"_"+str(Time_down)+"_"+str(Time_up)+".pdf"    
-    nameROOT = fileNameOut+"data_sPline_"+mode+"_"+suf+"_"+str(BDTG_down)+"_"+str(BDTG_up)+"_"+str(Time_down)+"_"+str(Time_up)+".root"
+    namePDF = fileNameOut+"data_sPline_"+mode+"_"+modeDs+"_"+suf+"_"+str(BDTG_down)+"_"+str(BDTG_up)+"_"+str(Time_down)+"_"+str(Time_up)+".pdf"    
+    nameROOT = fileNameOut+"data_sPline_"+mode+"_"+modeDs+"_"+suf+"_"+str(BDTG_down)+"_"+str(BDTG_up)+"_"+str(Time_down)+"_"+str(Time_up)+".root"
     canvas.SaveAs(namePDF)
     canvas.SaveAs(nameROOT)
     return canvas 
