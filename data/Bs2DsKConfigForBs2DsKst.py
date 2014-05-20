@@ -6,13 +6,14 @@ def getconfig() :
     from math import log
     
     # PHYSICAL PARAMETERS
-    configdict["BMass"]      = [5100,    5800    ]
-    configdict["DMass"]      = [1930,    2015    ]
+    configdict["BMass"]      = [5100,    5800   ]
+    configdict["DMass"]      = [1910,    2030   ]
     configdict["Time"]       = [0.2,     15.0    ]
     configdict["Momentum"]   = [3000.0,  650000.0]
     configdict["TrMom"]      = [400.0,   45000.0 ]
     configdict["PIDK"]       = [1.61,    5.0     ]
     configdict["nTracks"]    = [15.0,    1000.0  ]
+    configdict["BDTG"]	     = [-0.97,	100]	
 
     configdict["TagDec"]     = ["Bs_BsTaggingTool_TAGDECISION_OS","Bs_BsTaggingTool_SS_nnetKaon_DEC"]
     configdict["Bs_BsTaggingTool_TAGDECISION_OS"]  = [-1.0, 1.0]
@@ -30,28 +31,33 @@ def getconfig() :
     configdict["BachCharge"] = [-1000.0, 1000.0  ]
 
     configdict["labX"] = 0
-    configdict["AdditionalDataCuts"] = "Pi0_PT>1000&&Ds_FD_ORIVX>0&&Ds_FDCHI2_ORIVX>2&&Km_PIDK>5&&Kp_PIDK>5&&Pi_PIDK<0"
-    configdict["AdditionalMCCuts"] = "Pi0_PT>1000&&Ds_FD_ORIVX>0&&Ds_FDCHI2_ORIVX>2"
+    configdict["AdditionalDataCuts"] = "Pi0_PT>800&&Ds_FD_ORIVX>0&&Ds_FDCHI2_ORIVX>2&&Km_PIDK>5&&Kp_PIDK>5&&Pi_PIDK<0&&Bac_PIDK>5"
+    configdict["AdditionalMCCuts"] = "Pi0_PT>800&&Ds_FD_ORIVX>0&&Ds_FDCHI2_ORIVX>2&&Bs_LifetimeFit_ctau>0.059958&&Bs_LifetimeFit_ctau<4.496887&&Bs_LifetimeFit_ctauErr>0.002998&&Bs_LifetimeFit_ctauErr<0.029979&&Bs_MassConsDs_M>5100.000000&&Bs_MassConsDs_M<5800.000000&&Ds_MM>1910.000000&&Ds_MM<2030.000000"
             
     configdict["Bin1"]       = 20
     configdict["Bin2"]       = 20
     configdict["Bin3"]       = 10
-    configdict["Var1"]       = "lab1_PT"
+    configdict["Var1"]       = "Bac_PT"
     configdict["Var2"]       = "nTracks"
-    configdict["Var3"]       = "lab1_P"
+    configdict["Var3"]       = "Bac_P"
     configdict["WeightingDimensions"] = 2
     
-    configdict["PIDBach"]    = 5
+    configdict["PIDBach"]    = 0
     configdict["PIDChild"]   = 0
     configdict["PIDProton"]  = 5    
     configdict["dataName"]   = "../data/config_Bs2DsK_for_Bs2DsKst.txt"
     
-    configdict["fileCalibPionUp"]  = "/afs/cern.ch/work/a/adudziak/public/workspace/CalibDStUpPi_0.root"
-    configdict["fileCalibPionDown"]  = "/afs/cern.ch/work/a/adudziak/public/workspace/CalibDStDownPi_0.root"
-    configdict["fileCalibKaonUp"]  = "/afs/cern.ch/work/a/adudziak/public/workspace/CalibDStUpK_0.root"
-    configdict["fileCalibKaonDown"]  = "/afs/cern.ch/work/a/adudziak/public/workspace/CalibDStDownK_0.root"
+    configdict["fileCalibPionUp"]  = "/afs/cern.ch/work/a/adudziak/public/workspace/CalibrationSamples/Calib_DSt_Up_Pi_PID5_Str20.root"
+    configdict["fileCalibPionDown"]  = "/afs/cern.ch/work/a/adudziak/public/workspace/CalibrationSamples/Calib_DSt_Down_Pi_PID5_Str20.root"
     configdict["workCalibPion"]  = "RSDStCalib"
+    configdict["fileCalibKaonUp"]  = "/afs/cern.ch/work/a/adudziak/public/workspace/CalibrationSamples/Calib_DSt_Up_K_PID5_Str20.root"
+    configdict["fileCalibKaonDown"]  = "/afs/cern.ch/work/a/adudziak/public/workspace/CalibrationSamples/Calib_Dst_Down_K_PID5_Str20.root"
     configdict["workCalibKaon"]  = "RSDStCalib"
+    configdict["fileCalibProtonUp"]  = "/afs/cern.ch/work/a/adudziak/public/workspace/work_lblcpi_up_sw.root"
+    configdict["fileCalibProtonDown"]  = "/afs/cern.ch/work/a/adudziak/public/workspace/work_lblcpi_down_sw.root"
+    configdict["workCalibProton"]  = "workspace"
+    configdict["pathFileLcPi"]  = "/afs/cern.ch/work/a/adudziak/public/workspace/sWeights_LbLcPi_both_PID10.root"
+    configdict["treeNameLcPi"] = "merged"    
 
     configdict["lumRatioDown"] =  0.5
     configdict["lumRatioUp"] =  0.5
@@ -70,13 +76,34 @@ def getconfig() :
     #configdict["frac"]    = [0.85102, 0.46495, 0.51567, 0.65731, 0.68870]
 
     #Bs signal shape with BKGCAT
-    configdict["sigma1_bc"]  = [17.2698] 
-    configdict["sigma2_bc"]  = [17.756] 
-    configdict["alpha1_bc"]  = [1.] 
-    configdict["alpha2_bc"]  = [-1.27596] 
-    configdict["n1_bc"]      = [0.92]
-    configdict["n2_bc"]      = [0.54]
-    configdict["frac_bc"]    = [0.579]
+    #configdict["sigma1_bc"]  = [20.0] 
+    #configdict["sigma2_bc"]  = [10.0] 
+    #configdict["alpha1_bc"]  = [1.8106] 
+    #configdict["alpha2_bc"]  = [-0.6209] 
+    #configdict["n1_bc"]      = [0.95322]
+    #configdict["n2_bc"]      = [2.6109]
+    #configdict["frac_bc"]    = [0.579]
+
+    #BDT
+
+    configdict["sigma1_bc"]  = [14.998] 
+    configdict["sigma2_bc"]  = [25.669] 
+    configdict["alpha1_bc"]  = [1.6930] 
+    configdict["alpha2_bc"]  = [-1.7181] 
+    configdict["n1_bc"]      = [1.3198]
+    configdict["n2_bc"]      = [1.8442]
+    configdict["frac_bc"]    = [0.57637]
+
+
+    #BDT+VETO
+
+    #configdict["sigma1_bc"]  = [14.707] 
+    #configdict["sigma2_bc"]  = [20.459] 
+    #configdict["alpha1_bc"]  = [1.2683] 
+    #configdict["alpha2_bc"]  = [-2.3801] 
+    #configdict["n1_bc"]      = [1.9393]
+    #configdict["n2_bc"]      = [1.1800]
+    #configdict["frac_bc"]    = [0.57619]
 
     # ratio data/MC
     configdict["sigma1Bsfrac"] = 1.145 
@@ -99,7 +126,11 @@ def getconfig() :
     #configdict["fracDs"]    = [0.25406,  0.48465, 0.32864, 0.59958, 0.27873]
 
     #Ds signal shapes with BKGCAT
-    configdict["sigma1Ds_bc"]  = [27.81]
+    #configdict["sigma1Ds_bc"]  = [27.81]
+    #BDT
+    configdict["sigma1Ds_bc"]  = [26.286]
+    #BDT+VETO
+    #configdict["sigma1Ds_bc"]  = [24.446]
     configdict["sigma2Ds_bc"]  = [] 
     configdict["alpha1Ds_bc"]  = [] 
     configdict["alpha2Ds_bc"]  = []
@@ -115,7 +146,7 @@ def getconfig() :
         
 
     # combinatorial background
-    configdict["cB1"]                = [-3.5211e-03]
+    configdict["cB1"]                = [-100.e-03]
     configdict["cB2"]                = [0.0,      ]
     configdict["fracBsComb"]         = [4.3067e-01]
     
@@ -125,6 +156,15 @@ def getconfig() :
     #expected Events
     configdict["BdDPiEvents"]  = [331.0, 4.0,  81.0, 28.0, 0.0]
     configdict["LbLcPiEvents"] = [301.0, 30.0, 68.0, 0.0,  0.0] #[312.0, 38.0, 69.0, 17.0,  0.0] #[301.0, 30.0, 68.0, 0.0,  0.0]
+
+
+    configdict["Bd2DKEvents"]=[80.]
+    configdict["Bd2DsKEvents"]=[60.]
+    configdict["Bs2DsstKEvents"]=[50.]
+    configdict["Bd2DsstKEvents"]=[1000.]
+    configdict["LbLcKEvents"]=[300.]
+
+
     configdict["BsDsKEvents"]  = [42.0,  48.0, 43.0, 8.0,  22.0]
         
     configdict["assumedSig"]   = [10146.7, 13952.8,
