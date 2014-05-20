@@ -303,11 +303,11 @@ def runBsDsKMassFitterOnData( debug, sample, mVar, mdVar, tVar, terrVar, tagVar,
 
                         
     else:    
-        combData =  GeneralUtils.GetDataSet(workspace[0], observables, sam, datasetTS, sampleTS, modeTS, merge, debug )
+        combData =  GeneralUtils.GetDataSet(workData, observables, sam, datasetTS, sampleTS, modeTS, merge, debug )
         sm = GeneralUtils.GetSampleMode(sampleTS, modeTS, merge, debug )
         s = GeneralUtils.GetSample(sampleTS, debug)
         m = GeneralUtils.GetMode(modeTS,debug)
-        nEntries = GeneralUtils.GetEntriesCombData(workspace[0], datasetTS, sampleTS, modeTS, merge, debug ) 
+        nEntries = GeneralUtils.GetEntriesCombData(workData, datasetTS, sampleTS, modeTS, merge, debug ) 
                 
     ran = sm.__len__()
     ranmode = m.__len__()
@@ -433,7 +433,10 @@ def runBsDsKMassFitterOnData( debug, sample, mVar, mdVar, tVar, terrVar, tagVar,
     if dim > 2 :
         for i in range(0,bound):
             namePID = TString("Bs2DsK_")+sm[i]
-            k = bound%2
+            if merge:
+                k = bound%2
+            else:
+                k = 0
             sigPIDKPDF.append(Bs2Dsh2011TDAnaModels.ObtainPIDKShape(workspace[0], namePID, s[k], lumRatio, true, debug))
             getattr(workInt,'import')(sigPIDKPDF[i])
 
@@ -499,18 +502,24 @@ def runBsDsKMassFitterOnData( debug, sample, mVar, mdVar, tVar, terrVar, tagVar,
         nameBd2DK = TString("nBd2DK_")+sm[i]+t+evts
         nameBd2DPi = TString("nBd2DPi_")+sm[i]+t+evts
 
-        if merge: 
-            inBsLb2DsDsstPPiRhoEvts = myconfigfile["nBs2DsDsstPiRhoEvts"][i*2]+myconfigfile["nBs2DsDsstPiRhoEvts"][i*2+1]
-            inLbLcKEvts = myconfigfile["nLbLcKEvts"][i*2] + myconfigfile["nLbLcKEvts"][i*2+1]
-            inLbLcPiEvts = myconfigfile["nLbLcPiEvts"][i*2] + myconfigfile["nLbLcPiEvts"][i*2+1]
-            inBdDKEvts = myconfigfile["nBdDKEvts"][i*2]+myconfigfile["nBdDKEvts"][i*2+1]
-            inBdDPiEvts = myconfigfile["nBdDPiEvts"][i*2]+myconfigfile["nBdDPiEvts"][i*2+1]
-        else    :
-            inBsLb2DsDsstPPiRhoEvts = myconfigfile["nBs2DsDsstPiRhoEvts"][i]
-            inLbLcKEvts = myconfigfile["nLbLcKEvts"][i]
-            inLbLcPiEvts = myconfigfile["nLbLcPiEvts"][i]
-            inBdDKEvts = myconfigfile["nBdDKEvts"][i]
-            inBdDPiEvts = myconfigfile["nBdDPiEvts"][i]
+        inBsLb2DsDsstPPiRhoEvts = myconfigfile["nBs2DsDsstPiRhoEvts"][i]
+        inLbLcKEvts = myconfigfile["nLbLcKEvts"][i]
+        inLbLcPiEvts = myconfigfile["nLbLcPiEvts"][i]
+        inBdDKEvts = myconfigfile["nBdDKEvts"][i]
+        inBdDPiEvts = myconfigfile["nBdDPiEvts"][i]
+
+        if sampleTS == "up":
+            inBsLb2DsDsstPPiRhoEvts  = inBsLb2DsDsstPPiRhoEvts* myconfigfile["lumRatio"]
+            inLbLcKEvts = inLbLcKEvts* myconfigfile["lumRatio"]
+            inLbLcPiEvts = inLbLcPiEvts* myconfigfile["lumRatio"]
+            inBdDKEvts  = inBdDKEvts*myconfigfile["lumRatio"]
+            inBdDPiEvts = inBdDPiEvts*myconfigfile["lumRatio"]
+        elif sampleTS == "down":
+            inBsLb2DsDsstPPiRhoEvts  = inBsLb2DsDsstPPiRhoEvts*(1-myconfigfile["lumRatio"])
+            inLbLcKEvts = inLbLcKEvts*(1-myconfigfile["lumRatio"])
+            inLbLcPiEvts = inLbLcPiEvts*(1-myconfigfile["lumRatio"])
+            inBdDKEvts = inBdDKEvts*(1-myconfigfile["lumRatio"])
+            inBdDPiEvts = inBdDPiEvts*(1-myconfigfile["lumRatio"])
 
         nCombBkg.append(RooRealVar( nameCombBkg.Data()  , nameCombBkg.Data() , nCombBkgEvts[i] , 0. , nEntries[i] ))
         nLb2LcK.append(RooRealVar( nameLb2LcK.Data(), nameLb2LcK.Data(), inLbLcKEvts)) 
@@ -573,13 +582,11 @@ def runBsDsKMassFitterOnData( debug, sample, mVar, mdVar, tVar, terrVar, tagVar,
         if merge:
             j=j+1
         else:
-            if i == 1 or i == 3:
-                j=j+1
-
-        #if toys:
-        #    cDVar[i].setConstant()
-        #    cBVar[i].setConstant()
-        #    fracComb[i].setConstant()
+            if sampleTS == "both":
+                if i == 1 or i == 3:
+                    j=j+1
+            else:
+                j = j+1
                 
         #---------------------------------------------------------------------------------------------------------------------------#                
 
@@ -613,7 +620,7 @@ def runBsDsKMassFitterOnData( debug, sample, mVar, mdVar, tVar, terrVar, tagVar,
     workInt.Print("v")
 
     if (mode == "all" and ( sample == "up" or sample == "down")):
-        for i in range(0,3):
+        for i in range(0,bound):
             bkgPDF.append(Bs2Dsh2011TDAnaModels.build_Bs2DsK_BKG_MDFitter(mass, massDs, workspace[0], workInt, bkgBdDsK[i], sm[i], dim, debug ))
     else:
         if merge:
