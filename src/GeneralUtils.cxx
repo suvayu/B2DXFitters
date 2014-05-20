@@ -1261,6 +1261,10 @@ namespace GeneralUtils {
               }
 	  }
       }
+    else
+      {
+	nE = nEntries; 
+      }
    
     return nE; 
 
