@@ -16,13 +16,13 @@ def getconfig() :
     configdict["ArgLbarfbar"]   = configdict["StrongPhase"] + configdict["WeakPhase"]
     configdict["ModLf"]         = 0.372
 
-    configdict["tacc_size"]   = 8
+    configdict["tacc_size"]   = 7
     #configdict["tacc_knots"]  = [0.25, 0.5, 1.0, 2.0, 3.0, 12.0]
     #configdict["tacc_values"] = [1.93184e-01, 3.35302e-01, 7.39033e-01, 1.16141e+00, 1.29660e+00, 1.31712e+00]
 
-    configdict["tacc_knots"]  = [0.50, 1.0,  1.5, 2.0, 3.0, 6.0, 11.0, 14.0] #tac varr 7                                                                                                              
+    configdict["tacc_knots"]  = [0.5, 1.0, 1.5, 2.0, 3.0, 6.0, 11.0]
     #configdict["tacc_values"] = [1.0, 1.0, 1.0, 1.0, 1.0, 1.0 ] #1.93184e-01, 3.35302e-01, 7.39033e-01, 1.16141e+00, 1.29660e+00, 1.31712e+00]                                            
-    configdict["tacc_values"] = [1.5664, 2.1818, 2.3541, 2.3436, 1.9592, 1.2287, 1.0484, 0.77363]
+    configdict["tacc_values"] = [1.5654, 2.1801, 2.3524, 2.3416, 1.9579, 1.2277, 1.0472]
     #configdict["tacc_values"] = [2.0, 2.0, 2.0,2.0, 2.0, 2.0]
     #configdict["tacc_values"] = [4.4822e-01, 5.4895e-01, 7.4500e-01, 1.0435e+00, 1.2516e+00, 1.2256e+00]                            
 
