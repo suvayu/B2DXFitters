@@ -276,14 +276,14 @@ defaultConfig = {
     'PowLawAcceptance_expo':	1.849,
     'PowLawAcceptance_beta':	0.0363,
     # spline acceptance parameters
-    'AcceptanceSplineKnots':    [ 0.25, 0.5, 1.0, 2.0, 3.0, 12.0 ],
+    'AcceptanceSplineKnots':    [ 0.5, 1.0, 1.5, 2.0, 3.0, 12.0 ],
     'AcceptanceSplineCoeffs':   {
             # first index: DATA for data fits, MC for MC/toy fits
             'MC': {
                 # second index: Bs2DsK or Bs2DsPi, depending on what the
                 # signal mode is
-                'Bs2DsPi':      [ 0.179, 0.294, 0.690, 1.125, 1.245, 1.270 ],
-                'Bs2DsK':       [ 0.159, 0.271, 0.655, 1.124, 1.244, 1.296 ],
+                'Bs2DsPi':      [ 5.12341e-01, 7.44868e-01, 9.95795e-01, 1.13071e+00, 1.23135e+00, 1.22716e+00 ],
+                'Bs2DsK':       [ 4.97708e-01, 7.42075e-01, 9.80824e-01, 1.16280e+00, 1.24252e+00, 1.28482e+00 ],
                 # alternatively, you could have per-mode acceptances:
                 # 'Bs2DsK': {
                 #    'Bs2DsK': [ ... ],
@@ -292,8 +292,15 @@ defaultConfig = {
                 # }
                 },
             'DATA': {
-                'Bs2DsPi':      [ 0.145, 0.210, 0.625, 1.029, 1.258, 1.241 ],
-                'Bs2DsK':       [ 0.128, 0.193, 0.590, 1.023, 1.250, 1.253 ],
+                'Bs2DsPi':      [ 4.5853e-01, 6.8963e-01, 8.8528e-01, 1.1296e+00, 1.2232e+00, 1.2277e+00 ],
+                'Bs2DsK':       [
+		    4.5853e-01 * 4.97708e-01 / 5.12341e-01,
+		    6.8963e-01 * 7.42075e-01 / 7.44868e-01,
+		    8.8528e-01 * 9.80824e-01 / 9.95795e-01,
+		    1.1296e+00 * 1.16280e+00 / 1.13071e+00,
+		    1.2232e+00 * 1.24252e+00 / 1.23135e+00,
+		    1.2277e+00 * 1.28482e+00 / 1.22716e+00
+		    ],
                 }
             },
 
@@ -829,7 +836,7 @@ def buildSplineAcceptance(
     myknots = deepcopy(knots)
     mycoeffs = deepcopy(coeffs)
     from ROOT import (RooBinning, RooArgList, RooPolyVar, RooCubicSplineFun,
-            RooConstVar, RooProduct)
+            RooConstVar, RooProduct, RooRealVar)
     if (len(myknots) != len(mycoeffs) or 0 >= min(len(myknots), len(mycoeffs))):
         raise ValueError('ERROR: Spline knot position list and/or coefficient'
                 'list mismatch')
@@ -857,7 +864,7 @@ def buildSplineAcceptance(
     for v in mycoeffs:
         if floatParams:
             coefflist.add(WS(ws, RooRealVar('%s_SplineAccCoeff%u' % (pfx, i),
-                '%s_SplineAccCoeff%u' % (pfx, i), v, 0., 2.)))
+                '%s_SplineAccCoeff%u' % (pfx, i), v, 0., 3.)))
         else:
             coefflist.add(WS(ws, RooConstVar('%s_SplineAccCoeff%u' % (pfx, i),
                 '%s_SplineAccCoeff%u' % (pfx, i), v)))
@@ -878,6 +885,8 @@ def buildSplineAcceptance(
         '%s_SplineAccCoeff%u' % (pfx, i), '%s_SplineAccCoeff%u' % (pfx, i),
         coefflist.at(coefflist.getSize() - 2), lastmycoeffs)))
     del i
+    print 'DEBUG: Spline Coeffs: %s' % str([ coefflist.at(i).getVal() for i in
+	xrange(0, coefflist.getSize()) ])
     # create the spline itself
     tacc = WS(ws, RooCubicSplineFun('%s_SplineAcceptance' % pfx,
         '%s_SplineAcceptance' % pfx, time, '%s_knotbinning' % pfx,
@@ -3315,7 +3324,7 @@ def getMasterPDF(config, name, debug = False):
         else:
             gamma, deltagamma, deltam = None, None, None
             modenick = mode
-            C = zero
+            C, D = zero, zero
         # figure out asymmetries to use
         asyms = { 'Prod': None, 'Det': None, 'TagEff': None }
         for k in asyms.keys():
