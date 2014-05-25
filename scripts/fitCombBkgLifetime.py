@@ -128,7 +128,7 @@ RooAbsReal.defaultIntegratorConfig().method1D().setLabel('RooAdaptiveGaussKronro
 RooAbsReal.defaultIntegratorConfig().method1DOpen().setLabel('RooAdaptiveGaussKronrodIntegrator1D')
 
 isDsK = not True
-BDTGRange =    (0.3, 0.9)
+BDTGRange =    (0.9, 1.0)
 MassRange =    (5700., 10000.)
 TimeRange =    (0.4, 15.0) if (0.9, 1.0) != BDTGRange else (0.75, 15.0)
 TimeErrRange = (0.01, 0.1)
@@ -335,7 +335,7 @@ for tag in xrange(0, 4):
     # - then, apply acceptance
     D = WS(ws, RooRealVar('D', 'D', 0., -1., 1.))
     
-    if (0.9, 1.0) == BDTGRange and isDsK:
+    if (0.9, 1.0) == BDTGRange:
         # single gaussian for DsK for BDTG in [0.9, 1.0] because there's virtually
         # no events there
         D.setConstant(True)
@@ -350,7 +350,7 @@ for tag in xrange(0, 4):
     
     # ok, fit back
     timeerrargset = RooArgSet(timeerr)
-    if not ((0.9, 1.0) == BDTGRange and isDsK):
+    if not ((0.9, 1.0) == BDTGRange):
         for i in xrange(0, 3):
             # single Gaussian first
             for v in (D, dGamma): v.setConstant(True)
@@ -364,7 +364,7 @@ for tag in xrange(0, 4):
                     RooFit.Optimize(2), RooFit.Offset(), RooFit.Save(),
                     RooFit.ConditionalObservables(timeerrargset))
     # release everything and fit
-    if not ((0.9, 1.0) == BDTGRange and isDsK):
+    if not ((0.9, 1.0) == BDTGRange):
         for v in (D, dGamma, gamma): v.setConstant(False)
     result = fit_pdf.fitTo(ds, RooFit.Timer(), RooFit.Verbose(), RooFit.Strategy(2),
             RooFit.Optimize(2), RooFit.Offset(), RooFit.Save(),
