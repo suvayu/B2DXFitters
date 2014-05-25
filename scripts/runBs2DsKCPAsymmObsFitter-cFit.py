@@ -3390,7 +3390,7 @@ def getMasterPDF(config, name, debug = False):
             raise TypeError('Wrong type for CombBkg_D in config dict')
         if (len(config['GammaCombBkg']) != len(config['DGammaCombBkg']) or
                 len(config['GammaCombBkg']) != len(config['CombBkg_D']) or
-                len(config['GammaCombBkg']) != config['NTaggers']):
+                len(config['GammaCombBkg']) != 1 + config['NTaggers']):
             raise ValueError('CombBkg lifetime parameter list(s) have wrong '
                     'length.')
         mode = 'CombBkg'
@@ -3437,11 +3437,11 @@ def getMasterPDF(config, name, debug = False):
         gammacombpdfs = [ ]
         for i in xrange(0, 1 + config['NTaggers']):
             gamma = WS(ws, RooRealVar('GammaCombBkg%u' % i,
-                '#Gamma_{CombBkg%u}}' % i, config['GammaCombBkg']))
+                '#Gamma_{CombBkg%u}}' % i, config['GammaCombBkg'][i]))
             dGamma = WS(ws, RooRealVar('DeltaGammaCombBkg%u' % i,
-                '#Delta#Gamma_{CombBkg%u}}' %i, config['DGammaCombBkg']))
+                '#Delta#Gamma_{CombBkg%u}}' %i, config['DGammaCombBkg'][i]))
             D = WS(ws, RooRealVar('CombBkg%u_D' % i, 'CombBkg%u_D' % i,
-                config['CombBkg_D']))
+                config['CombBkg_D'][i]))
             tmptageff = [ (one if i == j else zero) for j in xrange(
                 1, 1 + config['NTaggers']) ]
             gammacombpdfs.append(
@@ -3454,7 +3454,7 @@ def getMasterPDF(config, name, debug = False):
             del tmptageff
         gammacombpdfs.append(gammacombpdfs[0])
         gammacombpdfs.pop(0)
-        tmp0, tmp1 = RooArgList(), RooArgList
+        tmp0, tmp1 = RooArgList(), RooArgList()
         for v in gammacombpdfs: tmp0.add(v)
         for v in tageff: tmp1.add(v)
         del gammacombpdfs
