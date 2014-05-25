@@ -3290,11 +3290,20 @@ def getMasterPDF(config, name, debug = False):
     ########################################################################
     # Bs -> Ds Pi like modes, and Lb modes (non-oscillating)
     ########################################################################
+    ComboLifetimePerTagCat = False
     for mode in ( 'Bs2DsPi', 'Bs2DsstPi', 'Bs2DsRho', 'Bs2DsstRho',
             'Bd2DsK', 'Bd2DK', 'Bd2DsPi',
             'Lb2Dsp', 'Lb2Dsstp', 'Lb2LcK', 'Lb2LcPi',
             'CombBkg'):
         if mode not in config['Modes']:
+            continue
+        if ('CombBkg' == mode and (
+            type(config['GammaCombBkg']) != float or
+            type(config['DGammaCombBkg']) != float or
+            type(config['CombBkg_D']) != float)):
+            # need special treatment for combinatorial BG - array of
+            # lifetimes, one per tagging category
+            ComboLifetimePerTagCat = True
             continue
         tacc = getAcceptance(ws, config, mode, time)
         trm, tacc = getResolutionModel(ws, config, time, timeerr, tacc)
@@ -3369,6 +3378,90 @@ def getMasterPDF(config, name, debug = False):
                 trm, tacc, terrpdfs[mode], mistagtemplates[mode],
                 mistag, kfactorpdf, kfactor,
                 asyms['Prod'], asyms['Det'], asyms['TagEff'])
+    ########################################################################
+    # special treatment: CombBkg with lifetime per tagging category
+    ########################################################################
+    if ComboLifetimePerTagCat:
+        if type(config['GammaCombBkg']) not in (list, tuple):
+            raise TypeError('Wrong type for GammaCombBkg in config dict')
+        if type(config['DGammaCombBkg']) not in (list, tuple):
+            raise TypeError('Wrong type for DGammaCombBkg in config dict')
+        if type(config['CombBkg_D']) not in (list, tuple):
+            raise TypeError('Wrong type for CombBkg_D in config dict')
+        if (len(config['GammaCombBkg']) != len(config['DGammaCombBkg']) or
+                len(config['GammaCombBkg']) != len(config['CombBkg_D']) or
+                len(config['GammaCombBkg']) != config['NTaggers']):
+            raise ValueError('CombBkg lifetime parameter list(s) have wrong '
+                    'length.')
+        mode = 'CombBkg'
+        tacc = getAcceptance(ws, config, mode, time)
+        trm, tacc = getResolutionModel(ws, config, time, timeerr, tacc)
+        deltam = zero
+        modenick = mode
+        C = zero
+        # figure out asymmetries to use
+        asyms = { 'Prod': None, 'Det': None, 'TagEff': None }
+        for k in asyms.keys():
+            for n in (mode, modenick, mode.split('2')[0]):
+                if n in config['Asymmetries'][k]:
+                    if type(config['Asymmetries'][k][n]) == float:
+                        asyms[k] = WS(ws, RooRealVar(
+                            '%s_Asym%s' % (n, k), '%s_Asym%s' % (n, k),
+                            config['Asymmetries'][k][n], -1., 1.))
+                        asyms[k].setError(0.25)
+                    elif (type(config['Asymmetries'][k][n]) == list and
+                            'TagEff' == k):
+                        if (len(config['Asymmetries'][k][n]) !=
+                                config['NTaggers']):
+                            raise TypeError('Wrong number of asymmetries')
+                        asyms[k] = [ ]
+                        for asymval in config['Asymmetries'][k][n]:
+                            asymstmp = WS(ws, RooRealVar(
+                                '%s_Asym%s%u' % (n, k, len(asyms[k])),
+                                '%s_Asym%s%u' % (n, k, len(asyms[k])),
+                                asymval, -1., 1.))
+                            asymstmp.setError(0.25)
+                            asyms[k].append(asymstmp)
+                            del asymstmp
+                    else:
+                        raise TypeError('Unsupported type for asymmetry')
+                    break
+        # CombBkg does not need k-factor (delta(k))
+        kfactorpdf, kfactor = None, None
+        y = 0.
+        for lmode in yielddict:
+            if lmode.startswith(modenick): y += yielddict[lmode]
+        y = max(y, 1.)
+        tageff = makeTagEff(config, ws, modenick, y)
+        
+        gammacombpdfs = [ ]
+        for i in xrange(0, 1 + config['NTaggers']):
+            gamma = WS(ws, RooRealVar('GammaCombBkg%u' % i,
+                '#Gamma_{CombBkg%u}}' % i, config['GammaCombBkg']))
+            dGamma = WS(ws, RooRealVar('DeltaGammaCombBkg%u' % i,
+                '#Delta#Gamma_{CombBkg%u}}' %i, config['DGammaCombBkg']))
+            D = WS(ws, RooRealVar('CombBkg%u_D' % i, 'CombBkg%u_D' % i,
+                config['CombBkg_D']))
+            tmptageff = [ (one if i == j else zero) for j in xrange(
+                1, 1 + config['NTaggers']) ]
+            gammacombpdfs.append(
+                    buildBDecayTimePdf(config, '%s%u' % (mode, i), ws,
+                    time, timeerr, qt, qf, mistagCals[mode], tmptageff,
+                    gamma, deltagamma, deltam, C, D, D, zero, zero,
+                    trm, tacc, terrpdfs[mode], mistagtemplates[mode],
+                    mistag, kfactorpdf, kfactor,
+                    asyms['Prod'], asyms['Det'], asyms['TagEff']))
+            del tmptageff
+        gammacombpdfs.append(gammacombpdfs[0])
+        gammacombpdfs.pop(0)
+        tmp0, tmp1 = RooArgList(), RooArgList
+        for v in gammacombpdfs: tmp0.add(v)
+        for v in tageff: tmp1.add(v)
+        del gammacombpdfs
+        timepdfs[mode] = WS(ws, RooAddPdf('%s_TimePdf' % mode,
+            '%s_TimePdf' % mode, tmp0, tmp1))
+        del tmp0
+        del tmp1
 
     ########################################################################
     # non-osciallating modes
