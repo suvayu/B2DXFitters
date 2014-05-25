@@ -4,6 +4,15 @@
 ! Purpose     : RooFit-based fitters for B -> D X
 !-----------------------------------------------------------------------------
 
+! 2014-05-25 - Manuel Tobias Schiller
+ - cFit: allow per-tagger lifetimes for the CombBkg
+ - printFitResult.py:
+   * add a mode which averages two fit results (full weighted average based on
+     covariance matrices)
+   * add a mode which averages two fit results and subtracts the a third one
+     from the average (use case: compare split with unsplit sample)
+   * fitCombBkgLifetime.py: add fits per tagger
+
 ! 2014-05-19 - Suvayu Ali
  - Script to make k-factor MC overlay plot asked during review
 

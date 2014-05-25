@@ -111,9 +111,14 @@ parser.add_option('-t', '--toy', action='store_false', dest='isData',
         default=None, help='files are toys/MC')
 parser.add_option('--unblind', action='store_false', dest='blinding',
         default=True, help='unblind data (USE WITH CARE!)')
+parser.add_option('--avg', action='store_true', dest='avg', default=False,
+        help='average two indep. fit results')
 parser.add_option('--diff', action='store_true', dest='diff', default=False,
         help='diff mode (toy-by-toy differences etc., either indep. '
-        'samples or same data set)')
+        'samples or same data set); if --avg and --diff (or --systematic) '
+        'are specified simultaneously, the command takes three files with '
+        'fit results, and will first average the first and second file, '
+        'then form the difference between the average and the third file')
 parser.add_option('--systematic', action='store_true', dest='systematic',
 	default=False, help='evaluate systematic (implies --diff --samesample;'
         ' list the nominal files first)')
@@ -142,8 +147,14 @@ debug = options.debug
 gc.collect()
 
 if not options.isData: options.blinding = False
-if options.diff and len(args) != 2:
+if options.diff and not options.avg and len(args) != 2:
     raise ValueError('Diff/Systematic mode take exactly two ROOT files as '
+            'arguments.')
+elif options.avg and not options.diff and len(args) != 2:
+    raise ValueError('Averaging mode take exactly two ROOT files as '
+            'arguments.')
+elif options.avg and options.diff and len(args) != 3:
+    raise ValueError('Average/Diff mode take exactly three ROOT files as '
             'arguments.')
 
 print 'Running with settings:'
@@ -159,9 +170,11 @@ if options.diff:
 print
 gc.collect()
 
+veryoldres = None
 oldres = None
 res = None
 for fname in args:
+    veryoldres = oldres
     oldres = res
     res = grabResult(options.isData, options.blinding, fname)
     if None == res:
@@ -173,15 +186,29 @@ for fname in args:
     print 72 * '*'
     print
 
-if options.diff or options.systematic:
+if options.diff or options.systematic or options.avg:
     for r in (res, oldres):
         if options.systematic: r.setOptions(['Systematic'])
         elif options.diff:
             if options.sameData: r.setOptions(['SameDataSet'])
     print 72 * '*'
-    print 'DIFFERENCE (FIT2 - FIT1) - IGNORE CORRELATIONS, AT LIMIT WARNINGS'
-    print 72 * '*'
-    print (res - oldres)
+    if options.avg:
+        print 'WEIGHTED AVERAGE(FIT1, FIT2)'
+        print 72 * '*'
+        tmpres = (oldres + veryoldres) if None != veryoldres else (res + oldres)
+        print tmpres
+    else:
+        print 'DIFFERENCE (FIT2 - FIT1) - IGNORE CORRELATIONS, AT LIMIT WARNINGS'
+        print 72 * '*'
+        print (res - oldres)
     print 72 * '*'
     print
+    if None != veryoldres:
+        print 72 * '*'
+        print 'WEIGHTED AVERAGE(FIT1, FIT2) - FIT3 - IGNORE CORRELATIONS, AT LIMIT WARNINGS'
+        print 72 * '*'
+        print (tmpres - res)
+        print 72 * '*'
+        print
+
 

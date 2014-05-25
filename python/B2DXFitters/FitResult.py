@@ -416,6 +416,134 @@ class FitResult:
             retVal._constparam[idx] = (sval - oval)
         return retVal
 
+    def __add__(self, other):
+        """
+        add (average) two fit results
+
+        remarks:
+        - common parameters will be averaged with full covariance info
+        - fcn is the sum in fcns
+        - edm is the sum of edms
+        - covQual is set to minimum of both covQuals
+        - status is 0 if both input states are 0, else the larger non-zero
+          input state is copied
+        - result has the union of options set
+        - if at least one of the inputs was blind, so is the output
+        - limits on parameters become the most restrictive interval (maximum
+          of lower limits, minimum of upper limits)
+        """
+        retVal = FitResult(None)
+        retVal._status = max(self._status, other._status)
+        if 0 == retVal._status:
+            retVal._status = min(self._status, other._status)
+        retVal._covQual = min(self._covQual, other._covQual)
+        retVal._edm = self._edm + other._edm
+        retVal._fcn = self._fcn + other._fcn
+        retVal.setOptions(self._options)
+        retVal.setOptions(other._options)
+
+        # loop over floating parameters
+        for sidx in self._index2Name:
+            n = self._index2Name[sidx]
+            idx = len(retVal._name2Index)
+            if n not in other._name2Index: continue
+            oidx = other._name2Index[n]
+            # we verify that shared parameters are either constant in both
+            # FitResults, or are both floating
+            if (((sidx not in self._finalparam) or
+                (oidx not in other._finalparam)) and 
+                    ((sidx in self._finalparam) or
+                        (oidx in other._finalparam))):
+                print ('WARNING: Parameter %s constant in one FitResult, but '
+                        'floating in the other' % n)
+                continue
+            if sidx not in self._finalparam: continue
+            retVal._name2Index[n] = idx
+            retVal._index2Name[idx] = n
+            retVal._initialparam[idx] = 0.
+            # unblind before we perform the difference
+            subl = self._blindingSigns[sidx] * (self._finalparam[sidx] -
+                    self._blindingOffsets[sidx]) 
+            oubl = other._blindingSigns[oidx] * (other._finalparam[oidx] -
+                    other._blindingOffsets[oidx]) 
+            # we copy the sign and blinding offsef from the first argument,
+            # or, if the first argument is not blinded, from the second argument
+            retVal._blindingSigns[idx] = self._blindingSigns[sidx]
+            retVal._blindingOffsets[idx] = self._blindingOffsets[sidx]
+            if 0. == retVal._blindingOffsets[idx]:
+                retVal._blindingSigns[idx] = other._blindingSigns[oidx]
+                retVal._blindingOffsets[idx] = other._blindingOffsets[oidx]
+            retVal._finalparam[idx] = [ subl, oubl ]
+            retVal._finalparamlimlo[idx] = max(
+                    self._finalparamlimlo[sidx],
+                    other._finalparamlimlo[oidx])
+            retVal._finalparamlimhi[idx] = min(
+                    self._finalparamlimhi[sidx],
+                    other._finalparamlimhi[oidx])
+
+        # covariance matrix
+        for i in xrange(0, len(retVal._index2Name)):
+            n = retVal._index2Name[i]
+            sidx = self._name2Index[n]
+            oidx = other._name2Index[n]
+            retVal._cov[i] = { }
+            for j in xrange(0, i + 1):
+                o = retVal._index2Name[j]
+                sidy = self._name2Index[o]
+                oidy = other._name2Index[o]
+                val = [ self._cov[sidx][sidy], other._cov[oidx][oidy] ]
+                retVal._cov[i][j] = val
+                if (i != j): retVal._cov[j][i] = val
+        # loop over constant parameters
+        for n in self._name2Index:
+            idx = len(retVal._name2Index)
+            if n not in other._name2Index: continue
+            sidx = self._name2Index[n]
+            oidx = other._name2Index[n]
+            if (sidx not in self._constparam and oidx not in
+                    other._constparam): continue
+            if sidx in self._constparam: sval = self._constparam[sidx]
+            else: sval = self._finalparam[sidx]
+            if oidx in other._constparam: oval = other._constparam[oidx]
+            else: oval = other._finalparam[oidx]
+            retVal._name2Index[n] = idx
+            retVal._index2Name[idx] = n
+            # FIXME: What do we do  here? - does arithmetic average make
+            # sense??!?
+            retVal._constparam[idx] = 0.5 * (sval + oval)
+        # perform weighted average with the "classical" formula:
+        # mu = (C1^-1 + C2^-1)^-1 * (C1^-1 * mu1 + C2^-1 * mu2)
+        # C =  (C1^-1 + C2^-1)^-1
+        from ROOT import TVectorD, TMatrixDSym, TDecompChol
+        n = 1 + max(retVal._finalparam.keys())
+        v1, v2 = TVectorD(n), TVectorD(n)
+        c1, c2 = TMatrixDSym(n), TMatrixDSym(n)
+        for i in xrange(0, n):
+            v1[i], v2[i] = retVal._finalparam[i][0], retVal._finalparam[i][1]
+            for j in xrange(0, n):
+                c1[i][j], c2[i][j] = retVal._cov[i][j][0], retVal._cov[i][j][1]
+        d1, d2 = TDecompChol(c1), TDecompChol(c2)
+        if not d1.Decompose() or not d2.Decompose():
+            raise ValueError('Cannot invert covariance matrices')
+        d1.Invert(c1)
+        d2.Invert(c2)
+        c = TMatrixDSym(n)
+        c = c1 + c2
+        d = TDecompChol(c)
+        if not d.Decompose():
+            raise ValueError('Cannot invert covariance matrix')
+        v1 = c1 * v1 + c2 * v2
+        d.Solve(v1)
+        d.Invert(c)
+        # write back results (and reapply blinding)
+        for i in xrange(0, n):
+            retVal._finalparam[i] = (retVal._blindingOffsets[i] +
+                    retVal._blindingSigns[i] * v1[i])
+            for j in xrange(0, n):
+                retVal._cov[i][j] = c[i][j]
+
+        return retVal
+
     def __str__(self):
         """ print the fit result """
         from math import sqrt

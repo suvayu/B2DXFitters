@@ -119,6 +119,7 @@ from ROOT import (RooArgSet, RooArgList, RooBDecay, RooRealVar, RooConstVar,
         RooGaussModel, RooGaussian, RooGaussEfficiencyModel, RooTruthModel,
         RooEffProd, RooNumConvPdf, RooWorkspace, RooAbsReal, Inverse)
 from B2DXFitters.WS import WS as WS
+from B2DXFitters.FitResult import FitResult
 RooAbsReal.defaultIntegratorConfig().setEpsAbs(1e-9)
 RooAbsReal.defaultIntegratorConfig().setEpsRel(1e-9)
 RooAbsReal.defaultIntegratorConfig().getConfigSection('RooAdaptiveGaussKronrodIntegrator1D').setCatLabel('method','15Points')
@@ -126,15 +127,8 @@ RooAbsReal.defaultIntegratorConfig().getConfigSection('RooAdaptiveGaussKronrodIn
 RooAbsReal.defaultIntegratorConfig().method1D().setLabel('RooAdaptiveGaussKronrodIntegrator1D')
 RooAbsReal.defaultIntegratorConfig().method1DOpen().setLabel('RooAdaptiveGaussKronrodIntegrator1D')
 
-ws = RooWorkspace('ws')
-
-gamma =         WS(ws, RooRealVar('Gamma',      'Gamma',        1.0, 0.1, 2.5))
-dGamma =        WS(ws, RooRealVar('dGamma',     'dGamma',       0.5, -2.0, 2.0))
-SF =            WS(ws, RooConstVar('SF',        'SF',           1.37))
-tau = WS(ws, Inverse('tau', 'tau', gamma))
-
-isDsK = True
-BDTGRange =    (0.9, 1.0)
+isDsK = not True
+BDTGRange =    (0.3, 0.9)
 MassRange =    (5700., 10000.)
 TimeRange =    (0.4, 15.0) if (0.9, 1.0) != BDTGRange else (0.75, 15.0)
 TimeErrRange = (0.01, 0.1)
@@ -142,62 +136,58 @@ TimeErrRange = (0.01, 0.1)
 knots = {
         (0.3, 1.0): [ 0.5, 1.0, 1.5, 2.0, 3.0, 12.0 ],
         (0.6, 1.0): [ 0.5, 1.0, 1.5, 2.0, 3.0, 12.0 ],
-        (0.3, 0.9): [ 0.5, 1.0, 1.5, 2.0, 3.0, 12.0 ],
-        (0.9, 1.0): [ 0.8, 1.0, 1.5, 2.0, 3.0, 12.0 ],
+        (0.3, 0.9): [ 0.5, 1.0, 1.5, 2.0, 3.0, 6.0, 11.0 ],
+        (0.9, 1.0): [ 0.8, 1.0, 1.5, 2.0, 3.0, 6.0, 11.0, 14.0 ],
         }
 coeffs = {
         True: { # DsK
             (0.3, 1.0): [
-                4.5832e-01*5.03902e-01/5.26256e-01,
-                6.8898e-01*7.32741e-01/7.40768e-01,
-                8.8522e-01*9.98736e-01/1.02107e+00,
-                1.1292e+00*1.16514e+00/1.13483e+00,
-                1.2233e+00*1.25167e+00/1.24545e+00,
-                1.2277e+00*1.28624e+00/1.23243e+00],
+                4.5853e-01 * 4.97708e-01 / 5.12341e-01,
+                6.8963e-01 * 7.42075e-01 / 7.44868e-01,
+                8.8528e-01 * 9.80824e-01 / 9.95795e-01,
+                1.1296e+00 * 1.16280e+00 / 1.13071e+00,
+                1.2232e+00 * 1.24252e+00 / 1.23135e+00,
+                1.2277e+00 * 1.28482e+00 / 1.22716e+00],
             (0.6, 1.0): [
-                3.5794e-01*4.02721e-01/4.31571e-01,
-                5.6367e-01*6.07470e-01/6.32075e-01,
-                7.6897e-01*8.85530e-01/9.22715e-01,
-                1.0536e+00*1.11358e+00/1.10114e+00,
-                1.2016e+00*1.23842e+00/1.23988e+00,
-                1.2326e+00*1.30685e+00/1.26593e+00],
+                3.5803e-01 * 3.97923e-01 / 4.20221e-01,
+                5.6367e-01 * 6.14977e-01 / 6.34584e-01,
+                7.6889e-01 * 8.69428e-01 / 8.99565e-01,
+                1.0537e+00 * 1.11080e+00 / 1.09470e+00,
+                1.2016e+00 * 1.22906e+00 / 1.22355e+00,
+                1.2320e+00 * 1.30468e+00 / 1.25746e+00],
             (0.3, 0.9): [
-                1.6193e+00*2.12678e+00/2.17377e+00,
-                2.2657e+00*2.86635e+00/2.78740e+00,
-                2.4050e+00*2.94977e+00/2.96311e+00,
-                2.4591e+00*2.76718e+00/2.59706e+00,
-                1.9576e+00*1.99964e+00/2.01983e+00,
-                6.5246e-01*1.93623e-01/3.67405e-01],
+                1.6635e+00 * 2.47462e+00 / 2.47125e+00,
+                2.3178e+00 * 3.39595e+00 / 3.23980e+00,
+                2.4961e+00 * 3.47102e+00 / 3.40202e+00,
+                2.4930e+00 * 3.18153e+00 / 2.97477e+00,
+                2.0711e+00 * 2.44019e+00 / 2.38706e+00,
+                1.3281e+00 * 1.22369e+00 / 1.32258e+00,
+                1.0422e+00 * 1.01064e+00 / 1.03833e+00],
             (0.9, 1.0): [
-                2.4916e-01*2.78114e-01/2.96063e-01,
-                2.7606e-01*3.23047e-01/3.43090e-01,
-                4.0406e-01*5.18790e-01/5.45970e-01,
-                6.8334e-01*7.33678e-01/7.37678e-01,
-                9.6386e-01*1.03067e+00/1.02475e+00,
-                1.4528e+00*1.57981e+00/1.47536e+00],
+                3.4120e-01 * 3.01689e-01 / 3.49186e-01,
+                3.8462e-01 * 3.78774e-01 / 4.38532e-01,
+                5.4789e-01 * 5.49996e-01 / 6.34382e-01,
+                9.5219e-01 * 8.39685e-01 / 9.05328e-01,
+                1.2997e+00 * 1.10835e+00 / 1.20857e+00,
+                1.6461e+00 * 1.48437e+00 / 1.52741e+00,
+                1.6076e+00 * 1.34585e+00 / 1.42235e+00,
+                1.4345e+00 * 1.12627e+00 / 1.29029e+00],
             },
         False: { #DsPi
             (0.3, 1.0): [
-                4.5832e-01, 6.8898e-01, 8.8522e-01,
-                1.1292e+00, 1.2233e+00, 1.2277e+00],
+                4.5853e-01, 6.8963e-01, 8.8528e-01,
+                1.1296e+00, 1.2232e+00, 1.2277e+00],
             (0.6, 1.0): [
-                3.5794e-01, 5.6367e-01, 7.6897e-01,
-                1.0536e+00, 1.2016e+00, 1.2326e+00],
+                3.5803e-01, 5.6367e-01, 7.6889e-01,
+                1.0537e+00, 1.2016e+00, 1.2320e+00],
             (0.3, 0.9): [
-                1.6193e+00, 2.2657e+00, 2.4050e+00,
-                2.4591e+00, 1.9576e+00, 6.5246e-01],
+                1.6635e+00, 2.3178e+00, 2.4961e+00, 2.4930e+00,
+                2.0711e+00, 1.3281e+00, 1.0422e+00],
             (0.9, 1.0): [
-                2.4916e-01, 2.7606e-01, 4.0406e-01,
-                6.8334e-01, 9.6386e-01, 1.4528e+00],
+                3.4120e-01, 3.8462e-01, 5.4789e-01, 9.5219e-01,
+                1.2997e+00, 1.6461e+00, 1.6076e+00, 1.4345e+00],
             },
         }
-
-one =           WS(ws, RooConstVar('one',      'one',          1.))
-zero =          WS(ws, RooConstVar('zero',     'zero',         0.))
-
-# observable
-time = WS(ws, RooRealVar('time', 'time', *TimeRange))
-timeerr = WS(ws, RooRealVar('timeerr', 'timeerr', *TimeErrRange))
 
 timeConv = 1e9 / 2.99792458e8
 
@@ -311,47 +301,86 @@ def accbuilder(time, knots, coeffs):
     del coefflist
     return tacc, tacc_norm
 
-tacc, tacc_norm = accbuilder(time, knots[BDTGRange], coeffs[isDsK][BDTGRange])
+results = []
+for tag in xrange(0, 4):
+    ws = RooWorkspace('ws')
+    
+    gamma =         WS(ws, RooRealVar('Gamma',      'Gamma',        1.0, 0.1, 2.5))
+    dGamma =        WS(ws, RooRealVar('dGamma',     'dGamma',       0.5, 0.0, 2.5))
+    SF =            WS(ws, RooConstVar('SF',        'SF',           1.37))
+    tau = WS(ws, Inverse('tau', 'tau', gamma))
+    
+    one =           WS(ws, RooConstVar('one',      'one',          1.))
+    zero =          WS(ws, RooConstVar('zero',     'zero',         0.))
+    
+    # observable
+    time = WS(ws, RooRealVar('time', 'time', *TimeRange))
+    timeerr = WS(ws, RooRealVar('timeerr', 'timeerr', *TimeErrRange))
+    
+    tacc, tacc_norm = accbuilder(time, knots[BDTGRange], coeffs[isDsK][BDTGRange])
 
-ds = getDataSet(ws, cuts, files)
+    ds = getDataSet(ws,
+            '%s && %u == abs(lab0_TAGDECISION_OS) && '
+            '%u == abs(lab0_SS_nnetKaon_DEC)' % (
+                cuts, 1 if 1 == (tag % 2) else 0, 1 if 1 == (tag / 2) else 0),
+            files)
+    
+    fr = time.frame()
+    ds.plotOn(fr)
+    fr.Draw()
+    
+    # build simple fitter - fit D
+    # build pdf for fitting the usual way:
+    # - first apply decay time resolution smearing
+    # - then, apply acceptance
+    D = WS(ws, RooRealVar('D', 'D', 0., -1., 1.))
+    
+    if (0.9, 1.0) == BDTGRange and isDsK:
+        # single gaussian for DsK for BDTG in [0.9, 1.0] because there's virtually
+        # no events there
+        D.setConstant(True)
+        dGamma.setVal(0.)
+        dGamma.setConstant(True)
+    
+    fit_resmodel = WS(ws, RooGaussEfficiencyModel(
+        'fit_resmodel', 'fit_resmodel', time, tacc, zero, timeerr, SF, SF))
+    fit_pdf = WS(ws, RooBDecay('fit_pdf', 'fit_pdf',
+        time, tau, dGamma, one, D, zero, zero, zero, fit_resmodel,
+        RooBDecay.SingleSided))
+    
+    # ok, fit back
+    timeerrargset = RooArgSet(timeerr)
+    if not ((0.9, 1.0) == BDTGRange and isDsK):
+        for i in xrange(0, 3):
+            # single Gaussian first
+            for v in (D, dGamma): v.setConstant(True)
+            fit_pdf.fitTo(ds, RooFit.Timer(), RooFit.Verbose(), RooFit.Strategy(2),
+                    RooFit.Optimize(2), RooFit.Offset(), RooFit.Save(),
+                    RooFit.ConditionalObservables(timeerrargset))
+            # ok, fix gamma, release D, dGamma
+            for v in (D, dGamma): v.setConstant(False)
+            gamma.setConstant(True)
+            fit_pdf.fitTo(ds, RooFit.Timer(), RooFit.Verbose(), RooFit.Strategy(2),
+                    RooFit.Optimize(2), RooFit.Offset(), RooFit.Save(),
+                    RooFit.ConditionalObservables(timeerrargset))
+    # release everything and fit
+    if not ((0.9, 1.0) == BDTGRange and isDsK):
+        for v in (D, dGamma, gamma): v.setConstant(False)
+    result = fit_pdf.fitTo(ds, RooFit.Timer(), RooFit.Verbose(), RooFit.Strategy(2),
+            RooFit.Optimize(2), RooFit.Offset(), RooFit.Save(),
+            RooFit.ConditionalObservables(timeerrargset))
+    results.append(FitResult(result))
+    fit_pdf.plotOn(fr, RooFit.ProjWData(timeerrargset, ds, True))
+    fr.Draw()
+    ROOT.gPad.SetLogy()
+    ROOT.gPad.Print('CombBkgLifetimeFit_%s_BDTG%g-%g-TAG%u.pdf' % ('DsK' if isDsK else
+        'DsPi', BDTGRange[0], BDTGRange[1], tag))
+    del ws
 
-fr = time.frame()
-ds.plotOn(fr)
-fr.Draw()
+for i in xrange(0, len(results)):
+    print 72 * '*'
+    print 'COMBINATORIAL LIFETIME FIT FOR TAG = %u' % i
+    print 72 * '*'
+    print results[i]
+    print
 
-# build simple fitter - fit D
-# build pdf for fitting the usual way:
-# - first apply decay time resolution smearing
-# - then, apply acceptance
-D = WS(ws, RooRealVar('D', 'D', 0., -1., 1.))
-
-if (0.9, 1.0) == BDTGRange and isDsK:
-    # single gaussian for DsK for BDTG in [0.9, 1.0] because there's virtually
-    # no events there
-    D.setConstant(True)
-    dGamma.setVal(0.)
-    dGamma.setConstant(True)
-
-fit_resmodel = WS(ws, RooGaussEfficiencyModel(
-    'fit_resmodel', 'fit_resmodel', time, tacc, zero, timeerr, SF, SF))
-fit_pdf = WS(ws, RooBDecay('fit_pdf', 'fit_pdf',
-    time, tau, dGamma, one, D, zero, zero, zero, fit_resmodel,
-    RooBDecay.SingleSided))
-
-# ok, fit back
-timeerrargset = RooArgSet(timeerr)
-if not ((0.9, 1.0) == BDTGRange and isDsK):
-    for v in (D, dGamma): v.setConstant(True)
-fit_pdf.fitTo(ds, RooFit.Timer(), RooFit.Verbose(), RooFit.Strategy(2),
-        RooFit.Optimize(2), RooFit.Offset(), RooFit.Save(),
-        RooFit.ConditionalObservables(timeerrargset))
-if not ((0.9, 1.0) == BDTGRange and isDsK):
-    for v in (D, dGamma): v.setConstant(False)
-fit_pdf.fitTo(ds, RooFit.Timer(), RooFit.Verbose(), RooFit.Strategy(2),
-        RooFit.Optimize(2), RooFit.Offset(), RooFit.Save(),
-        RooFit.ConditionalObservables(timeerrargset))
-fit_pdf.plotOn(fr, RooFit.ProjWData(timeerrargset, ds, True))
-fr.Draw()
-ROOT.gPad.SetLogy()
-ROOT.gPad.Print('CombBkgLifetimeFit_%s_BDTG%g-%g.pdf' % ('DsK' if isDsK else
-        'DsPi', BDTGRange[0], BDTGRange[1]))
