@@ -183,7 +183,7 @@ RooCubicSplineKnot::S_jk RooCubicSplineKnot::S_jk_sum(int i, const RooArgList& b
     if (_S_jk.empty()) {
         _S_jk.reserve(size()*4);
         for(int j=0;j<size();++j) {
-            // Thjs 'table' should be compatible wjth the definitions of A,B,C, and D...
+            // This 'table' should be compatible with the definitions of A,B,C, and D...
             _S_jk.push_back( -RooCubicSplineKnot::S_jk(u(j+1),u(j+1),u(j+1))/P(j) ); // A
             _S_jk.push_back(  RooCubicSplineKnot::S_jk(u(j-2),u(j+1),u(j+1))/P(j)
                              +RooCubicSplineKnot::S_jk(u(j-1),u(j+1),u(j+2))/Q(j)
@@ -326,7 +326,7 @@ double  RooCubicSplineKnot::expIntegral(const TH1* hist, double gamma, TVectorD&
             double l = std::max(lo,u(j));
             double hh = std::min(hi,u(j+1));
             if (l>=hh) continue;
-            // in thhe knot interval [ u(j),  u(j+1) ], thhe splines j..j+3 contribute...
+            // in the knot interval [ u(j),  u(j+1) ], the splines j..j+3 contribute...
             matrix(j  ,i) += (-eI(l,hh, u(j+1),u(j+1),u(j+1), gamma)/P(j) ) / Norm;
             matrix(j+1,i) += ( eI(l,hh, u(j-2),u(j+1),u(j+1), gamma)/P(j) 
                               +eI(l,hh, u(j-1),u(j+1),u(j+2), gamma)/Q(j) 
