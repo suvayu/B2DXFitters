@@ -92,7 +92,7 @@ from ROOT import RooFit
 from optparse import OptionParser
 from math     import pi, log
 import os, sys, gc
-#gROOT.SetBatch()
+gROOT.SetBatch()
 gStyle.SetOptStat(0)
 gStyle.SetOptFit(1011)
 
@@ -103,8 +103,9 @@ debug = True
 largeToys = False
 drawGeneratedYields = False
 
-ntoys               = 1200
-toysdir             = '/afs/cern.ch/work/g/gligorov/public/Bs2DsKToys/For1fbPaper/Gamma70_5M_2T_MD/'
+ntoys               = 600
+toysdir             = '/afs/cern.ch/work/a/adudziak/public/Bs2DsKToys/Gamma70_Check/MassFitResults/'
+toysdirsw           = '/afs/cern.ch/work/a/adudziak/public/Bs2DsKToys/Gamma70_Check/sWeightsForTimeFit/'
 toystupleprefix     = 'DsK_Toys_sWeights_ForTimeFit_'
 if largeToys : toystupleprefix     = 'DsK_Toys_FullLarge_Tree_'
 toystuplesuffix     = '.root'
@@ -123,40 +124,44 @@ upperpullrange = 5
 
 eventtypes = {"Signal" : 1.0, 
               "DK"     : 2.0,
+              "DPi"    : 12.0,
               "Bd2DsK" : 3.0,
               "DsPi"   : 4.0,
               "LcK"    : 5.0,
+              "LcPi"   : 15.0, 
               "Dsp"    : 6.0,
+              "Dsstp"  : 16.0,
               "LMK"    : 7.0,
               "LMPi"   : 8.0,
+              "DsRho"  : 18.0,
               "Combo"  : 10.0 }
 
 # Get the configuration file
 myconfigfilegrabber = __import__("Bs2DsKConfigForGenerator5M",fromlist=['getconfig']).getconfig
 myconfigfile = myconfigfilegrabber()
 
-numgenevt ={"Signal" : ntoys*[1809.0]} #1857.0]} #1856.0]} #1854.0]}
+numgenevt ={"Signal" : ntoys*[1.77019e+03]} #1857.0]} #1856.0]} #1854.0]}
 numfitted ={"Signal1" : ntoys*[(0,0)]}
 numfitted["Signal2"] = ntoys*[(0,0)]
 numfitted["Signal3"] = ntoys*[(0,0)]
 numfitted["Signal4"] = ntoys*[(0,0)]
 numfitted["Signal5"] = ntoys*[(0,0)]
 
-numgenevt["Combo"] = ntoys*[3750.0] #3967.0] #3970]
+numgenevt["Combo"] = ntoys*[2.43216e+03] #3967.0] #3970]
 numfitted["Combo1"] = ntoys*[(0,0)]
 numfitted["Combo2"] = ntoys*[(0,0)]
 numfitted["Combo3"] = ntoys*[(0,0)]
 numfitted["Combo4"] = ntoys*[(0,0)]
 numfitted["Combo5"] = ntoys*[(0,0)]
 
-numgenevt["LMK"] = ntoys*[137.8] #150.3] #149.2] #149.5]
+numgenevt["LMK"] = ntoys*[1.27037e+02] #150.3] #149.2] #149.5]
 numfitted["LMK1"] = ntoys*[(0,0)]
 numfitted["LMK2"] = ntoys*[(0,0)]
 numfitted["LMK3"] = ntoys*[(0,0)]
 numfitted["LMK4"] = ntoys*[(0,0)]
 numfitted["LMK5"] = ntoys*[(0,0)]
 
-numgenevt["LMPi"] = ntoys*[1436.0] #1380.0] #1379]
+numgenevt["LMPi"] = ntoys*[1.39645e+03] #1380.0] #1379]
 numfitted["LMPi1"] = ntoys*[(0,0)]
 numfitted["LMPi2"] = ntoys*[(0,0)]
 numfitted["LMPi3"] = ntoys*[(0,0)]
@@ -192,10 +197,10 @@ numfitted["DK3"] = ntoys*[(0,0)]
 numfitted["DK4"] = ntoys*[(0,0)]
 numfitted["DK5"] = ntoys*[(0,0)]
 
-numgenevt["g5_f1"] = ntoys*[0.979]
+numgenevt["g5_f1"] = ntoys*[0.986]
 numfitted["g5_f1"] = ntoys*[(0,0)]
 
-numgenevt["g2_f1"] = ntoys*[0.653]
+numgenevt["g2_f1"] = ntoys*[0.648]
 numfitted["g2_f1"] = ntoys*[(0,0)]
 
 numgenevt["g3_f1"] = ntoys*[0.75]
@@ -207,10 +212,10 @@ numeventshistos = {}
 for eventtype in eventtypes :
     numevents[eventtype]    = ntoys*[0]
     maxevents = 5000
-    if eventtype in ["DK","LcK","Dsp","LMK","Bd2DsK"] :
+    if eventtype in ["DK","DPi","LcK","LcPi","Dsp","Dsstp","LMK","Bd2DsK"] :
         maxevents = 500
     if eventtype in ["Signal","DsPi","LMPi"] :
-        maxevents = 2500
+        maxevents = 2500    
     if largeToys :
         maxevents *= 10
     numeventshistos[eventtype] = TH1F("genhist"+eventtype,"genhist"+eventtype,400,0,maxevents)
@@ -221,7 +226,7 @@ if drawGeneratedYields :
     for thistoy in range(0,ntoys) :
         print "Processing toy",thistoy
         #try :
-        thistoyfile = TFile(toysdir+toystupleprefix+str(thistoy)+toystuplesuffix)
+        thistoyfile = TFile(toysdirsw+toystupleprefix+str(thistoy)+toystuplesuffix)
         #except :
         #    print 'Toy number',thistoy,'failed to converge properly!'
         #    continue
@@ -237,11 +242,15 @@ if drawGeneratedYields :
             if eventtype == "LMK" :
                 numeventshistos[eventtype].Fill(numevents["LMK"][thistoy]+numevents["Bd2DsK"][thistoy])
             elif eventtype == "LMPi":
-                numeventshistos[eventtype].Fill(numevents["LMPi"][thistoy]+numevents["DsPi"][thistoy]+numevents["Dsp"][thistoy])
+                numeventshistos[eventtype].Fill(numevents["LMPi"][thistoy]
+                                                +numevents["DsRho"][thistoy]
+                                                +numevents["DsPi"][thistoy]
+                                                +numevents["Dsp"][thistoy]
+                                                +numevents["Dsstp"][thistoy])
             else :
                 numeventshistos[eventtype].Fill(numevents[eventtype][thistoy])
         numevents["LMK"][thistoy] += numevents["Bd2DsK"][thistoy]
-        numevents["LMPi"][thistoy] += numevents["DsPi"][thistoy]+numevents["Dsp"][thistoy]
+        numevents["LMPi"][thistoy] += numevents["DsPi"][thistoy]+numevents["Dsp"][thistoy]+numevents["Dsstp"][thistoy]+numevents["DsRho"][thistoy]
     
     if debug : print numevents
     
