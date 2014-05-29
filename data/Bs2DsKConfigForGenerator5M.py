@@ -5,9 +5,9 @@ def getconfig() :
     from math import pi
 
     # FILENAMES
-    configdict["fileName"]           = "/afs/cern.ch/work/a/adudziak/public/workspace/DsKNoteV11/work_dsk_pid_53005800_PIDK5_5M_BDTGA_4.root"
-    configdict["fileNameData"]       = "/afs/cern.ch/work/a/adudziak/public/workspace/DsKNoteV11/work_dsk_pid_53005800_PIDK5_5M_BDTGA_4.root"
-    configdict["fileNameTerr"]       = "../data/workspace/MDFitter/template_Data_Terr_BsDsK.root"
+    configdict["fileName"]           = "/afs/cern.ch/work/g/gligorov/public/Bs2DsKPlotsForPaper/NominalFit/work_dsk_pid_53005800_PIDK5_5M_BDTGA.root"
+    configdict["fileNameData"]       = "/afs/cern.ch/work/g/gligorov/public/Bs2DsKPlotsForPaper/NominalFit/work_dsk_pid_53005800_PIDK5_5M_BDTGA.root"
+    configdict["fileNameTerr"]       = "../data/workspace/MDFitter/template_Data_Terr_Bs2DsK_BDTGA.root"
     configdict["fileNameMistag"]     = "../data/workspace/MDFitter/template_Data_Mistag_BsDsPi.root"
     configdict["fileNameMistagBDPi"] = "../data/workspace/MDFitter/template_Data_Mistag_BDPi.root"
     configdict["fileNameMistagComb"] = "../data/workspace/MDFitter/template_Data_Mistag_CombBkg.root"
@@ -44,8 +44,16 @@ def getconfig() :
     configdict["DeltaMd"]       =  0.507   # in ps^{-1}
 
     configdict["GammaLb"]       =  0.700    # in ps^{-1}
-    configdict["GammaCombo"]    =  0.800
-       
+
+    #order: OS, SSK, OS+SSK, untagged
+    configdict["D_Combo"]            =  [-0.908, -0.775, -0.913, -0.938]
+    configdict["DeltaGammaCombo"]    =  [ 0.845,  1.266,  1.282,  0.753]
+    configdict["GammaCombo"]         =  [ 0.913,  1.451,  1.371,  0.745]
+    configdict["tagEff_Combo_full"]  =  [ [1.0, 0.0, 0.0], 
+                                          [0.0, 1.0, 0.0], 
+                                          [0.0, 0.0, 1.0], 
+                                          [0.0, 0.0, 0.0] ]
+
     configdict["StrongPhase_d"] = 20. / 180. * pi
     configdict["StrongPhase_s"] = 30. / 180. * pi
     configdict["WeakPhase"]     = 70. / 180. * pi
@@ -74,11 +82,11 @@ def getconfig() :
     configdict["lumRatio"]      =  configdict["lumRatioUp"]/(configdict["lumRatioDown"]+configdict["lumRatioUp"])
     
     configdict["massRange"]     = [5300,5800] # in MeV 
-    configdict["timeRange"]     = [0.2, 15] # in ps
+    configdict["timeRange"]     = [0.4, 15] # in ps
 
     configdict["tacc_size"]   = 6
-    configdict["tacc_knots"]  = [0.25, 0.5, 1.0, 2.0, 3.0, 12.0]
-    configdict["tacc_values"] = [1.77520e-01, 2.89603e-01, 6.79455e-01, 1.11726e+00, 1.23189e+00, 1.26661e+00] 
+    configdict["tacc_knots"]  = [0.5, 1.0, 1.5, 2.0, 3.0, 12.0]
+    configdict["tacc_values"] = [0.4453873694523979, 0.6869245867352556, 0.8719680916278891, 1.1614426699209424, 1.2341250036543179, 1.2852701638596233]
 
     configdict["tagEff_OS"] = 0.387
     configdict["tagEff_SS"] = 0.4772
@@ -167,19 +175,19 @@ def getconfig() :
     configdict["adet_Bs2DsstPi"]    = 0.0
     configdict["adet_Bs2DsRho"]     = 0.0
     
-    configdict["num_Signal"]    = [308, 591, 487, 109,  314]
+    configdict["num_Signal"]    = [309, 576, 475, 107,  301]
     configdict["num_Bd2DK"]        = [17,    0,   5,   0,    0]
     configdict["num_Bd2DPi"]       = [14,    3,   3,   0,    0]
-    configdict["num_Bd2DsK"]    = [18,   35,  42,  11,   32]
-    configdict["num_Bs2DsPi"]      = [231*0.979*0.653, 514*0.979*0.653, 342*0.979*0.653, 90*0.979*0.653, 258*0.979*0.653]
+    configdict["num_Bd2DsK"]    = [18,   34,  39,  9,   27]
+    configdict["num_Bs2DsPi"]      = [225*0.986*0.648, 498*0.986*0.648, 327*0.986*0.648, 89*0.986*0.648, 258*0.986*0.648]
     configdict["num_Lb2LcK"]       = [15,    2,   4,   0,    0]
     configdict["num_Lb2LcPi"]      = [11,    1,   3,   0,    0]
-    configdict["num_Combo"]     = [664, 439, 327, 619, 1702]
-    configdict["num_Lb2Dsp"]       = [231*0.021*0.75, 514*0.021*0.75, 342*0.021*0.75, 90*0.021*0.75, 258*0.021*0.75]
-    configdict["num_Lb2Dsstp"]     = [231*0.021*0.25, 514*0.021*0.25, 342*0.021*0.25, 90*0.021*0.25, 258*0.021*0.25]
+    configdict["num_Combo"]     = [487, 311, 258, 428, 946]
+    configdict["num_Lb2Dsp"]       = [225*0.014*0.75, 498*0.014*0.75, 327*0.014*0.75, 89*0.014*0.75, 258*0.014*0.75]
+    configdict["num_Lb2Dsstp"]     = [225*0.014*0.25, 498*0.014*0.25, 327*0.014*0.25, 89*0.014*0.25, 258*0.014*0.25]
     configdict["num_LM1"]       = [0,     0,   0,   0,    0]
-    configdict["num_Bs2DsstPi"]    = [231*0.979*0.347*0.5, 514*0.979*0.347*0.5, 342*0.979*0.347*0.5, 90*0.979*0.347*0.5, 258*0.979*0.347*0.5]
-    configdict["num_Bs2DsRho"]     = [231*0.979*0.347*0.5, 514*0.979*0.347*0.5, 342*0.979*0.347*0.5, 90*0.979*0.347*0.5, 258*0.979*0.347*0.5]
+    configdict["num_Bs2DsstPi"]    = [225*0.986*0.352*0.5, 498*0.986*0.352*0.5, 327*0.986*0.352*0.5, 89*0.986*0.352*0.5, 258*0.986*0.352*0.5]
+    configdict["num_Bs2DsRho"]     = [225*0.986*0.352*0.5, 498*0.986*0.352*0.5, 327*0.986*0.352*0.5, 89*0.986*0.352*0.5, 258*0.986*0.352*0.5]
 
     #----------------------------Signal----------------------------#
 
@@ -208,11 +216,11 @@ def getconfig() :
     configdict["fracDs"]    = [4.7565e-01,       3.9628e-01 ,      4.0048e-01,       5.5084e-01,       4.8729e-01 ]
 
            
-    configdict["cB"] = [-3.2717e-03, -2.0784e-03, -3.0429e-03, -1.5052e-03, -2.2054e-03]
-    configdict["cD"] = [-2.7157e-03, -2.4707e-03, -5.1842e-03, -3.3044e-04, -3.7356e-03]
-    configdict["fracDsComb"] = [9.4614e-01, 5.3355e-01, 7.7153e-01,  1.0, 1.0]
+    configdict["cB"] = [-3.17e-03, -1.82e-03, -2.91e-03, -1.09e-03, -1.55e-03]
+    configdict["cD"] = [-4.29e-03, -2.92e-03, -3.39e-03, -0.0,      -1.97e-03]
+    configdict["fracDsComb"] = [0.95, 0.54, 0.80,  1.0, 1.0]
 
-    configdict["fracPIDKComb1"] = 6.2485e-01
-    configdict["fracPIDKComb2"] = 5.4107e-01
+    configdict["fracPIDKComb1"] = 0.504
+    configdict["fracPIDKComb2"] = 0.346
        
     return configdict
