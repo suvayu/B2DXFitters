@@ -212,10 +212,20 @@ def runBsDsKGenerator(  debug, single, configName, rangeDown, rangeUp,
     DeltaMs      = RooRealVar('DeltaMs','DeltaMs', myconfigfile["DeltaMs"])                  # in ps^{-1}
                         
     GammaLb      = RooRealVar('GammaLb','GammaLb',myconfigfile["GammaLb"])
-    GammaCombo   = RooRealVar('GammaCombo','GammaCombo',myconfigfile["GammaCombo"])
+    #GammaCombo   = RooRealVar('GammaCombo','GammaCombo',myconfigfile["GammaCombo"])
     TauInvLb     = Inverse( "TauInvLb","TauInvLb", GammaLb)
-    TauInvCombo  = Inverse( "TauInvCombo","TauInvCombo", GammaCombo)
-        
+    #TauInvCombo  = Inverse( "TauInvCombo","TauInvCombo", GammaCombo)
+
+    GammaCombo = []
+    DeltaGammaCombo = []
+    TauInvCombo = []
+    ComboLabel = ["OS","SSK","OSSSK","UN"]
+
+    for i in range(0,4):
+        GammaCombo.append(RooRealVar('GammaCombo_%s'%(ComboLabel[i]),'GammaCombo_%s'%(ComboLabel[i]), myconfigfile["GammaCombo"][i]))
+        DeltaGammaCombo.append(RooRealVar('DeltaGammaCombo_%s'%(ComboLabel[i]), 'DeltaGammaCombo_%s'%(ComboLabel[i]), myconfigfile["DeltaGammaCombo"][i]))
+        TauInvCombo.append(Inverse("TauInvCombo_%s"%(ComboLabel[i]),"TauInvCombo_%s"%(ComboLabel[i]), GammaCombo[i]))
+
     # Some convenient constants when we build up the decays
     half     = RooConstVar('half','0.5',0.5)    
     zero     = RooConstVar('zero', '0', 0.)
@@ -453,6 +463,7 @@ def runBsDsKGenerator(  debug, single, configName, rangeDown, rangeUp,
     timeandmass_Lb2Dsstp        = []
     #
     massD_LM1                   = []
+    PIDK_LM1                    = []
     MDFitter_LM1                = []
     timeandmass_LM1             = []
     #
@@ -476,6 +487,17 @@ def runBsDsKGenerator(  debug, single, configName, rangeDown, rangeUp,
     massD_Combo                 = [] 
     MDFitter_Combo              = [] 
     timeandmass_Combo           = [] 
+    time_Combo_noacc            = []
+    time_Combo_pertag           = []
+    D_Combo                     = []
+    Dbar_Combo                  = []
+    sinh_Combo                  = []
+    sin_Combo                   = []
+    cosh_Combo                  = []
+    cos_Combo                   = []
+    tagEffList_Combo            = []
+    fracTagCombo                = []
+    otherargs_Combo             = []
     #
     num_Signal                  = []
     num_Bd2DK                   = []
@@ -1072,17 +1094,22 @@ def runBsDsKGenerator(  debug, single, configName, rangeDown, rangeUp,
     trm_Combo = trm
     #The combinatorics - time
     tagEff_Combo = []
-    tagEffList_Combo = RooArgList()
-    for i in range(0,3):
-        tagEff_Combo.append(RooRealVar('tagEff_Combo_'+str(i+1), 'Signal tagging efficiency', myconfigfile["tagEff_Combo"][i]))
-        printifdebug(debug,tagEff_Combo[i].GetName())
-        tagEffList_Combo.add(tagEff_Combo[i])
+    tagEffList_Combo = [] # RooArgList() 
+    for j in range(0,4):
+        tagEff_Combo.append([])
+        tagEffList_Combo.append(RooArgList())
+        for i in range(0,3):
+            tagEff_Combo[j].append(RooRealVar('tagEff_Combo_%s_%s'%(str(i+1),ComboLabel[j]), 'Signal tagging efficiency', myconfigfile["tagEff_Combo_full"][j][i]))
+            printifdebug(debug,tagEff_Combo[j][i].GetName())
+            tagEffList_Combo[j].add(tagEff_Combo[j][i])
+
     # 
     C_Combo       = RooRealVar('C_Combo', 'C coeff. combo', 0.)
     S_Combo       = RooRealVar('S_Combo', 'S coeff. combo', 0.)
-    D_Combo       = RooRealVar('D_Combo', 'D coeff. combo', 0.)
     Sbar_Combo    = RooRealVar('Sbar_Combo', 'Sbar coeff. combo', 0.)
-    Dbar_Combo    = RooRealVar('Dbar_Combo', 'Dbar coeff. combo', 0.)
+    for i in range(0,4):
+        D_Combo.append(RooRealVar('D_Combo_%s'%(ComboLabel[i]), 'D coeff. combo', myconfigfile["D_Combo"][i]))
+        Dbar_Combo.append(D_Combo[i])
     #
     aProd_Combo   = RooConstVar('aprod_Combo',   'aprod_Combo',   myconfigfile["aprod_Combo"])        # production asymmetry
     aDet_Combo    = RooConstVar('adet_Combo',    'adet_Combo',    myconfigfile["adet_Combo"])         # detector asymmetry
@@ -1095,26 +1122,40 @@ def runBsDsKGenerator(  debug, single, configName, rangeDown, rangeUp,
     #The combinatorics - mistag
     mistag_Combo = mistagCombPDFList
     # 
-    otherargs_Combo = [ tagOmegaComb, mistag_Combo, tagEffList_Combo ]
-    otherargs_Combo.append(tagOmegaList)
-    otherargs_Combo.append(aProd_Combo)
-    otherargs_Combo.append(aDet_Combo)
-    otherargs_Combo.append(aTagEffList_Combo)
-    #                
-    cosh_Combo = DecRateCoeff('combo_cosh', 'combo_cosh', DecRateCoeff.CPEven,
-                              idVar_B, tagDecComb,  one,        one,        *otherargs_Combo)
-    sinh_Combo = DecRateCoeff('combo_sinh', 'combo_sinh', flag | DecRateCoeff.CPEven,
-                              idVar_B, tagDecComb,  D_Combo,    Dbar_Combo, *otherargs_Combo)
-    cos_Combo  = DecRateCoeff('combo_cos',  'combo_cos' , DecRateCoeff.CPOdd,
-                              idVar_B, tagDecComb,  C_Combo,    C_Combo,    *otherargs_Combo)
-    sin_Combo  = DecRateCoeff('combo_sin',  'combo_sin',  flag | DecRateCoeff.CPOdd,
-                              idVar_B, tagDecComb,  Sbar_Combo, S_Combo,    *otherargs_Combo)
-    # 
-    time_Combo_noacc    = RooBDecay('time_Combo_noacc','time_Combo_noacc', timeVar_B, TauInvCombo, zero,
-                              cosh_Combo, sinh_Combo, cos_Combo, sin_Combo,
-                              zero,trm_Combo, RooBDecay.SingleSided)
-    #
-    time_Combo             = RooEffProd('time_Combo','time_Combo',time_Combo_noacc, tacc_Combo)
+    timeComboPDFList = RooArgList()
+    fracTagComboList = RooArgList()
+
+    for i in range(0,4):
+        otherargs_Combo.append([ tagOmegaComb, mistag_Combo, tagEffList_Combo[i]])
+        otherargs_Combo[i].append(tagOmegaList)
+        otherargs_Combo[i].append(aProd_Combo)
+        otherargs_Combo[i].append(aDet_Combo)
+        otherargs_Combo[i].append(aTagEffList_Combo)
+        
+        cosh_Combo.append(DecRateCoeff('combo_cosh_%s'%(ComboLabel[i]), 'combo_cosh_%s'%(ComboLabel[i]), DecRateCoeff.CPEven, idVar_B, 
+                                       tagDecComb,  one,        one,        *otherargs_Combo[i]))
+
+        sinh_Combo.append(DecRateCoeff('combo_sinh_%s'%(ComboLabel[i]), 'combo_sinh_%s'%(ComboLabel[i]), flag | DecRateCoeff.CPEven,
+                                       idVar_B, tagDecComb,  D_Combo[i],    Dbar_Combo[i], *otherargs_Combo[i]))
+        cos_Combo.append(DecRateCoeff('combo_cos_%s'%(ComboLabel[i]),  'combo_cos_%s'%(ComboLabel[i]) , DecRateCoeff.CPOdd,
+                                      idVar_B, tagDecComb,  C_Combo,    C_Combo,    *otherargs_Combo[i]))
+        sin_Combo.append(DecRateCoeff('combo_sin_%s'%(ComboLabel[i]),  'combo_sin_%s'%(ComboLabel[i]),  flag | DecRateCoeff.CPOdd,
+                                      idVar_B, tagDecComb,  Sbar_Combo, S_Combo,    *otherargs_Combo[i]))
+        # 
+        time_Combo_noacc.append(RooBDecay('time_Combo_noacc_%s'%(ComboLabel[i]),'time_Combo_noacc_%s'%(ComboLabel[i]), 
+                                          timeVar_B, TauInvCombo[i], DeltaGammaCombo[i],
+                                          cosh_Combo[i], sinh_Combo[i], cos_Combo[i], sin_Combo[i],
+                                          zero,trm_Combo, RooBDecay.SingleSided))
+        #
+        time_Combo_pertag.append(RooEffProd('time_Combo_%s'%(ComboLabel[i]),'time_Combo_%s'%(ComboLabel[i]),time_Combo_noacc[i], tacc_Combo))
+        timeComboPDFList.add(time_Combo_pertag[i])
+        print 'time combo list, adding: %s'%(time_Combo_pertag[i].GetName())
+     
+    for i in range(0,3):   
+        fracTagCombo.append(RooRealVar('fracTagCombo_%s'%(ComboLabel[i]),'fracTagCombo_%s'%(ComboLabel[i]), myconfigfile["tagEff_Combo"][i]))
+        fracTagComboList.add(fracTagCombo[i])
+
+    time_Combo = RooAddPdf('time_Combo','time_Combo',timeComboPDFList,fracTagComboList)   
     #
     #The combinatorics - true ID
     trueidval = myconfigfile["DecayModeParameters"]["Combo"]["TRUEID"]
@@ -1130,7 +1171,7 @@ def runBsDsKGenerator(  debug, single, configName, rangeDown, rangeUp,
     #--------------------------------------------- Low mass K Time/Bmass/PIDK PDF -----------------------------------------------#
     # Here we build the B/PIDK upfront, will build the D later by mode
     massB_LM1 = Bs2Dsh2011TDAnaModels.ObtainMassShape(workspace, TString("Bs2DsKst"), false, lumRatio, debug);
-    PIDK_LM1 = Bs2Dsh2011TDAnaModels.ObtainPIDKShape(workspace, TString("Bs2DsKst"), magpol, lumRatio, false, debug);
+    #PIDK_LM1 = Bs2Dsh2011TDAnaModels.ObtainPIDKShape(workspace, TString("Bs2DsKst"), magpol, lumRatio, false, debug);
     #The low mass - acceptance (splines)
     tacc_LM1 = tacc
     #The low mass - resolution
@@ -1475,8 +1516,10 @@ def runBsDsKGenerator(  debug, single, configName, rangeDown, rangeUp,
         #------------------------------------------------- Low mass K ----------------------------------------------------#
         #The low mass - mass D
         massD_LM1.append(massD_Signal[i])
+        PIDK_LM1.append(PIDK_Signal[i]) 
+
         #The low mass - MDFitter
-        MDFitter_LM1.append(RooProdPdf("MDFitter_LM1_%s"%(nameDs[i]),"MDFitter_LM1",RooArgList(massB_LM1, massD_LM1[i], PIDK_LM1)))
+        MDFitter_LM1.append(RooProdPdf("MDFitter_LM1_%s"%(nameDs[i]),"MDFitter_LM1",RooArgList(massB_LM1, massD_LM1[i], PIDK_LM1[i])))
         #
         num_LM1.append( RooRealVar("num_LM1_%s"%(nameDs[i]),"num_LM1",myconfigfile["num_LM1"][i]*size))
         evNum += myconfigfile["num_LM1"][i]*size
