@@ -634,6 +634,8 @@ def getDsHBlindFitResult(isData, isBlind, fitResult):
     blinds = {
             # CP parameters blinded with random offset from 13 ... 17
             '^Bs2DsK_(C|D|Dbar|S|Sbar)$': [ 13.0, 17.0 ],
+	    # blind direct fits to gamma, strong and weak phase with offset 23 ... 27
+	    '^Bs2DsK_(lambda|delta|phi_w)$': [ 23., 27. ],
             # everything else connected with DsK is blinded with random offset
             # from +3 ... +7 (efficiencies, calibrations, ...)
             '^Bs2DsK': [ 3.0, 7.0 ],
