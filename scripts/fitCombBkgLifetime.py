@@ -127,8 +127,8 @@ RooAbsReal.defaultIntegratorConfig().getConfigSection('RooAdaptiveGaussKronrodIn
 RooAbsReal.defaultIntegratorConfig().method1D().setLabel('RooAdaptiveGaussKronrodIntegrator1D')
 RooAbsReal.defaultIntegratorConfig().method1DOpen().setLabel('RooAdaptiveGaussKronrodIntegrator1D')
 
-isDsK = not True
-BDTGRange =    (0.9, 1.0)
+isDsK = True
+BDTGRange =    (0.3, 1.0, 'polUP')
 MassRange =    (5700., 10000.)
 TimeRange =    (0.4, 15.0) if (0.9, 1.0) != BDTGRange else (0.75, 15.0)
 TimeErrRange = (0.01, 0.1)
@@ -148,6 +148,34 @@ coeffs = {
                 1.1296e+00 * 1.16280e+00 / 1.13071e+00,
                 1.2232e+00 * 1.24252e+00 / 1.23135e+00,
                 1.2277e+00 * 1.28482e+00 / 1.22716e+00],
+            (0.3, 1.0, 'polDN'): [
+                4.5425e-01*4.97697e-01/5.12401e-01,
+                6.8673e-01*7.42054e-01/7.44978e-01,
+                8.7719e-01*9.80802e-01/9.95897e-01,
+                1.0862e+00*1.16277e+00/1.13078e+00,
+                1.2086e+00*1.24250e+00/1.23145e+00,
+                1.1947e+00*1.28479e+00/1.22712e+00],
+            (0.3, 1.0, 'polUP'): [
+                4.6527e-01*4.97720e-01/5.12293e-01,
+                6.9241e-01*7.42098e-01/7.44813e-01,
+                8.9786e-01*9.80916e-01/9.95873e-01,
+                1.1926e+00*1.16282e+00/1.13075e+00,
+                1.2458e+00*1.24262e+00/1.23141e+00,
+                1.2725e+00*1.28498e+00/1.22721e+00],
+            (0.3, 1.0, 'TOS0'): [
+                2.7277e-01*3.10195e-01/3.44103e-01,
+                4.5649e-01*5.22722e-01/5.78459e-01,
+                7.6173e-01*7.93059e-01/9.12020e-01,
+                9.6421e-01*1.03609e+00/1.06310e+00,
+                1.1212e+00*1.13156e+00/1.23382e+00,
+                9.4807e-01*1.19290e+00/1.31359e+00],
+            (0.3, 1.0, 'TOS1'): [
+                6.0532e-01*6.07184e-01/5.88340e-01,
+                8.7407e-01*8.71243e-01/8.19533e-01,
+                9.6359e-01*1.09075e+00/1.03414e+00,
+                1.2367e+00*1.23945e+00/1.16105e+00,
+                1.2781e+00*1.30903e+00/1.23029e+00,
+                1.4263e+00*1.34331e+00/1.18806e+00],
             (0.6, 1.0): [
                 3.5803e-01 * 3.97923e-01 / 4.20221e-01,
                 5.6367e-01 * 6.14977e-01 / 6.34584e-01,
@@ -177,6 +205,18 @@ coeffs = {
             (0.3, 1.0): [
                 4.5853e-01, 6.8963e-01, 8.8528e-01,
                 1.1296e+00, 1.2232e+00, 1.2277e+00],
+            (0.3, 1.0, 'polDN'): [
+                4.5425e-01, 6.8673e-01, 8.7719e-01,
+                1.0862e+00, 1.2086e+00, 1.1947e+00],
+            (0.3, 1.0, 'polUP'): [
+                4.6527e-01, 6.9241e-01, 8.9786e-01,
+                1.1926e+00, 1.2458e+00, 1.2725e+00],
+            (0.3, 1.0, 'TOS0'): [
+                2.7277e-01, 4.5649e-01, 7.6173e-01,
+                9.6421e-01, 1.1212e+00, 9.4807e-01],
+            (0.3, 1.0, 'TOS1'): [
+                6.0532e-01, 8.7407e-01, 9.6359e-01,
+                1.2367e+00, 1.2781e+00, 1.4263e+00],
             (0.6, 1.0): [
                 3.5803e-01, 5.6367e-01, 7.6889e-01,
                 1.0537e+00, 1.2016e+00, 1.2320e+00],
@@ -196,6 +236,17 @@ files = ([ '/afs/cern.ch/work/a/adudziak/public/Bs2DsKFitTuple/MergedTree_Bs2DsX
           ] if isDsK else
           [ '/afs/cern.ch/work/a/adudziak/public/Bs2DsKFitTuple/MergedTree_Bs2DsX_MD_OFFLINE_DsPi.root',
             '/afs/cern.ch/work/a/adudziak/public/Bs2DsKFitTuple/MergedTree_Bs2DsX_MU_OFFLINE_DsPi.root' ])
+extracuts = '1'
+if len(BDTGRange) == 3:
+    if 'polUP' == BDTGRange[2]:
+        extracuts = '+1 == Polarity'
+    elif 'polDN' == BDTGRange[2]:
+        extracuts = '-1 == Polarity'
+    elif 'TOS0' == BDTGRange[2]:
+        extracuts = '0 == lab0_L0HadronDecision_TOS'
+    elif 'TOS1' == BDTGRange[2]:
+        extracuts = '1 == lab0_L0HadronDecision_TOS'
+
 cuts = ('%24.16e <= lab0_MassFitConsD_M[0] && lab0_MassFitConsD_M[0] <= %24.16e && '
         '%s && %24.16e <= BDTGResponse_1 && BDTGResponse_1 <= %24.16e && '
         'lab1_P > 3e3 && lab1_P < 650e3 && lab2_MM > 1930. && lab2_MM < 2015. && '
@@ -203,12 +254,13 @@ cuts = ('%24.16e <= lab0_MassFitConsD_M[0] && lab0_MassFitConsD_M[0] <= %24.16e 
         'nTracks < 1000. && lab2_TAU > 0. && '
         '%24.16e <= lab0_LifetimeFit_ctau[0] && lab0_LifetimeFit_ctau[0] <= %24.16e &&'
         '%24.16e <= lab0_LifetimeFit_ctauErr[0] && lab0_LifetimeFit_ctauErr[0] <= %24.16e &&'
-        'lab1_ID*lab2_ID < 0 && '
+        'lab1_ID*lab2_ID < 0 && %s && '
         '((1e-2*lab3_ID) * (1e-2*lab4_ID) * (1e-2*lab5_ID) * (1e-2*lab1_ID) > 0)' %
         (MassRange[0], MassRange[1], 'lab1_PIDK > 5' if isDsK else
         'lab1_PIDK < 0', BDTGRange[0], BDTGRange[1],
         TimeRange[0] / timeConv, TimeRange[1] / timeConv,
-        TimeErrRange[0] / timeConv, TimeErrRange[1] / timeConv))
+        TimeErrRange[0] / timeConv, TimeErrRange[1] / timeConv,
+        extracuts))
 
 def getDataSet(ws, cuts, files):
     from ROOT import TChain, TTree
@@ -317,7 +369,7 @@ for tag in xrange(0, 4):
     time = WS(ws, RooRealVar('time', 'time', *TimeRange))
     timeerr = WS(ws, RooRealVar('timeerr', 'timeerr', *TimeErrRange))
     
-    tacc, tacc_norm = accbuilder(time, knots[BDTGRange], coeffs[isDsK][BDTGRange])
+    tacc, tacc_norm = accbuilder(time, knots[BDTGRange[0:2]], coeffs[isDsK][BDTGRange])
 
     ds = getDataSet(ws,
             '%s && %u == abs(lab0_TAGDECISION_OS) && '
@@ -373,8 +425,10 @@ for tag in xrange(0, 4):
     fit_pdf.plotOn(fr, RooFit.ProjWData(timeerrargset, ds, True))
     fr.Draw()
     ROOT.gPad.SetLogy()
-    ROOT.gPad.Print('CombBkgLifetimeFit_%s_BDTG%g-%g-TAG%u.pdf' % ('DsK' if isDsK else
-        'DsPi', BDTGRange[0], BDTGRange[1], tag))
+    ROOT.gPad.Print('CombBkgLifetimeFit_%s%s_BDTG%g-%g-TAG%u.pdf' % (
+        ('DsK' if isDsK else 'DsPi'),
+        ('' if 2 == len(BDTGRange) else ('_%s' % BDTGRange[2])),
+        BDTGRange[0], BDTGRange[1], tag))
     del ws
 
 for i in xrange(0, len(results)):
