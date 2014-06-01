@@ -17,7 +17,7 @@
             'nonres', 'phipi', 'kstk', 'kpipi', 'pipipi'
             ],
         'DeltaMs':                      17.768, # in ps^{-1}
-        'GammaLb':			0.700, # in ps^{-1}
+        'GammaLb':			0.676, # in ps^{-1}
         'WeakPhase': {
             'Bs2DsK':           70. / 180. * pi,
             'Bs2DsstK':         70. / 180. * pi,
@@ -47,9 +47,9 @@
             'qt':       'tagDecComb',
             'weight':   'nSig_both_nonres_Evts_sw+nSig_both_phipi_Evts_sw+nSig_both_kstk_Evts_sw+nSig_both_kpipi_Evts_sw+nSig_both_pipipi_Evts_sw'
             },
-	'GammaCombBkg':  +1.08081e+00,
-	'DGammaCombBkg': +1.02097e+00,
-	'CombBkg_D':	 -8.88366e-01,
+	'GammaCombBkg':     [0.744946,0.912933,1.45079,1.37116],
+	'DGammaCombBkg':    [0.753119,0.845346,1.26635,1.2823],
+	'CombBkg_D':	    [-0.938334,-0.907821,-0.775118,-0.913433],
         'FitRanges': {
 		'time':     [0.4, 15.],
 		'timeerr':  [1e-6, 0.25],
@@ -125,8 +125,7 @@
                     ],
                 },
         'Constraints': {
-                'GammaLb': 0.012,
-                'GammaCombBkg': 0.025,
+                'GammaLb': 0.006,
                 'Bd2DPi_lambda': 0.3 * 0.0187,
                 'Bd2DPi_avgSSbar': [ '0.5*(@0+@1)', ['Bd2DPi_S', 'Bd2DPi_Sbar'], +0.046, 0.023 ],
                 'Bd2DPi_difSSbar': [ '0.5*(@0-@1)', ['Bd2DPi_S', 'Bd2DPi_Sbar'], -0.022, 0.021 ],
@@ -205,6 +204,34 @@
                             [   7.0203224420703663e-03,  -5.7778847902391142e-03,   5.0106145332872738e-03,  -9.9965299841531974e-01,   1.0000000000000000e+00,  -9.9759036187377381e-01 ],
                             [   1.0233976427853671e-02,  -8.1729979402554217e-03,   8.8849526862593686e-03,   9.9878828433569355e-01,  -9.9759036187377381e-01,   1.0000000000000000e+00 ], ],
                     ],
+		'multivar_CombBkg0Lifetime': [
+			[ 'CombBkg0_D', 'GammaCombBkg0', 'DeltaGammaCombBkg0' ],
+			[ 0.079068, 0.132645, 0.0936984 ],
+			[ [  1.000,  0.965, -0.537 ],
+			  [  0.965,  1.000, -0.389 ],
+			  [ -0.537, -0.389,  1.000 ], ],
+			],
+		'multivar_CombBkg1Lifetime': [
+			[ 'CombBkg1_D', 'GammaCombBkg1', 'DeltaGammaCombBkg1' ],
+			[ 0.0717398, 0.106405, 0.0931906 ],
+			[ [  1.000,  0.925, -0.342 ],
+			  [  0.925,  1.000, -0.064 ],
+			  [ -0.342, -0.064,  1.000 ], ],
+			],
+		'multivar_CombBkg2Lifetime': [
+			[ 'CombBkg2_D', 'GammaCombBkg2', 'DeltaGammaCombBkg2' ],
+			[ 0.131338, 0.226203, 0.265759 ],
+			[ [ 1.000,  0.763,  0.260 ],
+			  [ 0.763,  1.000,  0.789 ],
+			  [ 0.260,  0.789,  1.000 ], ],
+			],
+		'multivar_CombBkg3Lifetime': [
+			[ 'CombBkg3_D', 'GammaCombBkg3', 'DeltaGammaCombBkg3' ],
+			[ 0.068232, 0.18301, 0.132948 ],
+			[ [ 1.000,  0.931,  0.092 ],
+			  [ 0.931,  1.000,  0.383 ],
+			  [ 0.092,  0.383,  1.000 ], ],
+			],
                 },
         'Asymmetries': {
                 'Prod': {
