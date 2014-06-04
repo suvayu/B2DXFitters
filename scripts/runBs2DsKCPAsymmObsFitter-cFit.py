@@ -454,7 +454,7 @@ defaultConfig = {
             #	old fits - fix in the final output routine by applying
             #	that transformation during the output stage (MINUIT log
             #	output and fit results will be "wrong", though)
-            'RooFitTopSimultaneousWorkaround',
+            #'RooFitTopSimultaneousWorkaround',
             # this will work around a problem in present RooFit versions which
             # produce different LH values if the top-level PDF is a
             # RooSimultaneous
@@ -1814,6 +1814,7 @@ def getMassTemplates(
             '2011PaperDsKDATA': getMassTemplateOneMode2011Paper,
             '2011PaperDsPiDATA': getMassTemplateOneMode2011Paper,
             '2011PaperDsK-Agn70': getMassTemplateOneMode2011Paper,
+            '2011PaperDsK-Agn116': getMassTemplateOneMode2011Paper,
             '2011PaperDsK-Agn140': getMassTemplateOneMode2011Paper,
             '2011PaperDsPi-Agn70': getMassTemplateOneMode2011Paper,
             '2011PaperDsKDATA-sFit': getMassTemplateOneMode2011Paper,
