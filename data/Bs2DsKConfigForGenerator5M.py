@@ -43,7 +43,7 @@ def getconfig() :
     configdict["DeltaMs"]       =  17.768    # in ps^{-1}
     configdict["DeltaMd"]       =  0.507   # in ps^{-1}
 
-    configdict["GammaLb"]       =  0.700    # in ps^{-1}
+    configdict["GammaLb"]       =  0.676    # in ps^{-1}
 
     #order: OS, SSK, OS+SSK, untagged
     configdict["D_Combo"]            =  [-0.908, -0.775, -0.913, -0.938]
@@ -55,8 +55,8 @@ def getconfig() :
                                           [0.0, 0.0, 0.0] ]
 
     configdict["StrongPhase_d"] = 20. / 180. * pi
-    configdict["StrongPhase_s"] = 30. / 180. * pi
-    configdict["WeakPhase"]     = 70. / 180. * pi
+    configdict["StrongPhase_s"] = 4. / 180. * pi
+    configdict["WeakPhase"]     = 116. / 180. * pi
 
     configdict["ArgLf_d"]       = configdict["StrongPhase_d"] - configdict["WeakPhase"]
     configdict["ArgLbarfbar_d"] = configdict["StrongPhase_d"] + configdict["WeakPhase"]
@@ -64,7 +64,7 @@ def getconfig() :
     
     configdict["ArgLf_s"]       = configdict["StrongPhase_s"] - configdict["WeakPhase"]
     configdict["ArgLbarfbar_s"] = configdict["StrongPhase_s"] + configdict["WeakPhase"]
-    configdict["ModLf_s"]       = 0.372
+    configdict["ModLf_s"]       = 0.51 #0.372
 
     configdict["calibration_p0"]  = [0.3927, 0.4244]
     configdict["calibration_p1"]  = [0.9818, 1.2550]
@@ -90,48 +90,43 @@ def getconfig() :
 
     configdict["tagEff_OS"] = 0.387
     configdict["tagEff_SS"] = 0.4772
+    
+    configdict["tagEff_OS_Bd"] = 0.844757
+    configdict["tagEff_SS_Bd"] = 1.0 
+
+    configdict["tagEff_Bd"] = [configdict["tagEff_OS_Bd"] - configdict["tagEff_OS_Bd"]*configdict["tagEff_SS_Bd"],
+                               configdict["tagEff_SS_Bd"] - configdict["tagEff_OS_Bd"]*configdict["tagEff_SS_Bd"],
+                               configdict["tagEff_OS_Bd"]*configdict["tagEff_SS_Bd"]]
+
+    configdict["tagEff_OS_Lb"] = 0.0
+    configdict["tagEff_SS_Lb"] = 1.0
+
+    configdict["tagEff_Lb"] = [configdict["tagEff_OS_Lb"] - configdict["tagEff_OS_Lb"]*configdict["tagEff_SS_Lb"],
+                               configdict["tagEff_SS_Lb"] - configdict["tagEff_OS_Lb"]*configdict["tagEff_SS_Lb"],
+                               configdict["tagEff_OS_Lb"]*configdict["tagEff_SS_Lb"]]
+    
+    configdict["tagEff_OS_Combo"] = 0.594
+    configdict["tagEff_SS_Combo"] = 0.462
 
     configdict["tagEff_Signal"]    = [configdict["tagEff_OS"] - configdict["tagEff_OS"]*configdict["tagEff_SS"],
                                       configdict["tagEff_SS"] - configdict["tagEff_OS"]*configdict["tagEff_SS"],
                                       configdict["tagEff_OS"]*configdict["tagEff_SS"]]
-    configdict["tagEff_Bd2DK"]        = [configdict["tagEff_OS"] - configdict["tagEff_OS"]*configdict["tagEff_SS"],
-                                      configdict["tagEff_SS"] - configdict["tagEff_OS"]*configdict["tagEff_SS"],
-                                      configdict["tagEff_OS"]*configdict["tagEff_SS"]]
-    configdict["tagEff_Bd2DPi"]        = [configdict["tagEff_OS"] - configdict["tagEff_OS"]*configdict["tagEff_SS"],
-                                      configdict["tagEff_SS"] - configdict["tagEff_OS"]*configdict["tagEff_SS"],
-                                      configdict["tagEff_OS"]*configdict["tagEff_SS"]]
-    configdict["tagEff_Bd2DsK"]       = [configdict["tagEff_OS"] - configdict["tagEff_OS"]*configdict["tagEff_SS"],
-                                      configdict["tagEff_SS"] - configdict["tagEff_OS"]*configdict["tagEff_SS"],
-                                      configdict["tagEff_OS"]*configdict["tagEff_SS"]]
-    configdict["tagEff_Bs2DsPi"]      = [configdict["tagEff_OS"] - configdict["tagEff_OS"]*configdict["tagEff_SS"],
-                                      configdict["tagEff_SS"] - configdict["tagEff_OS"]*configdict["tagEff_SS"],
-                                      configdict["tagEff_OS"]*configdict["tagEff_SS"]]
-    configdict["tagEff_Lb2LcK"]       = [configdict["tagEff_OS"] - configdict["tagEff_OS"]*configdict["tagEff_SS"],
-                                      configdict["tagEff_SS"] - configdict["tagEff_OS"]*configdict["tagEff_SS"],
-                                      configdict["tagEff_OS"]*configdict["tagEff_SS"]]
-    configdict["tagEff_Lb2LcPi"]       = [configdict["tagEff_OS"] - configdict["tagEff_OS"]*configdict["tagEff_SS"],
-                                      configdict["tagEff_SS"] - configdict["tagEff_OS"]*configdict["tagEff_SS"],
-                                      configdict["tagEff_OS"]*configdict["tagEff_SS"]]
-    configdict["tagEff_Combo"]     = [configdict["tagEff_OS"] - configdict["tagEff_OS"]*configdict["tagEff_SS"],
-                                      configdict["tagEff_SS"] - configdict["tagEff_OS"]*configdict["tagEff_SS"],
-                                      configdict["tagEff_OS"]*configdict["tagEff_SS"]]
-    configdict["tagEff_Lb2Dsp"]       = [configdict["tagEff_OS"] - configdict["tagEff_OS"]*configdict["tagEff_SS"],
-                                      configdict["tagEff_SS"] - configdict["tagEff_OS"]*configdict["tagEff_SS"],
-                                      configdict["tagEff_OS"]*configdict["tagEff_SS"]]
-    configdict["tagEff_Lb2Dsstp"]     = [configdict["tagEff_OS"] - configdict["tagEff_OS"]*configdict["tagEff_SS"],
-                                      configdict["tagEff_SS"] - configdict["tagEff_OS"]*configdict["tagEff_SS"],
-                                      configdict["tagEff_OS"]*configdict["tagEff_SS"]]
-    
+    configdict["tagEff_Bd2DK"]     = configdict["tagEff_Signal"]
+    configdict["tagEff_Bd2DPi"]       = configdict["tagEff_Signal"]
+    configdict["tagEff_Bd2DsK"]       = configdict["tagEff_Signal"]
+    configdict["tagEff_Bs2DsPi"]   = configdict["tagEff_Signal"]   
+    configdict["tagEff_Lb2LcK"]       = configdict["tagEff_Signal"]
+    configdict["tagEff_Lb2LcPi"]      = configdict["tagEff_Signal"]
+    configdict["tagEff_Combo"]     = [configdict["tagEff_OS_Combo"] - configdict["tagEff_OS_Combo"]*configdict["tagEff_SS_Combo"],
+                                      configdict["tagEff_SS_Combo"] - configdict["tagEff_OS_Combo"]*configdict["tagEff_SS_Combo"],
+                                      configdict["tagEff_OS_Combo"]*configdict["tagEff_SS_Combo"]]
+    configdict["tagEff_Lb2Dsp"]       = configdict["tagEff_Signal"]
+    configdict["tagEff_Lb2Dsstp"]     = configdict["tagEff_Signal"]    
     configdict["tagEff_LM1"]       = [configdict["tagEff_OS"] - configdict["tagEff_OS"]*configdict["tagEff_SS"],
                                       configdict["tagEff_SS"] - configdict["tagEff_OS"]*configdict["tagEff_SS"],
                                       configdict["tagEff_OS"]*configdict["tagEff_SS"]]
-    configdict["tagEff_Bs2DsstPi"]    = [configdict["tagEff_OS"] - configdict["tagEff_OS"]*configdict["tagEff_SS"],
-                                      configdict["tagEff_SS"] - configdict["tagEff_OS"]*configdict["tagEff_SS"],
-                                      configdict["tagEff_OS"]*configdict["tagEff_SS"]]
-    configdict["tagEff_Bs2DsRho"]     = [configdict["tagEff_OS"] - configdict["tagEff_OS"]*configdict["tagEff_SS"],
-                                      configdict["tagEff_SS"] - configdict["tagEff_OS"]*configdict["tagEff_SS"],
-                                      configdict["tagEff_OS"]*configdict["tagEff_SS"]]
-    
+    configdict["tagEff_Bs2DsstPi"]    = configdict["tagEff_Signal"]
+    configdict["tagEff_Bs2DsRho"]     = configdict["tagEff_Signal"]
 
     configdict["aprod_Signal"]    = 0.0 #0.03
     configdict["aprod_Bd2DK"]        = 0.0 #0.03
