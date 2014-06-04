@@ -10,11 +10,11 @@ def getconfig() :
     configdict["DeltaMs"]     =  17.768   # in ps^{-1}
     configdict["TagEffSig"]   = 0.403 #392 #403
     configdict["TagOmegaSig"] = 0.391
-    configdict["StrongPhase"] = 30. / 180. * pi
-    configdict["WeakPhase"]   = 70. / 180. * pi
+    configdict["StrongPhase"] = 4. / 180. * pi
+    configdict["WeakPhase"]   = 116. / 180. * pi
     configdict["ArgLf"]       = configdict["StrongPhase"] - configdict["WeakPhase"]
     configdict["ArgLbarfbar"] = configdict["StrongPhase"] + configdict["WeakPhase"]
-    configdict["ModLf"]       = 0.372
+    configdict["ModLf"]       = 0.51
     
     configdict["calibration_p0"]  = [0.3927, 0.4244]
     configdict["calibration_p1"]  = [0.9818, 1.2550]
@@ -38,8 +38,8 @@ def getconfig() :
     configdict["resolutionFrac2"]  = 5.65100e-01
 
     configdict["tacc_size"]   = 6
-    configdict["tacc_knots"]  = [0.25, 0.5, 1.0, 2.0, 3.0, 12.0]
-    configdict["tacc_values"] = [1.77520e-01, 2.89603e-01, 6.79455e-01, 1.11726e+00, 1.23189e+00, 1.26661e+00]
+    configdict["tacc_knots"]  = [0.5, 1.0, 1.5, 2.0, 3.0, 12.0]
+    configdict["tacc_values"] = [0.4453873694523979, 0.6869245867352556, 0.8719680916278891, 1.1614426699209424, 1.2341250036543179, 1.2852701638596233]
 
     configdict["tagEff_OS"] = 0.387
     configdict["tagEff_SS"] = 0.4772
@@ -54,7 +54,7 @@ def getconfig() :
     configdict["MistagWork"]     = "workspace"
     configdict["MistagTempName"] = ["sigMistagPdf_1", "sigMistagPdf_2", "sigMistagPdf_3"]
     
-    configdict["TerrFile"]     = "../data/workspace/MDFitter/template_Data_Terr_BsDsK.root"
+    configdict["TerrFile"]     = "../data/workspace/MDFitter/template_Data_Terr_Bs2DsK_BDTGA.root"
     configdict["TerrWork"]     = "workspace"
     configdict["TerrTempName"] = "TimeErrorPdf_Bs2DsK"
 
