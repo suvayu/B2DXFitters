@@ -39,7 +39,7 @@
         'AcceptanceCorrectionFile': None,
         'CombineModesForEffCPObs': [ ],
         'NEvents':			[ 2996. ],
-        'DataFileName':         ('/afs/cern.ch/work/a/adudziak/public/Bs2DsKToys/Gamma116_FinalForPaper1fb/MassFitResults/DsK_Toys_Work_ForMassPlot_%d.root' if haveAFS else
+        'DataFileName':         ('/afs/cern.ch/work/a/adudziak/public/Bs2DsKToys/Gamma116_FinalForPaper1fb_3/MassFitResults/DsK_Toys_Work_ForMassPlot_%d.root' if haveAFS else
             os.environ['B2DXFITTERSROOT']+'/scripts/paperv3b-dsk-agn116/data/DsK_Toys_Work_ForMassPlot_%d.root') % TOY_NUMBER,
         'DataWorkSpaceName':    'FitMeToolWS',
         'DataSetNames':         'combData',
@@ -66,7 +66,7 @@
 		'dsmass':   [1930., 2015.],
 		'pidk':     [0., 150.]
 		},
-        'MassTemplateFile':             ('/afs/cern.ch/work/a/adudziak/public/Bs2DsKToys/Gamma116_FinalForPaper1fb/MassFitResults/DsK_Toys_Work_ForMassPlot_%d.root' if haveAFS else
+        'MassTemplateFile':             ('/afs/cern.ch/work/a/adudziak/public/Bs2DsKToys/Gamma116_FinalForPaper1fb_3/MassFitResults/DsK_Toys_Work_ForMassPlot_%d.root' if haveAFS else
             os.environ['B2DXFITTERSROOT']+'/scripts/paperv3b-dsk-agn116/data/DsK_Toys_Work_ForMassPlot_%d.root') % TOY_NUMBER,
         'MassTemplateWorkspace':	'FitMeToolWS',
         'MassInterpolation':		False,
@@ -75,7 +75,7 @@
             'Bs2DsK': [ 0.3870 * (1. - 0.4772), 0.4772 * (1. - 0.3870), 0.3870 * 0.4772 ],
             'Lb': [ 0.3870, 0.4772 ],
             'Bd': [ 0.3870, 0.4772 ],
-	    'CombBkg': [0.263946, 0.181645, 0.281156],
+	    'CombBkg': [ 0.594, 0.462 ],
             },
         'MistagTemplates': {
             'Bs2DsK': [
@@ -140,8 +140,8 @@
 		'Bd_AsymProd': 0.01,
 		'Bs_AsymProd': 0.01,
 		'Lb_AsymProd': 0.03,
-		'CombBkg_AsymProd': 0.03,
-		'Bs2DsK_AsymDet':	0.01,
+		'CombBkg_AsymProd': 	0.03,
+		'Bs2DsK_AsymDet':	0.005,
 		'Bd2DK_AsymDet':	0.01,
 		'Bd2DPi_AsymDet':	0.01,
 		'Bd2DsK_AsymDet':	0.01,

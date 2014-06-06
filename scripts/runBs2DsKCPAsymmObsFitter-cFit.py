@@ -3439,7 +3439,7 @@ def getMasterPDF(config, name, debug = False):
         for i in xrange(0, 1 + config['NTaggers']):
             gamma = WS(ws, RooRealVar('GammaCombBkg%u' % i,
                 '#Gamma_{CombBkg%u}}' % i, config['GammaCombBkg'][i]))
-            dGamma = WS(ws, RooRealVar('DeltaGammaCombBkg%u' % i,
+            deltagamma = WS(ws, RooRealVar('DeltaGammaCombBkg%u' % i,
                 '#Delta#Gamma_{CombBkg%u}}' %i, config['DGammaCombBkg'][i]))
             D = WS(ws, RooRealVar('CombBkg%u_D' % i, 'CombBkg%u_D' % i,
                 config['CombBkg_D'][i]))

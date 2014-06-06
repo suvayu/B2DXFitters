@@ -132,7 +132,8 @@
                 'Bd_AsymProd': 0.01,
 		'Bs_AsymProd': 0.01,
 		'Lb_AsymProd': 0.03,
-		'Bs2DsK_AsymDet':	0.01,
+		'CombBkg_AsymProd':     0.03,
+		'Bs2DsK_AsymDet':	0.005,
 		'Bd2DK_AsymDet':	0.01,
 		'Bd2DPi_AsymDet':	0.01,
 		'Bd2DsK_AsymDet':	0.01,
@@ -238,6 +239,7 @@
 		    'Bs': -0.014,
 		    'Bd': 0.011,
 		    'Lb': 0.03,
+		    'CombBkg': -0.01,
 		    },
 		'Det': {
 		        'Bs2DsK':	0.01,
