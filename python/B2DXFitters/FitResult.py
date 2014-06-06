@@ -458,6 +458,12 @@ class FitResult:
                         'floating in the other' % n)
                 continue
             if sidx not in self._finalparam: continue
+	    # also skip parameters which have ridiculously tiny errors in
+	    # one of the fit results
+	    if min(self._cov[sidx][sidx], other._cov[oidx][oidx]) < 1e-10:
+                print ('WARNING: Parameter %s has tiny error in one FitResult, '
+                        'skipping to avoid spoiling the average' % n)
+		continue
             retVal._name2Index[n] = idx
             retVal._index2Name[idx] = n
             retVal._initialparam[idx] = 0.
@@ -480,8 +486,20 @@ class FitResult:
             retVal._finalparamlimhi[idx] = min(
                     self._finalparamlimhi[sidx],
                     other._finalparamlimhi[oidx])
-
-        # covariance matrix
+	# get inverse covariance matrices of two input fits
+        from ROOT import TVectorD, TMatrixDSym, TDecompChol
+	c = []
+	for m in (self, other):
+	    nn = len(m._cov)
+	    c.append(TMatrixDSym(nn))
+	    for i in xrange(0, nn):
+		for j in xrange(0, nn):
+		    c[len(c) - 1][i][j] = m._cov[i][j]
+	    d = TDecompChol(c[len(c) - 1])
+	    if not d.Decompose():
+               raise ValueError('Cannot invert covariance matrices')
+            d.Invert(c[len(c) - 1])
+	# ok, now select submatrix we need
         for i in xrange(0, len(retVal._index2Name)):
             n = retVal._index2Name[i]
             sidx = self._name2Index[n]
@@ -491,9 +509,10 @@ class FitResult:
                 o = retVal._index2Name[j]
                 sidy = self._name2Index[o]
                 oidy = other._name2Index[o]
-                val = [ self._cov[sidx][sidy], other._cov[oidx][oidy] ]
+                val = [ c[0][sidx][sidy], c[1][oidx][oidy] ]
                 retVal._cov[i][j] = val
                 if (i != j): retVal._cov[j][i] = val
+	del c
         # loop over constant parameters
         for n in self._name2Index:
             idx = len(retVal._name2Index)
@@ -514,19 +533,13 @@ class FitResult:
         # perform weighted average with the "classical" formula:
         # mu = (C1^-1 + C2^-1)^-1 * (C1^-1 * mu1 + C2^-1 * mu2)
         # C =  (C1^-1 + C2^-1)^-1
-        from ROOT import TVectorD, TMatrixDSym, TDecompChol
-        n = 1 + max(retVal._finalparam.keys())
+        n = len(retVal._finalparam)
         v1, v2 = TVectorD(n), TVectorD(n)
         c1, c2 = TMatrixDSym(n), TMatrixDSym(n)
         for i in xrange(0, n):
             v1[i], v2[i] = retVal._finalparam[i][0], retVal._finalparam[i][1]
             for j in xrange(0, n):
                 c1[i][j], c2[i][j] = retVal._cov[i][j][0], retVal._cov[i][j][1]
-        d1, d2 = TDecompChol(c1), TDecompChol(c2)
-        if not d1.Decompose() or not d2.Decompose():
-            raise ValueError('Cannot invert covariance matrices')
-        d1.Invert(c1)
-        d2.Invert(c2)
         c = TMatrixDSym(n)
         c = c1 + c2
         d = TDecompChol(c)
