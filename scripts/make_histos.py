@@ -147,6 +147,7 @@ for v in options.exclude:
 
 # convert file name to toy number
 def number_exp(fname):
+    if options.isData: return 0
     tmpfname = fname.split('/')
     basename = tmpfname[len(tmpfname) - 1]
     imin = basename.rfind('_')
@@ -326,7 +327,7 @@ for r in fitresults:
         if skip: continue
         if isphase(vname):
             p = normalise_phase(p)
-            pu = normalise_phase(p * e) / e
+            pu = normalise_phase(pu * e) / e
         # skip outliers
         if abs(pu) > 5.: continue
         if vname not in mu:
@@ -353,7 +354,7 @@ for r in fitresults:
         if skip: continue
         if isphase(vname):
             p = normalise_phase(p)
-            pu = normalise_phase(p * e) / e
+            pu = normalise_phase(pu * e) / e
         # skip outliers
         if abs(pu) > 5.: continue
         if vname not in var:
@@ -362,7 +363,7 @@ for r in fitresults:
         p, pu = p - mu[vname], pu - pullmu[vname]
         if isphase(vname):
             p = normalise_phase(p)
-            pu = normalise_phase(p * e) / e
+            pu = normalise_phase(pu * e) / e
         # ok, start building variances
         var[vname] = (var[vname] * n[vname] + p * p) / (1. + n[vname])
         n[vname] = n[vname] + 1.
@@ -411,7 +412,7 @@ for r in fitresults:
         if skip: continue
         if isphase(vname):
             p = normalise_phase(p)
-            pu = normalise_phase(p * e) / e
+            pu = normalise_phase(pu * e) / e
         # ok, fill
         histos['value'][vname].Fill(p)
         histos['pull'][vname].Fill(pu)
@@ -421,6 +422,8 @@ gc.collect()
 def fit_histo(h):
     if h.GetEntries() <= 0.:
         return
+    if h.GetEntries() <= 5.:
+	return h.GetMean(), 0., h.GetRMS(), 0.
     m = h.GetMaximum()
     from ROOT import TF1
     gaussian = TF1('Gaussian', 'gaus')
