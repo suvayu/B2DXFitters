@@ -89,7 +89,7 @@ __doc__ = """ real docstring """
 # -----------------------------------------------------------------------------
 import B2DXFitters
 import ROOT
-from ROOT import RooFit
+from ROOT import RooFit, RooArgSet, RooArgList
 
 from optparse import OptionParser
 from math     import pi
@@ -103,16 +103,24 @@ import os, sys
 bName = 'B_{s}'
 isDsK = True
 
-nBinsTime = 57 if isDsK else 125
+nBinsTime = 146 if isDsK else 146
 defaultModes = (
         # modes for DsK
-        ['Bs2DsK', 'Bs2DsKst', 'Bs2DsPi', 'Bs2DsstPi', 'Bs2DsRho', 'Bd2DK',
-            'Bd2DsK', 'Lb2LcK', 'Lb2Dsp', 'Lb2Dsstp', 'CombBkg']
+        #[ ' Bs2DsK' ]
+        ['Bs2DsK', 'Bs2DsKst', 'Bs2DsPi', 'Bs2DsstPi', 'Bs2DsRho', 'Bd2DK', 'Bd2DsK', 'Lb2LcK', 'Lb2Dsp', 'Lb2Dsstp', 'CombBkg']
         if isDsK else
         # modes for DsPi
-        [ 'Bs2DsPi', 'Bd2DPi', 'Bs2DsstPi', 'Bd2DsPi', 'Bs2DsK', 'Lb2LcPi',
-            'CombBkg'])
+        #[ ]
+        [ 'Bs2DsPi', 'Bd2DPi', 'Bs2DsstPi', 'Bd2DsPi', 'Bs2DsK', 'Lb2LcPi', 'CombBkg']
+        )
 
+# FIXME: do something nicer here, both nicer colors, and be consistent
+# between DsK and DsPi for the BG contributions (use a dictionary!)
+from ROOT import ( RooLinkedList, kRed, kBlue, kGreen, kOrange, kYellow,
+        kMagenta, kCyan, kBlack )
+colors = [ ROOT.kRed, ROOT.kGreen + 2, ROOT.kOrange, ROOT.kMagenta,
+        ROOT.kBlue + 2, ROOT.kCyan + 1, ROOT.kYellow, ROOT.kBlack,
+        ROOT.kRed + 2, ROOT.kMagenta + 2, ROOT.kGreen, ROOT.kYellow + 2 ]
 
 
 #------------------------------------------------------------------------------
@@ -152,6 +160,7 @@ def plotDataSet(frame, wksp, dsname, options = []) :
         plotopts.Add(o)
     ds = wksp.data(dsname)
     ds.plotOn(frame, plotopts)
+    return ds
     #dataset.statOn(frame,
     #                RooFit.Layout(0.56, 0.90, 0.90),
     #                RooFit.What('N'))
@@ -160,8 +169,6 @@ def plotDataSet(frame, wksp, dsname, options = []) :
 def plotFitModel(frame, wksp, modelname, options = [], sliceoptlist = [ [] ],
         modes = defaultModes,
         snames = ['nonres', 'phipi', 'kstk', 'kpipi', 'pipipi']):
-    from ROOT import ( RooLinkedList, kRed, kBlue, kGreen, kOrange, kYellow,
-            kMagenta, kCyan, kBlack )
     components = {}
     for mode in modes:
         tmp = []
@@ -175,11 +182,6 @@ def plotFitModel(frame, wksp, modelname, options = [], sliceoptlist = [ [] ],
 
     model = wksp.pdf(modelname)
 
-    # FIXME: do something nicer here, both nicer colors, and be consistent
-    # between DsK and DsPi for the BG contributions (use a dictionary!)
-    colors = [ ROOT.kRed, ROOT.kGreen + 2, ROOT.kOrange, ROOT.kMagenta,
-            ROOT.kBlue + 2, ROOT.kCyan + 1, ROOT.kYellow, ROOT.kBlack,
-            ROOT.kRed + 2, ROOT.kMagenta + 2, ROOT.kGreen, ROOT.kYellow + 2 ]
     # plot the total PDF
     for slopts in sliceoptlist:
         isl = sliceoptlist.index(slopts)
@@ -194,8 +196,9 @@ def plotFitModel(frame, wksp, modelname, options = [], sliceoptlist = [ [] ],
         plotopts = RooLinkedList()
         for o in opts:
             plotopts.Add(o)
-        model.plotOn(frame, plotopts)
+        mainplot = model.plotOn(frame, plotopts)
 
+        pull = frame.pullHist()
         # plot the different components
         i = 0
         for mode in components:
@@ -220,53 +223,46 @@ def plotFitModel(frame, wksp, modelname, options = [], sliceoptlist = [ [] ],
     #model.paramOn(frame,
     #               RooFit.Layout(0.56, 0.90, 0.85),
     #               RooFit.Format('NEU', RooFit.AutoPrecision(2)))
+    return mainplot, pull
 
 #------------------------------------------------------------------------------
-def legends(model, frame):
-    # FIXME: very much out of date!
-    stat = frame.findObject('data_statBox')
-    prefix = 'Sig' if signalModelOnly else 'Tot'
-    if not stat: stat = frame.findObject('%sEPDF_tData_statBox' % prefix)
-    if stat :
-        stat.SetTextSize(0.025)
-    pt = frame.findObject('%sEPDF_t_paramBox' % prefix)
-    if pt :
-        pt.SetTextSize(0.02)
+def legend():
+    from ROOT import TLegend, TH1D
+    replacements = [
+            ('2', '#rightarrow '),
+            ('Dsst', 'D_{s}*'),
+            ('Ds', 'D_{s}'),
+            ('Bs', 'B_{s}'),
+            ('Kst', 'K*'),
+            ('Lb', '#Lambda_{b}'),
+            ('Lc', '#Lambda_{c}'),
+            ('Pi', '#pi'),
+            ('Rho', '#rho'),
+            ]
     # Legend of EPDF components
-    leg = TLegend(0.56, 0.42, 0.87, 0.62)
+    leg = TLegend(0.65, 0.55, 0.87, 0.85)
     leg.SetFillColor(0)
-    leg.SetTextSize(0.02)
-    comps = model.getComponents()
-    if signalModelOnly :
-        pdfName = 'sigEPDF_t'
-        pdf = comps.find(pdfName)
-        curve = frame.findObject(pdfName + '_Norm[time]')
-        if curve : leg.AddEntry(curve, pdf.GetTitle(), 'l')
-        return leg, curve
-    else :
-        pdf1 = comps.find('sigEPDF_t')
-        pdfName = 'TotEPDF_t_Norm[time]_Comp[%s]' % 'sigEPDF_t'
-        curve1 = frame.findObject(pdfName)
-        if curve1 : leg.AddEntry(curve1, pdf1.GetTitle(), 'l')
-        pdf = comps.find('Bd2DKEPDF_t')
-        pdfName = 'TotEPDF_t_Norm[time]_Comp[%s]' % 'Bd2DKEPDF_t'
-        curve2 = frame.findObject(pdfName)
-        if curve2 : leg.AddEntry(curve2, pdf.GetTitle(), 'l')
-        pdf = comps.find('CombBkgEPDF_t')
-        pdfName = 'TotEPDF_t_Norm[time]_Comp[%s]' % 'CombBkgEPDF_t'
-        curve3 = frame.findObject(pdfName)
-        if curve3 : leg.AddEntry(curve3, pdf.GetTitle(), 'l')
-        pdfName = 'TotEPDF_t_Norm[time]_Comp[%s]' % 'CombBkgEPDF_t,Bd2DKEPDF_t'
-        curve4 = frame.findObject(pdfName)
-        if curve4 :
-            leg.AddEntry(curve4, 'All but %s' % pdf1.GetTitle(), 'f')
-            curve4.SetLineColor(0)
-        pdfName = 'TotEPDF_t_Norm[time]'
-        pdf = comps.find('TotEPDF_t')
-        curve5 = frame.findObject(pdfName)
-        #if curve5 : leg.AddEntry(curve5, pdf.GetTitle(), 'l')
-        if curve5 : leg.AddEntry(curve5, 'Model (signal & background) EPDF', 'l')
-        return leg, curve4
+    leg.SetTextSize(0.025)
+    ths = []
+    ths.append(TH1D('data', 'data', 10, -5., 5.))
+    ths[0].SetMarkerStyle(20)
+    lcolors = [ ROOT.kBlue ]
+    lcolors += colors
+    for m in defaultModes:
+        prettym = ''+m
+        for repl in replacements:
+            prettym = prettym.replace(repl[0], repl[1])
+        i = len(ths)
+        ths.append(TH1D(m, prettym, 10, -5., 5.))
+        ths[i].SetLineColor(lcolors[i - 1])
+        ths[i].SetFillColor(lcolors[i - 1])
+        ths[i].SetMarkerColor(lcolors[i - 1])
+    i = 0
+    for h in ths:
+        ROOT.SetOwnership(h, False)
+        leg.AddEntry(h, h.GetTitle(), 'F' if i else 'LP')
+        i = i + 1
+    return leg
 
 #------------------------------------------------------------------------------
 _usage = '%prog [options] <filename>'
@@ -294,10 +290,24 @@ if __name__ == '__main__' :
         parser.error('ROOT file "%s" not found! Nothing plotted.' % FILENAME)
         parser.print_help()
 
-    from ROOT import TFile, TCanvas, gROOT, TLegend, RooAbsReal
+    from ROOT import (TFile, TCanvas, gROOT, TLegend, RooAbsReal, gStyle, gPad,
+            TLine, TColor, TLatex)
     gROOT.SetBatch( True )
 
     gROOT.SetStyle('Plain')
+    gStyle.SetOptTitle(0)
+    gStyle.SetLabelFont(132, 'XYZ ')
+    gStyle.SetLabelFont(132)
+    gStyle.SetTitleFont(132, 'XYZ ')
+    gStyle.SetTitleFont(132)
+    gStyle.SetTextFont(132)
+    gStyle.SetStatFont(132)
+    gStyle.SetLabelSize(0.04, 'XYZ ')
+    gStyle.SetLabelSize(0.04)
+    gStyle.SetTitleSize(0.04, 'XYZ ')
+    gStyle.SetTitleSize(0.04)
+    gStyle.SetLabelOffset(0.004, 'XYZ ')
+    gStyle.SetTitleOffset(0.85, 'XYZ ')
 
     RooAbsReal.defaultIntegratorConfig().setEpsAbs(1e-9)
     RooAbsReal.defaultIntegratorConfig().setEpsRel(1e-9)
@@ -316,6 +326,8 @@ if __name__ == '__main__' :
 
     time = w.var('time')
     time.setBins(nBinsTime)
+    time.SetTitle('#tau(B_{s}#rightarrow D_{s}K)')
+    time.setUnit('ps')
     mass = w.var('mass')
     mass.setBins(25)
 
@@ -327,35 +339,35 @@ if __name__ == '__main__' :
                 if isDsK else
                 'B_{s} #rightarrow D_{s}^{-}#pi^{+} + #bar{B_{s}} #rightarrow D_{s}^{+}#pi^{-}'),
                 [ RooFit.Cut("qf*qt > 0") ],
-		[ [ RooFit.Slice(w.cat('qt'), 'B_1'),
-		RooFit.Slice(w.cat('qf'), 'h+') ],
-		[ RooFit.Slice(w.cat('qt'), 'B_2'),
-		RooFit.Slice(w.cat('qf'), 'h+') ],
-		[ RooFit.Slice(w.cat('qt'), 'B_3'),
-		RooFit.Slice(w.cat('qf'), 'h+') ],
-		[ RooFit.Slice(w.cat('qt'), 'Bbar_1'),
-		RooFit.Slice(w.cat('qf'), 'h-') ],
-		[ RooFit.Slice(w.cat('qt'), 'Bbar_2'),
-		RooFit.Slice(w.cat('qf'), 'h-') ],
-		[ RooFit.Slice(w.cat('qt'), 'Bbar_3'),
-		RooFit.Slice(w.cat('qf'), 'h-') ] ]
+	        [ [ RooFit.Slice(w.cat('qt'), 'B_1'),
+	        RooFit.Slice(w.cat('qf'), 'h+') ],
+	        [ RooFit.Slice(w.cat('qt'), 'B_2'),
+	        RooFit.Slice(w.cat('qf'), 'h+') ],
+	        [ RooFit.Slice(w.cat('qt'), 'B_3'),
+	        RooFit.Slice(w.cat('qf'), 'h+') ],
+	        [ RooFit.Slice(w.cat('qt'), 'Bbar_1'),
+	        RooFit.Slice(w.cat('qf'), 'h-') ],
+	        [ RooFit.Slice(w.cat('qt'), 'Bbar_2'),
+	        RooFit.Slice(w.cat('qf'), 'h-') ],
+	        [ RooFit.Slice(w.cat('qt'), 'Bbar_3'),
+	        RooFit.Slice(w.cat('qf'), 'h-') ] ]
                 ],
-            [ ('B_{s} #rightarrow D_{s}^{+}K^{-} + #bar{B_{s}} #rightarrow D_{s}^{-}#K^{+}'
+            [ ('B_{s} #rightarrow D_{s}^{+}K^{-} + #bar{B_{s}} #rightarrow D_{s}^{-}K^{+}'
                 if isDsK else
                 'B_{s} #rightarrow D_{s}^{+}#pi^{-} + #bar{B_{s}} #rightarrow D_{s}^{-}#pi^{+}'),
                 [ RooFit.Cut("qf*qt < 0") ],
-		[ [ RooFit.Slice(w.cat('qt'), 'B_1'),
-		RooFit.Slice(w.cat('qf'), 'h-') ],
-		[ RooFit.Slice(w.cat('qt'), 'B_2'),
-		RooFit.Slice(w.cat('qf'), 'h-') ],
-		[ RooFit.Slice(w.cat('qt'), 'B_3'),
-		RooFit.Slice(w.cat('qf'), 'h-') ],
-		[ RooFit.Slice(w.cat('qt'), 'Bbar_1'),
-		RooFit.Slice(w.cat('qf'), 'h+') ],
-		[ RooFit.Slice(w.cat('qt'), 'Bbar_2'),
-		RooFit.Slice(w.cat('qf'), 'h+') ],
-		[ RooFit.Slice(w.cat('qt'), 'Bbar_3'),
-		RooFit.Slice(w.cat('qf'), 'h+') ] ]
+	        [ [ RooFit.Slice(w.cat('qt'), 'B_1'),
+	        RooFit.Slice(w.cat('qf'), 'h-') ],
+	        [ RooFit.Slice(w.cat('qt'), 'B_2'),
+	        RooFit.Slice(w.cat('qf'), 'h-') ],
+	        [ RooFit.Slice(w.cat('qt'), 'B_3'),
+	        RooFit.Slice(w.cat('qf'), 'h-') ],
+	        [ RooFit.Slice(w.cat('qt'), 'Bbar_1'),
+	        RooFit.Slice(w.cat('qf'), 'h+') ],
+	        [ RooFit.Slice(w.cat('qt'), 'Bbar_2'),
+	        RooFit.Slice(w.cat('qf'), 'h+') ],
+	        [ RooFit.Slice(w.cat('qt'), 'Bbar_3'),
+	        RooFit.Slice(w.cat('qf'), 'h+') ] ]
                 ],
             ]
 
@@ -364,37 +376,86 @@ if __name__ == '__main__' :
         canvas = TCanvas('TimeCanvas', 'Decay time canvas')
         canvas.SetTitle('Fit in decay time')
         canvas.cd()
+        canvas.Divide(0, 2, 0.0001, 0.0001)
+        canvas.cd(2)
+        gPad.SetPad(0.0, 0.0675, 1.0, 0.2675)
+        gPad.SetBorderMode(0)
+        gPad.SetBorderSize(-1)
+        gPad.SetFillStyle(0)
+        gPad.SetBottomMargin(0.325)
+        canvas.cd(1)
+        gPad.SetPad(0.0, 0.17, 1.0, 0.95)
+        gPad.SetBorderMode(0)
+        gPad.SetBorderSize(-1)
+        gPad.SetFillStyle(0)
 
         frame_t = time.frame()
         #frame_m = mass.frame()
 
         frame_t.SetTitle('Fit in reconstructed %s decay time (%s)' % (bName, p[0]))
 
-        frame_t.GetXaxis().SetLabelSize(0.03)
-        frame_t.GetYaxis().SetLabelSize(0.03)
+        #frame_t.GetXaxis().SetLabelSize(0.03)
+        #frame_t.GetYaxis().SetLabelSize(0.03)
 
         dataplotopts = p[1]
+        sliceopts = p[2]
+        ds = plotDataSet(frame_t, w, datasetname, dataplotopts)
         pdfplotopts = [
                 RooFit.Precision(1e-6),
                 # I suppose we need to tweak the normalisation because sample has
                 # five states (nonres, phipi, kstk, kpipi, pipipi)
-                RooFit.Normalization(.2, RooAbsReal.Relative) ]
-        sliceopts = p[2]
-        plotDataSet(frame_t, w, datasetname, dataplotopts)
+                #RooFit.Normalization(.2, RooAbsReal.Relative),
+                RooFit.ProjWData(
+                    RooArgSet(*[ w.obj(n) for n in (
+                    'pidk','dsmass',
+                    'sample',
+                    'mass','mistag', 'timeerr'
+                    )]),
+                    ds,
+                    not True
+                    ),
+                ]
 
         frame_t.Draw()
         canvas.Update()
-        #canvas.SetLogy(True)
+        gPad.SetLogy(True)
         canvas.Print(FILENAME + '.%u.time.dataonly.pdf' % iplot)
         
-        plotFitModel(frame_t, w, 'TotEPDF', pdfplotopts, sliceopts)
+        mainplot, pull = plotFitModel(frame_t, w, 'TotEPDF', pdfplotopts, sliceopts)
+        mainplot.GetYaxis().SetTitle(mainplot.GetYaxis().GetTitle().replace(' ps ', ' [ps] '))
 
         #leg, curve = legends(modelPDF, frame_t)
         #frame_t.addObject(leg)
 
         frame_t.Draw()
+        leg = legend()
+        leg.Draw()
         canvas.Update()
-        #canvas.SetLogy(True)
+        gPad.SetLogy(True)
+        lhcbtext = TLatex()
+        lhcbtext.SetTextFont(62)
+        lhcbtext.SetTextColor(1)
+        lhcbtext.SetTextSize(0.05)
+        lhcbtext.SetTextAlign(12) 
+        lhcbtext.DrawTextNDC(0.80,0.875,"LHCb")
+        canvas.cd(2)
+        pull.GetXaxis().SetRangeUser(time.getMin(), time.getMax())
+        pull.GetXaxis().SetLabelSize(0.175)
+        pull.GetXaxis().SetTitleSize(0.175)
+        pull.GetXaxis().SetTitleOffset(0.95)
+        pull.GetXaxis().SetTitle('#tau(B_{s}#rightarrow D_{s}K) [ps]')
+        pull.GetYaxis().SetRangeUser(-4., 4.)
+        pull.GetYaxis().SetNdivisions(5)
+        pull.GetYaxis().SetLabelSize(0.175)
+        pull.GetYaxis().SetTitleSize(0.175)
+        pull.GetYaxis().SetTitleOffset(0.15)
+        pull.GetYaxis().SetTitle('Pull')
+        pull.Draw()
+        l1 = TLine(time.getMin(), -3., time.getMax(), -3.)
+        l2 = TLine(time.getMin(), +3., time.getMax(), +3.)
+        for l in (l1, l2):
+            l.SetLineColor(ROOT.kBlue)
+            l.Draw()
         canvas.Print(FILENAME + '.%u.time.dataandpdf.pdf' % iplot)
 
         #plotDataSet(frame_m, w, datasetname, dataplotopts)
