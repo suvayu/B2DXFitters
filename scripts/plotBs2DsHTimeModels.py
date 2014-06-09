@@ -107,7 +107,7 @@ nBinsTime = 146 if isDsK else 146
 defaultModes = (
         # modes for DsK
         #[ ' Bs2DsK' ]
-        ['Bs2DsK', 'Bs2DsKst', 'Bs2DsPi', 'Bs2DsstPi', 'Bs2DsRho', 'Bd2DK', 'Bd2DsK', 'Lb2LcK', 'Lb2Dsp', 'Lb2Dsstp', 'CombBkg']
+        ['Bs2DsK', 'Bs2DsPi', 'Bs2DsstPi', 'Bs2DsRho', 'Bd2DK', 'Bd2DPi', 'Lb2LcK', 'Lb2LcPi', 'Lb2Dsp', 'Lb2Dsstp', 'Bd2DsK', 'CombBkg']
         if isDsK else
         # modes for DsPi
         #[ ]
@@ -117,10 +117,10 @@ defaultModes = (
 # FIXME: do something nicer here, both nicer colors, and be consistent
 # between DsK and DsPi for the BG contributions (use a dictionary!)
 from ROOT import ( RooLinkedList, kRed, kBlue, kGreen, kOrange, kYellow,
-        kMagenta, kCyan, kBlack )
-colors = [ ROOT.kRed, ROOT.kGreen + 2, ROOT.kOrange, ROOT.kMagenta,
-        ROOT.kBlue + 2, ROOT.kCyan + 1, ROOT.kYellow, ROOT.kBlack,
-        ROOT.kRed + 2, ROOT.kMagenta + 2, ROOT.kGreen, ROOT.kYellow + 2 ]
+        kMagenta, kCyan, kBlack, kSolid, kDashed )
+
+colors = [kBlue+3, kMagenta-2, kMagenta-2, kMagenta-2, kRed, kRed, kGreen+3, kGreen+3, kYellow+1, kYellow+1, kBlue-10, kBlue-6]
+styles  = [1,1,2,3,1,2,1,2,1,2,1,1]  
 
 
 #------------------------------------------------------------------------------
@@ -169,7 +169,8 @@ def plotDataSet(frame, wksp, dsname, options = []) :
 def plotFitModel(frame, wksp, modelname, options = [], sliceoptlist = [ [] ],
         modes = defaultModes,
         snames = ['nonres', 'phipi', 'kstk', 'kpipi', 'pipipi']):
-    components = {}
+    components = {} 
+    modEx = {}
     for mode in modes:
         tmp = []
         for sname in snames:
@@ -177,9 +178,13 @@ def plotFitModel(frame, wksp, modelname, options = [], sliceoptlist = [ [] ],
             if None == wksp.pdf(compname): continue
             if len(tmp): tmp.append(',')
             tmp.append(compname)
-        if not len(tmp): continue
+        if not len(tmp): 
+            modEx[mode] = False
+            continue
+        else:
+            modEx[mode] = True
         components[mode] = ''.join(tmp)
-
+        
     model = wksp.pdf(modelname)
 
     # plot the total PDF
@@ -200,9 +205,13 @@ def plotFitModel(frame, wksp, modelname, options = [], sliceoptlist = [ [] ],
 
         pull = frame.pullHist()
         # plot the different components
+        
         i = 0
-        for mode in components:
-            print 'DEBUG: MODE %s COMPONENTS %s' % (mode, components[mode])
+        for mode in defaultModes:
+            if modEx[mode] == False: 
+                i=i+1
+                continue 
+            print 'DEBUG: MODE %s COMPONENTS %s for %d' % (mode, components[mode], i)
             name = '%s_%s_slice%d' % (model.GetName(), mode, isl)
             lastname = '%s_%s_slice%d' % (model.GetName(), mode, isl - 1)
             opts = list(options) + slopts
@@ -211,14 +220,14 @@ def plotFitModel(frame, wksp, modelname, options = [], sliceoptlist = [ [] ],
                 opts.append(RooFit.Invisible())
             if 0 != isl:
                 opts.append(RooFit.AddTo(lastname, 1., 1.))
-            opts = opts + [ RooFit.LineWidth(1), RooFit.LineColor(colors[i]),
+            opts = opts + [ RooFit.LineWidth(2), RooFit.LineColor(colors[i]), RooFit.LineStyle(styles[i]),
                     RooFit.Components(components[mode]) ]
             i = i + 1
             plotopts = RooLinkedList()
             for o in opts:
                 plotopts.Add(o)
             model.plotOn(frame, plotopts)
-
+             
     # put model parameters on plot
     #model.paramOn(frame,
     #               RooFit.Layout(0.56, 0.90, 0.85),
@@ -227,41 +236,60 @@ def plotFitModel(frame, wksp, modelname, options = [], sliceoptlist = [ [] ],
 
 #------------------------------------------------------------------------------
 def legend():
-    from ROOT import TLegend, TH1D
+    from ROOT import TLegend, TH1D, TGraphErrors, TLine
     replacements = [
             ('2', '#rightarrow '),
-            ('Dsst', 'D_{s}*'),
+            ('Dsst', 'D_{s}#kern[-0.8]{#lower[-0.6]{#scale[0.7]{*}}}'),
             ('Ds', 'D_{s}'),
             ('Bs', 'B_{s}'),
-            ('Kst', 'K*'),
+            ('Kst', 'K#kern[-0.8]{#lower[-0.6]{#scale[0.7]{*}}}'),
             ('Lb', '#Lambda_{b}'),
             ('Lc', '#Lambda_{c}'),
             ('Pi', '#pi'),
             ('Rho', '#rho'),
+            ('Bd', 'B_{d}')
             ]
     # Legend of EPDF components
-    leg = TLegend(0.65, 0.55, 0.87, 0.85)
-    leg.SetFillColor(0)
-    leg.SetTextSize(0.025)
+    leg = TLegend(0.50, 0.50, 0.89, 0.88)
+    leg.SetTextSize(0.05)
+    leg.SetTextFont(12)
+    leg.SetFillColor(4000)
+    leg.SetShadowColor(0)
+    leg.SetBorderSize(0)
+    leg.SetTextFont(132)
+    leg.SetNColumns(2)
+    
+    gr = TGraphErrors(10)
+    gr.SetName("gr")
+    gr.SetLineColor(kBlack)
+    gr.SetLineWidth(2)
+    gr.SetMarkerStyle(20)
+    gr.SetMarkerSize(1.3)
+    gr.SetMarkerColor(ROOT.kBlack)
+    gr.Draw("P")
+    ROOT.SetOwnership(gr, False)
+    leg.AddEntry("gr","data","lep")
+    
     ths = []
-    ths.append(TH1D('data', 'data', 10, -5., 5.))
-    ths[0].SetMarkerStyle(20)
-    lcolors = [ ROOT.kBlue ]
-    lcolors += colors
+    ths.append(TLine())
+    ths[0].SetLineColor(kBlue)
+    ths[0].SetLineWidth(4)
+    ths[0].SetLineStyle(1)
+    ROOT.SetOwnership(ths[0], False)
+    leg.AddEntry(ths[0],"total",'L')
+
     for m in defaultModes:
         prettym = ''+m
         for repl in replacements:
             prettym = prettym.replace(repl[0], repl[1])
         i = len(ths)
-        ths.append(TH1D(m, prettym, 10, -5., 5.))
-        ths[i].SetLineColor(lcolors[i - 1])
-        ths[i].SetFillColor(lcolors[i - 1])
-        ths[i].SetMarkerColor(lcolors[i - 1])
-    i = 0
-    for h in ths:
-        ROOT.SetOwnership(h, False)
-        leg.AddEntry(h, h.GetTitle(), 'F' if i else 'LP')
-        i = i + 1
+        ths.append(TLine())
+        ths[i].SetLineColor(colors[i-1])
+        ths[i].SetLineWidth(4)
+        ths[i].SetLineStyle(styles[i-1])
+        ROOT.SetOwnership(ths[i], False)
+        leg.AddEntry(ths[i],prettym,'L') 
+   
     return leg
 
 #------------------------------------------------------------------------------
@@ -291,7 +319,7 @@ if __name__ == '__main__' :
         parser.print_help()
 
     from ROOT import (TFile, TCanvas, gROOT, TLegend, RooAbsReal, gStyle, gPad,
-            TLine, TColor, TLatex)
+            TLine, TColor, TLatex, TString)
     gROOT.SetBatch( True )
 
     gROOT.SetStyle('Plain')
@@ -302,10 +330,10 @@ if __name__ == '__main__' :
     gStyle.SetTitleFont(132)
     gStyle.SetTextFont(132)
     gStyle.SetStatFont(132)
-    gStyle.SetLabelSize(0.04, 'XYZ ')
-    gStyle.SetLabelSize(0.04)
-    gStyle.SetTitleSize(0.04, 'XYZ ')
-    gStyle.SetTitleSize(0.04)
+    gStyle.SetLabelSize(0.06, 'XYZ ')
+    gStyle.SetLabelSize(0.06)
+    gStyle.SetTitleSize(0.06, 'XYZ ')
+    gStyle.SetTitleSize(0.06)
     gStyle.SetLabelOffset(0.004, 'XYZ ')
     gStyle.SetTitleOffset(0.85, 'XYZ ')
 
@@ -373,33 +401,31 @@ if __name__ == '__main__' :
 
     iplot = 0
     for p in plots:
-        canvas = TCanvas('TimeCanvas', 'Decay time canvas')
+        canvas = TCanvas('TimeCanvas', 'Decay time canvas', 1200, 1000)
         canvas.SetTitle('Fit in decay time')
         canvas.cd()
         canvas.Divide(0, 2, 0.0001, 0.0001)
         canvas.cd(2)
-        gPad.SetPad(0.0, 0.0675, 1.0, 0.2675)
+        gPad.SetPad(.050, .005, 1.0, .3275) 
         gPad.SetBorderMode(0)
         gPad.SetBorderSize(-1)
         gPad.SetFillStyle(0)
         gPad.SetBottomMargin(0.325)
         canvas.cd(1)
-        gPad.SetPad(0.0, 0.17, 1.0, 0.95)
+        gPad.SetPad( .050, .22, 1.0, 1.0)
         gPad.SetBorderMode(0)
         gPad.SetBorderSize(-1)
         gPad.SetFillStyle(0)
+        gPad.SetTopMargin(0.99)
+        
 
         frame_t = time.frame()
-        #frame_m = mass.frame()
-
         frame_t.SetTitle('Fit in reconstructed %s decay time (%s)' % (bName, p[0]))
-
-        #frame_t.GetXaxis().SetLabelSize(0.03)
-        #frame_t.GetYaxis().SetLabelSize(0.03)
 
         dataplotopts = p[1]
         sliceopts = p[2]
         ds = plotDataSet(frame_t, w, datasetname, dataplotopts)
+        
         pdfplotopts = [
                 RooFit.Precision(1e-6),
                 # I suppose we need to tweak the normalisation because sample has
@@ -423,39 +449,46 @@ if __name__ == '__main__' :
         
         mainplot, pull = plotFitModel(frame_t, w, 'TotEPDF', pdfplotopts, sliceopts)
         mainplot.GetYaxis().SetTitle(mainplot.GetYaxis().GetTitle().replace(' ps ', ' [ps] '))
-
+        mainplot.GetYaxis().SetTitle((TString.Format("Candidates / ( " +
+                                                str(time.getBinWidth(1))+" [ps])") ).Data())
         #leg, curve = legends(modelPDF, frame_t)
         #frame_t.addObject(leg)
-
+        frame_t.GetYaxis().SetRangeUser(0.12,frame_t.GetMaximum()*1.4)
+        
         frame_t.Draw()
         leg = legend()
         leg.Draw()
         canvas.Update()
         gPad.SetLogy(True)
         lhcbtext = TLatex()
-        lhcbtext.SetTextFont(62)
+        lhcbtext.SetTextFont(132)
         lhcbtext.SetTextColor(1)
-        lhcbtext.SetTextSize(0.05)
+        lhcbtext.SetTextSize(0.07)
         lhcbtext.SetTextAlign(12) 
-        lhcbtext.DrawTextNDC(0.80,0.875,"LHCb")
+        lhcbtext.DrawTextNDC(0.375,0.860,"LHCb")
         canvas.cd(2)
+        gStyle.SetOptLogy(0)
         pull.GetXaxis().SetRangeUser(time.getMin(), time.getMax())
-        pull.GetXaxis().SetLabelSize(0.175)
-        pull.GetXaxis().SetTitleSize(0.175)
+        pull.GetXaxis().SetLabelSize(0.15)
+        pull.GetXaxis().SetTitleSize(0.15)
         pull.GetXaxis().SetTitleOffset(0.95)
         pull.GetXaxis().SetTitle('#tau(B_{s}#rightarrow D_{s}K) [ps]')
         pull.GetYaxis().SetRangeUser(-4., 4.)
         pull.GetYaxis().SetNdivisions(5)
-        pull.GetYaxis().SetLabelSize(0.175)
-        pull.GetYaxis().SetTitleSize(0.175)
+        pull.GetYaxis().SetLabelSize(0.15)
+        pull.GetYaxis().SetTitleSize(0.15)
         pull.GetYaxis().SetTitleOffset(0.15)
-        pull.GetYaxis().SetTitle('Pull')
-        pull.Draw()
+        pull.GetYaxis().SetTitle('')
+        pull.Draw("ap")
+   
         l1 = TLine(time.getMin(), -3., time.getMax(), -3.)
         l2 = TLine(time.getMin(), +3., time.getMax(), +3.)
+        l3 = TLine(time.getMin(), 0., time.getMax(), 0.)
         for l in (l1, l2):
-            l.SetLineColor(ROOT.kBlue)
+            l.SetLineColor(ROOT.kRed)
             l.Draw()
+        l3.SetLineColor(ROOT.kBlack)
+        l3.Draw()
         canvas.Print(FILENAME + '.%u.time.dataandpdf.pdf' % iplot)
 
         #plotDataSet(frame_m, w, datasetname, dataplotopts)
@@ -468,6 +501,7 @@ if __name__ == '__main__' :
         #canvas.Print(FILENAME + '.mass.eps')
         del canvas
         iplot = iplot + 1
+        exit(0)
     f.Close()
 
 #------------------------------------------------------------------------------
