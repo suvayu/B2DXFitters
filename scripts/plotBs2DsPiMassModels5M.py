@@ -136,13 +136,13 @@ parser.add_option( '-w', '--workspace',
 parser.add_option( '-m', '--sample',
                    dest = 'sample',
                    metavar = 'SAMPLE',
-                   default = 'down',
+                   default = 'both',
                    help = 'Sample: choose up or down '
                    )
 parser.add_option( '-o', '--mode',
                    dest = 'mode',
                    metavar = 'MODE',
-                   default = 'kkpi',
+                   default = 'all',
                    help = 'Mode: choose all, kkpi, kpipi or pipipi'
                    )
 
@@ -163,7 +163,7 @@ parser.add_option( '-v', '--variable',
 parser.add_option( '-s', '--sufix',
                    dest = 'sufix',
                    metavar = 'SUFIX',
-                   default = '',
+                   default = 'BDTGA',
                    help = 'Add sufix to output'
                    )
 parser.add_option( '--merge',
@@ -390,7 +390,7 @@ if __name__ == '__main__' :
     range_up = mass.getMax()
 
     if mVarTS != "lab1_PIDK":
-        unit = "[MeV/c^{2}]"
+        unit = "[MeV/#font[12]{c}^{2}]"
     else:
         unit = ""
             
@@ -417,21 +417,27 @@ if __name__ == '__main__' :
     if mod != "hhhpi0":
         comp = ["Sig", "CombBkg", "Bd2DPi", "Lb2LcPi", "Bs2DsDsstPiRho", "Bs2DsK"]
         color = [kRed-7, kBlue-6, kOrange, kRed, kBlue-10, kGreen+3]
+        happystar = "#lower[-0.95]{#scale[0.5]{(}}#lower[-0.8]{#scale[0.5]{*}}#lower[-0.95]{#scale[0.5]{)}}"
+        happypm   = "#lower[-0.95]{#scale[0.6]{#pm}}"
+        happymp   = "#lower[-0.95]{#scale[0.6]{#mp}}"
         desc  = ["Signal B_{s}#rightarrow D_{s}#pi", 
                  "Combinatorial",
-                 "B_{d}#rightarrow D#pi",
+                 "B_{d}#rightarrow D"+happypm+"#pi"+happymp,
                  "#Lambda_{b}#rightarrow #Lambda_{c}#pi",
-                 "B_{(d,s)}#rightarrow D_{s}^{(*)}#pi",
-                 "B_{s}#rightarrow D_{s}K"]
+                 "B_{(d,s)}#rightarrow D_{s}"+happystar+"#kern[0.1]{#pi}",
+                 "B_{s}#rightarrow D_{s}"+happypm+"#kern[0.1]{K"+happymp+"}"]
     else:
         comp = ["Sig", "CombBkg", "Bd2DPi", "Lb2LcPi", "Bs2DsDsstPiRho", "Bd2DsstPi"]
         color = [kRed-7, kBlue-6, kOrange, kRed, kBlue-10, kMagenta-2]
+        happystar = "#lower[-0.95]{#scale[0.5]{(}}#lower[-0.8]{#scale[0.5]{*}}#lower[-0.95]{#scale[0.5]{)}}"
+        happypm   = "#lower[-0.95]{#scale[0.6]{#pm}}"
+        happymp   = "#lower[-0.95]{#scale[0.6]{#mp}}"
         desc  = ["Signal B_{s}#rightarrow D_{s}#pi",
                  "Combinatorial",
-                 "B_{d}#rightarrow D#pi",
+                 "B_{d}#rightarrow D"+happypm+"#pi"+happymp,
                  "#Lambda_{b}#rightarrow #Lambda_{c}#pi",
-                 "B_{(d,s)}#rightarrow D_{s}^{(*)}#pi",
-                 "B_{d}#rightarrow D_{(s)}^{(*)}(#pi,#rho)"]
+                 "B_{(d,s)}#rightarrow D_{s}"+happystar+"#kern[0.1]{#pi}",
+                 "B_{d}#rightarrow D_{(s)}"+happystar+"#kern[0.1](#pi,#kern[0.1]{#rho})}"]
 
     datacut = getDataCut(sam,mod,debug)    
     pullfake = "h_combData_Cut[%s]"%(datacut)
@@ -459,15 +465,22 @@ if __name__ == '__main__' :
     frame_m.GetXaxis().SetLabelColor( kWhite)
             
     frame_m.GetXaxis().SetTitleSize( 0.05 )
-    frame_m.GetYaxis().SetTitleSize( 0.05 )
+    frame_m.GetYaxis().SetTitleSize( 0.06 )
     frame_m.GetYaxis().SetNdivisions(512)
     
     frame_m.GetXaxis().SetTitleOffset( 1.00 )
-    frame_m.GetYaxis().SetTitleOffset( 1.10 )
-    frame_m.GetYaxis().SetTitle((TString.Format("#font[12]{Candidates / ( " +                             
+    frame_m.GetYaxis().SetTitleOffset( 0.8 )
+    
+    frame_m.GetYaxis().SetTitle((TString.Format("#font[132]{Candidates / ( " +                             
                                                     str(int(mass.getBinWidth(1)))+" "+
                                                     unit+")}") ).Data())
-    
+    if mVarTS == "lab2_MM":
+        frame_m.GetYaxis().SetNdivisions(508)
+        frame_m.GetYaxis().SetLabelSize(0.035)
+        frame_m.GetYaxis().SetTitleOffset( 0.81 )
+        frame_m.GetYaxis().SetTitle((TString.Format("#font[132]{Candidates / ( " +
+                                                    "{0:0.2f}".format(mass.getBinWidth(1))+" "+
+                                                    unit+")}") ).Data())
 
     if plotData : plotDataSet( dataset, frame_m,  Bin )
     if plotModel : plotFitModel( modelPDF, frame_m, mVarTS, sam, mod, comp, color )
@@ -501,14 +514,14 @@ if __name__ == '__main__' :
     pad1.cd()
        
     if mVarTS == "lab1_PIDK":
-        legend = TLegend( 0.60, 0.50, 0.88, 0.88 )
+        legend = TLegend( 0.55, 0.45, 0.88, 0.88 )
     elif mVarTS == "lab2_MM":
-        legend = TLegend( 0.60, 0.50, 0.88, 0.88 )
+        legend = TLegend( 0.125, 0.40, 0.35, 0.88 )
     else:    
-        legend = TLegend( 0.60, 0.50, 0.88, 0.88 )
+        legend = TLegend( 0.50, 0.40, 0.88, 0.88 )
         
-    legend.SetTextSize(0.05)
-    legend.SetTextFont(12)
+    legend.SetTextSize(0.06)
+    legend.SetTextFont(132)
     legend.SetFillColor(4000)
     legend.SetShadowColor(0)
     legend.SetBorderSize(0)
@@ -518,7 +531,7 @@ if __name__ == '__main__' :
     lhcbtext.SetTextFont(132)
     lhcbtext.SetTextColor(1)
     lhcbtext.SetTextSize(0.07)
-    lhcbtext.SetTextAlign(12)
+    lhcbtext.SetTextAlign(132)
           
     gr = TGraphErrors(10);
     gr.SetName("gr");
@@ -549,7 +562,9 @@ if __name__ == '__main__' :
     if ( mVarTS != "Ds_MM" ):
         legend.Draw("same")
     if mVarTS == "lab2_MM":
-        lhcbtext.DrawTextNDC(0.13,0.85,"LHCb")
+        lhcbtext.DrawTextNDC(0.85,0.85,"LHCb")
+    elif mVarTS == "lab1_PIDK" :
+        lhcbtext.DrawTextNDC(0.30,0.85,"LHCb")
     else:
         lhcbtext.DrawTextNDC(0.48,0.85,"LHCb")
     pad1.Update()
@@ -575,27 +590,27 @@ if __name__ == '__main__' :
     frame_p.GetYaxis().SetTitle("")
     frame_p.GetYaxis().SetTitleSize(0.09)
     frame_p.GetYaxis().SetTitleOffset(0.26)
-    frame_p.GetYaxis().SetTitleFont(62)
+    frame_p.GetYaxis().SetTitleFont(132)
     frame_p.GetYaxis().SetNdivisions(106)
     frame_p.GetYaxis().SetLabelSize(0.12)
     frame_p.GetYaxis().SetLabelOffset(0.006)
     frame_p.GetXaxis().SetTitleSize(0.15)
     frame_p.GetXaxis().SetTitleFont(132)
-    frame_p.GetXaxis().SetTitleOffset(0.85)
+    frame_p.GetXaxis().SetTitleOffset(1.00)
     frame_p.GetXaxis().SetNdivisions(5)
     frame_p.GetYaxis().SetNdivisions(5)
+    frame_p.GetYaxis().SetRangeUser(-5,5)
     frame_p.GetXaxis().SetLabelSize(0.12)
     frame_p.GetXaxis().SetLabelFont( 132 )
     frame_p.GetYaxis().SetLabelFont( 132 )
         
 
     if mVarTS == "lab1_PIDK" or mVarTS == "Bac_PIDK":
-        frame_p.GetXaxis().SetTitle('#font[12]{bachelor -PIDK [1]}')
+        frame_p.GetXaxis().SetTitle('#font[132]{Bachelor L(#pi#kern[0.1]{/#kern[0.1]{K}})}')
     elif mVarTS == "lab2_MM" or mVarTS == "Ds_MM":
-        frame_p.GetXaxis().SetTitle('#font[12]{m(D_{s}) [MeV/c^{2}]}')
+        frame_p.GetXaxis().SetTitle('#font[132]{m(K^{+}K^{-}#pi^{#pm}, #pi^{+}#pi^{-}#pi^{#pm}, K^{#pm}#pi^{-}#pi^{+}) [MeV/#font[12]{c}^{2}]}')
     else:
-        frame_p.GetXaxis().SetTitle('#font[12]{m(B_{s} #rightarrow D_{s}#pi) [MeV/c^{2}]}')
-                                        
+        frame_p.GetXaxis().SetTitle('#font[132]{m(D^{-}_{s}#pi^{+}) [MeV/#font[12]{c}^{2}]}')
                                           
     if dim == 3:
         if mVarTS == "lab1_PIDK":
@@ -626,9 +641,9 @@ if __name__ == '__main__' :
     axisY = pullHist.GetYaxis()
     max = axisY.GetXmax()
     min = axisY.GetXmin()
-    axisY.SetLabelSize(0.12)
+    axisY.SetLabelSize(0.1)
     axisY.SetNdivisions(5)
-    axisX.SetLabelSize(0.12)        
+    axisX.SetLabelSize(0.1)        
 
     range = max-min
     zero = max/range
@@ -693,8 +708,8 @@ if __name__ == '__main__' :
         canName = TString("mass_BsDsPi_")+mVarTS+TString("_")+sam+TString("_")+mod+sufixTS+TString(".pdf")
         canNamePng = TString("mass_BsDsPi_")+mVarTS+TString("_")+sam+TString("_")+mod+sufixTS+TString(".png")
         canNameEps = TString("mass_BsDsPi_")+mVarTS+TString("_")+sam+TString("_")+mod+sufixTS+TString(".root")
-    canvas.Print(canName.Data())
-    canvas.Print(canNamePng.Data())
-    canvas.Print(canNameEps.Data())
+    canvas.SaveAs(canName.Data())
+    canvas.SaveAs(canNamePng.Data())
+    canvas.SaveAs(canNameEps.Data())
     
 #------------------------------------------------------------------------------

@@ -501,7 +501,8 @@ if __name__ == '__main__' :
         #canvas.Print(FILENAME + '.mass.eps')
         del canvas
         iplot = iplot + 1
-        
+        sys.exit(0)       
+ 
     f.Close()
 
 #------------------------------------------------------------------------------

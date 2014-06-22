@@ -126,7 +126,7 @@ bName = 'B_{s}'
 
 dataSetToPlot  = 'dataSet_time_BsDsPi'
 pdfToPlot = 'time_signal_BDTGA' #signal_TimeTimeerrPdf'
-bin = 74
+bin = 146
 
 #fileToWriteOut = 'time_DsPi_BDTG123.pdf' 
 #------------------------------------------------------------------------------
@@ -279,26 +279,24 @@ if __name__ == '__main__' :
     frame_t = time.frame()
     frame_t.SetTitle('')
  
-    frame_t.GetXaxis().SetLabelSize( 0.05 )
-    frame_t.GetYaxis().SetLabelSize( 0.05 )
+    frame_t.GetXaxis().SetLabelSize( 0.06 )
+    frame_t.GetYaxis().SetLabelSize( 0.06 )
     frame_t.GetXaxis().SetLabelFont( 132 )
     frame_t.GetYaxis().SetLabelFont( 132 )
     frame_t.GetXaxis().SetLabelOffset( 0.006 )
     frame_t.GetYaxis().SetLabelOffset( 0.006 )
     frame_t.GetXaxis().SetLabelColor( kWhite)
     
-    frame_t.GetXaxis().SetTitleSize( 0.05 )
-    frame_t.GetYaxis().SetTitleSize( 0.05 )
+    frame_t.GetXaxis().SetTitleSize( 0.06 )
+    frame_t.GetYaxis().SetTitleSize( 0.06 )
     frame_t.GetYaxis().SetNdivisions(512)
     
     frame_t.GetXaxis().SetTitleOffset( 1.00 )
-    frame_t.GetYaxis().SetTitleOffset( 1.00 )
+    frame_t.GetYaxis().SetTitleOffset( 0.85 )
     
-    frame_t.GetXaxis().SetTitle('#font[12]{#tau (B_{s} #rightarrow D_{s} #pi) [ps]}')
-    frame_t.GetYaxis().SetTitle((TString.Format("#font[12]{Candidates / ( " +
-                                                str(time.getBinWidth(1))+" [ps])}") ).Data())
-    
-       
+    frame_t.GetXaxis().SetTitle('#font[132]{#tau (B_{s} #rightarrow D_{s} #pi) [ps]}')
+    frame_t.GetYaxis().SetTitle((TString.Format("#font[132]{Candidates / ( " +
+                                                str(time.getBinWidth(1))+" [ps])}") ).Data())   
 
     plotDataSet(dataset, frame_t)
     
@@ -317,7 +315,7 @@ if __name__ == '__main__' :
     legend.SetShadowColor(0)
     legend.SetBorderSize(0)
     legend.SetTextFont(132)
-    legend.SetHeader("LHCb Preliminary") # L_{int}=1.0 fb^{-1}")
+    legend.SetHeader("LHCb") # L_{int}=1.0 fb^{-1}")
 
     gr = TGraphErrors(10);
     gr.SetName("gr");
@@ -332,8 +330,10 @@ if __name__ == '__main__' :
     l1 = TLine()
     l1.SetLineColor(kBlue+3)
     l1.SetLineWidth(4)
-    legend.AddEntry(l1, "Signal B_{s}#rightarrow D_{s}#pi", "L")
-        
+    happypm   = "#lower[-1.25]{#scale[0.75]{-}}"
+    happymp   = "#lower[-1.25]{#scale[0.6]{+}}"
+    legend.AddEntry(l1, "B_{s}#rightarrow D_{s}"+happypm+"#kern[0.1]{#pi"+happymp+"}", "L")
+    
     pad1 = TPad("upperPad", "upperPad", .050, .22, 1.0, 1.0)
     pad1.SetBorderMode(0)
     pad1.SetBorderSize(-1)
@@ -379,18 +379,18 @@ if __name__ == '__main__' :
     frame_p.GetXaxis().SetLabelSize(0.09)
     frame_p.GetXaxis().SetLabelFont( 132 )
     frame_p.GetYaxis().SetLabelFont( 132 )
-    frame_p.GetXaxis().SetTitle('#font[12]{#tau (B_{s} #rightarrow D_{s} #pi) [ps]}')
+    frame_p.GetXaxis().SetTitle('#font[132]{#tau (B_{s} #rightarrow D_{s} #pi) [ps]}')
          
     pullHist = frame_t.pullHist()
-    pullHist.SetMaximum(4.00)
-    pullHist.SetMinimum(-4.00)
+    pullHist.SetMaximum(3.50)
+    pullHist.SetMinimum(-3.50)
 
     frame_p.addPlotable(pullHist,"P")
     frame_p.Draw()
 
     axisX = pullHist.GetXaxis()
     axisX.Set(100, timeDown, timeUp )
-    axisX.SetTitle('#font[12]{#tau (B_{s} #rightarrow D_{s} #pi) [ps]}')   
+    axisX.SetTitle('#font[132]{#tau (B_{s} #rightarrow D_{s} #pi) [ps]}')   
     axisX.SetTitleSize(0.150)
     axisX.SetTitleFont(132)
     axisX.SetLabelSize(0.150)
@@ -400,14 +400,14 @@ if __name__ == '__main__' :
     axisY = pullHist.GetYaxis()
     max = axisY.GetXmax()
     min = axisY.GetXmin()
-    axisY.SetLabelSize(0.100)
+    axisY.SetLabelSize(0.150)
     axisY.SetLabelFont(132)
     axisY.SetNdivisions(5)        
     
     axisX = pullHist.GetXaxis()
     maxX = axisX.GetXmax()
     minX = axisX.GetXmin()
-    axisX.SetLabelSize(0.100)
+    axisX.SetLabelSize(0.150)
     
     range = max-min
     zero = max/range

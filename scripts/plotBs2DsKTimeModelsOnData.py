@@ -127,11 +127,11 @@ bName = 'B_{s}'
 
 dataSetToPlot  = 'dataSet_time_BsDsK'
 pdfToPlot = 'time_signal_BDTGA'
-bin = 100
+bin = 146
 #fileToWriteOut = 'time_DsPi_BDTG123.pdf' 
 #------------------------------------------------------------------------------
 def plotDataSet(dataset, frame) :
-    dataset.plotOn(frame,RooFit.Binning(bin))
+    dataset.plotOn(frame,RooFit.Binning(bin),RooFit.DataError(RooAbsData.SumW2))
 
 #------------------------------------------------------------------------------
 def plotFitModel(model, frame, wksp) :
@@ -234,6 +234,12 @@ if __name__ == '__main__' :
         parser.error('ROOT file "%s" not found! Nothing plotted.' % FILENAME)
         parser.print_help()
 
+    RooAbsReal.defaultIntegratorConfig().setEpsAbs(1e-13)
+    RooAbsReal.defaultIntegratorConfig().setEpsRel(1e-13)
+    RooAbsReal.defaultIntegratorConfig().getConfigSection('RooAdaptiveGaussKronrodIntegrator1D').setCatLabel('method','21Points')
+    RooAbsReal.defaultIntegratorConfig().getConfigSection('RooAdaptiveGaussKronrodIntegrator1D').setRealValue('maxSeg', 1000)
+    # since we have finite ranges, the RooIntegrator1D is best suited to the job
+    RooAbsReal.defaultIntegratorConfig().method1D().setLabel('RooAdaptiveGaussKronrodIntegrator1D')
     
     from ROOT import kYellow, kMagenta, kOrange, kCyan, kGreen, kRed, kBlue, kDashed, kBlack
     from ROOT import RooRealVar, RooStringVar, RooFormulaVar, RooProduct
@@ -259,7 +265,7 @@ if __name__ == '__main__' :
     f.Close()
     time = w.var('lab0_LifetimeFit_ctau')
     time.setBins(bin)
-    #time.setRange(0.2,15)
+    #time.setRange(0.4,15)
     timeDown = time.getMin()
     timeUp = time.getMax()
     #time.setRange(timeDown,timeUp)   
@@ -282,23 +288,23 @@ if __name__ == '__main__' :
     frame_t = time.frame()
     frame_t.SetTitle('')
  
-    frame_t.GetXaxis().SetLabelSize( 0.05 )
-    frame_t.GetYaxis().SetLabelSize( 0.05 )
+    frame_t.GetXaxis().SetLabelSize( 0.06 )
+    frame_t.GetYaxis().SetLabelSize( 0.06 )
     frame_t.GetXaxis().SetLabelFont( 132 )
     frame_t.GetYaxis().SetLabelFont( 132 )
     frame_t.GetXaxis().SetLabelOffset( 0.006 )
     frame_t.GetYaxis().SetLabelOffset( 0.006 )
     frame_t.GetXaxis().SetLabelColor( kWhite)
     
-    frame_t.GetXaxis().SetTitleSize( 0.05 )
-    frame_t.GetYaxis().SetTitleSize( 0.05 )
+    frame_t.GetXaxis().SetTitleSize( 0.06 )
+    frame_t.GetYaxis().SetTitleSize( 0.06 )
     frame_t.GetYaxis().SetNdivisions(512)
     
     frame_t.GetXaxis().SetTitleOffset( 1.00 )
-    frame_t.GetYaxis().SetTitleOffset( 1.00 )
+    frame_t.GetYaxis().SetTitleOffset( 0.85 )
     
-    frame_t.GetXaxis().SetTitle('#font[12]{#tau (B_{s} #rightarrow D_{s} #pi) [ps]}')
-    frame_t.GetYaxis().SetTitle((TString.Format("#font[12]{Candidates / ( " +
+    frame_t.GetXaxis().SetTitle('#font[132]{#tau (B_{s} #rightarrow D_{s} #pi) [ps]}')
+    frame_t.GetYaxis().SetTitle((TString.Format("#font[132]{Candidates / ( " +
                                                 str(time.getBinWidth(1))+" [ps])}") ).Data())
     
         
@@ -313,14 +319,14 @@ if __name__ == '__main__' :
     gStyle.SetOptLogy(1)
     frame_t.GetYaxis().SetRangeUser(0.003,300)
 
-    legend = TLegend( 0.12, 0.12, 0.3, 0.3 )
+    legend = TLegend( 0.55, 0.7, 0.73, 0.88 )
     legend.SetTextSize(0.06)
     legend.SetTextFont(12)
     legend.SetFillColor(4000)
     legend.SetShadowColor(0)
     legend.SetBorderSize(0)
     legend.SetTextFont(132)
-    legend.SetHeader("LHCb Preliminary") # L_{int}=1.0 fb^{-1}")
+    legend.SetHeader("LHCb") # L_{int}=1.0 fb^{-1}")
 
     gr = TGraphErrors(10);
     gr.SetName("gr");
@@ -335,7 +341,9 @@ if __name__ == '__main__' :
     l1 = TLine()
     l1.SetLineColor(kBlue+3)
     l1.SetLineWidth(4)
-    legend.AddEntry(l1, "Signal B_{s}#rightarrow D_{s}K", "L")
+    happypm   = "#lower[-0.95]{#scale[0.6]{#pm}}"
+    happymp   = "#lower[-0.95]{#scale[0.6]{#mp}}"
+    legend.AddEntry(l1, "B_{s}#rightarrow D_{s}"+happypm+"#kern[0.1]{K"+happymp+"}", "L")
     
     
     pad1 = TPad("upperPad", "upperPad", .050, .22, 1.0, 1.0)
@@ -370,47 +378,43 @@ if __name__ == '__main__' :
     frame_p.GetYaxis().SetTitle("")
     frame_p.GetYaxis().SetTitleSize(0.09)
     frame_p.GetYaxis().SetTitleOffset(0.26)
-    frame_p.GetYaxis().SetTitleFont(62)
+    frame_p.GetYaxis().SetTitleFont(132)
     frame_p.GetYaxis().SetNdivisions(106)
-    frame_p.GetYaxis().SetLabelSize(0.18)
+    frame_p.GetYaxis().SetLabelSize(0.20)
     frame_p.GetYaxis().SetLabelOffset(0.006)
-    frame_p.GetXaxis().SetTitleSize(0.12)
+    frame_p.GetXaxis().SetTitleSize(0.20)
     frame_p.GetXaxis().SetTitleFont(132)
     frame_p.GetXaxis().SetTitleOffset(0.85)
     frame_p.GetXaxis().SetNdivisions(5)
     frame_p.GetYaxis().SetNdivisions(5)
-    frame_p.GetXaxis().SetLabelSize(0.09)
+    frame_p.GetXaxis().SetLabelSize(0.20)
     frame_p.GetXaxis().SetLabelFont( 132 )
     frame_p.GetYaxis().SetLabelFont( 132 )
-    frame_p.GetXaxis().SetTitle('#font[12]{#tau (B_{s} #rightarrow D_{s} #pi) [ps]}')
+    frame_p.GetXaxis().SetTitle('#font[132]{#tau (B_{s} #rightarrow D_{s} #pi) [ps]}')
     
     pullHist = frame_t.pullHist()
-    pullHist.SetMaximum(4.00)
-    pullHist.SetMinimum(-4.00)
+    pullHist.SetMaximum(3.5)
+    pullHist.SetMinimum(-3.5)
 
     frame_p.addPlotable(pullHist,"P")
     frame_p.Draw()
 
     axisX = pullHist.GetXaxis()
     axisX.Set(100, timeDown, timeUp )
-    axisX.SetTitle('#font[12]{#tau (B_{s} #rightarrow D_{s} K) [ps]}')   
+    axisX.SetTitle('#font[132]{#tau (B_{s} #rightarrow D_{s} K) [ps]}')   
     axisX.SetTitleSize(0.150)
     axisX.SetTitleFont(132)
     axisX.SetLabelSize(0.150)
     axisX.SetLabelFont(132)
-    axisX.SetTitle        
-    
+    maxX = axisX.GetXmax()
+    minX = axisX.GetXmin()  
+ 
     axisY = pullHist.GetYaxis()
     max = axisY.GetXmax()
     min = axisY.GetXmin()
-    axisY.SetLabelSize(0.100)
+    axisY.SetLabelSize(0.150)
     axisY.SetLabelFont(132)
     axisY.SetNdivisions(5)        
-    
-    axisX = pullHist.GetXaxis()
-    maxX = axisX.GetXmax()
-    minX = axisX.GetXmin()
-    axisX.SetLabelSize(0.100)
     
     range = max-min
     zero = max/range
