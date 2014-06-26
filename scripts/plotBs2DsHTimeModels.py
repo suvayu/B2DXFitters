@@ -106,7 +106,7 @@ isDsK = True
 nBinsTime = 146 if isDsK else 146
 defaultModes = (
         # modes for DsK
-        #[ ' Bs2DsK' ]
+        #[ ]
         ['Bs2DsK', 'Bs2DsPi', 'Bs2DsstPi', 'Bs2DsRho', 'Bd2DK', 'Bd2DPi', 'Lb2LcK', 'Lb2LcPi', 'Lb2Dsp', 'Lb2Dsstp', 'Bd2DsK', 'CombBkg']
         if isDsK else
         # modes for DsPi
@@ -363,40 +363,40 @@ if __name__ == '__main__' :
             else 'hmaster')
 
     plots = [ [ 'all data',  [], [ [] ] ],
-            [ ('B_{s} #rightarrow D_{s}^{-}K^{+} + #bar{B_{s}} #rightarrow D_{s}^{+}K^{-}'
-                if isDsK else
-                'B_{s} #rightarrow D_{s}^{-}#pi^{+} + #bar{B_{s}} #rightarrow D_{s}^{+}#pi^{-}'),
-                [ RooFit.Cut("qf*qt > 0") ],
-	        [ [ RooFit.Slice(w.cat('qt'), 'B_1'),
-	        RooFit.Slice(w.cat('qf'), 'h+') ],
-	        [ RooFit.Slice(w.cat('qt'), 'B_2'),
-	        RooFit.Slice(w.cat('qf'), 'h+') ],
-	        [ RooFit.Slice(w.cat('qt'), 'B_3'),
-	        RooFit.Slice(w.cat('qf'), 'h+') ],
-	        [ RooFit.Slice(w.cat('qt'), 'Bbar_1'),
-	        RooFit.Slice(w.cat('qf'), 'h-') ],
-	        [ RooFit.Slice(w.cat('qt'), 'Bbar_2'),
-	        RooFit.Slice(w.cat('qf'), 'h-') ],
-	        [ RooFit.Slice(w.cat('qt'), 'Bbar_3'),
-	        RooFit.Slice(w.cat('qf'), 'h-') ] ]
-                ],
-            [ ('B_{s} #rightarrow D_{s}^{+}K^{-} + #bar{B_{s}} #rightarrow D_{s}^{-}K^{+}'
-                if isDsK else
-                'B_{s} #rightarrow D_{s}^{+}#pi^{-} + #bar{B_{s}} #rightarrow D_{s}^{-}#pi^{+}'),
-                [ RooFit.Cut("qf*qt < 0") ],
-	        [ [ RooFit.Slice(w.cat('qt'), 'B_1'),
-	        RooFit.Slice(w.cat('qf'), 'h-') ],
-	        [ RooFit.Slice(w.cat('qt'), 'B_2'),
-	        RooFit.Slice(w.cat('qf'), 'h-') ],
-	        [ RooFit.Slice(w.cat('qt'), 'B_3'),
-	        RooFit.Slice(w.cat('qf'), 'h-') ],
-	        [ RooFit.Slice(w.cat('qt'), 'Bbar_1'),
-	        RooFit.Slice(w.cat('qf'), 'h+') ],
-	        [ RooFit.Slice(w.cat('qt'), 'Bbar_2'),
-	        RooFit.Slice(w.cat('qf'), 'h+') ],
-	        [ RooFit.Slice(w.cat('qt'), 'Bbar_3'),
-	        RooFit.Slice(w.cat('qf'), 'h+') ] ]
-                ],
+#            [ ('B_{s} #rightarrow D_{s}^{-}K^{+} + #bar{B_{s}} #rightarrow D_{s}^{+}K^{-}'
+#                if isDsK else
+#                'B_{s} #rightarrow D_{s}^{-}#pi^{+} + #bar{B_{s}} #rightarrow D_{s}^{+}#pi^{-}'),
+#                [ RooFit.Cut("qf*qt > 0") ],
+#	        [ [ RooFit.Slice(w.cat('qt'), 'B_1'),
+#	        RooFit.Slice(w.cat('qf'), 'h+') ],
+#	        [ RooFit.Slice(w.cat('qt'), 'B_2'),
+#	        RooFit.Slice(w.cat('qf'), 'h+') ],
+#	        [ RooFit.Slice(w.cat('qt'), 'B_3'),
+#	        RooFit.Slice(w.cat('qf'), 'h+') ],
+#	        [ RooFit.Slice(w.cat('qt'), 'Bbar_1'),
+#	        RooFit.Slice(w.cat('qf'), 'h-') ],
+#	        [ RooFit.Slice(w.cat('qt'), 'Bbar_2'),
+#	        RooFit.Slice(w.cat('qf'), 'h-') ],
+#	        [ RooFit.Slice(w.cat('qt'), 'Bbar_3'),
+#	        RooFit.Slice(w.cat('qf'), 'h-') ] ]
+#                ],
+#            [ ('B_{s} #rightarrow D_{s}^{+}K^{-} + #bar{B_{s}} #rightarrow D_{s}^{-}K^{+}'
+#                if isDsK else
+#                'B_{s} #rightarrow D_{s}^{+}#pi^{-} + #bar{B_{s}} #rightarrow D_{s}^{-}#pi^{+}'),
+#                [ RooFit.Cut("qf*qt < 0") ],
+#	        [ [ RooFit.Slice(w.cat('qt'), 'B_1'),
+#	        RooFit.Slice(w.cat('qf'), 'h-') ],
+#	        [ RooFit.Slice(w.cat('qt'), 'B_2'),
+#	        RooFit.Slice(w.cat('qf'), 'h-') ],
+#	        [ RooFit.Slice(w.cat('qt'), 'B_3'),
+#	        RooFit.Slice(w.cat('qf'), 'h-') ],
+#	        [ RooFit.Slice(w.cat('qt'), 'Bbar_1'),
+#	        RooFit.Slice(w.cat('qf'), 'h+') ],
+#	        [ RooFit.Slice(w.cat('qt'), 'Bbar_2'),
+#	        RooFit.Slice(w.cat('qf'), 'h+') ],
+#	        [ RooFit.Slice(w.cat('qt'), 'Bbar_3'),
+#	        RooFit.Slice(w.cat('qf'), 'h+') ] ]
+#                ],
             ]
 
     iplot = 0
@@ -425,21 +425,21 @@ if __name__ == '__main__' :
         dataplotopts = p[1]
         sliceopts = p[2]
         ds = plotDataSet(frame_t, w, datasetname, dataplotopts)
+        # ok, set up projection data
+        if None != w.obj('timeerr'):
+            w.obj('timeerr').setBins(20)
+        projset = RooArgSet(*(w.obj(vname) for vname in ('sample', 'timeerr')))
+        projds = ds.reduce(RooFit.SelectVars(projset))
+        ROOT.SetOwnership(projds, True)
+        projds = projds.binnedClone()
+        ROOT.SetOwnership(projds, True)
+        projds.Print('v')
         
         pdfplotopts = [
                 RooFit.Precision(1e-6),
-                # I suppose we need to tweak the normalisation because sample has
-                # five states (nonres, phipi, kstk, kpipi, pipipi)
-                #RooFit.Normalization(.2, RooAbsReal.Relative),
-                RooFit.ProjWData(
-                    RooArgSet(*[ w.obj(n) for n in (
-                    'pidk','dsmass',
-                    'sample',
-                    'mass','mistag', 'timeerr'
-                    )]),
-                    ds,
-                    not True
-                    ),
+		RooFit.Normalization(1. / projds.sumEntries(), RooAbsReal.Relative),
+                RooFit.ProjWData(projds, True),
+                RooFit.NumCPU(24),
                 ]
 
         frame_t.Draw()
