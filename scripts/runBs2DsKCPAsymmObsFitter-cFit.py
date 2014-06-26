@@ -1178,17 +1178,25 @@ def readTemplate1D(
             print ('ERROR: Utterly unable to find any kind of %s '
                     'variable/data in %s') % (variable.GetName(), fromfile)
             return None
-    variable.setRange(
-	    max(variable.getMin(),
-		hist.GetXaxis().GetBinLowEdge(1)),
-	    min(variable.getMax(),
-		hist.GetXaxis().GetBinUpEdge(hist.GetNbinsX())))
-    variable.setBins(hist.GetNbinsX())
     ROOT.SetOwnership(hist, True)
     hist.SetNameTitle('%sPdf_hist' % pfx, '%sPdf_hist' % pfx)
     hist.SetDirectory(None)
     if hist.Integral() < 1e-15:
         raise ValueError('Histogram empty!')
+    variable.setRange(
+	    max(variable.getMin(),
+		hist.GetXaxis().GetBinLowEdge(1)),
+	    min(variable.getMax(),
+		hist.GetXaxis().GetBinUpEdge(hist.GetNbinsX())))
+    from ROOT import RooBinning, std
+    bins = std.vector('double')()
+    bins.push_back(hist.GetXaxis().GetBinLowEdge(1))
+    for ibin in xrange(1, 1 + hist.GetNbinsX()):
+        bins.push_back(hist.GetXaxis().GetBinUpEdge(ibin))
+    binning = RooBinning(bins.size() - 1, bins.begin().base())
+    del bins
+    del ibin
+    variable.setBinning(binning)
     # recreate datahist
     dh = RooDataHist('%sPdf_dhist' % pfx, '%sPdf_dhist' % pfx,
             RooArgList(variable), hist)
@@ -1256,15 +1264,17 @@ def getKFactorTemplates(
     k	# k factor variable
     ):
     templates = {}
-    rmin, rmax = k.getMin(), k.getMax()
     for mode in config['Modes']:
-        k.setRange(rmin, rmax)
         tmp = (config['KFactorTemplates'][mode] if mode in
                 config['KFactorTemplates'] else None)
+        if None == tmp:
+            templates[mode] = (None, None)
+            continue
+        kcopy = WS(ws, k.clone('%s_%s' % (mode, k.GetName())))
+        print 'DEBUG: %s' % str(kcopy)
         templates[mode] = (readTemplate1D(tmp['File'], tmp['Workspace'],
-            tmp['VarName'], tmp['TemplateName'], ws, k,
-            '%s_kFactor_PDF' % (mode)) if None != tmp else None)
-    k.setRange(rmin, rmax)
+            tmp['VarName'], tmp['TemplateName'], ws, kcopy,
+            '%s_kFactor_PDF' % (mode)), kcopy)
     return templates
 
 # obtain mass template from mass fitter (2011 CONF note version)
@@ -1637,7 +1647,7 @@ def getMassTemplateOneMode2011Paper(
                 if 'Bs2DsDsstKKst' in sfx or 'Bs2DsDssKKst' in sfx:
                     f = fromws.var('g1_f1_frac')
                     if 'Bd2DsK' == mode:
-                        f = f.getVal() if None != f else 0.
+                        f = f.getVal() if None != f else 1.
                     elif 'Bs2DsKst' == mode: 
                         f = (1. - f.getVal()) if None != f else 0.
                     else:
@@ -1974,9 +1984,11 @@ def applyKFactorSmearing(
         if not time.hasBinning('cache'):
             time.setBins(config['NBinsTimeKFactor'], 'cache')
         paramobs.append(time)
-    timeresmodel = WS(ws, RooKResModel(timeresmodel.GetName() + "_kSmeared",
-        timeresmodel.GetName() + "_kSmeared", timeresmodel, kpdf, kvar,
-        RooArgSet(*substtargets), RooArgSet(*paramobs)))
+    timeresmodel = WS(ws, RooKResModel(
+        '%s_%sSmeared' % (timeresmodel.GetName(), kpdf.GetName()),
+        '%s_%sSmeared' % (timeresmodel.GetName(), kpdf.GetName()),
+        timeresmodel, kpdf, kvar, RooArgSet(*substtargets),
+        RooArgSet(*paramobs)))
     return timeresmodel
 
 # build non-oscillating decay time pdf
@@ -3266,8 +3278,8 @@ def getMasterPDF(config, name, debug = False):
                         raise TypeError('Unsupported type for asymmetry')
                     break
         if (config['UseKFactor'] and config['Modes'][0] != mode and mode in
-                ktemplates and None != ktemplates[mode]):
-            kfactorpdf, kfactor = ktemplates[mode], kvar
+                ktemplates and (None, None) != ktemplates[mode]):
+            kfactorpdf, kfactor = ktemplates[mode][0], ktemplates[mode][1]
         else:
             kfactorpdf, kfactor = None, None
         y = 0.
@@ -3364,8 +3376,8 @@ def getMasterPDF(config, name, debug = False):
                     break
         # Bd2DsK does not need k-factor (delta(k))
         if (config['UseKFactor'] and config['Modes'][0] != mode and mode in
-                ktemplates and None != ktemplates[mode]):
-            kfactorpdf, kfactor = ktemplates[mode], kvar
+                ktemplates and (None, None) != ktemplates[mode]):
+            kfactorpdf, kfactor = ktemplates[mode][0], ktemplates[mode][1]
         else:
             kfactorpdf, kfactor = None, None
         y = 0.
