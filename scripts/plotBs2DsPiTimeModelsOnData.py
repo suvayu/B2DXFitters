@@ -109,6 +109,7 @@ from math     import pi, log
 from  os.path import exists
 import os, sys, gc
 gROOT.SetBatch()
+gROOT.ProcessLine(".x /afs/cern.ch/user/g/gligorov/public/foragnieszka/.rootlogon.C")
 
 # MODELS
 signalModelOnly = False
@@ -153,6 +154,26 @@ def plotFitModel(model, frame, wksp) :
     # plot model itself
     fr = model.plotOn(frame,
                       #RooFit.ProjWData(RooArgSet(cat2,cat3),dataset),
+                      RooFit.LineColor(kBlue+3))
+
+    var = []
+    tacc_list = RooArgList()
+    for i in range(0,7):
+        varName = "var%d"%(int(i+1))
+        var.append(wksp.var(varName))
+        print var[i].GetName()
+        tacc_list.add(var[i])
+    
+    len = var.__len__()    
+    var.append(RooRealVar("var8","var8",0.924113))
+    tacc_list.add(var[len])
+    spl = RooCubicSplineFun("splinePdf", "splinePdf", time, "splineBinning", tacc_list)
+
+    rel = 200
+    fr = spl.plotOn(frame, RooFit.LineColor(kRed),  RooFit.Normalization(rel, RooAbsReal.Relative))
+
+    fr = model.plotOn(frame,
+                      #RooFit.ProjWData(RooArgSet(cat2,cat3),dataset),                                                                                                                            
                       RooFit.LineColor(kBlue+3))
 
     #model.createProjection(RooArgSet(lab0_BsTaggingTool_TAGDECISION_OS,lab1_ID))    
@@ -260,6 +281,8 @@ if __name__ == '__main__' :
 #time.setRange(timeDown,timeUp)   
  
     modelPDF = w.pdf(pdfToPlot) 
+    #acc = w.pdf("splinePdf")
+
     if modelPDF:
         print modelPDF.GetName()
     dataset  = w.data(dataSetToPlot) 
@@ -305,10 +328,10 @@ if __name__ == '__main__' :
     if plotModel :
         plotFitModel(modelPDF, frame_t, w)
 
-    gStyle.SetOptLogy(1)    
-    frame_t.GetYaxis().SetRangeUser(0.02,5000)
+    #gStyle.SetOptLogy(1)    
+    frame_t.GetYaxis().SetRangeUser(0.04,1300) #5000)
 
-    legend = TLegend( 0.12, 0.12, 0.3, 0.3 )
+    legend = TLegend(  0.55, 0.6, 0.88, 0.88 )
     legend.SetTextSize(0.06)
     legend.SetTextFont(12)
     legend.SetFillColor(4000)
@@ -333,7 +356,12 @@ if __name__ == '__main__' :
     happypm   = "#lower[-1.25]{#scale[0.75]{-}}"
     happymp   = "#lower[-1.25]{#scale[0.6]{+}}"
     legend.AddEntry(l1, "B_{s}#rightarrow D_{s}"+happypm+"#kern[0.1]{#pi"+happymp+"}", "L")
-    
+
+    l2 = TLine()
+    l2.SetLineColor(kRed)
+    l2.SetLineWidth(4)
+    legend.AddEntry(l2, "acceptance", "L")
+
     pad1 = TPad("upperPad", "upperPad", .050, .22, 1.0, 1.0)
     pad1.SetBorderMode(0)
     pad1.SetBorderSize(-1)
