@@ -103,11 +103,16 @@ import os, sys
 bName = 'B_{s}'
 isDsK = True
 
+onlyLargeModes = True
+
 nBinsTime = 146 if isDsK else 146
 defaultModes = (
         # modes for DsK
         #[ ]
-        ['Bs2DsK', 'Bs2DsPi', 'Bs2DsstPi', 'Bs2DsRho', 'Bd2DK', 'Bd2DPi', 'Lb2LcK', 'Lb2LcPi', 'Lb2Dsp', 'Lb2Dsstp', 'Bd2DsK', 'CombBkg']
+        ( ['Bs2DsK', 'Bs2DsPi', 'Bs2DsstPi', 'Bs2DsRho', 'CombBkg'] if
+	    onlyLargeModes else
+	    ['Bs2DsK', 'Bs2DsPi', 'Bs2DsstPi', 'Bs2DsRho', 'Bd2DK', 'Bd2DPi', 'Lb2LcK', 'Lb2LcPi', 'Lb2Dsp', 'Lb2Dsstp', 'Bd2DsK', 'CombBkg']
+	    )
         if isDsK else
         # modes for DsPi
         #[ ]
@@ -119,9 +124,20 @@ defaultModes = (
 from ROOT import ( RooLinkedList, kRed, kBlue, kGreen, kOrange, kYellow,
         kMagenta, kCyan, kBlack, kSolid, kDashed )
 
-colors = [kBlue+3, kMagenta-2, kMagenta-2, kMagenta-2, kRed, kRed, kGreen+3, kGreen+3, kYellow+1, kYellow+1, kBlue-10, kBlue-6]
-styles  = [1,1,2,3,1,2,1,2,1,2,1,1]  
-
+styledict = {
+	'Bs2DsK':	{ 'color': kBlue + 3, 'style': 9 if onlyLargeModes else 1 },
+	'Bs2DsPi':	{ 'color': kMagenta - 2, 'style': 3 if onlyLargeModes else 1 },
+	'Bs2DsstPi':	{ 'color': kMagenta - 2, 'style': 4 },
+	'Bs2DsRho':	{ 'color': kMagenta - 2, 'style': 5 },
+	'Bd2DK':	{ 'color': kRed, 'style': 1 },
+	'Bd2DPi':	{ 'color': kRed, 'style': 2 },
+	'Lb2LcK':	{ 'color': kGreen + 3, 'style': 1 },
+	'Lb2LcPi':	{ 'color': kGreen + 3, 'style': 2 },
+	'Lb2Dsp':	{ 'color': kYellow + 1, 'style': 1 },
+	'Lb2Dsstp':	{ 'color': kYellow + 1, 'style': 2 },
+	'Bd2DsK':	{ 'color': kBlue - 10, 'style': 1 },
+	'CombBkg':	{ 'color': kBlue - 6, 'style': 2 if onlyLargeModes else 1 },
+	}
 
 #------------------------------------------------------------------------------
 def WS(ws, obj, opts = [RooFit.RecycleConflictNodes(), RooFit.Silence()]):
@@ -154,12 +170,17 @@ def WS(ws, obj, opts = [RooFit.RecycleConflictNodes(), RooFit.Silence()]):
 
 #------------------------------------------------------------------------------
 def plotDataSet(frame, wksp, dsname, options = []) :
-    from ROOT import RooLinkedList
+    from ROOT import RooFit, RooLinkedList
     plotopts = RooLinkedList()
     for o in options:
         plotopts.Add(o)
     ds = wksp.data(dsname)
     ds.plotOn(frame, plotopts)
+    hist = frame.getHist('h_%s' % ds.GetName())
+    for i in xrange(0, hist.GetN()):
+	if 0. == abs(hist.GetY()[i]):
+	    hist.SetPointEYhigh(i, 0.)
+	    hist.SetPointEYlow(i, 0.)
     return ds
     #dataset.statOn(frame,
     #                RooFit.Layout(0.56, 0.90, 0.90),
@@ -220,7 +241,9 @@ def plotFitModel(frame, wksp, modelname, options = [], sliceoptlist = [ [] ],
                 opts.append(RooFit.Invisible())
             if 0 != isl:
                 opts.append(RooFit.AddTo(lastname, 1., 1.))
-            opts = opts + [ RooFit.LineWidth(2), RooFit.LineColor(colors[i]), RooFit.LineStyle(styles[i]),
+            opts = opts + [ RooFit.LineWidth(2),
+		    RooFit.LineColor(styledict[mode]['color']),
+		    RooFit.LineStyle(styledict[mode]['style']),
                     RooFit.Components(components[mode]) ]
             i = i + 1
             plotopts = RooLinkedList()
@@ -284,9 +307,9 @@ def legend():
             prettym = prettym.replace(repl[0], repl[1])
         i = len(ths)
         ths.append(TLine())
-        ths[i].SetLineColor(colors[i-1])
+        ths[i].SetLineColor(styledict[m]['color'])
         ths[i].SetLineWidth(4)
-        ths[i].SetLineStyle(styles[i-1])
+        ths[i].SetLineStyle(styledict[m]['style'])
         ROOT.SetOwnership(ths[i], False)
         leg.AddEntry(ths[i],prettym,'L') 
    
@@ -319,7 +342,7 @@ if __name__ == '__main__' :
         parser.print_help()
 
     from ROOT import (TFile, TCanvas, gROOT, TLegend, RooAbsReal, gStyle, gPad,
-            TLine, TColor, TLatex, TString)
+            TLine, TColor, TLatex, TString, RooPlot)
     gROOT.SetBatch( True )
 
     gROOT.SetStyle('Plain')
@@ -439,7 +462,7 @@ if __name__ == '__main__' :
                 RooFit.Precision(1e-6),
 		RooFit.Normalization(1. / projds.sumEntries(), RooAbsReal.Relative),
                 RooFit.ProjWData(projds, True),
-                RooFit.NumCPU(24),
+                RooFit.NumCPU(6),
                 ]
 
         frame_t.Draw()
@@ -453,7 +476,10 @@ if __name__ == '__main__' :
                                                 str(time.getBinWidth(1))+" [ps])") ).Data())
         #leg, curve = legends(modelPDF, frame_t)
         #frame_t.addObject(leg)
-        frame_t.GetYaxis().SetRangeUser(0.12,frame_t.GetMaximum()*1.4)
+	if onlyLargeModes:
+	    frame_t.GetYaxis().SetRangeUser(0.8,frame_t.GetMaximum()*2.0)
+	else:
+	    frame_t.GetYaxis().SetRangeUser(0.12,frame_t.GetMaximum()*2.0)
         
         frame_t.Draw()
         leg = legend()
@@ -472,7 +498,7 @@ if __name__ == '__main__' :
         pull.GetXaxis().SetLabelSize(0.15)
         pull.GetXaxis().SetTitleSize(0.15)
         pull.GetXaxis().SetTitleOffset(0.95)
-        pull.GetXaxis().SetTitle('#tau(B_{s}#rightarrow D_{s}K) [ps]')
+        pull.GetXaxis().SetTitle('#tau (B_{s} #rightarrow D_{s} K) [ps]')
         pull.GetYaxis().SetRangeUser(-4., 4.)
         pull.GetYaxis().SetNdivisions(5)
         pull.GetYaxis().SetLabelSize(0.15)
