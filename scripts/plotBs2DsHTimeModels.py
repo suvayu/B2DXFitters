@@ -109,8 +109,12 @@ nBinsTime = 146 if isDsK else 146
 defaultModes = (
         # modes for DsK
         #[ ]
-        ( ['Bs2DsK', 'Bs2DsPi', 'Bs2DsstPi', 'Bs2DsRho', 'CombBkg'] if
-	    onlyLargeModes else
+        ( 
+	   # ['Bs2DsK', 'Bs2DsPi', 'Bs2DsstPi', 'Bs2DsRho', 'CombBkg']
+	    ['Bs2DsK', 'Bs2DsPi', ['Bs2DsstPi', 'Bs2DsRho'], ['Bd2DK',
+		'Bd2DPi', 'Lb2LcK', 'Lb2LcPi', 'Lb2Dsp', 'Lb2Dsstp',
+		'Bd2DsK'], 'CombBkg']
+	    if onlyLargeModes else
 	    ['Bs2DsK', 'Bs2DsPi', 'Bs2DsstPi', 'Bs2DsRho', 'Bd2DK', 'Bd2DPi', 'Lb2LcK', 'Lb2LcPi', 'Lb2Dsp', 'Lb2Dsstp', 'Bd2DsK', 'CombBkg']
 	    )
         if isDsK else
@@ -118,6 +122,11 @@ defaultModes = (
         #[ ]
         [ 'Bs2DsPi', 'Bd2DPi', 'Bs2DsstPi', 'Bd2DsPi', 'Bs2DsK', 'Lb2LcPi', 'CombBkg']
         )
+
+groupedmodes = {
+	'Bs2DsstPi': 'B_{s} #rightarrow	D_{s}^{(#scale[1.4]{#lower[0.34]{*}})}(#pi,#rho)',
+	'Bd2DK': '(B_{d},#Lambda_{b}) #rightarrow X',
+	} if onlyLargeModes else { }
 
 # FIXME: do something nicer here, both nicer colors, and be consistent
 # between DsK and DsPi for the BG contributions (use a dictionary!)
@@ -129,7 +138,7 @@ styledict = {
 	'Bs2DsPi':	{ 'color': kMagenta - 2, 'style': 3 if onlyLargeModes else 1 },
 	'Bs2DsstPi':	{ 'color': kMagenta - 2, 'style': 4 },
 	'Bs2DsRho':	{ 'color': kMagenta - 2, 'style': 5 },
-	'Bd2DK':	{ 'color': kRed, 'style': 1 },
+	'Bd2DK':	{ 'color': kRed, 'style': 5 if onlyLargeModes else 1 },
 	'Bd2DPi':	{ 'color': kRed, 'style': 2 },
 	'Lb2LcK':	{ 'color': kGreen + 3, 'style': 1 },
 	'Lb2LcPi':	{ 'color': kGreen + 3, 'style': 2 },
@@ -193,18 +202,25 @@ def plotFitModel(frame, wksp, modelname, options = [], sliceoptlist = [ [] ],
     components = {} 
     modEx = {}
     for mode in modes:
+	if type(mode) == list:
+	    lmodes = mode
+	    modenick = mode[0]
+	else:
+	    modenick = mode
+	    lmodes = [mode]
         tmp = []
-        for sname in snames:
-            compname = '%s_%s_PDF' % (mode, sname)
-            if None == wksp.pdf(compname): continue
-            if len(tmp): tmp.append(',')
-            tmp.append(compname)
+	for mmm in lmodes:
+            for sname in snames:
+                compname = '%s_%s_PDF' % (mmm, sname)
+                if None == wksp.pdf(compname): continue
+                if len(tmp): tmp.append(',')
+                tmp.append(compname)
         if not len(tmp): 
-            modEx[mode] = False
+            modEx[modenick] = False
             continue
         else:
-            modEx[mode] = True
-        components[mode] = ''.join(tmp)
+            modEx[modenick] = True
+        components[modenick] = ''.join(tmp)
         
     model = wksp.pdf(modelname)
 
@@ -229,12 +245,18 @@ def plotFitModel(frame, wksp, modelname, options = [], sliceoptlist = [ [] ],
         
         i = 0
         for mode in defaultModes:
-            if modEx[mode] == False: 
+	    if type(mode) == list:
+	        lmodes = mode
+	        modenick = mode[0]
+	    else:
+	        modenick = mode
+	        lmodes = [mode]
+            if modEx[modenick] == False: 
                 i=i+1
                 continue 
-            print 'DEBUG: MODE %s COMPONENTS %s for %d' % (mode, components[mode], i)
+            print 'DEBUG: MODE %s COMPONENTS %s for %d' % (mode, components[modenick], i)
             name = '%s_%s_slice%d' % (model.GetName(), mode, isl)
-            lastname = '%s_%s_slice%d' % (model.GetName(), mode, isl - 1)
+            lastname = '%s_%s_slice%d' % (model.GetName(), lmodes[len(lmodes)-1], isl - 1)
             opts = list(options) + slopts
             opts.append(RooFit.Name(name))
             if isl + 1 != len(sliceoptlist) and 1 < len(sliceoptlist):
@@ -242,9 +264,9 @@ def plotFitModel(frame, wksp, modelname, options = [], sliceoptlist = [ [] ],
             if 0 != isl:
                 opts.append(RooFit.AddTo(lastname, 1., 1.))
             opts = opts + [ RooFit.LineWidth(2),
-		    RooFit.LineColor(styledict[mode]['color']),
-		    RooFit.LineStyle(styledict[mode]['style']),
-                    RooFit.Components(components[mode]) ]
+		    RooFit.LineColor(styledict[modenick]['color']),
+		    RooFit.LineStyle(styledict[modenick]['style']),
+                    RooFit.Components(components[modenick]) ]
             i = i + 1
             plotopts = RooLinkedList()
             for o in opts:
@@ -262,15 +284,15 @@ def legend():
     from ROOT import TLegend, TH1D, TGraphErrors, TLine
     replacements = [
             ('2', '#rightarrow '),
-            ('Dsst', 'D_{s}#kern[-0.8]{#lower[-0.6]{#scale[0.7]{*}}}'),
-            ('Ds', 'D_{s}'),
-            ('Bs', 'B_{s}'),
-            ('Kst', 'K#kern[-0.8]{#lower[-0.6]{#scale[0.7]{*}}}'),
-            ('Lb', '#Lambda_{b}'),
-            ('Lc', '#Lambda_{c}'),
-            ('Pi', '#pi'),
-            ('Rho', '#rho'),
-            ('Bd', 'B_{d}')
+            ('Dsst', 'D_{s}#kern[-0.8]{#lower[-0.6]{#scale[0.7]{*}}} '),
+            ('Ds', 'D_{s} '),
+            ('Bs', 'B_{s} '),
+            ('Kst', 'K#kern[-0.8]{#lower[-0.6]{#scale[0.7]{*}}} '),
+            ('Lb', '#Lambda_{b} '),
+            ('Lc', '#Lambda_{c} '),
+            ('Pi', '#pi '),
+            ('Rho', '#rho '),
+            ('Bd', 'B_{d} ')
             ]
     # Legend of EPDF components
     leg = TLegend(0.50, 0.50, 0.89, 0.88)
@@ -280,7 +302,7 @@ def legend():
     leg.SetShadowColor(0)
     leg.SetBorderSize(0)
     leg.SetTextFont(132)
-    leg.SetNColumns(2)
+    leg.SetNColumns(1 if onlyLargeModes else 2)
     
     gr = TGraphErrors(10)
     gr.SetName("gr")
@@ -302,14 +324,24 @@ def legend():
     leg.AddEntry(ths[0],"total",'L')
 
     for m in defaultModes:
-        prettym = ''+m
+	if type(m) == list:
+	    lmodes = m
+	    modenick = m[0]
+	else:
+	    modenick = m
+	    lmodes = [m]
+	if modenick in groupedmodes:
+	    tmpmode = groupedmodes[modenick]
+	else:
+	    tmpmode = modenick
+        prettym = ''+tmpmode
         for repl in replacements:
             prettym = prettym.replace(repl[0], repl[1])
         i = len(ths)
         ths.append(TLine())
-        ths[i].SetLineColor(styledict[m]['color'])
+        ths[i].SetLineColor(styledict[modenick]['color'])
         ths[i].SetLineWidth(4)
-        ths[i].SetLineStyle(styledict[m]['style'])
+        ths[i].SetLineStyle(styledict[modenick]['style'])
         ROOT.SetOwnership(ths[i], False)
         leg.AddEntry(ths[i],prettym,'L') 
    
