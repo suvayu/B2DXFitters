@@ -120,6 +120,25 @@ from ROOT import (RooArgSet, RooArgList, RooBDecay, RooRealVar, RooConstVar,
         RooEffProd, RooNumConvPdf, RooWorkspace, RooAbsReal, Inverse)
 from B2DXFitters.WS import WS as WS
 from B2DXFitters.FitResult import FitResult
+from ROOT import (TFile, TCanvas, gROOT, TLegend, RooAbsReal, gStyle, gPad,
+        TLine, TColor, TLatex, TString, RooPlot, TLatex)
+gROOT.SetBatch( True )
+
+gROOT.SetStyle('Plain')
+gStyle.SetOptTitle(0)
+gStyle.SetLabelFont(132, 'XYZ ')
+gStyle.SetLabelFont(132)
+gStyle.SetTitleFont(132, 'XYZ ')
+gStyle.SetTitleFont(132)
+gStyle.SetTextFont(132)
+gStyle.SetStatFont(132)
+gStyle.SetLabelSize(0.06, 'XYZ ')
+gStyle.SetLabelSize(0.06)
+gStyle.SetTitleSize(0.06, 'XYZ ')
+gStyle.SetTitleSize(0.06)
+gStyle.SetLabelOffset(0.004, 'XYZ ')
+gStyle.SetTitleOffset(0.85, 'XYZ ')
+
 RooAbsReal.defaultIntegratorConfig().setEpsAbs(1e-9)
 RooAbsReal.defaultIntegratorConfig().setEpsRel(1e-9)
 RooAbsReal.defaultIntegratorConfig().getConfigSection('RooAdaptiveGaussKronrodIntegrator1D').setCatLabel('method','15Points')
@@ -128,13 +147,14 @@ RooAbsReal.defaultIntegratorConfig().method1D().setLabel('RooAdaptiveGaussKronro
 RooAbsReal.defaultIntegratorConfig().method1DOpen().setLabel('RooAdaptiveGaussKronrodIntegrator1D')
 
 isDsK = True
-BDTGRange =    (0.3, 1.0, 'polUP')
+BDTGRange =    (0.3, 1.0)
 MassRange =    (5700., 10000.)
 TimeRange =    (0.4, 15.0) if (0.9, 1.0) != BDTGRange else (0.75, 15.0)
 TimeErrRange = (0.01, 0.1)
 
 knots = {
         (0.3, 1.0): [ 0.5, 1.0, 1.5, 2.0, 3.0, 12.0 ],
+        #(0.3, 1.0): [0.5, 1.0, 1.5, 2.0, 3.0, 6.0, 8.0, 12.0],
         (0.6, 1.0): [ 0.5, 1.0, 1.5, 2.0, 3.0, 12.0 ],
         (0.3, 0.9): [ 0.5, 1.0, 1.5, 2.0, 3.0, 6.0, 11.0 ],
         (0.9, 1.0): [ 0.8, 1.0, 1.5, 2.0, 3.0, 6.0, 11.0, 14.0 ],
@@ -169,6 +189,14 @@ coeffs = {
                 9.6421e-01*1.03609e+00/1.06310e+00,
                 1.1212e+00*1.13156e+00/1.23382e+00,
                 9.4807e-01*1.19290e+00/1.31359e+00],
+                #2.9997e-01*3.02185e-01/3.61224e-01,
+                #5.0033e-01*5.11076e-01/6.07496e-01,
+                #8.4690e-01*7.63164e-01/9.54767e-01,
+                #1.0488e+00*1.01953e+00/1.11678e+00,
+                #1.2603e+00*1.07163e+00/1.28539e+00,
+                #1.1126e+00*1.18135e+00/1.34230e+00,
+                #1.0871e+00*1.02446e+00/1.23216e+00,
+                #1.2774e+00*1.01330e+00/1.16013e+00],
             (0.3, 1.0, 'TOS1'): [
                 6.0532e-01*6.07184e-01/5.88340e-01,
                 8.7407e-01*8.71243e-01/8.19533e-01,
@@ -176,6 +204,14 @@ coeffs = {
                 1.2367e+00*1.23945e+00/1.16105e+00,
                 1.2781e+00*1.30903e+00/1.23029e+00,
                 1.4263e+00*1.34331e+00/1.18806e+00],
+                #6.0711e-01*6.51148e-01/6.16359e-01,
+                #8.7811e-01*9.33545e-01/8.58522e-01,
+                #9.6139e-01*1.17116e+00/1.08197e+00,
+                #1.2474e+00*1.32387e+00/1.21527e+00,
+                #1.2673e+00*1.40665e+00/1.28334e+00,
+                #1.3662e+00*1.39846e+00/1.27061e+00,
+                #1.3101e+00*1.34481e+00/1.17796e+00,
+                #9.6036e-01*1.13261e+00/1.11268e+00],
             (0.6, 1.0): [
                 3.5803e-01 * 3.97923e-01 / 4.20221e-01,
                 5.6367e-01 * 6.14977e-01 / 6.34584e-01,
@@ -356,19 +392,19 @@ def accbuilder(time, knots, coeffs):
 results = []
 for tag in xrange(0, 4):
     ws = RooWorkspace('ws')
-    
+
     gamma =         WS(ws, RooRealVar('Gamma',      'Gamma',        1.0, 0.1, 2.5))
     dGamma =        WS(ws, RooRealVar('dGamma',     'dGamma',       0.5, 0.0, 2.5))
     SF =            WS(ws, RooConstVar('SF',        'SF',           1.37))
     tau = WS(ws, Inverse('tau', 'tau', gamma))
-    
+
     one =           WS(ws, RooConstVar('one',      'one',          1.))
     zero =          WS(ws, RooConstVar('zero',     'zero',         0.))
-    
+
     # observable
-    time = WS(ws, RooRealVar('time', 'time', *TimeRange))
+    time = WS(ws, RooRealVar('time', '#tau(combinatorial) [ps]', *TimeRange))
     timeerr = WS(ws, RooRealVar('timeerr', 'timeerr', *TimeErrRange))
-    
+
     tacc, tacc_norm = accbuilder(time, knots[BDTGRange[0:2]], coeffs[isDsK][BDTGRange])
 
     ds = getDataSet(ws,
@@ -376,30 +412,31 @@ for tag in xrange(0, 4):
             '%u == abs(lab0_SS_nnetKaon_DEC)' % (
                 cuts, 1 if 1 == (tag % 2) else 0, 1 if 1 == (tag / 2) else 0),
             files)
-    
+
     fr = time.frame()
     ds.plotOn(fr)
     fr.Draw()
-    
+    gPad.SetMargin(0.15, 0.1, 0.15, 0.1)
+
     # build simple fitter - fit D
     # build pdf for fitting the usual way:
     # - first apply decay time resolution smearing
     # - then, apply acceptance
     D = WS(ws, RooRealVar('D', 'D', 0., -1., 1.))
-    
+
     if (0.9, 1.0) == BDTGRange:
         # single gaussian for DsK for BDTG in [0.9, 1.0] because there's virtually
         # no events there
         D.setConstant(True)
         dGamma.setVal(0.)
         dGamma.setConstant(True)
-    
+
     fit_resmodel = WS(ws, RooGaussEfficiencyModel(
         'fit_resmodel', 'fit_resmodel', time, tacc, zero, timeerr, SF, SF))
     fit_pdf = WS(ws, RooBDecay('fit_pdf', 'fit_pdf',
         time, tau, dGamma, one, D, zero, zero, zero, fit_resmodel,
         RooBDecay.SingleSided))
-    
+
     # ok, fit back
     timeerrargset = RooArgSet(timeerr)
     if not ((0.9, 1.0) == BDTGRange):
@@ -425,10 +462,24 @@ for tag in xrange(0, 4):
     fit_pdf.plotOn(fr, RooFit.ProjWData(timeerrargset, ds, True))
     fr.Draw()
     ROOT.gPad.SetLogy()
-    ROOT.gPad.Print('CombBkgLifetimeFit_%s%s_BDTG%g-%g-TAG%u.pdf' % (
-        ('DsK' if isDsK else 'DsPi'),
-        ('' if 2 == len(BDTGRange) else ('_%s' % BDTGRange[2])),
-        BDTGRange[0], BDTGRange[1], tag))
+    tl1 = TLatex(0.65, 0.8, "LHCb")
+    tl1.SetTextFont(132)
+    tl1.SetTextSize(0.08)
+    tl1.SetNDC(True)
+    tl1.Draw()
+    tagdict = { 0: 'untagged events', 1: 'OS only events',
+            2: 'SSK only events', 3: 'OS+SSK events' }
+    tl2 = TLatex(0.65, 0.75, tagdict[tag])
+    tl2.SetTextFont(132)
+    tl2.SetTextSize(0.06)
+    tl2.SetNDC(True)
+    tl2.Draw()
+    gPad.Update()
+    for ext in ('pdf', 'root'):
+        ROOT.gPad.Print('CombBkgLifetimeFit_%s%s_BDTG%g-%g-TAG%u.%s' % (
+            ('DsK' if isDsK else 'DsPi'),
+            ('' if 2 == len(BDTGRange) else ('_%s' % BDTGRange[2])),
+            BDTGRange[0], BDTGRange[1], tag, ext))
     del ws
 
 for i in xrange(0, len(results)):
@@ -438,3 +489,21 @@ for i in xrange(0, len(results)):
     print results[i]
     print
 
+# print out cFit friendly options
+print 72 * '*'
+print 'OPTIONS FOR CFIT CONFIG'
+print 72 * '*'
+print '\'GammaCombBkg\': %s,' % str([results[i].params()['Gamma'] for  i in xrange(0, len(results))])
+print '\'DGammaCombBkg\': %s,' % str([results[i].params()['dGamma'] for  i in xrange(0, len(results))])
+print '\'CombBkg_D\': %s,' % str([results[i].params()['D'] for  i in xrange(0, len(results))])
+print '\'Constraints\': {'
+for i in xrange(0, len(results)):
+    print '\t\'multivar_CombBkg%uLifetime\': [' % i
+    print '\t    [ \'CombBkg%u_D\', \'GammaCombBkg%u\', \'DeltaGammaCombBkg%u\' ],' % (i, i, i)
+    print '\t    %s,' % str([ results[i].errors()[n] for n in [ 'D', 'Gamma', 'dGamma'] ])
+    print '\t    [ %s,' % str([ results[i].correl()['D'][n] for n in [ 'D', 'Gamma', 'dGamma'] ])
+    print '\t      %s,' % str([ results[i].correl()['Gamma'][n] for n in [ 'D', 'Gamma', 'dGamma'] ])
+    print '\t      %s, ],' % str([ results[i].correl()['dGamma'][n] for n in [ 'D', 'Gamma', 'dGamma'] ])
+    print '\t    ],'
+print '},'
+print
