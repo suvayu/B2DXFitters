@@ -450,13 +450,15 @@ if __name__ == '__main__' :
     happystar = "#lower[-0.95]{#scale[0.5]{(}}#lower[-0.8]{#scale[0.5]{*}}#lower[-0.95]{#scale[0.5]{)}}"
     happypm   = "#lower[-0.95]{#scale[0.6]{#pm}}"
     happymp   = "#lower[-0.95]{#scale[0.6]{#mp}}"
-    desc  = ["Signal B_{s}#rightarrow D_{s}"+happypm+"#kern[0.1]{K"+happymp+"}", 
+    happyplus = "#lower[-0.95]{#scale[0.6]{+}}"
+    happymin  = "#lower[-1.15]{#scale[0.7]{-}}"
+    desc  = ["Signal B_{s} #rightarrow D_{s}#kern[-0.3]{"+happymp+"}#kern[0.1]{K"+happypm+"}", 
              "Combinatorial",
-             "#Lambda_{b} #rightarrow #Lambda_{c}(K,#kern[0.1]{#pi})",
-             "#Lambda_{b} #rightarrow D_{s}#kern[-0.3]{"+happystar+"}#kern[0.1]{p}",
-             "B_{s}#rightarrow D_{s}#kern[-0.3]{"+happystar+"}#kern[0.1]{(#pi,#kern[0.1]{#rho})}",
-             "B_{d} #rightarrow D"+happypm+"(K"+happymp+",#pi"+happymp+")",
-             "B_{(d,s)}#rightarrow D_{s}#kern[-0.3]{"+happystar+"}#kern[0.1]{K"+happystar+"}"]
+             "#Lambda_{b} #rightarrow #Lambda_{c}#kern[-0.3]{"+happyplus+"}(K"+happymin+",#kern[0.1]{#pi"+happymin+"})",
+             "#Lambda_{b} #rightarrow D_{s}#kern[-0.3]{"+happymin+happystar+"}#kern[0.1]{p}",
+             "B_{s} #rightarrow D_{s}#kern[-0.3]{"+happymin+happystar+"}#kern[0.1]{(#pi"+happyplus+",#kern[0.1]{#rho"+happyplus+"})}",
+             "B_{d} #rightarrow D"+happymp+"(K"+happypm+",#kern[0.1]{#pi"+happypm+"})",
+             "B_{(d,s)}#rightarrow D_{s}#kern[-0.3]{"+happymp+happystar+"}#kern[0.1]{K"+happypm+happystar+"}"]
 
     datacut = getDataCut(sam,mod,debug)    
     pullfake = "h_combData_Cut[%s]"%(datacut)
@@ -501,11 +503,16 @@ if __name__ == '__main__' :
                                                     "{0:0.2f}".format(mass.getBinWidth(1))+" "+
                                                     unit+")}") ).Data())
 
+    if mVarTS == "lab1_PIDK" :
+        frame_m.GetYaxis().SetTitle((TString.Format("#font[132]{Candidates / " +
+                                                    "{0:0.2f}".format(mass.getBinWidth(1))+" "+
+                                                    unit+"}") ).Data())
+
     if plotData : plotDataSet( dataset, frame_m,  Bin )
     if plotModel : plotFitModel( modelPDF, frame_m, mVarTS, sam, mod, compPDF, color )
     if plotData : plotDataSet( dataset, frame_m,  Bin )
 
-    frame_m.GetYaxis().SetRangeUser(0.001,frame_m.GetMaximum()*1.1)
+    frame_m.GetYaxis().SetRangeUser(0.001,frame_m.GetMaximum()*1.25)
                                
     canvas = TCanvas("canvas", "canvas", 1200, 1000)
     canvas.cd()
@@ -609,11 +616,11 @@ if __name__ == '__main__' :
     frame_p.GetYaxis().SetLabelFont( 132 )
         
     if mVarTS == "lab1_PIDK" or mVarTS == "Bac_PIDK":
-        frame_p.GetXaxis().SetTitle('#font[132]{Bachelor log(L(K#kern[0.1]{/#kern[0.1]{#pi}}))}')
+        frame_p.GetXaxis().SetTitle('#font[132]{Companion ln(L(K#kern[0.1]{/#kern[0.1]{#pi}}))}')
     elif mVarTS == "lab2_MM" or mVarTS == "Ds_MM":
         frame_p.GetXaxis().SetTitle('#font[132]{m(K^{+}K^{-}#pi^{#pm}, #pi^{+}#pi^{-}#pi^{#pm}, K^{#pm}#pi^{-}#pi^{+}) [MeV/#font[12]{c}^{2}]}')
     else:
-        frame_p.GetXaxis().SetTitle('#font[132]{m(D_{s}'+happypm+'#kern[0.1]{K'+happymp+'}) [MeV/#font[12]{c}^{2}]}')
+        frame_p.GetXaxis().SetTitle('#font[132]{m(D_{s}'+happymp+'#kern[0.1]{K'+happypm+'}) [MeV/#font[12]{c}^{2}]}')
                                         
                                           
     if dim == 3:
