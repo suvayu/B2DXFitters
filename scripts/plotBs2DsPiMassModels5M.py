@@ -420,12 +420,14 @@ if __name__ == '__main__' :
         happystar = "#lower[-0.95]{#scale[0.5]{(}}#lower[-0.8]{#scale[0.5]{*}}#lower[-0.95]{#scale[0.5]{)}}"
         happypm   = "#lower[-0.95]{#scale[0.6]{#pm}}"
         happymp   = "#lower[-0.95]{#scale[0.6]{#mp}}"
-        desc  = ["Signal B_{s}#rightarrow D_{s}#pi", 
+        happyplus = "#lower[-0.95]{#scale[0.6]{+}}"
+        happymin  = "#lower[-1.15]{#scale[0.7]{-}}"
+        desc  = ["Signal B_{s} #rightarrow D_{s}#kern[-0.3]{"+happymin+"}#kern[0.1]{#pi"+happyplus+"}", 
                  "Combinatorial",
-                 "B_{d}#rightarrow D"+happypm+"#pi"+happymp,
-                 "#Lambda_{b}#rightarrow #Lambda_{c}#pi",
-                 "B_{(d,s)}#rightarrow D_{s}"+happystar+"#kern[0.1]{#pi}",
-                 "B_{s}#rightarrow D_{s}"+happypm+"#kern[0.1]{K"+happymp+"}"]
+                 "B_{d} #rightarrow D"+happymp+"#pi"+happypm,
+                 "#Lambda_{b} #rightarrow #Lambda_{c}#kern[-0.3]{"+happyplus+"}#kern[0.1]{#pi"+happymin+"}",
+                 "B_{(d,s)} #rightarrow D_{s}#kern[-0.3]{"+happymin+happystar+"}#kern[0.1]{#pi"+happyplus+"}",
+                 "B_{s} #rightarrow D_{s}#kern[-0.3]{"+happymp+"}#kern[0.1]{K"+happypm+"}"]
     else:
         comp = ["Sig", "CombBkg", "Bd2DPi", "Lb2LcPi", "Bs2DsDsstPiRho", "Bd2DsstPi"]
         color = [kRed-7, kBlue-6, kOrange, kRed, kBlue-10, kMagenta-2]
@@ -482,6 +484,11 @@ if __name__ == '__main__' :
                                                     "{0:0.2f}".format(mass.getBinWidth(1))+" "+
                                                     unit+")}") ).Data())
 
+    if mVarTS == "lab1_PIDK" :
+        frame_m.GetYaxis().SetTitle((TString.Format("#font[132]{Candidates / " +
+                                                        "{0:0.2f}".format(mass.getBinWidth(1))+" "+
+                                                        unit+"}") ).Data())
+
     if plotData : plotDataSet( dataset, frame_m,  Bin )
     if plotModel : plotFitModel( modelPDF, frame_m, mVarTS, sam, mod, comp, color )
     if plotData : plotDataSet( dataset, frame_m,  Bin )
@@ -514,7 +521,7 @@ if __name__ == '__main__' :
     pad1.cd()
        
     if mVarTS == "lab1_PIDK":
-        legend = TLegend( 0.55, 0.45, 0.88, 0.88 )
+        legend = TLegend( 0.525, 0.45, 0.855, 0.88 )
     elif mVarTS == "lab2_MM":
         legend = TLegend( 0.125, 0.40, 0.35, 0.88 )
     else:    
@@ -606,7 +613,7 @@ if __name__ == '__main__' :
         
 
     if mVarTS == "lab1_PIDK" or mVarTS == "Bac_PIDK":
-        frame_p.GetXaxis().SetTitle('#font[132]{Bachelor L(#pi#kern[0.1]{/#kern[0.1]{K}})}')
+        frame_p.GetXaxis().SetTitle('#font[132]{Companion L(#pi#kern[0.1]{/#kern[0.1]{K}})}')
     elif mVarTS == "lab2_MM" or mVarTS == "Ds_MM":
         frame_p.GetXaxis().SetTitle('#font[132]{m(K^{+}K^{-}#pi^{#pm}, #pi^{+}#pi^{-}#pi^{#pm}, K^{#pm}#pi^{-}#pi^{+}) [MeV/#font[12]{c}^{2}]}')
     else:
