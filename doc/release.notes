@@ -4,6 +4,9 @@
 ! Purpose     : RooFit-based fitters for B -> D X
 !-----------------------------------------------------------------------------
 
+!============================================== v2r6 2014-7-18 ==============================
+! 2014-7-18 Diego Martinez Santos
+	 Make version v2r6
 ! 2014-05-25 - Manuel Tobias Schiller
  - cFit: allow per-tagger lifetimes for the CombBkg
  - printFitResult.py:
@@ -2274,29 +2277,4 @@
 
 ! 2011-12-05 - Manuel Tobias Schiller
  - rewrite to use RooConstVar for things which are constant for physics
-   reasons in scripts/runBdDeltaMFitterToyMC.py,
-   scripts/runBs2DsKCPAsymmObsFitterToyMC.py
- - check formulae in scripts/runBs2DsKCPAsymmObsFitterToyMC.py to make sure
-   they coincide with the text in the note (to appear soon); some minor
-   cleanups
- - FitMeTool: use saner conventions when setting seeds for toys, i.e. exploit
-   the whole range of an (unsigned) int...
- - add a few required packages to cmt/requirements (now builds with just
-   SetupProject Erasmus)
-
-! 2011-12-01 - Eduardo Rodrigues
- - Added doc/conventions.txt defining fitter code/usage conventions
- - Added C++ template for a double Crystal Ball PDF and a tiny testing script
- - python/B2DXFitters/taggingutils.py extended with definition of values
-   of the head_TAGGER variable as stored by TupleToolTagging
- - Added module python/B2DXFitters/particleutils.py for collecting info and
-   properties related to particles
-
-! 2011-11-25 - Eduardo Rodrigues
- - Added new methods to FitMeTool class
-
-!============================== v1r2 06-11-2011 ==============================
-! 2011-11-06 - Diego Martinez Santos
- - Make version v1r2.
-
-! 2011-10-25 - Eduard
+   rea
