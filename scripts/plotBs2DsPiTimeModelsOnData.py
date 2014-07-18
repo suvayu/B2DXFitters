@@ -303,7 +303,7 @@ if __name__ == '__main__' :
     frame_t.SetTitle('')
  
     frame_t.GetXaxis().SetLabelSize( 0.06 )
-    frame_t.GetYaxis().SetLabelSize( 0.06 )
+    frame_t.GetYaxis().SetLabelSize( 0.045 )
     frame_t.GetXaxis().SetLabelFont( 132 )
     frame_t.GetYaxis().SetLabelFont( 132 )
     frame_t.GetXaxis().SetLabelOffset( 0.006 )
@@ -317,9 +317,9 @@ if __name__ == '__main__' :
     frame_t.GetXaxis().SetTitleOffset( 1.00 )
     frame_t.GetYaxis().SetTitleOffset( 0.85 )
     
-    frame_t.GetXaxis().SetTitle('#font[132]{#tau (B_{s} #rightarrow D_{s} #pi) [ps]}')
+    frame_t.GetXaxis().SetTitle('#font[132]{#tau(B_{s} #rightarrow D_{s} #pi) [ps]}')
     frame_t.GetYaxis().SetTitle((TString.Format("#font[132]{Candidates / ( " +
-                                                str(time.getBinWidth(1))+" [ps])}") ).Data())   
+                                                str(time.getBinWidth(1))+" ps)}") ).Data())   
 
     plotDataSet(dataset, frame_t)
     
