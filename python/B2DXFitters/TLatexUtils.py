@@ -196,7 +196,7 @@ class TLatexBeautifier:
             s = el.elemValue()
             if len(s) <= len(splitat): return
             ssplit = s.split(splitat)
-            if 1 >= len(ssplit): return
+            if 1 > len(ssplit): return
             ssplit = [ self._Element('literal', s if '' != s else splitat) for s in ssplit ]
             el.setElemType('silentgroup')
             el.setElemValue(None)
@@ -268,8 +268,8 @@ class DecDescrToTLatex:
 
     def __init__(self, s, rewritemap = _rewritemap):
         for k in rewritemap:
-            s.replace(k, rewritemap[k])
-        self._str = str(TLatexBeautifier(self._rewritemap[s]))
+            s = s.replace(k, rewritemap[k])
+        self._str = str(TLatexBeautifier(s))
 
     def __str__(self):
         return self._str
