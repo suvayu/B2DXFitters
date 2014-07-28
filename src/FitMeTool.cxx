@@ -862,7 +862,11 @@ void FitMeTool::produceGraphicalModelStructure( const char* fileName )
 void FitMeTool::printYieldsInRange( const char* wildcard,
                                     const char* observableName,
                                     double low, double high,
-                                    const char* rangeName
+                                    const char* rangeName,
+				    const char* observableName2,
+				    double low2, double high2,
+				    const char* observableName3,
+				    double low3, double high3
                                     )
 {
   if ( m_config_debug )
@@ -877,15 +881,48 @@ void FitMeTool::printYieldsInRange( const char* wildcard,
     return;
   }
   
+  RooArgSet* set = new RooArgSet();
+
   RooRealVar* obs = (RooRealVar*) observables -> find( observableName );
   if ( ! obs ) {
     printf( "[ERROR] Cannot find the observable '%s' among the defined set of observables !\n",
             observableName );
     return;
   }
+ 
   
   if ( ! obs -> hasRange( rangeName ) ) obs -> setRange( rangeName, low, high );
-  
+  set->add(*obs); 
+
+  RooRealVar* obs2 = NULL;
+  if ( observableName2 != NULL )
+    {
+      obs2 = (RooRealVar*) observables -> find( observableName2 );
+      if ( ! obs2 ) {
+        printf( "[ERROR] Cannot find the observable '%s' among the defined set of observables !\n",
+                observableName2 );
+	return;
+      }
+
+      if ( ! obs2 -> hasRange( rangeName ) ) obs2 -> setRange( rangeName, low2, high2 );
+      set->add(*obs2);
+    }
+
+  RooRealVar* obs3 = NULL;
+  if ( observableName3 != NULL )
+    {
+      obs3 = (RooRealVar*) observables -> find( observableName3 );
+      if ( ! obs3 ) {
+        printf( "[ERROR] Cannot find the observable '%s' among the defined set of observables !\n",
+                observableName3 );
+        return;
+      }
+
+      if ( ! obs3 -> hasRange( rangeName ) ) obs3 -> setRange( rangeName, low3, high3 );
+      set->add(*obs3);
+    }
+
+
   // Get all model PDF variables matching a wildcard
   // -----------------------------------------------
   RooArgSet* vars = getMatchingVariableNames( "*Evts" );
@@ -918,8 +955,8 @@ void FitMeTool::printYieldsInRange( const char* wildcard,
               nVar -> GetName() );
       continue;
     }
-    RooAbsReal* fracVar = epdf -> createIntegral( *obs,
-                                                  RooFit::NormSet( *obs ),
+    RooAbsReal* fracVar = epdf -> createIntegral( *set,
+                                                  RooFit::NormSet( *set ),
                                                   RooFit::Range( rangeName )
                                                   );
     const double n = nVar    -> getVal();
@@ -930,7 +967,9 @@ void FitMeTool::printYieldsInRange( const char* wildcard,
   // At last print all calculated yields
   // -----------------------------------
   printf( "\n##################################################################\n" );
-  printf( "Yields in range [%6.2f,%6.2f] named '%s' :\n", low, high, rangeName );
+  printf( "Yields in range [%6.2f,%6.2f] for variable %s named '%s' :\n", low, high, obs->GetName(), rangeName );
+  if ( observableName2 != NULL ) { printf( "Yields in range [%6.2f,%6.2f] for variable %s named '%s' :\n", low2, high2, obs2->GetName(), rangeName );}
+  if ( observableName3 != NULL ) { printf( "Yields in range [%6.2f,%6.2f] for variable %s named '%s' :\n", low3, high3, obs3->GetName(), rangeName );}
   for ( std::map< const char*, std::pair<double,double > >::const_iterator iter = yieldsMap.begin();
         iter != yieldsMap.end(); ++iter ) {
     const double n = ( iter -> second ).first;
@@ -947,7 +986,11 @@ void FitMeTool::printYieldsInRange( const char* wildcard,
 void FitMeTool::printYieldInRange( const char* yieldVarName,
                                    const char* observableName,
                                    double low, double high,
-                                   const char* rangeName
+                                   const char* rangeName,
+				   const char* observableName2,
+                                   double low2, double high2,
+				   const char* observableName3,
+                                   double low3, double high3
                                    )
 {
   if ( m_config_debug )
@@ -963,6 +1006,7 @@ void FitMeTool::printYieldInRange( const char* yieldVarName,
   }
   
   RooRealVar* obs = (RooRealVar*) observables -> find( observableName );
+  RooArgSet* set = new RooArgSet(); 
   if ( ! obs ) {
     printf( "[ERROR] Cannot find the observable '%s' among the defined set of observables !\n",
             observableName );
@@ -970,7 +1014,37 @@ void FitMeTool::printYieldInRange( const char* yieldVarName,
   }
   
   if ( ! obs -> hasRange( rangeName ) ) obs -> setRange( rangeName, low, high );
-  
+  set->add(*obs);
+
+  RooRealVar* obs2 = NULL;
+  if ( observableName2 != NULL )
+    {
+      obs2 = (RooRealVar*) observables -> find( observableName2 );
+      if ( ! obs2 ) {
+	printf( "[ERROR] Cannot find the observable '%s' among the defined set of observables !\n",
+		observableName2 );
+	return;
+      }
+
+      if ( ! obs2 -> hasRange( rangeName ) ) obs2 -> setRange( rangeName, low2, high2 );
+      set->add(*obs2);
+    }
+
+  RooRealVar* obs3 = NULL;
+  if ( observableName3 != NULL )
+    {
+      obs3 = (RooRealVar*) observables -> find( observableName3 );
+      if ( ! obs3 ) {
+        printf( "[ERROR] Cannot find the observable '%s' among the defined set of observables !\n",
+                observableName3 );
+        return;
+      }
+
+      if ( ! obs3 -> hasRange( rangeName ) ) obs3 -> setRange( rangeName, low3, high3 );
+      set->add(*obs3); 
+    }
+
+
   // Get the model EPDF yield variable matching the input name
   // ---------------------------------------------------------
   RooArgSet* vars = getMatchingVariableNames( yieldVarName );
@@ -992,19 +1066,24 @@ void FitMeTool::printYieldInRange( const char* yieldVarName,
   
   // At last perform the calculation and print it
   // --------------------------------------------
-  RooAbsReal* fracVar = epdf -> createIntegral( *obs,
-                                                RooFit::NormSet( *obs ),
+  RooAbsReal* fracVar = epdf -> createIntegral( *set,
+                                                RooFit::NormSet( *set ),
                                                 RooFit::Range( rangeName )
                                                 );
   double n = nVar    -> getVal();
   double f = fracVar -> getVal();
   
   printf( "\n#################################################################\n" );
-  printf( "Yield in range [%6.2f,%6.2f] named '%s' :\n", low, high, rangeName );
+  printf( "Yields in range [%6.2f,%6.2f] for variable %s named '%s' :\n", low, high, obs->GetName(), rangeName );
+  if ( observableName2 != NULL ) { printf( "Yields in range [%6.2f,%6.2f] for variable %s named '%s' :\n", low2, high2, obs2->GetName(), rangeName );}
+  if ( observableName3 != NULL ) { printf( "Yields in range [%6.2f,%6.2f] for variable %s named '%s' :\n", low3, high3, obs3->GetName(), rangeName );}
+
   printf( "%25s: %10.2f    ( %5.3f * %8.2f )\n\n",
           nVar -> GetName(), n * f, f, n );
   printf( "#################################################################\n" );
 }
+
+
 
 //=============================================================================
 // Get all RooExtendPdf PDFs in the fit model PDF, if any
