@@ -243,7 +243,9 @@ def fitSignal( debug, var , mode, modeDs,  reweight, veto, merge, BDTG) :
         MDSettings.SetTerrVar(TString("Bs_LifetimeFit_ctauErr"))
         MDSettings.SetIDVar(TString("Bac_ID"))
         MDSettings.SetPIDKVar(TString("Bac_PIDK"))
-        MDSettings.SetBDTGVar(TString(""))
+        MDSettings.SetBDTGVar(TString("BTDGResponse_1"))
+        MDSettings.SetBDTGRange( -0.97, 100.0  )
+        MDSettings.SetMassDRange(1900.0, 2050.0)
         MDSettings.SetMomVar(TString("Bac_P"))
         MDSettings.SetTrMomVar(TString("Bac_PT"))
         MDSettings.SetTracksVar(TString("nTracks"))
@@ -342,9 +344,10 @@ def fitSignal( debug, var , mode, modeDs,  reweight, veto, merge, BDTG) :
         #frac2Var   =  RooRealVar( "DblCBPDF_frac2",   "frac2",    frac2,    0,     1)
         if modeDsTS != "HHHPi0":
             sigma1Var =  RooRealVar( "DblCBPDF_sigma1", "sigma1",  sigma1,  1,    15, "MeV/c^{2}")
+            sigma2Var =  RooRealVar( "DblCBPDF_sigma2", "sigma2",  sigma2,  1,    8, "MeV/c^{2}")
         else:
             sigma1Var =  RooRealVar( "DblCBPDF_sigma1", "sigma1",  sigma1,  1,    100, "MeV/c^{2}")
-        sigma2Var =  RooRealVar( "DblCBPDF_sigma2", "sigma2",  sigma2,  1,    8, "MeV/c^{2}")
+            sigma2Var =  RooRealVar( "DblCBPDF_sigma2", "sigma2",  sigma2,  1,    50, "MeV/c^{2}")
         #sigma3Var =  RooRealVar( "DblCBPDF_sigma3", "sigma3",  sigma3,  0.0001,    20, "MeV/c^{2}")
         
     meanVar   =  [RooRealVar( "DblCBPDF_mean_up" ,  "mean",    mean,    mean-50, mean+50, "MeV/c^{2}"),
@@ -366,7 +369,7 @@ def fitSignal( debug, var , mode, modeDs,  reweight, veto, merge, BDTG) :
     for i in range(0,1):
         nSigEvts.append(0.9*nEntries[i])
         nameSig = TString("nSigEvts_")+sample[i]
-        nSig.append(RooRealVar( nameSig.Data(), nameSig.Data(), nEntries[i], 0.4*nEntries[i], 1.2*nEntries[i]))
+        nSig.append(RooRealVar( nameSig.Data(), nameSig.Data(), nEntries[i], 0.0, 1.2*nEntries[i]))
         if obsTS != "lab2_MM" and obsTS != "Ds_MM":
             sigPDF.append(Bs2Dsh2011TDAnaModels.buildDoubleCBEPDF_sim(mass, meanVar[i], sigma1Var, alpha1Var, n1Var, sigma2Var,
                                                                       alpha2Var, n2Var, fracVar, nSig[i], sample[i].Data(), bName, debug ))
@@ -379,15 +382,21 @@ def fitSignal( debug, var , mode, modeDs,  reweight, veto, merge, BDTG) :
             else:
                 print "Fitting Gaussian"
                 name1 = TString("gauss1_")+sample[i]
-                sigPDF.append(RooGaussian(name1.Data(),name1.Data(), mass, meanVar[i], sigma1Var))
-            #sigPDF.append(RooCBShape( nameSigPDF.Data(), nameSigPDF.Data(), mass ,meanVar[i], sigma1Var, alpha1Var, n1Var))     
-            #name2 = TString("gauss2_")+sample[i]
-            #sigPDF2.append(RooGaussian(name2.Data(), name2.Data(), mass, meanVar[i], sigma2Var))
-            #name3 = TString("gauss3_")+sample[i]
-            #sigPDF3.append(RooGaussian(name3.Data(), name3.Data(), mass, meanVar[i], sigma3Var))
-            #sigPDF.append(RooAddPdf(nameSigPDF.Data(), nameSigPDF.Data(),
-            #                        RooArgList(sigPDF1[i],sigPDF2[i],sigPDF3[i]),
-            #                        RooArgList(fracVar, frac2Var), True))
+                sigPDF1.append(RooGaussian(name1.Data(),name1.Data(), mass, meanVar[i], sigma1Var))
+                #Double Gaussian
+
+                #sigPDF.append(RooCBShape( nameSigPDF.Data(), nameSigPDF.Data(), mass ,meanVar[i], sigma1Var, alpha1Var, n1Var))     
+                name2 = TString("gauss2_")+sample[i]
+                sigPDF2.append(RooGaussian(name2.Data(), name2.Data(), mass, meanVar[i], sigma2Var))
+                #name3 = TString("gauss3_")+sample[i]
+                #sigPDF3.append(RooGaussian(name3.Data(), name3.Data(), mass, meanVar[i], sigma3Var))
+                sigPDF.append(RooAddPdf("signal_add", "signal_add",
+                                        RooArgList(sigPDF1[i],sigPDF2[i]),
+                                        RooArgList(fracVar)))
+
+                #    sigPDF.append(RooAddPdf(nameSigPDF.Data(), nameSigPDF.Data(),
+            #                            RooArgList(sigPDF1[i],sigPDF2[i],sigPDF3[i]),
+            #                            RooArgList(fracVar, frac2Var), True))
             
         nameEPDF = TString("SigEPDF_")+sample[i]
         sigEPDF.append(RooExtendPdf( nameEPDF.Data() , nameEPDF.Data(), sigPDF[i]  , nSig[i]  ))
