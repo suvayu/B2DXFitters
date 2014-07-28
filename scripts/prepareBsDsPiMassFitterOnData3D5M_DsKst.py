@@ -184,13 +184,13 @@ def prepareBsDsPiMassFitterOnData( debug,
             
     workspace.Print()
     GeneralUtils.SaveWorkspace(workspace,saveNameTS, debug)
-        
+
     if MC:
         workspace = MassFitUtils.ObtainSpecBack(dataTS, TString("#MC FileName MD HHHPi0"), TString("#MC TreeName"),
-                                                MDSettingsMC, TString("BsDsPi"), workspace, true, MDRatio, plotSettings, debug)
+                                                MDSettingsMC, TString("BsDsPi HHHPi0"), workspace, true, MDRatio, plotSettings, debug)
         
         workspace = MassFitUtils.ObtainSpecBack(dataTS, TString("#MC FileName MU HHHPi0"), TString("#MC TreeName"),
-                                                MDSettingsMC, TString("BsDsPi"), workspace, true, MURatio, plotSettings, debug)
+                                                MDSettingsMC, TString("BsDsPi HHHPi0"), workspace, true, MURatio, plotSettings, debug)
         
         workspace = MassFitUtils.CreatePdfSpecBackground(dataTS, TString("#MC FileName MD HHHPi0"),
                                                          dataTS, TString("#MC FileName MU HHHPi0"),
@@ -206,6 +206,90 @@ def prepareBsDsPiMassFitterOnData( debug,
             workspace = MassFitUtils.ObtainSignal(TString(myconfigfile["dataName"]), signalNames[i],
                                                   MDSettingsMC, TString("BsDsPi"), false, false, workspace, false,
                                                   1.0, 1.0, plotSettings, debug)
+
+    if MCPID:
+
+        MCDownNames = [TString("MC BsDsPi Down Kaon"),
+                       TString("MC BsDsPi Down Pion")]
+
+        MCUpNames = [TString("MC BsDsPi Up Kaon"),
+                     TString("MC BsDsPi Up Pion")]
+        
+        for i in range(0,2):
+            
+            workspace = WeightingUtils.ObtainHistRatio(TString(myconfigfile["dataName"]), TString("#MC FileName MD HHHPi0"),
+                                                       MDSettings, MCDownNames[i], workspace, plotSettings, debug)
+            
+            workspace = WeightingUtils.ObtainHistRatio(TString(myconfigfile["dataName"]), TString("#MC FileName MU HHHPi0"),
+                                                       MDSettings, MCUpNames[i], workspace, plotSettings, debug)
+            
+            workspace.Print()
+            GeneralUtils.SaveWorkspace(workspace,saveNameTS, debug)
+            
+            workspace = WeightingUtils.ObtainHistRatio(TString(myconfigfile["dataName"]), TString("#MC FileName MD HHHPi0"),
+                                                       MDSettings, MCDownNames[i], workspace, plotSettings, debug)
+            
+            workspace = WeightingUtils.ObtainHistRatio(TString(myconfigfile["dataName"]), TString("#MC FileName MU HHHPi0"),
+                                                       MDSettings, MCUpNames[i], workspace, plotSettings, debug)
+            
+            workspace.Print()
+            GeneralUtils.SaveWorkspace(workspace,saveNameTS, debug)
+
+            workspace.Print()
+            GeneralUtils.SaveWorkspace(workspace,saveNameTS, debug)
+
+            workspace = WeightingUtils.ObtainPIDShapeFromCalibSample(TString(myconfigfile["dataName"]), TString("#MC FileName MD HHHPi0"),
+                                                                     MDSettings, MCDownNames[i], workspace, plotSettings, debug)
+            
+            workspace = WeightingUtils.ObtainPIDShapeFromCalibSample(TString(myconfigfile["dataName"]), TString("#MC FileName MU HHHPi0"),
+                                                                     MDSettings, MCUpNames[i], workspace, plotSettings, debug)
+
+
+    workspace.Print()
+    GeneralUtils.SaveWorkspace(workspace,saveNameTS, debug)
+    
+    
+
+
+    if SignalPID:
+
+        signalPIDNames = [ TString("MC BsDsPi HHHPi0 Pion Down"),
+                           TString("MC BsDsPi HHHPi0 Pion Up")]
+
+        for i in range(0,2):
+            workspace = WeightingUtils.ObtainHistRatioOneSample(MDSettings, signalPIDNames[i], workspace, workspace, plotSettings, debug)
+            workspace = WeightingUtils.ObtainPIDShapeFromCalibSampleOneSample(MDSettings, signalPIDNames[i], workspace, plotSettings, debug)
+                        
+        saveNameTS = TString(saveName)+TString(save)+TString(".root")
+        GeneralUtils.SaveWorkspace(workspace,saveNameTS, debug)
+        workspace.Print()
+        
+            
+        
+    workspace.Print()
+    GeneralUtils.SaveWorkspace(workspace,saveNameTS, debug)
+
+
+
+    if CombPID:
+        
+        workspaceL = GeneralUtils.LoadWorkspace(TString("/afs/cern.ch/work/a/adudziak/public/workspace/work_Comb_DsPi_5358.root"),TString("workspace"),debug)
+        #workspaceL = GeneralUtils.LoadWorkspace(TString("work_dspi_dsk_sb.root"),TString("workspace"),debug)
+        combNames = [TString("CombPi Pion Down"),
+                     TString("CombPi Pion Up"),
+                     TString("CombPi Kaon Down"),
+                     TString("CombPi Kaon Up")]
+
+        for i in range(0,4):
+            workspace = WeightingUtils.ObtainHistRatioOneSample(MDSettings, combNames[i], workspace, workspaceL, plotSettings,  debug)
+            
+            workspace = WeightingUtils.ObtainPIDShapeFromCalibSampleOneSample(MDSettings, combNames[i], workspace, plotSettings, debug)
+            
+            workspace.Print()
+            GeneralUtils.SaveWorkspace(workspace,saveNameTS, debug)
+
+
+
           
     workspace.Print()
     GeneralUtils.SaveWorkspace(workspace,saveNameTS, debug)
