@@ -31,8 +31,8 @@ def getconfig() :
     configdict["BachCharge"] = [-1000.0, 1000.0  ]
 
     configdict["labX"] = 0
-    configdict["AdditionalDataCuts"] = "Pi0_PT>800&&Ds_FD_ORIVX>0&&Ds_FDCHI2_ORIVX>2&&Km_PIDK>5&&Kp_PIDK>5&&Pi_PIDK<0&&Bac_PIDK>5"
-    configdict["AdditionalMCCuts"] = "Pi0_PT>800&&Ds_FD_ORIVX>0&&Ds_FDCHI2_ORIVX>2&&Bs_LifetimeFit_ctau>0.059958&&Bs_LifetimeFit_ctau<4.496887&&Bs_LifetimeFit_ctauErr>0.002998&&Bs_LifetimeFit_ctauErr<0.029979&&Bs_MassConsDs_M>5100.000000&&Bs_MassConsDs_M<5800.000000&&Ds_MM>1910.000000&&Ds_MM<2030.000000"
+    configdict["AdditionalDataCuts"] = "Pi0_PT>800&&Ds_FD_ORIVX>0&&Ds_FDCHI2_ORIVX>2&&Km_PIDK>5&&Kp_PIDK>5&&Pi_PIDK<0&&Bac_PIDK>5&&Ds_TAU>0"
+    configdict["AdditionalMCCuts"] = "Pi0_PT>800&&Ds_FD_ORIVX>0&&Ds_FDCHI2_ORIVX>2&&Ds_TAU>0"
             
     configdict["Bin1"]       = 20
     configdict["Bin2"]       = 20
@@ -42,17 +42,18 @@ def getconfig() :
     configdict["Var3"]       = "Bac_P"
     configdict["WeightingDimensions"] = 2
     
-    configdict["PIDBach"]    = 0
+    configdict["PIDBach"]    = 5
     configdict["PIDChild"]   = 0
     configdict["PIDProton"]  = 5    
     configdict["dataName"]   = "../data/config_Bs2DsK_for_Bs2DsKst.txt"
-    
-    configdict["fileCalibPionUp"]  = "/afs/cern.ch/work/a/adudziak/public/workspace/CalibrationSamples/Calib_DSt_Up_Pi_PID5_Str20.root"
-    configdict["fileCalibPionDown"]  = "/afs/cern.ch/work/a/adudziak/public/workspace/CalibrationSamples/Calib_DSt_Down_Pi_PID5_Str20.root"
+
+    configdict["fileCalibPionUp"]  = "/afs/cern.ch/work/a/adudziak/public/workspace/CalibrationSamples/CalibDst_Up_Pi_PID5_Str20.root"
+    configdict["fileCalibPionDown"]  = "/afs/cern.ch/work/a/adudziak/public/workspace/CalibrationSamples/CalibDst_Down_Pi_PID5_Str20.root"
+    configdict["fileCalibKaonUp"]  = "/afs/cern.ch/work/a/adudziak/public/workspace/CalibrationSamples/CalibDst_Up_K_PID5_Str20.root"
+    configdict["fileCalibKaonDown"]  = "/afs/cern.ch/work/a/adudziak/public/workspace/CalibrationSamples/CalibDst_Down_K_PID5_Str20.root"
     configdict["workCalibPion"]  = "RSDStCalib"
-    configdict["fileCalibKaonUp"]  = "/afs/cern.ch/work/a/adudziak/public/workspace/CalibrationSamples/Calib_DSt_Up_K_PID5_Str20.root"
-    configdict["fileCalibKaonDown"]  = "/afs/cern.ch/work/a/adudziak/public/workspace/CalibrationSamples/Calib_Dst_Down_K_PID5_Str20.root"
     configdict["workCalibKaon"]  = "RSDStCalib"
+
     configdict["fileCalibProtonUp"]  = "/afs/cern.ch/work/a/adudziak/public/workspace/work_lblcpi_up_sw.root"
     configdict["fileCalibProtonDown"]  = "/afs/cern.ch/work/a/adudziak/public/workspace/work_lblcpi_down_sw.root"
     configdict["workCalibProton"]  = "workspace"
@@ -128,15 +129,15 @@ def getconfig() :
     #Ds signal shapes with BKGCAT
     #configdict["sigma1Ds_bc"]  = [27.81]
     #BDT
-    configdict["sigma1Ds_bc"]  = [26.286]
+    configdict["sigma1Ds_bc"]  = [1.8718e+01] #26.286]
     #BDT+VETO
     #configdict["sigma1Ds_bc"]  = [24.446]
-    configdict["sigma2Ds_bc"]  = [] 
+    configdict["sigma2Ds_bc"]  = [4.9472e+01] 
     configdict["alpha1Ds_bc"]  = [] 
     configdict["alpha2Ds_bc"]  = []
     configdict["n1Ds_bc"]      = []
     configdict["n2Ds_bc"]      = []
-    configdict["fracDs_bc"]    = []
+    configdict["fracDs_bc"]    = [5.6148e-01]
     
     # ratio data/MC
     configdict["sigma1Dsfrac"] = 1.074
