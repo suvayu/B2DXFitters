@@ -332,6 +332,11 @@ namespace Bs2Dsh2011TDAnaModels {
 					RooWorkspace* work, RooWorkspace* workInt,
 					RooAddPdf* pdf_Bd2DsK, 
 					TString &samplemode, Int_t dim = 3, bool debug = false);
+
+  RooAbsPdf* build_Bs2DsK_BKG_HHHPi0( RooAbsReal& mass, RooAbsReal& massDs,
+				      RooWorkspace* work, RooWorkspace* workInt,
+				      RooAbsPdf* pdf_Bd2DsK, 
+				      TString &samplemode, Int_t dim = 3, bool debug = false);
   
   //===============================================================================
   // Load RooKeysPdf from workspace.

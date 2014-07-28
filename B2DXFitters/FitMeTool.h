@@ -156,11 +156,19 @@ public:
   // for matching "yield variables"
   void printYieldsInRange( const char* wildcard,
                            const char* observableName,
-                           double low, double high, const char* rangeName = "SignalRegion"
+                           double low, double high, const char* rangeName = "SignalRegion",
+			   const char* observableName2 = NULL,
+			   double low2 = 0, double high2 = 0,
+			   const char* observableName3 = NULL,
+			   double low3 = 0, double high3 = 0
                            );
   void printYieldInRange( const char* yieldVarName,
                           const char* observableName,
-                          double low, double high, const char* rangeName = "SignalRegion"
+                          double low, double high, const char* rangeName = "SignalRegion",
+			  const char* observableName2 = NULL,
+			  double low2 = 0, double high2 = 0,
+			  const char* observableName3 = NULL,
+                          double low3 = 0, double high3 = 0
                           );
   
   RooUnblindOffset* blindValue( RooRealVar& varToBeBlinded,
