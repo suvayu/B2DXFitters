@@ -108,7 +108,7 @@ from math     import pi, log
 from  os.path import exists
 import os, sys, gc
 gROOT.SetBatch()
-
+gROOT.ProcessLine(".x /afs/cern.ch/user/g/gligorov/public/foragnieszka/.rootlogon.C")
 # -----------------------------------------------------------------------------
 # Configuration settings
 # -----------------------------------------------------------------------------
@@ -281,7 +281,8 @@ def plotDataSet( dataset, frame, Bin ) :
 
     dataset.plotOn( frame,
                     RooFit.Cut(datacut),
-                    RooFit.Binning( Bin ) )
+                    RooFit.Binning( Bin ),
+                    RooFit.Name("dataSetCut"))
                         
 #    dataset.statOn( frame,
 #                    RooFit.Layout( 0.56, 0.90, 0.90 ),
@@ -347,7 +348,8 @@ def plotFitModel( model, frame, var, sam, mode, comp, color) :
     model.plotOn( frame, 
                   RooFit.Components("FullPdf"),
                   RooFit.LineColor(kBlue),
-                  RooFit.Normalization( 1., RooAbsReal.RelativeExpected )
+                  RooFit.Normalization( 1., RooAbsReal.RelativeExpected),
+                  RooFit.Name("FullPdf")
                   )
     col = numColor-1
     for i in range(1, numBkg):
@@ -363,7 +365,8 @@ def plotFitModel( model, frame, var, sam, mode, comp, color) :
                       RooFit.DrawOption("F"),
                       RooFit.FillStyle(1001),
                       RooFit.FillColor(color[col]),
-                      RooFit.Normalization( 1., RooAbsReal.RelativeExpected )
+                      RooFit.Normalization(1., RooAbsReal.RelativeExpected ),
+                      RooFit.Name(Form("PDF%d"%(i)))
                       )
         col = col-1
         
@@ -371,7 +374,8 @@ def plotFitModel( model, frame, var, sam, mode, comp, color) :
                   RooFit.Components(pdfcomp[0]),
                   RooFit.LineColor(color[0]),
                   RooFit.LineStyle(kDashed),
-                  RooFit.Normalization( 1., RooAbsReal.RelativeExpected )
+                  RooFit.Normalization(1.,RooAbsReal.RelativeExpected ),
+                  RooFit.Name("PDFSig")
                   )
                         
 #    model.paramOn( frame,
@@ -419,7 +423,7 @@ if __name__ == '__main__' :
     range_up = mass.getMax()
 
     if mVarTS != "lab1_PIDK":
-        unit = "[MeV/#font[12]{c}^{2}]"
+        unit = "MeV/#font[12]{c}^{2}"
     else:
         unit = ""
             
@@ -452,13 +456,14 @@ if __name__ == '__main__' :
     happymp   = "#lower[-0.95]{#scale[0.6]{#mp}}"
     happyplus = "#lower[-0.95]{#scale[0.6]{+}}"
     happymin  = "#lower[-1.15]{#scale[0.7]{-}}"
-    desc  = ["Signal B_{s} #rightarrow D_{s}#kern[-0.3]{"+happymp+"}#kern[0.1]{K"+happypm+"}", 
+    happy0   = "#lower[-0.95]{#scale[0.6]{0}}"
+    desc  = ["Signal B_{s}#kern[-0.7]{"+happy0+"} #rightarrow D_{s}#kern[-0.3]{"+happymp+"}#kern[0.1]{K"+happypm+"}", 
              "Combinatorial",
-             "#Lambda_{b} #rightarrow #Lambda_{c}#kern[-0.3]{"+happyplus+"}(K"+happymin+",#kern[0.1]{#pi"+happymin+"})",
-             "#Lambda_{b} #rightarrow D_{s}#kern[-0.3]{"+happymin+happystar+"}#kern[0.1]{p}",
-             "B_{s} #rightarrow D_{s}#kern[-0.3]{"+happymin+happystar+"}#kern[0.1]{(#pi"+happyplus+",#kern[0.1]{#rho"+happyplus+"})}",
-             "B_{d} #rightarrow D"+happymp+"(K"+happypm+",#kern[0.1]{#pi"+happypm+"})",
-             "B_{(d,s)}#rightarrow D_{s}#kern[-0.3]{"+happymp+happystar+"}#kern[0.1]{K"+happypm+happystar+"}"]
+             "#Lambda_{b}#kern[-1.2]{"+happy0+"} #rightarrow #Lambda_{c}#kern[-0.3]{"+happyplus+"}(K"+happymin+",#kern[0.1]{#pi"+happymin+"})",
+             "#Lambda_{b}#kern[-1.2]{"+happy0+"} #rightarrow D_{s}#kern[-0.3]{"+happymin+happystar+"}#kern[0.1]{p}",
+             "B_{s}#kern[-0.7]{"+happy0+"} #rightarrow D_{s}#kern[-0.3]{"+happymin+happystar+"}#kern[0.1]{(#pi"+happyplus+",#kern[0.1]{#rho"+happyplus+"})}",
+             "B_{d}#kern[-1.0]{"+happy0+"} #rightarrow D"+happymp+"(K"+happypm+",#kern[0.1]{#pi"+happypm+"})",
+             "B_{(d,s)}#kern[-3.7]{"+happy0+"} #kern[+0.3]{#rightarrow}D_{s}#kern[-0.3]{"+happymp+happystar+"}#kern[0.1]{K"+happypm+happystar+"}"]
 
     datacut = getDataCut(sam,mod,debug)    
     pullfake = "h_combData_Cut[%s]"%(datacut)
@@ -493,7 +498,7 @@ if __name__ == '__main__' :
     frame_m.GetYaxis().SetTitleOffset( 0.8 )
     
     frame_m.GetYaxis().SetTitle((TString.Format("#font[132]{Candidates / ( " +    
-                                                    "{0:0.2f}".format(mass.getBinWidth(1))+" "+
+                                                    str(int(mass.getBinWidth(1)))+" "+
                                                     unit+")}") ).Data())
     if mVarTS == "lab2_MM":
         frame_m.GetYaxis().SetNdivisions(508)
@@ -512,7 +517,10 @@ if __name__ == '__main__' :
     if plotModel : plotFitModel( modelPDF, frame_m, mVarTS, sam, mod, compPDF, color )
     if plotData : plotDataSet( dataset, frame_m,  Bin )
 
-    frame_m.GetYaxis().SetRangeUser(0.001,frame_m.GetMaximum()*1.25)
+    if mVarTS == "lab1_PIDK" :
+        frame_m.GetYaxis().SetRangeUser(0.001,frame_m.GetMaximum()*1.32)
+    else:    
+        frame_m.GetYaxis().SetRangeUser(0.001,frame_m.GetMaximum()*1.25)
                                
     canvas = TCanvas("canvas", "canvas", 1200, 1000)
     canvas.cd()
@@ -525,15 +533,15 @@ if __name__ == '__main__' :
     pad1.cd()
        
     if mVarTS == "lab1_PIDK":
-        legend = TLegend( 0.565, 0.45, 0.87, 0.88 )
+        legend = TLegend( 0.57, 0.40, 0.82, 0.88 )
     elif mVarTS == "lab2_MM":
         legend = TLegend( 0.125, 0.40, 0.35, 0.88 )
     else:    
-        legend = TLegend( 0.50, 0.40, 0.88, 0.88 )
+        legend = TLegend( 0.55, 0.38, 0.88, 0.88 )
         
     legend.SetTextSize(0.055)
     legend.SetTextFont(132)
-    legend.SetFillColor(4000)
+    legend.SetFillColor(0)
     legend.SetShadowColor(0)
     legend.SetBorderSize(0)
     legend.SetTextFont(132)
@@ -543,6 +551,13 @@ if __name__ == '__main__' :
     lhcbtext.SetTextColor(1)
     lhcbtext.SetTextSize(0.07)
     lhcbtext.SetTextAlign(132)
+
+    pretext = TLatex()
+    pretext.SetTextFont(132)
+    pretext.SetTextColor(1)
+    pretext.SetTextSize(0.07)
+    pretext.SetTextAlign(132)
+
           
     gr = TGraphErrors(10);
     gr.SetName("gr");
@@ -572,12 +587,24 @@ if __name__ == '__main__' :
     frame_m.Draw()
     if ( mVarTS != "Ds_MM" ):
         legend.Draw("same")
+        
     if mVarTS == "lab2_MM":
-        lhcbtext.DrawTextNDC(0.85,0.85,"LHCb")
+        lhcbtext.DrawTextNDC(0.75,0.83,"LHCb")
     elif mVarTS == "lab1_PIDK" :
-        lhcbtext.DrawTextNDC(0.30,0.85,"LHCb")
+        lhcbtext.DrawTextNDC(0.46,0.83,"LHCb")
     else:
-        lhcbtext.DrawTextNDC(0.48,0.85,"LHCb")    
+        lhcbtext.DrawTextNDC(0.44,0.83,"LHCb")    
+       
+    '''
+    if mVarTS == "lab2_MM":
+        lhcbtext.DrawTextNDC(0.76,0.85,"LHCb")
+        pretext.DrawTextNDC(0.85,0.76,"Preliminary")
+    elif mVarTS == "lab1_PIDK" :
+        lhcbtext.DrawTextNDC(0.50,0.85,"LHCb Preliminary")
+    else:
+        lhcbtext.DrawTextNDC(0.45,0.85,"LHCb")
+        pretext.DrawTextNDC(0.54,0.76,"Preliminary")
+    '''
     pad1.Update()
 
     canvas.cd()
@@ -597,6 +624,7 @@ if __name__ == '__main__' :
     
     frame_p = mass.frame(RooFit.Title("pull_frame"))
     frame_p.Print("v")
+    frame_p.SetName("frame_p") 
     frame_p.SetTitle("")
     frame_p.GetYaxis().SetTitle("")
     frame_p.GetYaxis().SetTitleSize(0.09)
@@ -642,43 +670,55 @@ if __name__ == '__main__' :
     elif dim == 1:
         pullnameTS = TString("FullPdf_Norm[")+mVarTS+TString("]_Comp[FullPdf]")
     
+    pullnameTS = TString("FullPdf")     
+    pullname2TS = TString("dataSetCut")
     pullHist  = frame_m.pullHist(pullname2TS.Data(),pullnameTS.Data())
+    pullHist.SetName("pullHist")
     frame_p.addPlotable(pullHist,"P")
-    frame_p.Draw()
+    #frame_p.Draw()
         
     axisX = pullHist.GetXaxis()
     axisX.Set(Bin.numBins(), Bin.array())
     
+    pullHist.SetMaximum(4.00)
+    pullHist.SetMinimum(-4.00)
     axisY = pullHist.GetYaxis()
     max = axisY.GetXmax()
     min = axisY.GetXmin()
+
     axisY.SetLabelSize(0.12)
     axisY.SetNdivisions(5)
     axisX.SetLabelSize(0.12)        
-
-    range = max-min
-    zero = max/range
-    print "max: %s, min: %s, range: %s, zero:%s"%(max,min,range,zero)
-    
     graph = TGraph(2)
-    graph.SetMaximum(max)
-    graph.SetMinimum(min)
-    graph.SetPoint(1,range_dw,0)
-    graph.SetPoint(2,range_up,0)
-                               
+    graph.SetName("graph1")
+    graph.SetTitle("")
+    graph.SetMaximum(max) #max)
+    graph.SetMinimum(min) #min)
+    graph.SetPoint(0,range_dw,0)
+    graph.SetPoint(1,range_up,0)
+    graph.Print("v")
+    #graph.SetHistogram(pullHist)
+                     
     graph2 = TGraph(2)
     graph2.SetMaximum(max)
     graph2.SetMinimum(min)
-    graph2.SetPoint(1,range_dw,-3)
-    graph2.SetPoint(2,range_up,-3)
+    graph2.SetName("graph2")
+    graph2.SetTitle("")
+    graph2.SetPoint(0,range_dw,-3)
+    graph2.SetPoint(1,range_up,-3)
     graph2.SetLineColor(kRed)
+    graph2.Print("v")
+    #graph2.SetHistogram(pullHist)
 
     graph3 = TGraph(2)
     graph3.SetMaximum(max)
     graph3.SetMinimum(min)
-    graph3.SetPoint(1,range_dw,3)
-    graph3.SetPoint(2,range_up,3)
+    graph3.SetName("graph3")
+    graph3.SetTitle("")
+    graph3.SetPoint(0,range_dw,3)
+    graph3.SetPoint(1,range_up,3)
     graph3.SetLineColor(kRed)
+    #graph3.SetHistogram(pullHist)
 
     pullHist.GetXaxis().SetLabelFont( 132 )
     pullHist.GetYaxis().SetLabelFont( 132 )
@@ -689,9 +729,10 @@ if __name__ == '__main__' :
     #tex.SetTextSize(0.12)
     #pullHist.Draw("ap")
     frame_p.Draw()
-    graph.Draw("same")
-    graph2.Draw("same")
-    graph3.Draw("same")
+    #frame_p.GetYaxis().SetRangeUser(-5.0,5.0)
+    graph.Draw("L SAME")
+    graph2.Draw("L SAME")
+    graph3.Draw("L SAME")
     #tex.DrawLatex(0.50,0.30,"m(B_{s} #rightarrow D_{s}#pi) [MeV/c^{2}]")
          
     pad2.Update()
@@ -714,13 +755,21 @@ if __name__ == '__main__' :
     if ty == "yes":
         canName = TString("mass_BsDsK_ToyMC_")+sam+TString("_")+mod+sufixTS+TString(".pdf")
         canNamePng = TString("mass_BsDsK_ToyMC_")+sam+TString("_")+mod+sufixTS+TString(".png")
-        canNameEps = TString("mass_BsDsK_ToyMC_")+sam+TString("_")+mod+sufixTS+TString(".root") 
+        canNameRoot = TString("mass_BsDsK_ToyMC_")+sam+TString("_")+mod+sufixTS+TString(".root") 
+        canNameC = TString("mass_BsDsK_ToyMC_")+sam+TString("_")+mod+sufixTS+TString(".C")
+        canNameEps = TString("mass_BsDsK_ToyMC_")+sam+TString("_")+mod+sufixTS+TString(".eps")
+
     else:
         canName = TString("mass_BsDsK_")+mVarTS+TString("_")+sam+TString("_")+mod+sufixTS+TString(".pdf")
         canNamePng = TString("mass_BsDsK_")+mVarTS+TString("_")+sam+TString("_")+mod+sufixTS+TString(".png")
-        canNameEps = TString("mass_BsDsK_")+mVarTS+TString("_")+sam+TString("_")+mod+sufixTS+TString(".root")
+        canNameRoot = TString("mass_BsDsK_")+mVarTS+TString("_")+sam+TString("_")+mod+sufixTS+TString(".root")
+        canNameC = TString("mass_BsDsK_")+mVarTS+TString("_")+sam+TString("_")+mod+sufixTS+TString(".C")
+        canNameEps = TString("mass_BsDsK_")+mVarTS+TString("_")+sam+TString("_")+mod+sufixTS+TString(".eps")
+
     canvas.Print(canName.Data())
     canvas.Print(canNamePng.Data())
     canvas.Print(canNameEps.Data())
+    canvas.SaveAs(canNameC.Data())
+    canvas.SaveAs(canNameRoot.Data())
     
 #------------------------------------------------------------------------------
