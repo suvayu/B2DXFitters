@@ -229,14 +229,12 @@ def prepareBsDsKMassFitterOnData( debug,
     if MCPID:
 
         MCDownNames = [TString("MC BsDsK Kaon Down"),
-                       TString("MC BsDsK Pion Down"),
-                       TString("MC BsDsK Proton Down")]
+                       TString("MC BsDsK Pion Down")]
 
         MCUpNames = [TString("MC BsDsK Kaon Up"),
-                     TString("MC BsDsK Pion Up"),
-                     TString("MC BsDsK Proton Up")]
+                     TString("MC BsDsK Pion Up")]
         
-        for i in range(0,3):
+        for i in range(0,2):
             
             workspace = WeightingUtils.ObtainHistRatio(TString(myconfigfile["dataName"]), TString("#MC FileName MD HHHPi0"),
                                                        MDSettings, MCDownNames[i], workspace, plotSettings, debug)
@@ -298,11 +296,9 @@ def prepareBsDsKMassFitterOnData( debug,
         combNames = [TString("CombK Pion Down"),
                      TString("CombK Pion Up"),
                      TString("CombK Kaon Down"),
-                     TString("CombK Kaon Up"),
-                     TString("CombK Proton Down"),
-                     TString("CombK Proton Up")]
+                     TString("CombK Kaon Up")]
 
-        for i in range(0,6):
+        for i in range(0,4):
             workspace = WeightingUtils.ObtainHistRatioOneSample(MDSettings, combNames[i], workspace, workspaceL, plotSettings,  debug)
             
             workspace = WeightingUtils.ObtainPIDShapeFromCalibSampleOneSample(MDSettings, combNames[i], workspace, plotSettings, debug)
@@ -495,6 +491,4 @@ if __name__ == '__main__' :
                                    options.CombPID)
 
 # -----------------------------------------------------------------------------
-
-
 
