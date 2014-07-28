@@ -132,7 +132,8 @@ bin = 146
 #fileToWriteOut = 'time_DsPi_BDTG123.pdf' 
 #------------------------------------------------------------------------------
 def plotDataSet(dataset, frame) :
-    dataset.plotOn(frame,RooFit.Binning(bin))
+    dataset.plotOn(frame,RooFit.Binning(bin),
+                   RooFit.Name("dataSetCut"))
 
 #------------------------------------------------------------------------------
 def plotFitModel(model, frame, wksp) :
@@ -154,7 +155,8 @@ def plotFitModel(model, frame, wksp) :
     # plot model itself
     fr = model.plotOn(frame,
                       #RooFit.ProjWData(RooArgSet(cat2,cat3),dataset),
-                      RooFit.LineColor(kBlue+3))
+                      RooFit.LineColor(kBlue+3),
+                      RooFit.Name("FullPdf"))
 
     var = []
     tacc_list = RooArgList()
@@ -170,11 +172,13 @@ def plotFitModel(model, frame, wksp) :
     spl = RooCubicSplineFun("splinePdf", "splinePdf", time, "splineBinning", tacc_list)
 
     rel = 200
-    fr = spl.plotOn(frame, RooFit.LineColor(kRed),  RooFit.Normalization(rel, RooAbsReal.Relative))
+    #rel = 30 
+    fr = spl.plotOn(frame, RooFit.LineColor(kRed),  RooFit.Normalization(rel, RooAbsReal.Relative),RooFit.Name("sPline"))
 
     fr = model.plotOn(frame,
-                      #RooFit.ProjWData(RooArgSet(cat2,cat3),dataset),                                                                                                                            
-                      RooFit.LineColor(kBlue+3))
+                      #RooFit.ProjWData(RooArgSet(cat2,cat3),dataset),                                                                                                                          
+                      RooFit.LineColor(kBlue+3),
+                      RooFit.Name("FullPdf"))
 
     #model.createProjection(RooArgSet(lab0_BsTaggingTool_TAGDECISION_OS,lab1_ID))    
 
@@ -263,7 +267,7 @@ if __name__ == '__main__' :
         parser.print_help()
 
     
-    gROOT.SetStyle('Plain')
+    #gROOT.SetStyle('Plain')
       
     f = TFile(FILENAME)
 
@@ -297,13 +301,20 @@ if __name__ == '__main__' :
 
     
     canvas = TCanvas("canvas", "canvas", 1200, 1000)
+    #canvas.SetHighLightColor(2);
+    #canvas.Range(0,0,1,1);
+    #canvas.SetFillColor(0);
+    #canvas.SetBorderMode(0);
+    #canvas.SetBorderSize(2);
+    #canvas.SetFrameBorderMode(0);
+
     canvas.cd()
        
     frame_t = time.frame()
     frame_t.SetTitle('')
  
     frame_t.GetXaxis().SetLabelSize( 0.06 )
-    frame_t.GetYaxis().SetLabelSize( 0.045 )
+    frame_t.GetYaxis().SetLabelSize( 0.06) #45 )
     frame_t.GetXaxis().SetLabelFont( 132 )
     frame_t.GetYaxis().SetLabelFont( 132 )
     frame_t.GetXaxis().SetLabelOffset( 0.006 )
@@ -317,7 +328,7 @@ if __name__ == '__main__' :
     frame_t.GetXaxis().SetTitleOffset( 1.00 )
     frame_t.GetYaxis().SetTitleOffset( 0.85 )
     
-    frame_t.GetXaxis().SetTitle('#font[132]{#tau(B_{s} #rightarrow D_{s} #pi) [ps]}')
+    frame_t.GetXaxis().SetTitle('') ##font[132]{#tau(B_{s} #rightarrow D_{s} #pi) [ps]}')
     frame_t.GetYaxis().SetTitle((TString.Format("#font[132]{Candidates / ( " +
                                                 str(time.getBinWidth(1))+" ps)}") ).Data())   
 
@@ -328,41 +339,48 @@ if __name__ == '__main__' :
     if plotModel :
         plotFitModel(modelPDF, frame_t, w)
 
+    plotDataSet(dataset, frame_t)
+    
     #gStyle.SetOptLogy(1)    
     frame_t.GetYaxis().SetRangeUser(0.04,1300) #5000)
 
-    legend = TLegend(  0.55, 0.6, 0.88, 0.88 )
+    #gStyle.SetOptLogy(1)                                                                                                        
+    #frame_t.GetYaxis().SetRangeUser(0.02,5000)             
+    
+    legend = TLegend(  0.55, 0.65, 0.88, 0.92 )
     legend.SetTextSize(0.06)
     legend.SetTextFont(12)
-    legend.SetFillColor(4000)
+    legend.SetFillColor(0)
     legend.SetShadowColor(0)
     legend.SetBorderSize(0)
     legend.SetTextFont(132)
     legend.SetHeader("LHCb") # L_{int}=1.0 fb^{-1}")
 
-    gr = TGraphErrors(10);
+    gr = TGraphErrors(1);
     gr.SetName("gr");
     gr.SetLineColor(kBlack);
     gr.SetLineWidth(2);
     gr.SetMarkerStyle(20);
     gr.SetMarkerSize(1.3);
     gr.SetMarkerColor(kBlack);
-    gr.Draw("P");
-    legend.AddEntry("gr","Data","lep");
+    #gr.Draw("P");
+    legend.AddEntry(gr,"Data","lep");
 
     l1 = TLine()
     l1.SetLineColor(kBlue+3)
     l1.SetLineWidth(4)
     happypm   = "#lower[-1.25]{#scale[0.75]{-}}"
     happymp   = "#lower[-1.25]{#scale[0.6]{+}}"
-    legend.AddEntry(l1, "B_{s}#rightarrow D_{s}"+happypm+"#kern[0.1]{#pi"+happymp+"}", "L")
+    happy0   = "#lower[-0.95]{#scale[0.6]{0}}"
+    decayDescriptor = "B_{s}#kern[-0.7]{"+happy0+"}#rightarrow D_{s}"+happypm+"#kern[0.1]{#pi"+happymp+"}"
+    legend.AddEntry(l1, decayDescriptor, "L")
 
     l2 = TLine()
     l2.SetLineColor(kRed)
     l2.SetLineWidth(4)
     legend.AddEntry(l2, "acceptance", "L")
 
-    pad1 = TPad("upperPad", "upperPad", .050, .22, 1.0, 1.0)
+    pad1 = TPad("upperPad", "upperPad", .010, .18, 1.0, 1.0)
     pad1.SetBorderMode(0)
     pad1.SetBorderSize(-1)
     pad1.SetFillStyle(0)
@@ -377,7 +395,7 @@ if __name__ == '__main__' :
     
 
     canvas.cd()
-    pad2 = TPad("lowerPad", "lowerPad", .050, .005, 1.0, .3275)
+    pad2 = TPad("lowerPad", "lowerPad", .010, .005, 1.0, .3275)
     pad2.SetBorderMode(0)
     pad2.SetBorderSize(-1)
     pad2.SetFillStyle(0)
@@ -402,14 +420,20 @@ if __name__ == '__main__' :
     frame_p.GetXaxis().SetTitleSize(0.12)
     frame_p.GetXaxis().SetTitleFont(132)
     frame_p.GetXaxis().SetTitleOffset(0.85)
-    frame_p.GetXaxis().SetNdivisions(5)
+    frame_p.GetXaxis().SetNdivisions(106) #5)
     frame_p.GetYaxis().SetNdivisions(5)
     frame_p.GetXaxis().SetLabelSize(0.09)
     frame_p.GetXaxis().SetLabelFont( 132 )
     frame_p.GetYaxis().SetLabelFont( 132 )
-    frame_p.GetXaxis().SetTitle('#font[132]{#tau (B_{s} #rightarrow D_{s} #pi) [ps]}')
+    happypm   = "#lower[-0.95]{#scale[0.6]{#pm}}"
+    happymp   = "#lower[-0.95]{#scale[0.6]{#mp}}"
+    happyplus = "#lower[-0.95]{#scale[0.6]{+}}"
+    happymin  = "#lower[-1.15]{#scale[0.7]{-}}"
+    happy0   = "#lower[-0.95]{#scale[0.6]{0}}"
+    frame_p.GetXaxis().SetTitle("#font[132]{#tau("+decayDescriptor+") [ps]}")
          
     pullHist = frame_t.pullHist()
+    pullHist.SetName("pullHist")
     pullHist.SetMaximum(3.50)
     pullHist.SetMinimum(-3.50)
 
@@ -418,7 +442,7 @@ if __name__ == '__main__' :
 
     axisX = pullHist.GetXaxis()
     axisX.Set(100, timeDown, timeUp )
-    axisX.SetTitle('#font[132]{#tau (B_{s} #rightarrow D_{s} #pi) [ps]}')   
+    axisX.SetTitle("#font[132]{#tau("+decayDescriptor+") [ps]}")   
     axisX.SetTitleSize(0.150)
     axisX.SetTitleFont(132)
     axisX.SetLabelSize(0.150)
@@ -445,17 +469,25 @@ if __name__ == '__main__' :
     graph = TGraph(2)
     graph.SetMaximum(max)
     graph.SetMinimum(min)
+    graph.SetName("graph1")
+    graph.SetTitle("")
     graph.SetPoint(1,timeDown,0)
     graph.SetPoint(2,timeUp,0)
+
     graph2 = TGraph(2)
     graph2.SetMaximum(max)
     graph2.SetMinimum(min)
+    graph2.SetName("graph2")
+    graph2.SetTitle("")
     graph2.SetPoint(1,timeDown,-3)
     graph2.SetPoint(2,timeUp,-3)
     graph2.SetLineColor(kRed)
+
     graph3 = TGraph(2)
     graph3.SetMaximum(max)
     graph3.SetMinimum(min)
+    graph3.SetName("graph3")
+    graph3.SetTitle("")
     graph3.SetPoint(1,timeDown,3)
     graph3.SetPoint(2,timeUp,3)
     graph3.SetLineColor(kRed)
@@ -463,9 +495,9 @@ if __name__ == '__main__' :
     pullHist.SetTitle("");
     
     pullHist.Draw("AP")
-    graph.Draw("same")
-    graph2.Draw("same")
-    graph3.Draw("same")
+    graph.Draw("L SAME")
+    graph2.Draw("L SAME")
+    graph3.Draw("L SAME")
     
     pad2.Update()
     canvas.Update()
@@ -484,9 +516,14 @@ if __name__ == '__main__' :
     nameCanPdf = TString("time_DsPi")+sufixTS+TString(".pdf")
     nameCanPng = TString("time_DsPi")+sufixTS+TString(".png")
     nameCanRoot = TString("time_DsPi")+sufixTS+TString(".root")
+    nameCanC = TString("time_DsPi")+sufixTS+TString(".C")
+    nameCanEps = TString("time_DsPi")+sufixTS+TString(".eps")
 
     canvas.Print(nameCanPdf.Data())
     canvas.Print(nameCanPng.Data())
     canvas.Print(nameCanRoot.Data())
+    canvas.Print(nameCanEps.Data())
+    canvas.Print(nameCanC.Data())
+
 
 #------------------------------------------------------------------------------
