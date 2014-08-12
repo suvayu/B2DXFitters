@@ -103,7 +103,7 @@ import os, sys
 bName = 'B_{s}'
 isDsK = True
 
-onlyLargeModes = True
+onlyLargeModes = not True
 
 nBinsTime = 146 if isDsK else 146
 defaultModes = (
@@ -124,8 +124,8 @@ defaultModes = (
         )
 
 groupedmodes = {
-	'Bs2DsstPi': 'B_{s} #rightarrow	D_{s}^{(#scale[1.4]{#lower[0.34]{*}})}(#pi,#rho)',
-	'Bd2DK': '(B_{d},#Lambda_{b}) #rightarrow X',
+	'Bs2DsstPi': 'B_{s}^{0} #rightarrow	D_{s}^{(*)-}(#pi^{+},#rho^{+})',
+	'Bd2DK': '(B_{d}^{0},#Lambda_{b}^{0}) #rightarrow X',
 	} if onlyLargeModes else { }
 
 # FIXME: do something nicer here, both nicer colors, and be consistent
@@ -282,23 +282,12 @@ def plotFitModel(frame, wksp, modelname, options = [], sliceoptlist = [ [] ],
 #------------------------------------------------------------------------------
 def legend():
     from ROOT import TLegend, TH1D, TGraphErrors, TLine
-    replacements = [
-            ('2', '#rightarrow '),
-            ('Dsst', 'D_{s}#kern[-0.8]{#lower[-0.6]{#scale[0.7]{*}}} '),
-            ('Ds', 'D_{s} '),
-            ('Bs', 'B_{s} '),
-            ('Kst', 'K#kern[-0.8]{#lower[-0.6]{#scale[0.7]{*}}} '),
-            ('Lb', '#Lambda_{b} '),
-            ('Lc', '#Lambda_{c} '),
-            ('Pi', '#pi '),
-            ('Rho', '#rho '),
-            ('Bd', 'B_{d} ')
-            ]
+    from B2DXFitters import TLatexUtils
     # Legend of EPDF components
-    leg = TLegend(0.50, 0.50, 0.89, 0.88)
+    leg = TLegend(0.475, 0.50, 0.89, 0.89)
     leg.SetTextSize(0.05)
     leg.SetTextFont(12)
-    leg.SetFillColor(4000)
+    leg.SetFillColor(0)
     leg.SetShadowColor(0)
     leg.SetBorderSize(0)
     leg.SetTextFont(132)
@@ -334,9 +323,7 @@ def legend():
 	    tmpmode = groupedmodes[modenick]
 	else:
 	    tmpmode = modenick
-        prettym = ''+tmpmode
-        for repl in replacements:
-            prettym = prettym.replace(repl[0], repl[1])
+        prettym = str(TLatexUtils.DecDescrToTLatex(tmpmode))
         i = len(ths)
         ths.append(TLine())
         ths[i].SetLineColor(styledict[modenick]['color'])
@@ -501,17 +488,18 @@ if __name__ == '__main__' :
         canvas.Update()
         gPad.SetLogy(True)
         canvas.Print(FILENAME + '.%u.time.dataonly.pdf' % iplot)
+        canvas.Print(FILENAME + '.%u.time.dataonly.root' % iplot)
         
         mainplot, pull = plotFitModel(frame_t, w, 'TotEPDF', pdfplotopts, sliceopts)
         mainplot.GetYaxis().SetTitle(mainplot.GetYaxis().GetTitle().replace(' ps ', ' [ps] '))
         mainplot.GetYaxis().SetTitle((TString.Format("Candidates / ( " +
-                                                str(time.getBinWidth(1))+" [ps])") ).Data())
+                                                str(time.getBinWidth(1))+" ps)") ).Data())
         #leg, curve = legends(modelPDF, frame_t)
         #frame_t.addObject(leg)
 	if onlyLargeModes:
-	    frame_t.GetYaxis().SetRangeUser(0.8,frame_t.GetMaximum()*2.0)
+	    frame_t.GetYaxis().SetRangeUser(0.4,250.)
 	else:
-	    frame_t.GetYaxis().SetRangeUser(0.12,frame_t.GetMaximum()*2.0)
+	    frame_t.GetYaxis().SetRangeUser(0.12,250.)
         
         frame_t.Draw()
         leg = legend()
@@ -523,15 +511,17 @@ if __name__ == '__main__' :
         lhcbtext.SetTextColor(1)
         lhcbtext.SetTextSize(0.07)
         lhcbtext.SetTextAlign(12) 
-        lhcbtext.DrawTextNDC(0.375,0.860,"LHCb")
+        lhcbtext.DrawTextNDC(0.35,0.86,"LHCb")
         canvas.cd(2)
+        from B2DXFitters import TLatexUtils
         gStyle.SetOptLogy(0)
         pull.GetXaxis().SetRangeUser(time.getMin(), time.getMax())
         pull.GetXaxis().SetLabelSize(0.15)
         pull.GetXaxis().SetTitleSize(0.15)
         pull.GetXaxis().SetTitleOffset(0.95)
-        pull.GetXaxis().SetTitle('#tau (B_{s} #rightarrow D_{s} K) [ps]')
-        pull.GetYaxis().SetRangeUser(-4., 4.)
+        pull.GetXaxis().SetTitle(str(
+	    TLatexUtils.DecDescrToTLatex('#tau ((Bs2DsK) [ps]')))
+        pull.GetYaxis().SetRangeUser(-3.5, 3.5)
         pull.GetYaxis().SetNdivisions(5)
         pull.GetYaxis().SetLabelSize(0.15)
         pull.GetYaxis().SetTitleSize(0.15)
@@ -548,6 +538,7 @@ if __name__ == '__main__' :
         l3.SetLineColor(ROOT.kBlack)
         l3.Draw()
         canvas.Print(FILENAME + '.%u.time.dataandpdf.pdf' % iplot)
+        canvas.Print(FILENAME + '.%u.time.dataandpdf.root' % iplot)
 
         #plotDataSet(frame_m, w, datasetname, dataplotopts)
         #plotFitModel(frame_m, w, 'TotEPDF', pdfplotopts, sliceopts)
