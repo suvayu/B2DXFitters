@@ -5,7 +5,8 @@
 
 import ROOT
 from ROOT import RooFit
-from B2DXFitters.WS import WS
+
+from .utils import WS
 
 
 # apply k-factor smearing

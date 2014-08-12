@@ -6,19 +6,16 @@
 from math import pi, log
 import ROOT
 from ROOT import RooFit
-from B2DXFitters.WS import WS
-from B2DXFitters.cfit.ftag import (getTrueOmegasPerCat, makeTagEff)
-from B2DXFitters.cfit.resolution import (getResolutionModel,
-                                         parameteriseResModelIntegrals)
-from B2DXFitters.cfit.acceptance import (getAcceptance,
-                                         applyBinnedAcceptance,
-                                         applyUnbinnedAcceptance)
-from B2DXFitters.cfit.kfactor import applyKFactorSmearing
-from B2DXFitters.cfit.utils import setConstantIfSoConfigured
-from B2DXFitters.cfit.templates import (getDecayTimeErrorTemplate,
-                                        getMistagTemplate,
-                                        getMassTemplates,
-                                        getKFactorTemplates)
+
+from .ftag import (getTrueOmegasPerCat, makeTagEff)
+from .resolution import (getResolutionModel,
+                         parameteriseResModelIntegrals)
+from .acceptance import (getAcceptance, applyBinnedAcceptance,
+                         applyUnbinnedAcceptance)
+from .kfactor import applyKFactorSmearing
+from .utils import (WS, setConstantIfSoConfigured)
+from .templates import (getDecayTimeErrorTemplate, getMistagTemplate,
+                        getMassTemplates, getKFactorTemplates)
 
 
 # apply the per-event time error pdf

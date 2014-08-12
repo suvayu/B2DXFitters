@@ -3,7 +3,7 @@
 """
 
 
-from B2DXFitters.WS import WS
+from .utils import WS
 
 
 def buildSplineAcceptance(
