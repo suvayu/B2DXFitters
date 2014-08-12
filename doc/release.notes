@@ -4,9 +4,14 @@
 ! Purpose     : RooFit-based fitters for B -> D X
 !-----------------------------------------------------------------------------
 
+! 2014-08-12 - Manuel Tobias Schiller
+ - update cFit plotting script (including "preprocessor" module for TLatex
+   strings)
+ - add 2011 PAPER toy settings for cFit in tarball in data/cFit/toysettings
+
 !============================================== v2r6 2014-7-18 ==============================
 ! 2014-7-18 Diego Martinez Santos
-	 Make version v2r6
+    Make version v2r6
 ! 2014-05-25 - Manuel Tobias Schiller
  - cFit: allow per-tagger lifetimes for the CombBkg
  - printFitResult.py:
