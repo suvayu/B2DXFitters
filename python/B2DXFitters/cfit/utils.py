@@ -3,7 +3,12 @@
 """
 
 
+import ROOT
 from ROOT import RooFit
+
+
+# Hack around RooWorkspace.import() and python keyword import clash
+ws_import = getattr(ROOT.RooWorkspace, 'import')
 
 
 def WS(ws, obj, opts = [RooFit.RecycleConflictNodes(), RooFit.Silence()]):
@@ -13,9 +18,9 @@ def WS(ws, obj, opts = [RooFit.RecycleConflictNodes(), RooFit.Silence()]):
     if obj.InheritsFrom('RooAbsArg') or obj.InheritsFrom('RooAbsData'):
         if None == wsobj:
             if len(opts) > 0:
-                ws.__getattribute__('import')(obj, *opts)
+                ws_import(ws, obj, *opts)
             else:
-                ws.__getattribute__('import')(obj)
+                ws_import(ws, obj)
             wsobj = ws.obj(name)
         else:
             if wsobj.Class() != obj.Class():
@@ -29,7 +34,7 @@ def WS(ws, obj, opts = [RooFit.RecycleConflictNodes(), RooFit.Silence()]):
                 raise TypeError()
     else:
         if None == wsobj:
-            ws.__getattribute__('import')(obj, name)
+            ws_import(ws, obj, name)
             wsobj = ws.obj(name)
         else:
             if wsobj.Class() != obj.Class():
