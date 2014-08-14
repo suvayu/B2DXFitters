@@ -4,6 +4,10 @@
 ! Purpose     : RooFit-based fitters for B -> D X
 !-----------------------------------------------------------------------------
 
+!============================================== DsKPaper_14082014 2014-8-14 ==============================
+! 2014-7-18 Diego Agnieszka Dziurda
+    Make version DsKpaper_14082014
+
 ! 2014-08-14 - Agnieszka Dziurda
  - update package for 2011 PAPER DsK tag
 
