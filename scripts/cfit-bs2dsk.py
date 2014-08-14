@@ -33,7 +33,7 @@ parser.add_argument('-g', '--gen-config-file', dest = 'genConfigFile',
                     help = 'name of file with generator configuration changes (dictionary)')
 parser.add_argument('-p', '--personality', dest = 'personality', default = '2011Conf',
                     help = 'fitter personality (e.g. \'2011Conf\')')
-parser.add_argument('--calibplotfile', dest = 'calibplotfile', default = '',
+parser.add_argument('--calibplotfile', dest = 'calibplotfile', default = None,
                     help = 'file name for calibration plot' )
 options = parser.parse_args()
 
@@ -139,8 +139,6 @@ if None != options.genConfigString:
         parser.error('Unable to parse generator configuration in \'%s\'' %
                 options.genConfigString)
         raise
-if '' == options.calibplotfile:
-    options.calibplotfile = None
 
 
 
