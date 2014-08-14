@@ -130,7 +130,7 @@ def runBdGammaFitterOnData(debug, wsname,
                            pereventmistag, pereventterr, 
                            toys, pathName, treeName,
                            configName, configNameMD, scan, 
-                           BDTGbins, pathName2, pathName3, Cat ) :
+                           BDTGbins, pathName2, pathName3, Cat, plotsWeights  ) :
 
     # BLINDING
     Blinding =  False
@@ -239,12 +239,14 @@ def runBdGammaFitterOnData(debug, wsname,
     mistag.setRange(0, 0.5)
     #weight = obs.find("sWeights")
     observables = RooArgSet(time,tag,id)
-    #weight.setRange(-1,1.5)
-    #if debug:
-    #    name = TString("pdf")
-    #    swpdf = GeneralUtils.CreateHistPDF(dataWA, weight, name, 100, debug)
-    #    GeneralUtils.SaveTemplate(dataWA, swpdf, weight, name)
-        #exit(0)
+    if plotsWeights:
+        name = TString("pdf")
+        obs2 = data[0].get()
+        weight2 = obs2.find("sWeights")
+        swpdf = GeneralUtils.CreateHistPDF(data[0], weight2, name, 100, debug)
+        GeneralUtils.SaveTemplate(data[0], swpdf, weight2, name)
+        exit(0)
+
     
     # Physical parameters
     #-----------------------
@@ -739,6 +741,11 @@ parser.add_option( '--configNameMDFitter',
                    dest = 'configNameMD',
                    default = 'Bs2DsPiConfigForNominalMassFitBDTGA')
 
+parser.add_option( '--plotsWeights',
+                   dest = 'plotsWeights',
+                   default = False,
+                   action = 'store_true'
+                   )
 
 # -----------------------------------------------------------------------------
 
@@ -776,6 +783,7 @@ if __name__ == '__main__' :
                             options.BDTGbins,
                             options.pathName2,
                             options.pathName3,
-                            options.Cat)
+                            options.Cat,
+                            options.plotsWeights)
 
 # -----------------------------------------------------------------------------

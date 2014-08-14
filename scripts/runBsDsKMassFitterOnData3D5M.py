@@ -283,21 +283,21 @@ def runBsDsKMassFitterOnData( debug, sample, mVar, mdVar, tVar, terrVar, tagVar,
                     obs2 = data[j].get(i)
                     if abs(trueid.getValV(obs2)-1.0) < 0.5 :
                         countSig[j] += 1
-                    if abs(trueid.getValV(obs2)-2.0) < 0.5 :
+                    if ( abs(trueid.getValV(obs2)-2.0) < 0.5 or abs(trueid.getValV(obs2)-12.0) < 0.5) :
                         countBDK[j] += 1
                     if abs(trueid.getValV(obs2)-3.0) < 0.5 :
                         countBDsK[j] += 1
                     if abs(trueid.getValV(obs2)-4.0) < 0.5 :
                         countDsPi[j] += 1
-                    if abs(trueid.getValV(obs2)-5.0) < 0.5 :
+                    if (abs(trueid.getValV(obs2)-5.0) < 0.5 or abs(trueid.getValV(obs2)-15.0) < 0.5) :
                         countLcK[j] += 1
-                    if abs(trueid.getValV(obs2)-6.0) < 0.5 :
+                    if (abs(trueid.getValV(obs2)-6.0) < 0.5 or abs(trueid.getValV(obs2)-16.0) < 0.5 ):
                         countDsp[j] += 1
                     if abs(trueid.getValV(obs2)-10.0) < 0.5 :
                         countCombo[j] += 1
                     if abs(trueid.getValV(obs2)-7.0) < 0.5 :
                         countKstK[j] += 1
-                    if abs(trueid.getValV(obs2)-8.0) < 0.5 :
+                    if (abs(trueid.getValV(obs2)-8.0) < 0.5 or abs(trueid.getValV(obs2)-18.0) < 0.5):
                         countRhoPi[j] += 1
                         
 
@@ -688,9 +688,7 @@ def runBsDsKMassFitterOnData( debug, sample, mVar, mdVar, tVar, terrVar, tagVar,
         AllSig = [0,0]
         AllDK = [0,0]
         AllLMK = [0,0]
-        #AllDsPi = [0,0]
         AllLcK = [0,0]
-        AllDsp = [0,0]
         AllLMPi = [0,0]
         AllCombo = [0,0]
         
@@ -699,7 +697,6 @@ def runBsDsKMassFitterOnData( debug, sample, mVar, mdVar, tVar, terrVar, tagVar,
             nameSig = TString("nSig")+t+sm[i]+t+TString("Evts")
             nameCombBkg = TString("nCombBkg_")+sm[i]+t+evts
             nameBs2DsDsstPiRho = TString("nBsLb2DsDsstPPiRho_")+sm[i]+t+evts
-            #nameBs2DsPi = TString("nBs2DsPi_")+sm[i]+t+evts
             nameLb2LcK = TString("nLb2LcK_")+sm[i]+t+evts
             nameBs2DsDssKKst = TString("nBs2DsDsstKKst_")+sm[i]+t+evts
             nameLb2DsDsstp = TString("nLb2DsDsstp_")+sm[i]+t+evts
@@ -708,31 +705,21 @@ def runBsDsKMassFitterOnData( debug, sample, mVar, mdVar, tVar, terrVar, tagVar,
             AllSig[0]   += countSig[i]
             AllSig[1]   += floatpar.find(nameSig.Data()).getValV()
             AllDK[0]    += countBDK[i]
-            AllDK[1]    += myconfigfile["nBdDKEvts"][i*2]+myconfigfile["nBdDKEvts"][i*2+1]+myconfigfile["nBdDPiEvts"][i*2]+myconfigfile["nBdDPiEvts"][i*2+1]
+            AllDK[1]    += myconfigfile["nBdDKEvts"][i*2]+myconfigfile["nBdDPiEvts"][i]
             AllLMK[0]   += countBDsK[i]+countKstK[i]
             AllLMK[1]   += floatpar.find(nameBs2DsDssKKst.Data()).getVal()
-            #AllDsPi[0]  += countDsPi[i]
-            #AllDsPi[1]  += floatpar.find(nameBs2DsPi.Data()).getValV()
             AllLcK[0]   += countLcK[i]
-            AllLcK[1]   += myconfigfile["nLbLcKEvts"][i*2] + myconfigfile["nLbLcKEvts"][i*2+1]+myconfigfile["nLbLcPiEvts"][i*2] + myconfigfile["nLbLcPiEvts"][i*2+1]
-            #AllDsp[0]   += countDsp[i]
-            #AllDsp[1]   += floatpar.find(nameLb2DsDsstp.Data()).getValV()
+            AllLcK[1]   += myconfigfile["nLbLcKEvts"][i] + myconfigfile["nLbLcPiEvts"][i*2]
             AllLMPi[0]  += countRhoPi[i]+countDsPi[i]+countDsp[i]
             AllLMPi[1]  += floatpar.find(nameBs2DsDsstPiRho.Data()).getValV()
             AllCombo[0] += countCombo[i]
             AllCombo[1] += floatpar.find(nameCombBkg.Data()).getValV()
             
             print "Number of %s signal events: generated %d, fitted %d"%(m[i], countSig[i], floatpar.find(nameSig.Data()).getValV())
-            print "Number of %s B->DK events: generated %d, fitted %d"%(m[i],countBDK[i], 
-                                                                        myconfigfile["nBdDKEvts"][i*2]+myconfigfile["nBdDKEvts"][i*2+1]
-                                                                        +myconfigfile["nBdDPiEvts"][i*2]+myconfigfile["nBdDPiEvts"][i*2+1])
+            print "Number of %s B->DK events: generated %d, fitted %d"%(m[i],countBDK[i], myconfigfile["nBdDKEvts"][i]+myconfigfile["nBdDPiEvts"][i])
             print "Number of %s Bd->DsK, Bs->DsK* events: generated %d, fitted %d"%(m[i],countBDsK[i]+countKstK[i],
                                                                                     floatpar.find(nameBs2DsDssKKst.Data()).getValV())
-            #print "Number of %s Bs->DsPi events: generated %d, fitted %d"%(m[i],countDsPi[i], floatpar.find(nameBs2DsPi.Data()).getValV())
-            print "Number of %s Lb->LcK events: generated %d, fitted %d"%(m[i],countLcK[i],
-                                                                          myconfigfile["nLbLcKEvts"][i*2] + myconfigfile["nLbLcKEvts"][i*2+1]
-                                                                          +myconfigfile["nLbLcPiEvts"][i*2] + myconfigfile["nLbLcPiEvts"][i*2+1])
-            #print "Number of %s Lb->Dsp,Dsstp events: generated %d, fitted %d"%(m[i],countDsp[i], floatpar.find(nameLb2DsDsstp.Data()).getValV())
+            print "Number of %s Lb->LcK events: generated %d, fitted %d"%(m[i],countLcK[i],myconfigfile["nLbLcKEvts"][i]+myconfigfile["nLbLcPiEvts"][i])
             print "Number of %s Bs->DsstPi, DsRho events: generated %d, fitted %d"%(m[i],countRhoPi[i]+countDsPi[i]+countDsp[i],
                                                                                     floatpar.find(nameBs2DsDsstPiRho.Data()).getValV() )
             print "Number of %s Combinatorial events: generated %d, fitted %d"%(m[i],countCombo[i],floatpar.find(nameCombBkg.Data()).getValV())
@@ -741,9 +728,7 @@ def runBsDsKMassFitterOnData( debug, sample, mVar, mdVar, tVar, terrVar, tagVar,
         print "Number of all signal events: generated %d, fitted %d"%(AllSig[0], AllSig[1])
         print "Number of all B->DK events: generated %d, fitted %d"%(AllDK[0],AllDK[1])
         print "Number of all Bd->DsK, Bs->DsK* events: generated %d, fitted %d"%(AllLMK[0],AllLMK[1])
-        #print "Number of all Bs->DsPi events: generated %d, fitted %d"%(AllDsPi[0],AllDsPi[1])
         print "Number of all Lb->LcK events: generated %d, fitted %d"%(AllLcK[0],AllLcK[1])
-        #print "Number of all Lb->Dsp,Dsstp events: generated %d, fitted %d"%(AllDsp[0],AllDsp[1])
         print "Number of all Bs->DsstPi, DsRho events: generated %d, fitted %d"%(AllLMPi[0],AllLMPi[1] )
         print "Number of all Combinatorial events: generated %d, fitted %d"%(AllCombo[0],AllCombo[1])
 

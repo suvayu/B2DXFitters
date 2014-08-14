@@ -149,8 +149,7 @@ def runBdGammaFitterOnData(debug, wsname,
                            pereventmistag, pereventterr,
                            toys,pathName,
                            treeName, configName, configNameMD, nokfactcorr,
-                           smearaccept, accsmearfile, accsmearhist,
-                           BDTGbins, Cat) :
+                           BDTGbins, Cat, plotsWeights) :
 
     #if not Blinding and not toys :
     #    print "RUNNING UNBLINDED!"
@@ -266,6 +265,14 @@ def runBdGammaFitterOnData(debug, wsname,
     mistag.setRange(0, 0.5)
     weight = obs.find("sWeights")
     observables = RooArgSet(time,tag,id)
+
+    if plotsWeights:
+        name = TString("pdf")
+        obs2 = data[0].get()
+        weight2 = obs2.find("sWeights")
+        swpdf = GeneralUtils.CreateHistPDF(data[0], weight2, name, 100, debug)
+        GeneralUtils.SaveTemplate(data[0], swpdf, weight2, name)
+        exit(0)
 
     # Physical parameters
     #-----------------------
@@ -710,24 +717,10 @@ parser.add_option( '--treeName',
                    help = 'name of the workspace'
                    )  
 
-
 parser.add_option( '--kfactcorr',
                     dest = 'nokfactcorr',
                     action = 'store_false',
                     default = True)
-
-parser.add_option( '--smearAccept',
-                   dest = 'smearaccept',
-                   action = 'store_true',
-                   default = False)  
-
-parser.add_option( '--smearAcceptFile',
-                   dest = 'accsmearfile',
-                   default = '../data/acceptance-ratio-hists.root')
-
-parser.add_option( '--smearAcceptHist',
-                   dest = 'accsmearhist',
-                   default = 'haccratio_cpowerlaw')
 
 parser.add_option( '--configName',
                     dest = 'configName',
@@ -739,6 +732,12 @@ parser.add_option( '--configNameMDFitter',
 
 parser.add_option( '--cat',
                    dest = 'cat',
+                   default = False,
+                   action = 'store_true'
+                   )
+
+parser.add_option( '--plotsWeights',
+                   dest = 'plotsWeights',
                    default = False,
                    action = 'store_true'
                    )
@@ -773,11 +772,9 @@ if __name__ == '__main__' :
                                      options.configName,
                                      options.configNameMD,
                                      options.nokfactcorr,
-                                     options.smearaccept,
-                                     options.accsmearfile,
-                                     options.accsmearhist,
                                      options.BDTGbins,
-                                     options.cat
+                                     options.cat,
+                                     options.plotsWeights
                                      )
 
                                                                                                                         

@@ -17,14 +17,8 @@ def getconfig() :
     configdict["ModLf"]         = 0.372
 
     configdict["tacc_size"]   = 6
-    #configdict["tacc_knots"]  = [0.25, 0.5, 1.0, 2.0, 3.0, 12.0]
-    #configdict["tacc_values"] = [1.93184e-01, 3.35302e-01, 7.39033e-01, 1.16141e+00, 1.29660e+00, 1.31712e+00]
-
-    configdict["tacc_knots"]  = [0.50, 1.0,  1.5, 2.0, 3.0, 12.0] #tac varr 7                                                                                                              
-    #configdict["tacc_values"] = [1.0, 1.0, 1.0, 1.0, 1.0, 1.0 ] #1.93184e-01, 3.35302e-01, 7.39033e-01, 1.16141e+00, 1.29660e+00, 1.31712e+00]                                            
+    configdict["tacc_knots"]  = [0.50, 1.0,  1.5, 2.0, 3.0, 12.0]            
     configdict["tacc_values"] = [4.5579e-01,7.0310e-01,8.7709e-01,1.1351e+00,1.2233e+00,1.2323e+00]
-    #configdict["tacc_values"] = [2.0, 2.0, 2.0,2.0, 2.0, 2.0]
-    #configdict["tacc_values"] = [4.4822e-01, 5.4895e-01, 7.4500e-01, 1.0435e+00, 1.2516e+00, 1.2256e+00]                            
 
     configdict["calibration_p0"]  = [0.3834, 0.4244]
     configdict["calibration_p1"]  = [0.9720, 1.2180]
@@ -117,10 +111,6 @@ def getconfig() :
     configdict["constParams"].append('Gammas')
     configdict["constParams"].append('deltaGammas')
     configdict["constParams"].append('tagEffSig')
-    configdict["constParams"].append('tacc_exponent')
-    configdict["constParams"].append('tacc_offset')
-    configdict["constParams"].append('tacc_beta')
-    configdict["constParams"].append('tacc_turnon')
     #configdict["constParams"].append('DeltaMs')
 
     return configdict

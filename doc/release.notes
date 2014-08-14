@@ -4,6 +4,9 @@
 ! Purpose     : RooFit-based fitters for B -> D X
 !-----------------------------------------------------------------------------
 
+! 2014-08-14 - Agnieszka Dziurda
+ - update package for 2011 PAPER DsK tag
+
 ! 2014-08-12 - Manuel Tobias Schiller
  - update cFit plotting script (including "preprocessor" module for TLatex
    strings)

@@ -108,7 +108,7 @@ from math     import pi, log
 from  os.path import exists
 import os, sys, gc
 gROOT.SetBatch()
-gROOT.ProcessLine(".x /afs/cern.ch/user/g/gligorov/public/foragnieszka/.rootlogon.C")
+gROOT.ProcessLine(".x ../root/.rootlogon.C")
 
 # -----------------------------------------------------------------------------
 # Configuration settings
