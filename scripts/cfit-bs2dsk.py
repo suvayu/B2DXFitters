@@ -69,77 +69,15 @@ except ValueError:
 # apply personality
 personalityfile = '{}/data/cFit/personality/{}.py' \
     .format(os.environ['B2DXFITTERSROOT'], options.personality)
-try:
-    lines = file(personalityfile, 'r').readlines()
-except:
-    parser.error('Unable to read personality {} from {}' \
-                 .format(options.personality, personalityfile))
-    raise
-try:
-    updateConfigDict(defaultConfig, {'Personality': options.personality})
-    d = eval(compile(''.join(lines), personalityfile, 'eval'))
-    updateConfigDict(defaultConfig, d)
-    del d
-except:
-    print('Unknown personality \'{}\''.format(options.personality))
-    raise
-del lines
-del personalityfile
 
-generatorConfig = copy.deepcopy(defaultConfig)
-fitConfig = copy.deepcopy(defaultConfig)
-# parse fit/generator configuration options
-if None != options.fitConfigFile:
-    try:
-        lines = file(options.fitConfigFile, 'r').readlines();
-    except:
-        parser.error('Unable to read fit configuration file %s' %
-               options.fitConfigFile)
-        raise
-    try:
-        d = eval(compile(''.join(lines), options.fitConfigFile, 'eval'))
-        fitConfig = updateConfigDict(fitConfig, d)
-        del d
-    except:
-        parser.error('Unable to parse fit configuration in file %s' %
-                options.fitConfigFile)
-        raise
-        del lines
-if None != options.fitConfigString:
-    try:
-        d = eval(compile(options.fitConfigString, '[command line]', 'eval'))
-        fitConfig = updateConfigDict(fitConfig, d)
-        del d
-    except:
-        parser.error('Unable to parse fit configuration in \'%s\'' %
-                options.fitConfigString)
-        raise
-if None != options.genConfigFile:
-    try:
-        lines = file(options.genConfigFile, 'r').readlines();
-    except:
-        parser.error('Unable to read generator configuration file %s' %
-                options.genConfigFile)
-        raise
-    try:
-        d = eval(compile(''.join(lines), options.genConfigFile, 'eval'))
-        generatorConfig = updateConfigDict(generatorConfig, d)
-        del d
-    except:
-        parser.error('Unable to parse generator configuration in file %s' %
-                options.genConfigFile)
-        raise
-    del lines
-if None != options.genConfigString:
-    try:
-        d = eval(compile(options.genConfigString, '[command line]', 'eval'))
-        generatorConfig = updateConfigDict(generatorConfig, d)
-        del d
-    except:
-        parser.error('Unable to parse generator configuration in \'%s\'' %
-                options.genConfigString)
-        raise
-
+from B2DXFitters.cfit.config import ConfigReader
+reader = ConfigReader(defaultConfig, personalityfile,
+                      fit = [options.fitConfigFile],
+                      gen = [options.genConfigFile],
+                      fitstr = [options.fitConfigString],
+                      genstr = [options.genConfigString])
+fitConfig = reader.fit_config()
+generatorConfig = reader.gen_config()
 
 
 # config
