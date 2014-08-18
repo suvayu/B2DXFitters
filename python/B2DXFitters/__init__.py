@@ -18,7 +18,8 @@ __initialised = False
 
 if not __initialised:
     __initialised = True
-    import os, ROOT
+    import os
+    from .cfit import ROOT
     # avoid memory leaks - will have to explicitly relinquish and acquire
     # ownership if required, but PyROOT does not do what it thinks best without
     # our knowing what it does
