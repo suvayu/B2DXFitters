@@ -44,7 +44,7 @@ import copy, os, sys, gc
 from math import (pi, log)
 
 # ROOT/RooFit
-import ROOT
+from B2DXFitters.cfit import ROOT
 from ROOT import RooFit
 
 import B2DXFitters
