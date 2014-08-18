@@ -4,7 +4,7 @@
 
 
 from math import pi, log
-import ROOT
+from . import ROOT
 from ROOT import RooFit
 
 from .ftag import (getTrueOmegasPerCat, makeTagEff)

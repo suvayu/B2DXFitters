@@ -3,7 +3,7 @@
 """
 
 
-import ROOT
+from . import ROOT
 from ROOT import RooFit
 
 from .utils import WS
