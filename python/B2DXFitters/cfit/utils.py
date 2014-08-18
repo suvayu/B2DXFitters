@@ -30,6 +30,43 @@ def _import_args(namespace, d = {}):
     return d
 
 
+## RooAbsCollection to Python containers
+def pylist(collection):
+    """Return RooFit collection as Python list
+
+    You can get other Python container types like this:
+
+      >>> t = tuple(pylist(collection))
+      >>> s = set(pylist(collection))
+
+    A separate function (`pydict') is provided for dictionaries, where
+    the keys are the element names, as returned by GetName().
+
+    """
+    l = []
+    itr = collection.fwdIterator()
+    for i in xrange(collection.getSize()): l += [next(itr)]
+    return l
+
+def pydict(collection):
+    """Return RooFit collection as Python dictionary
+
+    See `pylist' for other python container types.
+
+    """
+    val = pylist(collection)
+    return dict(zip([el.GetName() for el in val], val))
+
+
+## RooAbsData iterator
+def dst_iter(dst):
+    """Generator function to iterate over entries in a RooDataSet"""
+    argset = dst.get()
+    for i in xrange(dst.numEntries()):
+        dst.get(i)
+        yield argset
+
+
 def WS(ws, obj, opts = [RooFit.RecycleConflictNodes(), RooFit.Silence()]):
     """ "swallow" object into a workspace, returns swallowed object """
     name = obj.GetName()
