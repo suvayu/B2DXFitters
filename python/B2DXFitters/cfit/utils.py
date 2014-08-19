@@ -67,6 +67,18 @@ def dst_iter(dst):
         yield argset
 
 
+## warnings
+def deprecated(msg):
+    """Deprecation warning"""
+    from warnings import warn
+    warn(msg, DeprecationWarning, stacklevel=2)
+
+def untested(msg):
+    """Untested warning"""
+    from warnings import warn
+    warn(msg, UserWarning, stacklevel=2)
+
+
 def WS(ws, obj, opts = [RooFit.RecycleConflictNodes(), RooFit.Silence()]):
     """ "swallow" object into a workspace, returns swallowed object """
     name = obj.GetName()
