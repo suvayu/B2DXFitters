@@ -12,7 +12,7 @@
 from . import ROOT
 from ROOT import RooFit
 
-from .utils import WS
+from .utils import (dst_iter, deprecated, binning, WS)
 
 
 def getMistagBinBounds(config, mistag, mistagdistrib):
@@ -149,44 +149,36 @@ def getTrueOmegasPerCat(config, mistagobs, mistag, mistagpdf):
 
 
 def getEtaPerCat(config, mistagobs, ds):
+    deprecated('Not used any more')
+    ncats = config['NMistagCategories']
+    binbounds = binning(config['MistagCategoryBinBounds'])
     # calculate overall and per-category eta averages for a given data set ds
     from ROOT import RooArgList, RooArgSet
     # isolate tagged events
-    total = ds.sumEntries()
+    weightsum = ds.sumEntries()
     argset = RooArgSet(mistagobs)
     ds = ds.reduce(RooFit.Cut('0 != qt'), RooFit.SelectVars(argset))
-    ROOT.SetOwnership(ds, True)
     # set up loop over data set to get eta averages
-    etasums = [ 0. for i in xrange(0, config['NMistagCategories']) ]
-    weightsums = [ 0. for i in xrange(0, config['NMistagCategories']) ]
+    etasums, weightsums = [0.] * ncats, [0.] * ncats
     etasum = 0.
-    weightsum = 0.
-    obs = ds.get()
-    etavar = obs.find(mistagobs.GetName())
     isWeighted = ds.isWeighted()
     # loop over data set
-    for i in xrange(0, ds.numEntries()):
-        ds.get(i)
-        eta = etavar.getVal()
+    for row in dst_iter(ds.numEntries()):
+        eta = row[mistagobs.GetName()].getVal()
         w = ds.weight() if isWeighted else 1.
         # calculate average eta
         etasum += w * eta
-        weightsum += w
         # find category and update per-category eta averages
-        for j in xrange(0, len(config['MistagCategoryBinBounds']) - 1):
-            if eta < config['MistagCategoryBinBounds'][j]: break
-            elif eta >= config['MistagCategoryBinBounds'][j + 1]: continue
-            else:
-                # found bin
-                etasums[j] += w * eta
-                weightsums[j] += w
-                break
+        (foundbin, ibin) = binning.contains(eta)
+        if foundbin:
+            etasums[ibin] += w * eta
+            weightsums[ibin] += w
     # final division needed to form the eta averages
     etasum /= weightsum
-    for i in xrange(0, len(etasums)):
+    for i in xrange(ncats):
         if 0. == etasums[i]: continue
         etasums[i] /= weightsums[i]
-        weightsums[i] /= total
+        weightsums[i] /= weightsum
     print 'INFO:               Average eta (data sample): %g' % etasum
     print 'INFO: Per category average etas (data sample): %s' % str(etasums)
     print 'INFO: Per category tagging eff. (data sample): %s' % str(weightsums)
