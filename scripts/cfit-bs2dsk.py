@@ -15,7 +15,7 @@ fit.  The order of precedence is:
 import argparse
 
 parser = argparse.ArgumentParser(description=__doc__)
-parser.add_argument('toyseed', nargs='?',
+parser.add_argument('toyseed', nargs='?', type = int,
                     help = 'Seed for toy generation')
 parser.add_argument('-d', '--debug', dest = 'debug', default = False, action = 'store_true',
                     help = 'print debug information while processing')
@@ -49,43 +49,32 @@ from ROOT import RooFit
 
 import B2DXFitters
 
-# set a flag if we have access to AFS (can be used in the personality files)
-haveAFS = os.path.isdir('/afs') and os.path.isdir('/afs/cern.ch')
-
-from B2DXFitters.cfit.utils import (updateConfigDict, WS)
+from B2DXFitters.cfit.utils import (updateConfigDict, WS, _import_args)
 from B2DXFitters.cfit.defaults import defaultConfig
 from B2DXFitters.cfit.constants import *
 from B2DXFitters.cfit.templates import (writeDataSet, readDataSet)
 from B2DXFitters.cfit.ftag import getEtaPerCat
 from B2DXFitters.cfit.pdfs import getMasterPDF
 
+# config
+locals().update(_import_args(options))
 
-try:
-    TOY_NUMBER = int(options.toyseed)
-except ValueError:
-    parser.error('The toy number is meant to be an integer ;-)!')
-    raise
+# set a flag if we have access to AFS (can be used in the personality files)
+haveAFS = os.path.isdir('/afs') and os.path.isdir('/afs/cern.ch')
 
 # apply personality
 personalityfile = '{}/data/cFit/personality/{}.py' \
-    .format(os.environ['B2DXFITTERSROOT'], options.personality)
+    .format(os.environ['B2DXFITTERSROOT'], personality)
 
 from B2DXFitters.cfit.config import ConfigReader
 reader = ConfigReader(defaultConfig, personalityfile,
-                      fit = [options.fitConfigFile],
-                      gen = [options.genConfigFile],
-                      fitstr = [options.fitConfigString],
-                      genstr = [options.genConfigString])
+                      fit = [fitConfigFile],
+                      gen = [genConfigFile],
+                      fitstr = [fitConfigString],
+                      genstr = [genConfigString])
 fitConfig = reader.fit_config()
 generatorConfig = reader.gen_config()
 
-
-# config
-toy_num = TOY_NUMBER
-debug = options.debug
-wsname = options.wsname
-initvars = options.initvars
-calibplotfile = options.calibplotfile
 
 # tune integrator configuration
 from ROOT import RooAbsReal, TRandom3, RooArgSet, RooRandom, RooLinkedList
@@ -101,7 +90,7 @@ RooAbsReal.defaultIntegratorConfig().method1DOpen().setLabel('RooAdaptiveGaussKr
 pdf = getMasterPDF(generatorConfig, 'GEN', debug)
 
 # seed the pseudo random number generator
-rndm = TRandom3(toy_num + 1)
+rndm = TRandom3(toyseed + 1)
 RooRandom.randomGenerator().SetSeed(int(rndm.Uniform(4294967295)))
 del rndm
 
