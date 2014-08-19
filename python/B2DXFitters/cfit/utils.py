@@ -67,6 +67,70 @@ def dst_iter(dst):
         yield argset
 
 
+## binning
+class binning(object):
+    """This class creates binning from bin boundaries.
+
+    Bins are counted from 1.  0 signifies, underflow, and N+1 (where N
+    is the total number of bins) signifies overflow.
+
+    """
+    def __init__(self, bounds):
+        """bounds -- bin boundary list"""
+        self.bounds = bounds
+
+    def nbins(self):
+        """Return number of bins"""
+        return len(bounds)
+
+    def findbin(self, val):
+        """Return bin number containing val.
+
+        Returns 0 for underflow, N+1 for overflow.
+
+        val -- find the number in bins
+
+        """
+        # Algorithm: Make 2 lists of booleans for lo & hi bounds check
+        #
+        # ┌─┬─┬─┬─┬─┬─┬─┐
+        # │ │ │O│ │ │ │ │
+        # └─┴─┴─┴─┴─┴─┴─┘
+        #  T T T F F F F <- lo
+        #  F F F T T T T <- hi
+        #
+        # Look for transition bin (NOTE: python lists are 0-indexed,
+        # where as bins in this class are 1-indexed).
+
+        # FIXME: could be improved, iterates twice now
+        lo = [i <= val for i in self.bounds]
+        hi = [val <  i for i in self.bounds]
+        try:
+            lo = lo.index(False)
+        except ValueError:      # overflow
+            return self.nbins() + 1
+        try:
+            hi = hi.index(True)
+        except ValueError:      # underflow
+            return 0
+        if hi == lo:            # well formed
+            return lo
+        else:
+            return None         # unknown
+
+    def contains(self, val):
+        """Check if val is in a valid bin"""
+        ibin = self.findbin(self, val)
+        if ibin == None or ibin == 0 or ibin > self.nbins(self):
+            return (False, ibin)
+        else:
+            return (True, ibin)
+
+    def __contains__(self, val):
+        """Make it work with the in keyword"""
+        return self.contains(self, val)[0]
+
+
 ## warnings
 def deprecated(msg):
     """Deprecation warning"""
