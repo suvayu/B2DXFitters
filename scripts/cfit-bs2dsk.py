@@ -398,10 +398,10 @@ else:
 
 # dump fit result to a ROOT file
 from ROOT import TFile
-fitresfile = TFile('fitresult_%04d.root' % toy_num, 'RECREATE')
-fitresfile.WriteTObject(fitResult, 'fitresult_%04d' % toy_num)
+fitresfile = TFile('fitresult_%04d.root' % toyseed, 'RECREATE')
+fitresfile.WriteTObject(fitResult, 'fitresult_%04d' % toyseed)
 if None != calibFitResult:
-    fitresfile.WriteTObject(calibFitResult, 'fitresult_calib_%04d' % toy_num)
+    fitresfile.WriteTObject(calibFitResult, 'fitresult_calib_%04d' % toyseed)
 fitresfile.Close()
 del fitresfile
 
