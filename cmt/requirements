@@ -40,8 +40,11 @@ apply_pattern reflex_dictionary_src                                             
 #============================================================================
 # Component library building rule
 #============================================================================
+private
+macro classdef_ext "_dict_classdef.cpp" ROOT_GE_6_00 "_classdef.cpp"
+end_private
 library  B2DXFittersLib ../src/*.cxx \
-         ../$(tag)/dict/B2DXFitters/B2DXFitters*_classdef.cpp
+         ../$(tag)/dict/B2DXFitters/B2DXFittersDict$(classdef_ext)
 
 macro_append B2DXFittersLib_cppflags " -g"
 #============================================================================
@@ -49,7 +52,8 @@ macro_append B2DXFittersLib_cppflags " -g"
 #============================================================================
 apply_pattern     linker_library library=B2DXFittersLib
 macro_append B2DXFittersLib_dependencies B2DXFittersGen
-macro_append ROOT_linkopts "  -lCore -lCint -lRooFitCore -lRooStats -lRooFit -lHist -lMatrix -lMathCore -lMathMore -lPhysics -lCintex -lGpad -lGraf"
+macro_append ROOT_linkopts " -lCore -lRooFitCore -lRooStats -lRooFit -lHist -lMatrix -lMathCore -lMathMore -lPhysics -lGpad -lGraf"
+macro_append ROOT_linkopts " -lCint -lCintex " ROOT_GE_6_00 ""
 macro_append B2DXFittersLib_cppflags " -UNDEBUG"
 #apply_pattern    component_library library=B2DXFitters
 
