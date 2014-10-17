@@ -4,6 +4,9 @@
 ! Purpose     : RooFit-based fitters for B -> D X
 !-----------------------------------------------------------------------------
 
+!============================================== v2r7 2014-10-17 ==============================
+! 2014-10-17 Diego Martinez Santos
+	 Make version v2r7
 ! 2014-09-04 - Marco Clemencic
  - Fixed build with ROOT 6.
 
@@ -2275,21 +2278,4 @@
  - fix bad bug in TD fitter: Bs->DsK component PDF was non-zero for DsPi
    events and vice versa
 
-! 2012-03-31 - Manuel Tobias Schiller
- - update tagging performance and DeltsGamma_s inputs in TD fitter
- - fix a bug in DsPi generation
-
-! 2011-12-06 - Eduardo Rodrigues
- - Added a couple of examples scripts (make_histos.py and plot_histos.py) to
-   produce and plot variable distributions and pulls for toy studies.
-   They are easily modifiable.
-
-! 2011-12-06 - Manuel Tobias Schiller
- - fix typo in runBdDeltaMFitterToyMC.py
- - continue to work on runBs2DsKCPAsymmObsFitterToyMC.py
- - add first shot at some simple plotting for Bs2DsK fit in
-   plotBs2DsHTimeModels.py
-
-! 2011-12-05 - Manuel Tobias Schiller
- - rewrite to use RooConstVar for things which are constant for physics
-   rea
+! 2012-03-31 - Manuel 
