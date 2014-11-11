@@ -4,9 +4,11 @@
 gaudi_subdir(B2DXFitters v2r4)
 
 find_package(RELAX)
-find_package(ROOT COMPONENTS Core Cint RooFitCore RooStats RooFit Hist Tree RIO
-                             Matrix MathCore MathMore Physics Cintex Gpad Graf)
+find_package(ROOT COMPONENTS Core RooFitCore RooStats RooFit Hist Tree RIO
+                             Matrix MathCore MathMore Physics Gpad Graf)
 
+# override the genreflex call to wrap it in the right environment
+set(ROOT_genreflex_CMD ${env_cmd} --xml ${env_xml} ${ROOT_genreflex_CMD})
 
 include_directories(${ROOT_INCLUDE_DIRS})
 reflex_generate_dictionary(B2DXFitters
