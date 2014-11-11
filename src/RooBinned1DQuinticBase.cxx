@@ -88,7 +88,7 @@ RooBinned1DQuinticBase<BASE>::RooBinned1DQuinticBase(
     xmax(h.GetXaxis()->GetBinCenter(h.GetNbinsX()) + (integral ? 2. : 1.) * binSizeX),
     isIntegral(integral), coeffs(CoeffRecLen * nBinsX)
 {
-    TAxis *xaxis = h.GetXaxis();
+    const TAxis *xaxis = h.GetXaxis();
     const int nbins = h.GetNbinsX();
     // verify that all bins have same size
     for (int i = 1; i <= nbins; ++i) {
