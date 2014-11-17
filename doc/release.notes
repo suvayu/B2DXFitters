@@ -4,6 +4,9 @@
 ! Purpose     : RooFit-based fitters for B -> D X
 !-----------------------------------------------------------------------------
 
+! 2014-11-17 - Paul Seyfert
+ - polished comments in Rules.mk
+
 ! 2014-11-11 - Marco Clemencic
  - Fixed build with ROOT 6.
 

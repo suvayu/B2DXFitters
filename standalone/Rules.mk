@@ -195,13 +195,14 @@
 # YourLibRflx.h file would then contain:
 #
 # #ifndef _YOURLIBRFLX_H
+# #define _YOURLIBRFLX_H
 #
 # #include "YourClass.h"
 # #include "yourFunc.h"
 # 
 # #endif
 # 
-# The corresponding YourRflxLib.xml file would look like this:
+# The corresponding YourLibRflx.xml file would look like this:
 #
 # <lcgdict>
 #     <selection>
