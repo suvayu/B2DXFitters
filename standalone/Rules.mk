@@ -67,6 +67,13 @@
 #	better clang support, nicer formatting of error messages
 # v0.20 2014-03-04 Manuel Schiller <manuel.schiller@nikhef.nl>
 #	make GCCXML on SLC6 pick up the compiler that is being used
+# v0.21	2014-11-21 Manuel Schiller <Manuel.Schiller@cern.ch>
+# 	work around broken root-configs which hardcode AFS, even if
+# 	AFS is unavailable (guess compiler lcg-compiler-version in
+# 	that case)
+# 	correct RVersion handling
+# 	include documentation fix from Paul Seyfert
+# 	move from gnu++98 C++ standard to c++11
 #######################################################################
 
 #######################################################################
@@ -291,8 +298,11 @@ LD = $(shell $(ROOTCONFIG) --ld)
 CPP = $(CC) -E
 ROOTCONFIG_HASF77 := \
     $(strip $(shell $(ROOTCONFIG) --help | tr ' ' '\n' | grep -- '--f77'))
-ROOT_VERSION_CODE := $(shell $(AWK) '/define ROOT_VERSION_CODE/ { print $$3; }' < $(shell $(ROOTCONFIG) --incdir)/RVersion.h)
-ROOTCONFIG_ROOT56 := $(shell $(TEST) $(ROOT_VERSION_CODE) -ge 353024 && $(ECHO) ROOT6 || $(ECHO) ROOT5)
+ROOT_VERSION_CODE := $(shell $(AWK) '/define ROOT_VERSION_CODE/ { \
+    for (i = 1; i <= NF; ++i) if (0+$$i > 10000) print $$i; }' \
+    < $(shell $(ROOTCONFIG) --incdir)/RVersion.h)
+ROOTCONFIG_ROOT56 := $(shell $(TEST) $(ROOT_VERSION_CODE) -ge 353024 && \
+    $(ECHO) ROOT6 || $(ECHO) ROOT5)
 ifneq ($(ROOTCONFIG_HASF77),)
 ifneq ($(FC),/usr/bin/f77)
 # if FC points to /usr/bin/f77 (which is usually f2c in disguise), we
@@ -302,6 +312,25 @@ else
 FC = $(shell $(ROOTCONFIG) --f77 | $(SED) -e 's/ -[-a-zA-Z0-9_=:,]\\+//g')
 endif
 endif
+
+# work around broken ROOT builds where root-config reports some compiler
+# loaction on AFS, but AFS is not accessible; we try to guess a compiler name
+# along the lines of "lcg-compiler-version" then, and check with which to get
+# its path
+AFSFIXUPMAGIC=$(SED) -Ee 's,/afs/.+/gcc/([0-9.]+)/.+-slc.+/(gcc|g\+\+|gfortran|cc|c\+\+|clang|clang\+\+|icc-[0-9]+|icpc-[0-9]+)$$,lcg-\2-\1,'
+ifeq ($(shell which $(CC) 2>/dev/zero),)
+CC:=$(shell which $(shell $(ECHO) $(CC) | $(AFSFIXUPMAGIC)))
+endif
+ifeq ($(shell which $(CXX) 2>/dev/zero),)
+CXX:=$(shell which $(shell $(ECHO) $(CXX) | $(AFSFIXUPMAGIC)))
+endif
+ifeq ($(shell which $(FC) 2>/dev/zero),)
+FC:=$(shell which $(shell $(ECHO) $(FC) | $(AFSFIXUPMAGIC)))
+endif
+ifeq ($(shell which $(LD) 2>/dev/zero),)
+LD:=$(shell which $(shell $(ECHO) $(LD) | $(AFSFIXUPMAGIC)))
+endif
+
 # locate genreflex, rootcint, gccxml for dictionaries
 GENREFLEX = $(shell $(ROOTCONFIG) --bindir)/genreflex
 ROOTCINT = $(shell $(ROOTCONFIG) --bindir)/rootcint
@@ -518,11 +547,11 @@ CSTD.Intel ?= -std=c9x
 CSTD.SunPro ?= -xc99
 # C++ language standard
 CXXSTD.Unknown ?=
-CXXSTD.GNU ?= -std=gnu++98
-CXXSTD.Clang ?= -std=gnu++98
-CXXSTD.Intel ?= -std=gnu++98
-CXXSTD.Open64 ?= -std=gnu++98
-CXXSTD.PathScale ?= -std=gnu++98
+CXXSTD.GNU ?= -std=c++11
+CXXSTD.Clang ?= -std=c++11
+CXXSTD.Intel ?= -std=c++11
+CXXSTD.Open64 ?= -std=c++1
+CXXSTD.PathScale ?= -std=c++11
 CXXSTD.SunPro ?= -compat=g
 # Fortran language standard - default to Fortran 77 where possible
 FSTD.Unknown ?=
