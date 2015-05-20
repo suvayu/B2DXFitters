@@ -1,1 +1,0 @@
-python prepareBsDsPiMassFitterOnData3D5M.py -s /afs/cern.ch/work/g/gligorov//public/Bs2DsKPlotsForPaper/NominalFit/work_dspi_pid_53005800_PIDK0_5M_BDTG1.root --debug --Data --DPi --DPiPID --MC --MCPID --Signal --SignalPID --CombPID --configName Bs2DsPiConfigForNominalMassFitBDTG1

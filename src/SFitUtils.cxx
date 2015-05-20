@@ -44,7 +44,6 @@
 // B2DXFitters includes
 #include "B2DXFitters/GeneralUtils.h"
 #include "B2DXFitters/SFitUtils.h"
-#include "B2DXFitters/KinHack.h"
 #include "B2DXFitters/DecayTreeTupleSucksFitter.h"
 #include "B2DXFitters/PlotSettings.h"
 #include "B2DXFitters/MDFitterSettings.h"

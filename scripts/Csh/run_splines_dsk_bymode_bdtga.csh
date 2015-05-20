@@ -1,5 +1,0 @@
-python fitSplineAcc.py --spline --mode BsDsK --modeDs PhiPi --BDTG_down 0.3 --BDTG_up 1.0 --Time_down 0.40 --Time_up 15.0  >& /afs/cern.ch/work/g/gligorov//public/Bs2DsKPlotsForPaper/NominalFit/SplineLog_DsKMC_PhiPi_03_10_04_15.out &
-python fitSplineAcc.py --spline --mode BsDsK --modeDs KstK --BDTG_down 0.3 --BDTG_up 1.0 --Time_down 0.40 --Time_up 15.0  >& /afs/cern.ch/work/g/gligorov//public/Bs2DsKPlotsForPaper/NominalFit/SplineLog_DsKMC_KstK_03_10_04_15.out &
-python fitSplineAcc.py --spline --mode BsDsK --modeDs NonRes --BDTG_down 0.3 --BDTG_up 1.0 --Time_down 0.40 --Time_up 15.0  >& /afs/cern.ch/work/g/gligorov//public/Bs2DsKPlotsForPaper/NominalFit/SplineLog_DsKMC_NonRes_03_10_04_15.out &
-python fitSplineAcc.py --spline --mode BsDsK --modeDs KPiPi --BDTG_down 0.3 --BDTG_up 1.0 --Time_down 0.40 --Time_up 15.0  >& /afs/cern.ch/work/g/gligorov//public/Bs2DsKPlotsForPaper/NominalFit/SplineLog_DsKMC_KPiPi_03_10_04_15.out &
-python fitSplineAcc.py --spline --mode BsDsK --modeDs PiPiPi --BDTG_down 0.3 --BDTG_up 1.0 --Time_down 0.40 --Time_up 15.0  >& /afs/cern.ch/work/g/gligorov//public/Bs2DsKPlotsForPaper/NominalFit/SplineLog_DsKMC_PiPiPi_03_10_04_15.out &

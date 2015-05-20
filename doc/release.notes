@@ -4,6 +4,26 @@
 ! Purpose     : RooFit-based fitters for B -> D X
 !-----------------------------------------------------------------------------
 
+! 2015-05-20 - Agnieszka Dziurda
+ - remove the first bunch of classes: 
+      B2DXFitters/NonOscTaggingPdf.h
+      B2DXFitters/DTAcceptanceLHCbNote2007041.h
+      B2DXFitters/IfThreeWayCat.h
+      B2DXFitters/BdPTAcceptance.h 
+      B2DXFitters/IfThreeWay.h
+      B2DXFitters/RooCruijff.h
+      B2DXFitters/PowLawAcceptance.h
+      B2DXFitters/IfThreeWayCatPdf.h
+      B2DXFitters/TagEfficiencyWeightNoCat.h
+      B2DXFitters/FinalStateChargePdf.h
+      B2DXFitters/IfThreeWayPdf.h
+      B2DXFitters/KinHack.h
+      B2DXFitters/TagEfficiencyWeight.h
+      B2DXFitters/TaggingCat.h 
+      B2DXFitters/Dilution.h
+ - remove all csh scripts from /scripts/Csh
+ - remove unnecessary config files related to systematic for DsK 1 fb analysis  
+
 ! 2014-11-21 - Manuel Tobias Schiller
  - update Rules.mk with a couple of bug fixes
 
@@ -16,6 +36,12 @@
 ! 2014-11-11 - Marco Clemencic
  - Fixed CMake configuration.
 
+ ================================================
+ - PACKAGE UNDER CONSTRUCTION
+ - version v2r7 is not guaranteed to be reliable
+ - please use tagged version DsKPaper_14082014 
+ ================================================
+
 !============================================== v2r7 2014-10-17 ==============================
 ! 2014-10-17 Diego Martinez Santos
     Make version v2r7
@@ -23,7 +49,7 @@
  - Fixed build with ROOT 6.
 
 !============================================== DsKPaper_14082014 2014-8-14 ==============================
-! 2014-7-18 Diego Agnieszka Dziurda
+! 2014-8-14 Agnieszka Dziurda
     Make version DsKpaper_14082014
 
 ! 2014-08-14 - Agnieszka Dziurda

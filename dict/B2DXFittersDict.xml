@@ -4,17 +4,8 @@
 <!--- Created : 2011-05-23 -->
 <lcgdict>
     <selection>
-	<class name = "BdPTAcceptance"              />
 	<class name = "FitMeTool"                   />
 	<class name = "CombBkgPTPdf"                />
-	<class name = "DTAcceptanceLHCbNote2007041" />
-	<class name = "IfThreeWayCat" />
-	<class name = "IfThreeWayCatPdf" />
-	<class name = "IfThreeWay" />
-	<class name = "IfThreeWayPdf" />
-	<class name = "TagEfficiencyWeight" />
-	<class name = "TagEfficiencyWeightNoCat" />
-	<class name = "Dilution" />
 	<class name = "SquaredSum" />
 	<class name = "Inverse" />
 	<class name = "MistagDistribution" />
@@ -35,8 +26,6 @@
 	<class name = "RooEffHistProd" />
 
 	<class name = "RangeAcceptance" />
-	<class name = "PowLawAcceptance" />
-	<class name = "NonOscTaggingPdf" />
 
 	<function pattern = "GeneralModels::*"          />
 	<function pattern = "PTResModels::*"            />
@@ -65,9 +54,6 @@
 	    <field name = "m_nset" transient = "true" />
 	    <field name = "m_nsethash" transient = "true" />
 	</class>
-	<class name="FinalStateChargePdf" />
-	<class name="TaggingCat" />
-	<class name="RooCruijff" />
 
 	<class name="RooComplementCoef"/>
 	<class name="RooAbsGaussModelEfficiency"/>

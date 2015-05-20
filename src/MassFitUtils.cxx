@@ -50,7 +50,6 @@
 #include "RooArgSet.h"
 #include "B2DXFitters/GeneralUtils.h"
 #include "B2DXFitters/MassFitUtils.h"
-#include "B2DXFitters/KinHack.h"
 #include "B2DXFitters/DecayTreeTupleSucksFitter.h"
 #include "B2DXFitters/RooBinned1DQuinticBase.h"
 #include "B2DXFitters/PlotSettings.h"

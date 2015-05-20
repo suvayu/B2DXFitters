@@ -18,15 +18,6 @@
 
 #include "B2DXFitters/FitMeTool.h"
 #include "B2DXFitters/CombBkgPTPdf.h"
-#include "B2DXFitters/BdPTAcceptance.h"
-#include "B2DXFitters/DTAcceptanceLHCbNote2007041.h"
-#include "B2DXFitters/IfThreeWayCat.h"
-#include "B2DXFitters/IfThreeWayCatPdf.h"
-#include "B2DXFitters/IfThreeWay.h"
-#include "B2DXFitters/IfThreeWayPdf.h"
-#include "B2DXFitters/TagEfficiencyWeight.h"
-#include "B2DXFitters/TagEfficiencyWeightNoCat.h"
-#include "B2DXFitters/Dilution.h"
 #include "B2DXFitters/SquaredSum.h"
 #include "B2DXFitters/Inverse.h"
 #include "B2DXFitters/MistagDistribution.h"
@@ -46,8 +37,6 @@
 #include "B2DXFitters/RooEffResModel.h"
 #include "B2DXFitters/RooEffHistProd.h"
 
-#include "B2DXFitters/PowLawAcceptance.h"
-
 #include "B2DXFitters/GeneralUtils.h"
 #include "B2DXFitters/SFitUtils.h"
 #include "B2DXFitters/MassFitUtils.h"
@@ -56,7 +45,6 @@
 #include "B2DXFitters/MDFitterSettings.h"
 #include "B2DXFitters/HistPID1D.h"
 #include "B2DXFitters/HistPID2D.h"
-#include "B2DXFitters/KinHack.h"
 
 #include "B2DXFitters/RangeAcceptance.h"
 
@@ -68,12 +56,7 @@ template class std::pair<std::string,RooAbsData*>;
 #include "B2DXFitters/RooBinned2DBicubicBase.h"
 #include "B2DXFitters/RooBinned1DQuinticBase.h"
 
-#include "B2DXFitters/NonOscTaggingPdf.h"
 #include "B2DXFitters/DecRateCoeff.h"
-#include "B2DXFitters/FinalStateChargePdf.h"
-#include "B2DXFitters/TaggingCat.h"
-
-#include "B2DXFitters/RooCruijff.h"
 
 #include "B2DXFitters/RooAbsGaussModelEfficiency.h"
 #include "B2DXFitters/RooCubicSplineKnot.h"

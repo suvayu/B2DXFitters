@@ -24,7 +24,6 @@
 
 #include "B2DXFitters/Bs2Dsh2011TDAnaModels.h"
 #include "B2DXFitters/GeneralUtils.h"
-#include "B2DXFitters/RooCruijff.h"
 #include "B2DXFitters/RooBinned1DQuinticBase.h"
 
 using namespace std;
