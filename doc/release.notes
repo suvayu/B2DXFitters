@@ -5,6 +5,10 @@
 !-----------------------------------------------------------------------------
 
 ! 2015-05-24 - Manuel Tobias Schiller
+ - factor out cFit ntuple import code into python module datasetio; adapt cFit
+   code to deal with it, document
+
+! 2015-05-24 - Manuel Tobias Schiller
  - factor out setConstantIfSoConfigured routine into python module utils,
    adapt cFit code to follow
 

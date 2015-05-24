@@ -1,7 +1,7 @@
 """
 @file utils.py
 
-@author Manuel Schiller <manuel.schiller@nikhef.nl>
+@author Manuel Schiller <Manuel.Schiller@cern.ch>
 @date 2015-05-24
 
 @brief various little utilities
