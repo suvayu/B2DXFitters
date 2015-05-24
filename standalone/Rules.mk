@@ -1012,7 +1012,7 @@ MKDEPEND = $(CPP) $(CPPDEPFLAGS) $(CPPFLAGS) $< | \
 MKDEPENDMSG = "\\033[36m[MKDEPEND]\\033[m\\t$<"
 # make sure we use the "right" preprocessor
 .deps/%.d: CPP = $(CC) -E
-.deps/%.dd: CPP = $(CXX) -E
+.deps/%.dd: CPP = $(CXX) $(CXXSTD.$(CXX_FLAVOUR)) -E
 .deps/%.df: CPP = $(FC)
 # include ROOT includes for C++ files by default
 %.dd: CPPFLAGS += $(ROOTINCLUDES)

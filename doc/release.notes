@@ -4,6 +4,12 @@
 ! Purpose     : RooFit-based fitters for B -> D X
 !-----------------------------------------------------------------------------
 
+! 2015-05-24 - Manuel Tobias Schiller
+ - Rules.mk: further adapt for C++11 and ROOT 6 (thanks to Paul Seyfert for
+   bringing the problem to my attention)
+ - follow suit on Agnieszka's last commit with the standalone directory:
+   remove obsolete symlinks
+
 ! 2015-05-20 - Agnieszka Dziurda
  - remove the first bunch of classes: 
       B2DXFitters/NonOscTaggingPdf.h
