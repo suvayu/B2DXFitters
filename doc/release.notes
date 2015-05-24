@@ -5,6 +5,13 @@
 !-----------------------------------------------------------------------------
 
 ! 2015-05-24 - Manuel Tobias Schiller
+ - make cFit run again on Agnieszka's 1fb^-1 analysis toys:
+   - runBs2DsKCPAsymmObsFitter-cFit: get rid of code which refers to old
+     acceptance and resolution models
+   - resurrect TaggingCat class from svn (for now, I still need it, will take
+     care to remove it when I'm done)   
+
+! 2015-05-24 - Manuel Tobias Schiller
  - Rules.mk: further adapt for C++11 and ROOT 6 (thanks to Paul Seyfert for
    bringing the problem to my attention)
  - follow suit on Agnieszka's last commit with the standalone directory:

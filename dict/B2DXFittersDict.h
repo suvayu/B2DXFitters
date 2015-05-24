@@ -70,5 +70,6 @@ template class std::pair<std::string,RooAbsData*>;
 #include "B2DXFitters/DLLTagCombiner.h"
 #include "B2DXFitters/TagDLLToTagDec.h"
 #include "B2DXFitters/TagDLLToTagEta.h"
+#include "B2DXFitters/TaggingCat.h"
 
 #endif // DICT_B2DXFITTERSDICT_H

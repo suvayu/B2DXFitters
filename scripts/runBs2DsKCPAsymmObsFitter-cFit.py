@@ -1,6 +1,6 @@
 #!/bin/sh
 # -*- mode: python; coding: utf-8 -*-
-# vim: ft=python:sw=4:tw=78
+# vim: ft=python:sw=4:tw=78:expandtab
 # --------------------------------------------------------------------------- 
 # @file runBs2DsKCPAsymmObsFitter-cFit.py
 #
@@ -166,49 +166,49 @@ defaultConfig = {
             'Bs2DsstK', 'Bs2DsKst', 'Bs2DsstKst'
             ],
         # fit DsK CP observables in which mode:
-        # 'CDS' 		- C, D, Dbar, S, Sbar
-        # 'CDSConstrained'	- same as CDS, but constrain C^2+D^2+S^2 = 1
-        #			  (same for bar)
-        # 'CADDADS'		- C, <D>, Delta D, <S>, Delta S
-        #			  (<D>=(D+Dbar)/2, Delta D=(D-Dbar)/2 etc.)
-        # 'LambdaPhases'	- |lambda|, strong and weak phase
-        'Bs2DsKCPObs': 			'CDS',
-        'SqSumCDSConstraintWidth':	0.01,
+        # 'CDS'                 - C, D, Dbar, S, Sbar
+        # 'CDSConstrained'      - same as CDS, but constrain C^2+D^2+S^2 = 1
+        #                         (same for bar)
+        # 'CADDADS'             - C, <D>, Delta D, <S>, Delta S
+        #                         (<D>=(D+Dbar)/2, Delta D=(D-Dbar)/2 etc.)
+        # 'LambdaPhases'        - |lambda|, strong and weak phase
+        'Bs2DsKCPObs':                  'CDS',
+        'SqSumCDSConstraintWidth':      0.01,
 
         # BLINDING
-        'Blinding':			True,
+        'Blinding':                     True,
 
         # PHYSICAL PARAMETERS
-        'Gammad':			0.656, # in ps^{-1}
-        'Gammas':			0.661, # in ps^{-1}
-        'DeltaGammad':			0.,    # in ps^{-1}
-        'DGsOverGs':			-0.106/0.661, # DeltaGammas / Gammas
-        'DeltaMd':			0.507, # in ps^{-1}
-        'DeltaMs':			17.719, # in ps^{-1}
-        'GammaLb':			0.719, # in ps^{-1}
-        'GammaCombBkg':			0.800, # in ps^{-1}
+        'Gammad':                       0.656, # in ps^{-1}
+        'Gammas':                       0.661, # in ps^{-1}
+        'DeltaGammad':                  0.,    # in ps^{-1}
+        'DGsOverGs':                    -0.106/0.661, # DeltaGammas / Gammas
+        'DeltaMd':                      0.507, # in ps^{-1}
+        'DeltaMs':                      17.719, # in ps^{-1}
+        'GammaLb':                      0.719, # in ps^{-1}
+        'GammaCombBkg':                 0.800, # in ps^{-1}
         'DGammaCombBkg':                0.000, # in ps^{-1}
         'CombBkg_D':                    0.000, # D parameter (common for both final states)
         # CP observables
         'StrongPhase': {
-            'Bs2DsK':		20. / 180. * pi,
-            'Bs2DsstK': 	-160. / 180. * pi,
-            'Bs2DsKst': 	-160. / 180. * pi,
-            'Bs2DsstKst': 	20. / 180. * pi,
+            'Bs2DsK':           20. / 180. * pi,
+            'Bs2DsstK':         -160. / 180. * pi,
+            'Bs2DsKst':         -160. / 180. * pi,
+            'Bs2DsstKst':       20. / 180. * pi,
             'Bd2DPi':           20. / 180. * pi,
             },
         'WeakPhase': {
-                'Bs2DsK':	50. / 180. * pi,
-                'Bs2DsstK':	50. / 180. * pi,
-                'Bs2DsKst':	50. / 180. * pi,
-                'Bs2DsstKst':	50. / 180. * pi,
+                'Bs2DsK':       50. / 180. * pi,
+                'Bs2DsstK':     50. / 180. * pi,
+                'Bs2DsKst':     50. / 180. * pi,
+                'Bs2DsstKst':   50. / 180. * pi,
                 'Bd2DPi':       50. / 180. * pi,
                 },
         'ModLf': {
-                'Bs2DsK': 	0.372,
-                'Bs2DsstK': 	0.470,
-                'Bs2DsKst': 	0.372,
-                'Bs2DsstKst': 	0.470,
+                'Bs2DsK':       0.372,
+                'Bs2DsstK':     0.470,
+                'Bs2DsKst':     0.372,
+                'Bs2DsstKst':   0.470,
                 'Bd2DPi':       0.0187
                 },
     # asymmetries
@@ -238,11 +238,11 @@ defaultConfig = {
             },
     # Tagging
     'NTaggers':                         1, # 1 - only one tagger (e.g. OS), 2 - e.g. OS + SSK
-    'TagEff':			{
+    'TagEff':                   {
             'Bs2DsK': [ 0.403 ], # one per tagger
             },
-    'TagOmegaSig':			0.396,
-    'MistagCalibrationParams':	{
+    'TagOmegaSig':                      0.396,
+    'MistagCalibrationParams':  {
             # format:
             # 'mode1': [ [ [p0, p1, <eta>] ]_tagger1, ... ],
             # 'mode2': ...
@@ -258,23 +258,14 @@ defaultConfig = {
     'DecayTimeResolutionModel':         'TripleGaussian',
     'DecayTimeResolutionBias':          0.,
     'DecayTimeResolutionScaleFactor':   1.15,
-    # None/BdPTAcceptance/DTAcceptanceLHCbNote2007041,PowLawAcceptance,Spline
-    'AcceptanceFunction':		'PowLawAcceptance',
+    # None/DTAcceptanceLHCbNote2007041,Spline
+    'AcceptanceFunction':               'None',
     'AcceptanceCorrectionFile':         os.environ['B2DXFITTERSROOT']+'/data/acceptance-ratio-hists.root',
-    'AcceptanceCorrectionHistName':	'haccratio_cpowerlaw',
+    'AcceptanceCorrectionHistName':     'haccratio_cpowerlaw',
     'AcceptanceCorrectionInterpolation': False,
     # acceptance can really be made a histogram/spline interpolation
-    'StaticAcceptance':		False,
-    'AcceptanceInterpolation':	False,
-    # acceptance parameters BdPTAcceptance
-    'BdPTAcceptance_slope':	1.09,
-    'BdPTAcceptance_offset':	0.187,
-    'BdPTAcceptance_beta':	0.039,
-    # acceptance parameters PowLawAcceptance
-    'PowLawAcceptance_turnon':	1.215,
-    'PowLawAcceptance_offset':	0.0373,
-    'PowLawAcceptance_expo':	1.849,
-    'PowLawAcceptance_beta':	0.0363,
+    'StaticAcceptance':         False,
+    'AcceptanceInterpolation':  False,
     # spline acceptance parameters
     'AcceptanceSplineKnots':    [ 0.5, 1.0, 1.5, 2.0, 3.0, 12.0 ],
     'AcceptanceSplineCoeffs':   {
@@ -294,17 +285,17 @@ defaultConfig = {
             'DATA': {
                 'Bs2DsPi':      [ 4.5853e-01, 6.8963e-01, 8.8528e-01, 1.1296e+00, 1.2232e+00, 1.2277e+00 ],
                 'Bs2DsK':       [
-		    4.5853e-01 * 4.97708e-01 / 5.12341e-01,
-		    6.8963e-01 * 7.42075e-01 / 7.44868e-01,
-		    8.8528e-01 * 9.80824e-01 / 9.95795e-01,
-		    1.1296e+00 * 1.16280e+00 / 1.13071e+00,
-		    1.2232e+00 * 1.24252e+00 / 1.23135e+00,
-		    1.2277e+00 * 1.28482e+00 / 1.22716e+00
-		    ],
+                    4.5853e-01 * 4.97708e-01 / 5.12341e-01,
+                    6.8963e-01 * 7.42075e-01 / 7.44868e-01,
+                    8.8528e-01 * 9.80824e-01 / 9.95795e-01,
+                    1.1296e+00 * 1.16280e+00 / 1.13071e+00,
+                    1.2232e+00 * 1.24252e+00 / 1.23135e+00,
+                    1.2277e+00 * 1.28482e+00 / 1.22716e+00
+                    ],
                 }
             },
 
-    'PerEventMistag': 		True,
+    'PerEventMistag':           True,
 
     # divide mistag into categories?
     #
@@ -319,18 +310,18 @@ defaultConfig = {
     # parameter range if per-cat. omegas are floated
     'MistagCategoryOmegaRange': [ 0., 0.5 ],
 
-    'TrivialMistag':		False,
+    'TrivialMistag':            False,
 
-    'UseKFactor':		True,
+    'UseKFactor':               True,
 
     # fitter settings
-    'Optimize':			1,
-    'Strategy':			2,
-    'Offset':			True,
-    'Minimizer':		[ 'Minuit', 'migrad' ],
-    'NumCPU':			1,
+    'Optimize':                 1,
+    'Strategy':                 2,
+    'Offset':                   True,
+    'Minimizer':                [ 'Minuit', 'migrad' ],
+    'NumCPU':                   1,
     'ParameteriseIntegral':     True,
-    'Debug':			False,
+    'Debug':                    False,
 
     # list of constant parameters
     'constParams': [
@@ -354,17 +345,17 @@ defaultConfig = {
             },
 
     # mass templates
-    'MassTemplateFile':		os.environ['B2DXFITTERSROOT']+'/data/workspace/WS_Mass_DsK.root',
-    'MassTemplateWorkspace':	'FitMeToolWS',
-    'MassInterpolation':	False,
+    'MassTemplateFile':         os.environ['B2DXFITTERSROOT']+'/data/workspace/WS_Mass_DsK.root',
+    'MassTemplateWorkspace':    'FitMeToolWS',
+    'MassInterpolation':        False,
     # fudge the default template lookup order
-    'MassTemplatePolaritySearch':	[ 'both' ],
+    'MassTemplatePolaritySearch':       [ 'both' ],
     # either one element or 6 (kkpi,kpipi,pipipi)x(up,down) in "sample" order
-    'NEvents':			[ 1731. ],
+    'NEvents':                  [ 1731. ],
     # target S/B: None means keep default
     'S/B': None,
     # mistag template
-    'MistagTemplates':	{
+    'MistagTemplates':  {
             # general format:
             # 'mode1': [ { dict tagger 1 }, ..., { dict tagger N } ],
             # 'mode2': ...
@@ -377,7 +368,7 @@ defaultConfig = {
                     'VarName':          'lab0_BsTaggingTool_TAGOMEGA_OS',
                 } ]
             },
-    'MistagInterpolation':	False,
+    'MistagInterpolation':      False,
     # decay time error template
     'DecayTimeErrorTemplates': {
             # general format:
@@ -392,7 +383,7 @@ defaultConfig = {
                 'VarName':      None,
                 },
             },
-    'DecayTimeErrInterpolation':	False,
+    'DecayTimeErrInterpolation':        False,
 
     # k-factor templates
     'KFactorTemplates': {
@@ -404,26 +395,26 @@ defaultConfig = {
             },
 
     # verify settings and sanitise where (usually) sensible
-    'Sanitise':			True,
+    'Sanitise':                 True,
 
     # fitter on speed: binned PDFs
-    'NBinsAcceptance':		300,   # if >0, bin acceptance
-    'NBinsTimeKFactor':		0,     # if >0, use binned cache for k-factor integ.
-    'NBinsMistag':		50,    # if >0, parametrize Mistag integral
-    'NBinsProperTimeErr':	100,   # if >0, parametrize proper time int.
-    'NBinsMass':		200,   # if >0, bin mass templates
+    'NBinsAcceptance':          300,   # if >0, bin acceptance
+    'NBinsTimeKFactor':         0,     # if >0, use binned cache for k-factor integ.
+    'NBinsMistag':              50,    # if >0, parametrize Mistag integral
+    'NBinsProperTimeErr':       100,   # if >0, parametrize proper time int.
+    'NBinsMass':                200,   # if >0, bin mass templates
 
     # Data file settings
-    'IsToy':			True,
-    'DataFileName':		None,
-    'DataWorkSpaceName':	'workspace',
-    'DataSetNames':		{
+    'IsToy':                    True,
+    'DataFileName':             None,
+    'DataWorkSpaceName':        'workspace',
+    'DataSetNames':             {
             'up_kkpi':          'dataSetBsDsK_up_kkpi',
             'up_kpipi':         'dataSetBsDsK_up_kpipi',
             'up_pipipi':        'dataSetBsDsK_up_pipipi',
-            'down_kkpi':	'dataSetBsDsK_down_kkpi',
-            'down_kpipi':	'dataSetBsDsK_down_kpipi',
-            'down_pipipi':	'dataSetBsDsK_down_pipipi'
+            'down_kkpi':        'dataSetBsDsK_down_kkpi',
+            'down_kpipi':       'dataSetBsDsK_down_kpipi',
+            'down_pipipi':      'dataSetBsDsK_down_pipipi'
             },
     'DataSetCuts': None,                # cut string or None
     # variable name mapping: our name -> name in dataset
@@ -446,14 +437,14 @@ defaultConfig = {
     # bug-for-bug compatibility flags
     'BugFlags': [
             # 'PdfSSbarSwapMinusOne',
-            # 	swap and multiply S and Sbar in the pdf, state of
-            # 	affairs before discovery of bug on 2012-09-13 
+            #   swap and multiply S and Sbar in the pdf, state of
+            #   affairs before discovery of bug on 2012-09-13 
             # 'OutputCompatSSbarSwapMinusOne',
-            #	with the bug from PdfSSbarSwapMinusOne fixed, the
-            #	output of the fit parameters is no longer comparable to
-            #	old fits - fix in the final output routine by applying
-            #	that transformation during the output stage (MINUIT log
-            #	output and fit results will be "wrong", though)
+            #   with the bug from PdfSSbarSwapMinusOne fixed, the
+            #   output of the fit parameters is no longer comparable to
+            #   old fits - fix in the final output routine by applying
+            #   that transformation during the output stage (MINUIT log
+            #   output and fit results will be "wrong", though)
             #'RooFitTopSimultaneousWorkaround',
             # this will work around a problem in present RooFit versions which
             # produce different LH values if the top-level PDF is a
@@ -499,7 +490,7 @@ def readDataSet(
     config,             # configuration dictionary
     ws,                 # workspace to which to add data set
     observables,        # observables
-    rangeName = None	# name of range to clip dataset to
+    rangeName = None    # name of range to clip dataset to
     ):
     from ROOT import ( TFile, RooWorkspace, RooRealVar, RooCategory,
         RooBinningCategory, RooUniformBinning, RooMappedCategory,
@@ -793,9 +784,9 @@ def writeDataSet(dataset, filename, treename, bnamemap = {}):
     del f
 
 def readAcceptanceCorrection(
-    config,	# config dictionary
-    ws,	# workspace into which to import correction
-    time	# time
+    config,     # config dictionary
+    ws, # workspace into which to import correction
+    time        # time
     ):
     from ROOT import ( TFile, TH1, RooDataHist, RooHistPdf, RooArgList,
         RooArgSet )
@@ -886,7 +877,7 @@ def buildSplineAcceptance(
         coefflist.at(coefflist.getSize() - 2), lastmycoeffs)))
     del i
     print 'DEBUG: Spline Coeffs: %s' % str([ coefflist.at(i).getVal() for i in
-	xrange(0, coefflist.getSize()) ])
+        xrange(0, coefflist.getSize()) ])
     # create the spline itself
     tacc = WS(ws, RooCubicSplineFun('%s_SplineAcceptance' % pfx,
         '%s_SplineAcceptance' % pfx, time, '%s_knotbinning' % pfx,
@@ -914,37 +905,7 @@ def getAcceptance(
             config['AcceptanceFunction']):
         # no acceptance function
         return None
-    if 'BdPTAcceptance' == config['AcceptanceFunction']:
-        tacc_slope  = WS(ws, RooRealVar('tacc_slope' , 'BdPTAcceptance_slope',
-            config['BdPTAcceptance_slope']))
-        tacc_offset = WS(ws, RooRealVar('tacc_offset', 'BdPTAcceptance_offset',
-            config['BdPTAcceptance_offset']))
-        tacc_beta = WS(ws, RooRealVar('tacc_beta', 'BdPTAcceptance_beta',
-            config['BdPTAcceptance_beta']))
-        tacc = WS(ws, BdPTAcceptance('BsPTAccFunction',
-            'decay time acceptance function',
-            time, tacc_beta, tacc_slope, tacc_offset))
-        tacc_norm = tacc
-    elif 'PowLawAcceptance' == config['AcceptanceFunction']:
-        acc_corr = readAcceptanceCorrection(config, ws, time)
-        tacc_beta = WS(ws, RooRealVar('tacc_beta', 'tacc_beta',
-            config['PowLawAcceptance_beta']))
-        tacc_expo = WS(ws, RooRealVar('tacc_expo', 'tacc_expo',
-            config['PowLawAcceptance_expo']))
-        tacc_offset = WS(ws, RooRealVar('tacc_offset', 'tacc_offset',
-            config['PowLawAcceptance_offset']))
-        tacc_turnon = WS(ws, RooRealVar('tacc_turnon', 'tacc_turnon',
-            config['PowLawAcceptance_turnon']))
-        if None != acc_corr:
-            tacc = WS(ws, PowLawAcceptance('PowLawAcceptance',
-                'decay time acceptance', tacc_turnon, time, tacc_offset,
-                tacc_expo, tacc_beta, acc_corr))
-        else:
-            tacc = WS(ws, PowLawAcceptance('PowLawAcceptance',
-                'decay time acceptance', tacc_turnon, time, tacc_offset,
-                tacc_expo, tacc_beta))
-        tacc_norm = tacc
-    elif 'Spline' == config['AcceptanceFunction']:
+    if 'Spline' == config['AcceptanceFunction']:
         # ok, spline based acceptance function
         kind = 'MC' if config['IsToy'] else 'DATA'
         knots = config['AcceptanceSplineKnots']
@@ -1100,8 +1061,8 @@ def readTemplate1D(
     fromws,             # workspace to read from
     fromvarname,        # variable name in fromws
     objname,            # object to ask for
-    ws, 	        # workspace to import into
-    variable,	        # variable
+    ws,                 # workspace to import into
+    variable,           # variable
     pfx,                # prefix of imported objects
     binIfPDF = False    # bin if the template comes as Pdf
     ):
@@ -1184,16 +1145,16 @@ def readTemplate1D(
     if hist.Integral() < 1e-15:
         raise ValueError('Histogram empty!')
     variable.setRange(
-	    max(variable.getMin(),
-		hist.GetXaxis().GetBinLowEdge(1)),
-	    min(variable.getMax(),
-		hist.GetXaxis().GetBinUpEdge(hist.GetNbinsX())))
+            max(variable.getMin(),
+                hist.GetXaxis().GetBinLowEdge(1)),
+            min(variable.getMax(),
+                hist.GetXaxis().GetBinUpEdge(hist.GetNbinsX())))
     from ROOT import RooBinning, std
     bins = std.vector('double')()
     bins.push_back(hist.GetXaxis().GetBinLowEdge(1))
     for ibin in xrange(1, 1 + hist.GetNbinsX()):
         bins.push_back(hist.GetXaxis().GetBinUpEdge(ibin))
-    binning = RooBinning(bins.size() - 1, bins.begin().base())
+    binning = RooBinning(bins.size() - 1, bins.data())
     del bins
     del ibin
     variable.setBinning(binning)
@@ -1213,9 +1174,9 @@ def readTemplate1D(
 
 # read mistag distribution from file
 def getMistagTemplate(
-    config,	# configuration dictionary
-    ws, 	# workspace to import into
-    mistag,	# mistag variable
+    config,     # configuration dictionary
+    ws,         # workspace to import into
+    mistag,     # mistag variable
     mode,       # mode to look up
     taggernr = 0 # number of tagger
     ):
@@ -1240,9 +1201,9 @@ def getMistagTemplate(
 
 # read decay time error distribution from file
 def getDecayTimeErrorTemplate(
-    config,	# configuration dictionary
-    ws, 	# workspace to import into
-    timeerr,	# timeerr variable
+    config,     # configuration dictionary
+    ws,         # workspace to import into
+    timeerr,    # timeerr variable
     mode        # mode to look up
     ):
     # find the entry we're interested in
@@ -1259,9 +1220,9 @@ def getDecayTimeErrorTemplate(
 
 # load k-factor templates for all modes
 def getKFactorTemplates(
-    config,	# configuration dictionary
-    ws, 	# workspace to import into
-    k	# k factor variable
+    config,     # configuration dictionary
+    ws,         # workspace to import into
+    k   # k factor variable
     ):
     templates = {}
     for mode in config['Modes']:
@@ -1284,13 +1245,13 @@ def getKFactorTemplates(
 #
 # returns a dictionary with a pair { 'pdf': pdf, 'yield': yield }
 def getMassTemplateOneMode2011Conf(
-    config,	        # configuration dictionary
+    config,             # configuration dictionary
     ws,                 # workspace into which to import templates
-    mass,	        # mass variable
-    mode,	        # decay mode to load
+    mass,               # mass variable
+    mode,               # decay mode to load
     sname,              # sample name
     dsmass = None,      # ds mass variable
-    pidk = None	        # pidk variable
+    pidk = None         # pidk variable
     ):
     fromfile = config['MassTemplateFile']
     fromwsname = config['MassTemplateWorkspace']
@@ -1539,13 +1500,13 @@ def getMassTemplateOneMode2011Conf(
 #
 # returns a dictionary with a pair { 'pdf': pdf, 'yield': yield }
 def getMassTemplateOneMode2011Paper(
-    config,	        # configuration dictionary
+    config,             # configuration dictionary
     ws,                 # workspace into which to import templates
-    mass,	        # mass variable
-    mode,	        # decay mode to load
+    mass,               # mass variable
+    mode,               # decay mode to load
     sname,              # sample name
     dsmass = None,      # ds mass variable
-    pidk = None	        # pidk variable
+    pidk = None         # pidk variable
     ):
     fromfile = config['MassTemplateFile']
     fromwsname = config['MassTemplateWorkspace']
@@ -1636,7 +1597,7 @@ def getMassTemplateOneMode2011Paper(
                 if None != nYield:
                     nYield = nYield.getVal()
                     break
-	    if None == nYield and None == pdf: continue
+            if None == nYield and None == pdf: continue
             if None == nYield and mode in ('Bd2DK', 'Bd2DPi', 'Lb2LcK',
                     'Lb2LcPi'):
                 # Agnieszka's yield-removal for modes that were not found
@@ -1809,9 +1770,9 @@ def getMassTemplateOneMode2011Paper(
 # returns dictionary d['mode']['polarity']['kkpi/kpipi/pipipi'] which contains
 # a dictionary of pairs { 'pdf': pdf, 'yield': yield }
 def getMassTemplates(
-    config,		# configuration dictionary
-    ws,			# wksp into which to import templates
-    mass,		# mass variable
+    config,             # configuration dictionary
+    ws,                 # wksp into which to import templates
+    mass,               # mass variable
     dsmass = None,      # ds mass variable
     pidk = None,        # pidk variable
     snames = None       # sample names to read
@@ -1993,20 +1954,20 @@ def applyKFactorSmearing(
 
 # build non-oscillating decay time pdf
 def buildNonOscDecayTimePdf(
-    config,					# configuration dictionary
-    name,					# 'Signal', 'DsPi', ...
-    ws,					# RooWorkspace into which to put the PDF
-    time, timeerr, qt, qf, mistag, tageff,	# potential observables
+    config,                                     # configuration dictionary
+    name,                                       # 'Signal', 'DsPi', ...
+    ws,                                 # RooWorkspace into which to put the PDF
+    time, timeerr, qt, qf, mistag, tageff,      # potential observables
     Gamma,
-    timeresmodel = None,			# decay time resolution model
-    acceptance = None,			# acceptance function
-    timeerrpdf = None,			# pdf for per event time error
-    mistagpdf = None,			# pdf for per event mistag
-    kfactorpdf = None,			# distribution k factor smearing
-    kvar = None,				# variable k which to integrate out
-    adet = None,				# detection asymmetry
-    atageff_f = None,			# qf dependent tagging eff. asymm.
-    atageff_t = None			# qt dependent tagging eff. asymm.
+    timeresmodel = None,                        # decay time resolution model
+    acceptance = None,                  # acceptance function
+    timeerrpdf = None,                  # pdf for per event time error
+    mistagpdf = None,                   # pdf for per event mistag
+    kfactorpdf = None,                  # distribution k factor smearing
+    kvar = None,                                # variable k which to integrate out
+    adet = None,                                # detection asymmetry
+    atageff_f = None,                   # qf dependent tagging eff. asymm.
+    atageff_t = None                    # qt dependent tagging eff. asymm.
     ):
     # Look in LHCb-INT-2011-051 for the conventions used
     from ROOT import ( RooConstVar, RooProduct, RooTruthModel, RooGaussModel,
@@ -2105,22 +2066,22 @@ def buildNonOscDecayTimePdf(
 
 # build B decay time pdf
 def buildBDecayTimePdf(
-    config,					# configuration dictionary
-    name,					# 'Signal', 'DsPi', ...
-    ws,					# RooWorkspace into which to put the PDF
-    time, timeerr, qt, qf, mistag, tageff,	# potential observables
-    Gamma, DeltaGamma, DeltaM,		# decay parameters
-    C, D, Dbar, S, Sbar,			# CP parameters
-    timeresmodel = None,			# decay time resolution model
-    acceptance = None,			# acceptance function
-    timeerrpdf = None,			# pdf for per event time error
-    mistagpdf = None,			# pdf for per event mistag
-    mistagobs = None,			# real mistag observable
-    kfactorpdf = None,			# distribution k factor smearing
-    kvar = None,				# variable k which to integrate out
-    aprod = None,				# production asymmetry
-    adet = None,				# detection asymmetry
-    atageff = None				# asymmetry in tagging efficiency
+    config,                                     # configuration dictionary
+    name,                                       # 'Signal', 'DsPi', ...
+    ws,                                 # RooWorkspace into which to put the PDF
+    time, timeerr, qt, qf, mistag, tageff,      # potential observables
+    Gamma, DeltaGamma, DeltaM,          # decay parameters
+    C, D, Dbar, S, Sbar,                        # CP parameters
+    timeresmodel = None,                        # decay time resolution model
+    acceptance = None,                  # acceptance function
+    timeerrpdf = None,                  # pdf for per event time error
+    mistagpdf = None,                   # pdf for per event mistag
+    mistagobs = None,                   # real mistag observable
+    kfactorpdf = None,                  # distribution k factor smearing
+    kvar = None,                                # variable k which to integrate out
+    aprod = None,                               # production asymmetry
+    adet = None,                                # detection asymmetry
+    atageff = None                              # asymmetry in tagging efficiency
     ):
     # Look in LHCb-INT-2011-051 for the conventions used
     from ROOT import ( RooConstVar, RooProduct, RooTruthModel, RooGaussModel,
@@ -2231,7 +2192,7 @@ def buildBDecayTimePdf(
         '%s #tau' % Gamma.GetName(), Gamma))
     retVal = WS(ws, RooBDecay(
         '%s_RawTimePdf' % name, '%s raw time pdf' % name,
-        time, tau, DeltaGamma,	cosh, sinh, cos, sin,
+        time, tau, DeltaGamma,  cosh, sinh, cos, sin,
         DeltaM, timeresmodel, RooBDecay.SingleSided))
 
     # work out in which observables to parameterise k-factor smearing, then
@@ -2660,9 +2621,9 @@ def getMasterPDF(config, name, debug = False):
         RooGaussModel, RooTruthModel, RooWorkspace, RooAbsArg,
         RooAddPdf, RooProdPdf, RooExtendPdf, RooGenericPdf, RooExponential,
         RooPolynomial, RooUniform, RooFit, RooUniformBinning,
-        BdPTAcceptance, RooSimultaneous, RangeAcceptance, RooEffProd,
+        RooSimultaneous, RangeAcceptance, RooEffProd,
         RooAddition, RooProduct, Inverse, SquaredSum, CPObservable,
-        PowLawAcceptance, MistagCalibration)
+        MistagCalibration)
     # fix context
     config = dict(config)
     config['Context'] = name
@@ -2719,8 +2680,6 @@ def getMasterPDF(config, name, debug = False):
         weight = None
     # figure out lower bound of fit range
     timelo = config['FitRanges']['time'][0]
-    if config['AcceptanceFunction'] == 'BdPTAcceptance':
-        timelo = max(timelo, config['BdPTAcceptance_offset'])
     time = WS(ws, RooRealVar('time', 'decay time', 1., timelo,
         config['FitRanges']['time'][1], 'ps'))
     if config['NBinsAcceptance'] > 0:
@@ -3025,7 +2984,7 @@ def getMasterPDF(config, name, debug = False):
         # ok, build the mistag
         from ROOT import TaggingCat
         mistag = WS(ws, TaggingCat('OmegaPerCat', 'OmegaPerCat',
-				    qt, tagcat, omegas))
+                                    qt, tagcat, omegas))
         mistagCals = {}
         for mode in config['Modes']:
             mistagCals[mode] = [ [ mistag ] ]
@@ -3561,10 +3520,10 @@ def getMasterPDF(config, name, debug = False):
                 # component
                 continue
             if 'sFit' in config['FitMode']:
-		mtpdf = tpdf
+                mtpdf = tpdf
             else:
-		mtpdf = WS(ws, RooProdPdf('%s_%s_PDF' % (mode, sname),
-		    '%s_%s_PDF' % (mode, sname), mpdf['pdf'], tpdf))
+                mtpdf = WS(ws, RooProdPdf('%s_%s_PDF' % (mode, sname),
+                    '%s_%s_PDF' % (mode, sname), mpdf['pdf'], tpdf))
             components[mode] += [ sname ]
             pdfs.add(mtpdf)
             yields.add(mpdf['yield'])
@@ -3614,19 +3573,19 @@ def getMasterPDF(config, name, debug = False):
     # remove constraints for modes which are not included
     constr = constraintbuilder.getSetOfConstraints()
     for mode in config['Modes']:
-	# skip modes with contributions to pdf
-	if len(components[mode]) > 0: continue
-	again = True
-	while again:
-	    again = False
+        # skip modes with contributions to pdf
+        if len(components[mode]) > 0: continue
+        again = True
+        while again:
+            again = False
             it = constr.fwdIterator()
             while True:
                 arg = it.next()
                 if None == arg: break
-		if -1 != arg.GetName().find(mode):
-		    constr.remove(arg)
-		    again = True
-		    break
+                if -1 != arg.GetName().find(mode):
+                    constr.remove(arg)
+                    again = True
+                    break
 
     constraints = [ ]
     it = constr.fwdIterator()

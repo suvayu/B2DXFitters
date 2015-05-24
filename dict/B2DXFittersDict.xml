@@ -81,5 +81,6 @@
 	</class>
 	<class name="TagDLLToTagDec"/>
 	<class name="TagDLLToTagEta"/>
+	<class name="TaggingCat"/>
 </selection>
 </lcgdict>
