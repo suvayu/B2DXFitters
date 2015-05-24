@@ -5,6 +5,10 @@
 !-----------------------------------------------------------------------------
 
 ! 2015-05-24 - Manuel Tobias Schiller
+ - factor out setConstantIfSoConfigured routine into python module utils,
+   adapt cFit code to follow
+
+! 2015-05-24 - Manuel Tobias Schiller
  - make cFit run again on Agnieszka's 1fb^-1 analysis toys:
    - runBs2DsKCPAsymmObsFitter-cFit: get rid of code which refers to old
      acceptance and resolution models

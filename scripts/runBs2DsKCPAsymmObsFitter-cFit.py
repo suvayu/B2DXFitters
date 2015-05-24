@@ -453,37 +453,9 @@ defaultConfig = {
     }
 
 #------------------------------------------------------------------------------
-def setConstantIfSoConfigured(config, obj, recache = {}):
-    from ROOT import RooAbsArg, RooRealVar, RooConstVar, RooArgSet
-    if 0 == len(recache):
-        import re
-        for rexp in config['constParams']:
-            recache[rexp] = re.compile(rexp)
-    if obj.InheritsFrom(RooRealVar.Class()):
-        # set desired RooRealVar-derived objects to const
-        for rexp in recache:
-            if recache[rexp].match(obj.GetName()):
-                obj.setConstant(True)
-                break
-    elif obj.InheritsFrom(RooConstVar.Class()):
-        # ignore RooConstVar instances - these are constant anyway
-        pass
-    elif obj.InheritsFrom(RooAbsArg.Class()):
-        # for everything else, descend hierarchy of RooFit objects to find
-        # RooRealVars which might need to be set to constant
-        v = RooArgSet()
-        obj.treeNodeServerList(v)
-        v.remove(obj)
-        it = v.fwdIterator()
-        while True:
-            o = it.next()
-            if None == o: break
-            setConstantIfSoConfigured(config, o, recache)
-    else:
-        # ignore everything else
-        pass
 
 from B2DXFitters.WS import WS as WS
+from B2DXFitters.utils import setConstantIfSoConfigured as setConstantIfSoConfigured
 
 # read dataset from workspace
 def readDataSet(
