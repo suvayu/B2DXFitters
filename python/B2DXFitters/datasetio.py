@@ -374,7 +374,26 @@ def readDataSet(
 
 def writeDataSet(dataset, filename, treename, bnamemap = {}):
     """
-    FIXME: need to write docs - Manuel
+    writes a given data set into a given tree in a given file
+
+    dataset  -- RooDataSet to write to ntuple
+    filename -- ROOT file to write tuple to
+    treename -- name of TTree instance inside ROOT file
+    bnamemap -- branch name renaming map (default: empty, no renaming done)
+
+    example:
+    @code
+    data = # get RooDataSet from somewhere
+    writeDataSet(data,
+        '/path/to/some/file.root',
+        'datasetnameinrootfile',
+        {
+            # variable mass in data is renamed to bsmass in file, pidk is
+            # uppercased
+            'mass': 'bsmass',
+            'pidk': 'PIDK'
+        })
+    @endcode
     """
     from ROOT import TFile, TTree
     import array

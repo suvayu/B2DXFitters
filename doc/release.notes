@@ -4,6 +4,9 @@
 ! Purpose     : RooFit-based fitters for B -> D X
 !-----------------------------------------------------------------------------
 
+! 2015-05-25 - Manuel Tobias Schiller
+ - datasetio.py: finish documenting
+
 ! 2015-05-24 - Manuel Tobias Schiller
  - factor out cFit ntuple import code into python module datasetio; adapt cFit
    code to deal with it, document
