@@ -36,7 +36,6 @@
 	    'Bs2DsstKst': 0.51,
 	    'Bd2DPi':     0.015
 	    },
-        'AcceptanceCorrectionFile': None,
         'CombineModesForEffCPObs': [ ],
         'NEvents':			[ 2996. ],
         'DataFileName':         ('/afs/cern.ch/work/a/adudziak/public/Bs2DsKToys/Gamma116_FinalForPaper1fb_3/MassFitResults/DsK_Toys_Work_ForMassPlot_%d.root' if haveAFS else

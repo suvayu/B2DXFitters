@@ -4,6 +4,10 @@
 ! Purpose     : RooFit-based fitters for B -> D X
 !-----------------------------------------------------------------------------
 
+! 2015-06-11 - Manuel Tobias Schiller
+ - cFit: further cleanups, factor out spline acceptance and resolution model
+   helper functions
+
 ! 2015-05-25 - Manuel Tobias Schiller
  - datasetio.py: finish documenting
 

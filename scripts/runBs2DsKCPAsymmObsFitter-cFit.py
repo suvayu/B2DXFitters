@@ -260,9 +260,6 @@ defaultConfig = {
     'DecayTimeResolutionScaleFactor':   1.15,
     # None/DTAcceptanceLHCbNote2007041,Spline
     'AcceptanceFunction':               'None',
-    'AcceptanceCorrectionFile':         os.environ['B2DXFITTERSROOT']+'/data/acceptance-ratio-hists.root',
-    'AcceptanceCorrectionHistName':     'haccratio_cpowerlaw',
-    'AcceptanceCorrectionInterpolation': False,
     # acceptance can really be made a histogram/spline interpolation
     'StaticAcceptance':         False,
     'AcceptanceInterpolation':  False,
@@ -454,123 +451,12 @@ defaultConfig = {
 
 #------------------------------------------------------------------------------
 
-from B2DXFitters.WS import WS as WS
-from B2DXFitters.utils import setConstantIfSoConfigured as setConstantIfSoConfigured
-from B2DXFitters.datasetio import readDataSet as readDataSet
-from B2DXFitters.datasetio import writeDataSet as writeDataSet
-
-def readAcceptanceCorrection(
-    config,     # config dictionary
-    ws, # workspace into which to import correction
-    time        # time
-    ):
-    from ROOT import ( TFile, TH1, RooDataHist, RooHistPdf, RooArgList,
-        RooArgSet )
-    if None == config['AcceptanceCorrectionFile'] or \
-            None == config['AcceptanceCorrectionHistName'] or \
-            '' == config['AcceptanceCorrectionFile'] or \
-            '' == config['AcceptanceCorrectionHistName']:
-                return None
-    f = TFile(config['AcceptanceCorrectionFile'], 'READ')
-    h = f.Get(config['AcceptanceCorrectionHistName'])
-    ROOT.SetOwnership(h, True)
-    h.Scale(1. / h.Integral())
-    if not config['AcceptanceCorrectionInterpolation']:
-        dhist = RooDataHist('acc_corr_dhist', 'acc_corr_dhist',
-                RooArgList(time), h)
-        retVal = WS(ws, RooHistPdf('acc_corr', 'acc_corr',
-            RooArgSet(time), dhist))
-        del dhist
-    else:
-        from ROOT import RooBinned1DQuinticBase, RooAbsPdf
-        RooBinned1DQuinticPdf = RooBinned1DQuinticBase(RooAbsPdf)
-        retVal = WS(ws, RooBinned1DQuinticPdf(
-            'acc_corr', 'acc_corr', h, time))
-    del h
-    del f
-    return retVal
-
-def buildSplineAcceptance(
-        ws,     # workspace into which to import
-        time,   # time variable
-        pfx,    # prefix to be used in names
-        knots,  # knots
-        coeffs, # acceptance coefficients
-        floatParams = False # float acceptance parameters
-        ): 
-    # build acceptance function
-    from copy import deepcopy
-    myknots = deepcopy(knots)
-    mycoeffs = deepcopy(coeffs)
-    from ROOT import (RooBinning, RooArgList, RooPolyVar, RooCubicSplineFun,
-            RooConstVar, RooProduct, RooRealVar)
-    if (len(myknots) != len(mycoeffs) or 0 >= min(len(myknots), len(mycoeffs))):
-        raise ValueError('ERROR: Spline knot position list and/or coefficient'
-                'list mismatch')
-    one = WS(ws, RooConstVar('one', '1', 1.0))
-    # create the knot binning
-    knotbinning = WS(ws, RooBinning(time.getMin(), time.getMax(),
-        '%s_knotbinning' % pfx))
-    for v in myknots:
-        knotbinning.addBoundary(v)
-    knotbinning.removeBoundary(time.getMin())
-    knotbinning.removeBoundary(time.getMax())
-    knotbinning.removeBoundary(time.getMin())
-    knotbinning.removeBoundary(time.getMax())
-    oldbinning, lo, hi = time.getBinning(), time.getMin(), time.getMax()
-    time.setBinning(knotbinning, '%s_knotbinning' % pfx)
-    time.setBinning(oldbinning)
-    time.setRange(lo, hi)
-    del knotbinning
-    del oldbinning
-    del lo
-    del hi
-    # create the knot coefficients
-    coefflist = RooArgList()
-    i = 0
-    for v in mycoeffs:
-        if floatParams:
-            coefflist.add(WS(ws, RooRealVar('%s_SplineAccCoeff%u' % (pfx, i),
-                '%s_SplineAccCoeff%u' % (pfx, i), v, 0., 3.)))
-        else:
-            coefflist.add(WS(ws, RooConstVar('%s_SplineAccCoeff%u' % (pfx, i),
-                '%s_SplineAccCoeff%u' % (pfx, i), v)))
-        i = i + 1
-    del mycoeffs
-    coefflist.add(one)
-    i = i + 1
-    myknots.append(time.getMax())
-    myknots.reverse()
-    fudge = (myknots[0] - myknots[1]) / (myknots[2] - myknots[1])
-    lastmycoeffs = RooArgList(
-            WS(ws, RooConstVar('%s_SplineAccCoeff%u_coeff0' % (pfx, i),
-                '%s_SplineAccCoeff%u_coeff0' % (pfx, i), 1. - fudge)),
-            WS(ws, RooConstVar('%s_SplineAccCoeff%u_coeff1' % (pfx, i),
-                '%s_SplineAccCoeff%u_coeff1' % (pfx, i), fudge)))
-    del myknots
-    coefflist.add(WS(ws, RooPolyVar(
-        '%s_SplineAccCoeff%u' % (pfx, i), '%s_SplineAccCoeff%u' % (pfx, i),
-        coefflist.at(coefflist.getSize() - 2), lastmycoeffs)))
-    del i
-    print 'DEBUG: Spline Coeffs: %s' % str([ coefflist.at(i).getVal() for i in
-        xrange(0, coefflist.getSize()) ])
-    # create the spline itself
-    tacc = WS(ws, RooCubicSplineFun('%s_SplineAcceptance' % pfx,
-        '%s_SplineAcceptance' % pfx, time, '%s_knotbinning' % pfx,
-        coefflist))
-    del lastmycoeffs
-    if not floatParams:
-        # make sure the acceptance is <= 1 for generation
-        m = max([coefflist.at(j).getVal() for j in
-            xrange(0, coefflist.getSize())])
-        c = WS(ws, RooConstVar('%s_SplineAccNormCoeff' % pfx,
-            '%s_SplineAccNormCoeff' % pfx, 0.99 / m))
-        tacc_norm = WS(ws, RooProduct('%s_SplineAcceptanceNormalised' % pfx,
-            '%s_SplineAcceptanceNormalised' % pfx, RooArgList(tacc, c)))
-        del c
-        del m
-    del coefflist
-    return tacc, tacc_norm
+from B2DXFitters.WS import WS
+from B2DXFitters.utils import setConstantIfSoConfigured
+from B2DXFitters.datasetio import readDataSet
+from B2DXFitters.datasetio import writeDataSet
+from B2DXFitters.acceptanceutils import buildSplineAcceptance
+from B2DXFitters.resmodelutils import getResolutionModel
 
 def getAcceptance(
         ws,
@@ -633,104 +519,6 @@ def getAcceptance(
             time.setBins(obins)
         tacc_norm = tacc
     return (tacc if 'GEN' not in config['Context'] else tacc_norm)
-
-def getResolutionModel(
-        ws,             # workspace
-        config,         # config dictionary
-        time,           # time observable
-        timeerr,        # time error observable (if applicable)
-        tacc            # acceptance (if applicable)
-        ):
-    if (type(config['DecayTimeResolutionModel']) == list or
-    type(config['DecayTimeResolutionModel']) == tuple):
-        # ok, we got a list of: [sigma_0,sigma_1, ...] and [f0,f1,...]
-        # build specified resolution model on the fly
-        from ROOT import ( RooArgList, RooRealVar, RooGaussModel,
-                RooGaussEfficiencyModel, RooAddModel )
-        if 2 != len(config['DecayTimeResolutionModel']):
-            raise TypeError('Unknown type of resolution model')
-        ncomp = len(config['DecayTimeResolutionModel'][0])
-        if ncomp < 1:
-            raise TypeError('Unknown type of resolution model')
-        if ncomp != len(config['DecayTimeResolutionModel'][1]) and \
-                ncomp - 1 != len(config['DecayTimeResolutionModel'][1]):
-            raise TypeError('Unknown type of resolution model')
-        pdfs = RooArgList()
-        fracs = RooArgList()
-        i = 0
-        for s in config['DecayTimeResolutionModel'][0]:
-            sigma = WS(ws, RooRealVar('resmodel%02d_sigma' % i,
-                'resmodel%02d_sigma' % i, s, 'ps'))
-            bias = WS(ws, RooRealVar('timeerr_bias',
-                'timeerr_bias', config['DecayTimeResolutionBias']))
-            sf = WS(ws, RooRealVar('timeerr_scalefactor',
-                'timeerr_scalefactor',
-                config['DecayTimeResolutionScaleFactor'], .5, 2.))
-            if 'Spline' != config['AcceptanceFunction'] or 'GEN' in config['Context']:
-                pdfs.add(WS(ws, RooGaussModel('resmodel%02d' % i, 'resmodel%02d' % i,
-                    time, bias, sigma, sf)))
-            else:
-                # spline acceptance
-                pdfs.add(WS(ws, RooGaussEfficiencyModel(
-                    '%s_resmodel%02d' % (tacc.GetName(), i),
-                    '%s_resmodel%02d' % (tacc.GetName(), i),
-                    time, tacc, bias, sigma, sf, sf)))
-            del sf
-            del bias
-            i += 1
-        i = 0
-        for s in config['DecayTimeResolutionModel'][1]:
-            fracs.add(WS(ws, RooRealVar('resmodel%02d_frac' % i,
-                'resmodel%02d_frac' % i, s, 'ps')))
-            i += 1
-        del s
-        del i
-        trm = WS(ws, RooAddModel('%s_resmodel' % tacc.GetName(),
-            '%s_resmodel' % tacc.GetName(), pdfs, fracs))
-        del pdfs
-        del fracs
-        del ncomp
-        if ('Spline' == config['AcceptanceFunction'] and
-                not 'GEN' in config['Context']):
-            # if we're using a spline acceptance, we're done
-            tacc = None
-    elif type(config['DecayTimeResolutionModel']) == str:
-        if 'PEDTE' not in config['DecayTimeResolutionModel']:
-            if 'Spline' == config['AcceptanceFunction']:
-                print ('ERROR: decay time resolution model %s'
-                        'incompatible with spline acceptance') % (
-                                config['DecayTimeResolutionModel'])
-                return None
-            PTResModels = ROOT.PTResModels
-            trm = WS(ws, PTResModels.getPTResolutionModel(
-                config['DecayTimeResolutionModel'],
-                time, 'Bs', debug,
-                config['DecayTimeResolutionScaleFactor'],
-                config['DecayTimeResolutionBias']))
-        else :
-            from ROOT import RooRealVar, RooGaussModel, RooGaussEfficiencyModel
-            # time, mean, timeerr, scale
-            bias = WS(ws, RooRealVar('timeerr_bias',
-                'timeerr_bias', config['DecayTimeResolutionBias']))
-            sf = WS(ws, RooRealVar('timeerr_scalefactor',
-                'timeerr_scalefactor',
-                config['DecayTimeResolutionScaleFactor'], .5, 2.))
-            if ('Spline' != config['AcceptanceFunction'] or
-                    'GEN' in config['Context']):
-                trm = WS(ws, RooGaussModel('GaussianWithPEDTE',
-                    'GaussianWithPEDTE', time, bias, timeerr, sf))
-            else:
-                trm = WS(ws, RooGaussEfficiencyModel(
-                    '%s_GaussianWithPEDTE' % tacc.GetName(),
-                    '%s_GaussianWithPEDTE' % tacc.GetName(),
-                    time, tacc, bias, timeerr, sf, sf))
-                # if we're using a spline acceptance, we're done
-                tacc = None
-            del bias
-            del sf
-    else:
-        raise TypeError('Unknown type of resolution model')
-    return trm, tacc
 
 def readTemplate1D(
     fromfile,           # file to read from
@@ -1742,22 +1530,22 @@ def buildNonOscDecayTimePdf(
 
 # build B decay time pdf
 def buildBDecayTimePdf(
-    config,                                     # configuration dictionary
-    name,                                       # 'Signal', 'DsPi', ...
+    config,                             # configuration dictionary
+    name,                               # 'Signal', 'DsPi', ...
     ws,                                 # RooWorkspace into which to put the PDF
     time, timeerr, qt, qf, mistag, tageff,      # potential observables
     Gamma, DeltaGamma, DeltaM,          # decay parameters
-    C, D, Dbar, S, Sbar,                        # CP parameters
-    timeresmodel = None,                        # decay time resolution model
+    C, D, Dbar, S, Sbar,                # CP parameters
+    timeresmodel = None,                # decay time resolution model
     acceptance = None,                  # acceptance function
     timeerrpdf = None,                  # pdf for per event time error
     mistagpdf = None,                   # pdf for per event mistag
     mistagobs = None,                   # real mistag observable
     kfactorpdf = None,                  # distribution k factor smearing
-    kvar = None,                                # variable k which to integrate out
-    aprod = None,                               # production asymmetry
-    adet = None,                                # detection asymmetry
-    atageff = None                              # asymmetry in tagging efficiency
+    kvar = None,                        # variable k which to integrate out
+    aprod = None,                       # production asymmetry
+    adet = None,                        # detection asymmetry
+    atageff = None                      # asymmetry in tagging efficiency
     ):
     # Look in LHCb-INT-2011-051 for the conventions used
     from ROOT import ( RooConstVar, RooProduct, RooTruthModel, RooGaussModel,
