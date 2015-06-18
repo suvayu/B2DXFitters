@@ -433,15 +433,6 @@ defaultConfig = {
     'QuitAfterGeneration': False,
     # bug-for-bug compatibility flags
     'BugFlags': [
-            # 'PdfSSbarSwapMinusOne',
-            #   swap and multiply S and Sbar in the pdf, state of
-            #   affairs before discovery of bug on 2012-09-13 
-            # 'OutputCompatSSbarSwapMinusOne',
-            #   with the bug from PdfSSbarSwapMinusOne fixed, the
-            #   output of the fit parameters is no longer comparable to
-            #   old fits - fix in the final output routine by applying
-            #   that transformation during the output stage (MINUIT log
-            #   output and fit results will be "wrong", though)
             #'RooFitTopSimultaneousWorkaround',
             # this will work around a problem in present RooFit versions which
             # produce different LH values if the top-level PDF is a
@@ -453,8 +444,7 @@ defaultConfig = {
 
 from B2DXFitters.WS import WS
 from B2DXFitters.utils import setConstantIfSoConfigured
-from B2DXFitters.datasetio import readDataSet
-from B2DXFitters.datasetio import writeDataSet
+from B2DXFitters.datasetio import readDataSet, writeDataSet, readTemplate1D
 from B2DXFitters.acceptanceutils import buildSplineAcceptance
 from B2DXFitters.resmodelutils import getResolutionModel
 
@@ -472,7 +462,6 @@ def getAcceptance(
         kind = 'MC' if config['IsToy'] else 'DATA'
         knots = config['AcceptanceSplineKnots']
         coeffs = config['AcceptanceSplineCoeffs'][kind][config['Modes'][0]]
-        print coeffs
         if type(coeffs) == list or type(coeffs) == tuple:
             # same acceptance for all modes
             tacc, tacc_norm = buildSplineAcceptance(ws, time,
@@ -519,122 +508,6 @@ def getAcceptance(
             time.setBins(obins)
         tacc_norm = tacc
     return (tacc if 'GEN' not in config['Context'] else tacc_norm)
-
-def readTemplate1D(
-    fromfile,           # file to read from
-    fromws,             # workspace to read from
-    fromvarname,        # variable name in fromws
-    objname,            # object to ask for
-    ws,                 # workspace to import into
-    variable,           # variable
-    pfx,                # prefix of imported objects
-    binIfPDF = False    # bin if the template comes as Pdf
-    ):
-    # read a 1D template from a file - can either be in a workspace (either
-    # PDF or data set), or a plain 1D histogram
-    from ROOT import ( TFile, RooWorkspace, RooKeysPdf, RooHistPdf,
-        RooArgList, RooDataHist, RooArgSet )
-    ff = TFile(fromfile, 'READ')
-    if (None == ff or ff.IsZombie()):
-        print 'ERROR: Unable to open %s to get template for %s' % (fromfile,
-                variable.GetName())
-    workspace = ff.Get(fromws)
-    if None != workspace and workspace.InheritsFrom('RooWorkspace'):
-        # ok, we're reading from a ROOT file which contains a RooWorkspace, so
-        # we try to get a PDF of a RooAbsData from it
-        ROOT.SetOwnership(workspace, True)
-        var = workspace.var(fromvarname)
-        if (None == var):
-            print ('ERROR: Unable to read %s variable %s from '
-                    'workspace %s (%s)') % (variable.GetName(), fromvarname,
-                            fromws, fromfile)
-            return None
-        pdf = workspace.pdf(objname)
-        if (None == pdf):
-            # try to get a data sample of that name
-            data = workspace.data(objname)
-            if None == data:
-                print ('ERROR: Unable to read %s pdf/data %s from '
-                        'workspace %s (%s)') % (variable.GetName(),
-                                fromvarname, fromws, fromfile)
-                return None
-            if data.InheritsFrom('RooDataSet'):
-                # if unbinned data set, first create a binned version
-                argset = RooArgSet(var)
-                data = data.reduce(RooFit.SelectVars(argset))
-                ROOT.SetOwnership(data, True)
-                data = data.binnedClone()
-                ROOT.SetOwnership(data, True)
-            # get underlying histogram
-            hist = data.createHistogram(var.GetName())
-            del data
-        else:
-            # we need to jump through a few hoops to rename the dataset and variables
-            # get underlying histogram
-            if (pdf.InheritsFrom('RooHistPdf')):
-                hist = pdf.dataHist().createHistogram(var.GetName())
-            else:
-                if binIfPDF:
-                    hist = pdf.createHistogram(var.GetName(), var)
-                else:
-                    # ok, replace var with variable
-                    from ROOT import RooCustomizer
-                    c = RooCustomizer(pdf, '%sPdf' % pfx);
-                    c.replaceArg(var, variable)
-                    pdf = c.build()
-                    ROOT.SetOwnership(pdf, True)
-                    pdf.SetName('%sPdf' % pfx)
-                    pdf = WS(ws, pdf)
-                    del var
-                    del workspace
-                    ff.Close()
-                    del ff
-                    return pdf
-    else:
-        # no workspace found, try to find a TH1 instead
-        hist = None
-        for tmp in (fromws, objname):
-            hist = ff.Get(tmp)
-            if (None != tmp and hist.InheritsFrom('TH1') and
-                    1 == hist.GetDimension()):
-                break
-        if (None == hist or not hist.InheritsFrom('TH1') or
-                1 != hist.GetDimension()):
-            print ('ERROR: Utterly unable to find any kind of %s '
-                    'variable/data in %s') % (variable.GetName(), fromfile)
-            return None
-    ROOT.SetOwnership(hist, True)
-    hist.SetNameTitle('%sPdf_hist' % pfx, '%sPdf_hist' % pfx)
-    hist.SetDirectory(None)
-    if hist.Integral() < 1e-15:
-        raise ValueError('Histogram empty!')
-    variable.setRange(
-            max(variable.getMin(),
-                hist.GetXaxis().GetBinLowEdge(1)),
-            min(variable.getMax(),
-                hist.GetXaxis().GetBinUpEdge(hist.GetNbinsX())))
-    from ROOT import RooBinning, std
-    bins = std.vector('double')()
-    bins.push_back(hist.GetXaxis().GetBinLowEdge(1))
-    for ibin in xrange(1, 1 + hist.GetNbinsX()):
-        bins.push_back(hist.GetXaxis().GetBinUpEdge(ibin))
-    binning = RooBinning(bins.size() - 1, bins.data())
-    del bins
-    del ibin
-    variable.setBinning(binning)
-    # recreate datahist
-    dh = RooDataHist('%sPdf_dhist' % pfx, '%sPdf_dhist' % pfx,
-            RooArgList(variable), hist)
-    del hist
-    del pdf
-    del var
-    del workspace
-    ff.Close()
-    del ff
-    # and finally use dh to create our pdf
-    pdf = WS(ws, RooHistPdf('%sPdf' % pfx, '%sPdf' % pfx, RooArgSet(variable), dh))
-    del dh
-    return pdf
 
 # read mistag distribution from file
 def getMistagTemplate(
@@ -1416,118 +1289,6 @@ def applyKFactorSmearing(
         RooArgSet(*paramobs)))
     return timeresmodel
 
-# build non-oscillating decay time pdf
-def buildNonOscDecayTimePdf(
-    config,                                     # configuration dictionary
-    name,                                       # 'Signal', 'DsPi', ...
-    ws,                                 # RooWorkspace into which to put the PDF
-    time, timeerr, qt, qf, mistag, tageff,      # potential observables
-    Gamma,
-    timeresmodel = None,                        # decay time resolution model
-    acceptance = None,                  # acceptance function
-    timeerrpdf = None,                  # pdf for per event time error
-    mistagpdf = None,                   # pdf for per event mistag
-    kfactorpdf = None,                  # distribution k factor smearing
-    kvar = None,                                # variable k which to integrate out
-    adet = None,                                # detection asymmetry
-    atageff_f = None,                   # qf dependent tagging eff. asymm.
-    atageff_t = None                    # qt dependent tagging eff. asymm.
-    ):
-    # Look in LHCb-INT-2011-051 for the conventions used
-    from ROOT import ( RooConstVar, RooProduct, RooTruthModel, RooGaussModel,
-            Inverse, RooDecay, RooProdPdf, RooArgSet, NonOscTaggingPdf,
-            RooArgList )
-
-    if config['Debug']:
-        print 72 * '#'
-        kwargs = {
-                'config': config,
-                'name': name,
-                'ws': ws,
-                'time': time,
-                'timeerr': timeerr,
-                'qt': qt,
-                'qf': qf,
-                'mistag': mistag,
-                'tageff': tageff,
-                'Gamma': Gamma,
-                'timeresmodel': timeresmodel,
-                'acceptance': acceptance,
-                'timeerrpdf': timeerrpdf,
-                'mistagpdf': mistagpdf,
-                'kfactorpdf': kfactorpdf,
-                'kvar': kvar,
-                'adet': adet,
-                'atageff_f': atageff_f,
-                'atageff_t': atageff_t
-                }
-        print 'buildNonOscDecayTimePdf('
-        for kw in kwargs:
-            print '\t%s = %s' % (kw, kwargs[kw])
-        print '\t)'
-        print 72 * '#'
-
-    # constants used
-    zero = WS(ws, RooConstVar('zero', 'zero', 0.))
-
-    if None == adet: adet = zero
-    if None == atageff_f: atageff_f = [ zero for i in xrange(0, config['NTaggers']) ]
-    if None == atageff_t: atageff_t = [ zero for i in xrange(0, config['NTaggers']) ]
-
-    # if no time resolution model is set, fake one
-    if timeresmodel == None:
-        timeresmodel = WS(ws, RooTruthModel('%s_TimeResModel' % name,
-            '%s time resolution model' % name, time))
-    elif timeresmodel == 'Gaussian':
-        timeresmodel = WS(ws, RooGaussModel('%s_TimeResModel' % name,
-            '%s time resolution model' % name, time, zero, timeerr))
-
-    # apply acceptance (if needed)
-    timeresmodel = applyBinnedAcceptance(
-        config, ws, time, timeresmodel, acceptance)
-    if config['UseKFactor']:
-        timeresmodel = applyKFactorSmearing(config, ws, time, timeresmodel,
-                kvar, kfactorpdf, [ Gamma ])
-    if config['ParameteriseIntegral']:
-        parameteriseResModelIntegrals(config, ws, timeerrpdf, timeerr, timeresmodel)
-
-    # perform the actual k-factor smearing integral (if needed)
-    # build (raw) time pdf
-    tau = WS(ws, Inverse('%sTau' % Gamma.GetName(),
-        '%s #tau' % Gamma.GetName(), Gamma))
-    retVal = WS(ws, RooDecay('%s_RawTimePdf' % name, '%s raw time pdf' % name,
-        time, tau, timeresmodel, RooDecay.SingleSided))
-
-    paramObs = RooArgSet(qt, qf)
-    if None != mistagpdf:
-        paramObs.add(mistag)
-    if None != timeerrpdf:
-        paramObs.add(timeerr)
-    
-    retVal = applyDecayTimeErrPdf(config, name, ws, time, timeerr, qt, qf,
-            mistag, retVal, timeerrpdf, mistagpdf)
-    
-    if None != mistagpdf:
-        otherargs = [ mistag, RooArgList(*mistagpdf), RooArgList(*tageff),
-                adet, RooArgList(*atageff_f), RooArgList(*atageff_t) ]
-    else:
-        otherargs = [ RooArgList(*tageff), adet, RooArgList(*atageff_f),
-                RooArgList(*atageff_t) ]
-    ourmistagpdf = WS(ws, NonOscTaggingPdf('%s_mistagPdf' % name,
-        '%s_mistagPdf' % name, qf, qt, *otherargs))
-    del otherargs
-
-    retVal = WS(ws, RooProdPdf( '%s_qfqtetapdf' % retVal.GetName(),
-        '%s_qfqtetapdf' % retVal.GetName(), retVal, ourmistagpdf))
-
-    # if we do not bin the acceptance, we apply it here
-    retVal = applyUnbinnedAcceptance(config, name, ws, retVal, acceptance)
-
-    retVal.SetNameTitle('%s_TimePdf' % name, '%s full time pdf' % name)
-
-    # return the copy of retVal which is inside the workspace
-    return WS(ws, retVal)
-
 # build B decay time pdf
 def buildBDecayTimePdf(
     config,                             # configuration dictionary
@@ -1641,13 +1402,9 @@ def buildBDecayTimePdf(
         flag | DecRateCoeff.CPEven, qf, qt, D, Dbar, *otherargs))
     cos = WS(ws, DecRateCoeff('%s_cos' % name, '%s_cos' % name,
         DecRateCoeff.CPOdd, qf, qt, C, C, *otherargs))
-    if 'PdfSSbarSwapMinusOne' in config['BugFlags']:
-        sin = WS(ws, DecRateCoeff('%s_sin' % name, '%s_sin' % name,
-            flag | DecRateCoeff.CPOdd, qf, qt, Sbar, S, *otherargs))
-    else:
-        sin = WS(ws, DecRateCoeff('%s_sin' % name, '%s_sin' % name,
-            flag | DecRateCoeff.CPOdd | DecRateCoeff.Minus,
-            qf, qt, S, Sbar, *otherargs))
+    sin = WS(ws, DecRateCoeff('%s_sin' % name, '%s_sin' % name,
+        flag | DecRateCoeff.CPOdd | DecRateCoeff.Minus,
+        qf, qt, S, Sbar, *otherargs))
     del flag
     del otherargs
 
@@ -2724,7 +2481,7 @@ def getMasterPDF(config, name, debug = False):
                 asyms['Prod'], asyms['Det'], asyms['TagEff'])
 
     ########################################################################
-    # Bs -> Ds Pi like modes, and Lb modes (non-oscillating)
+    # Bs -> Ds Pi like modes, and Lb/CombBkg modes (non-oscillating)
     ########################################################################
     ComboLifetimePerTagCat = False
     for mode in ( 'Bs2DsPi', 'Bs2DsstPi', 'Bs2DsRho', 'Bs2DsstRho',
@@ -2899,57 +2656,6 @@ def getMasterPDF(config, name, debug = False):
         del tmp0
         del tmp1
 
-    ########################################################################
-    # non-osciallating modes
-    ########################################################################
-    # CombBkg
-    #for mode in ('CombBkg',):
-    #    if mode not in config['Modes']:
-    #        continue
-    #    tacc = getAcceptance(ws, config, mode, time)
-    #    trm, tacc = getResolutionModel(ws, config, time, timeerr, tacc)
-    #    modenick = mode
-    #    kfactorpdf, kfactor = None, None
-    #    gamma = WS(ws, RooRealVar('GammaCombBkg', '#Gamma_{CombBkg}',
-    #        config['GammaCombBkg']))
-    #    # figure out asymmetries to use
-    #    asyms = { 'Det': None, 'TagEff_f': None, 'TagEff_t': None }
-    #    for k in asyms.keys():
-    #        for n in (mode, modenick, mode.split('2')[0]):
-    #            if n in config['Asymmetries'][k]:
-    #                if type(config['Asymmetries'][k][n]) == float:
-    #                    asyms[k] = WS(ws, RooRealVar(
-    #                        '%s_Asym%s' % (n, k), '%s_Asym%s' % (n, k),
-    #                        config['Asymmetries'][k][n], -1., 1.))
-    #                    asyms[k].setError(0.25)
-    #                elif (type(config['Asymmetries'][k][n]) == list and
-    #                        k.startswith('TagEff')):
-    #                    if (len(config['Asymmetries'][k][n]) !=
-    #                            config['NTaggers']):
-    #                        raise TypeError('Wrong number of asymmetries')
-    #                    asyms[k] = [ ]
-    #                    for asymval in config['Asymmetries'][k][n]:
-    #                        asymstmp = WS(ws, RooRealVar(
-    #                            '%s_Asym%s%u' % (n, k, len(asyms[k])),
-    #                            '%s_Asym%s%u' % (n, k, len(asyms[k])),
-    #                            asymval, -1., 1.))
-    #                        asymstmp.setError(0.25)
-    #                        asyms[k].append(asymstmp)
-    #                        del asymstmp
-    #                else:
-    #                    raise TypeError('Unsupported type for asymmetry')
-    #                break
-    #    y = 0.
-    #    for lmode in yielddict:
-    #        if lmode.startswith(modenick): y += yielddict[lmode]
-    #    y = max(y, 1.)
-    #    tageff = makeTagEff(config, ws, modenick, y)
-    #    timepdfs[mode] = buildNonOscDecayTimePdf(config, mode, ws,
-    #            time, timeerr, qt, qf, mistag, tageff, gamma,
-    #            trm, tacc, terrpdfs[mode], mistagtemplates[mode],
-    #            kfactorpdf, kfactor,
-    #            asyms['Det'], asyms['TagEff_f'], asyms['TagEff_t'])
-    
     obs = RooArgSet('observables')
     for o in observables:
         obs.add(WS(ws, o))

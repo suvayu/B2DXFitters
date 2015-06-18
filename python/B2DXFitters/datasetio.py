@@ -4,11 +4,144 @@
 @author Manuel Schiller <Manuel.Schiller@cern.ch>
 @date 2015-05-24
 
-@brief read from tuples to RooDataSets or write RooDataSets to tuples
+@brief read and write data sets and templates
 """
 
 import ROOT
 from B2DXFitters.WS import WS as WS
+
+# read a 1D template from a file (either PDF,data set, or plain 1D TH1)
+def readTemplate1D(
+    fromfile,           # file to read from
+    fromws,             # workspace to read from
+    fromvarname,        # variable name in fromws
+    objname,            # object to ask for
+    ws,                 # workspace to import into
+    variable,           # variable
+    pfx,                # prefix of imported objects
+    binIfPDF = False    # bin if the template comes as Pdf
+    ):
+    """
+    read a 1D template from a file (either PDF,data set, or plain 1D TH1)
+
+    fromfile --     name of file to read from
+    fromws --       name of workspace to read from (or None for plain TH1)
+    fromvarname --  name of dependent variable in workspace
+    objname --      name of pdf, data set, or histogram
+    ws --           workspace into which to import template
+    variable --     dependent variable of template after import into ws
+    pfx --          name prefix for imported objects
+    binIfPDF --     if True and the object is a pdf, bin upon import
+
+    This routine is a generic 1D template importer. It will read PDFs and
+    RooDataSets from RooWorkspaces, or read a plain TH1*. It will then import
+    this object into the workspace given by ws, and "connect" it to the
+    variable given in variable (this can be used to "rename" variables when
+    the original template in the file does not have the right name).
+    """
+    from ROOT import ( TFile, RooWorkspace, RooKeysPdf, RooHistPdf,
+        RooArgList, RooDataHist, RooArgSet )
+    ff = TFile(fromfile, 'READ')
+    if (None == ff or ff.IsZombie()):
+        print 'ERROR: Unable to open %s to get template for %s' % (fromfile,
+                variable.GetName())
+    workspace = ff.Get(fromws)
+    if None != workspace and workspace.InheritsFrom('RooWorkspace'):
+        # ok, we're reading from a ROOT file which contains a RooWorkspace, so
+        # we try to get a PDF of a RooAbsData from it
+        ROOT.SetOwnership(workspace, True)
+        var = workspace.var(fromvarname)
+        if (None == var):
+            print ('ERROR: Unable to read %s variable %s from '
+                    'workspace %s (%s)') % (variable.GetName(), fromvarname,
+                            fromws, fromfile)
+            return None
+        pdf = workspace.pdf(objname)
+        if (None == pdf):
+            # try to get a data sample of that name
+            data = workspace.data(objname)
+            if None == data:
+                print ('ERROR: Unable to read %s pdf/data %s from '
+                        'workspace %s (%s)') % (variable.GetName(),
+                                fromvarname, fromws, fromfile)
+                return None
+            if data.InheritsFrom('RooDataSet'):
+                # if unbinned data set, first create a binned version
+                argset = RooArgSet(var)
+                data = data.reduce(RooFit.SelectVars(argset))
+                ROOT.SetOwnership(data, True)
+                data = data.binnedClone()
+                ROOT.SetOwnership(data, True)
+            # get underlying histogram
+            hist = data.createHistogram(var.GetName())
+            del data
+        else:
+            # we need to jump through a few hoops to rename the dataset and variables
+            # get underlying histogram
+            if (pdf.InheritsFrom('RooHistPdf')):
+                hist = pdf.dataHist().createHistogram(var.GetName())
+            else:
+                if binIfPDF:
+                    hist = pdf.createHistogram(var.GetName(), var)
+                else:
+                    # ok, replace var with variable
+                    from ROOT import RooCustomizer
+                    c = RooCustomizer(pdf, '%sPdf' % pfx);
+                    c.replaceArg(var, variable)
+                    pdf = c.build()
+                    ROOT.SetOwnership(pdf, True)
+                    pdf.SetName('%sPdf' % pfx)
+                    pdf = WS(ws, pdf)
+                    del var
+                    del workspace
+                    ff.Close()
+                    del ff
+                    return pdf
+    else:
+        # no workspace found, try to find a TH1 instead
+        hist = None
+        for tmp in (fromws, objname):
+            hist = ff.Get(tmp)
+            if (None != tmp and hist.InheritsFrom('TH1') and
+                    1 == hist.GetDimension()):
+                break
+        if (None == hist or not hist.InheritsFrom('TH1') or
+                1 != hist.GetDimension()):
+            print ('ERROR: Utterly unable to find any kind of %s '
+                    'variable/data in %s') % (variable.GetName(), fromfile)
+            return None
+    ROOT.SetOwnership(hist, True)
+    hist.SetNameTitle('%sPdf_hist' % pfx, '%sPdf_hist' % pfx)
+    hist.SetDirectory(None)
+    if hist.Integral() < 1e-15:
+        raise ValueError('Histogram empty!')
+    variable.setRange(
+            max(variable.getMin(),
+                hist.GetXaxis().GetBinLowEdge(1)),
+            min(variable.getMax(),
+                hist.GetXaxis().GetBinUpEdge(hist.GetNbinsX())))
+    from ROOT import RooBinning, std
+    bins = std.vector('double')()
+    bins.push_back(hist.GetXaxis().GetBinLowEdge(1))
+    for ibin in xrange(1, 1 + hist.GetNbinsX()):
+        bins.push_back(hist.GetXaxis().GetBinUpEdge(ibin))
+    binning = RooBinning(bins.size() - 1, bins.data())
+    del bins
+    del ibin
+    variable.setBinning(binning)
+    # recreate datahist
+    dh = RooDataHist('%sPdf_dhist' % pfx, '%sPdf_dhist' % pfx,
+            RooArgList(variable), hist)
+    del hist
+    del pdf
+    del var
+    del workspace
+    ff.Close()
+    del ff
+    # and finally use dh to create our pdf
+    pdf = WS(ws, RooHistPdf('%sPdf' % pfx, '%sPdf' % pfx, RooArgSet(variable), dh))
+    del dh
+    return pdf
 
 # read dataset from workspace
 def readDataSet(

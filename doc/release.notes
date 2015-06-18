@@ -4,6 +4,9 @@
 ! Purpose     : RooFit-based fitters for B -> D X
 !-----------------------------------------------------------------------------
 
+! 2015-06-18 - Manuel Tobias Schiller
+ - cFit: factor out routine for reading 1D templates, clean up cFit code
+
 ! 2015-06-11 - Manuel Tobias Schiller
  - cFit: further cleanups, factor out spline acceptance and resolution model
    helper functions

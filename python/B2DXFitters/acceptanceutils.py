@@ -15,7 +15,8 @@ def buildSplineAcceptance(
         pfx,    # prefix to be used in names
         knots,  # knots
         coeffs, # acceptance coefficients
-        floatParams = False # float acceptance parameters
+        floatParams = False, # float acceptance parameters
+        debug = False # debug printout
         ): 
     """
     build a spline acceptance function
@@ -26,6 +27,7 @@ def buildSplineAcceptance(
     knots       -- list of knot positions
     coeffs      -- spline coefficients
     floatParams -- if True, spline acceptance parameters will be floated
+    debug       -- if True, print some debugging output
 
     returns a pair of acceptance functions, first the unnormalised one for
     fitting, then the normalised one for generation
@@ -94,8 +96,10 @@ def buildSplineAcceptance(
         '%s_SplineAccCoeff%u' % (pfx, i), '%s_SplineAccCoeff%u' % (pfx, i),
         coefflist.at(coefflist.getSize() - 2), lastmycoeffs)))
     del i
-    print 'DEBUG: Spline Coeffs: %s' % str([ coefflist.at(i).getVal() for i in
-        xrange(0, coefflist.getSize()) ])
+    if debug:
+        print 'DEBUG: Spline Coeffs: %s' % str([
+            coefflist.at(i).getVal() for i in xrange(0, coefflist.getSize())
+            ])
     # create the spline itself
     tacc = WS(ws, RooCubicSplineFun('%s_SplineAcceptance' % pfx,
         '%s_SplineAcceptance' % pfx, time, '%s_knotbinning' % pfx,
