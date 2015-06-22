@@ -4,6 +4,9 @@
 ! Purpose     : RooFit-based fitters for B -> D X
 !-----------------------------------------------------------------------------
 
+! 2015-06-22 - Manuel Tobias Schiller
+ - cFit: factor out buildBDecayTimePdf and helper routines to promote reuse
+
 ! 2015-06-18 - Manuel Tobias Schiller
  - cFit: factor out routine for reading 1D templates, clean up cFit code
 
