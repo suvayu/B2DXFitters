@@ -5,6 +5,9 @@
 !-----------------------------------------------------------------------------
 
 ! 2015-06-22 - Manuel Tobias Schiller
+ - cFit: factor out routines that are useful for tagging calibration
+
+! 2015-06-22 - Manuel Tobias Schiller
  - cFit: factor out buildBDecayTimePdf and helper routines to promote reuse
 
 ! 2015-06-18 - Manuel Tobias Schiller
