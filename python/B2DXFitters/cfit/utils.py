@@ -82,7 +82,7 @@ class binning(object):
 
     def nbins(self):
         """Return number of bins"""
-        return len(bounds)
+        return len(self.bounds)
 
     def findbin(self, val):
         """Return bin number containing val.
