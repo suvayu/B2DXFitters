@@ -144,7 +144,7 @@ def untested(msg):
     warn(msg, UserWarning, stacklevel=2)
 
 
-def WS(ws, obj, opts = [RooFit.RecycleConflictNodes(), RooFit.Silence()]):
+def WS(ws, obj, opts=[RooFit.RecycleConflictNodes(), RooFit.Silence()]):
     """ "swallow" object into a workspace, returns swallowed object """
     name = obj.GetName()
     wsobj = ws.obj(name)
@@ -175,7 +175,7 @@ def WS(ws, obj, opts = [RooFit.RecycleConflictNodes(), RooFit.Silence()]):
     return wsobj
 
 
-def setConstantIfSoConfigured(config, obj, recache = {}):
+def setConstantIfSoConfigured(config, obj, recache={}):
     from ROOT import RooAbsArg, RooRealVar, RooConstVar, RooArgSet
     if 0 == len(recache):
         import re
@@ -207,7 +207,7 @@ def setConstantIfSoConfigured(config, obj, recache = {}):
 
 
 def fitPolynomialAnalytically(
-        deg, datapoints, crossCheckWithTGraphErrors = False):
+        deg, datapoints, crossCheckWithTGraphErrors=False):
     # fits a polynomial through a list of data points
     #
     # degree            degree of polynomial to fit
