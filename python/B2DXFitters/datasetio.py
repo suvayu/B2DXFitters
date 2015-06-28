@@ -125,7 +125,7 @@ def readTemplate1D(
     bins.push_back(hist.GetXaxis().GetBinLowEdge(1))
     for ibin in xrange(1, 1 + hist.GetNbinsX()):
         bins.push_back(hist.GetXaxis().GetBinUpEdge(ibin))
-    binning = RooBinning(bins.size() - 1, bins.data())
+    binning = RooBinning(bins.size() - 1, bins.data() if ROOT.gROOT.GetVersionCode() > 0x53600 else bins.begin().base())
     del bins
     del ibin
     variable.setBinning(binning)

@@ -5,6 +5,9 @@
 !-----------------------------------------------------------------------------
 
 ! 2015-06-28 - Manuel Tobias Schiller
+ - various small fixes, no change in functionality
+
+! 2015-06-28 - Manuel Tobias Schiller
  - clean up C++ include directives to speed up compilation somewhat; no
    functional changes
 

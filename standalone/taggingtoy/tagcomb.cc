@@ -94,7 +94,7 @@ class Calibration {
 		// decompose matrix
 		CholeskyDecomp<double, 2> decomp(tmp);
 		// check for singular matrix
-		if (!tmp) throw;
+		if (!decomp) throw;
 		// solve for parameter shifts
 		decomp.Solve(rhs);
 		// save covariance matrix
@@ -774,7 +774,7 @@ class CombinerSimulation
     private:
 };
 
-int main(int argc, char* argv[])
+int main(int /*argc*/, char* /*argv*/[])
 {
 
     const Calibration nominal[2] = {

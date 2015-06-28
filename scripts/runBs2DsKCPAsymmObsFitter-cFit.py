@@ -2244,11 +2244,9 @@ def getMasterPDF(config, name, debug = False):
     for mode in config['Modes']:
         print 'INFO: Mode %s components %s' % (mode, str(components[mode]))
     if '_unfixed' in totPDF.GetName():
-        totPDF = WS(ws, RooAddPdf('TotPDF', 'TotPDF', RooArgList(totPDF),
-            RooArgList()))
+        totPDF = WS(ws, RooProdPdf('TotPDF', 'TotPDF', RooArgList(totPDF)))
     if '_unfixed' in totEPDF.GetName():
-        totEPDF = WS(ws, RooAddPdf('TotEPDF', 'TotEPDF', RooArgList(totEPDF),
-            RooArgList()))
+        totEPDF = WS(ws, RooProdPdf('TotEPDF', 'TotEPDF', RooArgList(totEPDF)))
     # set variables constant if they are supposed to be constant
     setConstantIfSoConfigured(config, totEPDF)
     # apply any additional constraints
