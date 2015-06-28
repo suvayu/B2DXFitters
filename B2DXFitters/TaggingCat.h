@@ -11,8 +11,6 @@
 #include "RooListProxy.h"
 #include "RooCategoryProxy.h"
 #include "RooRealProxy.h"
-#include "RooAbsReal.h"
-#include "RooAbsCategory.h"
  
 /** @brief "multiplex" the different per-category mistags into one variable according to tagging category
  *

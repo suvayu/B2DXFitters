@@ -22,19 +22,14 @@
 // STD & STL
 #include <cmath>
 #include <complex>
-#include <iterator>
-#include <algorithm>
 #include <sstream>
 
 // ROOT
-#include "TMath.h"
 #include "TH1.h"
 #include "TGraph.h"
 #include "TGraphErrors.h"
 
 // RooFit
-#include "RooFit.h"
-#include "Riostream.h"
 #include "RooMsgService.h"
 #include "RooMath.h"
 #include "RooAbsReal.h"

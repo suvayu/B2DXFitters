@@ -4,6 +4,10 @@
 ! Purpose     : RooFit-based fitters for B -> D X
 !-----------------------------------------------------------------------------
 
+! 2015-06-28 - Manuel Tobias Schiller
+ - clean up C++ include directives to speed up compilation somewhat; no
+   functional changes
+
 ! 2015-06-22 - Manuel Tobias Schiller
  - cFit: factor out routines that are useful for tagging calibration
 

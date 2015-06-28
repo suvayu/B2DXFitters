@@ -15,8 +15,8 @@
 #define ROO_COMPLEMENT_COEF
 
 #include "RooListProxy.h"
+#include "RooAbsReal.h"
 
-class RooAbsReal;
 class RooArgList;
  
 class RooComplementCoef : public RooAbsReal

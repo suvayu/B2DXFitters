@@ -1,6 +1,9 @@
-#include <algorithm>
 #include <iostream>
+#include <string>
+
 #include "TMath.h"
+#include "TVectorD.h"
+#include "TH1.h"
 #include "RooAbsReal.h"
 #include "B2DXFitters/RooCubicSplineKnot.h"
 

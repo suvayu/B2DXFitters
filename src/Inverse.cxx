@@ -9,7 +9,6 @@
 #include "Riostream.h" 
 
 #include "B2DXFitters/Inverse.h" 
-#include "RooAbsReal.h" 
 
 Inverse::Inverse(const char *name, const char *title, 
 	RooAbsReal& _val) :

@@ -6,13 +6,8 @@
 
 // Your description goes here... 
 
-#include "Riostream.h" 
-
 #include "B2DXFitters/RangeAcceptance.h" 
 #include "RooAbsReal.h" 
-#include "RooAbsCategory.h" 
-#include <math.h> 
-#include "TMath.h" 
 
 RangeAcceptance::RangeAcceptance(const char *name, const char *title, 
 	RooAbsReal& _x, double _xmin, double _xmax) :

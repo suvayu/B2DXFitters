@@ -17,10 +17,10 @@
 #include "RooRealProxy.h"
 
 #include "RooAbsEffResModel.h"
-#include "RooAbsGaussModelEfficiency.h"
 
 class RooAbsReal;
 class RooRealVar;
+class RooAbsGaussModelEfficiency;
 
 class RooGaussEfficiencyModel : public RooResolutionModel, public RooAbsEffResModel {
 public:

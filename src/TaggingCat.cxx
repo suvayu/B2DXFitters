@@ -6,8 +6,6 @@
 #include "Riostream.h" 
 
 #include "B2DXFitters/TaggingCat.h" 
-#include "RooAbsReal.h" 
-#include "RooAbsCategory.h" 
 #include "RooConstVar.h"
 #include "RooAddition.h"
 #include <cmath>

@@ -9,10 +9,6 @@
 #include "Riostream.h" 
 
 #include "B2DXFitters/SquaredSum.h" 
-#include "RooAbsReal.h" 
-#include "RooAbsCategory.h" 
-#include <math.h> 
-#include "TMath.h" 
 
 SquaredSum::SquaredSum(const char *name, const char *title, 
 	RooAbsReal& _C, RooAbsReal& _D, RooAbsReal& _S) :

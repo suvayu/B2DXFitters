@@ -6,15 +6,13 @@
 
 // Your description goes here...
 
-#include "Riostream.h"
-
-#include "B2DXFitters/MistagDistribution.h"
-#include "RooAbsReal.h"
-
 #include <cmath>
 #include <cstdio>
 #include <cassert>
 #include <algorithm>
+
+#include "RooAbsReal.h"
+#include "B2DXFitters/MistagDistribution.h"
 
 MistagDistribution::MistagDistribution(const char *name, const char *title,
 	RooAbsReal& _w, RooAbsReal& _w0, RooAbsReal& _wa,

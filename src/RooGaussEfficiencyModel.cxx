@@ -28,13 +28,10 @@
 #include <memory>
 
 #include "RVersion.h"
-#include "RooFit.h"
 
-#include "TMath.h"
-#include "Riostream.h"
-#include "RooMsgService.h"
 #include "B2DXFitters/RooGaussEfficiencyModel.h"
 #include "B2DXFitters/RooEffConvGenContext.h"
+#include "B2DXFitters/RooAbsGaussModelEfficiency.h"
 #include "RooMath.h"
 #include "RooRealConstant.h"
 #include "RooRandom.h"

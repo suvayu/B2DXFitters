@@ -2,11 +2,10 @@
 #define ROO_CUBICSPLINEKNOT
 #include <cassert>
 #include <vector>
-#include <algorithm>
 #include "RooArgList.h"
-#include "TVectorD.h"
-#include "TH1.h"
-#include "TGraphErrors.h"
+template <typename> class TVectorT;
+typedef TVectorT<Double_t> TVectorD;
+class TH1;
 
 // CINT doesn't like it if we encapsulate this in RooCubicSplineKnot ;-(
 

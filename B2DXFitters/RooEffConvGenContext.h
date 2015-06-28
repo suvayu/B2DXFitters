@@ -8,11 +8,11 @@
 #define RooEffGenContext RooEffGenContext; friend class RooEffConvGenContext;
 
 #include <RooConvGenContext.h>
-#include <RooArgSet.h>
 
 class RooAbsAnaConvPdf;
 class RooDataSet;
 class RooAbsReal;
+class RooArgSet;
 
 class RooEffConvGenContext : public RooConvGenContext {
 public:

@@ -7,11 +7,11 @@
 #ifndef TAGDLLTOTAGDEC_H
 #define TAGDLLTOTAGDEC_H
 
-#include "RooAbsReal.h"
-#include "RooRealProxy.h"
 #include "RooAbsCategory.h"
-#include "RooArgList.h"
+#include "RooRealProxy.h"
 #include "RooListProxy.h"
+class RooAbsReal;
+class RooArgList;
  
 class TagDLLToTagDec : public RooAbsCategory {
 public:

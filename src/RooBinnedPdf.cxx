@@ -38,6 +38,7 @@
 // END_HTML
 //
 
+#include <list>
 #include <cmath>
 #include <memory>
 #include <limits>
@@ -47,7 +48,6 @@
 #include "RooAbsRealLValue.h"
 #include "RooBinningCategory.h"
 #include "RooArgSet.h"
-#include "RooMsgService.h"
 #include "TObjArray.h"
 #include "TObjString.h"
 #include "RooCustomizer.h"
@@ -649,7 +649,7 @@ Double_t RooBinnedPdf::maxVal(Int_t code) const
 }
 
 //_____________________________________________________________________________
-list<Double_t>* RooBinnedPdf::plotSamplingHint(RooAbsRealLValue& obs,
+std::list<Double_t>* RooBinnedPdf::plotSamplingHint(RooAbsRealLValue& obs,
                                                Double_t xlo, Double_t xhi) const
 {
    // Return sampling hint for making curves of (projections) of this function
@@ -678,7 +678,7 @@ list<Double_t>* RooBinnedPdf::plotSamplingHint(RooAbsRealLValue& obs,
    const RooAbsBinning* binning = lvar->getBinningPtr(_binningNames[i].Data());
    Double_t* boundaries = binning->array();
 
-   list<Double_t>* hint = new list<Double_t>;
+   std::list<Double_t>* hint = new std::list<Double_t>;
 
    // Widen range slighty
    xlo = xlo - 0.01 * (xhi - xlo);
@@ -726,7 +726,7 @@ std::list<Double_t>* RooBinnedPdf::binBoundaries(RooAbsRealLValue& obs,
    const RooAbsBinning* binning = lvarg->getBinningPtr(_binningNames[i]);
    Double_t* boundaries = binning->array();
 
-   std::list<Double_t>* bounds = new list<Double_t>;
+   std::list<Double_t>* bounds = new std::list<Double_t>;
 
    // Construct array with pairs of points positioned epsilon to the left and
    // right of the bin boundaries

@@ -16,15 +16,12 @@
 #ifndef ROO_EFF_RES_MODEL
 #define ROO_EFF_RES_MODEL
 
-#include <string>
-
 #include "RooRealProxy.h"
-#include "RooObjCacheManager.h"
 #include "RooSetProxy.h"
+#include "RooObjCacheManager.h"
 #include "RooAbsEffResModel.h"
 #include "RooResolutionModel.h"
 
-class RooCustomizer;
 class RooAbsAnaConvPdf;
 
 class RooEffResModel : public RooResolutionModel, public RooAbsEffResModel {

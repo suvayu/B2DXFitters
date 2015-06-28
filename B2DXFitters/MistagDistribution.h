@@ -9,9 +9,7 @@
 
 #include "RooAbsPdf.h"
 #include "RooRealProxy.h"
-#include "RooCategoryProxy.h"
-#include "RooAbsReal.h"
-#include "RooAbsCategory.h"
+class RooAbsReal;
 
 /** @class MistagDistribution
  *

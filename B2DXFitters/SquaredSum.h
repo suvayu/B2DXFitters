@@ -9,8 +9,6 @@
 
 #include "RooAbsReal.h"
 #include "RooRealProxy.h"
-#include "RooCategoryProxy.h"
-#include "RooAbsReal.h"
  
 class SquaredSum : public RooAbsReal {
 public:

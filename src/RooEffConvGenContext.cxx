@@ -27,18 +27,13 @@
 
 #include <cassert>
 
-#include <RooFit.h>
-
-#include <RooMsgService.h>
-#include <RooAbsAnaConvPdf.h>
-#include <RooNumConvPdf.h>
-#include <RooFFTConvPdf.h>
-#include <RooProdPdf.h>
-#include <RooDataSet.h>
-#include <RooArgSet.h>
-#include <RooTruthModel.h>
-#include <Riostream.h>
-#include <RooRandom.h>
+#include "RooMsgService.h"
+#include "RooArgSet.h"
+#include "RooRandom.h"
+class RooAbsAnaConvPdf;
+class RooNumConvPdf;
+class RooFFTConvPdf;
+class RooDataSet;
 
 #include "B2DXFitters/RooEffConvGenContext.h"
 #include "B2DXFitters/RooEffResModel.h"

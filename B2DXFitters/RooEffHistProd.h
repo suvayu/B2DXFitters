@@ -18,14 +18,12 @@
 #ifndef ROO_EFFHIST_PROD
 #define ROO_EFFHIST_PROD
 
+#include <exception>
+
 #include "RooAbsPdf.h"
-#include "RooAbsReal.h"
-#include "RooRealVar.h"
 #include "RooRealProxy.h"
 #include "RooSetProxy.h"
 #include "RooObjCacheManager.h"
-
-#include <exception>
 
 namespace EffHistProd {
 class Exception : public std::exception
@@ -54,8 +52,6 @@ private:
 }
 
 class RooAbsReal;
-class RooSuperCategory;
-class RooCustomizer;
 
 class RooEffHistProd: public RooAbsPdf {
 public:

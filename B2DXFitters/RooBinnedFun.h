@@ -13,10 +13,11 @@
 #ifndef ROO_BINNEDFUN
 #define ROO_BINNEDFUN
 
-#include "RooAbsReal.h"
+#include <vector>
 #include "RooRealProxy.h"
 #include "RooListProxy.h"
 #include "RooAbsGaussModelEfficiency.h"
+class RooAbsReal;
 
 class RooRealVar;
 class RooArgList ;

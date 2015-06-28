@@ -9,9 +9,6 @@
 
 #include "RooAbsReal.h"
 #include "RooRealProxy.h"
-#include "RooCategoryProxy.h"
-#include "RooAbsReal.h"
-#include "RooAbsCategory.h"
  
 class Inverse : public RooAbsReal {
 public:

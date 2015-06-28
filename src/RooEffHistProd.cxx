@@ -27,26 +27,21 @@
 // END_HTML
 //
 
-#include "RooFit.h"
+#include <memory>
+#include <algorithm>
+#include <exception>
+
 #include "B2DXFitters/RooEffHistProd.h"
-#include "RooEffGenContext.h"
 #include "RooNameReg.h"
 #include "RooRealVar.h"
 #include "RooRandom.h"
 #include "RooCategory.h"
 #include "RooCatType.h"
 #include "TString.h"
-#include <RooAbsArg.h>
-#include <RooCustomizer.h>
-#include <RooConstVar.h>
-#include <RooAddition.h>
-#include <RooSuperCategory.h>
-#include "B2DXFitters/RooBinnedPdf.h"
-#include <RooGenContext.h>
-
-#include <memory>
-#include <algorithm>
-#include <exception>
+#include "RooAbsArg.h"
+#include "RooCustomizer.h"
+#include "RooAddition.h"
+#include "RooGenContext.h"
 
 //ClassImp(RooEffHistProd);
 

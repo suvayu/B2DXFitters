@@ -11,15 +11,11 @@
  * listed in LICENSE (http://roofit.sourceforge.net/license.txt)             *
  *****************************************************************************/ 
 
-#include "RooAbsReal.h" 
+#include <iostream>
+
 #include "RooArgList.h" 
 #include "RooMsgService.h"
 #include "B2DXFitters/RooComplementCoef.h" 
-#include "Riostream.h"
-
-#include <iostream>
-using std::endl;
-using std::ostream;
 
 //_____________________________________________________________________________
 RooComplementCoef::RooComplementCoef(const char* name, const char* title,
@@ -34,7 +30,7 @@ RooComplementCoef::RooComplementCoef(const char* name, const char* title,
     if (dynamic_cast<RooAbsReal*>(coef) == 0) {
       coutE(InputArguments) << "RooComplementCoef::RooComplementCoef("
           << GetName() << ") omitting coefficient \"" << coef->GetName()
-          << "\": not a RooAbsReal" << endl;
+          << "\": not a RooAbsReal" << std::endl;
       continue;
     }
 
@@ -50,7 +46,7 @@ RooComplementCoef::RooComplementCoef(
 {}
 
 //_____________________________________________________________________________
-void RooComplementCoef::printArgs(ostream& os) const
+void RooComplementCoef::printArgs(std::ostream& os) const
 {
   os << "[ 1";
   Int_t iter(0);

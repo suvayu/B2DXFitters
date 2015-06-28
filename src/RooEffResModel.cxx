@@ -32,14 +32,8 @@
 #include <cassert>
 #include <cmath>
 
-#include <RooFit.h>
-#include <Riostream.h>
-#include <RooRealConstant.h>
 #include <RooCustomizer.h>
-#include <RooAddition.h>
-#include <RooProduct.h>
-#include <RooStringVar.h>
-#include <RooAbsAnaConvPdf.h>
+class RooAbsAnaConvPdf;
 #include "B2DXFitters/RooEffConvGenContext.h"
 #include "B2DXFitters/RooEffResModel.h"
 
