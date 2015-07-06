@@ -32,10 +32,13 @@
 	<function pattern = "Bd2DhModels::*"            />
 	<function pattern = "Bs2DshModels::*"           />
 	<function pattern = "Bs2Dsh2011TDAnaModels::*"  />
+	<function pattern = "Bs2DshDsHHHPi0Models::*"  />
+	<function pattern = "Bs2DssthModels::*"           />
 
 	<function pattern = "GeneralUtils::*" />
 	<function pattern = "SFitUtils::*" />
 	<function pattern = "MassFitUtils::*" /> 
+	<class name = "MCBackground" />
 	<function pattern = "WeightingUtils::*" />
         <class name = "PlotSettings" />
         <class name = "MDFitterSettings" />

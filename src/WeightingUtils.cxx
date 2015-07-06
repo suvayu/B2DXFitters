@@ -54,6 +54,7 @@
 #include "B2DXFitters/RooBinned1DQuinticBase.h"
 #include "B2DXFitters/PlotSettings.h"
 #include "B2DXFitters/MDFitterSettings.h"
+#include "B2DXFitters/MCBackground.h"
 
 #define DEBUG(COUNT, MSG)				   \
   std::cout << "SA-DEBUG: [" << COUNT << "] (" << __func__ << ") " \
@@ -98,8 +99,8 @@ namespace WeightingUtils {
       }
 
     TString Par;
-    if( fileCalib.Contains("CalibDSt") == true && fileCalib.Contains("Pi") ) { Par = "Pi"; }
-    else if (fileCalib.Contains("CalibDSt") == true && fileCalib.Contains("K") ) { Par = "K"; }
+    if( ( fileCalib.Contains("CalibDSt") == true || fileCalib.Contains("CalibDst") == true ) && fileCalib.Contains("Pi") ) { Par = "Pi"; }
+    else if ( (fileCalib.Contains("CalibDSt") == true || fileCalib.Contains("CalibDst") == true ) && fileCalib.Contains("K") ) { Par = "K"; }
     else if (fileCalib.Contains("CalibLam0") == true && fileCalib.Contains("P") ) { Par = "P"; }
     else {Par = "";}
     if( debug == true) { std::cout<<"Return: "<<Par<<std::endl;}
@@ -116,15 +117,15 @@ namespace WeightingUtils {
       }
 
     TString Par;
-    if( fileCalib.Contains("CalibDSt") == true && fileCalib.Contains("Pi") ) { Par = "Pi"; }
-    else if (fileCalib.Contains("CalibDSt") == true && fileCalib.Contains("K") ) { Par = "K"; }
+    if( ( fileCalib.Contains("CalibDSt") == true || fileCalib.Contains("CalibDst") == true ) && fileCalib.Contains("Pi") ) { Par = "Pi"; }
+    else if ( (fileCalib.Contains("CalibDSt") == true || fileCalib.Contains("CalibDst") == true ) && fileCalib.Contains("K") ) { Par = "K"; }
     else if (fileCalib.Contains("CalibLam0") == true && fileCalib.Contains("P") ) { Par = "P"; }
     else {Par = "";}
   
     TString label ="";
     if ( check == "nTracks" ) {  label = "nTracks"; }
-    else if ( check == "lab1_P" || check == "Bac_P") {  label = Par+"_P"; }
-    else if ( check == "lab1_PT"|| check == "Bac_PT" ) {  label = Par+"_PT"; }
+    else if ( check.Contains("PT") == true ) {  label = Par+"_PT"; }
+    else if ( check.Contains("P") == true ) {  label = Par+"_P"; }
   
     if( debug == true) { std::cout<<"Return: "<<label<<std::endl;}
     return label;
@@ -140,12 +141,14 @@ namespace WeightingUtils {
     TString nameCalib = "";
     TString sample = "";
     TString mode = ""; 
+    TString year = ""; 
 
     if ( type.Contains("Comb") == true && type.Contains("Pion") == true)
       {
         if ( type.Contains("Down") == true || type.Contains("down") == true) { nm = "down"; } else {  nm = "up"; }
         name="dataCombBkg_"+nm;
-        histName = "hist2D_Comb_"+nm;
+        //name = "dataSetBsDsPi_"+nm+"_hhhpi0";
+	histName = "hist2D_Comb_"+nm;
         histNameR = "hist2D_Comb_ratio_"+nm;
 	nameCalib = "CalibSample_CombPi_"+nm; 
       }
@@ -153,7 +156,8 @@ namespace WeightingUtils {
       {
         if ( type.Contains("Down") == true || type.Contains("down") == true) { nm = "down"; } else {  nm = "up"; }
         name="dataCombBkg_"+nm;
-        histName = "hist2DK_Comb_"+nm;
+        //name = "dataSetBsDsPi_"+nm+"_hhhpi0";
+	histName = "hist2DK_Comb_"+nm;
         histNameR = "hist2DK_Comb_ratio_"+nm;
 	nameCalib = "CalibSample_CombK_"+nm;
       }
@@ -168,40 +172,75 @@ namespace WeightingUtils {
     else if ( type.Contains("DPi") == true)
       {
         if ( type.Contains("Down") == true || type.Contains("down") == true) { nm = "down"; } else {  nm = "up"; }
-        name = "dataSet_Miss_"+nm+"_kpipi";
+	year = CheckDataYear(type,debug);
+	if ( year != "") { year = "_"+year; }
+	name = "dataSet_Miss_"+nm+"_kpipi"+year;
         histName = "hist2D_Miss_"+nm;
         histNameR = "hist2D_Miss_ratio_"+nm;
 	nameCalib = "CalibSample_Miss_"+nm;
       }
-    else if( type.Contains("BsDsPi") == true && type.Contains("MC") == true )
+    else if( type.Contains("Bs2DsPi") == true && type.Contains("MC") == true )
       {
 	sample = CheckPolarity(type,debug);
         mode = CheckDMode(type, debug);
         if ( mode == "kkpi" || mode == "") { mode = CheckKKPiMode(type, debug); }
-	nm = "BsDsPi_"+sample+"_"+mode;
+	year = CheckDataYear(type,debug);
+	if ( year != "") { year = "_"+year; }
+	nm = "Bs2DsPi_"+sample+"_"+mode+year;
         name="dataSetMC_"+nm;
         histName = "hist2D_"+nm;
         histNameR = "hist2D_ratio_"+nm;
 	nameCalib = "CalibSample_"+nm;
       }
-    else if (type.Contains("BsDsK") == true && type.Contains("MC") == true)
+    else if( type.Contains("Bs2DsstPi") == true && type.Contains("MC") == true )
+      {
+        sample = CheckPolarity(type,debug);
+        mode = CheckDMode(type, debug);
+        if ( mode == "kkpi" || mode == "") { mode = CheckKKPiMode(type, debug); }
+        year = CheckDataYear(type,debug);
+        if ( year != "") { year = "_"+year; }
+        nm = "Bs2DsstPi_"+sample+"_"+mode+year;
+        name="dataSetMC_"+nm;
+        histName = "hist2D_"+nm;
+        histNameR = "hist2D_ratio_"+nm;
+        nameCalib = "CalibSample_"+nm;
+      }
+    else if (type.Contains("Bs2DsK") == true && type.Contains("MC") == true)
       {
         sample = CheckPolarity(type,debug);
         mode = CheckDMode(type, debug);
         if ( mode == "kkpi"|| mode == "") { mode = CheckKKPiMode(type, debug); }
-        nm = "BsDsK_"+sample+"_"+mode;
+	year = CheckDataYear(type,debug);
+	if ( year != "") { year = "_"+year; }
+        nm = "Bs2DsK_"+sample+"_"+mode+year;
         name="dataSetMC_"+nm;
         histName = "hist2D_"+nm;
 	histNameR = "hist2D_ratio_"+nm;
 	nameCalib = "CalibSample_"+nm;
 
       }
-    else if( type.Contains("BsDsPi") == true && type.Contains("MC") != true )
+    else if (type.Contains("Bs2DsstK") == true && type.Contains("MC") == true)
+      {
+        sample = CheckPolarity(type,debug);
+        mode = CheckDMode(type, debug);
+        if ( mode == "kkpi"|| mode == "") { mode = CheckKKPiMode(type, debug); }
+        year = CheckDataYear(type,debug);
+        if ( year != "") { year = "_"+year; }
+        nm = "Bs2DsstK_"+sample+"_"+mode+year;
+        name="dataSetMC_"+nm;
+        histName = "hist2D_"+nm;
+        histNameR = "hist2D_ratio_"+nm;
+        nameCalib = "CalibSample_"+nm;
+
+      }
+    else if( type.Contains("Bs2DsPi") == true && type.Contains("MC") != true )
       {
 	sample = CheckPolarity(type,debug);
 	mode = CheckDMode(type, debug);
 	if ( mode == "kkpi" || mode == "") { mode = CheckKKPiMode(type, debug); }
-	nm = sample+"_"+mode;
+	year = CheckDataYear(type,debug); 
+	if ( year != "") { year = "_"+year; }
+	nm = sample+"_"+mode+year;
 	name="dataSet_Miss_"+nm;
 	histName = "hist2D_"+nm;
 	histNameR = "hist2D_ratio_"+nm;
@@ -323,25 +362,38 @@ namespace WeightingUtils {
     if ( label1.Contains("MC") == true ) 
       {
 	name="dataSetMC_"+nm;
-	if( label1.Contains("BsDsK") == true) {legendBool = kFALSE;} else {legendBool = kTRUE;}
+	if( label1.Contains("Bs2DsK") == true) {legendBool = kFALSE;} else {legendBool = kTRUE;}
       }
     else if ( label1.Contains("Comb") == true ) 
       { 
-	if( label1.Contains("Down") == true) { name="dataCombBkg_down";} else { name = "dataCombBkg_up";}
+	if( label1.Contains("Down") == true) 
+	  { 
+	    //name = "dataSetBsDsPi_down_hhhpi0"; 
+	    name="dataCombBkg_down";
+	  } 
+	else 
+	  { 
+	    //name = "dataSetBsDsPi_up_hhhpi0";
+	    name = "dataCombBkg_up";
+	  }
 	if ( label1.Contains("CombPi") == true ) { legendBool = kTRUE; } else {legendBool = kFALSE; }
       }
-    else if ( label1.Contains("BsDsPi") == true && label1.Contains("MC") != true)
+    else if ( label1.Contains("Bs2DsPi") == true && label1.Contains("MC") != true)
       {
 	TString sample = CheckPolarity(label1,debug);
         TString mode = CheckDMode(label1, debug);
+	TString year = CheckDataYear(label1,debug); 
+	if ( year != "" ) { year = "_"+year; }  
 	if ( mode == "kkpi") { mode = CheckKKPiMode(label1, debug); }
-	TString mm = sample+"_"+mode;
+	TString mm = sample+"_"+mode+year;
         name="dataSet_Miss_"+mm;
 	legendBool = kFALSE;
       }  
     else {
       legendBool =kTRUE;
-      if( label1.Contains("Down") == true) { name="dataSet_Miss_down_kpipi";} else { name = "dataSet_Miss_up_kpipi";}
+      TString year = CheckDataYear(label1,debug);
+      if ( year != "" ) { year = "_"+year; }
+      if( label1.Contains("Down") == true) { name="dataSet_Miss_down_kpipi"+year;} else { name = "dataSet_Miss_up_kpipi"+year;}
     }
 
     RooDataSet*  dataMC = GetDataSet(work,name,debug);
@@ -585,7 +637,7 @@ namespace WeightingUtils {
       {
         if( label1.Contains("Down") == true) { name="dataCombBkg_down";} else { name = "dataCombBkg_up";}
       }
-    else if ( label1.Contains("BsDsPi") == true && label1.Contains("MC") != true)
+    else if ( label1.Contains("Bs2DsPi") == true && label1.Contains("MC") != true)
       {
         TString sample = CheckPolarity(label1,debug);
         TString mode = CheckDMode(label1, debug);
@@ -763,7 +815,7 @@ namespace WeightingUtils {
 
   RooDataSet* GetDataCalibSample(TString& fileName, TString& workName, 
 				 RooRealVar* Var1, RooRealVar* Var2,
-				 PlotSettings* plotSet,
+				 PlotSettings* plotSet,  
 				 bool debug )
   {
     if ( debug == true)
@@ -780,6 +832,11 @@ namespace WeightingUtils {
       {
 	dataName = "data";
       }
+    //    else if ( fileName.Contains("Comb") == true )
+    // {
+    //	 TString s = CheckPolarity(fileName,debug);
+    //	 dataName = "dataCombBkg_"+s; 
+    //   }
     else
       {
 	TString s = CheckPolarity(fileName,debug);
@@ -787,10 +844,7 @@ namespace WeightingUtils {
       }
     RooWorkspace* workC = LoadWorkspace(fileName, workName, debug);
     RooDataSet* dataC = GetDataSet(workC, dataName, debug );
-    const TTree* treeConst = dataC->tree();
-    TTree* treeC = new TTree("name","name"); 
-    treeC = treeConst->GetTree();
-    Double_t nsig_sw3,Var13, Var23;
+    if (debug == true ) { dataC->Print("v"); } 
 
     TString nameVar1 = Var1->GetName();
     TString nameVar2 = Var2->GetName();
@@ -809,39 +863,87 @@ namespace WeightingUtils {
 	else
 	  {
 	    swlabel = "sWeights";
-	    nVar1 = nameVar1;
-	    nVar2 = nameVar2;
+	    nVar1 = "lab1_PT"; //nameVar1;
+	    nVar2 = "nTracks";
 	  }
       }
     else { if(debug == true) std::cout<<"The same name of variables: "<<nameVar1<<"  "<<nameVar2<<std::endl; }
 
-    treeC->SetBranchAddress(swlabel.Data(), &nsig_sw3);
-    treeC->SetBranchAddress(nVar1.Data(), &Var13);
-    treeC->SetBranchAddress(nVar2.Data(), &Var23);
+    RooRealVar* CalVar1 = NULL;
+    CalVar1 = (RooRealVar*)dataC->get()->find(nVar1.Data());
+    RooRealVar* CalVar2 = NULL;
+    CalVar2 = (RooRealVar*)dataC->get()->find(nVar2.Data());
+    RooRealVar* CalWeight = NULL;
+    if ( dataC->isWeighted() == false && fileName.Contains("Comb") != true) 
+      {
+	CalWeight = (RooRealVar*)dataC->get()->find(swlabel.Data());
+      }
+    if (debug == true )
+      {
+	if ( CalVar1 != NULL ) { std::cout<<"[INFO] Read "<<nVar1<<" from "<<dataC->GetName()<<std::endl; } else { std::cout<<"[ERROR] Cannot read variable "<<std::endl;}
+	if ( CalVar2 != NULL ) { std::cout<<"[INFO] Read "<<nVar2<<" from "<<dataC->GetName()<<std::endl; } else{ std::cout<<"[ERROR] Cannot read variable "<<std::endl;}
+	if ( CalWeight != NULL ) { std::cout<<"[INFO] Read "<<swlabel<<" from "<<dataC->GetName()<<std::endl; } 
+	else{ 
+	  if ( dataC->isWeighted() == true ) { std::cout<<"[INFO] Weight directly taken from RooDataSet"<<std::endl; }
+	  else{ std::cout<<"[ERROR] Cannot read variable "<<std::endl;}
+	}
+      }
+    //treeC->SetBranchAddress(swlabel.Data(), &nsig_sw3);
+    //treeC->SetBranchAddress(nVar1.Data(), &Var13);
+    //treeC->SetBranchAddress(nVar2.Data(), &Var23);
 
     TString namew = "weights";
     RooRealVar* weights;
     weights = new RooRealVar(namew.Data(), namew.Data(), -50.0, 50.0 );
-    TString nameCalib = "CalibSample";
+    TString pol = CheckPolarity(fileName,debug); 
+    TString bach = "";
+    if ( fileName.Contains("K") == true ) { bach = "K"; } 
+    else if (fileName.Contains("Pi") == true ) { bach = "Pi"; }
+    else { bach = "P"; }
+
+    TString nameCalib = "CalibSample"+pol+bach;
     
     dataRW = new RooDataSet(nameCalib.Data(),nameCalib.Data(),RooArgSet(*Var1,*Var2,*weights), namew.Data());
-
     
-    for (Long64_t jentry=0; jentry<treeC->GetEntries(); jentry++)
+    for (Long64_t jentry=0; jentry<dataC->numEntries(); jentry++)
       {
+	if ( jentry == 0 ) { std::cout<<"[INFO] 0% of sample done"<<std::endl;}
+	if ( jentry == dataC->numEntries()/10 ) { std::cout<<"[INFO] 10% of sample done"<<std::endl;}
+	if ( jentry == dataC->numEntries()/5 ) { std::cout<<"[INFO] 20% of sample done"<<std::endl;}
+	if ( jentry == int(dataC->numEntries()*0.3) ) { std::cout<<"[INFO] 30% of sample done"<<std::endl;}
+	if ( jentry == int(dataC->numEntries()*0.4) ) { std::cout<<"[INFO] 40% of sample done"<<std::endl;}
+	if ( jentry == int(dataC->numEntries()*0.5) ) { std::cout<<"[INFO] 50% of sample done"<<std::endl;}
+	if ( jentry == int(dataC->numEntries()*0.6) ) { std::cout<<"[INFO] 60% of sample done"<<std::endl;}
+	if ( jentry == int(dataC->numEntries()*0.7) ) { std::cout<<"[INFO] 70% of sample done"<<std::endl;}
+	if ( jentry == int(dataC->numEntries()*0.8) ) { std::cout<<"[INFO] 80% of sample done"<<std::endl;}
+	if ( jentry == int(dataC->numEntries()*0.9) ) { std::cout<<"[INFO] 90% of sample done"<<std::endl;}
 
-	treeC->GetEntry(jentry);
-	Var1->setVal(Var13);
-	Var2->setVal(Var23);
-	//std::cout<<" weight: "<<wA<<" nsigSW: "<<nsig_sw3<<" wRW "<<wRW<<" "<<nameVar1<<": "<<Var13<<" "<<nameVar2<<": "<<Var23<<std::endl;
-	weights->setVal(nsig_sw3);
-	dataRW->add(RooArgSet(*Var1,*Var2,*weights),nsig_sw3,0);
+	//if (debug == true ) { std::cout<<"[INFO] Loop over data set"<<std::endl; } 
+	const RooArgSet* setInt = dataC->get(jentry); 
+	Var1->setVal(CalVar1->getValV(setInt));
+        Var2->setVal(CalVar2->getValV(setInt));
+	//std::cout<<" weight: "<<CalWeight->getValV(setInt)<<" nsigSW: "<<nsig_sw3<<" wRW "<<wRW<<" "<<nameVar1<<": "<<Var13<<" "<<nameVar2<<": "<<Var23<<std::endl;
+	Double_t w = 0;
+	
+	if (  dataC->isWeighted() == true ) 
+	  {
+	    w = dataC->weight(); 
+	  }
+	else
+	  {
+	    w = CalWeight->getValV(setInt);
+	  }
+       
+	weights->setVal(w);
+	//std::cout<<"w: "<<w<<" var1: "<<CalVar1->getValV(setInt)<<" var2: "<<CalVar2->getValV(setInt)<<std::endl; 
+	dataRW->add(RooArgSet(*Var1,*Var2,*weights),w,0);
       }
     if ( dataRW != NULL  ){
       std::cout<<"[INFO] ==> Create "<<dataRW->GetName()<<std::endl;
       std::cout<<" number of entries in data set: "<<dataRW->numEntries()<<std::endl;
     } else { std::cout<<"Error in create dataset"<<std::endl; }
-    
+
+    dataRW->Print("v"); 
     TString smp = "Calib";
     TString mode = "sample";
     if( plotSet->GetStatus() ==true )
@@ -850,7 +952,7 @@ namespace WeightingUtils {
         SaveDataSet(dataRW, Var2 , smp, mode, plotSet, debug);
       }
 
-
+    delete dataC; 
     return dataRW;
     
   }
@@ -1554,32 +1656,15 @@ namespace WeightingUtils {
     if(debug == true) std::cout<<nameVar1<<" range: ("<<Var1_down<<","<<Var1_up<<")"<<std::endl;
     if(debug == true) std::cout<<nameVar2<<" range: ("<<Var2_down<<","<<Var2_up<<")"<<std::endl;
     
-    std::vector <std::string> FileName;
-    std::vector <std::string> mode;
-    
-    Int_t size=0;
 
-    ReadOneName(filesDir,FileName,sig,debug);
-    if ( type.Contains("MC") == true)
+    std::vector <MCBackground*> MCBkg;
+    Int_t numBkg = CheckNumberOfBackgrounds(filesDir,sig, debug);
+    for(int i = 1; i<numBkg+1; i++ )
       {
-	ReadMode(FileName, mode, false, debug);
-	size = mode.size();
+        MCBkg.push_back(new MCBackground(Form("MCBkg%d",i),"MCBackground",filesDir,sig,i));
+        MCBkg[i-1]->Print("v");
       }
-    else { if( debug == true) std::cout<<"[ERROR] Wrong sample andmode"<<std::endl; }
-    
-    std::vector<TString> smp(size); 
-    if ( type.Contains("MC") == true )
-      {
-	for(int i = 0; i< size; i++ )
-	  {
-	    smp[i] = CheckPolarity(sig, debug);
-	  }
-      }
-    else 
-      {
-	if( debug == true) {std::cout<<"[ERROR] Wrong sample and mode"<<std::endl; } return NULL;
-      }
-    
+
     TString ext = "pdf";
 
     std::vector <TH2F*> hist2Data;
@@ -1597,19 +1682,22 @@ namespace WeightingUtils {
     TString l2 = "Calib";
     TString l3 = "Ratio";
 
-    for( int i = 0; i<size; i++)
+    for( int i = 0; i<numBkg; i++)
       {
-	TString m = mode[i]; 
+	TString m = MCBkg[i]->GetMode();
+	TString smp = MCBkg[i]->GetPolarity();
+	TString y = MCBkg[i]->GetYear();
+	if ( y  != "" ) { y = "_"+y;}
 	if ( (type.Contains("Kaon") == true && (m.Contains("Kst") == true   || m.Contains("K") == true)) || 
 	     (type.Contains("Pion") == true && (m.Contains("Pi") == true  || m.Contains("Rho") == true)) ||
-	     (type.Contains("Proton") == true && (mode[i] == "Lb2Dsp" || mode[i] == "Lb2Dsstp" )))
+	     (type.Contains("Proton") == true && (m == "Lb2Dsp" || m == "Lb2Dsstp" )))
 	  {
 	    TString nm, name;
 	    TString histName;
 	    TString histNameR;
 	    if ( type.Contains("MC") == true )
 	      {
-		nm = mode[i]+"_"+smp[i]; 
+		nm = m+"_"+smp+y; 
 		name="dataSetMC_"+nm;
 		histName = "hist2D_"+nm;    
 		histNameR = "hist2D_ratio_"+nm;
@@ -1712,31 +1800,12 @@ namespace WeightingUtils {
     if(debug == true) std::cout<<nameVar2<<" range: ("<<Var2_down<<","<<Var2_up<<")"<<std::endl;
     if(debug == true) std::cout<<nameVar3<<" range: ("<<Var3_down<<","<<Var3_up<<")"<<std::endl;
 
-    std::vector <std::string> FileName;
-    std::vector <std::string> mode;
-
-    Int_t size=0;
-
-    ReadOneName(filesDir,FileName,sig,debug);
-    if ( type.Contains("MC") == true)
+    std::vector <MCBackground*> MCBkg;
+    Int_t numBkg = CheckNumberOfBackgrounds(filesDir,sig, debug);
+    for(int i = 1; i<numBkg+1; i++ )
       {
-        ReadMode(FileName, mode, false, debug);
-        size = mode.size();
-      }
-    else { if( debug == true) { std::cout<<"[ERROR] Wrong sample and mode"<<std::endl;} return NULL; }
-
-    std::vector<TString> smp(size); 
-
-    if ( type.Contains("MC") == true )
-      {
-        for(int i = 0; i< size; i++ )
-          {
-            smp[i] = CheckPolarity(sig, debug);
-          }
-      }
-    else
-      {
-        if( debug == true){ std::cout<<"[ERROR] Wrong sample and mode"<<std::endl;} return NULL;
+	MCBkg.push_back(new MCBackground(Form("MCBkg%d",i),"MCBackground",filesDir,sig,i));
+        MCBkg[i-1]->Print("v");
       }
 
     TString ext = "pdf";
@@ -1762,19 +1831,20 @@ namespace WeightingUtils {
     TString l2 = "Calib";
     TString l3 = "Ratio";
 
-    for( int i = 0; i<size; i++)
+    for( int i = 0; i<numBkg; i++)
       {
-        TString m = mode[i];
+	TString m = MCBkg[i]->GetMode();
+        TString smp = MCBkg[i]->GetPolarity();
         if ( (type.Contains("Kaon") == true && (m.Contains("Kst") == true   || m.Contains("K") == true)) ||
              (type.Contains("Pion") == true && (m.Contains("Pi") == true  || m.Contains("Rho") == true)) ||
-             (type.Contains("Proton") == true && (mode[i] == "Lb2Dsp" || mode[i] == "Lb2Dsstp" )))
+             (type.Contains("Proton") == true && (m == "Lb2Dsp" || m == "Lb2Dsstp" )))
           {
             TString nm, name;
             TString histName;
             TString histNameR;
             if ( type.Contains("MC") == true )
               {
-                nm = mode[i]+"_"+smp[i];
+                nm = m+"_"+smp;
                 name="dataSetMC_"+nm;
                 histName = "hist2D_"+nm;
 		histNameR = "hist2D_ratio_"+nm;
@@ -1877,6 +1947,8 @@ namespace WeightingUtils {
         workCalib = md->GetCalibProtonWorkName();
       }
 
+    std::cout<<fileCalib<<std::endl;
+    std::cout<<workCalib<<std::endl;
 
     if( md->GetWeightingDim() == 2 )
       {
@@ -1955,30 +2027,12 @@ namespace WeightingUtils {
     if(debug == true) std::cout<<nameVar1<<" range: ("<<Var1_down<<","<<Var1_up<<")"<<std::endl;
     if(debug == true) std::cout<<nameVar2<<" range: ("<<Var2_down<<","<<Var2_up<<")"<<std::endl;
 
-    std::vector <std::string> FileName;
-    std::vector <std::string> mode;
-
-    Int_t size=0;
-
-    ReadOneName(filesDir,FileName,sig,debug);
-    if ( type.Contains("MC") == true )
+    std::vector <MCBackground*> MCBkg;
+    Int_t numBkg = CheckNumberOfBackgrounds(filesDir,sig, debug);
+    for(int i = 1; i<numBkg+1; i++ )
       {
-	ReadMode(FileName, mode, false, debug);
-        size = mode.size();
-      }
-    else { if( debug == true) {std::cout<<"[ERROR] Wrong sample andmode"<<std::endl;} return NULL; }
-
-    std::vector<TString> smp(size); 
-    if ( type.Contains("MC") == true )
-      {
-        for(int i = 0; i< size; i++ )
-          {
-            smp[i] = CheckPolarity(sig, debug);
-          }
-      }
-    else
-      {
-        if( debug == true) {std::cout<<"[ERROR] Wrong sample andmode"<<std::endl;} return NULL;
+        MCBkg.push_back(new MCBackground(Form("MCBkg%d",i),"MCBackground",filesDir,sig,i));
+	MCBkg[i-1]->Print("v");
       }
 
     TString ext = "pdf";
@@ -1998,31 +2052,59 @@ namespace WeightingUtils {
 
     workC = LoadWorkspace(fileCalib, workCalib, debug);
     dataC = GetDataSet(workC, dataName, debug );
-    dataC->Print("v");
-    const TTree* treeConst = dataC->tree();
-    TTree* treeC = new TTree("name","name"); 
-    treeC = treeConst->GetTree();
-    Double_t nsig_sw3,PID3,Var13, Var23; 
+    if (debug == true ) { dataC->Print("v"); }
+
+    //const TTree* treeConst = dataC->tree();
+    //TTree* treeC = new TTree("name","name"); 
+    //treeC = treeConst->GetTree();
+    // Double_t nsig_sw3,PID3,Var13, Var23; 
+
+    RooRealVar* CalibWeight = NULL;
+    RooRealVar* CalibVar1 = NULL;
+    RooRealVar* CalibVar2 = NULL;
+    RooRealVar* CalibPIDK = NULL; 
+    TString nameDLL = "";
+    TString nVar1 = "";
+    TString nVar2 = "";
+    TString swlabel = "";
 
     if ( type.Contains("Proton") != true )
       {
 	TString Par;
 	Par = CheckTreeLabel(fileCalib, debug); 
-	treeC->SetBranchAddress("nsig_sw", &nsig_sw3);
-	TString nameDLL = Par+"_CombDLLK";
-	treeC->SetBranchAddress(nameDLL.Data(), &PID3);
-	TString nVar1 = CheckTreeLabel(fileCalib, nameVar1, debug);
-	treeC->SetBranchAddress(nVar1.Data(), &Var13);
-	TString nVar2 = CheckTreeLabel(fileCalib, nameVar2, debug);
-	treeC->SetBranchAddress(nVar2.Data(), &Var23);
+	swlabel = "nsig_sw"; 
+	nameDLL = Par+"_CombDLLK";
+	nVar1 = CheckTreeLabel(fileCalib, nameVar1, debug);
+	nVar2 = CheckTreeLabel(fileCalib, nameVar2, debug);
       }
     else
       {
-	treeC->SetBranchAddress("sWeights", &nsig_sw3);
-	treeC->SetBranchAddress(namePID.Data(), &PID3);
-	treeC->SetBranchAddress(nameVar1.Data(), &Var13);
-	treeC->SetBranchAddress(nameVar2.Data(), &Var23);
+	swlabel = "sWeights"; 
+	nameDLL = "lab1_PIDK"; namePID;
+	nVar1 = "lab1_PT"; //nameVar1;
+	nVar2 = "nTracks";
       }
+
+    if (dataC->isWeighted() == false )
+      {
+	CalibWeight = (RooRealVar*)dataC->get()->find(swlabel.Data());
+      }
+    CalibPIDK = (RooRealVar*)dataC->get()->find(nameDLL.Data());
+    CalibVar1 = (RooRealVar*)dataC->get()->find(nVar1.Data());
+    CalibVar2 = (RooRealVar*)dataC->get()->find(nVar2.Data());
+
+    if (debug == true )
+      {
+        if ( CalibVar1 != NULL ) { std::cout<<"[INFO] Read "<<nVar1<<" from "<<dataC->GetName()<<std::endl; } else { std::cout<<"[ERROR] Cannot read variable "<<std::endl;}
+        if ( CalibVar2 != NULL ) { std::cout<<"[INFO] Read "<<nVar2<<" from "<<dataC->GetName()<<std::endl; } else{ std::cout<<"[ERROR] Cannot read variable "<<std::endl;}
+	if ( CalibPIDK != NULL ) { std::cout<<"[INFO] Read "<<nameDLL<<" from "<<dataC->GetName()<<std::endl; } else{ std::cout<<"[ERROR] Cannot read variable "<<std::endl;}
+        if ( CalibWeight != NULL ) { std::cout<<"[INFO] Read "<<swlabel<<" from "<<dataC->GetName()<<std::endl; }
+        else{
+          if ( dataC->isWeighted() == true ) { std::cout<<"[INFO] Weight directly taken from RooDataSet"<<std::endl; }
+          else{ std::cout<<"[ERROR] Cannot read variable "<<std::endl;}
+        }
+      }
+
     //treeC->Print();
     Double_t wRW(0), wA(0);
     TH2F* histRW;
@@ -2037,15 +2119,19 @@ namespace WeightingUtils {
     TString histNameCalib = "hist2D_Calib";
     TH2F* histCalib = Get2DHist(dataCalib,Var1, Var2, bin1, bin2, histNameCalib, debug);
 
-    RooAbsPdf* pdfPID[size];
+    RooAbsPdf* pdfPID[numBkg];
         
-    for( int i = 0; i<size; i++)
+    for( int i = 0; i<numBkg; i++)
       {
 		
-	TString m = mode[i];
+	TString m = MCBkg[i]->GetMode();
+        TString smp = MCBkg[i]->GetPolarity();
+	TString y = MCBkg[i]->GetYear(); 
+	if ( y != "") { y = "_"+y; }
+
         if ( (type.Contains("Kaon") == true && (m.Contains("Kst") == true   || m.Contains("K") == true)) ||
              (type.Contains("Pion") == true && (m.Contains("Pi") == true  || m.Contains("Rho") == true)) ||
-             (type.Contains("Proton") == true && (mode[i] == "Lb2Dsp" || mode[i] == "Lb2Dsstp" )))
+             (type.Contains("Proton") == true && (m == "Lb2Dsp" || m == "Lb2Dsstp" )))
 	  {
 	    TH2F* hist = NULL;
 	    TH2F* histMC = NULL;
@@ -2056,7 +2142,8 @@ namespace WeightingUtils {
 	    TString nameCalib;
 	    if ( type.Contains("MC") == true )
 	      {
-		nm = mode[i]+"_"+smp[i];
+		
+		nm = m+"_"+smp+y;
 		histName = "hist2D_"+nm;
 		histNameR = "hist2D_ratio_"+nm;
 		nameCalib = "CalibSample_"+nm;
@@ -2071,10 +2158,9 @@ namespace WeightingUtils {
 	    if( debug == true) std::cout<<"Calculating for "<<nm<<std::endl;
 	    //TString histName = "hist2D_ratio_"+nm;
 	    hist = (TH2F*)work->obj(histNameR.Data());
-	    if ( hist != NULL ) { std::cout<<" Read histogram: "<<hist->GetName()<<std::endl;} 
+	    if ( hist != NULL ) { std::cout<<"Read histogram: "<<hist->GetName()<<std::endl;} 
 	    else {std::cout<<" Cannot read histogram: "<<histName.Data()<<std::endl;}
 	    histMC = (TH2F*)work->obj(histName.Data());
-	    
     
 	    TString namew = "weights";
 	    RooRealVar* weights;
@@ -2083,7 +2169,7 @@ namespace WeightingUtils {
 
 	    TH1* histPID = NULL;
             TString namehist = "histPID_"+nm;
-	    if( type.Contains("MC") == true && type.Contains("BsDsPi")==true)
+	    if( type.Contains("MC") == true && ( type.Contains("Bs2DsPi")==true || type.Contains("Bs2DsstPi") == true ))
 	      {
 		histPID = new TH1D(namehist.Data(), namehist.Data(), 200, PID_down, PID_up);
 		dataRW = new RooDataSet(nameCalib.Data(),nameCalib.Data(),RooArgSet(*lab1_PIDK,*Var1,*Var2,*weights), namew.Data());
@@ -2095,10 +2181,24 @@ namespace WeightingUtils {
 	      }
 
 	    //std::cout<<"tuuuu"<<std::endl;
-	    for (Long64_t jentry=0; jentry<treeC->GetEntries(); jentry++)
-	      {
-		treeC->GetEntry(jentry);
-		if( type.Contains("MC") == true && type.Contains("BsDsPi")==true)
+	    for (Long64_t jentry=0; jentry<dataC->numEntries(); jentry++)                                                                                            
+	      {         
+		const RooArgSet* setInt = dataC->get(jentry);
+		Double_t Var13 = CalibVar1->getValV(setInt);
+		Double_t Var23 = CalibVar2->getValV(setInt);
+		Double_t PID3 = CalibPIDK->getValV(setInt); 
+		Double_t nsig_sw3 = 1.0;
+
+		if (  dataC->isWeighted() == true )
+		  {
+		    nsig_sw3 = dataC->weight();
+		  }
+		else
+		  {
+		    nsig_sw3 = CalibWeight->getValV(setInt);
+		  }
+
+		if( type.Contains("MC") == true && ( type.Contains("Bs2DsPi")==true || type.Contains("Bs2DsstPi") == true ))
 		  {
 		    PID3 = -PID3;
 		    lab1_PIDK->setVal(PID3);
@@ -2115,7 +2215,7 @@ namespace WeightingUtils {
 		wA = nsig_sw3*wRW;
 		//std::cout<<" weight: "<<wA<<" nsigSW: "<<nsig_sw3<<" wRW "<<wRW<<" "<<nameVar1<<": "<<Var13<<" "<<nameVar2<<": "<<Var23<<std::endl;
 		weights->setVal(wA);
-		if ( (type.Contains("BsDsPi") == true && type.Contains("MC") == true))
+		if ( ( ( type.Contains("Bs2DsPi") == true || type.Contains("Bs2DsstPi") == true ) && type.Contains("MC") == true))
 		  {
 		    if ( PID3 > PID_down && PID3 < PID_up)
 		      {
@@ -2140,7 +2240,7 @@ namespace WeightingUtils {
 	    Int_t binHist = 1;
 
 	    RooBinned1DQuinticBase<RooAbsPdf>* pdfPID2 = NULL;
-	    if ( (type.Contains("BsDsPi") == true && type.Contains("MC") == true) )
+	    if ( (type.Contains("Pi") == true && type.Contains("MC") == true) )
               {
                 binHist = 200;
 		histPID = dataRW->createHistogram(namehist.Data(),*lab1_PIDK, RooFit::Binning(200,PID_down,PID_up));
@@ -2151,7 +2251,6 @@ namespace WeightingUtils {
 		histPID = dataRW->createHistogram(namehist.Data(),*lab1_PIDK, RooFit::Binning(50,PID_down,PID_up));
               }
 	    histPID->SetName(namehist.Data());
-	    histPID->SaveAs("hist_PID.root");
 	    Double_t zero = 1e-20;
 	    for(int k = 1; k<binHist; k++)
 	      {
@@ -2161,7 +2260,7 @@ namespace WeightingUtils {
 	    
 	   	    	    
 	    pdfPID[i] = NULL;
-	    if( type.Contains("MC") == true && type.Contains("BsDsPi")==true) 
+	    if( type.Contains("MC") == true && ( type.Contains("Bs2DsPi")==true || type.Contains("Bs2DsstPi") == true ) ) 
 	      {
 		TString dir = "PlotBsDsPi2D";
 		if (debug == true) PlotWeightingSample(nm, dataCalib, dataRW, Var1, Var2, lab1_PIDK, bin1, bin2, bin3, 
@@ -2190,16 +2289,28 @@ namespace WeightingUtils {
 		    //work->import(*pdfPID[i]);
 		  }
 	      }
-	    else if ( type.Contains("BsDsK") == true )
+	    else if ( type.Contains("Bs2DsK") == true || type.Contains("Bs2DsstK") == true )
 	      {
 		TString dir = "PlotBsDsK2D";
 		if (debug == true) PlotWeightingSample(nm, dataCalib, dataRW, Var1, Var2, lab1_PIDK, bin1, bin2, bin3, 
 						       type, l2, l3, work, plotSet,  debug);
 		if ( type.Contains("Pion") == true)
 		  {
-		    pdfPID[i] = FitPDFShapeForPIDBsDsKPi(dataRW, lab1_PIDK, nm,  plotSet,  debug);
-		    work->import(*pdfPID[i]);
-
+		    TString namepdf = "PIDKShape_"+nm;
+		    TString strip = CheckStripping(type,debug);
+		    if ( strip == "str17" )
+		      {
+			pdfPID[i] = FitPDFShapeForPIDBsDsKPi(dataRW, lab1_PIDK, nm,  plotSet,  debug);                                
+			work->import(*pdfPID[i]);   
+		      }
+		    else
+		      {
+			pdfPID2= new RooBinned1DQuinticBase<RooAbsPdf>(namepdf.Data(), namepdf.Data(), *histPID, *lab1_PIDK, true);
+			RooAbsPdf* pdfSave = pdfPID2;
+			TString t = "";
+			SaveTemplate( dataRW, pdfSave, lab1_PIDK,  nm, t, plotSet, debug );
+			work->import(*pdfPID2);
+		      }
 		  }
 		else if ( type.Contains("Kaon") == true)
 		  {
@@ -2270,31 +2381,12 @@ namespace WeightingUtils {
     if(debug == true) std::cout<<nameVar3<<" range: ("<<log(Var3_down)<<","<<log(Var3_up)<<")"<<std::endl;
     if(debug == true) std::cout<<namePID<<" range: ("<<PID_down<<","<<PID_up<<")"<<std::endl;
 
-    std::vector <std::string> FileName;
-    std::vector <std::string> mode;
-
-    Int_t size=0;
-
-    ReadOneName(filesDir,FileName,sig,debug);
-    if ( type.Contains("MC") == true )
+    std::vector <MCBackground*> MCBkg;
+    Int_t numBkg = CheckNumberOfBackgrounds(filesDir,sig, debug);
+    for(int i = 1; i<numBkg+1; i++ )
       {
-        ReadMode(FileName, mode, false, debug);
-        size = mode.size();
-      }
-    else { if( debug == true) {std::cout<<"[ERROR] Wrong sample andmode"<<std::endl;} return NULL; }
-
-    std::vector<TString> smp(size); 
-    
-    if ( type.Contains("MC") == true )
-      {
-        for(int i = 0; i< size; i++ )
-          {
-            smp[i] = CheckPolarity(sig, debug);
-          }
-      }
-    else
-      {
-        if( debug == true) {std::cout<<"[ERROR] Wrong sample andmode"<<std::endl;} return NULL;
+        MCBkg.push_back(new MCBackground(Form("MCBkg%d",i),"MCBackground",filesDir,sig,i));
+        MCBkg[i-1]->Print("v");
       }
 
     TString ext = "pdf";
@@ -2337,14 +2429,17 @@ namespace WeightingUtils {
                                bin3,log(Var3_down),log(Var3_up));
     histCalib = Get3DHist(dataCalib,Var1, Var2, Var3, histCalib, debug);
     
-    RooAbsPdf* pdfPID[size];
-    for( int i = 0; i<size; i++)
+    RooAbsPdf* pdfPID[numBkg];
+    for( int i = 0; i<numBkg; i++)
       {
 
-        TString m = mode[i];
+	TString m = MCBkg[i]->GetMode();
+        TString smp = MCBkg[i]->GetPolarity();
+	TString y = MCBkg[i]->GetYear(); 
+
         if ( (type.Contains("Kaon") == true && (m.Contains("Kst") == true   || m.Contains("K") == true)) ||
              (type.Contains("Pion") == true && (m.Contains("Pi") == true  || m.Contains("Rho") == true)) ||
-             (type.Contains("Proton") == true && (mode[i] == "Lb2Dsp" || mode[i] == "Lb2Dsstp" )))
+             (type.Contains("Proton") == true && (m == "Lb2Dsp" || m == "Lb2Dsstp" )))
           {
             TH3F* hist = NULL;
             TH3F* histMC = NULL;
@@ -2358,7 +2453,7 @@ namespace WeightingUtils {
             TString nameCalib;
             if ( type.Contains("MC") == true )
               {
-                nm = mode[i]+"_"+smp[i];
+                nm = m+"_"+smp+y;
                 histName = "hist2D_"+nm;
                 histNameR = "hist2D_ratio_"+nm;
                 nameCalib = "CalibSample_"+nm;
@@ -2461,7 +2556,7 @@ namespace WeightingUtils {
 	    RooBinned1DQuinticBase<RooAbsPdf>* pdfPID2 = NULL;
 	    if ( pdfPID2 ) {}
 
-	    if ( (type.Contains("BsDsPi") == true && type.Contains("MC") == true) )
+	    if ( (type.Contains("Bs2DsPi") == true && type.Contains("MC") == true) )
 	      {
 		histPID = dataRW->createHistogram(namehist.Data(),*lab1_PIDK, RooFit::Binning(200,PID_down,PID_up));
 		binHist = 200;
@@ -2568,7 +2663,7 @@ namespace WeightingUtils {
       {
 	work =  ObtainPIDShapeFromCalibSample(filesDir, sig,
 					      fileCalib, workCalib,
-					      md->GetPIDKVar(), md->GetVar(0), md->GetVar(1),
+					      md->GetPIDKVarOutName(), md->GetVar(0), md->GetVar(1),
 					      md->GetPIDKRangeDown(), md->GetPIDKRangeUp(),
 					      md->GetRangeDown(md->GetVar(0)), md->GetRangeUp(md->GetVar(0)),
 					      md->GetRangeDown(md->GetVar(1)), md->GetRangeUp(md->GetVar(1)),
@@ -2583,7 +2678,7 @@ namespace WeightingUtils {
       {
 	work =  ObtainPIDShapeFromCalibSample(filesDir, sig,
                                               fileCalib, workCalib,
-                                              md->GetPIDKVar(), md->GetVar(0), md->GetVar(1), md->GetVar(2),
+                                              md->GetPIDKVarOutName(), md->GetVar(0), md->GetVar(1), md->GetVar(2),
                                               md->GetPIDKRangeDown(), md->GetPIDKRangeUp(),
                                               md->GetRangeDown(md->GetVar(0)), md->GetRangeUp(md->GetVar(0)),
                                               md->GetRangeDown(md->GetVar(1)), md->GetRangeUp(md->GetVar(1)),
@@ -2628,15 +2723,17 @@ namespace WeightingUtils {
 
     if ( plotSet == NULL ) { plotSet = new PlotSettings("plotSet","plotSet"); }
 
+    
     if ( type.Contains("Comb") == true )
 	{		
-    		if( nameVar1 == "Bac_PT" ) { nameVar1 = "lab1_PT"; }
-    		else if ( nameVar1 == "Bac_P" ) { nameVar1 = "lab1_P"; }
+	  if( nameVar1.Contains("PT") == true ) { nameVar1 = "lab1_PT"; }
+	  else if ( nameVar1.Contains("P") == true  ) { nameVar1 = "lab1_P"; }
 
-    		if( nameVar2 == "Bac_PT" ) { nameVar2 = "lab1_PT"; }
-    		else if ( nameVar2 == "Bac_P" ) { nameVar2 = "lab1_P"; }
+	  if( nameVar2.Contains("PT") == true ) { nameVar2 = "lab1_PT"; }
+	  else if ( nameVar2.Contains("P") == true ) { nameVar2 = "lab1_P"; }
 	}
     
+
     RooRealVar* Var1 = new RooRealVar(nameVar1.Data(),nameVar1.Data(),log(Var1_down), log(Var1_up));
     RooRealVar* Var2 = new RooRealVar(nameVar2.Data(),nameVar2.Data(),log(Var2_down), log(Var2_up)); //-5,6);
 
@@ -2678,6 +2775,8 @@ namespace WeightingUtils {
     TString histName = names[2];
     TString histNameR = names [3] ;
 
+   
+    std::cout<<" nm: "<<nm<<" name: "<<name<<std::endl;
     RooDataSet*  data = GetDataSet(workL,name,debug);
     if ( type.Contains("MC") == true )
       { data = new RooDataSet(data->GetName(), data->GetTitle(), *(data->get()), RooFit::Import(*data), RooFit::WeightVar("weights"));}
@@ -2685,7 +2784,6 @@ namespace WeightingUtils {
     double scaleA = dataCalib->sumEntries()/data->sumEntries();
     
     hist2Data.push_back(Get2DHist(data,Var1, Var2, bin1, bin2, histName, debug));
-    std::cout<<"Debug"<<std::endl;
     hist2Ratio.push_back(new TH2F(histNameR.Data(),histNameR.Data(),
 				  bin1,log(Var1_down),log(Var1_up),
 				  bin2,log(Var2_down),log(Var2_up)));
@@ -2913,6 +3011,9 @@ namespace WeightingUtils {
         workCalib = md->GetCalibProtonWorkName();
       }
 
+    std::cout<<fileCalib<<std::endl;
+    std::cout<<workCalib<<std::endl; 
+
     if( md->GetWeightingDim() == 2 )
       {
 	work = ObtainHistRatioOneSample(fileCalib, workCalib,
@@ -2973,14 +3074,16 @@ namespace WeightingUtils {
 
     if ( plotSet == NULL ) { plotSet = new PlotSettings("plotSet","plotSet"); }
 
+    
     if ( type.Contains("Comb") == true )
 	{
-    		if( nameVar1 == "Bac_PT" ) { nameVar1 = "lab1_PT"; }
-  		  else if ( nameVar1 == "Bac_P" ) { nameVar1 = "lab1_P"; }
+	  if( nameVar1.Contains("PT") == true ) { nameVar1 = "lab1_PT"; }
+          else if ( nameVar1.Contains("P") == true  ) { nameVar1 = "lab1_P"; }
 
-  		  if( nameVar2 == "Bac_PT" ) { nameVar2 = "lab1_PT"; }
-  		  else if ( nameVar2 == "Bac_P" ) { nameVar2 = "lab1_P"; }
+          if( nameVar2.Contains("PT") == true ) { nameVar2 = "lab1_PT"; }
+          else if ( nameVar2.Contains("P") == true ) { nameVar2 = "lab1_P"; }
 	}
+    
 
     RooRealVar* Var1 = new RooRealVar(nameVar1.Data(),nameVar1.Data(),log(Var1_down), log(Var1_up));
     RooRealVar* Var2 = new RooRealVar(nameVar2.Data(),nameVar2.Data(),log(Var2_down), log(Var2_up));
@@ -3010,34 +3113,54 @@ namespace WeightingUtils {
 
     RooWorkspace* workC = LoadWorkspace(fileCalib, workCalib, debug);
     RooDataSet* dataC = GetDataSet(workC, dataName, debug );
-    const TTree* treeConst = dataC->tree();
-    TTree* treeC = new TTree("name","name"); //     treeConst->CloneTree(0);
-    treeC = treeConst->GetTree();
-    //treeConst->CopyEntries(treeC);
-    Double_t nsig_sw3,PID3,Var13, Var23;
+
+    RooRealVar* CalibWeight = NULL;
+    RooRealVar* CalibVar1 = NULL;
+    RooRealVar* CalibVar2 = NULL;
+    RooRealVar* CalibPIDK = NULL;
+    TString nameDLL = "";
+    TString nVar1 = "";
+    TString nVar2 = "";
+    TString swlabel = "";
 
     if ( type.Contains("Proton") != true )
       {
         TString Par;
         Par = CheckTreeLabel(fileCalib, debug);
-        treeC->SetBranchAddress("nsig_sw", &nsig_sw3);
-        TString nameDLL = Par+"_CombDLLK";
-        treeC->SetBranchAddress(nameDLL.Data(), &PID3);
-        TString nVar1 = CheckTreeLabel(fileCalib, nameVar1, debug);
-        treeC->SetBranchAddress(nVar1.Data(), &Var13);
-        TString nVar2 = CheckTreeLabel(fileCalib, nameVar2, debug);
-        treeC->SetBranchAddress(nVar2.Data(), &Var23);
+        swlabel = "nsig_sw";
+        nameDLL = Par+"_CombDLLK";
+	nVar1 = CheckTreeLabel(fileCalib, nameVar1, debug);
+        nVar2 = CheckTreeLabel(fileCalib, nameVar2, debug);
       }
     else
       {
-        treeC->SetBranchAddress("sWeights", &nsig_sw3);
-        treeC->SetBranchAddress(namePID.Data(), &PID3);
-        treeC->SetBranchAddress(nameVar1.Data(), &Var13);
-        treeC->SetBranchAddress(nameVar2.Data(), &Var23);
+        swlabel = "sWeights";
+        nameDLL = "lab1_PIDK";
+        nVar1 = "lab1_PT";
+	nVar2 = "nTracks";
+      }
+
+    if (dataC->isWeighted() == false )
+      {
+        CalibWeight = (RooRealVar*)dataC->get()->find(swlabel.Data());
+      }
+    CalibPIDK = (RooRealVar*)dataC->get()->find(nameDLL.Data());
+    CalibVar1 = (RooRealVar*)dataC->get()->find(nVar1.Data());
+    CalibVar2 = (RooRealVar*)dataC->get()->find(nVar2.Data());
+
+    if (debug == true )
+      {
+	if ( CalibVar1 != NULL ) { std::cout<<"[INFO] Read "<<nVar1<<" from "<<dataC->GetName()<<std::endl; } else { std::cout<<"[ERROR] Cannot read variable "<<std::endl;}
+        if ( CalibVar2 != NULL ) { std::cout<<"[INFO] Read "<<nVar2<<" from "<<dataC->GetName()<<std::endl; } else{ std::cout<<"[ERROR] Cannot read variable "<<std::endl;}
+        if ( CalibPIDK != NULL ) { std::cout<<"[INFO] Read "<<nameDLL<<" from "<<dataC->GetName()<<std::endl; } else{ std::cout<<"[ERROR] Cannot read variable "<<std::endl;}
+        if ( CalibWeight != NULL ) { std::cout<<"[INFO] Read "<<swlabel<<" from "<<dataC->GetName()<<std::endl; }
+	else{
+          if ( dataC->isWeighted() == true ) { std::cout<<"[INFO] Weight directly taken from RooDataSet"<<std::endl; }
+          else{ std::cout<<"[ERROR] Cannot read variable "<<std::endl;}
+        }
       }
 
 
-    treeC->Print();
     Double_t wRW(0), wA(0);
     TH2F* histRW;
     
@@ -3075,7 +3198,7 @@ namespace WeightingUtils {
     TString nn;
     if( type.Contains("Comb") == true) { nn = "Comb_"+nm; }
     else if (type.Contains("DPi") == true) { nn = "Bd2DPi_"+nm;}
-    else if (type.Contains("BsDsPi") == true && type.Contains("MC") != true) { nn = "BsDsPi_"+nm; }
+    else if (type.Contains("Bs2DsPi") == true && type.Contains("MC") != true) { nn = "Bs2DsPi_"+nm; }
     else {nn=nm;}
 
     TString namew = "weights";
@@ -3086,7 +3209,8 @@ namespace WeightingUtils {
     TH1* histPID = NULL;
     TString namehist = "histPID_"+nn;
 
-    if ( (type.Contains("BsDsPi") == true && type.Contains("MC") == true) || type.Contains("DPi") == true || type.Contains("CombPi") == true )
+    if ( (type.Contains("Bs2DsPi") == true && type.Contains("MC") == true) || type.Contains("DPi") == true 
+	 || type.Contains("CombPi") == true || (type.Contains("Bs2DsstPi") == true && type.Contains("MC") == true) )
       {
 	dataRW = new RooDataSet(nameCalib.Data(),nameCalib.Data(),RooArgSet(*lab1_PIDK,*Var1,*Var2,*weights), namew.Data());
 	histPID = new TH1D(namehist.Data(), namehist.Data(), 200, PID_down, PID_up); //50, log(0.0001), log(-PID_down));
@@ -3099,10 +3223,25 @@ namespace WeightingUtils {
 	
     
     //std::cout<<"tuuuu"<<std::endl;
-    for (Long64_t jentry=0; jentry<treeC->GetEntries(); jentry++)
+    for (Long64_t jentry=0; jentry<dataC->numEntries(); jentry++)
       {
-	treeC->GetEntry(jentry);
-	if ( (type.Contains("BsDsPi") == true && type.Contains("MC") == true) || type.Contains("DPi") == true || type.Contains("CombPi") == true )
+	const RooArgSet* setInt = dataC->get(jentry);
+	Double_t Var13 = CalibVar1->getValV(setInt);
+	Double_t Var23 = CalibVar2->getValV(setInt);
+	Double_t PID3 = CalibPIDK->getValV(setInt);
+	Double_t nsig_sw3 = 1.0;
+
+	if (  dataC->isWeighted() == true )
+	  {
+	    nsig_sw3 = dataC->weight();
+	  }
+	else
+	  {
+	    nsig_sw3 = CalibWeight->getValV(setInt);
+	  }
+
+	if ( (type.Contains("Bs2DsPi") == true && type.Contains("MC") == true) || type.Contains("DPi") == true || 
+	     type.Contains("CombPi") == true || (type.Contains("Bs2DsstPi") == true && type.Contains("MC") == true) )
 	  {
 	    PID3 = -PID3; 
 	    lab1_PIDK->setVal(PID3);
@@ -3119,7 +3258,8 @@ namespace WeightingUtils {
 	wA = nsig_sw3*wRW;
 	//std::cout<<" weight: "<<wA<<" nsigSW: "<<nsig_sw3<<" wRW "<<wRW<<" "<<nameVar1<<": "<<Var13<<" "<<nameVar2<<": "<<Var23<<std::endl;
 	weights->setVal(wA);
-	if ( (type.Contains("BsDsPi") == true && type.Contains("MC") == true) || type.Contains("DPi") == true || type.Contains("CombPi") == true)
+	if ( (type.Contains("Bs2DsPi") == true && type.Contains("MC") == true) || type.Contains("DPi") == true || 
+	     type.Contains("CombPi") == true || (type.Contains("Bs2DsstPi") == true && type.Contains("MC") == true)) 
 	  {
 	    if ( PID3 > PID_down && PID3 < PID_up)
 	      {
@@ -3134,7 +3274,7 @@ namespace WeightingUtils {
 	      }
 	  }
       }
-  
+    std::cout<<"dataRW: "<<dataRW->numEntries()<<std::endl; 
   
     histRW = NULL;
     histName = "hist2D_rw_"+nm;
@@ -3143,7 +3283,8 @@ namespace WeightingUtils {
     Int_t bin3 = 50;
     Int_t histBin = 1;
     RooBinned1DQuinticBase<RooAbsPdf>* pdfPID2 = NULL;
-    if ( (type.Contains("BsDsPi") == true && type.Contains("MC") == true) || type.Contains("DPi") == true || type.Contains("CombPi") == true )
+    if ( (type.Contains("Bs2DsPi") == true && type.Contains("MC") == true) || type.Contains("DPi") == true 
+	 || type.Contains("CombPi") == true || (type.Contains("Bs2DsstPi") == true && type.Contains("MC") == true) )
       {
 	histPID = dataRW->createHistogram(namehist.Data(),*lab1_PIDK, RooFit::Binning(200, PID_down, PID_up)); //45,log(0.0001),log(-PID_down)));
 	histBin = 200;
@@ -3153,8 +3294,6 @@ namespace WeightingUtils {
 	histPID = dataRW->createHistogram(namehist.Data(),*lab1_PIDK, RooFit::Binning(50,PID_down,PID_up));
 	histBin = 50;
       }
-    histPID->SetName(namehist.Data());
-    histPID->SaveAs("hist_PID.root");
     Double_t zero = 1e-20;
     for(int k = 1; k<histBin; k++)
       {
@@ -3172,15 +3311,22 @@ namespace WeightingUtils {
 
 
     pdfPID = NULL;
-    if( (type.Contains("MC") == true  && type.Contains("BsDsPi") == true ) || type.Contains("DPi") == true || type.Contains("CombPi") == true)
+    TString year = CheckDataYear(type,debug);
+    if (year !="" ) { year = "_"+year;}
+    
+
+    if( (type.Contains("MC") == true  && type.Contains("Bs2DsPi") == true ) || type.Contains("DPi") == true 
+	|| type.Contains("CombPi") == true || (type.Contains("Bs2DsstPi") == true && type.Contains("MC") == true))
       {
 	if (debug == true) PlotWeightingSample(nn, dataCalib, dataRW, Var1, Var2, lab1_PIDK, bin1, bin2, bin3,
 					       type, l2, l3, work, plotSet, debug);
 	if ( type.Contains("Pion") == true)
 	  {
-	    //pdfPID = FitPDFShapeForPIDBsDsPiPi(dataRW, lab1_PIDK, nn,  debug);
-	    //work->import(*pdfPID);
-	    if (type.Contains("BsDsPi") == true && type.Contains("MC") == true) { nn = "Bs2DsPi_"+sample+"_"+mode; }
+	    
+	    if( type.Contains("CombPi") == true ) { nn = "CombPi_"+nm; }
+	    if (type.Contains("Bs2DsPi") == true && type.Contains("MC") == true) { nn = "Bs2DsPi_"+sample+"_"+mode; }
+	    if (type.Contains("Bs2DsstPi") == true && type.Contains("MC") == true) { nn = "Bs2DsstPi_"+sample+"_"+mode; }
+	    nn = nn+year;
 	    TString namepdf = "PIDKShape_"+nn;
             pdfPID2= new RooBinned1DQuinticBase<RooAbsPdf>(namepdf.Data(), namepdf.Data(), *histPID, *lab1_PIDK, true);
             RooAbsPdf* pdfSave = pdfPID2;
@@ -3192,6 +3338,7 @@ namespace WeightingUtils {
 	else
 	  {
 	    if( type.Contains("CombPi") == true ) { nn = "CombK_"+nm; }
+	    nn = nn+year;
 	    TString namepdf = "PIDKShape_"+nn;
 	    pdfPID2= new RooBinned1DQuinticBase<RooAbsPdf>(namepdf.Data(), namepdf.Data(), *histPID, *lab1_PIDK, true);
 	    RooAbsPdf* pdfSave = pdfPID2;
@@ -3203,8 +3350,9 @@ namespace WeightingUtils {
 	    //work->import(*pdfPID);
 	  }
       }
-    else if ( (type.Contains("MC") == true && type.Contains("BsDsK") == true ) || 
-	      (type.Contains("MC") != true && type.Contains("BsDsPi") == true) ||
+    else if ( (type.Contains("MC") == true && type.Contains("Bs2DsK") == true ) ||
+	      (type.Contains("MC") == true && type.Contains("Bs2DsstK") == true ) ||
+	      (type.Contains("MC") != true && type.Contains("Bs2DsPi") == true) ||
 	      type.Contains("CombK") == true)
       {
 	TString dir = "PlotBsDsK2D";
@@ -3213,15 +3361,32 @@ namespace WeightingUtils {
 
 	if ( type.Contains("Pion") == true)
 	  {
-	    if( type.Contains("CombK") == true ) { nn = "CombPi_"+nm; }
-	    if (type.Contains("BsDsPi") == true && type.Contains("MC") != true) { nn = "Bs2DsPi_"+sample+"_"+mode; }
-	    pdfPID = FitPDFShapeForPIDBsDsKPi(dataRW, lab1_PIDK, nn, plotSet, debug);
-	    work->import(*pdfPID);
+	    
+	    if( type.Contains("CombK") == true ) { nn = "CombPi_"+nm; nn = nn+year; }
+	    if (type.Contains("Bs2DsPi") == true && type.Contains("MC") != true) { nn = "Bs2DsPi_"+sample+"_"+mode+year; }
+	    if (type.Contains("Bs2DsstPi") == true && type.Contains("MC") != true) { nn = "Bs2DsstPi_"+sample+"_"+mode+year; }
+
+	    TString namepdf = "PIDKShape_"+nn;
+	    TString strip = CheckStripping(type,debug);
+	    if ( strip == "str17" )
+	      {
+		pdfPID = FitPDFShapeForPIDBsDsKPi(dataRW, lab1_PIDK, nn,  plotSet,  debug);
+		work->import(*pdfPID);
+	      }
+	    else
+	      {
+		pdfPID2= new RooBinned1DQuinticBase<RooAbsPdf>(namepdf.Data(), namepdf.Data(), *histPID, *lab1_PIDK, true);
+		RooAbsPdf* pdfSave = pdfPID2;
+		TString t = "";
+		SaveTemplate( dataRW, pdfSave, lab1_PIDK,  nn, t, plotSet, debug );
+		work->import(*pdfPID2);
+	      }
 	  }
 	else if ( type.Contains("Kaon") == true)
 	  {
-	    if( type.Contains("CombK") == true ) { nn = "CombK_"+nm; }
-	    if (type.Contains("BsDsK") == true && type.Contains("MC") == true) { nn = "Bs2DsK_"+sample+"_"+mode; }
+	    if( type.Contains("CombK") == true ) { nn = "CombK_"+nm; nn = nn+year;}
+	    if (type.Contains("Bs2DsK") == true && type.Contains("MC") == true) { nn = "Bs2DsK_"+sample+"_"+mode+year; }
+	    if (type.Contains("Bs2DsstK") == true && type.Contains("MC") == true) { nn = "Bs2DsstK_"+sample+"_"+mode+year; }
     	    TString namepdf = "PIDKShape_"+nn;
 	    pdfPID2= new RooBinned1DQuinticBase<RooAbsPdf>(namepdf.Data(), namepdf.Data(), *histPID, *lab1_PIDK, true);
 	    RooAbsPdf* pdfSave = pdfPID2;
@@ -3231,9 +3396,23 @@ namespace WeightingUtils {
 	  }
 	else
 	  {
-	    if( type.Contains("CombK") == true ) { nn = "CombP_"+nm; }
-	    pdfPID = FitPDFShapeForPIDBsDsKP(dataRW, lab1_PIDK, nn,  plotSet, debug);
-	    work->import(*pdfPID);
+	    TString strip = CheckStripping(type,debug);
+	    if ( strip == "str17" )
+              {
+		if( type.Contains("CombK") == true ) { nn = "CombP_"+nm; nn = nn+year; }
+		pdfPID = FitPDFShapeForPIDBsDsKP(dataRW, lab1_PIDK, nn,  plotSet, debug);
+		work->import(*pdfPID);
+	      }
+	    else
+	      {
+		if( type.Contains("CombK") == true ) { nn = "CombP_"+nm; nn = nn+year;}
+		TString namepdf = "PIDKShape_"+nn;
+		pdfPID2= new RooBinned1DQuinticBase<RooAbsPdf>(namepdf.Data(), namepdf.Data(), *histPID, *lab1_PIDK, true);
+		RooAbsPdf* pdfSave = pdfPID2;
+		TString t = "";
+		SaveTemplate( dataRW, pdfSave, lab1_PIDK,  nn, t, plotSet, debug );
+		work->import(*pdfPID2);
+	      }
 	  }
       }
     //work->import(*pdfPID);
@@ -3460,7 +3639,7 @@ namespace WeightingUtils {
     if( md->GetWeightingDim() == 2 )
       {
 	work = ObtainPIDShapeFromCalibSampleOneSample(fileCalib, workCalib,
-						      md->GetPIDKVar(), md->GetVar(0), md->GetVar(1),
+						      md->GetPIDKVarOutName(), md->GetVar(0), md->GetVar(1),
 						      md->GetPIDKRangeDown(), md->GetPIDKRangeUp(),
 						      md->GetRangeDown(md->GetVar(0)), md->GetRangeUp(md->GetVar(0)),
 						      md->GetRangeDown(md->GetVar(1)), md->GetRangeUp(md->GetVar(1)),
@@ -3474,7 +3653,7 @@ namespace WeightingUtils {
     else
       {
 	work = ObtainPIDShapeFromCalibSampleOneSample(fileCalib, workCalib,
-                                                      md->GetPIDKVar(), md->GetVar(0), md->GetVar(1), md->GetVar(1),
+                                                      md->GetPIDKVarOutName(), md->GetVar(0), md->GetVar(1), md->GetVar(1),
                                                       md->GetPIDKRangeDown(), md->GetPIDKRangeUp(),
                                                       md->GetRangeDown(md->GetVar(0)), md->GetRangeUp(md->GetVar(0)),
                                                       md->GetRangeDown(md->GetVar(1)), md->GetRangeUp(md->GetVar(1)),

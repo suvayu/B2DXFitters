@@ -66,7 +66,20 @@ namespace Bs2Dsh2011TDAnaModels {
                                    const char* bName,
                                    bool debug);
 
-  
+  RooAbsPdf* buildDoubleCBEPDF_sim( RooAbsReal& obs,
+				    RooRealVar& mean,
+				    RooFormulaVar& sigma1,
+				    RooRealVar& alpha1,
+				    RooRealVar& n1,
+				    RooFormulaVar& sigma2,
+				    RooRealVar& alpha2,
+				    RooRealVar& n2,
+				    RooRealVar& frac,
+				    RooRealVar& nEvents,
+				    const char* prefix,
+				    const char* bName,
+				    bool debug);
+
   //===============================================================================
   // Double gaussian function where all parameters are RooRealVar
   //===============================================================================
@@ -77,8 +90,8 @@ namespace Bs2Dsh2011TDAnaModels {
 				   RooRealVar& sigma2,
 				   RooRealVar& frac,
 				   RooRealVar& nEvents,
-				   const char* prefix,
-				   const char* bName,
+				   TString prefix,
+				   TString bName,
 				   bool extendend,
 				   bool debug = false);
 
@@ -88,8 +101,8 @@ namespace Bs2Dsh2011TDAnaModels {
                                    RooRealVar& sigma2,
                                    RooRealVar& frac,
                                    RooFormulaVar& nEvents,
-                                   const char* prefix,
-                                   const char* bName,
+                                   TString prefix,
+                                   TString bName,
                                    bool extendend,
                                    bool debug = false);
 
@@ -118,41 +131,28 @@ namespace Bs2Dsh2011TDAnaModels {
 			TString &name,
 			bool debug = false
 			);
-  
-  //===============================================================================
-  // Background model for Bs->DsPi mass fitter.
-  //===============================================================================
-  /*
-  RooAbsPdf* buildBsDsPi_sim( RooRealVar& mass,
-			      RooWorkspace* work,
-                              RooRealVar& nCombBkgEvts,
-                              RooRealVar& nBd2DPiEvts,
-                              //RooFormulaVar&  nBd2DPiEvts,
-			      RooRealVar& nBs2DsDsstPiRhoEvts,
-                              RooRealVar& g1_f1,
-			      RooRealVar& g1_f2,
-                              RooRealVar& nLb2LcPiEvts,
-                              RooRealVar& nBdDsPi,
-                              RooAbsPdf* pdf_BdDsPi,
-			      RooRealVar& nBdDsstPi,
-			      RooRealVar& nBd2DsRhoEvts,
-                              RooRealVar& nBd2DstPiEvts,
-			      RooRealVar& nBs2DsKEvts,
-                              RooRealVar& cB1Var,
-                              RooRealVar& cB2Var,
-                              RooRealVar& fracComb,
-			      TString &samplemode,
-			      RooRealVar& lumRatio,
-                              bool toys,
-                              bool debug = false
-                              );
-  */			      
+
+  RooAbsPdf* buildBdDsX( RooAbsReal& obs,
+                         RooFormulaVar &meanVar,
+                         RooFormulaVar &sigma1Var,
+                         RooRealVar &alpha1Var,
+                         RooRealVar &n1Var,
+                         RooFormulaVar &sigma2Var,
+                         RooRealVar &alpha2Var,
+                         RooRealVar &n2Var,
+                         RooRealVar &fracVar,
+                         TString& samplemode,
+                         TString& namemode,
+                         bool debug);
+
+  		      
   //===============================================================================
   // Read Bs (or Ds for dsMass == true ) shape from workspace
   //===============================================================================
 
   RooAbsPdf* ObtainMassShape(RooWorkspace* work,
-                             TString& mode,
+                             TString mode,
+			     TString year, 
 			     bool dsMass,
 			     RooRealVar& lumRatio,
 			     bool debug = false);
@@ -162,8 +162,9 @@ namespace Bs2Dsh2011TDAnaModels {
   //===============================================================================
 
   RooAbsPdf* ObtainPIDKShape(RooWorkspace* work,
-                             TString& mode,
-			     TString& pol,
+                             TString mode,
+			     TString pol,
+			     TString year,
                              RooRealVar& lumRatio,
 			     bool DsMode = false,
 			     bool debug = false);
@@ -173,8 +174,9 @@ namespace Bs2Dsh2011TDAnaModels {
   //===============================================================================
   
   RooProdPdf* ObtainRooProdPdfForMDFitter(RooWorkspace* work,
-                                          TString& mode,
-					  TString& pol,
+                                          TString mode,
+					  TString pol,
+					  TString year,
                                           RooRealVar& lumRatio,
 					  RooAbsPdf* pdf_Ds = NULL,
 					  Int_t dim = 3, 
@@ -192,13 +194,13 @@ namespace Bs2Dsh2011TDAnaModels {
   //===============================================================================
 
   RooProdPdf* ObtainRooProdPdfForFullFitter(RooWorkspace* work,
-                                            TString& mode,
-                                            TString& pol,
+                                            TString mode,
+                                            TString pol,
+					    TString year,
                                             RooRealVar& lumRatio,
                                             RooAbsPdf* pdf_Time,
                                             RooAbsPdf* pdf_Ds = NULL,
                                             bool debug = false);
-
 
   //===============================================================================
   // Create combinatorial background shape for Ds mass: double exponential
@@ -224,106 +226,14 @@ namespace Bs2Dsh2011TDAnaModels {
 			   bool debug = false);
     
   //===============================================================================
-  // Background 2D model for Bs->DsPi (Ds --> HHHPi0) mass fitter.
-  //===============================================================================
-
-  RooAbsPdf* build_Bs2DsPi_BKG_HHHPi0( RooAbsReal& mass,
-					 RooAbsReal& massDs,
-					 RooWorkspace* work,
-					 RooWorkspace* workInt,
-					 /*
-					 RooRealVar& nCombBkgEvts,
-					 RooRealVar& nBd2DPiEvts,
-					 RooRealVar& nBs2DsDsstPiRhoEvts,
-					 RooRealVar& g1_f1,
-					 RooRealVar& g1_f2,
-					 RooRealVar& nLb2LcPiEvts,
-					 RooRealVar& nBdDsPi,
-					 */
-					 RooAbsPdf* pdf_BdDsPi,
-					 /*
-					 RooRealVar& nBdDsstPi,
-					 RooRealVar& nBd2DRhoEvts,
-					 RooRealVar& nBd2DstPiEvts,
-					 RooRealVar& nBs2DsKEvts,
-					 RooAbsPdf* pdf_SignalDs,
-					 RooRealVar& cBVar,
-					 RooRealVar& cB2Var,
-					 RooRealVar& fracBsComb,
-					 RooRealVar& cDVar,
-					 RooRealVar& fracDsComb,
-					 RooRealVar& fracPIDComb,
-					 */
-					 TString &samplemode,
-					 Int_t dim, 
-					 //RooRealVar& lumRatio,
-					 bool debug);
-
-
-  //===============================================================================
   // Background 2D model for Bs->DsPi mass fitter.
   //===============================================================================
 
-  RooAbsPdf* build_Bs2DsPi_BKG_MDFitter( RooAbsReal& mass,
-					 RooAbsReal& massDs,
-					 RooWorkspace* work,
-					 RooWorkspace* workInt,
-					 /*
-					 RooRealVar& nCombBkgEvts,
-					 RooRealVar& nBd2DPiEvts,
-					 RooRealVar& nBs2DsDsstPiRhoEvts,
-					 RooRealVar& g1_f1,
-					 RooRealVar& g1_f2,
-					 RooRealVar& nLb2LcPiEvts,
-					 RooRealVar& nBdDsPi,
-					 */
+  RooAbsPdf* build_Bs2DsPi_BKG_MDFitter( RooAbsReal& mass, RooAbsReal& massDs,
+					 RooWorkspace* work,RooWorkspace* workInt,
 					 RooAbsPdf* pdf_BdDsPi,
-					 /*
-					 RooRealVar& nBdDsstPi,
-					 RooRealVar& nBd2DRhoEvts,
-					 RooRealVar& nBd2DstPiEvts,
-					 RooRealVar& nBs2DsKEvts,
-					 RooAbsPdf* pdf_SignalDs,
-					 RooRealVar& cBVar,
-					 RooRealVar& cB2Var,
-					 RooRealVar& fracBsComb,
-					 RooRealVar& cDVar,
-					 RooRealVar& fracDsComb,
-					 RooRealVar& fracPIDComb,
-					 */
-					 TString &samplemode,
-					 Int_t dim, 
-					 //RooRealVar& lumRatio,
-					 bool debug);
-
-  //===============================================================================
-  // Background model for Bs->DsK mass fitter.
-  //===============================================================================
-  /*
-  RooAbsPdf* buildBsDsK_sim(RooRealVar& mass,
-                            RooWorkspace* work,
-			    RooAddPdf* pdf,
-                            RooRealVar& nCombBkgEvts,
-			    RooRealVar& nBs2DsDsstPiRhoEvts,
-                            //RooFormulaVar& nBs2DsDsstPiRhoEvts,
-			    RooRealVar& nBs2DsDssKKstEvts,
-                            RooRealVar& nLb2DsDsstpEvts,
-                            //RooFormulaVar& nBd2DKEvts,
-                            RooRealVar& nBd2DKEvts,
-                            RooRealVar& nLb2LcKEvts,
-			    RooRealVar&g1_f1,
-                            RooRealVar& g1_f2,
-                            RooRealVar& g1_f3,
-			    RooRealVar& g2_f1,
-			    RooRealVar& g2_f2,
-			    RooRealVar& g2_f3,
-			    RooRealVar& g3_f1,
-			    TString &sample,
-			    TString &mode,
-			    bool toys,
-			    bool debug = false);
-
-  */			    
+					 TString &samplemode, Int_t dim, bool debug = false);
+  
   //===============================================================================
   // Background 2D model for Bs->DsPi mass fitter.
   //===============================================================================
@@ -333,11 +243,6 @@ namespace Bs2Dsh2011TDAnaModels {
 					RooAddPdf* pdf_Bd2DsK, 
 					TString &samplemode, Int_t dim = 3, bool debug = false);
 
-  RooAbsPdf* build_Bs2DsK_BKG_HHHPi0( RooAbsReal& mass, RooAbsReal& massDs,
-				      RooWorkspace* work, RooWorkspace* workInt,
-				      RooAbsPdf* pdf_Bd2DsK, 
-				      TString &samplemode, Int_t dim = 3, bool debug = false);
-  
   //===============================================================================
   // Load RooKeysPdf from workspace.
   //===============================================================================
@@ -374,6 +279,38 @@ namespace Bs2Dsh2011TDAnaModels {
   bool CheckVar(RooRealVar* var, bool debug = false); 
 
   RooArgList* AddEPDF(RooArgList* list, RooExtendPdf* pdf, RooRealVar *numEvts, bool debug = false); 
+
+  RooAbsPdf* build_Combinatorial_MDFitter(RooAbsReal& mass,
+                                          RooAbsReal& massDs,
+                                          RooWorkspace* work,
+                                          RooWorkspace* workInt,
+                                          TString samplemode,
+					  std::vector <TString> types,
+                                          std::vector <TString> pdfNames,
+                                          std::vector <TString> pidk,
+                                          Int_t dim,
+                                          bool debug);
+
+  RooAbsPdf* ObtainSignalMassShape(RooAbsReal& mass,
+                                   RooWorkspace* work,
+                                   RooWorkspace* workInt,
+                                   TString samplemode,
+                                   TString type,
+				   bool extended, 
+                                   bool debug);
+
+
+  RooAbsPdf* build_Signal_MDFitter(RooAbsReal& mass,
+                                   RooAbsReal& massDs,
+                                   RooWorkspace* work,
+                                   RooWorkspace* workInt,
+                                   TString samplemode,
+				   TString decay, 
+                                   std::vector <TString> types,
+                                   Int_t dim,
+                                   bool debug);
+
+
 }
 
 #endif

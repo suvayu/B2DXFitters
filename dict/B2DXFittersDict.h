@@ -30,6 +30,8 @@
 #include "B2DXFitters/Bd2DhModels.h"
 #include "B2DXFitters/Bs2DshModels.h"
 #include "B2DXFitters/Bs2Dsh2011TDAnaModels.h"
+#include "B2DXFitters/Bs2DshDsHHHPi0Models.h"
+#include "B2DXFitters/Bs2DssthModels.h"
 
 #include "B2DXFitters/RooBinnedPdf.h"
 #include "B2DXFitters/RooAbsEffResModel.h"
@@ -43,8 +45,10 @@
 #include "B2DXFitters/WeightingUtils.h"
 #include "B2DXFitters/PlotSettings.h"
 #include "B2DXFitters/MDFitterSettings.h"
+#include "B2DXFitters/MCBackground.h"
 #include "B2DXFitters/HistPID1D.h"
 #include "B2DXFitters/HistPID2D.h"
+
 
 #include "B2DXFitters/RangeAcceptance.h"
 

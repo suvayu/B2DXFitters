@@ -40,6 +40,23 @@
 
 namespace MassFitUtils {
 
+  void InitializeRealObs(TString tB,
+			 std::vector <Double_t> &varD, std::vector <Int_t> &varI, std::vector <Float_t> &varF
+			 , Bool_t debug); 
+  Double_t GetValue( TString tB, Double_t &varD, Int_t &varI, Float_t &varF ); 
+  Double_t SetValRealObs(MDFitterSettings* mdSet, RooArgSet* obsVar,
+			 TString tN, TString tB,
+			 Double_t &varD, Int_t &varI, Float_t &varF,
+			 TString mode, Double_t shift=0.0);
+  
+  Double_t SetValCatObs(MDFitterSettings* mdSet, RooArgSet* obsVar,
+			TString tN, TString tB,
+			Double_t &varD, Int_t &varI, Float_t &varF);
+  
+  void SetBranchAddress(TTree* tr, TString tB, TString tN,
+                        Double_t &varD, Int_t &varI, Float_t &varF,
+			Bool_t debug = false);
+
   //===========================================================================
   // Obtain data set
   // filesDir - name of config .txt file from where data are loaded
@@ -110,6 +127,16 @@ namespace MassFitUtils {
 				    bool pdf = true, 
 				    bool        debug = false);
 
+  //===========================================================================                                                                                                            
+  // Get background category cut for background MC                                                                                                                                         
+  //===========================================================================                                                                                                            
+  TCut GetBKGCATCutBkg( MDFitterSettings* mdSet, TString mode, TString hypo, bool debug  = false);
+
+  //===========================================================================                                                                                                            
+  // Get MCID cut for background MC                                                                                                                                         
+  //===========================================================================                                                                                                            
+  TCut GetMCIDCutBkg( MDFitterSettings* mdSet, TString hypo, bool debug  = false);
+
   //===========================================================================
   // Get cut for background MC 
   //===========================================================================
@@ -158,7 +185,7 @@ namespace MassFitUtils {
   // mode - mode of decay
   // workspace - workspace where data set should be saved
   //==========================================================================
-  RooWorkspace* ObtainSpecBack(TString& filesDir, TString& sig, TString& sigtree,
+  RooWorkspace* ObtainSpecBack(TString& filesDir, TString& sig,
 			       MDFitterSettings* mdSet,
 			       TString& hypo,
 			       RooWorkspace* workspace = NULL,
@@ -196,11 +223,32 @@ namespace MassFitUtils {
 				   TFile &ffile, bool debug=true);
 
 
+  //===========================================================================                                                                                                            
+  // Get background category cut for signal MC                                                                                                                                         
+  //===========================================================================                                                                                                            
+  TCut GetBKGCATCutSig( MDFitterSettings* mdSet, bool debug = false);
+
+  //===========================================================================                                                                                                            
+  // Get MCID cut for signal MC                                                                                                                                                        
+  //===========================================================================                                                                                                            
+  TCut GetMCIDCutSig( MDFitterSettings* mdSet, TString hypo, TString modeD, bool debug  = false);
+  
+  //===========================================================================                                                                                                            
+  // Get MC TRUEID cut for signal MC                                                                                                                                                       
+  //===========================================================================                                                                                                            
+  TCut GetMCTRUEIDCutSig( MDFitterSettings* mdSet, TString hypo, TString modeD, bool debug = false);
+
+  //===========================================================================                                                                                                            
+  // Get Ds Hypo cut for signal MC                                                                                                                                                       
+  //===========================================================================                                                                                                            
+  TCut GetDsHypoCutSig( MDFitterSettings* mdSet, TString modeD, bool debug = false);
+
+
   //===========================================================================
   // Get cut for signal MC
   //===========================================================================
-
   TCut GetCutMCSig( MDFitterSettings* mdSet, TString modeB, TString modeD, bool debug = false );
+
 
   //===========================================================================
   // Obtain Signal sample
@@ -257,6 +305,16 @@ namespace MassFitUtils {
 					PlotSettings* plotSet=NULL,
                                         bool debug=false);
 
+  RooWorkspace* CreatePdfSpecBackground(MDFitterSettings* mdSet,
+                                        TString& filesDir, TString& sig,
+                                        TString obsName,
+                                        TString mode,
+                                        Double_t rho = 1.5,
+                                        TString mirror = "Both",
+                                        RooWorkspace* work = NULL,
+                                        PlotSettings* plotSet = NULL,
+                                        bool debug = false
+                                        );
 
   //===========================================================================
   // Calculate expected number of yields and misID

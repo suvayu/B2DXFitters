@@ -1,0 +1,68 @@
+#Bs2DsstPi KKPi 2011
+/afs/cern.ch/work/a/abertoli/public/DsstrPi/bdt_dev/
+Filter11_Bs2DsstPi_Data_dw.root
+Filter11_Bs2DsstPi_Data_up.root
+tuple
+tuple
+###
+
+#Bs2DsstPi KKPi 2012
+/afs/cern.ch/work/a/abertoli/public/DsstrPi/bdt-s21/
+Filter12-s21_Bs2DsstPi_Data_dw.root
+Filter12-s21_Bs2DsstPi_Data_up.root
+tuple
+tuple
+###
+
+#Bs2DsstPi KKPi
+/afs/cern.ch/work/a/abertoli/public/DsstrPi/bdt_dev/
+Filter_Bs2DsstPi_Data_dw.root
+Filter_Bs2DsstPi_Data_up.root
+tuple
+tuple
+###
+	
+#MC FileName KKPi MD 2012
+{"Mode":"Bs2DsRho",
+ "FileName":"/afs/cern.ch/work/a/abertoli/public/DsstrPi/bdt-s21/Filter-s21_Bs2DsstPi_Bs2Dsrho_dw.root",
+ "TreeName":"tuple;1"}
+{"Mode":"Bs2DsstRho",
+ "FileName":"/afs/cern.ch/work/a/abertoli/public/DsstrPi/bdt-s21/Filter-s21_Bs2DsstPi_Bs2Dsstrho_dw.root",
+ "TreeName":"tuple;1",
+ "Smooth":2.5}
+###
+
+#MC FileName KKPi MU 2012
+{"Mode":"Bs2DsRho",
+ "FileName":"/afs/cern.ch/work/a/abertoli/public/DsstrPi/bdt-s21/Filter-s21_Bs2DsstPi_Bs2Dsrho_up.root",
+ "TreeName":"tuple;1"}
+{"Mode":"Bs2DsstRho",
+ "FileName":"/afs/cern.ch/work/a/abertoli/public/DsstrPi/bdt-s21/Filter-s21_Bs2DsstPi_Bs2Dsstrho_up.root",
+ "TreeName":"tuple;1",
+ "Smooth":2.5}
+###
+
+#Signal Bs2DsstPi KKPi 2012
+/afs/cern.ch/work/a/abertoli/public/DsstrPi/bdt-s21/
+Filter-s21_Bs2DsstPi_Signal_dw.root
+Filter-s21_Bs2DsstPi_Signal_up.root
+tuple
+tuple
+###
+
+
+#Bs2DsstPi Combinatorial KKPi 2011
+/afs/cern.ch/work/a/abertoli/public/DsstrPi/bdt_dev/
+Filter11_Bs2DsstPi_Data_dw.root
+Filter11_Bs2DsstPi_Data_up.root
+tuple
+tuple
+###
+
+#Bs2DsstPi Combinatorial KKPi 2012
+/afs/cern.ch/work/a/abertoli/public/DsstrPi/bdt-s21/
+Filter12-s21_Bs2DsstPi_Data_dw.root
+Filter12-s21_Bs2DsstPi_Data_up.root
+tuple
+tuple
+###

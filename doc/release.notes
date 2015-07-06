@@ -4,6 +4,15 @@
 ! Purpose     : RooFit-based fitters for B -> D X
 !-----------------------------------------------------------------------------
 
+! 2015-07-06 - Agnieszka Dziurda
+ - MDFit update:
+   - merge main fitting procedure in 3 scripts: prepareWorkspace.py, 
+     runMDFitter.py, plotMDFitter.py for all analyses
+   - rewrite most of the code
+   - more flexible interface in config files
+   - remove old scripts for MDFitter 
+ - rewrite fitting signal procedure 
+
 ! 2015-07-06 - Manuel Tobias Schiller
  - cFit: personality update (remove deprecated stuff)
  - utils.py: fix bug (setConstantIfSoConfigured remembered old settings in

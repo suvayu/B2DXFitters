@@ -115,6 +115,7 @@ namespace GeneralUtils {
 		   std::vector <std::string> &FileName, 
 		   TString &sig, bool        debug = false);
 
+  Int_t CheckNumberOfBackgrounds(TString& filesDir, TString& sig, bool debug = false);
   //===========================================================================
   // Read tree from TFile. The convention which should be in the .txt file:
   // line 1: path to directory for example: /afs/cern.ch/work/g/gligorov/public/Bs2DsKFitTuples/
@@ -201,10 +202,17 @@ namespace GeneralUtils {
   // Sample and mode are used to create the name of RooKeysPdf.
   //==========================================================================
   RooKeysPdf* CreatePDFMC(RooDataSet* dataSetMC,
+                          RooRealVar* massMC,
+                          TString &sample,
+                          TString &mode,
+			  Double_t rho,
+			  TString mirror, 
+                          bool        debug = false);
+
+  RooKeysPdf* CreatePDFMC(RooDataSet* dataSetMC,
 			  RooRealVar* massMC, 
 			  TString &sample,
 			  TString &mode,
-			  Bool_t mistag,
 			  bool        debug = false);
   
   RooHistPdf* CreateHistPDF(TH1* hist,
@@ -257,10 +265,16 @@ namespace GeneralUtils {
   RooDataSet* GetDataSet(RooWorkspace* work, RooArgSet* obs, RooCategory& sam,
                          TString &dat, TString & sample, TString& mode,
                          bool merge, bool debug );
+  RooDataSet* GetDataSet(RooWorkspace* work, RooArgSet* obs, RooCategory& sam,
+                         TString &dat, TString & sample, TString& mode, TString& year,
+                         bool merge, bool debug );
 
+  std::vector <TString> GetSampleModeYear(TString& sample, TString& mode, TString& year, bool merge, bool debug );
   std::vector <TString> GetSampleMode(TString& sample, TString& mode, bool merge, bool debug );
   std::vector <TString>  GetSample(TString& sample, bool debug );
   std::vector <TString>  GetMode(TString& mode, bool debug );
+  std::vector <TString>  GetYear(TString& year, bool debug );
+
   std::vector <Int_t> GetEntriesCombData(RooWorkspace* work, 
                                          TString &dat, TString & sample, TString& mode,
                                          bool merge, bool debug );
@@ -292,28 +306,75 @@ namespace GeneralUtils {
   //==========================================================================
   std::string CheckMode(std::string& check, bool debug = false);
 
+  //==========================================================================     
+  // Check D/Ds final state (kkpi,kpipi,pipipi) from check    
+  //==========================================================================   
   TString CheckDMode(std::string& check, bool debug = false);
   TString CheckDMode(TString& check, bool debug = false);
 
+  //==========================================================================                                                                    
+  // Check KKPi final state (nonres,phipi,kstk) from check                                                                                                                       
+  //==========================================================================                                                                                        
   TString CheckKKPiMode(std::string& check, bool debug = false);
   TString CheckKKPiMode(TString& check, bool debug = false);
 
-  TString GetLabel(TString& mode, 
-		   bool bs = true,
-		   bool ds = true, 
-		   bool pol = true,
-		   bool debug = false);
-  
-  TString CheckBDTGBin(TString& check, bool debug = false);
-  
-  TString CheckObservable(TString& check, bool debug = false);
-  TString CheckBachelor(TString check, bool debug);
+  //==========================================================================       
+  // Get decay in Latex                                                       
+  //==========================================================================            
+  TString GetLabel(TString& mode,
+                   bool bs = true,
+                   bool ds = true,
+                   bool pol = true,
+                   bool debug = false);
 
+  //==========================================================================                                                                                                             
+  // Get Ds mode in capital letters                                                                                                                                               
+  //==========================================================================           
+  TString GetModeCapital(TString& check, bool debug = false);
+
+  //=========================================================================       
+  // Check BDTG bin                                              
+  //=========================================================================          
+  TString CheckBDTGBin(TString& check, bool debug = false);
+
+  //==========================================================================         
+  // Check x axis description for observables                                               
+  //==========================================================================               
+  TString CheckObservable(TString& check, bool debug = false);
+
+  //==========================================================================                      
+  // Check bachelor particle                                                       
+  //==========================================================================                     
+  TString CheckBachelor(TString check, bool debug = false);
+
+  //==========================================================================      
+  // Check Stripping number                     
+  //==========================================================================             
+  TString CheckStripping(TString& check, bool debug = false);
+  TString CheckStripping(std::string& check, bool debug = false);
+
+  //==========================================================================       
+  // Check data year                                                                      
+  //==========================================================================                           
+  TString CheckDataYear(std::string& check, bool debug = false);
+  TString CheckDataYear(TString& check, bool debug = false);
+
+
+  //==========================================================================                                                                                                                      
+  // Get X label for plotting                                                                                                                                                                      
+  //==========================================================================  
+  TString GetXLabel(TString decay, TString var, TString mode, bool debug = false );
+  TString GetXLabel(std::string decay, std::string var, std::string mode, bool debug = false );
+ 
   //===========================================================================
   // Get coefficient for acceptance
   //==========================================================================
   RooArgList* GetCoeffFromBinning(RooBinning* binning, RooRealVar* time, bool debug = false);
 
+
+  std::vector <TString> GetList(TString name, TString name2 = "", TString name3 = "");
+  std::vector <TString> AddToList(std::vector <TString> list, TString name);
+ 
   double pe_from_pid(int pid, double px, double py, double pz);
 
 }

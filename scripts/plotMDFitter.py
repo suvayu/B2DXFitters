@@ -1,15 +1,13 @@
 #!/usr/bin/env python
 # --------------------------------------------------------------------------- #
 #                                                                             #
-#   Python script to plot the Bd -> D pi mass models                          #
+#   Python script to plot MDFitter results                                    #
 #                                                                             #
 #   Example usage:                                                            #
 #      python -i plotBs2DsKMassModels.py                                      #
 #                                                                             #
-#   Author: Eduardo Rodrigues                                                 #
-#   Date  : 14 / 06 / 2011                                                    #
 #   Author: Agnieszka Dziurda                                                 #
-#   Date  : 21 / 02 / 2012                                                    #
+#   Date  : 21 / 06 / 2015                                                    #
 #                                                                             #
 # --------------------------------------------------------------------------- #
 # -----------------------------------------------------------------------------
@@ -38,7 +36,7 @@ else
         LD_LIBRARY_PATH=`echo $LD_LIBRARY_PATH | tr ':' '\n' | \
             egrep -v "^($User_release_area|$MYSITEROOT/lhcb)" | \
             tr '\n' ':' | sed -e 's/:$//'`
-	export LD_LIBRARY_PATH
+        export LD_LIBRARY_PATH
         exec env -u CMTCONFIG -u B2DXFITTERSROOT "$0" "$@"
     fi
     # automatic set up in standalone build mode
@@ -121,7 +119,7 @@ plotModel =  True
 # MISCELLANEOUS
 bName = 'B_{s}'
 
-bin = 100
+bin = 120
 #------------------------------------------------------------------------------
 _usage = '%prog [options] <filename>'
 
@@ -140,10 +138,16 @@ parser.add_option( '-m', '--sample',
                    default = 'both',
                    help = 'Sample: choose up or down '
                    )
-parser.add_option( '-o', '--mode',
-                   dest = 'mode',
+parser.add_option( '-o', '--modeDs',
+                   dest = 'modeDs',
                    metavar = 'MODE',
-                   default = 'all',
+                   default = 'kkpi',
+                   help = 'Mode: choose all, kkpi, kpipi or pipipi'
+                   )
+
+parser.add_option( '-y', '--year',
+                   dest = 'year',
+                   default = '',
                    help = 'Mode: choose all, kkpi, kpipi or pipipi'
                    )
 
@@ -155,16 +159,16 @@ parser.add_option( '-t', '--toy',
                    help = 'if ToyMC choose yes.'
                    )
 
-parser.add_option( '-v', '--variable',
+parser.add_option( '-v', '--variable', '--var',
                    dest = 'var',
-                   default = 'lab0_MassFitConsD_M',
+                   default = 'BeautyMass',
                    help = 'set observable '
                    )
 
 parser.add_option( '-s', '--sufix',
                    dest = 'sufix',
                    metavar = 'SUFIX',
-                   default = 'BDTGA',
+                   default = '',
                    help = 'Add sufix to output'
                    )
 parser.add_option( '--merge',
@@ -173,15 +177,30 @@ parser.add_option( '--merge',
                    default = False,
                    help = 'merge magnet polarity'
                    )
+parser.add_option( '--logscale', '--log',
+                   dest = 'log',
+                   action = 'store_true',
+                   default = False,
+                   help = 'log scale of plot'
+                   )
 parser.add_option( '--bin',
                    dest = 'bin',
                    action = 'store_true',
                    default = 100,
                    help = 'set number of bins'
                    )
+
+parser.add_option( '--legend',
+                   dest = 'legend',
+                   action = 'store_true',
+                   default = False,
+                   help = 'plot legend on the plot'
+                   )
+
 parser.add_option( '--dim',
                    dest = 'dim',
-                   default = 3)
+                   default = 1)
+
 parser.add_option( '-d', '--debug',
                    action = 'store_true',
                    dest = 'debug',
@@ -189,9 +208,13 @@ parser.add_option( '-d', '--debug',
                    help = 'print debug information while processing'
                    )
 
+parser.add_option( '--configName',
+                   dest = 'configName',
+                   default = 'Bs2DsstKConfigForNominalMassFit')
+
 #------------------------------------------------------------------------------
 
-def getTotPDF(w, sam, mod, merge, comp, debug):
+def getTotPDF(w, sam, mod, year, merge, comp, debug):
     c = []
     n = []
 
@@ -202,23 +225,55 @@ def getTotPDF(w, sam, mod, merge, comp, debug):
         sp = GeneralUtils.GetSample(sam, debug)
 
     md = GeneralUtils.GetMode(mod,debug)
+    yr = GeneralUtils.GetYear(year,debug)
 
-    for s in sp:
-        for m in md:
-            for p in comp:
-                if p == "Sig":
-                    c.append("n%s_%s_%s_Evts*%sEPDF_%s_%s"%(p,s,m,p,s,m))
-                else:
-                    c.append("n%s_%s_%s_Evts*%sEPDF_m_%s_%s"%(p,s,m,p,s,m))
-                n.append("n%s_%s_%s_Evts"%(p,s,m))
-    
+    print sam
+    print comp
+    print mod
+    if yr[0] == "":
+
+        for s in sp:
+            for m in md:
+                for p in comp:
+                    var = w.var("n%s_%s_%s_Evts"%(p,s,m))
+                    if var:
+                        if p == "Sig":
+                            c.append("n%s_%s_%s_Evts*%sEPDF_%s_%s"%(p,s,m,p,s,m))
+                        else:
+                            c.append("n%s_%s_%s_Evts*%sEPDF_m_%s_%s"%(p,s,m,p,s,m))
+                        print ".............n%s_%s_%s_Evts*%sEPDF_m_%s_%s"%(p,s,m,p,s,m)
+                        n.append("n%s_%s_%s_Evts"%(p,s,m))
+                        print "...........n%s_%s_%s_Evts"%(p,s,m)
+                    else:
+                        c.append("")
+                        n.append("")
+
+    else:
+        for y in yr:
+            for s in sp:
+                for m in md:
+                    for p in comp:
+                         var = w.var("n%s_%s_%s_%s_Evts"%(p,s,m,y))
+                         if var:
+                             if p == "Sig":
+                                 c.append("n%s_%s_%s_%s_Evts*%sEPDF_%s_%s_%s"%(p,s,m,y,p,s,m,y))
+                             else:
+                                 c.append("n%s_%s_%s_%s_Evts*%sEPDF_m_%s_%s_%s"%(p,s,m,y,p,s,m,y))
+                             print "---------------n%s_%s_%s_%s_Evts*%sEPDF_%s_%s_%s"%(p,s,m,y,p,s,m,y)
+                             n.append("n%s_%s_%s_%s_Evts"%(p,s,m,y))
+                             print "-------------n%s_%s_%s_%s_Evts"%(p,s,m,y)
+                         else:
+                             c.append("")
+                             n.append("")
+                        
+
     if sam == "up" or sam == "down" or (sam == "both" and merge == True):
         pdfcomp = c[0]
         for i in range(1,c.__len__()):
             pdfcomp = pdfcomp +"," +c[i]
         if debug:    
             print "Total PDF to print: %s"%(pdfcomp)
-        w.factory("SUM:FullPdf(%s)"%(pdfcomp)) #                                                                                                          
+        w.factory("SUM:FullPdf(%s)"%(pdfcomp))                                                                                                           
     else:
         pdfcomp1 = c[0]
         numcomp1 = n[0]
@@ -249,21 +304,28 @@ def getTotPDF(w, sam, mod, merge, comp, debug):
     return modelPDF
 
 #------------------------------------------------------------------------------ 
-def getDataCut(sam, mod, debug):
+def getDataCut(sam, mod, year, debug):
     
-    print "Sample %s, %s "%(sam,mod)
+    print "Sample %s, %s %s"%(sam,mod,year)
     if merge:
         sp = ["both"]
     else:
         sp = GeneralUtils.GetSample(sam, debug)
 
     md = GeneralUtils.GetMode(mod,debug)
+    yr = GeneralUtils.GetYear(year,debug)
 
     c = [ ]
-    for s in sp:
-        for m in md:
-            c.append("sample==sample::%s_%s"%(s,m))
-            
+    if ( yr[0] == ""):
+        for s in sp:
+            for m in md:
+                c.append("sample==sample::%s_%s"%(s,m))
+    else:
+        for y in yr:
+            for s in sp:
+                for m in md:
+                    c.append("sample==sample::%s_%s_%s"%(s,m,y))
+
     cut = c[0]
     for i in range(1,c.__len__()):
         cut = cut +" || " +c[i]
@@ -285,7 +347,7 @@ def plotDataSet( dataset, frame, Bin ) :
 #                    RooFit.What('N') )
 
 #------------------------------------------------------------------------------
-def plotFitModel( model, frame, var, sam, mode, comp, color) :
+def plotFitModel( model, frame, var, sam, mode, year, decay, comp, color) :
     #if debug :
     
     print "model"    
@@ -297,15 +359,31 @@ def plotFitModel( model, frame, var, sam, mode, comp, color) :
         sp = GeneralUtils.GetSample(sam, debug)
 
     md = GeneralUtils.GetMode(mod,debug)
+    yr = GeneralUtils.GetYear(year,debug)
+    
     c = []
-    for s in sp:
-        for m in md:
-            for p in comp:
-                if p == "Sig":
-                    c.append("%sEPDF_%s_%s"%(p,s,m))
-                else:
-                    c.append("%sEPDF_m_%s_%s"%(p,s,m))
-                    
+    if yr[0] == "":        
+        for s in sp:
+            for m in md:
+                for p in comp:
+                    if p == "Sig":
+                        c.append("%sEPDF_%s_%s"%(p,s,m))
+                    elif ((p == "Lb2DsDsstP" or p == "Bs2DsDsstPiRho") and decay == "Bs2DsK"):
+                        c.append("PhysBkg%sPdf_m_%s_%s_Tot"%(p,s,m))
+                    else:
+                        c.append("%sEPDF_m_%s_%s"%(p,s,m))
+    else:
+        for y in yr:
+            for s in sp:
+                for m in md:
+                    for p in comp:
+                        if p == "Sig":
+                            c.append("%sEPDF_%s_%s_%s"%(p,s,m,y))
+                        elif ( (p == "Lb2DsDsstP" or p == "Bs2DsDsstPiRho") and decay == "Bs2DsK"):
+                            c.append("PhysBkg%sPdf_m_%s_%s_%s_Tot"%(p,s,m,y))
+                        else:
+                            c.append("%sEPDF_m_%s_%s_%s"%(p,s,m,y))
+
     numBkg = comp.__len__()                
     numCom = c.__len__()
     numSM = int(numCom/numBkg)
@@ -339,23 +417,53 @@ def plotFitModel( model, frame, var, sam, mode, comp, color) :
                       RooFit.FillStyle(1001),
                       RooFit.FillColor(color[numBkg-i]),
                       RooFit.Normalization( 1., RooAbsReal.RelativeExpected ),
-                      RooFit.Name(Form("PDF%d"%(i)))
-                      )
+                      RooFit.Name(Form("PDF%d"%(i))))
 
     model.plotOn( frame, 
                   RooFit.Components(pdfcomp[0]),
                   RooFit.LineColor(color[0]),
                   RooFit.LineStyle(kDashed),
                   RooFit.Normalization( 1., RooAbsReal.RelativeExpected ),
-                  RooFit.Name("PDFSig")
-                  )
-                        
-#    model.paramOn( frame,
-#
-#RooFit.Layout( 0.56, 0.90, 0.85 ),
-#                   RooFit.Format( 'NEU', RooFit.AutoPrecision( 2 ) )
-#                   )
+                  RooFit.Name("PDFSig"))
 
+#------------------------------------------------------------------------------
+def getDescription(comp,decay):
+
+    happystar = "#lower[-0.95]{#scale[0.5]{(}}#lower[-0.8]{#scale[0.5]{*}}#lower[-0.95]{#scale[0.5]{)}}"
+    happystar2 = "#lower[-0.65]{#scale[0.6]{*}}"
+    happypm   = "#lower[-0.95]{#scale[0.6]{#pm}}"
+    happymp   = "#lower[-0.95]{#scale[0.6]{#mp}}"
+    happystarpm = "#lower[-0.95]{#scale[0.6]{*#pm}}"
+    happyplus = "#lower[-0.95]{#scale[0.6]{+}}"
+    happymin  = "#lower[-1.15]{#scale[0.7]{-}}"
+    happy0   = "#lower[-0.85]{#scale[0.6]{0}}"
+
+    from B2DXFitters import TLatexUtils
+    desc = []
+    for c in comp:
+        if c == "Sig" or c == "Signal":
+            if decay == "Bs2DsPi":
+                desc.append("Signal B_{s}#kern[-0.7]{"+happy0+"}#rightarrow D_{s}#kern[-0.3]{"+happymin+"}#kern[0.1]{#pi"+happyplus+"}")
+            elif decay == "Bs2DsK":
+                desc.append("Signal B_{s}#kern[-0.7]{"+happy0+"} #rightarrow D_{s}#kern[-0.3]{"+happymp+"}#kern[0.1]{K"+happypm+"}") 
+            elif decay == "Bs2DsstPi":
+                desc.append("Signal B_{s}#kern[-0.7]{"+happy0+"}#rightarrow D_{s}#kern[-0.3]{"+happystar+happymin+"}#kern[0.1]{#pi"+happyplus+"}")
+            elif decay == "Bs2DsstK":
+                desc.append("Signal B_{s}#kern[-0.7]{"+happy0+"} #rightarrow D_{s}#kern[-0.3]{"+happystar+happymp+"}#kern[0.1]{K"+happypm+"}")
+            else:
+                desc.append("Signal") 
+        elif c == "Bs2DsDsstPiRho" and decay == "Bs2DsPi":
+            desc.append("B_{(d,s)}#kern[-3.7]{"+happy0+"} #rightarrow D_{s}#kern[-0.3]{"+happymin+happystar+"}#kern[0.1]{#pi"+happyplus+"}")
+        elif c == "Bs2DsDsstPiRho" and decay == "Bs2DsK":
+            desc.append("B_{s}#kern[-0.7]{"+happy0+"} #rightarrow D_{s}#kern[-0.3]{"+happymin+happystar+"}#kern[0.1]{(#pi"+happyplus+",#kern[0.1]{#rho"+happyplus+"})}") 
+        elif c == "Lb2DsDsstP" and decay == "Bs2DsK":
+            desc.append("#Lambda_{b}#kern[-1.2]{"+happy0+"} #rightarrow D_{s}#kern[-0.3]{"+happymin+happystar+"}#kern[0.1]{p}")
+        elif c == "Bs2DsDsstKKst" and decay == "Bs2DsK":
+            desc.append("B_{(d,s)}#kern[-3.7]{"+happy0+"} #kern[+0.3]{#rightarrow}D_{s}#kern[-0.3]{"+happymp+happystar+"}#kern[0.1]{K"+happypm+happystar+"}")
+        else:
+            desc.append(str(TLatexUtils.DecDescrToTLatex(c)))
+    return desc
+#------------------------------------------------------------------------------
 #------------------------------------------------------------------------------
 
 if __name__ == '__main__' :
@@ -388,75 +496,78 @@ if __name__ == '__main__' :
     mVarTS = TString(options.var)    
     mass = w.var(mVarTS.Data())
     sam = TString(options.sample)
-    mod = TString(options.mode)
+    mod = TString(options.modeDs)
+    log = options.log 
+    leg = options.legend
+    yr = TString(options.year) 
     debug = options.debug 
+    configName = options.configName
+
+    import sys
+    sys.path.append("../data/")
+    myconfigfilegrabber = __import__(configName,fromlist=['getconfig']).getconfig
+    myconfigfile = myconfigfilegrabber()
+
+    print "=========================================================="
+    print "PREPARING WORKSPACE IS RUNNING WITH THE FOLLOWING CONFIGURATION OPTIONS"
+    for option in myconfigfile :
+        if option == "constParams" :
+            for param in myconfigfile[option] :
+                print param, "is constant in the fit"
+        else :
+            print option, " = ", myconfigfile[option]
+    print "=========================================================="
+
+    ch =  TString(myconfigfile["Decay"])
 
     range_dw = mass.getMin()
     range_up = mass.getMax()
 
-    if mVarTS != "lab1_PIDK":
+    if mVarTS.Contains("PIDK") == False:
         unit = "MeV/#font[12]{c}^{2}"
     else:
         unit = ""
             
-    if mVarTS == "lab1_PIDK":
-        Bin = RooBinning(range_dw,range_up,'P')
-        Bin.addUniform(bin, range_dw, range_up)
-    else:
-        Bin = RooBinning(range_dw,range_up,'P')
-        Bin.addUniform(bin, range_dw, range_up)
+    Bin = RooBinning(range_dw,range_up,'P')
+    Bin.addUniform(bin, range_dw, range_up)
           
-    sufixTS = TString(options.sufix)
-    if sufixTS != "":
-        sufixTS = TString("_")+sufixTS
-
     merge = options.merge
-    if sam != "both" and merge == True:
-        print "You cannot plot with option sample up or down!"
-        exit(0)
+    if merge:
+        sam = "both" 
+        print "[WARNING] Option --merge used, sample changed to be 'both'." 
                 
     ty = TString("ToyNo")
     if options.toy : ty = TString("ToyYes")  
     w.Print('v')
+    
+    if myconfigfile.has_key("PlotSettings"):
 
-    if mod != "hhhpi0":
-        comp = ["Sig", "CombBkg", "Bd2DPi", "Lb2LcPi", "Bs2DsDsstPiRho", "Bs2DsK"]
-        color = [kRed-7, kBlue-6, kOrange, kRed, kBlue-10, kGreen+3]
-        happystar = "#lower[-0.95]{#scale[0.5]{(}}#lower[-0.8]{#scale[0.5]{*}}#lower[-0.95]{#scale[0.5]{)}}"
-        happypm   = "#lower[-0.95]{#scale[0.6]{#pm}}"
-        happymp   = "#lower[-0.95]{#scale[0.6]{#mp}}"
-        happyplus = "#lower[-0.95]{#scale[0.6]{+}}"
-        happymin  = "#lower[-1.15]{#scale[0.7]{-}}"
-        happy0   = "#lower[-0.95]{#scale[0.6]{0}}"
-        desc  = ["Signal B_{s}#kern[-0.7]{"+happy0+"}#rightarrow D_{s}#kern[-0.3]{"+happymin+"}#kern[0.1]{#pi"+happyplus+"}", 
-                 "Combinatorial",
-                 "B_{d}#kern[-1.0]{"+happy0+"} #rightarrow D"+happymp+"#pi"+happypm,
-                 "#Lambda_{b}#kern[-1.2]{"+happy0+"} #rightarrow #Lambda_{c}#kern[-0.3]{"+happyplus+"}#kern[0.1]{#pi"+happymin+"}",
-                 "B_{(d,s)}#kern[-3.7]{"+happy0+"} #rightarrow D_{s}#kern[-0.3]{"+happymin+happystar+"}#kern[0.1]{#pi"+happyplus+"}",
-                 "B_{s}#kern[-0.7]{"+happy0+"} #rightarrow D_{s}#kern[-0.3]{"+happymp+"}#kern[0.1]{K"+happypm+"}"]
+        print type(myconfigfile["PlotSettings"]["components"])
+        if type(myconfigfile["PlotSettings"]["components"]) == dict: 
+            compEPDF = myconfigfile["PlotSettings"]["components"]["EPDF"]
+            compPDF = myconfigfile["PlotSettings"]["components"]["PDF"]
+            compLEG = myconfigfile["PlotSettings"]["components"]["Legend"]
+            colorPDF = myconfigfile["PlotSettings"]["colors"]["PDF"]
+            colorLEG = myconfigfile["PlotSettings"]["colors"]["Legend"]
+        else:
+            compEPDF = myconfigfile["PlotSettings"]["components"]
+            compPDF = compEPDF
+            compLEG = compEPDF
+            colorPDF = myconfigfile["PlotSettings"]["colors"]
+            colorLEG = colorPDF 
     else:
-        comp = ["Sig", "CombBkg", "Bd2DPi", "Lb2LcPi", "Bs2DsDsstPiRho", "Bd2DsstPi"]
-        color = [kRed-7, kBlue-6, kOrange, kRed, kBlue-10, kMagenta-2]
-        happystar = "#lower[-0.95]{#scale[0.5]{(}}#lower[-0.8]{#scale[0.5]{*}}#lower[-0.95]{#scale[0.5]{)}}"
-        happypm   = "#lower[-0.95]{#scale[0.6]{#pm}}"
-        happymp   = "#lower[-0.95]{#scale[0.6]{#mp}}"
-        happy0   = "#lower[-1.25]{#scale[0.6]{0}}"
-        desc  = ["Signal B_{s}#rightarrow D_{s}#pi",
-                 "Combinatorial",
-                 "B_{d}#rightarrow D"+happypm+"#pi"+happymp,
-                 "#Lambda_{b}#rightarrow #Lambda_{c}#pi",
-                 "B_{(d,s)}#rightarrow D_{s}"+happystar+"#kern[0.1]{#pi}",
-                 "B_{d}#rightarrow D_{(s)}"+happystar+"#kern[0.1](#pi,#kern[0.1]{#rho})}"]
+        print "[ERROR] PlotSettings missed in the config file."
+        exit(0)
 
-    datacut = getDataCut(sam,mod,debug)    
-    pullfake = "h_combData_Cut[%s]"%(datacut)
-    pullname2TS = TString(pullfake)
+    desc = getDescription(compLEG,ch) 
+
+    datacut = getDataCut(sam,mod,yr,debug)    
 
     dataName = TString("combData")
     totName = TString("FullPdf")
-    modelPDF = getTotPDF(w, sam, mod, merge, comp, debug)
+    modelPDF = getTotPDF(w, sam, mod, yr, merge, compEPDF, debug)
     dataset = w.data( dataName.Data() )
-            
+       
     if not ( modelPDF and dataset ) :
         print "[ERROR] Something went wrong: either PDF or dataSet NULL"
         w.Print( 'v' )
@@ -465,82 +576,85 @@ if __name__ == '__main__' :
     frame_m = mass.frame() 
     frame_m.SetTitle('')
         
-    frame_m.GetXaxis().SetLabelSize( 0.05 )
-    frame_m.GetYaxis().SetLabelSize( 0.05 )
+    frame_m.GetXaxis().SetLabelSize( 0.065 )
+    frame_m.GetYaxis().SetLabelSize( 0.065 )
     frame_m.GetXaxis().SetLabelFont( 132 )
     frame_m.GetYaxis().SetLabelFont( 132 )
     frame_m.GetXaxis().SetLabelOffset( 0.006 )
     frame_m.GetYaxis().SetLabelOffset( 0.006 )
     frame_m.GetXaxis().SetLabelColor( kWhite)
             
-    frame_m.GetXaxis().SetTitleSize( 0.05 )
-    frame_m.GetYaxis().SetTitleSize( 0.06 )
+    frame_m.GetXaxis().SetTitleSize( 0.065 )
+    frame_m.GetYaxis().SetTitleSize( 0.065 )
     frame_m.GetYaxis().SetNdivisions(512)
     
     frame_m.GetXaxis().SetTitleOffset( 1.00 )
-    frame_m.GetYaxis().SetTitleOffset( 0.8 )
-    
-    frame_m.GetYaxis().SetTitle((TString.Format("#font[132]{Candidates / ( " +                             
-                                                    str(int(mass.getBinWidth(1)))+" "+
-                                                    unit+")}") ).Data())
-    if mVarTS == "lab2_MM":
-        frame_m.GetYaxis().SetNdivisions(508)
-        frame_m.GetYaxis().SetLabelSize(0.035)
-        frame_m.GetYaxis().SetTitleOffset( 0.81 )
-        frame_m.GetYaxis().SetTitle((TString.Format("#font[132]{Candidates / ( " +
+    frame_m.GetYaxis().SetTitleOffset( 1.20 )
+    frame_m.GetYaxis().SetTitle((TString.Format("#font[132]{Candidates / ( " +
                                                     "{0:0.2f}".format(mass.getBinWidth(1))+" "+
                                                     unit+")}") ).Data())
 
-    if mVarTS == "lab1_PIDK" :
-        frame_m.GetYaxis().SetTitle((TString.Format("#font[132]{Candidates / " +
-                                                        "{0:0.2f}".format(mass.getBinWidth(1))+" "+
-                                                        unit+"}") ).Data())
+    if dataset.numEntries() > 30000:
+        frame_m.GetYaxis().SetNdivisions(508)
+        frame_m.GetYaxis().SetTitleOffset( 1.20 )
 
+    if mVarTS == "CharmMass" or mVarTS.Contains("lab2") or mVarTS.Contains("Ds") or ( mVarTS.Contains("PIDK") and ch.Contains("Pi")) :
+        frame_m.GetYaxis().SetNdivisions(508)
+
+        
     if plotData : plotDataSet( dataset, frame_m,  Bin )
-    if plotModel : plotFitModel( modelPDF, frame_m, mVarTS, sam, mod, comp, color )
+    if plotModel : plotFitModel( modelPDF, frame_m, mVarTS, sam, mod, yr, ch, compPDF, colorPDF )
     if plotData : plotDataSet( dataset, frame_m,  Bin )
 
-    if ( mVarTS == "lab0_MassFitConsD_M" or mVarTS == "lab1_PIDK"):
+    
+    if log:
         gStyle.SetOptLogy(1)
-        if ( mVarTS == "lab1_PIDK" ):
-            frame_m.GetYaxis().SetRangeUser(1.5,frame_m.GetMaximum()*2.65)
-        else:    
-            if ((mod == "all" or mod == "pipipi") and mVarTS == "lab0_MassFitConsD_M"):
-                if sufixTS.Contains("BDTG3"):
-                    frame_m.GetYaxis().SetRangeUser(0.5,frame_m.GetMaximum()*1.35)
-                else:    
-                    frame_m.GetYaxis().SetRangeUser(10,frame_m.GetMaximum()*1.35)
-            else:
-                if sufixTS.Contains("BDTG3"):
-                    frame_m.GetYaxis().SetRangeUser(0.05,frame_m.GetMaximum()*1.35)
-                else:    
-                    frame_m.GetYaxis().SetRangeUser(1.5,frame_m.GetMaximum()*1.35)
-    elif ( mVarTS == "Ds_MM" ):
-        frame_m.GetYaxis().SetRangeUser(1,frame_m.GetMaximum()*1.1)
-
-    else:
-        frame_m.GetYaxis().SetRangeUser(1,frame_m.GetMaximum()*1.1)
-                               
+        frame_m.GetYaxis().SetRangeUser(1.5,frame_m.GetMaximum()*1.5)
     canvas = TCanvas("canvas", "canvas", 1200, 1000)
     canvas.cd()
-    pad1 = TPad("upperPad", "upperPad", .050, .22, 1.0, 1.0)
+    pad1 = TPad("upperPad", "upperPad", .005, .05, 1.0, 1.0)
     pad1.SetBorderMode(0)
     pad1.SetBorderSize(-1)
+    pad1.SetFillStyle(0)
+    pad1.SetBottomMargin(0.30)
+    pad1.SetLeftMargin(0.17)
+    pad1.SetTopMargin(0.05)
+    pad1.SetRightMargin(0.05)
+    if mVarTS == "lab0_MassFitConsD_M" or mVarTS == "BeautyMass":
+        pad1.SetRightMargin(0.08)
     pad1.SetFillStyle(0)
     pad1.SetTickx(0);
     pad1.Draw()
     pad1.cd()
-       
-    if mVarTS == "lab1_PIDK":
-        legend = TLegend( 0.55, 0.42, 0.855, 0.88 )
-    elif mVarTS == "lab2_MM":
-        legend = TLegend( 0.125, 0.40, 0.35, 0.88 )
-    else:    
-        legend = TLegend( 0.55, 0.40, 0.88, 0.88 )
-        
-    legend.SetTextSize(0.06)
-    legend.SetTextFont(132)
-    legend.SetFillColor(0)
+
+
+    if leg:
+        if myconfigfile.has_key("LegendSettings"):
+            xs = myconfigfile["LegendSettings"][mVarTS.Data()]["Position"][0]
+            ys = myconfigfile["LegendSettings"][mVarTS.Data()]["Position"][1]
+            xe = myconfigfile["LegendSettings"][mVarTS.Data()]["Position"][2]
+            ye = myconfigfile["LegendSettings"][mVarTS.Data()]["Position"][3]
+            legend = TLegend( xs, ys, xe, ye )
+            size = myconfigfile["LegendSettings"][mVarTS.Data()]["TextSize"]
+            legend.SetTextSize(size)
+            if myconfigfile["LegendSettings"][mVarTS.Data()].has_key("ScaleYSize"):
+                scale = myconfigfile["LegendSettings"][mVarTS.Data()]["ScaleYSize"]
+            else:
+                scale = 1.2 
+            if log:
+                frame_m.GetYaxis().SetRangeUser(1.5,frame_m.GetMaximum()*scale)
+            else:
+                frame_m.GetYaxis().SetRangeUser(1,frame_m.GetMaximum()*scale)
+        else:
+            print "[ERROR] You need to specify position of legend in configfile using 'LegendSettings'"
+            exit(0) 
+    else:
+        frame_m.GetYaxis().SetRangeUser(1.5,frame_m.GetMaximum()*1.1)
+        legend = TLegend( 0.05, 0.05, 0.95, 0.95 )
+        legend.SetTextSize(0.09)
+
+    legend.SetTextFont(12) 
+    legend.SetFillColor(4000)
     legend.SetShadowColor(0)
     legend.SetBorderSize(0)
     legend.SetTextFont(132)
@@ -548,15 +662,18 @@ if __name__ == '__main__' :
     lhcbtext = TLatex()
     lhcbtext.SetTextFont(132)
     lhcbtext.SetTextColor(1)
-    lhcbtext.SetTextSize(0.07)
-    lhcbtext.SetTextAlign(132)
-
-    pretext = TLatex()
-    pretext.SetTextFont(132)
-    pretext.SetTextColor(1)
-    pretext.SetTextSize(0.07)
-    pretext.SetTextAlign(132)
-
+    if myconfigfile.has_key("LegendSettings"):
+        if myconfigfile["LegendSettings"][mVarTS.Data()].has_key("LHCbTextSize"):
+            sizelhcbtext = myconfigfile["LegendSettings"][mVarTS.Data()]["LHCbTextSize"]
+        else:
+            sizelhcbtext = 0.08
+        if myconfigfile["LegendSettings"][mVarTS.Data()].has_key("SetLegendColumns"):
+            legend.SetNColumns(int(myconfigfile["LegendSettings"][mVarTS.Data()]["SetLegendColumns"]))
+    else:
+        sizelhcbtext = 0.08
+    lhcbtext.SetTextSize(sizelhcbtext)
+    lhcbtext.SetTextAlign(12)
+          
     gr = TGraphErrors(10);
     gr.SetName("gr");
     gr.SetLineColor(kBlack);
@@ -568,39 +685,51 @@ if __name__ == '__main__' :
     legend.AddEntry("gr","Data","lep");
 
     l1 = TLine()
-    l1.SetLineColor(color[0])
+    l1.SetLineColor(colorLEG[0])
     l1.SetLineWidth(4)
     l1.SetLineStyle(kDashed)
     legend.AddEntry(l1, desc[0], "L")
                     
     h = []
-    for i in range(1, comp.__len__()):
+    print compLEG
+    print desc 
+
+    for i in range(1, compLEG.__len__()):
         print i
-        h.append(TH1F(comp[i],comp[i],5,0,1))
-        h[i-1].SetFillColor(color[i])
+        print compLEG[i]
+        print desc[0]
+        h.append(TH1F(compLEG[i],compLEG[i],5,0,1))
+        h[i-1].SetFillColor(colorLEG[i])
         h[i-1].SetFillStyle(1001)
         legend.AddEntry(h[i-1], desc[i], "f")
-
     pad1.cd()
     frame_m.Draw()
-    if ( mVarTS != "Ds_MM" ):
+
+    if leg:
         legend.Draw("same")
-    if mVarTS == "lab2_MM":
-        lhcbtext.DrawTextNDC(0.75,0.83,"LHCb")
-        #pretext.DrawTextNDC(0.85,0.76,"Preliminary")
-    elif mVarTS == "lab1_PIDK" :
-        lhcbtext.DrawTextNDC(0.44,0.83,"LHCb")
+        if myconfigfile.has_key("LegendSettings"):
+            xl = myconfigfile["LegendSettings"][mVarTS.Data()]["LHCbText"][0]
+            yl = myconfigfile["LegendSettings"][mVarTS.Data()]["LHCbText"][1]
+            lhcbtext.DrawTextNDC(xl,yl,"LHCb")
     else:
-        lhcbtext.DrawTextNDC(0.44,0.83,"LHCb")
-        #pretext.DrawTextNDC(0.54,0.76,"Preliminary")
+        if mVarTS == "lab0_MassFitConsD_M" or mVarTS == "BeautyMass":
+            lhcbtext.DrawTextNDC(0.7,0.87,"LHCb")
+        else:
+            lhcbtext.DrawTextNDC(0.75,0.87,"LHCb")
+
     pad1.Update()
 
     canvas.cd()
-    pad2 = TPad("lowerPad", "lowerPad", .050, .005, 1.0, .3275)
+    pad2 = TPad("lowerPad", "lowerPad", .005, .005, 1.0, .37)
     pad2.SetBorderMode(0)
     pad2.SetBorderSize(-1)
     pad2.SetFillStyle(0)
-    pad2.SetBottomMargin(0.35)
+    pad2.SetBottomMargin(0.40)
+    pad2.SetLeftMargin(0.17)
+    pad2.SetRightMargin(0.05)
+    if mVarTS == "lab0_MassFitConsD_M" or mVarTS == "BeautyMass":
+        pad2.SetRightMargin(0.08)
+
     pad2.SetTickx(0);
     pad2.Draw()
     pad2.SetLogy(0)
@@ -616,52 +745,29 @@ if __name__ == '__main__' :
     frame_p.GetYaxis().SetTitle("")
     frame_p.GetYaxis().SetTitleSize(0.09)
     frame_p.GetYaxis().SetTitleOffset(0.26)
-    frame_p.GetYaxis().SetTitleFont(132)
+    frame_p.GetYaxis().SetTitleFont(62)
     frame_p.GetYaxis().SetNdivisions(106)
-    frame_p.GetYaxis().SetLabelSize(0.12)
+    frame_p.GetYaxis().SetLabelSize(0.16)
     frame_p.GetYaxis().SetLabelOffset(0.006)
-    frame_p.GetXaxis().SetTitleSize(0.15)
-    frame_p.GetXaxis().SetTitleFont(132)
-    frame_p.GetXaxis().SetTitleOffset(1.00)
+    frame_p.GetXaxis().SetLabelOffset(0.06)
+    frame_p.GetXaxis().SetTitleSize(0.16)
+    frame_p.GetXaxis().SetTitleFont(132) 
+    frame_p.GetXaxis().SetTitleOffset(1.2)
     frame_p.GetXaxis().SetNdivisions(5)
     frame_p.GetYaxis().SetNdivisions(5)
-    frame_p.GetYaxis().SetRangeUser(-5,5)
-    frame_p.GetXaxis().SetLabelSize(0.12)
+    frame_p.GetYaxis().SetRangeUser(-4,4)
+    frame_p.GetXaxis().SetLabelSize(0.16)
     frame_p.GetXaxis().SetLabelFont( 132 )
     frame_p.GetYaxis().SetLabelFont( 132 )
-        
 
-    if mVarTS == "lab1_PIDK" or mVarTS == "Bac_PIDK":
-        frame_p.GetXaxis().SetTitle('#font[132]{Companion L(#pi#kern[0.1]{/#kern[0.1]{K}})}')
-    elif mVarTS == "lab2_MM" or mVarTS == "Ds_MM":
-        frame_p.GetXaxis().SetTitle('#font[132]{m(K^{+}K^{-}#pi^{#pm}, #pi^{+}#pi^{-}#pi^{#pm}, K^{#pm}#pi^{-}#pi^{+}) [MeV/#font[12]{c}^{2}]}')
-    else:
-        frame_p.GetXaxis().SetTitle('#font[132]{m(D^{-}_{s}#pi^{+}) [MeV/#font[12]{c}^{2}]}')
-                                          
-    if dim == 3:
-        if mVarTS == "lab1_PIDK":
-            pullnameTS = TString("FullPdf_Int[lab0_MassFitConsD_M,lab2_MM]_Norm[lab0_MassFitConsD_M,lab1_PIDK,lab2_MM]_Comp[FullPdf]")
-        elif mVarTS == "lab2_MM":
-            pullnameTS = TString("FullPdf_Int[lab0_MassFitConsD_M,lab1_PIDK]_Norm[lab0_MassFitConsD_M,lab1_PIDK,lab2_MM]_Comp[FullPdf]")
-        else:
-            pullnameTS = TString("FullPdf_Int[lab1_PIDK,lab2_MM]_Norm[lab0_MassFitConsD_M,lab1_PIDK,lab2_MM]_Comp[FullPdf]")
-    elif dim == 2:
-        if mVarTS == "lab2_MM":
-            pullnameTS = TString("FullPdf_Int[lab0_MassFitConsD_M]_Norm[lab0_MassFitConsD_M,lab2_MM]_Comp[FullPdf]")
-        elif mVarTS == "lab0_MassFitConsD_M":
-            pullnameTS = TString("FullPdf_Int[lab2_MM]_Norm[lab0_MassFitConsD_M,lab2_MM]_Comp[FullPdf]")
-        elif mVarTS == "Ds_MM":
-            pullnameTS = TString("FullPdf_Int[Bs_MassConsDs_M]_Norm[Bs_MassConsDs_M,Ds_MM]_Comp[FullPdf]")
-        else:
-            pullnameTS = TString("FullPdf_Int[Ds_MM]_Norm[Bs_MassConsDs_M,Ds_MM]_Comp[FullPdf]")
-    elif dim == 1:
-        pullnameTS = TString("FullPdf_Norm[")+mVarTS+TString("]_Comp[FullPdf]")
+
+    labelX = GeneralUtils.GetXLabel(ch,mVarTS,TString(mod), debug) 
+    frame_p.GetXaxis().SetTitle(labelX.Data()) 
 
     pullnameTS = TString("FullPdf")
     pullname2TS = TString("dataSetCut")    
     pullHist  = frame_m.pullHist(pullname2TS.Data(),pullnameTS.Data())
     frame_p.addPlotable(pullHist,"P")
-    pullHist.SetName("pullHist")
     frame_p.Draw()
         
     axisX = pullHist.GetXaxis()
@@ -670,9 +776,9 @@ if __name__ == '__main__' :
     axisY = pullHist.GetYaxis()
     max = axisY.GetXmax()
     min = axisY.GetXmin()
-    axisY.SetLabelSize(0.1)
+    axisY.SetLabelSize(0.12)
     axisY.SetNdivisions(5)
-    axisX.SetLabelSize(0.1)        
+    axisX.SetLabelSize(0.12)        
 
     range = max-min
     zero = max/range
@@ -681,16 +787,12 @@ if __name__ == '__main__' :
     graph = TGraph(2)
     graph.SetMaximum(max)
     graph.SetMinimum(min)
-    graph.SetName("graph1")
-    graph.SetTitle("")
     graph.SetPoint(1,range_dw,0)
     graph.SetPoint(2,range_up,0)
                                
     graph2 = TGraph(2)
     graph2.SetMaximum(max)
     graph2.SetMinimum(min)
-    graph2.SetName("graph2")
-    graph2.SetTitle("")
     graph2.SetPoint(1,range_dw,-3)
     graph2.SetPoint(2,range_up,-3)
     graph2.SetLineColor(kRed)
@@ -698,8 +800,6 @@ if __name__ == '__main__' :
     graph3 = TGraph(2)
     graph3.SetMaximum(max)
     graph3.SetMinimum(min)
-    graph3.SetName("graph3")
-    graph3.SetTitle("")
     graph3.SetPoint(1,range_dw,3)
     graph3.SetPoint(2,range_up,3)
     graph3.SetLineColor(kRed)
@@ -713,13 +813,14 @@ if __name__ == '__main__' :
     #tex.SetTextSize(0.12)
     #pullHist.Draw("ap")
     frame_p.Draw()
-    graph.Draw("L SAME")
-    graph2.Draw("L SAME")
-    graph3.Draw("L SAME")
-
+    frame_p.GetYaxis().SetRangeUser(-4.0,4.0)
+    graph.Draw("same")
+    graph2.Draw("same")
+    graph3.Draw("same")
     #tex.DrawLatex(0.50,0.30,"m(B_{s} #rightarrow D_{s}#pi) [MeV/c^{2}]")
          
     pad2.Update()
+
     canvas.Update()
                                                                                 
     chi2 = frame_m.chiSquare();
@@ -729,30 +830,44 @@ if __name__ == '__main__' :
     print "chi22: %f"%(chi22) 
       
 #    frame_m.Draw()
-    n = TString("TotEPDF_m_")+sam+TString("_paramBox")    
+    n = TString("TotEPDF_m_")+TString(sam)+TString("_paramBox")    
     pt = canvas.FindObject( n.Data() )
     if pt :
         print ''
         pt.SetY1NDC( 0.40 )
     canvas.Modified()
     canvas.Update()
-    if ty == "yes":
-        canName = TString("mass_BsDsPi_ToyMC_")+sam+TString("_")+mod+sufixTS+TString(".pdf")
-        canNamePng = TString("mass_BsDsPi_ToyMC_")+sam+TString("_")+mod+sufixTS+TString(".png")
-        canNameRoot = TString("mass_BsDsPi_ToyMC_")+sam+TString("_")+mod+sufixTS+TString(".root") 
-        canNameC = TString("mass_BsDsPi_ToyMC_")+sam+TString("_")+mod+sufixTS+TString(".C")
-        canNameEps = TString("mass_BsDsPi_ToyMC_")+sam+TString("_")+mod+sufixTS+TString(".eps")
-    else:
-        canName = TString("mass_BsDsPi_")+mVarTS+TString("_")+sam+TString("_")+mod+sufixTS+TString(".pdf")
-        canNamePng = TString("mass_BsDsPi_")+mVarTS+TString("_")+sam+TString("_")+mod+sufixTS+TString(".png")
-        canNameRoot = TString("mass_BsDsPi_")+mVarTS+TString("_")+sam+TString("_")+mod+sufixTS+TString(".root")
-        canNameC = TString("mass_BsDsPi_")+mVarTS+TString("_")+sam+TString("_")+mod+sufixTS+TString(".C")
-        canNameEps = TString("mass_BsDsPi_")+mVarTS+TString("_")+sam+TString("_")+mod+sufixTS+TString(".eps")
+
+    sufixTS = TString(options.sufix)
+    if sufixTS != "":
+        sufixTS = TString("_")+sufixTS
+        
+    if yr != "":
+        yr = TString("_")+yr 
+
+    saveName = TString("mass_")+ch+TString("_")+mVarTS+TString("_")+TString(sam)+TString("_")+mod+yr+sufixTS
+    canName = saveName+TString(".pdf")
+    canNamePng = saveName+TString(".png")
+    canNameRoot = saveName+TString(".root")
+    canNameC = saveName+TString(".C")
+    canNameEps = saveName+TString(".eps")
 
     canvas.SaveAs(canName.Data())
     canvas.SaveAs(canNamePng.Data())
     canvas.SaveAs(canNameEps.Data())
     canvas.SaveAs(canNameC.Data())
     canvas.SaveAs(canNameRoot.Data())
+
+
+    if not leg:
+        canl = TCanvas("canl","canl",1200,1000)
+        canl.cd()
+        legend.Draw()
+        canl.Update()
+        saveName = TString("legend_")+ch
+        canName = saveName+TString(".pdf")
+        canNameC = saveName+TString(".C")
+        canl.SaveAs(canName.Data())
+        canl.SaveAs(canNameC.Data())
 
 #------------------------------------------------------------------------------

@@ -41,7 +41,7 @@ else
         LD_LIBRARY_PATH=`echo $LD_LIBRARY_PATH | tr ':' '\n' | \
             egrep -v "^($User_release_area|$MYSITEROOT/lhcb)" | \
             tr '\n' ':' | sed -e 's/:$//'`
-        export LD_LIBRARY_PATH
+	export LD_LIBRARY_PATH
         exec env -u CMTCONFIG -u B2DXFITTERSROOT "$0" "$@"
     fi
     # automatic set up in standalone build mode
@@ -279,48 +279,38 @@ def readVariables(myconfigfile,label, prefix, workInt, sm, bound, debug):
 
     return workInt
 
-def getSignalPDF(myconfigfile,work,workInt, sm, bound,dim,beautyMass,charmMass,var,decay,debug):
+def getSignalPDF(myconfigfile,work,workInt, sm,merge,bound,dim,beautyMass,charmMass,debug):
    
     t = TString("_") 
 
-    if dim  ==  0:
-            name = TString(var.GetName()) 
-            meanName = TString("Signal_")+name + TString("_mean"); 
-            mn = WS(workInt, RooRealVar( meanName.Data(), meanName.Data(), myconfigfile["BsSignalShape"]["mean"]["All"],
-                                         myconfigfile["BsSignalShape"]["mean"]["All"]-50,    myconfigfile["BsSignalShape"]["mean"]["All"] +50, "MeV/c^{2}"))
+    mn = WS(workInt, RooRealVar( "Signal_BeautyMass_mean", "Signal_BeautyMass_mean", myconfigfile["BsSignalShape"]["mean"]["All"],
+                     myconfigfile["BsSignalShape"]["mean"]["All"]-50,    myconfigfile["BsSignalShape"]["mean"]["All"] +50, "MeV/c^{2}"))
     if dim > 1:
-            mnDs = WS(workInt, RooRealVar( "Signal_CharmMass__mean", "Signal_CharmMass_mean", myconfigfile["DsSignalShape"]["mean"]["All"],
-                                           myconfigfile["DsSignalShape"]["mean"]["All"]-50,  myconfigfile["DsSignalShape"]["mean"]["All"]+50, "MeV/c^{2}"))
+        mnDs = WS(workInt, RooRealVar( "Signal_CharmMass_mean", "Signal_CharmMass_mean", myconfigfile["DsSignalShape"]["mean"]["All"],
+                           myconfigfile["DsSignalShape"]["mean"]["All"]-50,  myconfigfile["DsSignalShape"]["mean"]["All"]+50, "MeV/c^{2}"))
     else:
-            mnDs = NULL
-    
-    if dim == 0: 
-        meanName = TString("Signal_")+TString(var.GetName())
-        workInt = readVariables(myconfigfile,"SignalShape", meanName.Data(), workInt, sm, bound, debug)
-    if dim > 0:
-        workInt = readVariables(myconfigfile,"BsSignalShape", "Signal_BeautyMass", workInt, sm, bound, debug)
+        mnDs = NULL
+        
+    workInt = readVariables(myconfigfile,"BsSignalShape", "Signal_BeautyMass", workInt, sm, bound, debug)
     if dim > 1:
         workInt = readVariables(myconfigfile,"DsSignalShape", "Signal_CharmMass", workInt, sm, bound, debug)
 
 
-    if dim > 0: 
-        if myconfigfile["BsSignalShape"].has_key("type"):
-            typeBs = TString(myconfigfile["BsSignalShape"]["type"])
-        else:
-            typeBs = TString("None")
-                    
-        if myconfigfile["DsSignalShape"].has_key("type"):
-            typeDs = TString(myconfigfile["DsSignalShape"]["type"])
-        else:
-            typeDs = TString("None")
-                    
-        typePIDK = TString("None")
-        types = GeneralUtils.GetList(typeBs, typeDs, typePIDK)    
+    if myconfigfile["BsSignalShape"].has_key("type"):
+        typeBs = TString(myconfigfile["BsSignalShape"]["type"])
     else:
-        if myconfigfile["SignalShape"].has_key("type"):
-            types = TString(myconfigfile["SignalShape"]["type"])
-                    
-            
+        typeBs = TString("None")
+
+    if myconfigfile["DsSignalShape"].has_key("type"):
+        typeDs = TString(myconfigfile["DsSignalShape"]["type"])
+    else:
+        typeDs = TString("None")
+
+    typePIDK = TString("None")
+
+    types = GeneralUtils.GetList(typeBs, typeDs, typePIDK)
+    
+    decay =  TString(myconfigfile["Decay"])
 
     sigEPDF = []
     nSigEvts = []
@@ -339,40 +329,168 @@ def getSignalPDF(myconfigfile,work,workInt, sm, bound,dim,beautyMass,charmMass,v
         name = TString("nSig")+t+sm[i]+t+TString("Evts")
         print nSigEvts[i]
         nSig.append(WS(workInt, RooRealVar( name.Data(), name.Data(), nSigEvts[i], 0.0, nSigEvts[i]+nSigEvts[i]*0.5  )))
-        if dim > 0:
-            sigEPDF.append( WS ( workInt, Bs2Dsh2011TDAnaModels.build_Signal_MDFitter(beautyMass,charmMass, work, workInt,
-                                                                                      sm[i], decay, types, dim, debug)))
+
+        sigEPDF.append( WS ( workInt, Bs2Dsh2011TDAnaModels.build_Signal_MDFitter(beautyMass,charmMass, work, workInt,
+                                                                                  sm[i], decay, types, dim, debug)))
+    
+    return sigEPDF, mn, workInt
+#------------------------------------------------------------------------------
+def getCombinatorialPDF(myconfigfile,work, workInt,sm,bound,dim,beautyMass,charmMass,debug):
+
+    workInt = readVariables(myconfigfile,"BsCombinatorialShape", "CombBkg", workInt, sm, bound, debug)
+    if dim > 1:
+        workInt = readVariables(myconfigfile,"DsCombinatorialShape", "CombBkg", workInt, sm, bound, debug)
+    if dim > 2:
+        workInt = readVariables(myconfigfile,"PIDKCombinatorialShape", "CombBkg", workInt, sm, bound, debug)
+
+    
+    if myconfigfile["BsCombinatorialShape"].has_key("type"):
+        typeBs = TString(myconfigfile["BsCombinatorialShape"]["type"])
+    else:
+        typeBs = TString("None")
+
+    if myconfigfile["DsCombinatorialShape"].has_key("type"):
+        typeDs = TString(myconfigfile["DsCombinatorialShape"]["type"])
+    else:
+        typeDs = TString("None") 
+
+    if myconfigfile["PIDKCombinatorialShape"].has_key("type"):
+        typePIDK = TString(myconfigfile["PIDKCombinatorialShape"]["type"])
+    else:
+        typePIDK = TString("None")
+    
+    types = GeneralUtils.GetList(typeBs, typeDs, typePIDK)
+
+    if myconfigfile["PIDKCombinatorialShape"].has_key("components"):
+        if myconfigfile["PIDKCombinatorialShape"]["components"]["Kaon"] == True:
+            nameKaon = "true"
         else:
-            sigEPDF.append( WS ( workInt, Bs2Dsh2011TDAnaModels.ObtainSignalMassShape(var, work, workInt,
-                                                                                      sm[i], types, True, debug)))
-    return sigEPDF, workInt
+            nameKaon = "false"
+        if myconfigfile["PIDKCombinatorialShape"]["components"]["Pion"] == True:
+            namePion = "true"
+        else:
+            namePion = "false"
+        if myconfigfile["PIDKCombinatorialShape"]["components"]["Proton"] == True:
+            nameProton = "true"
+        else:
+            nameProton = "false"
+    
+    pidkNames = GeneralUtils.GetList(nameKaon, namePion, nameProton)
 
+    combEPDF = []
+    for i in range(0,bound):
+        s = GeneralUtils.CheckPolarity(sm[i],debug)
+        mm = GeneralUtils.GetModeCapital(sm[i],debug)
+        m = GeneralUtils.CheckDMode(sm[i],debug)
+        if m == "":
+            m = GeneralUtils.CheckKKPiMode(sm[i],debug)
+
+        yr = GeneralUtils.CheckDataYear(sm[i])
+
+
+        if myconfigfile["BsCombinatorialShape"].has_key("name"):
+            nameBs = TString(myconfigfile["BsCombinatorialShape"]["name"][yr.Data()][mm.Data()])
+        else:
+            nameBs = TString("None")
+            
+        if myconfigfile["DsCombinatorialShape"].has_key("name"):
+            nameDs = TString(myconfigfile["DsCombinatorialShape"]["name"][yr.Data()][mm.Data()])
+        else:
+            nameDs = TString("None")
+
+        if myconfigfile["PIDKCombinatorialShape"].has_key("name"):
+            namePIDK = TString(myconfigfile["PIDKCombinatorialShape"]["name"][yr.Data()][mm.Data()])
+        else:
+            namePIDK = TString("None")
+
+        pdfNames = GeneralUtils.GetList(nameBs, nameDs, namePIDK)
+
+        EPDF = Bs2Dsh2011TDAnaModels.build_Combinatorial_MDFitter(beautyMass,charmMass, work, workInt, sm[i], types, pdfNames, pidkNames, dim, debug)
+        combEPDF.append(WS(workInt,EPDF))
+
+    return combEPDF, workInt
+
+#------------------------------------------------------------------------------ 
+def getBs2DsXPDFforBeautyMass(myconfigfile,workInt,sm,bound, mn, beautyMass,debug):
+
+    bkgBd2DsX = []
+    width1 = []
+    width2 = []
+    s1 = [] 
+    s2 = [] 
+    if myconfigfile["Bd2Ds(st)XShape"]["type"] == "ShiftedSignal":
+        shift = 5369.600-5279.400
+        nameMean = TString("Signal_mean")
+        #mn = GeneralUtils.GetObservable(workInt, nameMean, debug)
+        #mn = workInt.var(nameMean.Data())
+        meanBdDsK =  RooFormulaVar("Bd2DsX_mean" , "Bd2DsX_mean",'@0-86.8', RooArgList(mn))
+
+    for i in range(0,bound):
+        s = GeneralUtils.CheckPolarity(sm[i],debug)
+        mm = GeneralUtils.GetModeCapital(sm[i],debug)
+        yr = GeneralUtils.CheckDataYear(sm[i],debug)
+        m = GeneralUtils.CheckDMode(sm[i],debug)
+        if m == "":
+            m = GeneralUtils.CheckKKPiMode(sm[i],debug)
+        
+        if myconfigfile["Bd2Ds(st)XShape"]["type"] == "ShiftedSignal":
+            
+            r1 = RooRealVar( "r1", "r1", myconfigfile["Bd2Ds(st)XShape"]["scaleSigma"][yr.Data()]["frac1"] )
+            r2 = RooRealVar( "r2", "r2", myconfigfile["Bd2Ds(st)XShape"]["scaleSigma"][yr.Data()]["frac2"] )
+
+            s1Name =TString( "Signal_BeautyMass_sigma1_")+sm[i] 
+            #s1 = GeneralUtils.GetObservable(workInt, s1Name, debug)
+            s1.append(workInt.var(s1Name.Data()))
+            s2Name = TString("Signal_BeautyMass_sigma2_")+sm[i]
+            #s2 = GeneralUtils.GetObservable(workInt, s2Name, debug)
+            s2.append(workInt.var(s2Name.Data())) 
+
+            
+            name = TString("Bd2DsX_sigma1_") + sm[i]
+            width1.append(RooFormulaVar(name.Data(), name.Data(),'@0*@1', RooArgList(s1[i],r1)))
+            name = TString("Bd2DsX_sigma2_") + sm[i]
+            width2.append(RooFormulaVar(name.Data() , name.Data(),'@0*@1', RooArgList(s2[i],r2)))
+            
+            if myconfigfile["BsSignalShape"]["type"] == "DoubleCrystalBall": 
+                name = TString("Signal_BeautyMass_alpha1_")+sm[i]
+                al1 = workInt.var(name.Data())
+                name = TString("Signal_BeautyMass_alpha2_")+sm[i]
+                al2 = workInt.var(name.Data())
+
+                name = TString("Signal_BeautyMass_n1_")+sm[i]
+                n1 = workInt.var(name.Data())
+                name = TString("Signal_BeautyMass_n2_")+sm[i]
+                n2 = workInt.var(name.Data())
+
+                name = TString("Signal_BeautyMass_frac_")+sm[i]
+                frac = workInt.var(name.Data())
+                bkgBd2DsX.append(WS(workInt,Bs2Dsh2011TDAnaModels.buildBdDsX(beautyMass,meanBdDsK,width1[i],al1,n1, width2[i],al2,n2,                 
+                                                                             frac, sm[i], TString(myconfigfile["Bd2Ds(st)XShape"]["name"]), debug)))            
+                
+    #exit(0)
+    return bkgBd2DsX
+
+def getTotalBkgPDF(myconfigfile, beautyMass, charmMass, workspace, workInt, bound, Bs2DsXPDF, sm, dim, debug ):
+    
+    bkgPDF = [] 
+    cdm = ["NonRes","PhiPi","KstK","KPiPi","PiPiPi","KKPi"]
+    for i in range(0,bound):
+        mm = GeneralUtils.GetModeCapital(sm[i],debug)
+        if ( myconfigfile["Decay"] == "Bs2DsPi"):
+            if ( mm in cdm ):
+                bkgPDF.append(WS(workInt,Bs2Dsh2011TDAnaModels.build_Bs2DsPi_BKG_MDFitter(beautyMass,charmMass, workspace, workInt, Bs2DsXPDF[i], sm[i], dim, debug )))
+        elif ( myconfigfile["Decay"] == "Bs2DsK"):
+            if ( mm in cdm ):
+                bkgPDF.append(WS(workInt,Bs2Dsh2011TDAnaModels.build_Bs2DsK_BKG_MDFitter(beautyMass,charmMass, workspace, workInt, Bs2DsXPDF[i], sm[i], dim, debug )))
+        elif ( myconfigfile["Decay"] == "Bs2DsstPi"):
+            if ( mm in cdm ):
+                bkgPDF.append(WS(workInt,Bs2DssthModels.build_Bs2DsstPi_BKG(beautyMass,charmMass, workspace, workInt, sm[i], dim, debug )))
+    return bkgPDF
+    
 #------------------------------------------------------------------------------
-def getSignalNames(myconfig, mode, yr):
-    decay = myconfig["Decay"]
-    if mode == "all":
-        Dmodes = myconfig["CharmModes"]
-    else:
-        mode = GeneralUtils.GetModeCapital(TString(mode))
-        Dmodes = [mode]
-    if yr == "":
-        year = myconfig["YearOfDataTaking"]
-    else:
-        year = [yr] 
-
-    signalNames = []
-    for y in year:
-        for dmode in Dmodes:
-            name = TString("#Signal ")+decay+TString(" ")+dmode+TString(" ")+y
-            signalNames.append(TString(name))
-
-    return signalNames    
-
-
-#------------------------------------------------------------------------------
-def runMDFitter( debug, sample, mode, decay, 
-                 fileNameAll, workName,
-                 configName, merge, dim, fileDataName, year, varName) :
+def runMDFitter( debug, sample, mode, sweight,  
+                 fileNameAll, fileNameToys, workName,logoutputname,
+                 configName, wider, merge, dim, fileDataName, year, rookeysforcombo ) :
 
     # Get the configuration file
     myconfigfilegrabber = __import__(configName,fromlist=['getconfig']).getconfig
@@ -388,9 +506,6 @@ def runMDFitter( debug, sample, mode, decay,
             print option, " = ", myconfigfile[option]
     print "=========================================================="
                                                                     
-    plotSettings = PlotSettings("plotSettings","plotSettings", "Plot", "pdf", 100, True, False, True)
-    plotSettings.Print("v")
-
 
     RooAbsData.setDefaultStorageType(RooAbsData.Tree)
 
@@ -401,53 +516,44 @@ def runMDFitter( debug, sample, mode, decay,
     MDSettings = mdt.getConfig()
     MDSettings.Print("v")
 
-    mode = TString(mode) 
-    decay = TString(decay) 
     workNameTS = TString(workName)
     workspace = []
-    if fileDataName != "":
+    workspace.append(GeneralUtils.LoadWorkspace(TString(fileNameAll),workNameTS,debug))
+    if fileDataName == "":
         workData = workspace[0]
     else:
-        workData = RooWorkspace("workspace","workspace")
-        signalNames = getSignalNames(myconfigfile, mode, year)
-        for i in range(0,signalNames.__len__()):
-            year = GeneralUtils.CheckDataYear(signalNames[i])
-            workData = MassFitUtils.ObtainSignal(TString(myconfigfile["dataName"]), signalNames[i],
-                                                 MDSettings, decay, False, False, workData, False,
-                                                 MDSettings.GetLum(year,"Down"), MDSettings.GetLum(year,"Up"), plotSettings, debug)
+        workData = GeneralUtils.LoadWorkspace(TString(fileDataName),workNameTS, debug)
 
-            
+    
     configNameTS = TString(configName)
+    if configNameTS.Contains("Toys") == False:
+        toys = False
+    else:
+        toys = True
+        workspaceToys = (GeneralUtils.LoadWorkspace(TString(fileNameToys),workNameTS, debug))
+        workspaceToys.Print("v")
+        workData = workspaceToys
+        
+    observables = getObservables(MDSettings, workData, toys, debug)
 
-    obs = RooArgSet()
-    print dim 
-    dim = int(dim)
-    varName = TString(varName)
-    if dim  == 0 :
-        var = GeneralUtils.GetObservable(workData, varName, debug)
-        obs.add(var) 
-        beautyMass = NULL
-        charmMass = NULL 
-    if dim > 0 :     
-        beautyMass = MDSettings.GetObs(MDSettings.GetMassBVarOutName(), False, False) 
-        obs.add(beautyMass) 
-    if dim > 1 :
-        charmMass =  MDSettings.GetObs(MDSettings.GetMassDVarOutName(), False, False) 
-        obs.add(charmMass)
+    beautyMass = observables.find(MDSettings.GetMassBVarOutName().Data())
+    charmMass = NULL
+    if dim>1:
+        charmMass = observables.find(MDSettings.GetMassDVarOutName().Data())
     if dim>2:
-        pidk = MDSettings.GetObs(MDSettings.GetPIDKVarOutName(), False, False) 
-        obs.add(pidk) 
+        bacPIDK = observables.find(MDSettings.GetPIDKVarOutName().Data())
 
  ###------------------------------------------------------------------------------------------------------------------------------------###
     ###------------------------------------------------------------------------------------------------------------------------------###
  ###------------------------------------------------------------------------------------------------------------------------------------###   
-
+    dim = int(dim)
     t = TString('_')
 
-    modeTS = TString(mode) 
+    decayTS = myconfigfile["Decay"]
+    modeTS = TString(mode)
     sampleTS = TString(sample)
     yearTS = TString(year)
-    datasetTS = TString("dataSetMC_")+decay+t 
+    datasetTS = TString("dataSet")+decayTS+t 
     if merge:
         sampleTS = TString("both") 
     
@@ -457,15 +563,27 @@ def runMDFitter( debug, sample, mode, decay,
     data = []
     nEntries = []
 
-    workData.Print("v") 
-    combData =  GeneralUtils.GetDataSet(workData, obs, sam, datasetTS, sampleTS, modeTS, yearTS, merge, debug )
-    combData.Print("v")
+    ### Obtain data set ###
+    if toys:
+        s = [TString("both")]
+        m = [TString(mode)]
+        sm.append(s[0]+t+m[0])
+        sam.defineType(sm[0].Data())
+        data.append(GeneralUtils.GetDataSet(workspaceToys,datasetTS+sm[0],debug))
+        nEntries.append(data[0].numEntries())
 
-    sm = GeneralUtils.GetSampleModeYear(sampleTS, modeTS, yearTS, merge, debug )
-    s = GeneralUtils.GetSample(sampleTS, debug)
-    m = GeneralUtils.GetMode(modeTS,debug)
-    y = GeneralUtils.GetYear(yearTS,debug)
-    nEntries = combData.numEntries()
+        combData = RooDataSet("combData","combined data",RooArgSet(observables),
+                              RooFit.Index(sam),
+                              RooFit.Import(sm[0].Data(),data[0]))
+    else:
+        combData =  GeneralUtils.GetDataSet(workData, observables, sam, datasetTS, sampleTS, modeTS, yearTS, merge, debug )
+        combData.Print("v")
+
+        sm = GeneralUtils.GetSampleModeYear(sampleTS, modeTS, yearTS, merge, debug )
+        s = GeneralUtils.GetSample(sampleTS, debug)
+        m = GeneralUtils.GetMode(modeTS,debug)
+        y = GeneralUtils.GetYear(yearTS,debug)
+        nEntries = combData.numEntries()
 
     ran = sm.__len__()
     ranmode = m.__len__()*y.__len__()
@@ -483,40 +601,130 @@ def runMDFitter( debug, sample, mode, decay,
     from B2DXFitters.WS import WS as WS
     workInt = RooWorkspace("workInt","workInt")    
 
-    if dim > 0 :
-        lumRatio = []
-        if year == "run1": 
-            yy = ["2011","2012"]
-        else:
-            yy = [year]
-        for y in yy:
-            lum = MDSettings.GetLumRatio(y)
-            name = "lumRatio_"+y
-            lumRatio.append(WS(workInt,RooRealVar(name,name, lum[1])))
+    lumRatio = []
+    if year == "run1":
+        yy = ["2011","2012"]
+    else:
+        yy = [year]
+    for y in yy:
+        lum = MDSettings.GetLumRatio(y)
+        name = "lumRatio_"+y
+        lumRatio.append(WS(workInt,RooRealVar(name,name, lum[1])))
     
-    sigEPDF, workInt = getSignalPDF(myconfigfile,workData,workInt,sm,bound,dim,beautyMass,charmMass,var,decay,debug)
+    sigEPDF, mn, workInt = getSignalPDF(myconfigfile,workspace[0],workInt,sm,merge,bound,dim,beautyMass,charmMass,debug)
+
+    ###------------------------------------------------------------------------------------------------------------------------------------###         
+        ###-------------------------------   Create yields of backgrounds     --------------------------------------###       
+    ###------------------------------------------------------------------------------------------------------------------------------------### 
+    evts = TString("Evts")
+    
+    nYields = []
+    
+    for i in range(0,bound):
+        print i
+        print bound
+        yr = GeneralUtils.CheckDataYear(sm[i])
+        mm = GeneralUtils.GetModeCapital(sm[i],debug)
+        print yr
+        dmode = GeneralUtils.GetModeCapital(sm[i],debug)
+        backgrounds = myconfigfile["Yields"]
+        #print backgrounds
+        
+        for bkg in backgrounds:
+            #print bkg 
+            if bkg != "Signal":
+                nameBkg = TString("n")+bkg+t+sm[i]+t+evts
+                expectedYield = getExpectedYield(bkg,yr,dmode,myconfigfile)
+                nYields.append(RooRealVar(nameBkg.Data() , nameBkg.Data(), expectedYield, 0.0, expectedYield*2.0))
+                setConstantIfSoConfigured(nYields[nYields.__len__()-1], "Yields", bkg, mm, myconfigfile)
+                getattr(workInt,'import')(nYields[nYields.__len__()-1])
+
+    ###------------------------------------------------------------------------------------------------------------------------------------###                                
+        ###-------------------------------   Create the combo PDF in Bs mass, Ds mass, PIDK --------------------------------------###                   
+    ###------------------------------------------------------------------------------------------------------------------------------------###
+
+    combEPDF, workInt = getCombinatorialPDF(myconfigfile,workspace[0],workInt,sm,bound,dim,beautyMass,charmMass,debug)
+
+    ###------------------------------------------------------------------------------------------------------------------------------------###                                                   
+        ###-------------------------------   Create the combo PDF in Bs mass, Ds mass, PIDK --------------------------------------###                                                             
+    ###------------------------------------------------------------------------------------------------------------------------------------### 
+    
+    if myconfigfile.has_key("Bd2Ds(st)XShape"):
+        Bs2DsXPDF = getBs2DsXPDFforBeautyMass(myconfigfile,workInt,sm,bound,mn,beautyMass,debug)
+    else:
+        Bs2DsXPDF = NULL
+        
+    ###------------------------------------------------------------------------------------------------------------------------------------###                                                    
+        ###-------------------------------   Create the total background PDF in Bs mass, Ds mass, PIDK ------------------------------###     
+    ###------------------------------------------------------------------------------------------------------------------------------------###              
+    
+    addVar = [] 
+    if myconfigfile.has_key("AdditionalParameters"):
+        add = myconfigfile["AdditionalParameters"]
+        for a in add:
+            if myconfigfile["AdditionalParameters"][a].has_key("Range"):
+                addVar.append(RooRealVar(a,a,myconfigfile["AdditionalParameters"][a]["CentralValue"], 
+                                         myconfigfile["AdditionalParameters"][a]["Range"][0], 
+                                         myconfigfile["AdditionalParameters"][a]["Range"][1]))
+            else:
+                addVar.append(RooRealVar(a,a,myconfigfile["AdditionalParameters"][a]["CentralValue"]))
+            if myconfigfile["AdditionalParameters"][a].has_key("Fixed"):
+                if myconfigfile["AdditionalParameters"][a]["Fixed"] == True:
+                    addVar[addVar.__len__()-1].setConstant()
+                    if debug:
+                        print "Parameter: %s set to be constant with value %lf"%(addVar[addVar.__len__()-1].GetName(),addVar[addVar.__len__()-1].getValV())
+            getattr(workInt,'import')(addVar[addVar.__len__()-1])
+
+    bkgPDF = getTotalBkgPDF(myconfigfile, beautyMass, charmMass, workspace[0], workInt, bound, Bs2DsXPDF, sm, dim, debug )
+    ###------------------------------------------------------------------------------------------------------------------------------------### 
+          ###---------------------------------   Create the total PDF in Bs mass, Ds mass, PIDK --------------------------------------###  
+    ###------------------------------------------------------------------------------------------------------------------------------------###  
+
+    N_Bkg_Tot = []
+
+    
+    totPDFp = []
+    totPDFa = []
+    for i in range(0,bound):
+        name = TString("TotEPDF_m_")+sm[i]
+        print sigEPDF[i].GetName()
+        #print Bd2DsstKEPDF[i].GetName()
+        print bkgPDF[i].GetName()
+        totPDFp.append(RooAddPdf( name.Data(), 'Model (signal & background) EPDF in mass', RooArgList( sigEPDF[i], combEPDF[i], bkgPDF[i]))) #Bd2DsstKEPDF[i] )))
         
     totPDF = RooSimultaneous("simPdf","simultaneous pdf",sam)
     for i in range(0,bound):
-        print sigEPDF[i].GetName()
+        print totPDFp[i].GetName()
         print sm[i].Data()
-        totPDF.addPdf(sigEPDF[i], sm[i].Data())
+        totPDF.addPdf(totPDFp[i], sm[i].Data())
     totPDF.Print("v")
     
     ###------------------------------------------------------------------------------------------------------------------------------------###    
           ###--------------------------------------------  Instantiate and run the fitter  -------------------------------------------###  
     ###------------------------------------------------------------------------------------------------------------------------------------###
+    #sigEPDF[0].Print("v") 
+    #sigEPDF[0].fitTo(combData) 
 
     fitter = FitMeTool( debug )
       
-    fitter.setObservables( obs )
+    fitter.setObservables( observables )
 
     fitter.setModelPDF( totPDF )
     fitter.setData(combData) 
+
+    #fitter.setModelPDF( bkgPDF[0] ) #totPDF )
+
+    plot_init   = options.initvars         and ( options.wsname != None )
+    plot_fitted = ( not options.initvars ) and ( options.wsname != None )
+    
+    if plot_init :
+        fitter.saveModelPDF( options.wsname )
+        fitter.saveData ( options.wsname )
    
     import sys
     import random
-    
+    #sys.stdout = open(logoutputname, 'w')
+    #exit(0) 
     fitter.fit(True, RooFit.Extended()) #,  RooFit.Verbose(False),  RooFit.ExternalConstraints(constList)) #, RooFit.InitialHesse(True))
     result = fitter.getFitResult()
     result.Print("v")
@@ -527,13 +735,13 @@ def runMDFitter( debug, sample, mode, decay,
     elif dim == 2:
         fitter.printYieldsInRange( '*Evts', MDSettings.GetMassBVarOutName().Data() , 5320, 5420, "SignalRegion",
                                    charmMass.GetName(), charmMass.getMin(),  charmMass.getMax() )
-    elif dim == 3:
+    else:
         fitter.printYieldsInRange( '*Evts', MDSettings.GetMassBVarOutName().Data() , 5320, 5420, "SignalRegion",
                                    charmMass.GetName(), charmMass.getMin(), charmMass.getMax(),
                                    bacPIDK.GetName(), bacPIDK.getMin(), bacPIDK.getMax())
-    
-    fitter.saveModelPDF( options.wsname )
-    fitter.saveData ( options.wsname )
+    if plot_fitted :
+        fitter.saveModelPDF( options.wsname )
+        fitter.saveData ( options.wsname )
 
     del fitter
 
@@ -553,8 +761,26 @@ parser.add_option( '-d', '--debug',
 parser.add_option( '-s', '--save',
                    dest = 'wsname',
                    metavar = 'WSNAME',
-                   default = 'WS_MassFit_Result.root', 
+                   default = 'WS_Mass_DsstK.root', 
                    help = 'save the model PDF and generated dataset to file "WS_WSNAME.root"'
+                   )
+
+parser.add_option( '--sweightoutputname',
+                   dest = 'sweightoutputname',
+                   default = '/afs/cern.ch/work/g/gligorov/public/Bs2DsKToys/sWeightToys/DsPi_Toys_Full_sWeights_ForTimeFit_0.root', 
+                   help = 'save the model PDF and generated dataset to file "WS_WSNAME.root"'
+                   )   
+
+parser.add_option( '--logoutputname',
+                   dest = 'logoutputname',
+                   default = '/afs/cern.ch/work/g/gligorov/public/Bs2DsKToys/sWeightToys/DsPi_Toys_Full_MassFitResult_0.log'
+                   )   
+
+parser.add_option( '-i', '--initial-vars',
+                   dest = 'initvars',
+                   action = 'store_true',
+                   default = False,
+                   help = 'save the model PDF parameters before the fit (default: after the fit)'
                    )
 parser.add_option( '-m', '--sample',
                    dest = 'sample',
@@ -562,17 +788,17 @@ parser.add_option( '-m', '--sample',
                    default = 'down',
                    help = 'Sample: choose up or down '
                    )
-parser.add_option( '--mode','-o',
+parser.add_option( '-o', '--mode',
                    dest = 'mode',
                    metavar = 'MODE',
                    default = 'kkpi',
                    help = 'Mode: choose all, kkpi, kpipi or pipipi'
                    )
-parser.add_option( '--decay',
-                   dest = 'decay',
-                   metavar = 'MODE',
-                   default = 'Bs2DsK',
-                   help = 'decay'
+parser.add_option( '-w', '--sweight',
+                   dest = 'sweight',
+                   action = 'store_true',
+                   default = False,
+                   help = 'create and save sWeights'
                    )
 
 parser.add_option( '--fileName',
@@ -581,9 +807,9 @@ parser.add_option( '--fileName',
                    help = 'name of the inputfile'
                    )
 
-parser.add_option( '--variable','--var','--varName','-v',
-                   dest = 'varName',
-                   default = 'BeautyMass',
+parser.add_option( '--fileNameToys',
+                   dest = 'fileNameToys',
+                   default = '../data/workspace/work_dsk.root',
                    help = 'name of the inputfile'
                    )
 parser.add_option( '--workName',
@@ -594,6 +820,12 @@ parser.add_option( '--workName',
 parser.add_option( '--configName',
                    dest = 'configName',
                    default = 'Bs2DsstKConfigForNominalMassFit')
+parser.add_option( '--wider',
+                   dest = 'wider',
+                   action = 'store_true',
+                   default = False,
+                   help = 'create and save sWeights'
+                   )
 parser.add_option( '--merge',
                    dest = 'merge',
                    action = 'store_true',
@@ -602,7 +834,7 @@ parser.add_option( '--merge',
                    )
 parser.add_option( '--dim',
                    dest = 'dim',
-                   default = 0)
+                   default = 1)
 
 parser.add_option( '--fileData',
                    dest = 'fileData',
@@ -612,6 +844,13 @@ parser.add_option( '--fileData',
 parser.add_option( '--year',
                    dest = 'year',
                    default = "")
+
+parser.add_option( '--rookeysforcombo',
+                   dest = 'rookeysforcombo',
+                   action = 'store_true',
+                   default = False,
+                   help = 'use RooKeysPdf for combinatorial shape'
+                   )
 
 # -----------------------------------------------------------------------------
 
@@ -626,9 +865,9 @@ if __name__ == '__main__' :
     import sys
     sys.path.append("../data/")
         
-    runMDFitter( options.debug,  options.sample, options.mode, options.decay,
-                 options.fileNameAll, options.workName,
-                 options.configName,  
-                 options.merge, options.dim, options.fileData, options.year, options.varName)
+    runMDFitter( options.debug,  options.sample, options.mode, options.sweight, 
+                 options.fileNameAll, options.fileNameToys, options.workName,
+                 options.logoutputname, options.configName, options.wider, 
+                 options.merge, options.dim, options.fileData, options.year, options.rookeysforcombo)
 
 # -----------------------------------------------------------------------------

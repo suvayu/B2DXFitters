@@ -406,6 +406,31 @@ namespace GeneralUtils {
 
   }
 
+  Int_t CheckNumberOfBackgrounds(TString& filesDir, TString& sig, bool debug)
+  {
+    std::string line;
+    std::ifstream myfile(filesDir.Data());
+    Int_t count=0; 
+
+    if ( debug == true) std::cout<<"[INFO] ==> GeneralUtils::CheckNumberOfBackgrounds(...)"<<std::endl;
+
+    if (myfile.is_open())
+      {
+	while(myfile.good())
+          {
+	    getline (myfile,line);
+            if(line == sig.Data() ){
+              while( line != "###" ){
+		getline (myfile,line);
+		if ( line.find("}") < line.size() ) { count++; }
+              }
+            }
+          }
+      }
+    else { if ( debug == true) std::cout<<"Unable to open a file: "<<filesDir<<std::endl;}
+    myfile.close(); 
+    return count; 
+  }
   //===========================================================================
   // Read tree from TFile. The convention which should be in the .txt file:
   // line 1: path to directory for example: /afs/cern.ch/work/g/gligorov/public/Bs2DsKFitTuples/
@@ -603,9 +628,8 @@ namespace GeneralUtils {
 		    bool debug )
   {
     if ( debug == true) std::cout<<"[INFO] ==> GeneralUtils::SaveTemplate(...). Saving template for background to pdf file"<<std::endl;
-
+  
     if (plotSet == NULL) { plotSet = new PlotSettings("plotSet","plotSet"); }
-
     TCanvas*  can=NULL;
     RooPlot* frame=NULL;
     TString name,samplemode;
@@ -617,7 +641,8 @@ namespace GeneralUtils {
     frame = (RooPlot*)obs->frame();
     TString Title = ""; 
     TString varName = obs->GetName();
- 
+    if ( varName.Contains("[0]") == true ) { varName.ReplaceAll("[0]",""); } 
+      
     frame->SetLabelFont(132);
     frame->SetTitleFont(132);
     frame->GetXaxis()->SetLabelFont( 132 );
@@ -775,7 +800,10 @@ namespace GeneralUtils {
   RooKeysPdf* CreatePDFMC(RooDataSet* dataSetMC,
 			  RooRealVar* massMC, 
 			  TString &sample,
-			  TString &mode, Bool_t mistag, bool debug)
+			  TString &mode,
+			  Double_t rho,
+			  TString mirror, 
+			  bool debug)
   {
     if ( debug == true) std::cout<<"[INFO] ==> GeneralUtils::CreatePDFMC(...). Create RooKeysPdf for MC"<<std::endl;
 
@@ -784,22 +812,55 @@ namespace GeneralUtils {
     name3="Pdf_m_"+sample;
     name2= mode+name3;
     name="PhysBkg"+name2;
-    if (mode.Contains("Lb") == true || mistag == true || mode.Contains("Bs2DsPi")==true || mode.Contains("BsDsPi") == true)
+    
+    if (mirror == "Both")
       {
-	pdfMC = new RooKeysPdf(name.Data(),name.Data(),*massMC,*dataSetMC,RooKeysPdf::MirrorBoth,1.5);
+	pdfMC = new RooKeysPdf(name.Data(),name.Data(),*massMC,*dataSetMC,RooKeysPdf::MirrorBoth,rho);
       }
-    else 
+    else if ( mirror == "Left" )
       {
-	pdfMC = new RooKeysPdf(name.Data(),name.Data(),*massMC,*dataSetMC,RooKeysPdf::MirrorBoth,1.5);
+	pdfMC = new RooKeysPdf(name.Data(),name.Data(),*massMC,*dataSetMC,RooKeysPdf::MirrorLeft,rho);
       }
-//    else
-//      {
-//	pdfMC = new RooKeysPdf(name.Data(),name.Data(),*massMC,*dataSetMC,RooKeysPdf::MirrorBoth,3.0);
-//      }
+    else if ( mirror == "Right" )
+      {
+        pdfMC = new RooKeysPdf(name.Data(),name.Data(),*massMC,*dataSetMC,RooKeysPdf::MirrorRight,rho);
+      }
+    else if ( mirror == "No" )
+      {
+        pdfMC = new RooKeysPdf(name.Data(),name.Data(),*massMC,*dataSetMC,RooKeysPdf::NoMirror,rho);
+      }
+    else if (mirror == "AsymLeftRight")
+      {
+        pdfMC = new RooKeysPdf(name.Data(),name.Data(),*massMC,*dataSetMC,RooKeysPdf::MirrorAsymLeftRight,rho);
+      }
+    else if ( mirror == "AsymLeft" )
+      {
+        pdfMC = new RooKeysPdf(name.Data(),name.Data(),*massMC,*dataSetMC,RooKeysPdf::MirrorAsymLeft,rho);
+      }
+    else if ( mirror == "AsymRight" )
+      {
+        pdfMC = new RooKeysPdf(name.Data(),name.Data(),*massMC,*dataSetMC,RooKeysPdf::MirrorAsymRight,rho);
+      }
+    else if ( mirror == "LeftAsymRigh" )
+      {
+        pdfMC = new RooKeysPdf(name.Data(),name.Data(),*massMC,*dataSetMC,RooKeysPdf::MirrorLeftAsymRight,rho);
+      }
+
+
     if( pdfMC != NULL ) { if ( debug == true) std::cout<<"Create RooKeysPdf for PartRec: "<<pdfMC->GetName()<<std::endl; return pdfMC; }
     else { if ( debug == true) std::cout<<"Cannot create pdf"<<std::endl; return NULL;}
     
   }
+  RooKeysPdf* CreatePDFMC(RooDataSet* dataSetMC,
+                          RooRealVar* massMC,
+                          TString &sample,
+                          TString &mode,
+                          bool debug)
+  {
+    RooKeysPdf* pdf = CreatePDFMC(dataSetMC,massMC, sample, mode, 1.5, "Both", debug);
+    return pdf; 
+  }
+
 
   //===========================================================================
   // Create RooKeysPdf for dataSetMC with observable massMC.
@@ -1037,7 +1098,7 @@ namespace GeneralUtils {
 		if( i%2 == 0 ) { nEntries_up += nEntries[i]; }
 		else { nEntries_dw +=  nEntries[i]; }
 	      }
-	    std::cout<<"Magnet up: "<<nEntries_up<<" Magnet down: "<<nEntries_dw<<" Both polarities: "<<nEntries_up+nEntries_dw<<std::endl;
+	    if ( debug == true ) { std::cout<<"Magnet up: "<<nEntries_up<<" Magnet down: "<<nEntries_dw<<" Both polarities: "<<nEntries_up+nEntries_dw<<std::endl;}
 	  }
 	else
 	  {
@@ -1045,7 +1106,7 @@ namespace GeneralUtils {
               {
 		nEntries_up += nEntries[i];
               }
-	    std::cout<<"Magnet "<<sample<<": "<<nEntries_up<<std::endl;
+	    if ( debug == true ) {  std::cout<<"Magnet "<<sample<<": "<<nEntries_up<<std::endl;}
 	  }
       }
     if( merge == true )
@@ -1171,6 +1232,138 @@ namespace GeneralUtils {
     
   }
   
+  RooDataSet* GetDataSet(RooWorkspace* work, RooArgSet* obs, RooCategory& sam,
+                         TString &dat, TString & sample, TString& mode, TString& year,
+                         bool merge, bool debug )
+  {
+
+    if ( debug == true ) {
+	std::cout<<"[INFO] GetDataSet(...)"<<std::endl; 
+	if (debug == true ){ std::cout<<"[INFO] Sample: "<<sample<<", Mode: "<<mode<<", Year: "<<year<<std::endl; }
+        if ( merge == true && sample != "both") { std::cout<<"[ERROR] Option merge only possible for sample = both"<<std::endl; return NULL; }
+    }
+    std::vector <RooDataSet*> data;
+    std::vector <TString> sm;
+    std::vector <Int_t> nEntries;
+    RooDataSet* combData = NULL;
+    TString dataName = "combData";
+
+
+    if ( year == "" )
+      {
+        combData = GetDataSet(work, obs, sam, dat, sample, mode, merge, debug );
+      }
+    else
+      {
+
+	std::vector <TString> s;
+	std::vector <TString> m;
+	std::vector <TString> y;
+
+        s = GetSample(sample,debug);
+        m = GetMode(mode, debug );
+        y = GetYear(year, debug );
+        sm = GetSampleModeYear(sample, mode, year, false, debug);
+
+
+        for (unsigned int i=0; i<sm.size(); i++ )
+          {
+            TString name = dat+sm[i];
+            data.push_back(GetDataSet(work,name,debug));
+            nEntries.push_back(data[i]->numEntries());
+          }
+	if( merge == true )
+          {
+
+	    std::vector <RooDataSet*> dataOut;
+
+            for (unsigned int i=0; i<sm.size(); i++ )
+              {
+                TString y3 = sm[i];
+                TString y1 = sm[i];
+                TString y2 = y1.ReplaceAll("up","down");
+                if ( y3.Contains("down") == false )
+                  {
+                    for (unsigned int j=0; j<sm.size(); j++ )
+                      {
+                        if ( sm[j] == y2 )
+                          {
+
+                            data[i]->append(*data[j]);
+                            nEntries[i] += nEntries[j];
+			    if ( debug == true ) { std::cout<<"Adding "<<data[i]->GetName()<<" "<<data[j]->GetName()<<" "<<nEntries[i]<<std::endl; }
+                            TString nD = data[i]->GetName();
+                            nD.ReplaceAll("up","both");
+                            data[i]->SetName(nD.Data());
+			    if ( debug == true ) { std::cout<<"New data name: "<<data[i]->GetName()<<std::endl;}
+			    dataOut.push_back(data[i]); 
+                          }
+                      }
+                  }
+              }
+
+            sm = GetSampleModeYear(sample, mode, year, true, debug);
+            for (unsigned int i=0; i<m.size()*y.size(); i++ )
+              {
+                sam.defineType(sm[i].Data());
+              }
+
+            combData = new RooDataSet(dataName.Data(),dataName.Data(),*obs, RooFit::Index(sam), RooFit::Import(sm[0].Data(),*dataOut[0]));
+	    if ( debug == true )
+	      {
+		std::cout<<"Adding: "<<dataOut[0]->GetName()<<" to combData"<<std::endl;
+	      }
+
+
+	    std::vector <RooDataSet*> combDataTmp;
+	    
+            for( unsigned int i=1; i<sm.size(); i++ )
+              {
+		//std::cout<<"sm: "<<sm[i]<<std::endl; 
+		TString dataNameComb2 = Form("combData%d",i);
+                TString nD = dataOut[i]->GetName();
+		if ( debug == true ) 
+		  {
+		    std::cout<<"Adding: "<<nD<<" to combData"<<std::endl;
+		  }
+		combDataTmp.push_back(new RooDataSet(dataNameComb2.Data(),dataNameComb2.Data(),*obs, RooFit::Index(sam), RooFit::Import(sm[i].Data(),*dataOut[i])));
+		combData->append(*combDataTmp[i-1]);
+		    
+              }
+	  }
+        else
+          {
+            for (unsigned int i=0; i<sm.size(); i++ )
+              {
+                sam.defineType(sm[i].Data());
+		std::cout<<"[INFO] Sample mode year: "<<sm[i]<<std::endl; 
+              }
+
+            combData = new RooDataSet(dataName.Data(),dataName.Data(),*obs, RooFit::Index(sam), RooFit::Import(sm[0].Data(),*data[0]));
+	    if ( debug == true )
+              {
+		std::cout<<"Adding: "<<data[0]->GetName()<<" to combData"<<std::endl;
+              }
+
+	    std::vector <RooDataSet*> combDataTmp;
+            for( unsigned int i=1; i<sm.size(); i++ )
+              {
+		std::cout<<"smp: "<<sm[i]<<" i:"<<i<<" size: "<<sm.size()<<std::endl; 
+                TString dataNameComb2 = Form("combData%d",i);
+                combDataTmp.push_back(new RooDataSet(dataNameComb2.Data(),dataNameComb2.Data(),*obs, RooFit::Index(sam), RooFit::Import(sm[i].Data(),*data[i])));
+		if ( debug == true )
+                  {
+		    std::cout<<"Adding: "<<data[i]->GetName()<<" to combData"<<std::endl;
+                  }
+		combData->append(*combDataTmp[i-1]);
+              }
+          }
+
+      }
+    return combData;
+  }
+
+  
   std::vector <TString> GetSampleMode(TString& sample, TString& mode, bool merge, bool debug )
   {
     std::vector <TString> sm;
@@ -1202,6 +1395,74 @@ namespace GeneralUtils {
     
     return sm; 
     
+  }
+
+  std::vector <TString> GetSampleModeYear(TString& sample, TString& mode, TString& year, bool merge, bool debug )
+  {
+    std::vector <TString> smy;
+    std::vector <TString> s;
+    std::vector <TString> m;
+    std::vector <TString> y;
+
+    if (debug == true ){ std::cout<<"[INFO] Sample "<<sample<<". Mode "<<mode<<" Year "<<year<<std::endl; }
+    if ( merge == true && sample != "both") { std::cout<<"[ERROR] Option merge only possible for sample = both"<<std::endl; return smy; }
+
+    s =  GetSample(sample,debug);
+    m =  GetMode(mode, debug );
+    y =  GetYear(year, debug );
+
+    if ( y[0] == "")
+      {
+        smy = GetSampleMode(sample, mode, merge, debug);
+      }
+    else
+      {
+	if ( merge == false )
+	  for (unsigned int i=0; i<m.size(); i++ )
+	    {
+	      for(unsigned int j = 0; j<s.size(); j++ )
+		{
+		  for ( unsigned int k = 0; k<y.size(); k++ )
+		    {
+		      smy.push_back(s[j]+"_"+m[i]+"_"+y[k]);
+		      if ( debug == true ) { std::cout<<"[INFO] Sample mode year: "<<smy[smy.size()-1]<<std::endl;}
+		    }
+		}
+	    }
+	else  
+          {
+            TString s1 = "both";
+	    /*
+	    for (  unsigned int k = 0; k<smy.size(); k++ )
+	      {
+		if ( smy[k].Contains("down") == true ) 
+		  {
+		    smy[k].ReplaceAll("down","both"); 
+		  }
+		  }*/
+	    
+            for (unsigned int i=0; i<m.size(); i++ )
+              {
+		for( unsigned int k = 0; k<y.size(); k++ )
+                  {
+                    smy.push_back(s1+"_"+m[i]+"_"+y[k]);
+		    //smy.push_back(s[j]+"_"+m[i]+"_"+y[k]);
+		    if ( debug == true ) { std::cout<<"[INFO] Sample mode year: "<<smy[smy.size()-1]<<std::endl;}
+                  }
+	      }
+          }
+      }
+    return smy;
+
+  }
+
+  std::vector <TString>  GetYear(TString& year, bool debug )
+  {
+    std::vector <TString> y;
+    if ( year == "run1")  { y.push_back("2011"); y.push_back("2012"); }
+    else { y.push_back(year); }
+
+    return y;
   }
 
   std::vector <TString>  GetSample(TString& sample, bool debug )
@@ -1333,28 +1594,16 @@ namespace GeneralUtils {
 
   TString CheckPolarity(std::string& check, bool debug)
   {
-    TString polarity;
-    if (check.find("MD") != std::string::npos  || check.find("down") != std::string::npos || check.find("dw") != std::string::npos ||\
-	check.find("Down") != std::string::npos || check.find("md") != std::string::npos)
-      { 
-	polarity = "down"; 
-      }
-    else if ( check.find("MU") != std::string::npos || check.find("up") != std::string::npos || check.find("Up") != std::string::npos\
-	      || check.find("mu") != std::string::npos )
-      { 
-	polarity = "up"; 
-      }
-    else 
-      { 
-	polarity = "both"; 
-      }
-    if ( debug == true) std::cout<<"[INFO] Sample: "<<polarity<<std::endl;
-    return polarity;
+    TString polarity ="";
+    TString Check = check;
+    polarity = CheckPolarity(Check, debug);
+    return polarity; 
+    
   }  
 
   TString CheckPolarity(TString& check, bool debug)
   {
-    TString polarity;
+    TString polarity = "";
     if (check.Contains("MD") == true  || check.Contains("down") == true || check.Contains("dw") == true || check.Contains("Down") == true || 
 	check.Contains("md") == true)
       {
@@ -1378,30 +1627,10 @@ namespace GeneralUtils {
   //==========================================================================
   TString CheckDMode(std::string& check, bool debug)
   {
-    TString dmode;
-    if (check.find("KKpi") != std::string::npos  || check.find("KKPi") != std::string::npos || check.find("kkpi") != std::string::npos )
-      {
-        dmode = "kkpi";
-      }
-    else if ( check.find("Kpipi") != std::string::npos || check.find("KPiPi") != std::string::npos || check.find("kpipi") != std::string::npos)
-      {
-        dmode = "kpipi";
-      }
-    else if ( check.find("pipipi") != std::string::npos || check.find("PiPiPi") != std::string::npos )
-      {
-        dmode = "pipipi";
-      }
-    else if ( check.find("hhhpi0") != std::string::npos || check.find("HHHPi0") != std::string::npos ||
-              check.find("hhhPi0") != std::string::npos || check.find("HHHpi0") != std::string::npos)
-      {
-        dmode = "hhhpi0";
-      }
-    else 
-      {
-        dmode = "";
-      }
-    if ( debug == true) std::cout<<"[INFO] Sample: "<<dmode<<std::endl;
-    return dmode;
+    TString dmode = "";
+    TString Check = check;
+    dmode = CheckDMode(Check, debug);
+    return dmode; 
   }
 
   TString CheckDMode(TString& check, bool debug)
@@ -1432,34 +1661,15 @@ namespace GeneralUtils {
     return dmode;
   }
 
+  //==========================================================================                                                                                                          
+  // Check KKPi final state (nonres,phipi,kstk) from check                                                                                    
+  //==========================================================================
+
   TString CheckKKPiMode(std::string& check, bool debug)
   {
-    TString dmode;
-    if (check.find("nonRes") != std::string::npos  || check.find("NonRes") != std::string::npos 
-	|| check.find("nonres") != std::string::npos || check.find("nonRes") != std::string::npos )
-      {
-        dmode = "nonres";
-      }
-    else if ( check.find("PhiPi") != std::string::npos || check.find("phipi") != std::string::npos 
-	      || check.find("Phipi") != std::string::npos || check.find("phiPi") != std::string::npos)
-      {
-        dmode = "phipi";
-      }
-    else if ( check.find("KstK") != std::string::npos || check.find("kstk") != std::string::npos ||
-	      check.find("Kstk") != std::string::npos || check.find("kstK") != std::string::npos)
-      {
-        dmode = "kstk";
-      }
-    else if ( check.find("hhhpi0") != std::string::npos || check.find("HHHPi0") != std::string::npos ||
-              check.find("hhhPi0") != std::string::npos || check.find("HHHpi0") != std::string::npos)
-      {
-	dmode = "hhhpi0";
-      }
-    else
-      {
-        dmode = "";
-      }
-    if ( debug == true) std::cout<<"[INFO] Sample: "<<dmode<<std::endl;
+    TString dmode = "";
+    TString Check = check;
+    dmode = CheckKKPiMode(Check, debug);
     return dmode;
   }
 
@@ -1484,6 +1694,10 @@ namespace GeneralUtils {
       {
 	kkpimode ="hhhpi0";
       }
+    else if ( check.Contains("kkpi") == true || check.Contains("KKPi") == true )
+      {
+	kkpimode = "kkpi"; 
+      }
     else
       {
 	kkpimode = "";
@@ -1491,6 +1705,10 @@ namespace GeneralUtils {
     if ( debug == true) std::cout<<"[INFO] Sample: "<<kkpimode<<std::endl;
     return kkpimode;
   }
+
+  //==========================================================================                                                                                              
+  // Check MC background decay                                                                                                                      
+  //==========================================================================                      
 
   std::string CheckMode(std::string& check, bool debug )
   {
@@ -1541,7 +1759,11 @@ namespace GeneralUtils {
       }
     return mode; 
   }
-  
+
+  //==========================================================================                                                                                                    
+  // Get decay in Latex                                                                                                                                                            
+  //==========================================================================          
+
   TString GetLabel(TString& mode, bool bs, bool ds, bool pol, bool debug)
   {
     TString Bs;
@@ -1616,7 +1838,29 @@ namespace GeneralUtils {
     return tex;
   }
 
-  
+  //==========================================================================                                                                                                             
+  // Get Ds mode in capital letters                                                                                                                                                        
+  //==========================================================================                                                                                                            
+  TString GetModeCapital(TString& check, bool debug)
+  {
+    TString cap = "";
+    if ( check.Contains("kkpi") == true ) { cap = "KKPi"; }
+    else if (check.Contains("kpipi") == true ) { cap = "KPiPi"; }
+    else if (check.Contains("pipipi") == true ) { cap = "PiPiPi"; }
+    else if (check.Contains("nonres") == true ) { cap = "NonRes"; }
+    else if (check.Contains("phipi") == true) { cap = "PhiPi"; }
+    else if (check.Contains("kstk") == true) { cap = "KstK"; }
+    else if (check.Contains("hhhpi0") == true) { cap = "HHHPi0"; }
+    
+    return cap; 
+
+  }
+
+
+  //=========================================================================
+  // Check BDTG bin                                                                                                                                                           
+  //=========================================================================
+
   TString CheckBDTGBin(TString& check, bool debug)
   {
     TString BDTGbin;
@@ -1648,7 +1892,10 @@ namespace GeneralUtils {
     return BDTGbin;
   }
 
-  
+  //========================================================================== 
+  // Check x axis description for observables   
+  //==========================================================================   
+
   TString CheckObservable(TString& check, bool debug)
   {
     TString label = "";
@@ -1682,14 +1929,18 @@ namespace GeneralUtils {
     return label;
   }
 
+  //==========================================================================    
+  // Check bachelor particle
+  //==========================================================================    
+            
   TString CheckBachelor(TString check, bool debug)
   {
     TString bachelor = "";
     
     if( check.Contains("CombPi") == true ) { TString s1 = "CombPi"; TString s2 = ""; check.ReplaceAll(s1,s2); }
     if( check.Contains("CombK") == true ) { TString s1 = "CombK"; TString s2 = ""; check.ReplaceAll(s1,s2); }
-    if( check.Contains("MC BsDsK") == true ) { TString s1 = "BsDsK"; TString s2 = ""; check.ReplaceAll(s1,s2); }
-    if( check.Contains("MC BsDsPi") == true ) { TString s1 = "BsDsPi"; TString s2 = ""; check.ReplaceAll(s1,s2); }
+    if( check.Contains("MC Bs2DsK") == true ) { TString s1 = "Bs2DsK"; TString s2 = ""; check.ReplaceAll(s1,s2); }
+    if( check.Contains("MC Bs2DsPi") == true ) { TString s1 = "Bs2DsPi"; TString s2 = ""; check.ReplaceAll(s1,s2); }
  
     if( check.Contains("pion") == true || check.Contains("Pion") == true ) 
 	
@@ -1709,6 +1960,163 @@ namespace GeneralUtils {
     if ( debug == true) std::cout<<"[INFO] Sample: "<<bachelor<<std::endl;
 
     return bachelor; 
+  }
+
+  //========================================================================== 
+  // Check Stripping number                    
+  //==========================================================================                
+ 
+  TString CheckStripping(TString& check, bool debug)
+  {
+    TString str="";
+    if( check.Contains("Str17") == true || check.Contains("str17") == true || check.Contains("Stripping17") == true || check.Contains("stripping17") == true )
+      {
+	str = "str17"; 
+      }
+    else if ( check.Contains("Str20r1") == true|| check.Contains("str20r1") == true || check.Contains("Stripping20r1") == true || check.Contains("stripping20r1") ==true )
+      {
+	str = "str20r1";
+      }
+    else if ( check.Contains("Str20") == true|| check.Contains("str20") == true || check.Contains("Stripping20") == true || check.Contains("stripping20") ==true )
+      {
+	str = "str20";
+      }
+    else if ( check.Contains("Str21") == true|| check.Contains("str21") == true || check.Contains("Stripping21") == true || check.Contains("stripping21") ==true )
+      {
+	str = "str21";
+      }
+    if (debug == true ){ std::cout<<"[INFO] Check Stripping: "<<str<<std::endl; } 
+
+    return str; 
+  }
+
+  TString CheckStripping(std::string& check, bool debug)
+  {
+    std::string str = "";
+    TString Check = check;
+    TString Str = "";
+    Str = CheckStripping(Check, debug);
+    str = Str;
+    return str; 
+  }
+
+  //==========================================================================    
+  // Check data year                                                                 
+  //==========================================================================                
+ 
+  TString CheckDataYear(TString& check, bool debug)
+  {
+    TString year = "";
+    if (check.Contains("2011") == true)
+      { year ="2011"; }
+    else if (check.Contains("2012") == true )
+      { year = "2012";}
+    return year;
+  }
+
+  TString CheckDataYear(std::string& check, bool debug)
+  {
+    std::string year = "";
+    TString Check = check;
+    TString Year = CheckDataYear(Check, debug);
+    year = Year;
+    return year;
+  }
+
+
+  //==========================================================================                                                                                                                      
+  // Get X label for plotting                                                                                                                                                                       
+  //==========================================================================                                                                                                                      
+  TString GetXLabel(TString decay, TString var, TString mode, bool debug )
+  {
+    TString label = ""; 
+    
+    TString happystar = "#lower[-0.95]{#scale[0.5]{(}}#lower[-0.8]{#scale[0.5]{*}}#lower[-0.95]{#scale[0.5]{)}}";
+    TString happystar2 = "#lower[-0.65]{#scale[0.6]{*}}";
+    TString happypm   = "#lower[-0.95]{#scale[0.6]{#pm}}";
+    TString happymp   = "#lower[-0.95]{#scale[0.6]{#mp}}";
+    TString happystarpm = "#lower[-0.95]{#scale[0.6]{*#pm}}";
+    TString happyplus = "#lower[-0.95]{#scale[0.6]{+}}";
+    TString happymin  = "#lower[-1.15]{#scale[0.7]{-}}";
+    TString happy0   = "#lower[-0.85]{#scale[0.6]{0}}";
+
+    if (var.Contains("PIDK") == true)
+      {
+	if ( decay.Contains("Pi") == true )
+	  {
+            label = "#font[132]{Companion L(#pi#kern[0.1]{/#kern[0.1]{K}})}";
+	  }
+	else 
+	  {
+	    label = "#font[132]{Companion ln(L(K#kern[0.1]{/#kern[0.1]{#pi}}))}";
+	  }
+      }
+    else if ( var.Contains("lab2") == true  ||  var.Contains("Ds_MM") == true  ||  var.Contains("CharmMass") == true)
+      {
+	if ( mode == "all") 
+	  {
+            label = "#font[132]{m(K^{+}K^{-}#pi^{#pm}, #pi^{+}#pi^{-}#pi^{#pm}, K^{#pm}#pi^{-}#pi^{+}) [MeV/#font[12]{c}^{2}]}";
+	  }
+	else if (  mode == "nonres" || mode == "kstk" || mode== "phipi" || mode == "kkpi")
+	  {
+	    label = "#font[132]{m(K^{+}K^{-}#pi^{#pm}) [MeV/#font[12]{c}^{2}]}";
+	  }
+	else if (mode == "kpipi") 
+	  {
+            label = "#font[132]{m(K^{#pm}#pi^{-}#pi^{+}) [MeV/#font[12]{c}^{2}]}";
+	  }
+	else if (  mode == "pipipi") 
+	  {
+            label = "#font[132]{m(#pi^{+}#pi^{-}#pi^{#pm}) [MeV/#font[12]{c}^{2}]}";
+	  }
+	else if (  mode == "hhhpi0" )
+	  {
+            label = "#font[132]{m(K^{+}K^{-}#pi^{#pm}#pi^{0}) [MeV/#font[12]{c}^{2}]}";
+	  }
+	else
+	  {
+	    std::cout<<"[ERROR] Wrong charm mode: "<<mode<<std::endl;
+	    return label; 
+	  }
+      }
+    else
+      {
+	if ( decay.Contains("DsstPi") == true )
+	  {
+            label = "#font[132]{m(D_{s}#kern[-0.3]{"+happystar2+happymin+"}#kern[0.1]{#pi#lower[-0.95]{#scale[0.6]{+}}}) [MeV/#font[12]{c}^{2}]}";
+	  }
+	else if ( decay.Contains("DsstK") == true ) 
+	  {
+            label = "#font[132]{m(D_{s}#kern[-0.3]{"+happystar2+happymp+"}#kern[0.1]{K"+happypm+"}) [MeV/#font[12]{c}^{2}]}";
+	  }
+	else if ( decay.Contains("DsPi") == true )
+	  {
+	    label = "#font[132]{m(D_{s}#kern[-0.3]{"+happymin+"}#kern[0.1]{#pi#lower[-0.95]{#scale[0.6]{+}}}) [MeV/#font[12]{c}^{2}]}";
+	  }
+	else if ( decay.Contains("DsK") == true )
+	  {
+	    label = "#font[132]{m(D_{s}#kern[-0.3]{"+happymp+"}#kern[0.1]{K"+happypm+"}) [MeV/#font[12]{c}^{2}]}";
+	  }
+	else if ( decay.Contains("DPi") == true )
+	  {
+	    label = "#font[132]{m(D#kern[-0.3]{"+happymin+"}#kern[0.1]{#pi#lower[-0.95]{#scale[0.6]{+}}}) [MeV/#font[12]{c}^{2}]}";
+	  }
+	else
+	  {
+	    std::cout<<"[ERROR] Wrong charm decay: "<<decay<<std::endl;
+            return label;
+	  }
+      }
+    return label; 
+  }
+
+  TString GetXLabel(std::string& decay, std::string& var, std::string& mode, bool debug)
+  {
+    TString Decay = decay;
+    TString Var = var; 
+    TString Mode = mode; 
+    TString Label = GetXLabel(Decay, Var, Mode, debug);
+    return Label;
   }
 
   //===========================================================================
@@ -1747,6 +2155,22 @@ namespace GeneralUtils {
     
     list = new RooArgList(*c1Var,*c2Var);
     return list;
+  }
+
+  std::vector <TString> GetList(TString name, TString name2 , TString name3)
+  {
+    std::vector <TString> list;
+    list.push_back(name);
+    if ( name2 != "" ) { list.push_back(name2); }
+    if ( name3 != "" ) { list.push_back(name3); }
+    
+    return list; 
+  }
+
+  std::vector <TString> AddToList(std::vector <TString> list, TString name)
+  {
+    list.push_back(name);
+    return list; 
   }
 
   double pe_from_pid(int pid, double px, double py, double pz)
