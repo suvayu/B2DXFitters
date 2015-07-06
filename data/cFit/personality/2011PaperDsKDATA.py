@@ -32,7 +32,6 @@
             'Bs2DsstKst':       30. / 180. * pi,
             'Bd2DPi':           30. / 180. * pi
             },
-        'AcceptanceCorrectionFile': None,
         'CombineModesForEffCPObs': [ ],
         'NEvents':			[ 3474. ],
 	'DataSetVarNameMapping': {

@@ -7,7 +7,7 @@
 @brief various little utilities
 """
 
-def setConstantIfSoConfigured(config, obj, recache = {}):
+def setConstantIfSoConfigured(config, obj, recache = None):
     """
     sets the desired parameters constant
 
@@ -20,11 +20,11 @@ def setConstantIfSoConfigured(config, obj, recache = {}):
                recurses through the tree of RooFit objects rooted at obj, and
                finds the relevant nodes to set constant
     recache -- optional argument normally not given, default value is the
-               empty dictionary ({}); if you call setConstantIfSoConfigured
-               many times with the same config dictionary, you can supply your
-               own empty dictionary here on the first call which will be used
-               to store the compiled forms of the regular expressions used, so
-               you can avoid their recompilation during subsequent calls
+               None; if you call setConstantIfSoConfigured many times with the
+               same config dictionary, you can supply your own empty dictionary
+               here on the first call which will be used to store the compiled
+               forms of the regular expressions used, so you can avoid their
+               recompilation during subsequent calls
     
     Example: to set all asymmetries (those containing "Asym" in the RooFit
     object name) and the D parameter ('Bs2DsK_D') constant, you would use:
@@ -34,11 +34,13 @@ def setConstantIfSoConfigured(config, obj, recache = {}):
     @endcode
     """
     from ROOT import RooAbsArg, RooRealVar, RooConstVar, RooArgSet
-    if 0 == len(recache):
+    if None == recache:
+        recache = {}
         import re
         for rexp in config['constParams']:
             recache[rexp] = re.compile(rexp)
     if obj.InheritsFrom(RooRealVar.Class()):
+        if obj.isConstant(): pass
         # set desired RooRealVar-derived objects to const
         for rexp in recache:
             if recache[rexp].match(obj.GetName()):

@@ -4,6 +4,17 @@
 ! Purpose     : RooFit-based fitters for B -> D X
 !-----------------------------------------------------------------------------
 
+! 2015-07-06 - Manuel Tobias Schiller
+ - cFit: personality update (remove deprecated stuff)
+ - utils.py: fix bug (setConstantIfSoConfigured remembered old settings in
+   regexp cache)
+ - cFit code: new config dict property to use with TrivialMistag, which has
+   decay time error pdf ~ sigma^6 * exp(-sigma / 7 sigma_avg); sigma_avg can
+   now be adjusted using DecayTimeResolutionAverage
+ - cFit code: fix average mistag fits
+ - cFit code: fix tagging calibration fits with per-event mistag (i.e. direct
+   fits to calibration parameters)
+
 ! 2015-06-28 - Manuel Tobias Schiller
  - various small fixes, no change in functionality
 

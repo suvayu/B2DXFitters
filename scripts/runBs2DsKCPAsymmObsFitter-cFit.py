@@ -258,6 +258,10 @@ defaultConfig = {
     'DecayTimeResolutionModel':         'TripleGaussian',
     'DecayTimeResolutionBias':          0.,
     'DecayTimeResolutionScaleFactor':   1.15,
+    # average resolution for trivial resolution model ~ sigma^6 * exp(- sigma / (7 * sigma_avg))
+    # you get this trivial model if you pick a resolution model with per event
+    # decay time error (PEDTE), but don't specify a decay time error distribution
+    'DecayTimeResolutionAvg':           0.0352, # ps
     # None/DTAcceptanceLHCbNote2007041,Spline
     'AcceptanceFunction':               'None',
     # acceptance can really be made a histogram/spline interpolation
@@ -572,7 +576,6 @@ def getKFactorTemplates(
             templates[mode] = (None, None)
             continue
         kcopy = WS(ws, k.clone('%s_%s' % (mode, k.GetName())))
-        print 'DEBUG: %s' % str(kcopy)
         templates[mode] = (readTemplate1D(tmp['File'], tmp['Workspace'],
             tmp['VarName'], tmp['TemplateName'], ws, kcopy,
             '%s_kFactor_PDF' % (mode)), kcopy)
@@ -1533,7 +1536,8 @@ def getMasterPDF(config, name, debug = False):
                         for p in conf[j][0:2]:
                             v = WS(ws, RooRealVar(
                                 '%s_Mistag%uCalib%s_p%u' % (mode, itagger, namsfx[j], i),
-                                '%s_Mistag%uCalib%s_p%u' % (mode, itagger, namsfx[j], i), p))
+                                '%s_Mistag%uCalib%s_p%u' % (mode, itagger, namsfx[j], i),
+                                p, 0., 0.5 if 0 == i else 2.0))
                             v.setConstant(False)
                             mistagcalib.add(v)
                             i = i + 1
@@ -1552,7 +1556,7 @@ def getMasterPDF(config, name, debug = False):
                 del namsfx
                 mistagCal.append(lmistagCal)
             else:
-                mistagCal.append(mistag)
+                mistagCal.append([ mistag ])
         mistagCals[realmode] = mistagCal
         del mistagCal
     # read in templates
@@ -1576,12 +1580,14 @@ def getMasterPDF(config, name, debug = False):
                 'TrivialMistagPDF', 'TrivialMistagPDF',
                 mistag, omega0, omegaa, omegaf)) ]
             for mode in config['Modes']:
-                mistagtemplates[modes] = [ trivialMistagPDF for i in
+                mistagtemplates[mode] = [ trivialMistagPDF for i in
                         xrange(0, config['NTaggers']) ]
+                if 1 == config['NTaggers']:
+                    mistagtemplates[mode] = mistagtemplates[mode][0]
     else:
-        mistagtemplates = None
-
-
+        mistagtemplates = { }
+        for mode in config['Modes']:
+            mistagtemplates[mode] = None
 
     if config['UseKFactor']:
         ktemplates = getKFactorTemplates(config, ws, kvar)
@@ -1638,29 +1644,29 @@ def getMasterPDF(config, name, debug = False):
             mistagtemplates[mode] = newmistagtemplate
 
     # OK, get the show on the road if we are using mistag categories
-    if (None != config['NMistagCategories'] and
-            config['NMistagCategories'] > 0 and config['PerEventMistag']):
-        if 1 != config['NTaggers']:
-            print ('ERROR: Mistag calibration fits in categories only'
-                    'supported for a single tagger!')
-            return None
+    if None != config['NMistagCategories']: 
+        if config['NMistagCategories'] > 0 and config['PerEventMistag']:
+            if 1 != config['NTaggers']:
+                print ('ERROR: Mistag calibration fits in categories only'
+                        'supported for a single tagger!')
+                return None
         # ok, we have to provide the machinery to convert per-event mistag to
         # mistag categories
-        if (None != config['MistagCategoryBinBounds'] and
-                len(config['MistagCategoryBinBounds']) != 1 +
-                config['NMistagCategories']):
-            print ('ERROR: %d mistag categories requested, number of bin '
-                    'bounds does not match' % config['NMistagCategories'])
-            return None
-        if (None == config['MistagCategoryBinBounds']):
+        if None != config['MistagCategoryBinBounds']:
+            if (len(config['MistagCategoryBinBounds']) != 1 +
+                    config['NMistagCategories']):
+                print ('ERROR: %d mistag categories requested, number of bin '
+                        'bounds does not match' % config['NMistagCategories'])
+                return None
+        else:
             # ok, auto-tune mistag category bin bounds from mistag pdf template
-            if None == mistagtemplate[config['Modes'][0]][0]:
+            if None == mistagtemplates[config['Modes'][0]][0]:
                 print ('ERROR: No mistag category bounds present, and no '
                         'mistag pdf template to tune from!')
                 return None
             # all fine
             config['MistagCategoryBinBounds'] = getMistagBinBounds(
-                    config, mistag, mistagtemplate[config['Modes'][0]][0])
+                    config, mistag, mistagtemplates[config['Modes'][0]][0])
         # create category
         from ROOT import std, RooBinning, RooBinningCategory
         bins = std.vector('double')()
@@ -1678,7 +1684,7 @@ def getMasterPDF(config, name, debug = False):
         if 'GEN' in config['Context']:
             for cal in mistagCals[config['Modes'][0]][0]:
                 getTrueOmegasPerCat(config, mistag, cal,
-                        mistagtemplate[config['Modes'][0]][0])
+                        mistagtemplates[config['Modes'][0]][0])
     if (None != config['NMistagCategories'] and
             config['NMistagCategories'] > 0 and not config['PerEventMistag']):
         # ok, we have mistag categories
@@ -1754,7 +1760,7 @@ def getMasterPDF(config, name, debug = False):
             print "WARNING: Using trivial decay time error PDF"
             # resolution in ps: 7*terrpdf_shape
             terrpdf_shape = WS(ws, RooConstVar('terrpdf_shape', 'terrpdf_shape',
-                .0352 / 7.))
+                config['DecayTimeResolutionAvg'] / 7.))
             terrpdf_truth = WS(ws, RooTruthModel('terrpdf_truth', 'terrpdf_truth', timeerr))
             terrpdf_i0 = WS(ws, RooDecay('terrpdf_i0', 'terrpdf_i0', timeerr, terrpdf_shape,
                 terrpdf_truth, RooDecay.SingleSided))
