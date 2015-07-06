@@ -89,19 +89,19 @@ def getconfig() :
     configdict["DsSignalShape"]["n2"]      = {"2011": {"NonRes":6.9989e+01,  "PhiPi":6.1022e-01,  "KstK":1.1017e+01,  "KPiPi":1.0860e+00,  "PiPiPi":4.0001e+01}, "Fixed":True}
     configdict["DsSignalShape"]["frac"]    = {"2011": {"NonRes":4.7565e-01,  "PhiPi":3.9628e-01,  "KstK":4.0048e-01,  "KPiPi":5.5084e-01,  "PiPiPi":4.8729e-01}, "Fixed":True}
 
-    #expected yields                                                                                                                                                              
+    #expected yields                                                                          
     configdict["Yields"] = {}
     configdict["Yields"]["Signal"] = {"2011": {"NonRes":500000.0,  "PhiPi":500000.0, "KstK":500000.0, "KPiPi":500000.0, "PiPiPi":500000.0} , "Fixed":False}
 
 
-    #----------------------------------------------------------------------------------------------------------------------------------------------------------------#            
+    #----------------------------------------------------------------------------------------------------------------------------------------------------------------#    
     ###                                                               MDfit plotting settings                                                                                 
     #----------------------------------------------------------------------------------------------------------------------------------------------------------------# 
  
     from ROOT import *
     configdict["PlotSettings"] = {}
     configdict["PlotSettings"]["components"] = ["Sig"]
-    configdict["PlotSettings"]["colors"] = [kBlue+2] 
+    configdict["PlotSettings"]["colors"] = [kBlue+2]
 
     configdict["LegendSettings"] = {}
     configdict["LegendSettings"]["BeautyMass"] = {"Position":[0.53, 0.45, 0.90, 0.91], "TextSize": 0.05, "LHCbText":[0.35,0.9]}
