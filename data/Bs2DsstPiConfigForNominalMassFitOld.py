@@ -12,7 +12,7 @@ def getconfig() :
     configdict["YearOfDataTaking"] = {"2012","2011"}
     # stripping (necessary in case of PIDK shapes)                                                                                              
     configdict["Stripping"] = {"2012":"20", "2011":"20r1"}
-    # integrated luminosity in each year of data taking (necessary in case of PIDK shapes)                                                                  
+    # integrated luminosity in each year of data taking (necessary in case of PIDK shapes)                                                              
     configdict["IntegratedLuminosity"] = {"2011":{"Down": 0.59, "Up": 0.44}, "2012":{"Down": 0.59, "Up": 0.44}}
     # file name with paths to MC/data samples                                                                                                       
     configdict["dataName"]   = "../data/config_Bs2DsstPi_old.txt"
@@ -69,8 +69,8 @@ def getconfig() :
     configdict["BsSignalShape"] = {}
     configdict["BsSignalShape"]["type"]    = "DoubleCrystalBallWithWidthRatio"
     configdict["BsSignalShape"]["mean"]    = {"All":5367.51}
-    configdict["BsSignalShape"]["sigma1"]  = {"2012": {"KKPi":2.80080e+01},  "2011":{"KKPi":2.80080e+01}}
-    configdict["BsSignalShape"]["sigma2"]  = {"2012": {"KKPi":2.00892e+01},  "2011":{"KKPi":2.00892e+01}}
+    configdict["BsSignalShape"]["sigma1"]  = {"2012": {"KKPi":2.80080e+01},  "2011":{"KKPi":2.80080e+01}, "Fixed":True}
+    configdict["BsSignalShape"]["sigma2"]  = {"2012": {"KKPi":2.00892e+01},  "2011":{"KKPi":2.00892e+01}, "Fixed":True}
     configdict["BsSignalShape"]["alpha1"]  = {"2012": {"KKPi":1.87906e+00},  "2011":{"KKPi":1.87906e+00},  "Fixed":True}
     configdict["BsSignalShape"]["alpha2"]  = {"2012": {"KKPi":-2.45124e+00}, "2011":{"KKPi":-2.45124e+00}, "Fixed":True}
     configdict["BsSignalShape"]["n1"]      = {"2012": {"KKPi":1.24093e+00},  "2011":{"KKPi":1.24093e+00}, "Fixed":True}
@@ -92,13 +92,13 @@ def getconfig() :
     # combinatorial background                                                                                                                              
     configdict["BsCombinatorialShape"] = {}
     configdict["BsCombinatorialShape"]["type"] = "ExponentialPlusGauss"
-    #configdict["BsCombinatorialShape"]["cB"]         = {"2012": {"KKPi":-0.00354546}, "2011":{"KKPi":-0.00354546},   "Fixed":False}
-    #configdict["BsCombinatorialShape"]["fracCombB"]  = {"2012": {"KKPi":0.3},         "2011":{"KKPi":0.3},           "Fixed":True}
-    #configdict["BsCombinatorialShape"]["meanComb"]   = {"2012": {"KKPi":5299.22},     "2011":{"KKPi":5299.22},       "Fixed":True}
-    #configdict["BsCombinatorialShape"]["widthComb"]  = {"2012": {"KKPi":182.448},     "2011":{"KKPi":182.448},       "Fixed":True}
-    configdict["BsCombinatorialShape"]["type"] = "RooKeysPdf"
-    configdict["BsCombinatorialShape"]["name"] = {"2012": {"KKPi":"PhysBkgCombPi_BeautyMassPdf_m_both"},
-                                                  "2011": {"KKPi":"PhysBkgCombPi_BeautyMassPdf_m_both"}}
+    configdict["BsCombinatorialShape"]["cB"]         = {"2012": {"KKPi":-0.00354546}, "2011":{"KKPi":-0.00354546},   "Fixed":False}
+    configdict["BsCombinatorialShape"]["fracCombB"]  = {"2012": {"KKPi":0.3},         "2011":{"KKPi":0.3},           "Fixed":True}
+    configdict["BsCombinatorialShape"]["meanComb"]   = {"2012": {"KKPi":5299.22},     "2011":{"KKPi":5299.22},       "Fixed":True}
+    configdict["BsCombinatorialShape"]["widthComb"]  = {"2012": {"KKPi":182.448},     "2011":{"KKPi":182.448},       "Fixed":True}
+    #configdict["BsCombinatorialShape"]["type"] = "RooKeysPdf"
+    #configdict["BsCombinatorialShape"]["name"] = {"2012": {"KKPi":"PhysBkgCombPi_BeautyMassPdf_m_both"},
+    #                                              "2011": {"KKPi":"PhysBkgCombPi_BeautyMassPdf_m_both"}}
 
     configdict["DsCombinatorialShape"] = {}
     configdict["DsCombinatorialShape"]["type"]  = "ExponentialPlusSignal" 
