@@ -165,7 +165,7 @@ parser.add_option( '-v', '--variable', '--var',
                    help = 'set observable '
                    )
 
-parser.add_option( '-s', '--sufix',
+parser.add_option( '-s', '--suffix',
                    dest = 'sufix',
                    metavar = 'SUFIX',
                    default = '',
