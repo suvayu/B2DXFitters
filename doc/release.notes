@@ -4,6 +4,9 @@
 ! Purpose     : RooFit-based fitters for B -> D X
 !-----------------------------------------------------------------------------
 
+! 2015-07-07 - Manuel Tobias Schiller
+ - add Agnieszka's new classes to standalone build directory
+
 ! 2015-07-07 - Agnieszka Dziurda
  - MDFit update, sweight option was missed
  - MDFit update, bug in Bs->DsstPi. 
