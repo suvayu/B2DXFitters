@@ -489,8 +489,8 @@ def getTotalBkgPDF(myconfigfile, beautyMass, charmMass, workspace, workInt, boun
     
 #------------------------------------------------------------------------------
 def runMDFitter( debug, sample, mode, sweight,  
-                 fileNameAll, fileNameToys, workName,logoutputname,
-                 configName, wider, merge, dim, fileDataName, year, rookeysforcombo ) :
+                 fileNameAll, fileNameToys, workName, sweightName,
+                 configName, wider, merge, dim, fileDataName, year) :
 
     # Get the configuration file
     myconfigfilegrabber = __import__(configName,fromlist=['getconfig']).getconfig
@@ -702,8 +702,6 @@ def runMDFitter( debug, sample, mode, sweight,
     ###------------------------------------------------------------------------------------------------------------------------------------###    
           ###--------------------------------------------  Instantiate and run the fitter  -------------------------------------------###  
     ###------------------------------------------------------------------------------------------------------------------------------------###
-    #sigEPDF[0].Print("v") 
-    #sigEPDF[0].fitTo(combData) 
 
     fitter = FitMeTool( debug )
       
@@ -711,8 +709,6 @@ def runMDFitter( debug, sample, mode, sweight,
 
     fitter.setModelPDF( totPDF )
     fitter.setData(combData) 
-
-    #fitter.setModelPDF( bkgPDF[0] ) #totPDF )
 
     plot_init   = options.initvars         and ( options.wsname != None )
     plot_fitted = ( not options.initvars ) and ( options.wsname != None )
@@ -723,13 +719,20 @@ def runMDFitter( debug, sample, mode, sweight,
    
     import sys
     import random
-    #sys.stdout = open(logoutputname, 'w')
-    #exit(0) 
+    
     fitter.fit(True, RooFit.Extended()) #,  RooFit.Verbose(False),  RooFit.ExternalConstraints(constList)) #, RooFit.InitialHesse(True))
     result = fitter.getFitResult()
     result.Print("v")
     floatpar = result.floatParsFinal()
-        
+    
+    name = TString(sweightName)
+    if (sweight):
+        RooMsgService.instance().Print('v')
+        RooMsgService.instance().deleteStream(RooFit.Eval)
+        fitter.savesWeights(beautyMass.GetName(), combData, name)
+        RooMsgService.instance().reset()
+
+    
     if dim == 1:
         fitter.printYieldsInRange( '*Evts', MDSettings.GetMassBVarOutName().Data() , 5320, 5420 )
     elif dim == 2:
@@ -761,13 +764,13 @@ parser.add_option( '-d', '--debug',
 parser.add_option( '-s', '--save',
                    dest = 'wsname',
                    metavar = 'WSNAME',
-                   default = 'WS_Mass_DsstK.root', 
+                   default = 'WS_MDFit_Results.root', 
                    help = 'save the model PDF and generated dataset to file "WS_WSNAME.root"'
                    )
 
-parser.add_option( '--sweightoutputname',
-                   dest = 'sweightoutputname',
-                   default = '/afs/cern.ch/work/g/gligorov/public/Bs2DsKToys/sWeightToys/DsPi_Toys_Full_sWeights_ForTimeFit_0.root', 
+parser.add_option( '--sweightName',
+                   dest = 'sweightName',
+                   default = 'sWeights_Results.root', 
                    help = 'save the model PDF and generated dataset to file "WS_WSNAME.root"'
                    )   
 
@@ -845,13 +848,6 @@ parser.add_option( '--year',
                    dest = 'year',
                    default = "")
 
-parser.add_option( '--rookeysforcombo',
-                   dest = 'rookeysforcombo',
-                   action = 'store_true',
-                   default = False,
-                   help = 'use RooKeysPdf for combinatorial shape'
-                   )
-
 # -----------------------------------------------------------------------------
 
 if __name__ == '__main__' :
@@ -867,7 +863,7 @@ if __name__ == '__main__' :
         
     runMDFitter( options.debug,  options.sample, options.mode, options.sweight, 
                  options.fileNameAll, options.fileNameToys, options.workName,
-                 options.logoutputname, options.configName, options.wider, 
-                 options.merge, options.dim, options.fileData, options.year, options.rookeysforcombo)
+                 options.sweightName, options.configName, options.wider, 
+                 options.merge, options.dim, options.fileData, options.year)
 
 # -----------------------------------------------------------------------------
