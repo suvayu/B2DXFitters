@@ -2015,7 +2015,8 @@ namespace Bs2Dsh2011TDAnaModels {
       {
 	bName = "D"; 
       }
-    TString name="Signal_"+varName+"_"+samplemode;
+    TString namePDF="Signal_"+varName+"_"+samplemode;
+    TString name = ""; 
 
     if ( type == "DoubleCrystalBall" )
       {
@@ -2024,28 +2025,30 @@ namespace Bs2Dsh2011TDAnaModels {
 					   *sigma2Var, *alpha2Var, *n2Var,
 					   *fracVar,
 					   *nSigEvts,samplemode,bName,debug);
-	pdf_Signal->SetName(name.Data());
+	pdf_Signal->SetName(namePDF.Data());
       }
-    else if ( type == "DoubleCrysallBallWithWidthRatio" )
+    else if ( type == "DoubleCrystalBallWithWidthRatio" )
       {
 	TString name = TString("Signal_")+varName+TString("_R");
 	R = new RooRealVar(name.Data(),name.Data(), 1.0, 0.8, 1.2);
 	name = TString("Signal_") + varName + TString("_sigmaf1_")+samplemode;
 	sigma1For = new RooFormulaVar(name.Data(), name.Data(),"@0*@1", RooArgList(*sigma1Var,*R));
+	if ( debug == true ) { std::cout<<"[INFO] Create/read "<<name<<std::endl; }
 	name = TString("Signal_") + varName + TString("_sigmaf2_")+samplemode;
 	sigma2For = new RooFormulaVar(name.Data(), name.Data(),"@0*@1", RooArgList(*sigma2Var,*R));
-
+	if ( debug == true ) { std::cout<<"[INFO] Create/read "<<name<<std::endl; }
 	pdf_Signal = buildDoubleCBEPDF_sim(mass,*mean,
 					   *sigma1For, *alpha1Var, *n1Var,
 					   *sigma2For, *alpha2Var, *n2Var,
 					   *fracVar,
 					   *nSigEvts,samplemode,bName,debug);
-	pdf_Signal->SetName(name.Data());
+	
+	pdf_Signal->SetName(namePDF.Data());
       }
     else if ( type == "DoubleGaussian") 
       {
 	pdf_Signal =  buildDoubleGEPDF_sim(mass,*mean, *sigma1Var, *sigma2Var,*fracVar, *nSigEvts, samplemode, bName, false, debug); 
-	pdf_Signal->SetName(name.Data());
+	pdf_Signal->SetName(namePDF.Data());
       }
     else
       {
@@ -2129,12 +2132,12 @@ namespace Bs2Dsh2011TDAnaModels {
 	    pdf_Signal_Ds = ObtainSignalMassShape(massDs, work, workInt,
 						  samplemode, types[1], false, debug);
 	  }
-	
-	TString lumRatioName = "lumRatio"+year;
-	RooRealVar* lumRatio =GetObservable(workInt, lumRatioName, debug); 
-	
+
 	if ( dim > 2 )
 	  {
+	    TString lumRatioName = "lumRatio"+year;
+	    RooRealVar* lumRatio =GetObservable(workInt, lumRatioName, debug); 
+	
 	    TString namePID = decay+t+samplemode; 
 	    pdf_Signal_PIDK = ObtainPIDKShape(work, namePID, sam,y, *lumRatio, true, debug);
 	    CheckPDF(pdf_Signal_PIDK, debug);
