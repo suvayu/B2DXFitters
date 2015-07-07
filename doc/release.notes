@@ -6,6 +6,7 @@
 
 ! 2015-07-07 - Agnieszka Dziurda
  - MDFit update, sweight option was missed
+ - MDFit update, bug in Bs->DsstPi. 
 
 ! 2015-07-06 - Agnieszka Dziurda
  - MDFit update:
