@@ -4,6 +4,9 @@
 ! Purpose     : RooFit-based fitters for B -> D X
 !-----------------------------------------------------------------------------
 
+! 2015-07-07 - Agnieszka Dziurda
+ - MDFit update, sweight option was missed
+
 ! 2015-07-06 - Agnieszka Dziurda
  - MDFit update:
    - merge main fitting procedure in 3 scripts: prepareWorkspace.py, 
