@@ -138,7 +138,7 @@ parser.add_option( '-m', '--sample',
                    default = 'both',
                    help = 'Sample: choose up or down '
                    )
-parser.add_option( '-o', '--modeDs',
+parser.add_option( '-o', '--mode',
                    dest = 'modeDs',
                    metavar = 'MODE',
                    default = 'kkpi',
@@ -218,113 +218,79 @@ def getTotPDF(w, sam, mod, year, merge, comp, debug):
     c = []
     n = []
 
-    print "Sample %s, %s "%(sam,mod)
-    if merge:
-        sp = ["both"]
-    else:
-        sp = GeneralUtils.GetSample(sam, debug)
+    smy = sm = GeneralUtils.GetSampleModeYear(TString(sam), TString(mod), TString(year), merge, debug )
+    for p in comp:
+        for s in smy:
+            var = w.var("n%s_%s_Evts"%(p,s))
+            if var:
+                if p == "Sig":
+                    c.append("n%s_%s_Evts*%sEPDF_%s"%(p,s,p,s))
+                else:
+                    c.append("n%s_%s_Evts*%sEPDF_m_%s"%(p,s,p,s))
+                n.append("n%s_%s_Evts"%(p,s))
+                print "...........n%s_%s_Evts"%(p,s)
+            else:
+                c.append("")
+                n.append("")
 
-    md = GeneralUtils.GetMode(mod,debug)
-    yr = GeneralUtils.GetYear(year,debug)
-
-    print sam
-    print comp
-    print mod
-    if yr[0] == "":
-
-        for s in sp:
-            for m in md:
-                for p in comp:
-                    var = w.var("n%s_%s_%s_Evts"%(p,s,m))
-                    if var:
-                        if p == "Sig":
-                            c.append("n%s_%s_%s_Evts*%sEPDF_%s_%s"%(p,s,m,p,s,m))
-                        else:
-                            c.append("n%s_%s_%s_Evts*%sEPDF_m_%s_%s"%(p,s,m,p,s,m))
-                        print ".............n%s_%s_%s_Evts*%sEPDF_m_%s_%s"%(p,s,m,p,s,m)
-                        n.append("n%s_%s_%s_Evts"%(p,s,m))
-                        print "...........n%s_%s_%s_Evts"%(p,s,m)
-                    else:
-                        c.append("")
-                        n.append("")
-
-    else:
-        for y in yr:
-            for s in sp:
-                for m in md:
-                    for p in comp:
-                         var = w.var("n%s_%s_%s_%s_Evts"%(p,s,m,y))
-                         if var:
-                             if p == "Sig":
-                                 c.append("n%s_%s_%s_%s_Evts*%sEPDF_%s_%s_%s"%(p,s,m,y,p,s,m,y))
-                             else:
-                                 c.append("n%s_%s_%s_%s_Evts*%sEPDF_m_%s_%s_%s"%(p,s,m,y,p,s,m,y))
-                             print "---------------n%s_%s_%s_%s_Evts*%sEPDF_%s_%s_%s"%(p,s,m,y,p,s,m,y)
-                             n.append("n%s_%s_%s_%s_Evts"%(p,s,m,y))
-                             print "-------------n%s_%s_%s_%s_Evts"%(p,s,m,y)
-                         else:
-                             c.append("")
-                             n.append("")
-                        
-
-    if sam == "up" or sam == "down" or (sam == "both" and merge == True):
-        pdfcomp = c[0]
-        for i in range(1,c.__len__()):
-            pdfcomp = pdfcomp +"," +c[i]
-        if debug:    
-            print "Total PDF to print: %s"%(pdfcomp)
-        w.factory("SUM:FullPdf(%s)"%(pdfcomp))                                                                                                           
+    print c,
+    print n,
+    pdfcomp = c[0]
+    #if n.__len__() < 20 or merge == True:
+    for i in range(1,c.__len__()):
+        pdfcomp = pdfcomp +"," +c[i]
+    if debug:
+        print "Total PDF to print: %s"%(pdfcomp)
+    w.factory("SUM:FullPdf(%s)"%(pdfcomp))
+    '''
     else:
         pdfcomp1 = c[0]
         numcomp1 = n[0]
         for i in range(1,c.__len__()/2):
             pdfcomp1 = pdfcomp1+","+c[i]
             numcomp1 = numcomp1+","+n[i]
+ #           print "pdf1: %s"%(pdfcomp1) 
+ #           print "num1: %s"%(numcomp1)
         if debug:
             print "Total PDF1 to print: %s"%(pdfcomp1)
             print "Number of events to print: %s"%(numcomp1)
         w.factory("SUM:FullPdf1(%s)"%(pdfcomp1))
         w.factory("EXPR::N_1(%s)"%(numcomp1))
 
+
         pdfcomp2 = c[int(c.__len__()/2)]
         numcomp2 = n[int(n.__len__()/2)]
         for i in range(c.__len__()/2+1,c.__len__()):
             pdfcomp2 = pdfcomp2+","+c[i]
             numcomp2 = numcomp2+","+n[i]
+#        print "pdf2: %s"%(pdfcomp2)
+ #       print "num2: %s"%(numcomp2)
+        #exit(0)
         if debug:
             print "Total PDF2 to print: %s"%(pdfcomp2)
             print "Number of events to print: %s"%(numcomp2)
-        w.factory("SUM:FullPdf2(%s)"%(pdfcomp1))
-        w.factory("EXPR::N_2(%s)"%(numcomp1))
+        w.factory("SUM:FullPdf2(%s)"%(pdfcomp2))
+        
+        w.factory("EXPR::N_2(%s)"%(numcomp2))
         w.factory("SUM:FullPdf(N_1*FullPdf1,N_2*FullPdf2)")
-
+    '''
+    
     totName = TString("FullPdf")
     modelPDF = w.pdf( totName.Data() )    
-    
+
+  #  modelPDF.Print("v")
+   # exit(0) 
+
     return modelPDF
 
 #------------------------------------------------------------------------------ 
 def getDataCut(sam, mod, year, debug):
     
-    print "Sample %s, %s %s"%(sam,mod,year)
-    if merge:
-        sp = ["both"]
-    else:
-        sp = GeneralUtils.GetSample(sam, debug)
-
-    md = GeneralUtils.GetMode(mod,debug)
-    yr = GeneralUtils.GetYear(year,debug)
+    smy = sm = GeneralUtils.GetSampleModeYear(TString(sam), TString(mod), TString(year), merge, debug )
 
     c = [ ]
-    if ( yr[0] == ""):
-        for s in sp:
-            for m in md:
-                c.append("sample==sample::%s_%s"%(s,m))
-    else:
-        for y in yr:
-            for s in sp:
-                for m in md:
-                    c.append("sample==sample::%s_%s_%s"%(s,m,y))
+    for s in smy:
+        c.append("sample==sample::%s"%(s))
 
     cut = c[0]
     for i in range(1,c.__len__()):
@@ -350,51 +316,37 @@ def plotDataSet( dataset, frame, Bin ) :
 def plotFitModel( model, frame, var, sam, mode, year, decay, comp, color) :
     #if debug :
     
-    print "model"    
-    model.Print( 't' )
-
-    if merge:
-        sp = ["both"]
-    else:
-        sp = GeneralUtils.GetSample(sam, debug)
-
-    md = GeneralUtils.GetMode(mod,debug)
-    yr = GeneralUtils.GetYear(year,debug)
+    smy = sm = GeneralUtils.GetSampleModeYear(TString(sam), TString(mod), TString(year), merge, debug )
     
     c = []
-    if yr[0] == "":        
-        for s in sp:
-            for m in md:
-                for p in comp:
-                    if p == "Sig":
-                        c.append("%sEPDF_%s_%s"%(p,s,m))
-                    elif ((p == "Lb2DsDsstP" or p == "Bs2DsDsstPiRho") and decay == "Bs2DsK"):
-                        c.append("PhysBkg%sPdf_m_%s_%s_Tot"%(p,s,m))
-                    else:
-                        c.append("%sEPDF_m_%s_%s"%(p,s,m))
-    else:
-        for y in yr:
-            for s in sp:
-                for m in md:
-                    for p in comp:
-                        if p == "Sig":
-                            c.append("%sEPDF_%s_%s_%s"%(p,s,m,y))
-                        elif ( (p == "Lb2DsDsstP" or p == "Bs2DsDsstPiRho") and decay == "Bs2DsK"):
-                            c.append("PhysBkg%sPdf_m_%s_%s_%s_Tot"%(p,s,m,y))
-                        else:
-                            c.append("%sEPDF_m_%s_%s_%s"%(p,s,m,y))
+    for p in comp:
+        for s in smy:
+            if p == "Sig":
+                c.append("%sEPDF_%s"%(p,s))
+            elif ((p == "Lb2DsDsstP" or p == "Bs2DsDsstPiRho") and decay == "Bs2DsK"):
+                c.append("PhysBkg%sPdf_m_%s_Tot"%(p,s))
+            else:
+                c.append("%sEPDF_m_%s"%(p,s))
+
 
     numBkg = comp.__len__()                
     numCom = c.__len__()
-    numSM = int(numCom/numBkg)
+    numSM = smy.__len__()
+    
+    print numBkg
+    print numSM
     
     pdfcomp = []
+    n = 0
     for j in range(0,numBkg):
         for i in range(0,numSM):
+            print c[n]
+            print i+j*numBkg
             if i == 0:
-                pdfcomp.append(c[j+i*numBkg])
+                pdfcomp.append(c[n])
             else:    
-                pdfcomp[j] = pdfcomp[j]+","+c[j+i*numBkg]
+                pdfcomp[j] = pdfcomp[j]+","+c[n]
+            n = n+1
 
     for i in range(0,numBkg):
         if i == 0 or i == 1: continue
@@ -402,13 +354,14 @@ def plotFitModel( model, frame, var, sam, mode, year, decay, comp, color) :
     
     for n in pdfcomp:    
         print "PDF to plot: %s"%(n)
-                
+   # exit(0) 
     model.plotOn( frame, 
                   RooFit.Components("FullPdf"),
                   RooFit.LineColor(kBlue),
                   RooFit.Normalization( 1., RooAbsReal.RelativeExpected ),
                   RooFit.Name("FullPdf")
                   )
+
     for i in range(1, numBkg):
         print i
         model.plotOn( frame, 
@@ -610,6 +563,8 @@ if __name__ == '__main__' :
     if log:
         gStyle.SetOptLogy(1)
         frame_m.GetYaxis().SetRangeUser(1.5,frame_m.GetMaximum()*1.5)
+
+    
     canvas = TCanvas("canvas", "canvas", 1200, 1000)
     canvas.cd()
     pad1 = TPad("upperPad", "upperPad", .005, .05, 1.0, 1.0)
