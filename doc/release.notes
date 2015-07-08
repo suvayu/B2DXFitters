@@ -4,6 +4,10 @@
 ! Purpose     : RooFit-based fitters for B -> D X
 !-----------------------------------------------------------------------------
 
+! 2015-07-08 - Manuel Tobias Schiller
+ - add scripts/prolog.py, the funny python/shell hybrid used to start things
+   up
+
 ! 2015-07-08 - Agnieszka Dziurda
  - bug fix in plotMDFiter.py 
 
