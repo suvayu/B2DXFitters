@@ -4,6 +4,8 @@
 ! Purpose     : RooFit-based fitters for B -> D X
 !-----------------------------------------------------------------------------
 
+! 2015-07-09 - Manuel Tobias Schiller
+ - add tutorial subdirectory for example/teaching code
 
 ! 2015-07-09 - Manuel Tobias Schiller
  - make shell prologs a bit more robust when attempting to locate standalone
