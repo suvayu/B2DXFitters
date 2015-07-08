@@ -38,23 +38,31 @@ else
         LD_LIBRARY_PATH=`echo $LD_LIBRARY_PATH | tr ':' '\n' | \
             egrep -v "^($User_release_area|$MYSITEROOT/lhcb)" | \
             tr '\n' ':' | sed -e 's/:$//'`
-	export LD_LIBRARY_PATH
+        export LD_LIBRARY_PATH
         exec env -u CMTCONFIG -u B2DXFITTERSROOT "$0" "$@"
     fi
     # automatic set up in standalone build mode
     if test -z "$B2DXFITTERSROOT"; then
         cwd="$(pwd)"
-        if test -z "$(dirname $0)"; then
-            # have to guess location of setup.sh
-            cd ../standalone
+        # try to find from where script is executed, use current directory as
+        # fallback
+        tmp="$(dirname $0)"
+        tmp=${tmp:-"$cwd"}
+        # convert to absolute path
+        tmp=`readlink -f "$tmp"`
+        # move up until standalone/setup.sh found, or root reached
+        while test \( \! -d "$tmp"/standalone \) -a -n "$tmp" -a "$tmp"\!="/"; do
+            tmp=`dirname "$tmp"`
+        done
+        if test -d "$tmp"/standalone; then
+            cd "$tmp"/standalone
             . ./setup.sh
-            cd "$cwd"
         else
-            # know where to look for setup.sh
-            cd "$(dirname $0)"/../standalone
-            . ./setup.sh
-            cd "$cwd"
+            echo `basename $0`: Unable to locate standalone/setup.sh
+            exit 1
         fi
+            cd "$cwd"
+        unset tmp
         unset cwd
     fi
 fi
@@ -527,7 +535,7 @@ def runBsDsKGenerator( debug, single, configName, rangeDown, rangeUp, seed , siz
     S_signal    = RooRealVar('S_signal', 'S coeff. signal', 0.)
     D_signal    = RooRealVar('D_signal', 'D coeff. signal', 0.)
     Sbar_signal    = RooRealVar('Sbar_signal', 'Sbar coeff. signal', 0.)
-    Dbar_signal    = RooRealVar('Dbar_signal', 'Dbar coeff. signal', 0.)	
+    Dbar_signal    = RooRealVar('Dbar_signal', 'Dbar coeff. signal', 0.)        
 
     aProd_signal   = RooConstVar('aprod_signal',   'aprod_signal',   myconfigfile["aprod_signal"])        # production asymmetry
     aDet_signal    = RooConstVar('adet_signal',    'adet_signal',    myconfigfile["adet_signal"])         # detector asymmetry
@@ -596,7 +604,7 @@ def runBsDsKGenerator( debug, single, configName, rangeDown, rangeUp, seed , siz
     S_dspi    = RooRealVar('S_dspi', 'S coeff. dspi', 0.)
     D_dspi    = RooRealVar('D_dspi', 'D coeff. dspi', 0.)
     Sbar_dspi    = RooRealVar('Sbar_dspi', 'Sbar coeff. dspi', 0.)
-    Dbar_dspi    = RooRealVar('Dbar_dspi', 'Dbar coeff. dspi', 0.)	
+    Dbar_dspi    = RooRealVar('Dbar_dspi', 'Dbar coeff. dspi', 0.)      
     aProd_dspi   = RooConstVar('aprod_dspi',   'aprod_dspi',   myconfigfile["aprod_dspi"])        # production asymmetry
     aDet_dspi    = RooConstVar('adet_dspi',    'adet_dspi',    myconfigfile["adet_dspi"])         # detector asymmetry
 
@@ -1185,7 +1193,7 @@ def runBsDsKGenerator( debug, single, configName, rangeDown, rangeUp, seed , siz
         massD_dspi.append(massD_signal[i])
         PIDK_dspi.append(PIDK_signal[i])
         
-	MDFitter_dspi.append(RooProdPdf("MDFitter_dspi_%s"%(nameDs2[i]),"MDFitter_dspi",RooArgList(massB_dspi[i], massD_dspi[i], PIDK_dspi[i])))
+        MDFitter_dspi.append(RooProdPdf("MDFitter_dspi_%s"%(nameDs2[i]),"MDFitter_dspi",RooArgList(massB_dspi[i], massD_dspi[i], PIDK_dspi[i])))
                                
                 
         timeandmass_dspi.append(RooProdPdf("timeandmass_dspi_%s"%(nameDs2[i]),"timeandmass_dspi",RooArgList(timeerr_dspi,

@@ -37,18 +37,26 @@ else
     # automatic set up in standalone build mode
     if test -z "$B2DXFITTERSROOT"; then
         cwd="$(pwd)"
-        if test -z "$(dirname $0)"; then
-        # have to guess location of setup.sh
-        cd ../standalone
-        . ./setup.sh
-        cd "$cwd"
+        # try to find from where script is executed, use current directory as
+        # fallback
+        tmp="$(dirname $0)"
+        tmp=${tmp:-"$cwd"}
+        # convert to absolute path
+        tmp=`readlink -f "$tmp"`
+        # move up until standalone/setup.sh found, or root reached
+        while test \( \! -d "$tmp"/standalone \) -a -n "$tmp" -a "$tmp"\!="/"; do
+            tmp=`dirname "$tmp"`
+        done
+        if test -d "$tmp"/standalone; then
+            cd "$tmp"/standalone
+            . ./setup.sh
         else
-        # know where to look for setup.sh
-        cd "$(dirname $0)"/../standalone
-        . ./setup.sh
-        cd "$cwd"
+            echo `basename $0`: Unable to locate standalone/setup.sh
+            exit 1
         fi
-    unset cwd
+        cd "$cwd"
+        unset tmp
+        unset cwd
     fi
 fi
 
@@ -105,13 +113,13 @@ EXT = 'toybytoy.pdf'
 fnamepattern = 'fitresult_[0-9][0-9][0-9][0-9].root'
 exclude = []
 vnamemap = {
-	'Bs2DsK_C': 'C',
-	'Bs2DsK_D': 'D',
-	'Bs2DsK_Dbar': 'Dbar',
-	'Bs2DsK_S': 'S',
-	'Bs2DsK_Sbar': 'Sbar',
-	'deltaMs': 'DeltaMs'
-	}
+        'Bs2DsK_C': 'C',
+        'Bs2DsK_D': 'D',
+        'Bs2DsK_Dbar': 'Dbar',
+        'Bs2DsK_S': 'S',
+        'Bs2DsK_Sbar': 'Sbar',
+        'deltaMs': 'DeltaMs'
+        }
 from ROOT import gROOT, TFile, TH1D
 from ROOT import gDirectory, TStyle, TF1, TFile, TCanvas, gROOT
 gROOT.SetBatch(True)
@@ -135,48 +143,48 @@ def readRooFitResults(fnamepattern, exclude, resultsfile = None):
         num = number_exp(fname)
         if checkexcludes:
             if num in exclude:
-	        print 'Experiment #%d excluded!' % num
-		nfexcl += 1
+                print 'Experiment #%d excluded!' % num
+                nfexcl += 1
                 continue
         f = TFile(fname, 'READ')
-	of = ws = obj = obj2 = None
-	ROOT.SetOwnership(f, True)
+        of = ws = obj = obj2 = None
+        ROOT.SetOwnership(f, True)
         for key in f.GetListOfKeys():
-	    if not TClass.GetClass(key.GetClassName()).InheritsFrom('RooFitResult'):
-		continue
+            if not TClass.GetClass(key.GetClassName()).InheritsFrom('RooFitResult'):
+                continue
             obj = key.ReadObj()
-	    ROOT.SetOwnership(obj, True)
+            ROOT.SetOwnership(obj, True)
             if 0 == obj.status() and 3 == obj.covQual():
-		ofname = ('../sfit/DsK_Toys_Work_TimeFitResult_%d.root'
-			if None != obj.floatParsFinal().find('Bs2DsK_C') else
-			'../sfit/DsPi_Toys_Work_TimeFitResult_DMS_%d.root') % num
+                ofname = ('../sfit/DsK_Toys_Work_TimeFitResult_%d.root'
+                        if None != obj.floatParsFinal().find('Bs2DsK_C') else
+                        '../sfit/DsPi_Toys_Work_TimeFitResult_DMS_%d.root') % num
                 if not os.path.exists(ofname):
-	            print 'Experiment #%d excluded - no sFit FitResult!' % num
-	            nfexcl += 1
-	            continue
+                    print 'Experiment #%d excluded - no sFit FitResult!' % num
+                    nfexcl += 1
+                    continue
                 of = TFile(ofname, 'READ')
-	        ROOT.SetOwnership(of, True)
-		if of.IsZombie():
-		    print 'Experiment #%d excluded - no sFit FitResult!' % num
-		    nfexcl += 1
-		    continue
+                ROOT.SetOwnership(of, True)
+                if of.IsZombie():
+                    print 'Experiment #%d excluded - no sFit FitResult!' % num
+                    nfexcl += 1
+                    continue
                 ws = of.Get('workspace')
-		ROOT.SetOwnership(ws, True)
+                ROOT.SetOwnership(ws, True)
                 if None == ws:
-		    print 'Experiment #%d excluded - no sFit FitResult!' % num
-		    nfexcl += 1
-		    continue
+                    print 'Experiment #%d excluded - no sFit FitResult!' % num
+                    nfexcl += 1
+                    continue
                 obj2 = ws.obj('fitresult_totPDFtot_combData' if 'DsK' in
-			ofname else 'fitresult_simPdf_combData')
-		ROOT.SetOwnership(obj2, False)
+                        ofname else 'fitresult_simPdf_combData')
+                ROOT.SetOwnership(obj2, False)
                 if None == obj2:
-		    print 'Experiment #%d excluded - no sFit FitResult!' % num
-		    nfexcl += 1
-		    continue
-	        if 0 != obj2.status():
-		    print 'Experiment #%d excluded - sFit FitResult has invalid status!' % num
-		    nfexcl += 1
-		    continue
+                    print 'Experiment #%d excluded - no sFit FitResult!' % num
+                    nfexcl += 1
+                    continue
+                if 0 != obj2.status():
+                    print 'Experiment #%d excluded - sFit FitResult has invalid status!' % num
+                    nfexcl += 1
+                    continue
                 if None == vnames:
                     firstfitresult = obj.Clone()
                     ROOT.SetOwnership(firstfitresult, True)
@@ -186,42 +194,42 @@ def readRooFitResults(fnamepattern, exclude, resultsfile = None):
                         resfile.WriteTObject(firstfitresult, firstfitresult.GetName())
                         ROOT.SetOwnership(firstfitresult, False)
                         print '... done.'
-		    vnames = get_vars_names(obj)
+                    vnames = get_vars_names(obj)
                     print '--> variable names:', vnames
-		    initvals = get_vars_initvals(obj)
-		    for name in vnames:
-	                vals[name] = []
+                    initvals = get_vars_initvals(obj)
+                    for name in vnames:
+                        vals[name] = []
                         errs[name] = []
-		params = obj.floatParsFinal()
-		params2 = obj2.floatParsFinal()
-	        for name in vnames:
+                params = obj.floatParsFinal()
+                params2 = obj2.floatParsFinal()
+                for name in vnames:
                     param = params.find(name)
                     if None == param: continue
-	            val = param.getVal()
+                    val = param.getVal()
                     if isphase(name): val = normalise_phase(val)
                     err = param.getError()
-		    if name in vnamemap.keys():
-			param2 = params2.find(vnamemap[name])
+                    if name in vnamemap.keys():
+                        param2 = params2.find(vnamemap[name])
                         if None == param2: continue
-			val = val - param2.getVal()
-			if (isphase(name)): val = normalise_phase(val)
-			err = math.sqrt(abs((err + param2.getError()) * (err - param2.getError())))
-			del param2
+                        val = val - param2.getVal()
+                        if (isphase(name)): val = normalise_phase(val)
+                        err = math.sqrt(abs((err + param2.getError()) * (err - param2.getError())))
+                        del param2
                     vals[ name ].append(val)
                     errs[ name ].append(err)
                     #print '* %s :' % name
-	            #print '  %f +/- %f' % (val, param.getError())
+                    #print '  %f +/- %f' % (val, param.getError())
                     #print 20*'#'
             else:
-		print 'Experiment #%d excluded based on fit quality!' % num
-		nfexcl += 1
+                print 'Experiment #%d excluded based on fit quality!' % num
+                nfexcl += 1
         del obj
         del obj2
         del ws
         if None != of: of.Close()
         del of
         f.Close()
-	del f
+        del f
         del fname
         del num
         gc.collect()
@@ -248,9 +256,9 @@ def get_vars_names(res):
 def isphase(name):
     # look for something that looks like a phase
     for n in ('deltaMs', 'deltaMd'):
-	if n in name: return False
+        if n in name: return False
     for n in ( 'gamma', 'delta', 'phi_w' ):
-	if n in name: return True
+        if n in name: return True
     return False
 
 # ----------------------------------------------------------------------------
@@ -258,9 +266,9 @@ def normalise_phase(val):
     # normalise a phase to be within -pi < phaase <= pi
     val = fmod(val, 2. * pi)
     while val > pi:
-	val -= 2. * pi
+        val -= 2. * pi
     while val <= -pi:
-	val += 2. * pi
+        val += 2. * pi
     return val
 
 # ----------------------------------------------------------------------------
@@ -310,11 +318,11 @@ for name in vnames:
       val = values[i]
       err = errors[i]
       if val != val or (abs(val) > 1. and abs(1. / val) == 0.):
-	  continue
+          continue
       v = v * (n / (n + 1.0)) + val / (n + 1.)
       n = n + 1.
       if err != err or (abs(err) > 1. and abs(1. / err) == 0.) or err <= 0.:
-	  continue
+          continue
       resid = val - initvals[name]
       if isphase(name): resid = normalise_phase(resid)
       pull = resid / err
@@ -330,11 +338,11 @@ for name in vnames:
       val = values[i]
       err = errors[i]
       if val != val or (abs(val) > 1. and abs(1. / val) == 0.):
-	  continue
+          continue
       v2 = v2 * (n / (n + 1.0)) + (val - v) * (val - v) / (n + 1.)
       n = n + 1.
       if err != err or (abs(err) > 1. and abs(1. / err) == 0.) or err <= 0.:
-	  continue
+          continue
       resid = val - initvals[name]
       if isphase(name): resid = normalise_phase(resid)
       pull = resid / err
@@ -345,10 +353,10 @@ for name in vnames:
    sigmav = sqrt(v2)
    sigmap = sqrt(p2)
    hv = TH1D('%s value' % name, '%s value' % name,
-	   50, v - 3. * sigmav, v + 3. * sigmav)
+           50, v - 3. * sigmav, v + 3. * sigmav)
    hv.SetDirectory(None)
    hp = TH1D('%s pull' % name, '%s pull' % name,
-	       50, p - 3. * sigmap, p + 3. * sigmap)
+               50, p - 3. * sigmap, p + 3. * sigmap)
    hp.SetDirectory(None)
    histos[name] = [hv, hp]
    all_histos.append(hv)
@@ -409,7 +417,7 @@ print '... done.'
 
 del resfile
 
-def rootSettings():	
+def rootSettings():     
    ROOT.gROOT.SetStyle('Plain')
    ROOT.gStyle.SetCanvasColor(0)
    ROOT.gStyle.SetPadColor(0)
@@ -445,7 +453,7 @@ def plot_and_fit_histos(fitvars, evalvars, pullvars):
          else:
             make_fit_vars(obj, fitvars)
          print 'Drawing histo "', name, '" ...'
-	 obj.SetMarkerColor(ROOT.kBlack)
+         obj.SetMarkerColor(ROOT.kBlack)
          obj.SetMarkerStyle(21)
          if ('Gamma' in name) :
             obj.GetXaxis().SetTitle('Evaluated ' + name)

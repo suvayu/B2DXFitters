@@ -48,18 +48,26 @@ else
     # automatic set up in standalone build mode
     if test -z "$B2DXFITTERSROOT"; then
         cwd="$(pwd)"
-        if test -z "$(dirname $0)"; then
-        # have to guess location of setup.sh
-        cd ../standalone
-        . ./setup.sh
-        cd "$cwd"
+        # try to find from where script is executed, use current directory as
+        # fallback
+        tmp="$(dirname $0)"
+        tmp=${tmp:-"$cwd"}
+        # convert to absolute path
+        tmp=`readlink -f "$tmp"`
+        # move up until standalone/setup.sh found, or root reached
+        while test \( \! -d "$tmp"/standalone \) -a -n "$tmp" -a "$tmp"\!="/"; do
+            tmp=`dirname "$tmp"`
+        done
+        if test -d "$tmp"/standalone; then
+            cd "$tmp"/standalone
+            . ./setup.sh
         else
-        # know where to look for setup.sh
-        cd "$(dirname $0)"/../standalone
-        . ./setup.sh
-        cd "$cwd"
+            echo `basename $0`: Unable to locate standalone/setup.sh
+            exit 1
         fi
-    unset cwd
+        cd "$cwd"
+        unset tmp
+        unset cwd
     fi
 fi
 

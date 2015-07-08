@@ -37,18 +37,26 @@ else
     # automatic set up in standalone build mode
     if test -z "$B2DXFITTERSROOT"; then
         cwd="$(pwd)"
-        if test -z "$(dirname $0)"; then
-        # have to guess location of setup.sh
-        cd ../standalone
-        . ./setup.sh
-        cd "$cwd"
+        # try to find from where script is executed, use current directory as
+        # fallback
+        tmp="$(dirname $0)"
+        tmp=${tmp:-"$cwd"}
+        # convert to absolute path
+        tmp=`readlink -f "$tmp"`
+        # move up until standalone/setup.sh found, or root reached
+        while test \( \! -d "$tmp"/standalone \) -a -n "$tmp" -a "$tmp"\!="/"; do
+            tmp=`dirname "$tmp"`
+        done
+        if test -d "$tmp"/standalone; then
+            cd "$tmp"/standalone
+            . ./setup.sh
         else
-        # know where to look for setup.sh
-        cd "$(dirname $0)"/../standalone
-        . ./setup.sh
-        cd "$cwd"
+            echo `basename $0`: Unable to locate standalone/setup.sh
+            exit 1
         fi
-    unset cwd
+        cd "$cwd"
+        unset tmp
+        unset cwd
     fi
 fi
 
@@ -121,8 +129,8 @@ parser.add_option('--debug', action='store_true', dest='debug', default=False,
 parser.add_option('--extension', action='store', dest='extension', default='pdf',
         type='string', help='graphics extension to save plots (default pdf)')
 parser.add_option('--systematic', action='store_true', dest='systematic',
-	default=False, help='evaluate systematic (implies --diff; list the '
-	'nominal files first)')
+        default=False, help='evaluate systematic (implies --diff; list the '
+        'nominal files first)')
 (options, args) = parser.parse_args()
 if '-' == args[0]: args.pop(0)
 
@@ -210,7 +218,7 @@ if options.systematic:
     from ROOT import TFile, TTree
     import ctypes
     branches = {
-	'toyID':        ctypes.c_int(),
+        'toyID':        ctypes.c_int(),
         'C':            ctypes.c_double(),
         'S':            ctypes.c_double(),
         'Sb':           ctypes.c_double(),
@@ -250,31 +258,31 @@ for toynr in fitresults:
         if len(fitresults[toynr]) > 2:
             raise ValueError('More than two FitResult for toy %u, do not know '
                     'how to diff that' % toynr)
-	if options.systematic:
+        if options.systematic:
             fitresults[toynr][0].setOptions(['Systematic'])
             fitresults[toynr][1].setOptions(['Systematic'])
-	else:
+        else:
             fitresults[toynr][0].setOptions(['SameDataSet'])
             fitresults[toynr][1].setOptions(['SameDataSet'])
         if options.systematic:
-	    if None == outfile:
+            if None == outfile:
                 outfile = TFile('systematic.root', 'RECREATE')
                 tree = TTree('resultstree', 'resultstree')
                 tree.SetDirectory(outfile)
                 for bname in branches:
-		    tree.Branch(bname, branches[bname], '%s/%s' % (bname, 'I' if 'toyID' == bname else 'D'))
-	    # write tuple for Moritz...
-	    branches['toyID'].value = toynr
-	    p1, p2 = fitresults[toynr][0].params(), fitresults[toynr][1].params()
-	    e1, e2 = fitresults[toynr][0].errors(), fitresults[toynr][1].errors()
-	    for vname in p1:
-		if vname in bnamemap:
-		    vnmapped = bnamemap[vname]
-		    branches['%s' % vnmapped].value = p1[vname]
-		    branches['%s_err' % vnmapped].value = e1[vname]
-		    branches['%s_shift' % vnmapped].value = p2[vname]
-		    branches['%s_shift_err' % vnmapped].value = e2[vname]
-	    tree.Fill()
+                    tree.Branch(bname, branches[bname], '%s/%s' % (bname, 'I' if 'toyID' == bname else 'D'))
+            # write tuple for Moritz...
+            branches['toyID'].value = toynr
+            p1, p2 = fitresults[toynr][0].params(), fitresults[toynr][1].params()
+            e1, e2 = fitresults[toynr][0].errors(), fitresults[toynr][1].errors()
+            for vname in p1:
+                if vname in bnamemap:
+                    vnmapped = bnamemap[vname]
+                    branches['%s' % vnmapped].value = p1[vname]
+                    branches['%s_err' % vnmapped].value = e1[vname]
+                    branches['%s_shift' % vnmapped].value = p2[vname]
+                    branches['%s_shift_err' % vnmapped].value = e2[vname]
+            tree.Fill()
         tmpfitresults.append(fitresults[toynr][0]-fitresults[toynr][1])
 if options.systematic and None != outfile:
     outfile.WriteTObject(tree)
@@ -296,18 +304,18 @@ gc.collect()
 def isphase(name):
     # look for something that looks like a phase
     for n in ('deltaMs', 'deltaMd'):
-	if n in name: return False
+        if n in name: return False
     for n in ( 'gamma', 'delta', 'phi_w' ):
-	if n in name: return True
+        if n in name: return True
     return False
 
 def normalise_phase(val):
     # normalise a phase to be within -pi < phaase <= pi
     val = fmod(val, 2. * pi)
     while val > pi:
-	val -= 2. * pi
+        val -= 2. * pi
     while val <= -pi:
-	val += 2. * pi
+        val += 2. * pi
     return val
 
 # step 1: figure out ranges - need mean and sigma for that
@@ -382,13 +390,13 @@ for vname in mu:
     if debug:
         print 'DEBUG: Mean, sigma for %s values: %g, %g' % (vname, v, sigmav)
     hv = TH1D('%s value' % vname, '%s_value;fitted %s' % (vname, vname),
- 	   50, v - 3. * sigmav, v + 3. * sigmav)
+           50, v - 3. * sigmav, v + 3. * sigmav)
     hv.SetDirectory(None)
     histos['value'][vname] = hv
     if debug:
         print 'DEBUG: Mean, sigma for %s pulls: %g, %g' % (vname, p, sigmap)
     hp = TH1D('%s pull' % vname, '%s_pull;%s pull' % (vname, vname),
- 	       50, p - 3. * sigmap, p + 3. * sigmap)
+               50, p - 3. * sigmap, p + 3. * sigmap)
     hp.SetDirectory(None)
     histos['pull'][vname] = hp
 gc.collect()
@@ -423,7 +431,7 @@ def fit_histo(h):
     if h.GetEntries() <= 0.:
         return
     if h.GetEntries() <= 5.:
-	return h.GetMean(), 0., h.GetRMS(), 0.
+        return h.GetMean(), 0., h.GetRMS(), 0.
     m = h.GetMaximum()
     from ROOT import TF1
     gaussian = TF1('Gaussian', 'gaus')
@@ -435,7 +443,7 @@ def fit_histo(h):
     isigma = gaussian.GetParNumber('Sigma')
     return gaussian.GetParameter(imu), gaussian.GetParError(imu), gaussian.GetParameter(isigma), gaussian.GetParError(isigma)
 
-def rootSettings():	
+def rootSettings():     
     ROOT.gROOT.SetStyle('Plain')
     ROOT.gStyle.SetCanvasColor(0)
     ROOT.gStyle.SetPadColor(0)
@@ -455,7 +463,7 @@ for t in ('value', 'pull'):
         results[t][vname] = {
                 'mu': mu, 'muerr': muerr, 'sigma': sigma, 'sigmaerr': sigmaerr}
         name = h.GetName().replace(' ', '_').replace('/', '_')
-	h.SetMarkerColor(ROOT.kBlack)
+        h.SetMarkerColor(ROOT.kBlack)
         h.SetMarkerStyle(21)
         h.GetYaxis().SetTitle('# of toys')
         h.SetTitle('')

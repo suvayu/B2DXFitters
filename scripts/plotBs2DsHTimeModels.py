@@ -30,18 +30,26 @@ else
     # automatic set up in standalone build mode
     if test -z "$B2DXFITTERSROOT"; then
         cwd="$(pwd)"
-        if test -z "$(dirname $0)"; then
-        # have to guess location of setup.sh
-        cd ../standalone
-        . ./setup.sh
-        cd "$cwd"
+        # try to find from where script is executed, use current directory as
+        # fallback
+        tmp="$(dirname $0)"
+        tmp=${tmp:-"$cwd"}
+        # convert to absolute path
+        tmp=`readlink -f "$tmp"`
+        # move up until standalone/setup.sh found, or root reached
+        while test \( \! -d "$tmp"/standalone \) -a -n "$tmp" -a "$tmp"\!="/"; do
+            tmp=`dirname "$tmp"`
+        done
+        if test -d "$tmp"/standalone; then
+            cd "$tmp"/standalone
+            . ./setup.sh
         else
-        # know where to look for setup.sh
-        cd "$(dirname $0)"/../standalone
-        . ./setup.sh
-        cd "$cwd"
+            echo `basename $0`: Unable to locate standalone/setup.sh
+            exit 1
         fi
-    unset cwd
+        cd "$cwd"
+        unset tmp
+        unset cwd
     fi
 fi
 
@@ -110,13 +118,13 @@ defaultModes = (
         # modes for DsK
         #[ ]
         ( 
-	   # ['Bs2DsK', 'Bs2DsPi', 'Bs2DsstPi', 'Bs2DsRho', 'CombBkg']
-	    ['Bs2DsK', 'Bs2DsPi', ['Bs2DsstPi', 'Bs2DsRho'], ['Bd2DK',
-		'Bd2DPi', 'Lb2LcK', 'Lb2LcPi', 'Lb2Dsp', 'Lb2Dsstp',
-		'Bd2DsK'], 'CombBkg']
-	    if onlyLargeModes else
-	    ['Bs2DsK', 'Bs2DsPi', 'Bs2DsstPi', 'Bs2DsRho', 'Bd2DK', 'Bd2DPi', 'Lb2LcK', 'Lb2LcPi', 'Lb2Dsp', 'Lb2Dsstp', 'Bd2DsK', 'CombBkg']
-	    )
+           # ['Bs2DsK', 'Bs2DsPi', 'Bs2DsstPi', 'Bs2DsRho', 'CombBkg']
+            ['Bs2DsK', 'Bs2DsPi', ['Bs2DsstPi', 'Bs2DsRho'], ['Bd2DK',
+                'Bd2DPi', 'Lb2LcK', 'Lb2LcPi', 'Lb2Dsp', 'Lb2Dsstp',
+                'Bd2DsK'], 'CombBkg']
+            if onlyLargeModes else
+            ['Bs2DsK', 'Bs2DsPi', 'Bs2DsstPi', 'Bs2DsRho', 'Bd2DK', 'Bd2DPi', 'Lb2LcK', 'Lb2LcPi', 'Lb2Dsp', 'Lb2Dsstp', 'Bd2DsK', 'CombBkg']
+            )
         if isDsK else
         # modes for DsPi
         #[ ]
@@ -124,9 +132,9 @@ defaultModes = (
         )
 
 groupedmodes = {
-	'Bs2DsstPi': 'B_{s}^{0} #rightarrow	D_{s}^{(*)-}(#pi^{+},#rho^{+})',
-	'Bd2DK': '(B_{d}^{0},#Lambda_{b}^{0}) #rightarrow X',
-	} if onlyLargeModes else { }
+        'Bs2DsstPi': 'B_{s}^{0} #rightarrow     D_{s}^{(*)-}(#pi^{+},#rho^{+})',
+        'Bd2DK': '(B_{d}^{0},#Lambda_{b}^{0}) #rightarrow X',
+        } if onlyLargeModes else { }
 
 # FIXME: do something nicer here, both nicer colors, and be consistent
 # between DsK and DsPi for the BG contributions (use a dictionary!)
@@ -134,19 +142,19 @@ from ROOT import ( RooLinkedList, kRed, kBlue, kGreen, kOrange, kYellow,
         kMagenta, kCyan, kBlack, kSolid, kDashed )
 
 styledict = {
-	'Bs2DsK':	{ 'color': kBlue + 3, 'style': 9 if onlyLargeModes else 1 },
-	'Bs2DsPi':	{ 'color': kMagenta - 2, 'style': 3 if onlyLargeModes else 1 },
-	'Bs2DsstPi':	{ 'color': kMagenta - 2, 'style': 4 },
-	'Bs2DsRho':	{ 'color': kMagenta - 2, 'style': 5 },
-	'Bd2DK':	{ 'color': kRed, 'style': 5 if onlyLargeModes else 1 },
-	'Bd2DPi':	{ 'color': kRed, 'style': 2 },
-	'Lb2LcK':	{ 'color': kGreen + 3, 'style': 1 },
-	'Lb2LcPi':	{ 'color': kGreen + 3, 'style': 2 },
-	'Lb2Dsp':	{ 'color': kYellow + 1, 'style': 1 },
-	'Lb2Dsstp':	{ 'color': kYellow + 1, 'style': 2 },
-	'Bd2DsK':	{ 'color': kBlue - 10, 'style': 1 },
-	'CombBkg':	{ 'color': kBlue - 6, 'style': 2 if onlyLargeModes else 1 },
-	}
+        'Bs2DsK':       { 'color': kBlue + 3, 'style': 9 if onlyLargeModes else 1 },
+        'Bs2DsPi':      { 'color': kMagenta - 2, 'style': 3 if onlyLargeModes else 1 },
+        'Bs2DsstPi':    { 'color': kMagenta - 2, 'style': 4 },
+        'Bs2DsRho':     { 'color': kMagenta - 2, 'style': 5 },
+        'Bd2DK':        { 'color': kRed, 'style': 5 if onlyLargeModes else 1 },
+        'Bd2DPi':       { 'color': kRed, 'style': 2 },
+        'Lb2LcK':       { 'color': kGreen + 3, 'style': 1 },
+        'Lb2LcPi':      { 'color': kGreen + 3, 'style': 2 },
+        'Lb2Dsp':       { 'color': kYellow + 1, 'style': 1 },
+        'Lb2Dsstp':     { 'color': kYellow + 1, 'style': 2 },
+        'Bd2DsK':       { 'color': kBlue - 10, 'style': 1 },
+        'CombBkg':      { 'color': kBlue - 6, 'style': 2 if onlyLargeModes else 1 },
+        }
 
 #------------------------------------------------------------------------------
 def WS(ws, obj, opts = [RooFit.RecycleConflictNodes(), RooFit.Silence()]):
@@ -187,9 +195,9 @@ def plotDataSet(frame, wksp, dsname, options = []) :
     ds.plotOn(frame, plotopts)
     hist = frame.getHist('h_%s' % ds.GetName())
     for i in xrange(0, hist.GetN()):
-	if 0. == abs(hist.GetY()[i]):
-	    hist.SetPointEYhigh(i, 0.)
-	    hist.SetPointEYlow(i, 0.)
+        if 0. == abs(hist.GetY()[i]):
+            hist.SetPointEYhigh(i, 0.)
+            hist.SetPointEYlow(i, 0.)
     return ds
     #dataset.statOn(frame,
     #                RooFit.Layout(0.56, 0.90, 0.90),
@@ -202,14 +210,14 @@ def plotFitModel(frame, wksp, modelname, options = [], sliceoptlist = [ [] ],
     components = {} 
     modEx = {}
     for mode in modes:
-	if type(mode) == list:
-	    lmodes = mode
-	    modenick = mode[0]
-	else:
-	    modenick = mode
-	    lmodes = [mode]
+        if type(mode) == list:
+            lmodes = mode
+            modenick = mode[0]
+        else:
+            modenick = mode
+            lmodes = [mode]
         tmp = []
-	for mmm in lmodes:
+        for mmm in lmodes:
             for sname in snames:
                 compname = '%s_%s_PDF' % (mmm, sname)
                 if None == wksp.pdf(compname): continue
@@ -245,12 +253,12 @@ def plotFitModel(frame, wksp, modelname, options = [], sliceoptlist = [ [] ],
         
         i = 0
         for mode in defaultModes:
-	    if type(mode) == list:
-	        lmodes = mode
-	        modenick = mode[0]
-	    else:
-	        modenick = mode
-	        lmodes = [mode]
+            if type(mode) == list:
+                lmodes = mode
+                modenick = mode[0]
+            else:
+                modenick = mode
+                lmodes = [mode]
             if modEx[modenick] == False: 
                 i=i+1
                 continue 
@@ -264,8 +272,8 @@ def plotFitModel(frame, wksp, modelname, options = [], sliceoptlist = [ [] ],
             if 0 != isl:
                 opts.append(RooFit.AddTo(lastname, 1., 1.))
             opts = opts + [ RooFit.LineWidth(2),
-		    RooFit.LineColor(styledict[modenick]['color']),
-		    RooFit.LineStyle(styledict[modenick]['style']),
+                    RooFit.LineColor(styledict[modenick]['color']),
+                    RooFit.LineStyle(styledict[modenick]['style']),
                     RooFit.Components(components[modenick]) ]
             i = i + 1
             plotopts = RooLinkedList()
@@ -313,16 +321,16 @@ def legend():
     leg.AddEntry(ths[0],"total",'L')
 
     for m in defaultModes:
-	if type(m) == list:
-	    lmodes = m
-	    modenick = m[0]
-	else:
-	    modenick = m
-	    lmodes = [m]
-	if modenick in groupedmodes:
-	    tmpmode = groupedmodes[modenick]
-	else:
-	    tmpmode = modenick
+        if type(m) == list:
+            lmodes = m
+            modenick = m[0]
+        else:
+            modenick = m
+            lmodes = [m]
+        if modenick in groupedmodes:
+            tmpmode = groupedmodes[modenick]
+        else:
+            tmpmode = modenick
         prettym = str(TLatexUtils.DecDescrToTLatex(tmpmode))
         i = len(ths)
         ths.append(TLine())
@@ -409,35 +417,35 @@ if __name__ == '__main__' :
 #                if isDsK else
 #                'B_{s} #rightarrow D_{s}^{-}#pi^{+} + #bar{B_{s}} #rightarrow D_{s}^{+}#pi^{-}'),
 #                [ RooFit.Cut("qf*qt > 0") ],
-#	        [ [ RooFit.Slice(w.cat('qt'), 'B_1'),
-#	        RooFit.Slice(w.cat('qf'), 'h+') ],
-#	        [ RooFit.Slice(w.cat('qt'), 'B_2'),
-#	        RooFit.Slice(w.cat('qf'), 'h+') ],
-#	        [ RooFit.Slice(w.cat('qt'), 'B_3'),
-#	        RooFit.Slice(w.cat('qf'), 'h+') ],
-#	        [ RooFit.Slice(w.cat('qt'), 'Bbar_1'),
-#	        RooFit.Slice(w.cat('qf'), 'h-') ],
-#	        [ RooFit.Slice(w.cat('qt'), 'Bbar_2'),
-#	        RooFit.Slice(w.cat('qf'), 'h-') ],
-#	        [ RooFit.Slice(w.cat('qt'), 'Bbar_3'),
-#	        RooFit.Slice(w.cat('qf'), 'h-') ] ]
+#               [ [ RooFit.Slice(w.cat('qt'), 'B_1'),
+#               RooFit.Slice(w.cat('qf'), 'h+') ],
+#               [ RooFit.Slice(w.cat('qt'), 'B_2'),
+#               RooFit.Slice(w.cat('qf'), 'h+') ],
+#               [ RooFit.Slice(w.cat('qt'), 'B_3'),
+#               RooFit.Slice(w.cat('qf'), 'h+') ],
+#               [ RooFit.Slice(w.cat('qt'), 'Bbar_1'),
+#               RooFit.Slice(w.cat('qf'), 'h-') ],
+#               [ RooFit.Slice(w.cat('qt'), 'Bbar_2'),
+#               RooFit.Slice(w.cat('qf'), 'h-') ],
+#               [ RooFit.Slice(w.cat('qt'), 'Bbar_3'),
+#               RooFit.Slice(w.cat('qf'), 'h-') ] ]
 #                ],
 #            [ ('B_{s} #rightarrow D_{s}^{+}K^{-} + #bar{B_{s}} #rightarrow D_{s}^{-}K^{+}'
 #                if isDsK else
 #                'B_{s} #rightarrow D_{s}^{+}#pi^{-} + #bar{B_{s}} #rightarrow D_{s}^{-}#pi^{+}'),
 #                [ RooFit.Cut("qf*qt < 0") ],
-#	        [ [ RooFit.Slice(w.cat('qt'), 'B_1'),
-#	        RooFit.Slice(w.cat('qf'), 'h-') ],
-#	        [ RooFit.Slice(w.cat('qt'), 'B_2'),
-#	        RooFit.Slice(w.cat('qf'), 'h-') ],
-#	        [ RooFit.Slice(w.cat('qt'), 'B_3'),
-#	        RooFit.Slice(w.cat('qf'), 'h-') ],
-#	        [ RooFit.Slice(w.cat('qt'), 'Bbar_1'),
-#	        RooFit.Slice(w.cat('qf'), 'h+') ],
-#	        [ RooFit.Slice(w.cat('qt'), 'Bbar_2'),
-#	        RooFit.Slice(w.cat('qf'), 'h+') ],
-#	        [ RooFit.Slice(w.cat('qt'), 'Bbar_3'),
-#	        RooFit.Slice(w.cat('qf'), 'h+') ] ]
+#               [ [ RooFit.Slice(w.cat('qt'), 'B_1'),
+#               RooFit.Slice(w.cat('qf'), 'h-') ],
+#               [ RooFit.Slice(w.cat('qt'), 'B_2'),
+#               RooFit.Slice(w.cat('qf'), 'h-') ],
+#               [ RooFit.Slice(w.cat('qt'), 'B_3'),
+#               RooFit.Slice(w.cat('qf'), 'h-') ],
+#               [ RooFit.Slice(w.cat('qt'), 'Bbar_1'),
+#               RooFit.Slice(w.cat('qf'), 'h+') ],
+#               [ RooFit.Slice(w.cat('qt'), 'Bbar_2'),
+#               RooFit.Slice(w.cat('qf'), 'h+') ],
+#               [ RooFit.Slice(w.cat('qt'), 'Bbar_3'),
+#               RooFit.Slice(w.cat('qf'), 'h+') ] ]
 #                ],
             ]
 
@@ -479,7 +487,7 @@ if __name__ == '__main__' :
         
         pdfplotopts = [
                 RooFit.Precision(1e-6),
-		RooFit.Normalization(1. / projds.sumEntries(), RooAbsReal.Relative),
+                RooFit.Normalization(1. / projds.sumEntries(), RooAbsReal.Relative),
                 RooFit.ProjWData(projds, True),
                 RooFit.NumCPU(6),
                 ]
@@ -496,10 +504,10 @@ if __name__ == '__main__' :
                                                 str(time.getBinWidth(1))+" ps)") ).Data())
         #leg, curve = legends(modelPDF, frame_t)
         #frame_t.addObject(leg)
-	if onlyLargeModes:
-	    frame_t.GetYaxis().SetRangeUser(0.4,250.)
-	else:
-	    frame_t.GetYaxis().SetRangeUser(0.12,250.)
+        if onlyLargeModes:
+            frame_t.GetYaxis().SetRangeUser(0.4,250.)
+        else:
+            frame_t.GetYaxis().SetRangeUser(0.12,250.)
         
         frame_t.Draw()
         leg = legend()
@@ -520,7 +528,7 @@ if __name__ == '__main__' :
         pull.GetXaxis().SetTitleSize(0.15)
         pull.GetXaxis().SetTitleOffset(0.95)
         pull.GetXaxis().SetTitle(str(
-	    TLatexUtils.DecDescrToTLatex('#tau ((Bs2DsK) [ps]')))
+            TLatexUtils.DecDescrToTLatex('#tau ((Bs2DsK) [ps]')))
         pull.GetYaxis().SetRangeUser(-3.5, 3.5)
         pull.GetYaxis().SetNdivisions(5)
         pull.GetYaxis().SetLabelSize(0.15)

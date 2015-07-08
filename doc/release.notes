@@ -4,6 +4,12 @@
 ! Purpose     : RooFit-based fitters for B -> D X
 !-----------------------------------------------------------------------------
 
+
+! 2015-07-09 - Manuel Tobias Schiller
+ - make shell prologs a bit more robust when attempting to locate standalone
+   environment
+ - fix tabs/spaces in old python code
+
 ! 2015-07-08 - Manuel Tobias Schiller
  - add scripts/prolog.py, the funny python/shell hybrid used to start things
    up

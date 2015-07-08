@@ -30,14 +30,14 @@
 # make sure the environment is set up properly
 if test -n "$CMTCONFIG" \
          -a -f $B2DXFITTERSROOT/$CMTCONFIG/libB2DXFittersDict.so \
-	 -a -f $B2DXFITTERSROOT/$CMTCONFIG/libB2DXFittersLib.so; then
+         -a -f $B2DXFITTERSROOT/$CMTCONFIG/libB2DXFittersLib.so; then
     # all ok, software environment set up correctly, so don't need to do 
     # anything
     true
 else
     if test -n "$CMTCONFIG"; then
-	# clean up incomplete LHCb software environment so we can run
-	# standalone
+        # clean up incomplete LHCb software environment so we can run
+        # standalone
         echo Cleaning up incomplete LHCb software environment.
         PYTHONPATH=`echo $PYTHONPATH | tr ':' '\n' | \
             egrep -v "^($User_release_area|$MYSITEROOT/lhcb)" | \
@@ -52,18 +52,26 @@ else
     # automatic set up in standalone build mode
     if test -z "$B2DXFITTERSROOT"; then
         cwd="$(pwd)"
-        if test -z "$(dirname $0)"; then
-	    # have to guess location of setup.sh
-	    cd ../standalone
-	    . ./setup.sh
-	    cd "$cwd"
+        # try to find from where script is executed, use current directory as
+        # fallback
+        tmp="$(dirname $0)"
+        tmp=${tmp:-"$cwd"}
+        # convert to absolute path
+        tmp=`readlink -f "$tmp"`
+        # move up until standalone/setup.sh found, or root reached
+        while test \( \! -d "$tmp"/standalone \) -a -n "$tmp" -a "$tmp"\!="/"; do
+            tmp=`dirname "$tmp"`
+        done
+        if test -d "$tmp"/standalone; then
+            cd "$tmp"/standalone
+            . ./setup.sh
         else
-	    # know where to look for setup.sh
-	    cd "$(dirname $0)"/../standalone
-	    . ./setup.sh
-	    cd "$cwd"
+            echo `basename $0`: Unable to locate standalone/setup.sh
+            exit 1
         fi
-	unset cwd
+            cd "$cwd"
+        unset tmp
+        unset cwd
     fi
 fi
 
@@ -71,20 +79,20 @@ fi
 # prefer jemalloc over tcmalloc
 for i in libjemalloc libtcmalloc; do
     for j in `echo "$LD_LIBRARY_PATH" | tr ':' ' '` \
-	    /usr/local/lib /usr/lib /lib; do
+            /usr/local/lib /usr/lib /lib; do
         for k in `find "$j" -name "$i"'*.so.?' | sort -r`; do
             if test \! -e "$k"; then
-	        continue
-	    fi
-	    echo adding $k to LD_PRELOAD
-	    if test -z "$LD_PRELOAD"; then
-	        export LD_PRELOAD="$k"
-	        break 3
-	    else
-	        export LD_PRELOAD="$LD_PRELOAD":"$k"
-	        break 3
-	    fi
-	done
+                continue
+            fi
+            echo adding $k to LD_PRELOAD
+            if test -z "$LD_PRELOAD"; then
+                export LD_PRELOAD="$k"
+                break 3
+            else
+                export LD_PRELOAD="$LD_PRELOAD":"$k"
+                break 3
+            fi
+        done
     done
 done
 
@@ -133,7 +141,7 @@ if 'CMTCONFIG' in os.environ:
 else:
     # running in standalone mode, we have to load things ourselves
     ROOT.gSystem.Load(os.environ['B2DXFITTERSROOT'] +
-	    '/standalone/libB2DXFitters')
+            '/standalone/libB2DXFitters')
 
 # -----------------------------------------------------------------------------
 # Configuration settings
@@ -148,22 +156,22 @@ else:
 # must evaluate to a dictionary)
 # -----------------------------------------------------------------------------
 defaultConfig = {
-	'DoDsK':			True,
-	'DoDsPi':			True,
-	# truth/Gaussian/DoubleGaussian/GaussianWithPEDTE/GaussianWithLandauPEDTE/GaussianWithScaleAndPEDTE/TripeGaussian
-	'DecayTimeResolutionModel':	'TripleGaussian',
-	'DecayTimeResolutionBias':	0.,
-	'DecayTimeResolutionScaleFactor': 1.,        
-	# None/BdPTAcceptance/DTAcceptanceLHCbNote2007041/PowLawAcceptance
-	'AcceptanceFunction':		'PowLawAcceptance',
-	# acceptance parameters PowLawAcceptance
-	'PowLawAcceptance_turnon':	 1.538,
-	'PowLawAcceptance_offset':	-0.005,
-	'PowLawAcceptance_expo':	 2.031,
-	'PowLawAcceptance_beta':	 0.037,
+        'DoDsK':                        True,
+        'DoDsPi':                       True,
+        # truth/Gaussian/DoubleGaussian/GaussianWithPEDTE/GaussianWithLandauPEDTE/GaussianWithScaleAndPEDTE/TripeGaussian
+        'DecayTimeResolutionModel':     'TripleGaussian',
+        'DecayTimeResolutionBias':      0.,
+        'DecayTimeResolutionScaleFactor': 1.,        
+        # None/BdPTAcceptance/DTAcceptanceLHCbNote2007041/PowLawAcceptance
+        'AcceptanceFunction':           'PowLawAcceptance',
+        # acceptance parameters PowLawAcceptance
+        'PowLawAcceptance_turnon':       1.538,
+        'PowLawAcceptance_offset':      -0.005,
+        'PowLawAcceptance_expo':         2.031,
+        'PowLawAcceptance_beta':         0.037,
 
-	'PerEventMistag': 		False,
-	'UseKFactor':			False,
+        'PerEventMistag':               False,
+        'UseKFactor':                   False,
 
         #parameters for Gaussian resolution models
         'ResModelGaussMeans'     : [],
@@ -172,38 +180,38 @@ defaultConfig = {
         'ResModelGaussSFWidths'  : [],
         'ResModelGaussFractions' : [],
 
-	# BLINDING
-	'Blinding':			True,
+        # BLINDING
+        'Blinding':                     True,
 
-	# PHYSICAL PARAMETERS
-	'Gammad':			0.656, # in ps^{-1}
-	'Gammas':			0.679, # in ps^{-1}
-	'DeltaGammad':			0.,    # in ps^{-1}
-	'DGsOverGs':			-0.17629, # DeltaGammas / Gammas
-	'DeltaMd':			0.507, # in ps^{-1}
-	'DeltaMs':			17.77, # in ps^{-1}
+        # PHYSICAL PARAMETERS
+        'Gammad':                       0.656, # in ps^{-1}
+        'Gammas':                       0.679, # in ps^{-1}
+        'DeltaGammad':                  0.,    # in ps^{-1}
+        'DGsOverGs':                    -0.17629, # DeltaGammas / Gammas
+        'DeltaMd':                      0.507, # in ps^{-1}
+        'DeltaMs':                      17.77, # in ps^{-1}
 
-	# TOY PARAMETERS
-	# If doing an extended likelihood fit
-	'NSigEvts':			1600, # signal events
-	'NBs2DsPiEvts':			26000, #800, # Bs -> Ds pi phys. bkg. events
-	# Tagging
-	'TagEffSig':			0.6123,
-	'TagOmegaSig':			0.360933,
-        'ForceAllUntagged':		False, # forcibly sets all events untagged
-	# CP observables
-	'StrongPhase':			0. / 180. * pi,
-	'WeakPhase':			70. / 180. * pi,
-	'ModLf':			0.372,
-	# list of constant parameters
-	'constParams': [
+        # TOY PARAMETERS
+        # If doing an extended likelihood fit
+        'NSigEvts':                     1600, # signal events
+        'NBs2DsPiEvts':                 26000, #800, # Bs -> Ds pi phys. bkg. events
+        # Tagging
+        'TagEffSig':                    0.6123,
+        'TagOmegaSig':                  0.360933,
+        'ForceAllUntagged':             False, # forcibly sets all events untagged
+        # CP observables
+        'StrongPhase':                  0. / 180. * pi,
+        'WeakPhase':                    70. / 180. * pi,
+        'ModLf':                        0.372,
+        # list of constant parameters
+        'constParams': [
             'av_omega',
-	    'Gammas', 'deltaGammas', #'deltaMs',
-	    'tacc_turnon', 'tacc_beta', 'tacc_expo', 'tacc_offset',
-	    #'tagOmegaSig',
-	    'tagEffSig',
+            'Gammas', 'deltaGammas', #'deltaMs',
+            'tacc_turnon', 'tacc_beta', 'tacc_expo', 'tacc_offset',
+            #'tagOmegaSig',
+            'tagEffSig',
             'nBs2DsPiEvts'
-	    ],
+            ],
         'MistagCatBinBounds' :   None,
         'Optimize': 2,
         'Strategy': 2,
@@ -214,8 +222,8 @@ defaultConfig = {
         #bug-for-bug compatibility flags
         'BugFlags': [ ],
         'NBinsAcceptance': 0,
-	'OnlyInMassWindow': False
-	}
+        'OnlyInMassWindow': False
+        }
 
 # MISCELLANEOUS
 bName = 'B_{s}'
@@ -251,27 +259,27 @@ def printResult(config, result, blind = False):
         fbu[obj.GetName()] = obj.getMax()
     del it
     for v1 in iv.keys():
-	if v1 not in correl:
-	    correl[v1] = {}
-	for v2 in iv.keys():
-	    correl[v1][v2] = result.correlation(v1, v2)
+        if v1 not in correl:
+            correl[v1] = {}
+        for v2 in iv.keys():
+            correl[v1][v2] = result.correlation(v1, v2)
     # apply bug fixes (if needed)
     if 'OutputCompatSSbarSwapMinusOne' in config['BugFlags']:
-	for vn in fv.keys():
-	    if not vn.endswith('_Sbar'):
-		continue
-	    # swap all S and Sbar values, multiply each with minus one
-	    on = vn.rstrip('_Sbar') + '_S'
-	    for a in [iv, fv]:
-		a[on], a[vn] = -a[vn], -a[on]
-	    # swap S and Sbar bounds and errors (no multiplication with -1!)
-	    for a in [fe, fbl, fbu]:
-		a[on], a[vn] = a[vn], a[on]
-	    # apply swapping to correlation matrix (no multiplication with -1!)
-	    for wn in fv.keys():
-		correl[wn][vn], correl[wn][on] = correl[wn][on], correl[wn][vn]
-	    for wn in fv.keys():
-		correl[vn][wn], correl[on][wn] = correl[on][wn], correl[vn][wn]
+        for vn in fv.keys():
+            if not vn.endswith('_Sbar'):
+                continue
+            # swap all S and Sbar values, multiply each with minus one
+            on = vn.rstrip('_Sbar') + '_S'
+            for a in [iv, fv]:
+                a[on], a[vn] = -a[vn], -a[on]
+            # swap S and Sbar bounds and errors (no multiplication with -1!)
+            for a in [fe, fbl, fbu]:
+                a[on], a[vn] = a[vn], a[on]
+            # apply swapping to correlation matrix (no multiplication with -1!)
+            for wn in fv.keys():
+                correl[wn][vn], correl[wn][on] = correl[wn][on], correl[wn][vn]
+            for wn in fv.keys():
+                correl[vn][wn], correl[on][wn] = correl[on][wn], correl[vn][wn]
     # ok, print the result
     print ''
     print 'FIT RESULT: FCN % 12.6g STATUS % 2d COV QUAL % 2d EDM %12.6g' % (
@@ -303,8 +311,8 @@ def printResult(config, result, blind = False):
         line = '%3u' % i
         i = i + 1
         for var2 in sorted(correl.keys()):
-    	    line = line + ' % 6.3f' % correl[var1][var2]
-	cov.append(line)
+            line = line + ' % 6.3f' % correl[var1][var2]
+        cov.append(line)
     del i
     print hdrline
     for line in cov:
@@ -314,15 +322,15 @@ def printResult(config, result, blind = False):
 def setConstantIfSoConfigured(config, obj):
     from ROOT import RooAbsPdf
     if obj.InheritsFrom(RooAbsPdf.Class()):
-	i = obj.getVariables().iterator()
-	o = i
-	while None != o:
-	    o = i.Next()
-	    if None != o:
-		setConstantIfSoConfigured(config, o)
+        i = obj.getVariables().iterator()
+        o = i
+        while None != o:
+            o = i.Next()
+            if None != o:
+                setConstantIfSoConfigured(config, o)
     else:
-	if obj.GetName() in config['constParams']:
-	    obj.setConstant(True)
+        if obj.GetName() in config['constParams']:
+            obj.setConstant(True)
 
 #------------------------------------------------------------------------------
 # "swallow" object into a workspace, returns swallowed object
@@ -330,22 +338,22 @@ def WS(ws, obj, opts = [RooFit.RecycleConflictNodes()]):
     name = obj.GetName()
     wsobj = ws.obj(name)
     if obj.InheritsFrom('RooAbsArg') or obj.InheritsFrom('RooAbsData'):
-	if None == wsobj:
+        if None == wsobj:
             if len(opts) > 0:
-	        ws.__getattribute__('import')(obj, *opts)
-	    else:
-	        ws.__getattribute__('import')(obj)
-	    wsobj = ws.obj(name)
-	else:
-	    if wsobj.Class() != obj.Class():
-		raise TypeError()
+                ws.__getattribute__('import')(obj, *opts)
+            else:
+                ws.__getattribute__('import')(obj)
+            wsobj = ws.obj(name)
+        else:
+            if wsobj.Class() != obj.Class():
+                raise TypeError()
     else:
-	if None == wsobj:
-	    ws.__getattribute__('import')(obj, name)
-	    wsobj = ws.obj(name)
-	else:
-	    if wsobj.Class() != obj.Class():
-		raise TypeError()
+        if None == wsobj:
+            ws.__getattribute__('import')(obj, name)
+            wsobj = ws.obj(name)
+        else:
+            if wsobj.Class() != obj.Class():
+                raise TypeError()
     return wsobj
 
 #------------------------------------------------------------------------------
@@ -401,14 +409,14 @@ def readTree(config, dsname, variables, weights, qf, qt, eta):
         nkeys = nkeys + 1
     if not (1 < nkeys or 0 >= nkeys or None == thekey):
         if config['OnlyInMassWindow']:
-	    print 'Only using events in mass window, getting rid of sample index and sweights'
+            print 'Only using events in mass window, getting rid of sample index and sweights'
             variables.pop(thekey)
             thekey = None
             nkeys = 0
     if 1 < nkeys or 0 >= nkeys or None == thekey:
-	print 'No sample index branch found! Continuing, assuming MC tuples.'
-	samplecat = None
-	swmap = {}
+        print 'No sample index branch found! Continuing, assuming MC tuples.'
+        samplecat = None
+        swmap = {}
     else:
         samplecat = variables[thekey]
         cit = samplecat.typeIterator()
@@ -418,31 +426,31 @@ def readTree(config, dsname, variables, weights, qf, qt, eta):
         swmap = {}
         obj = cit.Next()
         while None != obj:
-    	    str = obj.GetName()
-    	    str = str.split('_')
-    	    pol = None
-    	    if 'up' in str: pol = 'up'
-    	    elif 'down' in str: pol = 'down'
-    	    dsmode = None
-    	    for dsm in [ 'kkpi', 'kpipi', 'pipipi' ]:
-    	        if dsm in str:
-    	   	   dsmode = dsm
-    	    	   break
-    	    if None == pol or None == dsmode:
-    	        print 'Could not figure out (polarity, Ds decay mode)'
-    	        return None
-    	    swmap[obj.getVal()] = 'nSig_%s_%s_Evts_sw' % (pol, dsmode)
-    	    obj = cit.Next()
+            str = obj.GetName()
+            str = str.split('_')
+            pol = None
+            if 'up' in str: pol = 'up'
+            elif 'down' in str: pol = 'down'
+            dsmode = None
+            for dsm in [ 'kkpi', 'kpipi', 'pipipi' ]:
+                if dsm in str:
+                   dsmode = dsm
+                   break
+            if None == pol or None == dsmode:
+                print 'Could not figure out (polarity, Ds decay mode)'
+                return None
+            swmap[obj.getVal()] = 'nSig_%s_%s_Evts_sw' % (pol, dsmode)
+            obj = cit.Next()
     # open root file and get tree
     f = TFile(filename, 'READ')
     if f.IsZombie():
-	print 'Unable to open tuple file %s' % filename
-	return None
+        print 'Unable to open tuple file %s' % filename
+        return None
     tree = f.Get(treename)
     if not tree.InheritsFrom('TTree'):
-	print 'Object %s in file %s either not found or not a tree' % (
-		treename, filename)
-	return None
+        print 'Object %s in file %s either not found or not a tree' % (
+                treename, filename)
+        return None
     # build branches
     lvars = {}
     additionalBranches = []
@@ -452,24 +460,24 @@ def readTree(config, dsname, variables, weights, qf, qt, eta):
         additionalBranches.append('lab0_MassFitConsD_M')
     for k in variables.keys() + swmap.values() + additionalBranches:
         print k
-	typename = tree.FindLeaf(k).GetTypeName()
-	if typename in [ 'int', 'Int_t']:
-	    lvars[k] = ctypes.c_int(0)
-	elif typename in [ 'double', 'Double_t' ]:
-	    lvars[k] = ctypes.c_double(0.)
-	elif typename in [ 'float', 'Float_t' ]:
-	    lvars[k] = ctypes.c_float(0.)
-	else:
-	    print 'Unknown type "%s" for branch "%s"' % (typename, k)
-	    return None
+        typename = tree.FindLeaf(k).GetTypeName()
+        if typename in [ 'int', 'Int_t']:
+            lvars[k] = ctypes.c_int(0)
+        elif typename in [ 'double', 'Double_t' ]:
+            lvars[k] = ctypes.c_double(0.)
+        elif typename in [ 'float', 'Float_t' ]:
+            lvars[k] = ctypes.c_float(0.)
+        else:
+            print 'Unknown type "%s" for branch "%s"' % (typename, k)
+            return None
     for k in variables.keys() + swmap.values() + additionalBranches:
-	tree.SetBranchAddress(k, lvars[k])
+        tree.SetBranchAddress(k, lvars[k])
     # create dataset to return
     if 0 == len(swmap):
         ds = RooDataSet(dsname, dsname, RooArgSet(*variables.values()))
     else:
         ds = RooDataSet(dsname, dsname, RooArgSet(weights, *variables.values()),
-		weights.GetName())
+                weights.GetName())
     # loop over tuple
     avgmistag = 0.
     sumweights = 0.
@@ -483,75 +491,75 @@ def readTree(config, dsname, variables, weights, qf, qt, eta):
             avpercat.append(0.)
             sumpercat.append(0.)
     for i in xrange(0, tree.GetEntries()):
-	tree.GetEntry(i)
-	idx = None
-	# assign values read from tuple to RooFit objects (with some
-	# preprocessing)
-	for k in lvars:
-	    if k not in variables: continue
+        tree.GetEntry(i)
+        idx = None
+        # assign values read from tuple to RooFit objects (with some
+        # preprocessing)
+        for k in lvars:
+            if k not in variables: continue
             # fix predicted mistag for untagged events
-	    if ('TAGDECISION' in k or 'DEC' in k):
-		if 0 == int(lvars[k].value):
-		    etaname = None
-		    if 'TAGDECISION' in k:
-		        etaname = k.replace('TAGDECISION', 'TAGOMEGA')
-		    elif 'TRUE_DEC' in k:
-		        etaname = k.replace('TRUE_DEC', 'OST_OMEGA')
+            if ('TAGDECISION' in k or 'DEC' in k):
+                if 0 == int(lvars[k].value):
+                    etaname = None
+                    if 'TAGDECISION' in k:
+                        etaname = k.replace('TAGDECISION', 'TAGOMEGA')
+                    elif 'TRUE_DEC' in k:
+                        etaname = k.replace('TRUE_DEC', 'OST_OMEGA')
                     elif 'DEC' in k:
-		        etaname = k.replace('DEC', 'OMEGA')
-		    if not etaname in lvars: continue
-		    lvars[etaname].value = 0.5
-	    # further postprocessing
-	    if ctypes.c_int == type(lvars[k]):
-		# things saved as integers are assumed to be categories on the
-		# RooFit side without any need for preprocessing
-		variables[k].setIndex(lvars[k].value)
-		if '_idx' in k:
+                        etaname = k.replace('DEC', 'OMEGA')
+                    if not etaname in lvars: continue
+                    lvars[etaname].value = 0.5
+            # further postprocessing
+            if ctypes.c_int == type(lvars[k]):
+                # things saved as integers are assumed to be categories on the
+                # RooFit side without any need for preprocessing
+                variables[k].setIndex(lvars[k].value)
+                if '_idx' in k:
                     # make sure only one branch fits the description
-		    if None != idx:
-			return None
-		    idx = lvars[k].value
-	    elif variables[k].InheritsFrom('RooAbsCategoryLValue'):
-	        # things saved as doubles and to be saved to categories need
-		# preprocessing (final state charge, tagging decisions)
-		v = 0
-		if lvars[k].value > 0: v = +1
-		elif lvars[k].value < 0: v = - 1
-		variables[k].setIndex(v)
-	    else:
+                    if None != idx:
+                        return None
+                    idx = lvars[k].value
+            elif variables[k].InheritsFrom('RooAbsCategoryLValue'):
+                # things saved as doubles and to be saved to categories need
+                # preprocessing (final state charge, tagging decisions)
+                v = 0
+                if lvars[k].value > 0: v = +1
+                elif lvars[k].value < 0: v = - 1
+                variables[k].setIndex(v)
+            else:
                 # everything else goes from double to RooRealVar or similar,
-		# so only the lifetime needs to have that annoying factor of c
-		# (expressed in funny units) taken out
-		if 'ctau' in k:
-		    lvars[k].value = lvars[k].value * 1e9 / 299792458.
+                # so only the lifetime needs to have that annoying factor of c
+                # (expressed in funny units) taken out
+                if 'ctau' in k:
+                    lvars[k].value = lvars[k].value * 1e9 / 299792458.
                 elif 'TAU' in k:
-		    lvars[k].value = lvars[k].value * 1e3
+                    lvars[k].value = lvars[k].value * 1e3
                 if lvars[k].value < variables[k].getMin() or \
-			lvars[k].value > variables[k].getMax():
+                        lvars[k].value > variables[k].getMax():
                     continue
                 variables[k].setVal(lvars[k].value)
         # get sWeight from right branch
-	if None != idx and None != samplecat:
+        if None != idx and None != samplecat:
             # make sure it's a known sample index
-	    if not idx in swmap:
-		print 'Unknown sample index found in tuple'
-		return None
-	    weights.setVal(lvars[swmap[idx]].value)
-	    # make sure the other sweights are all zero
-	    nzero = 0
-	    for k in swmap.values():
-		if k == swmap[idx]: continue
-		if 0. == abs(lvars[k].value): nzero = nzero + 1
-	    if 1 + nzero != len(swmap):
-		print 'mapping between sample index number and sample %s' % \
-		    'label does not seem to match'
-		return None
+            if not idx in swmap:
+                print 'Unknown sample index found in tuple'
+                return None
+            weights.setVal(lvars[swmap[idx]].value)
+            # make sure the other sweights are all zero
+            nzero = 0
+            for k in swmap.values():
+                if k == swmap[idx]: continue
+                if 0. == abs(lvars[k].value): nzero = nzero + 1
+            if 1 + nzero != len(swmap):
+                print 'mapping between sample index number and sample %s' % \
+                    'label does not seem to match'
+                return None
         if config['OnlyInMassWindow']:
             mass = lvars['lab0_MassFitConsD_M'].value
             if 5320. > mass or 5420. < mass:
                 continue
         # get average sweighted mistag over whole data set
-	if 'B_TRUE_DEC' in additionalBranches:
+        if 'B_TRUE_DEC' in additionalBranches:
             sumweightsall += 1.
             sumweightsallerr2 += 1.
         else:
@@ -559,13 +567,13 @@ def readTree(config, dsname, variables, weights, qf, qt, eta):
             sumweightsallerr2 += abs(weights.getVal())
         if 0 != qt.getIndex():
             if 'B_TRUE_DEC' in additionalBranches:
-	        iswrong = 0.
-		if lvars['B_OST_DEC'].value != lvars['B_TRUE_DEC'].value:
+                iswrong = 0.
+                if lvars['B_OST_DEC'].value != lvars['B_TRUE_DEC'].value:
                     iswrong = 1.
                 avgmistag += iswrong
                 sumweights += 1.
                 sumweightserr2 += 1.
-	    else:
+            else:
                 avgmistag += eta.getVal() * weights.getVal()
                 sumweights += weights.getVal()
                 sumweightserr2 += abs(weights.getVal())
@@ -573,25 +581,25 @@ def readTree(config, dsname, variables, weights, qf, qt, eta):
                 if catbinbounds[i + 1] < eta.getVal(): continue
                 if catbinbounds[i] > eta.getVal(): break
                 if 'B_TRUE_DEC' in additionalBranches:
-		    iswrong = 0.
-		    if lvars['B_OST_DEC'].value != lvars['B_TRUE_DEC'].value:
+                    iswrong = 0.
+                    if lvars['B_OST_DEC'].value != lvars['B_TRUE_DEC'].value:
                         iswrong = 1.
-		    avpercat[i] += iswrong
+                    avpercat[i] += iswrong
                     sumpercat[i] += 1.
-		else:
+                else:
                     avpercat[i] += eta.getVal() * weights.getVal()
                     sumpercat[i] += weights.getVal()
                 break
         if config['ForceAllUntagged']:
             qt.setIndex(0)
             eta.setVal(0.5)
-	# put variables into dataset
+        # put variables into dataset
         if 0 == len(swmap):
             if 'B_TRUE_DEC' in additionalBranches:
                 qt.setIndex(- qt.getIndex() * qf.getIndex())
-	    ds.add(RooArgSet(*variables.values()))
+            ds.add(RooArgSet(*variables.values()))
         else:
-	    ds.add(RooArgSet(weights, *variables.values()), weights.getVal(), 0.)
+            ds.add(RooArgSet(weights, *variables.values()), weights.getVal(), 0.)
     # loop over events done, return dataset
     if 0. < sumweights:
         print 'Average mistag in dataset is %g' % (avgmistag / sumweights)
@@ -602,39 +610,39 @@ def readTree(config, dsname, variables, weights, qf, qt, eta):
             print 'Average mistag in category %u is %g' % (i, etapercat[i])
     print
     print 'Total signal yield: %f +/- %f' % (sumweightsall,
-	    sqrt(sumweightsallerr2))
+            sqrt(sumweightsallerr2))
     print 'Tagging efficiency: %f +/- %f' % (
            sumweights/sumweightsall,
            sumweights/sumweightsall * sqrt(
-	       sumweightserr2 / sumweights / sumweights +
-	       sumweightsallerr2 / sumweightsall / sumweightsall))
+               sumweightserr2 / sumweights / sumweights +
+               sumweightsallerr2 / sumweightsall / sumweightsall))
     return { 'dataset': ds, 'etapercat': etapercat }
 
 #------------------------------------------------------------------------------
 def buildBDecayTimePdf(
-	name,					# 'Signal', 'DsPi', ...
-	ws,	       			# RooWorkspace into which to put the PDF
-	time, timeerr, qt, qf, mistag, tageff,	# potential observables
-	Gamma, DeltaGamma, DeltaM,		# decay parameters
-	C, D, Dbar, S, Sbar,			# CP parameters
-	timeresmodel = None,			# decay time resolution model
-	acceptance = None,			# acceptance function
-	timeerrpdf = None,			# pdf for per event time error
-	mistagpdf = None,			# pdf for per event mistag
-	kfactorpdf = None,			# distribution k factor smearing
-	kvar = None,				# variable k which to integrate out
+        name,                                   # 'Signal', 'DsPi', ...
+        ws,                             # RooWorkspace into which to put the PDF
+        time, timeerr, qt, qf, mistag, tageff,  # potential observables
+        Gamma, DeltaGamma, DeltaM,              # decay parameters
+        C, D, Dbar, S, Sbar,                    # CP parameters
+        timeresmodel = None,                    # decay time resolution model
+        acceptance = None,                      # acceptance function
+        timeerrpdf = None,                      # pdf for per event time error
+        mistagpdf = None,                       # pdf for per event mistag
+        kfactorpdf = None,                      # distribution k factor smearing
+        kvar = None,                            # variable k which to integrate out
         mistagCatBounds = None,
         mistagCatOmegas = None,
 
-      	nBinsPerEventTimeErr = 128,	# parameterize time integral in bins of time err
-	nBinsAcceptance = 0		# approximate acceptance function in bins
-	):
+        nBinsPerEventTimeErr = 128,     # parameterize time integral in bins of time err
+        nBinsAcceptance = 0             # approximate acceptance function in bins
+        ):
     # Look in LHCb-INT-2011-051 for the conventions used
     from ROOT import ( RooConstVar, TagEfficiencyWeight, IfThreeWayCat,
-	    Dilution, RooProduct, RooTruthModel, RooGaussModel, Inverse,
-	    RooBDecay, RooProdPdf, RooBinnedPdf, RooEffHistProd, RooEffProd,
-	    RooUniformBinning, RooArgSet, RooFit, RooWorkspace,
-	    RooNumGenSmearPdf, TaggingCat, RooBinning, RooBinningCategory,
+            Dilution, RooProduct, RooTruthModel, RooGaussModel, Inverse,
+            RooBDecay, RooProdPdf, RooBinnedPdf, RooEffHistProd, RooEffProd,
+            RooUniformBinning, RooArgSet, RooFit, RooWorkspace,
+            RooNumGenSmearPdf, TaggingCat, RooBinning, RooBinningCategory,
             RooArgList, RooCategory, DecRateCoeff, RooEffResModel, RooUniformBinning )
     from ROOT import std
     from ROOT import gPad
@@ -654,11 +662,11 @@ def buildBDecayTimePdf(
 
     # if no time resolution model is set, fake one
     if timeresmodel == None:
-	timeresmodel = WS(ws, RooTruthModel('%s_TimeResModel' % name,
-	    '%s time resolution model' % name, time))
+        timeresmodel = WS(ws, RooTruthModel('%s_TimeResModel' % name,
+            '%s time resolution model' % name, time))
     elif timeresmodel == 'Gaussian':
-	timeresmodel = WS(ws, RooGaussModel('%s_TimeResModel' % name,
-	    '%s time resolution model' % name, time, zero, timeerr))
+        timeresmodel = WS(ws, RooGaussModel('%s_TimeResModel' % name,
+            '%s time resolution model' % name, time, zero, timeerr))
     if None != timeresmodel and nBinsAcceptance > 0 and None != acceptance:
 
         # bin acceptance
@@ -681,19 +689,19 @@ def buildBDecayTimePdf(
             for bound in mistagCatBounds:
                 bins.push_back(bound)
             binning = RooBinning(len(mistagCatBounds) - 1, bins.begin().base(),
-			    'taggingCat')
+                            'taggingCat')
             mistag.setBinning(binning, 'taggingCat')
             cat = WS(ws, RooBinningCategory('tagcat', 'tagcat',
-				    mistag, 'taggingCat'))
-	    realmistag = mistag
-	else:
-	    cat = WS(ws, RooCategory('tagcat', 'tagcat'))
+                                    mistag, 'taggingCat'))
+            realmistag = mistag
+        else:
+            cat = WS(ws, RooCategory('tagcat', 'tagcat'))
             mistags = RooArgList()
             for mt in mistagCatOmegas:
-	        cat.defineType(mt.GetName(), mistags.getSize())
+                cat.defineType(mt.GetName(), mistags.getSize())
                 mistags.add(mt)
             perCatmistag = WS(ws, TaggingCat('%s_perCatmistag' % name, '%s_perCatmistag' % name,
-				    qt, cat, mistags))
+                                    qt, cat, mistags))
             perCatmistag.Print('v')
             realmistag = perCatmistag
     else:
@@ -723,70 +731,70 @@ def buildBDecayTimePdf(
     # if we have to perform k-factor smearing, we need "smeared" variants of
     # Gamma, DeltaGamma, DeltaM
     if None != kfactorpdf and None != kvar:
-	kGamma = WS(ws, RooProduct('%sKGamma' % name, '%s k * #Gamma' % name,
-	    RooArgSet(kvar, Gamma)))
-	kDeltaGamma = WS(ws, RooProduct('%sKDeltaGamma' % name,
-	    '%s k * #Delta#Gamma' % name, RooArgSet(kvar, DeltaGamma)))
-	kDeltaM = WS(ws, RooProduct('%sKDeltaM' % name,
-	    '%s k * #Delta m' % name, RooArgSet(kvar, DeltaM)))
+        kGamma = WS(ws, RooProduct('%sKGamma' % name, '%s k * #Gamma' % name,
+            RooArgSet(kvar, Gamma)))
+        kDeltaGamma = WS(ws, RooProduct('%sKDeltaGamma' % name,
+            '%s k * #Delta#Gamma' % name, RooArgSet(kvar, DeltaGamma)))
+        kDeltaM = WS(ws, RooProduct('%sKDeltaM' % name,
+            '%s k * #Delta m' % name, RooArgSet(kvar, DeltaM)))
     else:
-	# otherwise, we can get away with giving old variables new names
-	kGamma, kDeltaGamma, kDeltaM = Gamma, DeltaGamma, DeltaM
+        # otherwise, we can get away with giving old variables new names
+        kGamma, kDeltaGamma, kDeltaM = Gamma, DeltaGamma, DeltaM
 
     # perform the actual k-factor smearing integral (if needed)
     # build (raw) time pdf
     tau = WS(ws, Inverse('%sTau' % name, '%s #tau' % name, kGamma))
     rawtimepdf = WS(ws, RooBDecay('%s_RawTimePdf' % name,
-	'%s raw time pdf' % name, time, tau, kDeltaGamma, cosh, sinh, cos, sin,
-	kDeltaM, timeresmodel, RooBDecay.SingleSided))
+        '%s raw time pdf' % name, time, tau, kDeltaGamma, cosh, sinh, cos, sin,
+        kDeltaM, timeresmodel, RooBDecay.SingleSided))
 
     # perform the actual k-factor smearing integral (if needed)
     if None != kfactorpdf and None != kvar:
-	krawtimepdf = WS(ws, RooNumGenSmearPdf('%s_kSmearedRawTimePdf' % name,
-	    '%s raw time pdf smeared with k factor' % name,
-	    kvar, rawtimepdf, kfactorpdf))
-	krawtimepdf.setConvolutionWindow(one, one, 0.005)
+        krawtimepdf = WS(ws, RooNumGenSmearPdf('%s_kSmearedRawTimePdf' % name,
+            '%s raw time pdf smeared with k factor' % name,
+            kvar, rawtimepdf, kfactorpdf))
+        krawtimepdf.setConvolutionWindow(one, one, 0.005)
         krawtimepdf.convIntConfig().setEpsAbs(1e-9)
         krawtimepdf.convIntConfig().setEpsRel(1e-9)
-	krawtimepdf.convIntConfig().method1D().setLabel('RooAdaptiveGaussKronrodIntegrator1D')
+        krawtimepdf.convIntConfig().method1D().setLabel('RooAdaptiveGaussKronrodIntegrator1D')
         krawtimepdf.convIntConfig().getConfigSection('RooAdaptiveGaussKronrodIntegrator1D').setCatLabel('method','WynnEpsilon')
         krawtimepdf.convIntConfig().getConfigSection('RooAdaptiveGaussKronrodIntegrator1D').setRealValue('maxSeg', 1000000)
     else:
-	krawtimepdf = rawtimepdf
+        krawtimepdf = rawtimepdf
 
     # figure out if we need a conditional pdf product for per event
     # decay time error or per event realmistag
     condpdfs = [ ]
     parameterizeSet =[ ]
     if None != timeerrpdf:
-	condpdfs.append(timeerrpdf)
-	if 0 < nBinsPerEventTimeErr:
-	    parameterizeSet.append(timeerr)
-	    timeerr.setBins(nBinsPerEventTimeErr, 'cache')
+        condpdfs.append(timeerrpdf)
+        if 0 < nBinsPerEventTimeErr:
+            parameterizeSet.append(timeerr)
+            timeerr.setBins(nBinsPerEventTimeErr, 'cache')
 
     # perform conditional pdf product if needed
     if 0 < len(condpdfs):
         noncondset = RooArgSet(time, qf, qt)
         if None != mistagpdf:
             noncondset.add(mistag)
-	if 0 < len(parameterizeSet):
-	    krawtimepdf.setParameterizeIntegral(RooArgSet(*parameterizeSet))
-	timenoaccpdf = WS(ws, RooProdPdf('%s_NoAccTimePdf' % name,
-	    '%s no-acceptance time pdf', RooArgSet(*condpdfs),
-	    RooFit.Conditional(RooArgSet(krawtimepdf), noncondset)))
+        if 0 < len(parameterizeSet):
+            krawtimepdf.setParameterizeIntegral(RooArgSet(*parameterizeSet))
+        timenoaccpdf = WS(ws, RooProdPdf('%s_NoAccTimePdf' % name,
+            '%s no-acceptance time pdf', RooArgSet(*condpdfs),
+            RooFit.Conditional(RooArgSet(krawtimepdf), noncondset)))
     else:
-	timenoaccpdf = krawtimepdf
+        timenoaccpdf = krawtimepdf
     
     # apply acceptance (if needed)
     if None == acceptance:
-	retVal = timenoaccpdf
+        retVal = timenoaccpdf
     else:
         if 0 < nBinsAcceptance:
             retVal = timenoaccpdf
         else:
-	    # do not bin acceptance
-	    retVal = WS(ws, RooEffProd('%s_TimePdf' % name,
-		'%s full time pdf' % name, timenoaccpdf, acceptance))
+            # do not bin acceptance
+            retVal = WS(ws, RooEffProd('%s_TimePdf' % name,
+                '%s full time pdf' % name, timenoaccpdf, acceptance))
 
     # return the copy of retVal which is inside the workspace
     return retVal
@@ -796,8 +804,8 @@ def calculateAverageMistagPerCat(config, tagOmegaSig, sigMistagPDF, binbounds):
     if config['IsToy']:
         #========== product between 'tagOmegaSig' and 'sigMistagPDF' =======================
         Omega_times_mistagPDF = RooProduct('Omega_times_mistag',
-            	    'Omega times per_event_mistag PDF',
-            	    RooArgSet(tagOmegaSig, sigMistagPDF))
+                    'Omega times per_event_mistag PDF',
+                    RooArgSet(tagOmegaSig, sigMistagPDF))
         #===== casting 'tagOmegaSig' as a RooArgSet (not automatic in python) ====
         mistagSig = RooArgSet(tagOmegaSig)
         #======== integrating 'mistag_pdf' over the different ranges =============
@@ -811,7 +819,7 @@ def calculateAverageMistagPerCat(config, tagOmegaSig, sigMistagPDF, binbounds):
         for i in xrange(0, len(binbounds) - 1):
             tagOmegaSig.setRange(binbounds[i], binbounds[i + 1])
             print 'mistag bin %4u from %12.8g to %12.8g pdf avg omega %12.8g' % (
-           		 i, binbounds[i], binbounds[i + 1], ipdf_mistag.getVal() )
+                         i, binbounds[i], binbounds[i + 1], ipdf_mistag.getVal() )
             # save per category mistag
             percatmistags.append(ipdf_mistag.getVal())
             # save population in category (in arbitrary units)
@@ -819,7 +827,7 @@ def calculateAverageMistagPerCat(config, tagOmegaSig, sigMistagPDF, binbounds):
         tagOmegaSig.setRange(oldrangemin, oldrangemax)
         tagOmegaSig.setVal(oldval)
         print 'all mistag bins from %12.8g to %12.8g pdf avg omega %12.8g' % (
-        	oldrangemin, oldrangemax, ipdf_mistag.getVal() )
+                oldrangemin, oldrangemax, ipdf_mistag.getVal() )
         s = 0.
         
         for i in xrange(0, len(percatmistags)):
@@ -868,7 +876,7 @@ def getMasterPDF(config, name, debug = False):
 
     time = WS(ws, RooRealVar('time', '%s decay time' % bName, 1., 0.2, 15., 'ps'))
     timeerr = WS(ws, RooRealVar('timeerr', '%s decay time error' % bName,
-	0.04, 0.001, 0.1, 'ps'))
+        0.04, 0.001, 0.1, 'ps'))
     
     mBs = WS(ws, RooConstVar('mBs', 'Bs mass', 5.3663))
     mBsmisrec = WS(ws, RooConstVar('mBsmisrec', 'Bs mass', 5.3663 + 0.1))
@@ -876,26 +884,26 @@ def getMasterPDF(config, name, debug = False):
     mWidthmisrec = WS(ws, RooConstVar('mWidthmisrec', 'mWidthmisrec', 0.07))
     
     gammas = WS(ws, RooRealVar('Gammas', '%s average lifetime' % bName,
-	config['Gammas'], 0., 5., 'ps^{-1}'))
+        config['Gammas'], 0., 5., 'ps^{-1}'))
     deltaGammas = WS(ws, RooRealVar('deltaGammas', 'Lifetime difference',
-	config['DGsOverGs'] * config['Gammas'], -1., 1., 'ps^{-1}'))
+        config['DGsOverGs'] * config['Gammas'], -1., 1., 'ps^{-1}'))
 
     if config['UseKFactor']:
-	k = WS(ws, RooRealVar('k', 'k factor', 1.))
+        k = WS(ws, RooRealVar('k', 'k factor', 1.))
         tiny = WS(ws, RooConstVar('tiny', 'tiny', 1e-3))
         kfactorpdf = WS(ws, RooGaussian('kfactorpdf', 'kfactorpdf', k, one, tiny))
     else:
         k = kfactorpdf = None
     
     deltaMs = WS(ws, RooRealVar('deltaMs', '#Delta m_{s}',
-	config['DeltaMs'], 5., 30., 'ps^{-1}'))
+        config['DeltaMs'], 5., 30., 'ps^{-1}'))
     
     tagEffSig = WS(ws, RooRealVar(
-	    'tagEffSig', 'Signal tagging efficiency',
-	    config['TagEffSig'], 0., 1.))
+            'tagEffSig', 'Signal tagging efficiency',
+            config['TagEffSig'], 0., 1.))
     tagOmegaSig = WS(ws, RooRealVar(
-	    'tagOmegaSig', 'Signal mistag rate',
-	    config['TagOmegaSig'], 0., 1.))
+            'tagOmegaSig', 'Signal mistag rate',
+            config['TagOmegaSig'], 0., 1.))
   
     qt = WS(ws, RooCategory('qt', 'flavour tagging result'))
     qt.defineType('B'       ,  1)
@@ -930,8 +938,8 @@ def getMasterPDF(config, name, debug = False):
         observables.append(timeerr)
         # time, mean, scale, timeerr
         trm = WS(ws, RooGaussModel('GaussianWithLandauPEDTE',
-	    'GaussianWithLandauPEDTE',
-	    time, RooFit.RooConst(0.), RooFit.RooConst(1.), timeerr ))
+            'GaussianWithLandauPEDTE',
+            time, RooFit.RooConst(0.), RooFit.RooConst(1.), timeerr ))
  
     # Decay time acceptance function
     # ------------------------------
@@ -945,14 +953,14 @@ def getMasterPDF(config, name, debug = False):
         tacc_beta = WS(ws, RooRealVar('tacc_beta', 'tacc_beta',
                 config['PowLawAcceptance_beta'], -0.1, 0.1))
         tacc_expo = WS(ws, RooRealVar('tacc_expo', 'tacc_expo',
-		config['PowLawAcceptance_expo'], 0.5, 4.))
+                config['PowLawAcceptance_expo'], 0.5, 4.))
         tacc_offset = WS(ws, RooRealVar('tacc_offset', 'tacc_offset',
-		config['PowLawAcceptance_offset'], -1., 1.))
+                config['PowLawAcceptance_offset'], -1., 1.))
         tacc_turnon = WS(ws, RooRealVar('tacc_turnon', 'tacc_turnon',
-		config['PowLawAcceptance_turnon'], 0.5, 5.))
+                config['PowLawAcceptance_turnon'], 0.5, 5.))
         tacc = WS(ws, PowLawAcceptance('PowLawAcceptance',
-		    'decay time acceptance', tacc_turnon, time, tacc_offset,
-		    tacc_expo, tacc_beta))
+                    'decay time acceptance', tacc_turnon, time, tacc_offset,
+                    tacc_expo, tacc_beta))
     elif None == config['AcceptanceFunction'] or 'None' == config['AcceptanceFunction']:
         tacc = None
     else:
@@ -967,7 +975,7 @@ def getMasterPDF(config, name, debug = False):
         #terrpdf = WS(ws, RooLandau( 'terrpdf', '%s decay time error PDF',
         #                     timeerr, terrpdf_mean, terrpdf_sigma ))
 
-	# resolution in ps: 3/terrpdf_shape
+        # resolution in ps: 3/terrpdf_shape
         terrpdf_shape = WS(ws, RooConstVar('terrpdf_shape', 'terrpdf_shape', -60.))
         terrpdf_truth = WS(ws, RooTruthModel('terrpdf_truth', 'terrpdf_truth', timeerr))
         terrpdf_i0 = WS(ws, RooDecay('terrpdf_i0', 'terrpdf_i0', timeerr, terrpdf_shape,
@@ -981,34 +989,34 @@ def getMasterPDF(config, name, debug = False):
         #terrpdf = WS(ws, RooGaussian( 'terrpdf', 'terrpdf',
         #                       timeerr, terrpdf_mean, terrpdf_sigma ))
     else:
-	terrpdf = None
+        terrpdf = None
     
     bins = config['MistagCatBinBounds']
     if None == bins or len(bins) < 2:
         bins = None
-	avgmistags = None
+        avgmistags = None
     else:
-	sigMistagOmega0 = RooConstVar('sigMistagOmega0', 'sigMistagOmega0',
-			0.07)
-	sigMistagOmegaAvg = RooConstVar('sigMistagOmegaAvg',
-			'sigMistagOmegaAvg', config['TagOmegaSig'])
-	sigMistagFracHalf = RooConstVar('sigMistagFracHalf',
-			'sigMistagFracHalf', 0.25)
-	sigMistagPDF = MistagDistribution('sigMistagPDF', 'sigMistagPDF',
-			tagOmegaSig, sigMistagOmega0, sigMistagOmegaAvg, sigMistagFracHalf)
+        sigMistagOmega0 = RooConstVar('sigMistagOmega0', 'sigMistagOmega0',
+                        0.07)
+        sigMistagOmegaAvg = RooConstVar('sigMistagOmegaAvg',
+                        'sigMistagOmegaAvg', config['TagOmegaSig'])
+        sigMistagFracHalf = RooConstVar('sigMistagFracHalf',
+                        'sigMistagFracHalf', 0.25)
+        sigMistagPDF = MistagDistribution('sigMistagPDF', 'sigMistagPDF',
+                        tagOmegaSig, sigMistagOmega0, sigMistagOmegaAvg, sigMistagFracHalf)
         avgmistags = calculateAverageMistagPerCat(config, tagOmegaSig, sigMistagPDF, bins)
         del sigMistagPDF
         del sigMistagFracHalf
         del sigMistagOmegaAvg
-	del sigMistagOmega0
+        del sigMistagOmega0
     if config['PerEventMistag']:
-	sigMistagOmega0 = WS(ws, RooConstVar(
-	    'sigMistagOmega0', 'sigMistagOmega0', 0.07))
-	sigMistagOmegaAvg = WS(ws, RooConstVar(
-	    'sigMistagOmegaAvg', 'sigMistagOmegaAvg', config['TagOmegaSig']))
-	sigMistagFracHalf = WS(ws, RooConstVar(
-	    'sigMistagFracHalf', 'sigMistagFracHalf', 0.25))
-	sigMistagPDF = WS(ws, MistagDistribution('sigMistagPDF', 'sigMistagPDF',
+        sigMistagOmega0 = WS(ws, RooConstVar(
+            'sigMistagOmega0', 'sigMistagOmega0', 0.07))
+        sigMistagOmegaAvg = WS(ws, RooConstVar(
+            'sigMistagOmegaAvg', 'sigMistagOmegaAvg', config['TagOmegaSig']))
+        sigMistagFracHalf = WS(ws, RooConstVar(
+            'sigMistagFracHalf', 'sigMistagFracHalf', 0.25))
+        sigMistagPDF = WS(ws, MistagDistribution('sigMistagPDF', 'sigMistagPDF',
                                                  tagOmegaSig, sigMistagOmega0, sigMistagOmegaAvg, sigMistagFracHalf))
         observables.append(tagOmegaSig)
     else:
@@ -1018,9 +1026,9 @@ def getMasterPDF(config, name, debug = False):
     # -------
     if False == config['PerEventMistag'] and None != avgmistags:
         perCatMistag = []
-	for i in xrange(0, len(avgmistags['percat'])):
-	    perCatMistag.append( WS(ws, RooRealVar('OmegaCat%d' %i, 'OmegaCat%d' %i,
-					    avgmistags['percat'][i], 0., 1.)))
+        for i in xrange(0, len(avgmistags['percat'])):
+            perCatMistag.append( WS(ws, RooRealVar('OmegaCat%d' %i, 'OmegaCat%d' %i,
+                                            avgmistags['percat'][i], 0., 1.)))
     else:
         perCatMistag = None
 
@@ -1066,21 +1074,21 @@ def getMasterPDF(config, name, debug = False):
     allEPDFs = []
     fractions = []
     if config['DoDsK']:
-	allPDFs.append(sigPDF)
-	allEPDFs.append(sigEPDF)
-	fractions.append(nSigEvts)
+        allPDFs.append(sigPDF)
+        allEPDFs.append(sigEPDF)
+        fractions.append(nSigEvts)
     if config['DoDsPi']:
-	allPDFs.append(Bs2DsPiPDF)
-	allEPDFs.append(Bs2DsPiEPDF)
-	fractions.append(nBs2DsPiEvts)
+        allPDFs.append(Bs2DsPiPDF)
+        allEPDFs.append(Bs2DsPiEPDF)
+        fractions.append(nBs2DsPiEvts)
 
     totPDF = WS(ws, RooAddPdf('TotPDF_t', 'Model PDF in time',
-		RooArgList(*allPDFs), RooArgList(*fractions)))
+                RooArgList(*allPDFs), RooArgList(*fractions)))
     totEPDF = WS(ws, RooAddPdf('TotEPDF_t', 'Model EPDF in time',
-		RooArgList(*allEPDFs)))
+                RooArgList(*allEPDFs)))
     
     if not config['PerEventMistag'] and None != config['MistagCatBinBounds'] \
-		and len(config['MistagCatBinBounds']) > 1:
+                and len(config['MistagCatBinBounds']) > 1:
         observables.append(ws.obj('tagcat'))
 
     # set variables constant if they are supposed to be constant
@@ -1088,13 +1096,13 @@ def getMasterPDF(config, name, debug = False):
     setConstantIfSoConfigured(config, totEPDF)
 
     retVal = {
-	    'ws': ws,
-	    'pdf': totPDF,
-	    'epdf': totEPDF,
-	    'observables': RooArgSet(*observables),
+            'ws': ws,
+            'pdf': totPDF,
+            'epdf': totEPDF,
+            'observables': RooArgSet(*observables),
             'condobservables': RooArgSet(*condobservables),
             'constraints': RooArgSet(*constraints)
-	    }
+            }
     return retVal
 
 def runBsGammaFitterToyMC(generatorConfig, fitConfig, toy_num, debug, wsname, initvars) :
@@ -1152,7 +1160,7 @@ def runBsGammaFitterToyMC(generatorConfig, fitConfig, toy_num, debug, wsname, in
         sample.defineType('pipipi_up', 4)
         sample.defineType('pipipi_down', 5)
         tmp = readTree(
-	    generatorConfig, 'dataset',
+            generatorConfig, 'dataset',
             {
             'sample_idx': sample,
             'lab0_LifetimeFit_ctau': pdf['ws'].obj('time'),
@@ -1166,8 +1174,8 @@ def runBsGammaFitterToyMC(generatorConfig, fitConfig, toy_num, debug, wsname, in
             #'B_OST_DEC': pdf['ws'].obj('qt'),
             #'B_OST_OMEGA':  pdf['ws'].obj('tagOmegaSig'),
             #},
-	    sweights, pdf['ws'].obj('qf'), pdf['ws'].obj('qt'),
-	    pdf['ws'].obj('tagOmegaSig'))
+            sweights, pdf['ws'].obj('qf'), pdf['ws'].obj('qt'),
+            pdf['ws'].obj('tagOmegaSig'))
         dataset = tmp['dataset']
         etapercat = tmp['etapercat']
         del tmp
@@ -1181,7 +1189,7 @@ def runBsGammaFitterToyMC(generatorConfig, fitConfig, toy_num, debug, wsname, in
     if generatorConfig['MistagCatBinBounds'] != None:
         cat = ws.obj('tagcat')
         if None != cat:
-	    dataset.addColumn(cat)
+            dataset.addColumn(cat)
             dstmp = dataset.reduce(RooFit.Cut('qt!=0'))
             dstmp.table(cat).Print('v')
 
@@ -1234,7 +1242,7 @@ def runBsGammaFitterToyMC(generatorConfig, fitConfig, toy_num, debug, wsname, in
     dstmp = dataset.reduce(RooFit.Cut('qt!=0'))
     if fitConfig['MistagCatBinBounds'] != None and len(fitConfig['MistagCatBinBounds']) > 1:
         cat = pdf2['ws'].obj('tagcat')
-	dstmp.table(cat).Print('v')
+        dstmp.table(cat).Print('v')
     if not fitConfig['IsToy']:
         nEvts = pdf2['ws'].obj('nBs2DsPiEvts')
         # special treatment: steal number of entries from data set unless
@@ -1269,7 +1277,7 @@ def runBsGammaFitterToyMC(generatorConfig, fitConfig, toy_num, debug, wsname, in
 
     if plot_init :
         #pdf2['ws'].writeToFile(wsname)
-	pass
+        pass
 
     # more recent RooFit versions need Optimize(0) to work correctly
     # with our complicated (E)PDFs
@@ -1281,10 +1289,10 @@ def runBsGammaFitterToyMC(generatorConfig, fitConfig, toy_num, debug, wsname, in
         RooFit.Verbose(fitConfig['IsToy'] or not fitConfig['Blinding'])
         ]
     if not fitConfig['IsToy'] and fitConfig['Blinding']:
-	# make RooFit quiet as well
-	from ROOT import RooMsgService
-	RooMsgService.instance().setGlobalKillBelow(RooFit.WARNING)
-	fitOpts.append(RooFit.PrintLevel(-1))
+        # make RooFit quiet as well
+        from ROOT import RooMsgService
+        RooMsgService.instance().setGlobalKillBelow(RooFit.WARNING)
+        fitOpts.append(RooFit.PrintLevel(-1))
     if 0 < pdf2['condobservables'].getSize():
         fitOpts.append(RooFit.ConditionalObservables(pdf['condobservables']))
     if 0 < pdf2['constraints'].getSize():
@@ -1322,47 +1330,47 @@ _usage = '%prog [options] <toy_number>'
 parser = OptionParser(_usage)
 
 parser.add_option('-d', '--debug',
-	dest    = 'debug',
-	default = False,
-	action  = 'store_true',
-	help    = 'print debug information while processing'
-	)
+        dest    = 'debug',
+        default = False,
+        action  = 'store_true',
+        help    = 'print debug information while processing'
+        )
 parser.add_option('-s', '--save',
-	dest    = 'wsname',
-	type = 'string',
-	metavar = 'WSNAME',
-	help    = 'save the model PDF and generated dataset to file "WS_WSNAME.root"'
-	)
+        dest    = 'wsname',
+        type = 'string',
+        metavar = 'WSNAME',
+        help    = 'save the model PDF and generated dataset to file "WS_WSNAME.root"'
+        )
 parser.add_option('-i', '--initial-vars',
-	dest    = 'initvars',
-	default = False,
-	action  = 'store_true',
-	help    = 'save the model PDF parameters before the fit (default: after the fit)'
-	)
+        dest    = 'initvars',
+        default = False,
+        action  = 'store_true',
+        help    = 'save the model PDF parameters before the fit (default: after the fit)'
+        )
 parser.add_option('-F', '--fit-config-string',
-	dest = 'fitConfigString',
-	type = 'string',
-	action = 'store',
-	help = 'string with fit configuration changes (dictionary, takes precedence)'
-	)
+        dest = 'fitConfigString',
+        type = 'string',
+        action = 'store',
+        help = 'string with fit configuration changes (dictionary, takes precedence)'
+        )
 parser.add_option('-f', '--fit-config-file',
-	dest = 'fitConfigFile',
-	type = 'string',
-	action = 'store',
-	help = 'name of file with fit configuration changes (dictionary)'
-	)
+        dest = 'fitConfigFile',
+        type = 'string',
+        action = 'store',
+        help = 'name of file with fit configuration changes (dictionary)'
+        )
 parser.add_option('-G', '--gen-config-string',
-	dest = 'genConfigString',
-	type = 'string',
-	action = 'store',
-	help = 'string with generator configuration changes (dictionary, takes precedence)'
-	)
+        dest = 'genConfigString',
+        type = 'string',
+        action = 'store',
+        help = 'string with generator configuration changes (dictionary, takes precedence)'
+        )
 parser.add_option('-g', '--gen-config-file',
-	dest = 'genConfigFile',
-	type = 'string',
-	action = 'store',
-	help = 'name of file with generator configuration changes (dictionary)'
-	)
+        dest = 'genConfigFile',
+        type = 'string',
+        action = 'store',
+        help = 'name of file with generator configuration changes (dictionary)'
+        )
 
 # -----------------------------------------------------------------------------
 
@@ -1376,65 +1384,65 @@ if __name__ == '__main__' :
     (options, args) = parser.parse_args()
 
     if len(args) != 1 :
-	parser.print_help()
-	exit(-1)
+        parser.print_help()
+        exit(-1)
 
     try:
-	TOY_NUMBER = int(args[ 0 ])
+        TOY_NUMBER = int(args[ 0 ])
     except ValueError:
-	parser.error('The toy number is meant to be an integer ;-)!')
+        parser.error('The toy number is meant to be an integer ;-)!')
     # parse fit/generator configuration options
     if None != options.fitConfigFile:
-	try:
-	    lines = file(options.fitConfigFile, 'r').readlines();
-	except:
-	    parser.error('Unable to read fit configuration file %s' %
-		    options.fitConfigFile)
-	try:
-	    d = eval(compile(''.join(lines), options.fitConfigFile, 'eval'))
-	    fitConfig.update(d)
+        try:
+            lines = file(options.fitConfigFile, 'r').readlines();
+        except:
+            parser.error('Unable to read fit configuration file %s' %
+                    options.fitConfigFile)
+        try:
+            d = eval(compile(''.join(lines), options.fitConfigFile, 'eval'))
+            fitConfig.update(d)
             del d
-	except:
-	    parser.error('Unable to parse fit configuration in file %s' %
-		    options.fitConfigFile)
+        except:
+            parser.error('Unable to parse fit configuration in file %s' %
+                    options.fitConfigFile)
         del lines
     if None != options.fitConfigString:
-	try:
-	    d = eval(compile(options.fitConfigString, '[command line]', 'eval'))
-	    fitConfig.update(d)
+        try:
+            d = eval(compile(options.fitConfigString, '[command line]', 'eval'))
+            fitConfig.update(d)
             del d
-	except:
-	    parser.error('Unable to parse fit configuration in \'%s\'' %
-		    options.fitConfigString)
+        except:
+            parser.error('Unable to parse fit configuration in \'%s\'' %
+                    options.fitConfigString)
     if None != options.genConfigFile:
-	try:
-	    lines = file(options.genConfigFile, 'r').readlines();
-	except:
-	    parser.error('Unable to read generator configuration file %s' %
-		    options.genConfigFile)
-	try:
-	    d = eval(compile(''.join(lines), options.genConfigFile, 'eval'))
-	    generatorConfig.update(d)
+        try:
+            lines = file(options.genConfigFile, 'r').readlines();
+        except:
+            parser.error('Unable to read generator configuration file %s' %
+                    options.genConfigFile)
+        try:
+            d = eval(compile(''.join(lines), options.genConfigFile, 'eval'))
+            generatorConfig.update(d)
             del d
-	except:
-	    parser.error('Unable to parse generator configuration in file %s' %
-		    options.genConfigFile)
+        except:
+            parser.error('Unable to parse generator configuration in file %s' %
+                    options.genConfigFile)
         del lines
     if None != options.genConfigString:
-	try:
-	    d = eval(compile(options.genConfigString, '[command line]', 'eval'))
-	    generatorConfig.update(d)
+        try:
+            d = eval(compile(options.genConfigString, '[command line]', 'eval'))
+            generatorConfig.update(d)
             del d
-	except:
-	    parser.error('Unable to parse generator configuration in \'%s\'' %
-		    options.genConfigString)
+        except:
+            parser.error('Unable to parse generator configuration in \'%s\'' %
+                    options.genConfigString)
     
     runBsGammaFitterToyMC(
             generatorConfig,
             fitConfig,
             TOY_NUMBER,
-	    options.debug,
-	    options.wsname,
-	    options.initvars)
+            options.debug,
+            options.wsname,
+            options.initvars)
 
     # -----------------------------------------------------------------------------
