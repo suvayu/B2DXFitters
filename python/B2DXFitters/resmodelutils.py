@@ -25,7 +25,8 @@ def getResolutionModel(
     timeerr -- time error observable (or None, if average time error is used)
     tacc    -- time acceptance
 
-    returns resolution model (possibly acceptance corrected) and acceptance
+    returns tuple of resolution model (possibly acceptance corrected) and
+    acceptance
 
     The logic here is:
     - for fitting, and with a spline acceptance, the acceptance becomes part
@@ -61,6 +62,7 @@ def getResolutionModel(
         (and not a generation job), the appropriate spline-acceptance-
         corrected resolution model is returned
     """
+    tacc_name = 'None' if None == tacc else tacc.GetName()
     if (type(config['DecayTimeResolutionModel']) == list or
     type(config['DecayTimeResolutionModel']) == tuple):
         # ok, we got a list of: [sigma_0,sigma_1, ...] and [f0,f1,...]
@@ -92,8 +94,8 @@ def getResolutionModel(
             else:
                 # spline acceptance
                 pdfs.add(WS(ws, RooGaussEfficiencyModel(
-                    '%s_resmodel%02d' % (tacc.GetName(), i),
-                    '%s_resmodel%02d' % (tacc.GetName(), i),
+                    '%s_resmodel%02d' % (tacc_name, i),
+                    '%s_resmodel%02d' % (tacc_name, i),
                     time, tacc, bias, sigma, sf, sf)))
             del sf
             del bias
@@ -105,8 +107,8 @@ def getResolutionModel(
             i += 1
         del s
         del i
-        trm = WS(ws, RooAddModel('%s_resmodel' % tacc.GetName(),
-            '%s_resmodel' % tacc.GetName(), pdfs, fracs))
+        trm = WS(ws, RooAddModel('%s_resmodel' % tacc_name,
+            '%s_resmodel' % tacc_name, pdfs, fracs))
         del pdfs
         del fracs
         del ncomp
@@ -131,8 +133,8 @@ def getResolutionModel(
                 'GaussianWithPEDTE', time, bias, timeerr, sf))
         else:
             trm = WS(ws, RooGaussEfficiencyModel(
-                '%s_GaussianWithPEDTE' % tacc.GetName(),
-                '%s_GaussianWithPEDTE' % tacc.GetName(),
+                '%s_GaussianWithPEDTE' % tacc_name,
+                '%s_GaussianWithPEDTE' % tacc_name,
                 time, tacc, bias, timeerr, sf, sf))
             # if we're using a spline acceptance, we're done
             tacc = None
