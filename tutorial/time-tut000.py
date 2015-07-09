@@ -124,10 +124,8 @@ if None == SEED:
     sys.exit(1)
 
 # then read config dictionary from a file
-configfilename = 'time-conf000.py'
-configlines = file(configfilename, 'r').readlines()
-config = eval(compile(''.join(configlines), configfilename, 'eval'))
-del configlines
+from B2DXFitters.utils import configDictFromFile
+config = configDictFromFile('time-conf000.py')
 
 print 'CONFIGURATION'
 for k in sorted(config.keys()):
@@ -238,10 +236,10 @@ print result
 
 # write raw fit result and workspace to separate ROOT files
 from ROOT import TFile
-f = TFile('fitresult0-%04d.root' % SEED, 'recreate')
+f = TFile('fitresult000-%04d.root' % SEED, 'recreate')
 f.WriteTObject(rawfitresult, 'fitresult%04d' % SEED)
 f.Close()
 del f
-ws.writeToFile('workspace0-%04d.root' % SEED, True)
+ws.writeToFile('workspace000-%04d.root' % SEED, True)
 
 # all done

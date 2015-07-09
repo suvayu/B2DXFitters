@@ -2662,14 +2662,6 @@ def runBsGammaFittercFit(generatorConfig, fitConfig, toy_num, debug, wsname,
 
     del pdf
 
-def updateConfigDict(configDict, updateDict):
-    import sys
-    for k in updateDict.keys():
-        if k not in configDict:
-            print 'Configuration dictionary: unknown key %s, aborting.' % k
-            sys.exit(1)
-    configDict.update(updateDict)
-    return configDict
 
 #------------------------------------------------------------------------------
 _usage = '%prog [options] <toy_number>'
@@ -2737,6 +2729,8 @@ parser.add_option('--calibplotfile',
 
 if __name__ == '__main__' :
     import copy, os
+    from B2DXFitters.utils import (updateConfigDict, configDictFromString,
+            configDictFromFile)
     #
     # example: change Gammas in fitting:
     # fitConfig.update({'Gammas': 0.700})
@@ -2756,69 +2750,28 @@ if __name__ == '__main__' :
     # apply personality
     personalityfile = '%s/data/cFit/personality/%s.py' % (
             os.environ['B2DXFITTERSROOT'], options.personality)
-    try:
-        lines = file(personalityfile, 'r').readlines()
-    except:
-        parser.error('Unable to read personality %s from %s' %
-               (options.personality, personalityfile))
-    try:
-        updateConfigDict(defaultConfig, {'Personality': options.personality})
-        d = eval(compile(''.join(lines), personalityfile, 'eval'))
-        updateConfigDict(defaultConfig, d)
-        del d
-    except:
-            parser.error('Unknown personality \'%s\'' %
-                    options.personality)
-    del lines
+    defauldefaultfig = updateConfigDict(defaultConfig,
+                configDictFromFile(personalityfile))
+    updateConfigDict(defaultConfig, {'Personality': options.personality})
     del personalityfile
 
     generatorConfig = copy.deepcopy(defaultConfig)
     fitConfig = copy.deepcopy(defaultConfig)
     # parse fit/generator configuration options
     if None != options.fitConfigFile:
-        try:
-            lines = file(options.fitConfigFile, 'r').readlines();
-        except:
-            parser.error('Unable to read fit configuration file %s' %
-                   options.fitConfigFile)
-        try:
-            d = eval(compile(''.join(lines), options.fitConfigFile, 'eval'))
-            fitConfig = updateConfigDict(fitConfig, d)
-            del d
-        except:
-            parser.error('Unable to parse fit configuration in file %s' %
-                    options.fitConfigFile)
-            del lines
+        fitConfig = updateConfigDict(fitConfig,
+                configDictFromFile(options.fitConfigFile))
     if None != options.fitConfigString:
-        try:
-            d = eval(compile(options.fitConfigString, '[command line]', 'eval'))
-            fitConfig = updateConfigDict(fitConfig, d)
-            del d
-        except:
-            parser.error('Unable to parse fit configuration in \'%s\'' %
-                    options.fitConfigString)
+        fitConfig = updateConfigDict(fitConfig,
+                configDictFromString(options.fitConfigString,
+                '[command line, fit config string]'))
     if None != options.genConfigFile:
-        try:
-            lines = file(options.genConfigFile, 'r').readlines();
-        except:
-            parser.error('Unable to read generator configuration file %s' %
-                    options.genConfigFile)
-        try:
-            d = eval(compile(''.join(lines), options.genConfigFile, 'eval'))
-            generatorConfig = updateConfigDict(generatorConfig, d)
-            del d
-        except:
-            parser.error('Unable to parse generator configuration in file %s' %
-                    options.genConfigFile)
-        del lines
+        generatorConfig = updateConfigDict(generatorConfig,
+                configDictFromFile(options.genConfigFile))
     if None != options.genConfigString:
-        try:
-            d = eval(compile(options.genConfigString, '[command line]', 'eval'))
-            generatorConfig = updateConfigDict(generatorConfig, d)
-            del d
-        except:
-            parser.error('Unable to parse generator configuration in \'%s\'' %
-                    options.genConfigString)
+        generatorConfig = updateConfigDict(generatorConfig,
+                configDictFromString(options.genConfigString,
+                    '[command line, generator config string]'))
     if '' == options.calibplotfile:
         options.calibplotfile = None
     

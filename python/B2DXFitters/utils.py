@@ -139,3 +139,53 @@ def printPDFTermsOnDataSet(dataset, terms = []):
     print 72 * '#'
     return None
 
+def updateConfigDict(configDict, updateDict, allowOnlyKnownKeys = True):
+    """
+    updates a configuration dictionary with contents of a second dictionary
+
+    configDict          -- config dictionary to update
+    updateDict          -- dictionary with updates
+    allowOnlyKnownKeys  -- if True, new keys in updateDict must already exist
+                           in configDict for the update to succeed; this is a
+                           primitive form of protection against typos in config
+                           files
+                           if False, any update is allowed (to allow quick and
+                           dirty hacks that don't mention every possible key in
+                           the initial dictionary
+
+    returns the updated dictionary
+    """
+    for k in updateDict.keys():
+        if allowOnlyKnownKeys and k not in configDict:
+            raise KeyError(('Configuration dictionary: unknown '
+                'key %s, aborting.') % k)
+    configDict.update(updateDict)
+    return configDict
+
+def configDictFromString(s, where = 'unknown location'):
+    """
+    parses a string of python code, extracting a dictionary from it
+
+    s       -- string to interpret as python
+    where   -- origin of string (file, name of environment variable, ...)
+               for error reporting
+
+    returns dictionary
+    """
+    d = eval(compile(s, where, 'eval'))
+    if dict != type(d):
+        raise TypeError(('configuration from %s does not evaluate '
+            'to dictionary') % where)
+    return d
+
+def configDictFromFile(name):
+    """
+    read a python dictionary from a config file
+
+    name -- file name
+
+    returns config dictionary
+    """
+    lines = file(name, 'r').readlines()
+    return configDictFromString(''.join(lines), name)
+

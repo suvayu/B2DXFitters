@@ -5,6 +5,9 @@
 !-----------------------------------------------------------------------------
 
 ! 2015-07-09 - Manuel Tobias Schiller
+ - factor out config file reading/parsing to python/B2DXFitters/utils.py
+
+! 2015-07-09 - Manuel Tobias Schiller
  - add tutorial subdirectory for example/teaching code
 
 ! 2015-07-09 - Manuel Tobias Schiller
