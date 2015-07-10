@@ -267,11 +267,11 @@ print result
 
 # write raw fit result and workspace to separate ROOT files
 from ROOT import TFile
-f = TFile('fitresult002-%04d.root' % SEED, 'recreate')
-f.WriteTObject(rawfitresult, 'fitresult%04d' % SEED)
+f = TFile('fitresult002_%04d.root' % SEED, 'recreate')
+f.WriteTObject(rawfitresult, 'fitresult002_%04d' % SEED)
 f.Close()
 del f
-genpdf['ws'].writeToFile('workspace002-%04d.root' % SEED, True)
-fitpdf['ws'].writeToFile('workspace002-%04d.root' % SEED, False)
+genpdf['ws'].writeToFile('workspace002_%04d.root' % SEED, True)
+fitpdf['ws'].writeToFile('workspace002_%04d.root' % SEED, False)
 
 # all done

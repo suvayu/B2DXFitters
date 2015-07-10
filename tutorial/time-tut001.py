@@ -250,9 +250,9 @@ print result
 # write raw fit result and workspace to separate ROOT files
 from ROOT import TFile
 f = TFile('fitresult001-%04d.root' % SEED, 'recreate')
-f.WriteTObject(rawfitresult, 'fitresult%04d' % SEED)
+f.WriteTObject(rawfitresult, 'fitresult001_%04d' % SEED)
 f.Close()
 del f
-ws.writeToFile('workspace001-%04d.root' % SEED, True)
+ws.writeToFile('workspace001_%04d.root' % SEED, True)
 
 # all done
