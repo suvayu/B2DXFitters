@@ -194,7 +194,7 @@ def buildTimePdf(config):
     from B2DXFitters.resmodelutils import getResolutionModel
     from B2DXFitters.acceptanceutils import buildSplineAcceptance
     
-    obs = [ time, qf, qt ]
+    obs = [ qf, qt, time ]
     acc, accnorm = buildSplineAcceptance(ws, time, 'Bs2DsPi_accpetance',
             config['SplineAcceptance']['KnotPositions'],
             config['SplineAcceptance']['KnotCoefficients'][config['Context']],

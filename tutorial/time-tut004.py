@@ -2,11 +2,11 @@
 # -*- mode: python; coding: utf-8 -*-
 # vim: ft=python:sw=4:tw=78:expandtab
 # --------------------------------------------------------------------------- 
-# @file time-tut003.py
+# @file time-tut004.py
 #
-# @brief hands-on session example 3 (B2DXFitters workshop, Padova, 2015)
+# @brief hands-on session example 4 (B2DXFitters workshop, Padova, 2015)
 #
-# per-event mistag, average sigma_t, spline acceptance
+# per-event mistag, per-event sigma_t, spline acceptance
 #
 # @author Manuel Schiller
 # @date 2012-07-08
@@ -127,13 +127,13 @@ if None == SEED:
 
 # then read config dictionary from a file
 from B2DXFitters.utils import configDictFromFile
-config = configDictFromFile('time-conf003.py')
+config = configDictFromFile('time-conf004.py')
 
 # start with RooFit stuff
 from ROOT import ( RooRealVar, RooConstVar, RooCategory, RooWorkspace,
     RooArgSet, RooArgList, RooLinkedList, RooAbsReal, RooRandom, TRandom3,
-    MistagDistribution, MistagCalibration
-    )
+    MistagDistribution, MistagCalibration, RooDecay, RooTruthModel,
+    RooProdPdf, RooPolynomial)
 # safe settings for numerical integration (if needed)
 RooAbsReal.defaultIntegratorConfig().setEpsAbs(1e-9)
 RooAbsReal.defaultIntegratorConfig().setEpsRel(1e-9)
@@ -199,7 +199,8 @@ def buildTimePdf(config):
     from B2DXFitters.resmodelutils import getResolutionModel
     from B2DXFitters.acceptanceutils import buildSplineAcceptance
     
-    obs = [ qf, qt, time, eta ]
+    obs = [ qt, qf, time, eta, timeerr ]
+
     acc, accnorm = buildSplineAcceptance(ws, time, 'Bs2DsPi_accpetance',
             config['SplineAcceptance']['KnotPositions'],
             config['SplineAcceptance']['KnotCoefficients'][config['Context']],
@@ -208,6 +209,7 @@ def buildTimePdf(config):
         acc = accnorm # use normalised acceptance for generation
     # get resolution model
     resmodel, acc = getResolutionModel(ws, config, time, timeerr, acc)
+
     # build a (mock) mistag distribution
     mistagpdfparams = {} # start with parameters of mock distribution
     for sfx in ('omega0', 'omegaavg', 'f'):
@@ -233,6 +235,17 @@ def buildTimePdf(config):
         'Bs2DsPi_mistagcalib', 'Bs2DsPi_mistagcalib',
         eta, mistagcalibparams['p0'], mistagcalibparams['p1'],
         mistagcalibparams['etaavg']))
+    # build mock decay time error distribution (~ timeerr^6 * exp(-timerr /
+    # (timerr_av / 7))
+    terrpdf_shape = WS(ws, RooConstVar('timeerr_ac', 'timeerr_ac',
+        config['DecayTimeResolutionAvg'] / 7.))
+    terrpdf_truth = WS(ws, RooTruthModel('terrpdf_truth', 'terrpdf_truth',
+        timeerr))
+    terrpdf_i0 = WS(ws, RooDecay('terrpdf_i0', 'terrpdf_i0', timeerr,
+        terrpdf_shape, terrpdf_truth, RooDecay.SingleSided))
+    terrpdf_i1 = WS(ws, RooPolynomial('terrpdf_i1','terrpdf_i1', timeerr,
+        RooArgList(zero, zero, zero, zero, zero, zero, one), 0))
+    terrpdf = WS(ws, RooProdPdf('terrpdf', 'terrpdf', terrpdf_i0, terrpdf_i1))
 
     # build the time pdf
     pdf = buildBDecayTimePdf(
@@ -241,7 +254,7 @@ def buildTimePdf(config):
         Gamma, DGamma, Dm,
         # C = 1, ADG_f = ADG_fbar = S_f = S_fbar = 0
         one, zero, zero, zero, zero,
-        resmodel, acc, None, [ mistagpdf ], eta)
+        resmodel, acc, terrpdf, [ mistagpdf ], eta)
     return { # return things
             'ws': ws,
             'pdf': pdf,
@@ -300,11 +313,11 @@ print result
 
 # write raw fit result and workspace to separate ROOT files
 from ROOT import TFile
-f = TFile('fitresult003-%04d.root' % SEED, 'recreate')
+f = TFile('fitresult004-%04d.root' % SEED, 'recreate')
 f.WriteTObject(rawfitresult, 'fitresult%04d' % SEED)
 f.Close()
 del f
-genpdf['ws'].writeToFile('workspace003-%04d.root' % SEED, True)
-fitpdf['ws'].writeToFile('workspace003-%04d.root' % SEED, False)
+genpdf['ws'].writeToFile('workspace004-%04d.root' % SEED, True)
+fitpdf['ws'].writeToFile('workspace004-%04d.root' % SEED, False)
 
 # all done

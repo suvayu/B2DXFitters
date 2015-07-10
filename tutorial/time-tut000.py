@@ -187,7 +187,7 @@ config['Context'] = 'GEN'
 # now build the PDF
 from B2DXFitters.timepdfutils import buildBDecayTimePdf
 
-obs = RooArgSet(time, qf, qt)
+obs = RooArgSet(qf, qt, time)
 genpdf = buildBDecayTimePdf(
     config, 'GEN-Bs2DsPi', ws,
     time, None, qt, qf, [ [ mistag ] ], [ tageff ],

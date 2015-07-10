@@ -190,7 +190,7 @@ from B2DXFitters.timepdfutils import buildBDecayTimePdf
 from B2DXFitters.resmodelutils import getResolutionModel
 from B2DXFitters.utils import setConstantIfSoConfigured
 
-obs = RooArgSet(time, qf, qt)
+obs = RooArgSet(qf, qt, time)
 acc = None # no acceptance
 resmodel, acc = getResolutionModel(ws, config, time, timeerr, acc)
 genpdf = buildBDecayTimePdf(
