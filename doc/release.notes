@@ -4,6 +4,9 @@
 ! Purpose     : RooFit-based fitters for B -> D X
 !-----------------------------------------------------------------------------
 
+! 2015-07-10 - Manuel Tobias Schiller
+ - new tutorial macro, tiny bug fix in python/B2DXFitters/acceptanceutils.py
+
 ! 2015-07-09 - Manuel Tobias Schiller
  - new tutorial macro, tiny bug fix in resmodelutils.py
 

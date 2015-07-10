@@ -2,11 +2,11 @@
 # -*- mode: python; coding: utf-8 -*-
 # vim: ft=python:sw=4:tw=78:expandtab
 # --------------------------------------------------------------------------- 
-# @file time-tut000.py
+# @file time-tut002.py
 #
-# @brief hands-on session example 0 (B2DXFitters workshop, Padova, 2015)
+# @brief hands-on session example 2 (B2DXFitters workshop, Padova, 2015)
 #
-# average mistag, ideal simga_t, no acceptance
+# average mistag, average sigma_t, spline acceptance
 #
 # @author Manuel Schiller
 # @date 2012-07-08
@@ -127,11 +127,7 @@ if None == SEED:
 
 # then read config dictionary from a file
 from B2DXFitters.utils import configDictFromFile
-config = configDictFromFile('time-conf000.py')
-
-print 'CONFIGURATION'
-for k in sorted(config.keys()):
-    print '    %32s: %32s' % (k, config[k])
+config = configDictFromFile('time-conf002.py')
 
 # start with RooFit stuff
 from ROOT import ( RooRealVar, RooConstVar, RooCategory, RooWorkspace,
@@ -154,62 +150,95 @@ rndm = TRandom3(SEED + 1)
 RooRandom.randomGenerator().SetSeed(int(rndm.Uniform(4294967295)))
 del rndm
 
-# start building the fit
+# as things become more complicated, it's useful to have "build-it-all"
+# routine, which works for both generation and fitting; this also allows for
+# easier setups of scenarios where you build with one pdf and fit with a
+# different one (e.g. per-event mistag in generation, average in fit to see
+# the gain in sensitivity from the per-event mistag)
+def buildTimePdf(config):
+    """
+    build time pdf, return pdf and associated data in dictionary
+    """
+    from B2DXFitters.WS import WS
+    print 'CONFIGURATION'
+    for k in sorted(config.keys()):
+        print '    %32s: %32s' % (k, config[k])
+    
+    # start building the fit
+    ws = RooWorkspace('ws_%s' % config['Context'])
+    one = WS(ws, RooConstVar('one', '1', 1.0))
+    zero = WS(ws, RooConstVar('zero', '0', 0.0))
+    
+    # start by defining observables
+    time = WS(ws, RooRealVar('time', 'time [ps]', 0.2, 15.0))
+    qf = WS(ws, RooCategory('qf', 'final state charge'))
+    qf.defineType('h+', +1)
+    qf.defineType('h-', -1)
+    qt = WS(ws, RooCategory('qt', 'tagging decision'))
+    qt.defineType(      'B+', +1)
+    qt.defineType('Untagged',  0)
+    qt.defineType(      'B-', -1)
+    
+    # now other settings
+    Gamma  = WS(ws, RooRealVar( 'Gamma',  'Gamma',  0.661)) # ps^-1
+    DGamma = WS(ws, RooRealVar('DGamma', 'DGamma',  0.106)) # ps^-1
+    Dm     = WS(ws, RooRealVar(    'Dm',     'Dm', 17.719)) # ps^-1
+    
+    mistag = WS(ws, RooRealVar('mistag', 'mistag', 0.35, 0.0, 0.5))
+    tageff = WS(ws, RooRealVar('tageff', 'tageff', 0.60, 0.0, 1.0))
+    timeerr = WS(ws, RooRealVar('timeerr', 'timeerr', 0.040, 0.001, 0.100))
+    
+    
+    # now build the PDF
+    from B2DXFitters.timepdfutils import buildBDecayTimePdf
+    from B2DXFitters.resmodelutils import getResolutionModel
+    from B2DXFitters.acceptanceutils import buildSplineAcceptance
+    
+    obs = [ time, qf, qt ]
+    acc, accnorm = buildSplineAcceptance(ws, time, 'Bs2DsPi_accpetance',
+            config['SplineAcceptance']['KnotPositions'],
+            config['SplineAcceptance']['KnotCoefficients'][config['Context']],
+            'FIT' in config['Context']) # float for fitting
+    if 'GEN' in config['Context']:
+        acc = accnorm # use normalised acceptance for generation
+    # get resolution model
+    resmodel, acc = getResolutionModel(ws, config, time, timeerr, acc)
+    # build the time pdf
+    pdf = buildBDecayTimePdf(
+        config, 'Bs2DsPi', ws,
+        time, timeerr, qt, qf, [ [ mistag ] ], [ tageff ],
+        Gamma, DGamma, Dm,
+        # C = 1, ADG_f = ADG_fbar = S_f = S_fbar = 0
+        one, zero, zero, zero, zero,
+        resmodel, acc)
+    return { # return things
+            'ws': ws,
+            'pdf': pdf,
+            'obs': obs
+            }
+
 from B2DXFitters.WS import WS
-
-ws = RooWorkspace('ws')
-one = WS(ws, RooConstVar('one', '1', 1.0))
-zero = WS(ws, RooConstVar('zero', '0', 0.0))
-
-# start by defining observables
-time = WS(ws, RooRealVar('time', 'time [ps]', 0.2, 15.0))
-qf = WS(ws, RooCategory('qf', 'final state charge'))
-qf.defineType('h+', +1)
-qf.defineType('h-', -1)
-qt = WS(ws, RooCategory('qt', 'tagging decision'))
-qt.defineType(      'B+', +1)
-qt.defineType('Untagged',  0)
-qt.defineType(      'B-', -1)
-
-# now other settings
-Gamma  = WS(ws, RooRealVar( 'Gamma',  'Gamma',  0.661)) # ps^-1
-DGamma = WS(ws, RooRealVar('DGamma', 'DGamma',  0.106)) # ps^-1
-Dm     = WS(ws, RooRealVar(    'Dm',     'Dm', 17.719)) # ps^-1
-
-mistag = WS(ws, RooRealVar('mistag', 'mistag', 0.35, 0.0, 0.5))
-tageff = WS(ws, RooRealVar('tageff', 'tageff', 0.60, 0.0, 1.0))
-
 # for now, we're in the generation stage
-# (for a bigger project, you want separate config dicts for generation and
-# fitting)
 config['Context'] = 'GEN'
-
-# now build the PDF
-from B2DXFitters.timepdfutils import buildBDecayTimePdf
-
-obs = RooArgSet(time, qf, qt)
-genpdf = buildBDecayTimePdf(
-    config, 'GEN-Bs2DsPi', ws,
-    time, None, qt, qf, [ [ mistag ] ], [ tageff ],
-    Gamma, DGamma, Dm,
-    # C = 1, ADG_f = ADG_fbar = S_f = S_fbar = 0
-    one, zero, zero, zero, zero)
+genpdf = buildTimePdf(config)
 
 # generate 150K events
-ds = genpdf.generate(obs, 150000, RooFit.Verbose())
+ds = genpdf['pdf'].generate(RooArgSet(*genpdf['obs']), 150000, RooFit.Verbose())
 
 ds.Print('v')
-ds.table(qf).Print('v')
-ds.table(qt).Print('v')
+for o in genpdf['obs']:
+    if not o.InheritsFrom('RooAbsCategory'): continue
+    ds.table(o).Print('v')
 
 # use workspace for fit pdf in such a simple fit
-config['CONTEXT'] = 'FIT'
-fitpdf = buildBDecayTimePdf(
-    config, 'FIT-Bs2DsPi', ws,
-    time, None, qt, qf, [ [ mistag ] ], [ tageff ],
-    Gamma, DGamma, Dm,
-    # C = 1, ADG_f = ADG_fbar = S_f = S_fbar = 0
-    one, zero, zero, zero, zero)
+config['Context'] = 'FIT'
+fitpdf = buildTimePdf(config)
+# add data set to fitting workspace
+ds = WS(fitpdf['ws'], ds)
+
+# set constant what is supposed to be constant
+from B2DXFitters.utils import setConstantIfSoConfigured
+setConstantIfSoConfigured(config, fitpdf['pdf'])
 
 # set up fitting options
 fitopts = [ RooFit.Timer(), RooFit.Save(),
@@ -217,6 +246,7 @@ fitopts = [ RooFit.Timer(), RooFit.Save(),
     RooFit.Optimize(config['FitConfig']['Optimize']),
     RooFit.Offset(config['FitConfig']['Offset']),
     RooFit.NumCPU(config['FitConfig']['NumCPU']) ]
+
 # set up blinding for data
 fitopts.append(RooFit.Verbose(not (config['IsData'] and config['Blinding'])))
 if config['IsData'] and config['Blinding']:
@@ -227,7 +257,7 @@ fitOpts = RooLinkedList()
 for o in fitopts: fitOpts.Add(o)
 
 # fit
-rawfitresult = fitpdf.fitTo(ds, fitOpts)
+rawfitresult = fitpdf['pdf'].fitTo(ds, fitOpts)
 
 # pretty-print the result
 from B2DXFitters.FitResult import getDsHBlindFitResult
@@ -237,10 +267,11 @@ print result
 
 # write raw fit result and workspace to separate ROOT files
 from ROOT import TFile
-f = TFile('fitresult000-%04d.root' % SEED, 'recreate')
+f = TFile('fitresult002-%04d.root' % SEED, 'recreate')
 f.WriteTObject(rawfitresult, 'fitresult%04d' % SEED)
 f.Close()
 del f
-ws.writeToFile('workspace000-%04d.root' % SEED, True)
+genpdf['ws'].writeToFile('workspace002-%04d.root' % SEED, True)
+fitpdf['ws'].writeToFile('workspace002-%04d.root' % SEED, False)
 
 # all done

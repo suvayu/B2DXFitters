@@ -115,6 +115,8 @@ def buildSplineAcceptance(
             '%s_SplineAcceptanceNormalised' % pfx, RooArgList(tacc, c)))
         del c
         del m
+    else:
+        tacc_norm = None # not supported when floating
     del coefflist
     return tacc, tacc_norm
 

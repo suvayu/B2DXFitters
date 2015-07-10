@@ -2,9 +2,11 @@
 # -*- mode: python; coding: utf-8 -*-
 # vim: ft=python:sw=4:tw=78:expandtab
 # --------------------------------------------------------------------------- 
-# @file time-tut000.py
+# @file time-tut001.py
 #
 # @brief hands-on session example 1 (B2DXFitters workshop, Padova, 2015)
+#
+# average mistag, average sigma_t, no acceptance
 #
 # @author Manuel Schiller
 # @date 2012-07-08
@@ -247,10 +249,10 @@ print result
 
 # write raw fit result and workspace to separate ROOT files
 from ROOT import TFile
-f = TFile('fitresult000-%04d.root' % SEED, 'recreate')
+f = TFile('fitresult001-%04d.root' % SEED, 'recreate')
 f.WriteTObject(rawfitresult, 'fitresult%04d' % SEED)
 f.Close()
 del f
-ws.writeToFile('workspace000-%04d.root' % SEED, True)
+ws.writeToFile('workspace001-%04d.root' % SEED, True)
 
 # all done
