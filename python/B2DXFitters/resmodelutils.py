@@ -40,11 +40,16 @@ def getResolutionModel(
     relevant config dictionary entries:
     'DecayTimeResolutionModel':
         can be either of:
-        - a list/tuple of [ [sigma_0, sigma_1, ..., sigma_N], [f_0, ...,
-          f_{N-1} ] ]; this specifies an average resolution as a superposition
-          of Gaussians with common mean and different widths and fractions
         - 'GaussianWithPEDTE': a single gaussian resolution model with per
           event decay time errors
+        - a dictionary { 'sigmas': [ sigma_0, sigma_1, ..., sigma_N],
+          'fractions': [ f_0, ..., f_{N - 1} ] }; this specifies an average
+          resolution as a superposition of Gaussians with common mean and
+          different widths and fractions
+        - a list/tuple of [ [sigma_0, sigma_1, ..., sigma_N], [f_0, ...,
+          f_{N-1} ] ]; this also specifies an average resolution as a
+          superposition of Gaussians with common mean and different widths and
+          fractions
     'DecayTimeResolutionBias':
         common mean/bias of (superposition of) Gaussian(s)
     'DecayTimeResolutionScaleFactor':
@@ -64,23 +69,33 @@ def getResolutionModel(
     """
     tacc_name = 'None' if None == tacc else tacc.GetName()
     if (type(config['DecayTimeResolutionModel']) == list or
-    type(config['DecayTimeResolutionModel']) == tuple):
-        # ok, we got a list of: [sigma_0,sigma_1, ...] and [f0,f1,...]
-        # build specified resolution model on the fly
+            type(config['DecayTimeResolutionModel']) == tuple or
+            type(config['DecayTimeResolutionModel']) == dict):
+        if (type(config['DecayTimeResolutionModel']) == dict):
+            sigmas = config['DecayTimeResolutionModel']['sigmas']
+            fractions = config['DecayTimeResolutionModel']['fractions']
+            ncomp = len(sigmas)
+            if (len(fractions) + 1 != len(sigmas)):
+                raise TypeError('Unknown type of resolution model')
+        else:
+            # ok, we got a list of: [sigma_0,sigma_1, ...] and [f0,f1,...]
+            # build specified resolution model on the fly
+            if 2 != len(config['DecayTimeResolutionModel']):
+                raise TypeError('Unknown type of resolution model')
+            ncomp = len(config['DecayTimeResolutionModel'][0])
+            if ncomp < 1:
+                raise TypeError('Unknown type of resolution model')
+            if ncomp != len(config['DecayTimeResolutionModel'][1]) and \
+                    ncomp - 1 != len(config['DecayTimeResolutionModel'][1]):
+                raise TypeError('Unknown type of resolution model')
+            sigmas = config['DecayTimeResolutionModel'][0]
+            fractions = config['DecayTimeResolutionModel'][1]
         from ROOT import ( RooArgList, RooRealVar, RooGaussModel,
                 RooGaussEfficiencyModel, RooAddModel )
-        if 2 != len(config['DecayTimeResolutionModel']):
-            raise TypeError('Unknown type of resolution model')
-        ncomp = len(config['DecayTimeResolutionModel'][0])
-        if ncomp < 1:
-            raise TypeError('Unknown type of resolution model')
-        if ncomp != len(config['DecayTimeResolutionModel'][1]) and \
-                ncomp - 1 != len(config['DecayTimeResolutionModel'][1]):
-            raise TypeError('Unknown type of resolution model')
         pdfs = RooArgList()
         fracs = RooArgList()
         i = 0
-        for s in config['DecayTimeResolutionModel'][0]:
+        for s in sigmas:
             sigma = WS(ws, RooRealVar('resmodel%02d_sigma' % i,
                 'resmodel%02d_sigma' % i, s, 'ps'))
             bias = WS(ws, RooRealVar('timeerr_bias',
@@ -101,7 +116,7 @@ def getResolutionModel(
             del bias
             i += 1
         i = 0
-        for s in config['DecayTimeResolutionModel'][1]:
+        for s in fractions:
             fracs.add(WS(ws, RooRealVar('resmodel%02d_frac' % i,
                 'resmodel%02d_frac' % i, s, 'ps')))
             i += 1

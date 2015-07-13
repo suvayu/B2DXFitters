@@ -5,6 +5,10 @@
 !-----------------------------------------------------------------------------
 
 ! 2015-07-13 - Manuel Tobias Schiller
+ - implement Paul's suggestion to use dictionaries for getResolutionModel,
+   adapt tutorials
+
+! 2015-07-13 - Manuel Tobias Schiller
  - make use of named function arguments in tutorial macros (Paul's suggestion)
 
 ! 2015-07-13 - Manuel Tobias Schiller
