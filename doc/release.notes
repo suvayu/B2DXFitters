@@ -5,6 +5,10 @@
 !-----------------------------------------------------------------------------
 
 ! 2015-07-13 - Manuel Tobias Schiller
+ - add material on the time fit from the Padova workshop (final PDF files and
+   LaTeX sources)
+
+! 2015-07-13 - Manuel Tobias Schiller
  - implement Paul's suggestion to use dictionaries for getResolutionModel,
    adapt tutorials
 
