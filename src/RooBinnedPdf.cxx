@@ -38,7 +38,6 @@
 // END_HTML
 //
 
-#include <list>
 #include <cmath>
 #include <memory>
 #include <limits>

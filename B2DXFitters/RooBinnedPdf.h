@@ -17,8 +17,8 @@
 #define ROO_BINNED_PDF
 
 #include <map>
+#include <list>
 #include <vector>
-namespace std { template <typename, typename> class list; }
 
 #include "RooAbsPdf.h"
 #include "RooRealProxy.h"

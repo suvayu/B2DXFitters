@@ -5,6 +5,10 @@
 !-----------------------------------------------------------------------------
 
 ! 2015-07-13 - Manuel Tobias Schiller
+ - RooBinnedPdf: revert to including <list> in RooBinnedPdf again, as OS/X
+   apparently needs it
+
+! 2015-07-13 - Manuel Tobias Schiller
  - add material on the time fit from the Padova workshop (final PDF files and
    LaTeX sources)
 
