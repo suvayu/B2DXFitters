@@ -115,7 +115,7 @@ from ROOT import RooFit
 # start by getting seed number
 import sys
 SEED = None
-for tmp in sys.argv:
+for tmp in sys.argv[1:]:
     try:
         SEED = int(tmp)
     except ValueError:
