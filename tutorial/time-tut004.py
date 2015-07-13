@@ -252,9 +252,9 @@ def buildTimePdf(config):
         config, 'Bs2DsPi', ws,
         time, timeerr, qt, qf, [ [ omega ] ], [ tageff ],
         Gamma, DGamma, Dm,
-        # C = 1, ADG_f = ADG_fbar = S_f = S_fbar = 0
-        one, zero, zero, zero, zero,
-        resmodel, acc, terrpdf, [ mistagpdf ], eta)
+        C = one, D = zero, Dbar = zero, S = zero, Sbar = zero,
+        timeresmodel = resmodel, acceptance = acc, timeerrpdf = terrpdf,
+        mistagpdf = [ mistagpdf ], mistagobs = eta)
     return { # return things
             'ws': ws,
             'pdf': pdf,

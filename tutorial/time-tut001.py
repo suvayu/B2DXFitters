@@ -197,9 +197,8 @@ genpdf = buildBDecayTimePdf(
     config, 'GEN-Bs2DsPi', ws,
     time, timeerr, qt, qf, [ [ mistag ] ], [ tageff ],
     Gamma, DGamma, Dm,
-    # C = 1, ADG_f = ADG_fbar = S_f = S_fbar = 0
-    one, zero, zero, zero, zero,
-    resmodel, acc)
+    C = one, D = zero, Dbar = zero, S = zero, Sbar = zero,
+    timeresmodel = resmodel, acceptance = acc)
 
 # generate 150K events
 ds = genpdf.generate(obs, 150000, RooFit.Verbose())
@@ -215,9 +214,8 @@ fitpdf = buildBDecayTimePdf(
     config, 'FIT-Bs2DsPi', ws,
     time, timeerr, qt, qf, [ [ mistag ] ], [ tageff ],
     Gamma, DGamma, Dm,
-    # C = 1, ADG_f = ADG_fbar = S_f = S_fbar = 0
-    one, zero, zero, zero, zero,
-    resmodel, acc)
+    C = one, D = zero, Dbar = zero, S = zero, Sbar = zero,
+    timeresmodel = resmodel, acceptance = acc)
 
 # set constant what is supposed to be constant
 setConstantIfSoConfigured(config, fitpdf)

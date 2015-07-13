@@ -5,6 +5,9 @@
 !-----------------------------------------------------------------------------
 
 ! 2015-07-13 - Manuel Tobias Schiller
+ - make use of named function arguments in tutorial macros (Paul's suggestion)
+
+! 2015-07-13 - Manuel Tobias Schiller
  - robustify tutorial examples (command line argument procession, Paul's
    suggestion)
 
