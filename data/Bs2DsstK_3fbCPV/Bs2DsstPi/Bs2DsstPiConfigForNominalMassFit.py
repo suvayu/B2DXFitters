@@ -18,7 +18,7 @@ def getconfig() :
     configdict["dataName"]   = "../data/Bs2DsstK_3fbCPV/Bs2DsstPi/config_Bs2DsstPi.txt"
 
     configdict["ControlPlots"] = {}
-    configdict["ControlPlots"] = { "Directory": "PlotBs2DsstPi", "Extension":"C"}
+    configdict["ControlPlots"] = { "Directory": "PlotBs2DsstPi", "Extension":"pdf"}
 
 
     # basic variables                                                                                        
