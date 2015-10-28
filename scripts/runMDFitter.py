@@ -285,7 +285,8 @@ def runMDFitter( debug, sample, mode, sweight,
     evts = TString("Evts")
     
     nYields = []
-    
+    other = False
+
     for i in range(0,bound):
         print i
         print bound
@@ -302,6 +303,9 @@ def runMDFitter( debug, sample, mode, sweight,
                 nameBkg = TString("n")+bkg+t+sm[i]+t+evts
             else:
                 nameBkg = TString("nSig")+t+sm[i]+t+evts
+            if bkg != "Signal" and bkg != "Combinatorial" and bkg != "CombBkg":
+                other = True
+
             expectedYield = getExpectedYield(bkg,yr,dmode,pol,merge,myconfigfile)
             nYields.append(RooRealVar(nameBkg.Data() , nameBkg.Data(), expectedYield, 0.0, expectedYield*2.0))
             setConstantIfSoConfigured(nYields[nYields.__len__()-1], "Yields", bkg, mm, pol, myconfigfile)
@@ -359,8 +363,9 @@ def runMDFitter( debug, sample, mode, sweight,
                                         print "Parameter: %s set to be constant with value %lf"%(addVar[addVar.__len__()-1].GetName(),addVar[addVar.__len__()-1].getValV())
                             getattr(workInt,'import')(addVar[addVar.__len__()-1])
 
-                            
-    bkgPDF = getTotalBkgPDF(myconfigfile, beautyMass, charmMass, workspace[0], workInt, merge, bound, sm, dim, debug )
+    
+    if other == True:
+        bkgPDF = getTotalBkgPDF(myconfigfile, beautyMass, charmMass, workspace[0], workInt, merge, bound, sm, dim, debug )
     ###------------------------------------------------------------------------------------------------------------------------------------### 
           ###---------------------------------   Create the total PDF in Bs mass, Ds mass, PIDK --------------------------------------###  
     ###------------------------------------------------------------------------------------------------------------------------------------###  
@@ -375,10 +380,12 @@ def runMDFitter( debug, sample, mode, sweight,
         name = TString("TotEPDF_m_")+sm[i]
         print sigEPDF[i].GetName()
         #print Bd2DsstKEPDF[i].GetName()
-        print bkgPDF[i].GetName()
+        #print bkgPDF[i].GetName()
         print combEPDF[i].GetName() 
-        totPDFp.append(RooAddPdf( name.Data(), 'Model (signal & background) EPDF in mass', RooArgList( sigEPDF[i], combEPDF[i], bkgPDF[i]))) #Bd2DsstKEPDF[i] )))
-        
+        if other == True: 
+            totPDFp.append(RooAddPdf( name.Data(), 'Model (signal & background) EPDF in mass', RooArgList( sigEPDF[i], combEPDF[i], bkgPDF[i])))
+        else:
+            totPDFp.append(RooAddPdf( name.Data(), 'Model (signal & background) EPDF in mass', RooArgList( sigEPDF[i], combEPDF[i])))
     
     totPDF = RooSimultaneous("simPdf","simultaneous pdf",sam)
     for i in range(0,bound):
