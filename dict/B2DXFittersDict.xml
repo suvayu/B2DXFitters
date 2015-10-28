@@ -42,6 +42,7 @@
 	<function pattern = "WeightingUtils::*" />
         <class name = "PlotSettings" />
         <class name = "MDFitterSettings" />
+	<class name = "PIDCalibrationSample" />
         <class name = "HistPID1D" />
         <class name = "HistPID2D" />
 

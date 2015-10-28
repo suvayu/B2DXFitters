@@ -15,7 +15,7 @@ def getconfig() :
     # integrated luminosity in each year of data taking (necessary in case of PIDK shapes) 
     configdict["IntegratedLuminosity"] = {"2011": {"Down": 0.59, "Up": 0.44}}
     # file name with paths to MC/data samples
-    configdict["dataName"]   = "../data/config_Bs2Dsh2011TDAna_Bs2DsK.txt"
+    configdict["dataName"]   = "../data/Bs2DsK_DsK1fbPAPER/config_Bs2Dsh2011TDAna_Bs2DsK.txt"
         
     # basic variables
     configdict["BasicVariables"] = {}
@@ -72,18 +72,28 @@ def getconfig() :
     configdict["ObtainPIDTemplates"] = { "Variables":["BacPT","nTracks"], "Bins":[20,20] }
 
     configdict["Calibrations"] = {}
-    configdict["Calibrations"]["Pion"]   = { "FileNameUp":"/afs/cern.ch/work/a/adudziak/public/workspace/CalibrationSamples/CalibDst_Up_Pi_PID5_Str17.root",
-                                            "FileNameDown":"/afs/cern.ch/work/a/adudziak/public/workspace/CalibrationSamples/CalibDst_Down_Pi_PID5_Str17.root",
-                                             "WorkName":"RSDStCalib"}
-    configdict["Calibrations"]["Kaon"]   = { "FileNameUp":"/afs/cern.ch/work/a/adudziak/public/workspace/CalibrationSamples/CalibDst_Up_K_PID5_Str17.root",
-                                             "FileNameDown":"/afs/cern.ch/work/a/adudziak/public/workspace/CalibrationSamples/CalibDst_Down_K_PID5_Str17.root",
-                                             "WorkName":"RSDStCalib"}
-    configdict["Calibrations"]["Proton"] = { "FileNameUp":"/afs/cern.ch/work/a/adudziak/public/workspace/work_lblcpi_up_sw.root",
-                                             "FileNameDown": "/afs/cern.ch/work/a/adudziak/public/workspace/work_lblcpi_down_sw.root",
-                                             "WorkName":"workspace"}
-    configdict["Calibrations"]["Combinatorial"]   = { "FileNameUp":"/afs/cern.ch/work/a/adudziak/public/workspace/work_Comb_Up_DsK_5358.root",
-                                                      "FileNameDown":"/afs/cern.ch/work/a/adudziak/public/workspace/work_Comb_Down_DsK_5358.root",
-                                                      "WorkName":"workspace"}
+    configdict["Calibrations"]["2011"] = {}
+    configdict["Calibrations"]["2011"]["Pion"]   = {}
+    configdict["Calibrations"]["2011"]["Pion"]["Up"]   = {"FileName":"/afs/cern.ch/work/a/adudziak/public/workspace/CalibrationSamples/CalibDst_Up_Pi_PID5_Str20r1.root"}
+    configdict["Calibrations"]["2011"]["Pion"]["Down"] = {"FileName":"/afs/cern.ch/work/a/adudziak/public/workspace/CalibrationSamples/CalibDst_Down_Pi_PID5_Str20r1.root"}
+    configdict["Calibrations"]["2011"]["Kaon"]   = {}
+    configdict["Calibrations"]["2011"]["Kaon"]["Up"]   = { "FileName":"/afs/cern.ch/work/a/adudziak/public/workspace/CalibrationSamples/CalibDst_Up_K_PID5_Str20r1.root"}
+    configdict["Calibrations"]["2011"]["Kaon"]["Down"] = { "FileName":"/afs/cern.ch/work/a/adudziak/public/workspace/CalibrationSamples/CalibDst_Down_K_PID5_Str20r1.root"}
+    configdict["Calibrations"]["2011"]["Proton"]   = {}
+    configdict["Calibrations"]["2011"]["Proton"]["Up"] = { "FileName":"/afs/cern.ch/work/a/adudziak/public/workspace/work_lblcpi_up_sw.root",
+                                                           "WorkName":"workspace", "Type":"Special", "DataName":"ProtonsSample_up",
+                                                           "WeightName":"sWeights", "PIDVarName":"lab1_PIDK", "Variables":["lab1_PT","nTracks"]}
+    configdict["Calibrations"]["2011"]["Proton"]["Down"] = { "FileName": "/afs/cern.ch/work/a/adudziak/public/workspace/work_lblcpi_down_sw.root",
+                                                             "WorkName":"workspace", "Type":"Special", "DataName":"ProtonsSample_down",
+                                                             "WeightName":"sWeights", "PIDVarName":"lab1_PIDK", "Variables":["lab1_PT","nTracks"]}
+
+    configdict["Calibrations"]["2011"]["Combinatorial"]   = {}
+    configdict["Calibrations"]["2011"]["Combinatorial"]["Up"] = { "FileName":"/afs/cern.ch/work/a/adudziak/public/workspace/work_Comb_Up_DsK_5358.root",
+                                                                  "WorkName":"workspace", "DataName":"dataCombBkg_up", "Type":"Special",
+                                                                  "WeightName":"sWeights", "PIDVarName":"lab1_PIDK", "Variables":["lab1_PT","nTracks"]}
+    configdict["Calibrations"]["2011"]["Combinatorial"]["Down"] = { "FileName":"/afs/cern.ch/work/a/adudziak/public/workspace/work_Comb_Down_DsK_5358.root",
+                                                                    "WorkName":"workspace", "DataName":"dataCombBkg_down", "Type":"Special",
+                                                                    "WeightName":"sWeights", "PIDVarName":"lab1_PIDK", "Variables":["lab1_PT","nTracks"]}
 
     # Bs signal shapes                                                                   
     configdict["BsSignalShape"] = {}

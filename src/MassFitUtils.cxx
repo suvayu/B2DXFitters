@@ -253,6 +253,7 @@ namespace MassFitUtils {
     TCut Terr_cut = mdSet->GetCut(mdSet->GetTerrVar());
     
     TCut addCuts = (TCut)mdSet->GetDataCuts(md[0]); 
+    std::cout<<"[INFO] Data cuts from MDFit: "<<addCuts<<std::endl; 
 
     TCut All_cut = "";
     if ( mode.Contains("Comb") == true )
@@ -2988,6 +2989,7 @@ TCut GetCutMCBkg( MDFitterSettings* mdSet, TString mode, TString hypo, TString D
       y[i-1] = CheckDataYear(sig, debug);
       if ( md[i-1] == "kkpi" || md[i-1] == ""){ md[i-1] = CheckKKPiMode(sig, debug);}
       if ( y[i-1] != "") { y[i-1] = "_"+y[i-1]; }
+      if ( md[i-1] != "") { md[i-1] = "_"+md[i-1]; }
     }
     
     RooRealVar* obs = GetObservable(work,obsName,debug);
@@ -2995,15 +2997,17 @@ TCut GetCutMCBkg( MDFitterSettings* mdSet, TString mode, TString hypo, TString D
 
     for(int i = 0; i<2; i++)
       {
-	TString name = "dataSet"+mode+"_"+smp[i]+"_"+md[i]+y[i];
+	TString name = "dataSet"+mode+"_"+smp[i]+md[i]+y[i];
         data.push_back(GetDataSet(work,name,debug));
       }
     data[0]->append(*data[1]);
-    
-    TString s1 = "both";
+
+    TString s1 = "both"+md[0]+y[0];
+
     if (mdSet->GetMassDVarOutName() == obsName )
       {
-	s1 = "both_Ds"; 
+	s1 = s1+"_Ds"; 
+
       }
     RooKeysPdf* pdf = CreatePDFMC(data[0], obs, s1, mode, rho, mirror, debug);
     work->import(*pdf);

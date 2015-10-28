@@ -45,6 +45,7 @@
 #include "B2DXFitters/WeightingUtils.h"
 #include "B2DXFitters/PlotSettings.h"
 #include "B2DXFitters/MDFitterSettings.h"
+#include "B2DXFitters/PIDCalibrationSample.h"
 #include "B2DXFitters/MCBackground.h"
 #include "B2DXFitters/HistPID1D.h"
 #include "B2DXFitters/HistPID2D.h"

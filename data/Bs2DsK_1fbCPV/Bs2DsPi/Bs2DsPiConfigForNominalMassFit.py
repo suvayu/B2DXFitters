@@ -71,16 +71,24 @@ def getconfig() :
 
     #weighting for PID templates                                                                                                                                                            
     configdict["ObtainPIDTemplates"] = { "Variables":["BacPT","nTracks"], "Bins":[20,20] }
+    
     configdict["Calibrations"] = {}
-    configdict["Calibrations"]["Pion"]   = { "FileNameUp":"/afs/cern.ch/work/a/adudziak/public/workspace/CalibrationSamples/CalibDst_Up_Pi_PID0_Str17.root",
-                                            "FileNameDown":"/afs/cern.ch/work/a/adudziak/public/workspace/CalibrationSamples/CalibDst_Down_Pi_PID0_Str17.root",
-                                             "WorkName":"RSDStCalib"}
-    configdict["Calibrations"]["Kaon"]   = { "FileNameUp":"/afs/cern.ch/work/a/adudziak/public/workspace/CalibrationSamples/CalibDst_Up_K_PID0_Str17.root",
-                                             "FileNameDown":"/afs/cern.ch/work/a/adudziak/public/workspace/CalibrationSamples/CalibDst_Down_K_PID0_Str17.root",
-                                             "WorkName":"RSDStCalib"}
-    configdict["Calibrations"]["Combinatorial"]   = { "FileNameUp":"/afs/cern.ch/work/a/adudziak/public/workspace/work_Comb_DsPi_5358.root",
-                                                      "FileNameDown":"/afs/cern.ch/work/a/adudziak/public/workspace/work_Comb_DsPi_5358.root",
-                                                      "WorkName":"workspace"}
+    configdict["Calibrations"]["2011"] = {}
+    configdict["Calibrations"]["2011"]["Pion"]   = {}
+    configdict["Calibrations"]["2011"]["Pion"]["Up"]   = {"FileName":"/afs/cern.ch/work/a/adudziak/public/workspace/CalibrationSamples/CalibDst_Up_Pi_PID0_Str20r1.root"}
+    configdict["Calibrations"]["2011"]["Pion"]["Down"] = {"FileName":"/afs/cern.ch/work/a/adudziak/public/workspace/CalibrationSamples/CalibDst_Down_Pi_PID0_Str20r1.root"}
+    configdict["Calibrations"]["2011"]["Kaon"]   = {}
+    configdict["Calibrations"]["2011"]["Kaon"]["Up"]   = { "FileName":"/afs/cern.ch/work/a/adudziak/public/workspace/CalibrationSamples/CalibDst_Up_K_PID0_Str20r1.root"}
+    configdict["Calibrations"]["2011"]["Kaon"]["Down"] = { "FileName":"/afs/cern.ch/work/a/adudziak/public/workspace/CalibrationSamples/CalibDst_Down_K_PID0_Str20r1.root"}
+    configdict["Calibrations"]["2011"]["Combinatorial"]   = {}
+    configdict["Calibrations"]["2011"]["Combinatorial"]   = {}
+    configdict["Calibrations"]["2011"]["Combinatorial"]["Up"] = { "FileName":"/afs/cern.ch/work/a/adudziak/public/workspace/work_Comb_DsPi_5358.root",
+                                                                  "WorkName":"workspace", "DataName":"dataCombBkg_up", "Type":"Special",
+                                                                  "WeightName":"sWeights", "PIDVarName":"lab1_PIDK", "Variables":["lab1_PT","nTracks"]}
+    configdict["Calibrations"]["2011"]["Combinatorial"]["Down"] = { "FileName":"/afs/cern.ch/work/a/adudziak/public/workspace/work_Comb_DsPi_5358.root",
+                                                                    "WorkName":"workspace", "DataName":"dataCombBkg_down", "Type":"Special",
+                                                                    "WeightName":"sWeights", "PIDVarName":"lab1_PIDK", "Variables":["lab1_PT","nTracks"]}
+
 
     #----------------------------------------------------------------------------------------------------------------------------------------------------------------#
     ###                                                               MDfit fitting settings
@@ -89,7 +97,7 @@ def getconfig() :
     # Bs signal shapes                                                                                                                                   
     configdict["BsSignalShape"] = {}
     configdict["BsSignalShape"]["type"]    = "DoubleCrystalBall"
-    configdict["BsSignalShape"]["mean"]    = {"All":5367.51}
+    configdict["BsSignalShape"]["mean"]    = {"Run1": {"All":5367.51}, "Fixed":False}
     configdict["BsSignalShape"]["sigma1"]  = {"2011": {"NonRes":1.1538e+01,  "PhiPi":1.6598e+01,  "KstK":1.1646e+01,  "KPiPi":1.1428e+01,  "PiPiPi":1.1989e+01},  "Fixed":True}
     configdict["BsSignalShape"]["sigma2"]  = {"2011": {"NonRes":1.6181e+01,  "PhiPi":1.1488e+01,  "KstK":1.4992e+01,  "KPiPi":1.6866e+01,  "PiPiPi":1.7588e+01},  "Fixed":True}
     configdict["BsSignalShape"]["alpha1"]  = {"2011": {"NonRes":1.9050e+00,  "PhiPi":-2.0856e+00, "KstK":1.7019e+00,  "KPiPi":1.9066e+00,  "PiPiPi":1.8497e+00},  "Fixed":True}
@@ -102,7 +110,7 @@ def getconfig() :
     #Ds signal shapes                                                                                                                                       
     configdict["DsSignalShape"] = {}
     configdict["DsSignalShape"]["type"]    = "DoubleCrystalBall"
-    configdict["DsSignalShape"]["mean"]    = {"All":1968.49}
+    configdict["DsSignalShape"]["mean"]    = {"Run1": {"All":1968.49}, "Fixed":False}
     configdict["DsSignalShape"]["sigma1"]  = {"2011": {"NonRes":4.3930e+00,  "PhiPi":8.7215e+00,  "KstK":7.8768e+00,  "KPiPi":6.7734e+00,  "PiPiPi":8.4187e+00}, "Fixed":True}
     configdict["DsSignalShape"]["sigma2"]  = {"2011": {"NonRes":7.1493e+00,  "PhiPi":4.6238e+00,  "KstK":4.5946e+00,  "KPiPi":6.4937e+00,  "PiPiPi":7.2604e+00}, "Fixed":True}
     configdict["DsSignalShape"]["alpha1"]  = {"2011": {"NonRes":2.1989e+00,  "PhiPi":1.7979e+00,  "KstK":1.9708e+00,  "KPiPi":9.1754e-01,  "PiPiPi":9.4869e-01}, "Fixed":True}
@@ -117,31 +125,34 @@ def getconfig() :
     configdict["BsCombinatorialShape"]["type"] = "DoubleExponential"
     configdict["BsCombinatorialShape"]["cB1"]        = {"2011": {"NonRes":-3.5211e-03,  "PhiPi":-3.0873e-03,  "KstK":-2.3392e-03, "KPiPi":-1.0361e-03, "PiPiPi":-1.5277e-03}, "Fixed": False}
     configdict["BsCombinatorialShape"]["cB2"]        = {"2011": {"NonRes":0.0,          "PhiPi":0.0,          "KstK":0.0,         "KPiPi":0.0,         "PiPiPi":0.0}, "Fixed":True }
-    configdict["BsCombinatorialShape"]["fracCombB"]  = {"2011": {"NonRes":4.3067e-01,   "PhiPi":6.5400e-01,   "KstK":3.7409e-01,  "KPiPi":1.0,         "PiPiPi":1.0}, 
+    configdict["BsCombinatorialShape"]["frac"]  = {"2011": {"NonRes":4.3067e-01,   "PhiPi":6.5400e-01,   "KstK":3.7409e-01,  "KPiPi":1.0,         "PiPiPi":1.0}, 
                                                         "Fixed":{"KPiPi":True,"PiPiPi":True}}
 
     configdict["DsCombinatorialShape"] = {}
     configdict["DsCombinatorialShape"]["type"]  = "ExponentialPlusSignal" 
     configdict["DsCombinatorialShape"]["cD"]         = {"2011": {"NonRes":-2.7520e-03,  "PhiPi":-2.7273e-03,  "KstK":-8.3967e-03, "KPiPi":-1.9193e-03, "PiPiPi":-4.5455e-03}, "Fixed":False}
-    configdict["DsCombinatorialShape"]["fracCombD"]   = {"2011": {"NonRes":0.88620,      "PhiPi":0.37379,      "KstK":0.59093,     "KPiPi":1.0,         "PiPiPi":1.0}, 
+    configdict["DsCombinatorialShape"]["fracD"]   = {"2011": {"NonRes":0.88620,      "PhiPi":0.37379,      "KstK":0.59093,     "KPiPi":1.0,         "PiPiPi":1.0}, 
                                                          "Fixed":{"KPiPi":True,"PiPiPi":True}}
 
     configdict["PIDKCombinatorialShape"] = {}
     configdict["PIDKCombinatorialShape"]["type"] = "Fixed"
     configdict["PIDKCombinatorialShape"]["components"] = { "Kaon":True, "Pion":True, "Proton":False }
-    configdict["PIDKCombinatorialShape"]["fracPIDK"]   = { "2011":{"fracPIDK1":0.5}, "Fixed":False }
+    configdict["PIDKCombinatorialShape"]["fracPIDK1"]   = { "2011":{"All":0.5}, "2012":{"All":0.5}, "Fixed":False }
 
     #Bd2Dsh background
     #shape for BeautyMass, for CharmMass as well as BacPIDK taken by default the same as signal 
     configdict["Bd2Ds(st)XShape"] = {}
     configdict["Bd2Ds(st)XShape"]["type"]    = "ShiftedSignal"
-    configdict["Bd2Ds(st)XShape"]["name"]    = "Bd2DsPi"
-    configdict["Bd2Ds(st)XShape"]["scaleSigma"] = { "2011": {"frac1": 1.00808721452, "frac2":1.0386867331}}
+    configdict["Bd2Ds(st)XShape"]["decay"]   = "Bd2DsPi"
+    configdict["Bd2Ds(st)XShape"]["shift"]   = {"Run1": {"All": 86.8}, "Fixed":True}
+    configdict["Bd2Ds(st)XShape"]["scale1"]  = {"Run1": {"All": 1.00808721452}, "Fixed":True}
+    configdict["Bd2Ds(st)XShape"]["scale2"]  = {"Run1": {"All": 1.03868673310}, "Fixed":True}
+
 
     #
     configdict["AdditionalParameters"] = {}
-    configdict["AdditionalParameters"]["g1_f1_frac"] = { "CentralValue":0.5, "Range":[0.0,1.0], "Fixed":False}
-    configdict["AdditionalParameters"]["g1_f2_frac"] = { "CentralValue":0.5, "Range":[0.0,1.0], "Fixed":False}
+    configdict["AdditionalParameters"]["g1_f1_frac"] = {"2011":{"All":{"Both":{"CentralValue":0.5, "Range":[0.0,1.0]}}}, "Fixed":False}
+    configdict["AdditionalParameters"]["g1_f2_frac"] = {"2011":{"All":{"Both":{"CentralValue":0.5, "Range":[0.0,1.0]}}}, "Fixed":False}
 
     #expected yields                                                                                                                                                       
     configdict["Yields"] = {}

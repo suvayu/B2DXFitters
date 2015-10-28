@@ -1,8 +1,59 @@
 !-----------------------------------------------------------------------------
 ! Package     : PhysFit/B2DXFitters
-! Responsible : Eduardo Rodrigues
+! Responsible : Agnieszka Dziurda, Manuel Schiller
 ! Purpose     : RooFit-based fitters for B -> D X
 !-----------------------------------------------------------------------------
+
+! 2015-10-28 - Agnieszka Dziurda
+ - new structure of data directory with config files:
+   - each measurement has its own directory:
+     Bd2DPi_3fbCPV, Bs2DsK_1fbCPV, Bs2DsK_3fbCPV, Bs2DsstK_3fbBR, Bs2DsstK_3fbCPV
+   - in each directory are different modes, for example:
+     Bs2DsK_3fbCPV/Bd2DPi
+     Bs2DsK_3fbCPV/Bs2DsPi
+     Bs2DsK_3fbCPV/Bs2DsK
+ - due to new structure you need to use the full path to the config file:
+    - example: --configName ../data/Bs2DsstK_3fbCPV/Bs2DsstPi/Bs2DsstPiConfigForNominalMassFit.py
+ - almost fully rewriting WeightingUtils:
+    - necessary clean up
+    - more flexibilities, now it is possible to obtain 2011/2012 calibration samples, using 
+      two different stripping versions (example: 21, 21r1)
+ - almost fully rewriting Bs2Dsh2011TDAnaModels:
+    - all variables are read from workspace, don't need to have many arguments,
+    - clean up models, now supported are:
+      - Crystal Ball, double Crystal Ball, 
+      - Gaussian, double Gaussian,
+      - exponential plus Gaussian, exponential, double exponential,    
+      - exponential times linear, exponential plus signal, 
+ - changes in option in the main MDFit fitting procedure:
+   - the option -m both --merge is removed,
+   - new options:
+     -- simultaneous fit to both magnet polarities: --pol both
+     -- simultaneous fit to both years of data taking: --year both
+     -- fit with merged magnet polarities: --pol both --merge pol
+     -- fit with merged year of data taking: --year run1 --merge year
+     -- fit with merged both magnet polarities and year of data taking: --year run1 --pol both --merge both
+ - new posibility to control shared variables in config file:
+   - example: configdict["DsCombinatorialShape"]["cD"] = {"Run1": {"NonRes":-0.05, "PhiPi":-0.05, "KstK":-0.05}, "Fixed":False}
+     variable created: nonres_both_run1, which will be shared in simultaneous fits to
+     both magnet polarities and/or both year of data taking.
+   - if you want to use not shared variable for year of data taking, use: 
+     	configdict["DsCombinatorialShape"]["cD"] = {"2012": {"NonRes":-0.05, "PhiPi":-0.05, "KstK":-0.05},                                                                                                                                            "2011": {"NonRes":-0.05, "PhiPi":-0.05, "KstK":-0.05}, "Fixed":False} 
+     and similar for both magnet polarities.
+ - the package will be looking for variables, starting from specific one to more general:
+   - firstly looking at the specific variable for example: polarity = down, year = 2011, dsmode = "nonres",
+     if this is not found it will look more general variable for example: 
+        polarity = both, or year = run1, or dsmode = kkpi, or dsmode = all
+     in all combinations. 
+ - shared shapes:
+   - setting one shape for all sumbsamples possible due to structure:  {"Run1": {"All": 0.0}, "Fixed":False}
+   - setting one shape for all KKpi modes: {"Run1": {"KKPi": 0.0}, "Fixed":False}
+   - setting one shape for year polarity but different for dsmodes: {"Run1": {"KKPi": 0.0, "KPiPi":0.0, "PiPiPi":0.0}, "Fixed":False}
+   - setting different shape for magnet polarities: {"Run1": {"All": {"Up":0.0, "Down":0.0}, "Fixed":False}
+ - creating directory with control plots possible due to setting:
+     configdict["ControlPlots"] = {}
+     configdict["ControlPlots"] = { "Directory": "PlotBs2DsstPi", "Extension":"C"} 
+   in your config file. The extension of plots can be chosen by "Extension":"C" etc. 
 
 ! 2015-07-13 - Manuel Tobias Schiller
  - RooBinnedPdf: revert to including <list> in RooBinnedPdf again, as OS/X

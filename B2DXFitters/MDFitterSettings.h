@@ -10,6 +10,7 @@
 #ifndef MDFITTERSETTINGS
 #define MDFITTERSETTINGS
 
+#include "B2DXFitters/PIDCalibrationSample.h"
 #include "TString.h"
 #include "TNamed.h"
 #include "TCut.h"
@@ -157,44 +158,68 @@ public:
   Double_t GetLum(TString year, TString pol); 
   std::vector <Double_t> GetLumRatio(TString year);
 
-  std::vector <TString>  GetCalibPion()   { return _calibPion; }
-  std::vector <TString>  GetCalibKaon()   { return _calibKaon; }
-  std::vector <TString>  GetCalibProton() { return _calibProton; }
 
-  TString  GetCalibPionDown()   { return _calibPion[1]; }
-  TString  GetCalibKaonDown()   { return _calibKaon[1]; }
-  TString  GetCalibProtonDown() { return _calibProton[1]; }
-  TString  GetCalibComboDown() { return _calibCombo[1]; }
+  void SetCalibSample(TString fileName, TString workName, TString dataName, 
+		      TString sample, TString year, TString pol, TString strip, TString type = "",
+		      TString var1Name = "", TString var2Name = "", TString pidName = "", TString weightName ="")
+  {
+    TString name = "Calib_"+sample+"_"+strip+"_"+year+"_"+pol; 
+    PIDCalibrationSample calib(name.Data(),name.Data()); 
+    calib.SetStripping(strip);
+    calib.SetSampleType(sample);
+    calib.SetYear(year);
+    calib.SetPolarity(pol); 
+    if ( fileName != "" )
+      {
+	calib.SetFile(fileName, false);
+      }
+    if ( type != "" ) { calib.SetType(type); }
+    if ( calib.GetType() != "PIDCalib" )
+      {
+	if ( workName != "" ) { calib.SetWorkName(workName); }
+	if ( dataName != "" ) { calib.SetDataName(dataName); } 
+	if ( var1Name != "" ) { calib.SetVar1Name(var1Name); }
+	if ( var2Name != "" ) {calib.SetVar2Name(var2Name); }
+	if ( pidName != "" ) { calib.SetPIDName(pidName); }
+	if ( weightName != "" ) {calib.SetWeightName(weightName); }
+      }
+    else
+      {
+	calib.ObtainPIDVarName(false); 
+      }
+    if ( fileName != "" )
+      {
+	calib.LoadWorkspace();
+	calib.LoadData(false);
+      }
 
-  TString  GetCalibPionUp()   { return _calibPion[0]; }
-  TString  GetCalibKaonUp()   { return _calibKaon[0]; }
-  TString  GetCalibProtonUp() { return _calibProton[0]; }
-  TString  GetCalibComboUp() { return _calibCombo[0]; }
-  
-  TString  GetCalibPionWorkName()   { return _calibPion[2]; }
-  TString  GetCalibKaonWorkName()   { return _calibKaon[2]; }
-  TString  GetCalibProtonWorkName() { return _calibProton[2]; }
-  TString  GetCalibComboWorkName() { return _calibCombo[2]; }
+    _calib.push_back(calib); 
+  }
+		      
 
-  void SetCalibPion( std::vector <TString> calib ) { _calibPion = calib; }
-  void SetCalibKaon( std::vector <TString> calib ) { _calibKaon = calib; }
-  void SetCalibProton( std::vector <TString> calib ) { _calibProton = calib; }
-  
-  void SetCalibPion( TString calib_up, TString calib_down, TString workName ) { 
-    _calibPion[0] = calib_up; _calibPion[1] = calib_down; _calibPion[2] = workName; 
-  }
-  void SetCalibKaon( TString calib_up, TString calib_down, TString workName ) {
-    _calibKaon[0] = calib_up; _calibKaon[1] = calib_down; _calibKaon[2] = workName;
-  }
-  
-  void SetCalibProton( TString calib_up, TString calib_down, TString workName ) {
-    _calibProton[0] = calib_up; _calibProton[1] = calib_down; _calibProton[2] = workName;
-  }
-  
-  void SetCalibCombo( TString calib_up, TString calib_down, TString workName ) {
-    _calibCombo[0] = calib_up; _calibCombo[1] = calib_down; _calibCombo[2] = workName;
-  }
+  PIDCalibrationSample GetCalibSample( TString sample, TString year, TString pol, TString strip, bool debug = false)
+  {
+    TString name = "Calib_"+sample+"_"+strip+"_"+year+"_"+pol;
+    PIDCalibrationSample calib(name.Data(),name.Data());
 
+    if (debug == true ) { std::cout<<"[INFO] Match: "<<sample<<"  "<<year<<" "<<pol<<" "<<strip<<std::endl; } 
+    for(int i = 0; _calib.size(); i++ )
+      {
+	TString st = _calib[i].GetSampleType(); 
+	TString y = _calib[i].GetYear();
+	TString p = _calib[i].GetPolarity(); 
+	TString str = _calib[i].GetStripping(); 
+       
+	if ( st == sample && y == year && p == pol && str == strip )
+	  {
+	    calib = _calib[i]; 
+	    if ( debug == true ) { std::cout<<"[INFO] Calibration sample matched sucessfully."<<std::endl; std::cout<<calib<<std::endl;}
+	    break;
+	  }
+      }
+    return calib; 
+  }
+  
 
   TString GetMassBVar()    { return  _mVar;       }
   TString GetMassDVar()    { return _mDVar;       }
@@ -448,6 +473,8 @@ public:
   void SetRatioDataMC(Bool_t cut){ _weightMassTemp = cut; } 
   void SetMassWeighting(Bool_t cut) { _weightMassTemp = cut; }
 
+  void SetPIDComboShapeFor5Modes(){ _calibCombo = true; }
+  Bool_t CheckPIDComboShapeForDsModes(){ return _calibCombo; }
 protected:
 
   std::vector <Double_t> _massBRange;
@@ -497,10 +524,8 @@ protected:
   std::vector < std::vector <Double_t> > _lumRatio;
   std::vector < bool > _lumFlag; 
 
-  std::vector <TString> _calibPion;
-  std::vector <TString> _calibKaon;
-  std::vector <TString> _calibProton;
-  std::vector <TString> _calibCombo;
+  std::vector <PIDCalibrationSample> _calib; 
+  Bool_t _calibCombo; 
 
   std::vector <TString> _addVarNames;
   std::vector <TString> _addVarNamesOut;

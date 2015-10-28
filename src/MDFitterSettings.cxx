@@ -62,10 +62,10 @@ MDFitterSettings::MDFitterSettings(const TString& name, const TString& title)
 
   for (int i =  0; i < 3; i++)
     {
-      _calibPion.push_back("");
-      _calibKaon.push_back("");
-      _calibProton.push_back("");
-      _calibCombo.push_back(""); 
+      //_calibPion.push_back("");
+      //_calibKaon.push_back("");
+      //_calibProton.push_back("");
+      //_calibCombo.push_back(""); 
       _prefixDsChild.push_back(""); 
     }
 
@@ -111,9 +111,12 @@ MDFitterSettings::MDFitterSettings(const TString& name, const TString& title)
   _addModeCuts.push_back("kkpi");
   _addModeCuts.push_back("kpipi");
   _addModeCuts.push_back("pipipi");
+  _addModeCuts.push_back("phipi"); 
   _addModeCuts.push_back("nonres");
   _addModeCuts.push_back("kstk");
   _addModeCuts.push_back("hhhpi0");
+
+  _calibCombo = false; 
 }
 
 
@@ -140,9 +143,8 @@ MDFitterSettings::MDFitterSettings(const MDFitterSettings& other) :
 
   _lumRatio = other._lumRatio;
   _weightDim = other._weightDim;
-  _calibPion   = other._calibPion;
-  _calibKaon   = other._calibKaon;
-  _calibProton = other._calibProton;
+  _calib   = other._calib;
+  _calibCombo = other._calibCombo; 
 
   _mVar          = other._mVar;
   _mDVar         = other._mDVar;
@@ -321,6 +323,13 @@ std::ostream & operator<< (std::ostream &out, const MDFitterSettings &s)
 	    }
 	  out<<std::endl;
 	}
+
+      for(int i = 0; i < s._calib.size(); i++ )
+	{
+	  out<<s._calib[i]<<std::endl; 
+	}
+      if ( s._calibCombo == true ) { std::cout<<"[INFO] Combinatorial calibration samples will be taken from recent workspace"<<std::endl; }
+      /*
       if( s._calibPion[0] != "" ||  s._calibPion[1] != "" ||  s._calibPion[2] != "") { out<<"pion calibration sample: "<<std::endl;}
       if ( s._calibPion[0] != "" ) { out<<"\t up file: "<<s._calibPion[0]<<std::endl; }
       if ( s._calibPion[1] != "" ) { out<<"\t down file: "<<s._calibPion[1]<<std::endl;}
@@ -335,7 +344,7 @@ std::ostream & operator<< (std::ostream &out, const MDFitterSettings &s)
       if( s._calibProton[0] != "" ) { out<<"\t up file: "<<s._calibProton[0]<<std::endl;}
       if( s._calibProton[1] != "" ) { out<<"\t down file: "<<s._calibProton[1]<<std::endl;}
       if( s._calibProton[2] != "" ) { out<<"\t workspace name: "<<s._calibProton[2]<<std::endl;}
-
+      */
       if ( s._lumFlag[0] == true || s._lumFlag[1] == true ) { out<<"Luminosity: "<<std::endl;}
       if ( s._lumFlag[0] == true ) { out<<"2011 (MD,MU)=("<<s._lumRatio[0][0]<<","<<s._lumRatio[0][1]<<")"<<std::endl;}
       if ( s._lumFlag[1] == true ) { out<<"2012 (MD,MU)=("<<s._lumRatio[1][0]<<","<<s._lumRatio[1][1]<<")"<<std::endl; }
@@ -369,7 +378,7 @@ Double_t MDFitterSettings::GetRangeUp(TString var)
     {
       if( var == _tagOmegaVarNames[i] || var == _tagOmegaVarNamesOut[i]) { return _tagOmegaVarRU[i]; }
     }
-  std::cout<<"range: "<<range<<std::endl;
+  //std::cout<<"range: "<<range<<std::endl;
   return range;
 }
 
@@ -399,7 +408,7 @@ Double_t MDFitterSettings::GetRangeDown(TString var)
     {
       if( var == _tagOmegaVarNames[i] ||  var == _tagOmegaVarNamesOut[i]) { return _tagOmegaVarRD[i]; }
     }  
-  std::cout<<"range: "<<range<<std::endl;
+  //std::cout<<"range: "<<range<<std::endl;
   return range;
 }
 
@@ -457,8 +466,8 @@ TCut MDFitterSettings::GetCut(TString var, bool sideband)
 
   Double_t range0 = GetRangeDown(var);
   Double_t range1 = GetRangeUp(var);
-  std::cout<<"range = ("<<range0<<","<<range1<<")"<<std::endl;
-  std::cout<<"var: "<<var<<std::endl;
+  //std::cout<<"range = ("<<range0<<","<<range1<<")"<<std::endl;
+  //std::cout<<"var: "<<var<<std::endl;
 
   Float_t c = 299792458.0;
   Float_t corr = c/1e9;
@@ -813,6 +822,7 @@ void MDFitterSettings::SetMCCuts(TString mode, TString cut)
     {
       Mode = CheckDMode(mode);
       if ( Mode == ""){ Mode = CheckKKPiMode(mode);}
+      //std::cout<<"!!!!!!!!!!!!!!!!!!!!! Mode: "<<Mode<<std::endl; 
     }
 
   for(int i = 0; i<10; i++)
@@ -835,6 +845,7 @@ void MDFitterSettings::SetDataCuts(TString mode, TString cut)
     {
       Mode = CheckDMode(mode);
       if ( Mode == ""){ Mode = CheckKKPiMode(mode);}
+      //std::cout<<"!!!!!!!!!!!!!!!!!!!!! Mode: "<<Mode<<std::endl;
     }
 
   for(int i = 0; i<10; i++)
@@ -1289,18 +1300,41 @@ Double_t MDFitterSettings::GetLum(TString year, TString pol)
   return 0; 
 }
 
-std::vector <Double_t> MDFitterSettings::GetLumRatio(TString year)
+std::vector <Double_t> MDFitterSettings::GetLumRatio(TString check)
 {
   std::vector <Double_t> lumRat;
   
-  Int_t i = -1;
-  if ( year == "2011" ){ i = 0; } else if ( year == "2012" ) {i = 1; }
-  if ( i != -1 )
+  if ( check == "2011" || check == "2012" )
     {
+      Int_t i = -1;
+      if ( check == "2011" ){ i = 0; } else if ( check == "2012" ) {i = 1; }
       Double_t r1 = _lumRatio[i][0]/(_lumRatio[i][0]+_lumRatio[i][1]);
       Double_t r2 = _lumRatio[i][1]/(_lumRatio[i][0]+_lumRatio[i][1]);
       lumRat.push_back(r1);
       lumRat.push_back(r2); 
+    }
+  else if ( check == "Run1" || check == "run1") 
+    {
+      Double_t r2011 = _lumRatio[0][0]+_lumRatio[0][1];
+      Double_t r2012 = _lumRatio[1][0]+_lumRatio[1][1];
+      Double_t r1 = r2011 / ( r2011 + r2012 );
+      Double_t r2 = r2012 / ( r2011 + r2012 ); 
+      lumRat.push_back(r1);
+      lumRat.push_back(r2);
+    }
+  else if ( check == "down" || check == "Down" || check == "Dw" || check == "dw") 
+    {
+      Double_t r1 = _lumRatio[0][0]/(_lumRatio[0][0]+_lumRatio[1][0]);
+      Double_t r2 = _lumRatio[1][0]/(_lumRatio[0][0]+_lumRatio[1][0]);
+      lumRat.push_back(r1);
+      lumRat.push_back(r2);
+    }
+  else if ( check == "up" || check == "Up" )
+    {
+      Double_t r1 = _lumRatio[0][1]/(_lumRatio[0][1]+_lumRatio[1][1]);
+      Double_t r2 = _lumRatio[1][1]/(_lumRatio[0][1]+_lumRatio[1][1]);
+      lumRat.push_back(r1);
+      lumRat.push_back(r2);
     }
   else
     {

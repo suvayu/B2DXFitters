@@ -57,6 +57,7 @@
 #include "B2DXFitters/RooBinned1DQuinticBase.h"
 #include "B2DXFitters/PlotSettings.h"
 
+
 #define DEBUG(COUNT, MSG)				   \
   std::cout << "SA-DEBUG: [" << COUNT << "] (" << __func__ << ") " \
   << MSG << std::endl; \
@@ -390,10 +391,11 @@ namespace GeneralUtils {
 
     if (myfile.is_open())
       {
+	
         while(myfile.good())
           {
+	     
             getline (myfile,line);
-
             if(line == sig.Data() ){
               while( line != "###" ){
                 getline (myfile,line);
@@ -1057,10 +1059,10 @@ namespace GeneralUtils {
     else{ if ( debug == true) std::cout<<"Cannot read data set"<<std::endl; return NULL;}
 
   }
-
+  /*
   RooDataSet* GetDataSet(RooWorkspace* work, RooArgSet* obs, RooCategory& sam, 
 			 TString &dat, TString & sample, TString& mode, 
-			 bool merge, bool debug )
+			 TString &merge, bool debug )
   {
     
     std::vector <RooDataSet*> data;
@@ -1071,7 +1073,7 @@ namespace GeneralUtils {
 
     
     if (debug == true ){ std::cout<<"[INFO] Sample "<<sample<<". Mode "<<mode<<std::endl; }
-    if ( merge == true && sample != "both") { std::cout<<"[ERROR] Option merge only possible for sample = both"<<std::endl; return NULL; }  
+    if ( (merge == "pol" || m&& sample != "both") { std::cout<<"[ERROR] Option merge only possible for sample = both"<<std::endl; return NULL; }  
 
     std::vector <TString> s;
     std::vector <TString> m; 
@@ -1231,16 +1233,17 @@ namespace GeneralUtils {
 
     
   }
-  
+  */  
   RooDataSet* GetDataSet(RooWorkspace* work, RooArgSet* obs, RooCategory& sam,
                          TString &dat, TString & sample, TString& mode, TString& year,
-                         bool merge, bool debug )
+                         TString merge, bool debug )
   {
 
     if ( debug == true ) {
 	std::cout<<"[INFO] GetDataSet(...)"<<std::endl; 
-	if (debug == true ){ std::cout<<"[INFO] Sample: "<<sample<<", Mode: "<<mode<<", Year: "<<year<<std::endl; }
-        if ( merge == true && sample != "both") { std::cout<<"[ERROR] Option merge only possible for sample = both"<<std::endl; return NULL; }
+	if (debug == true ){ std::cout<<"[INFO] Sample: "<<sample<<", Mode: "<<mode<<", Year: "<<year<<", Merge: "<<merge<<std::endl; }
+        if ( (merge == "pol" || merge == "both") && sample != "both") { std::cout<<"[ERROR] Option --merge pol only possible for --pol both"<<std::endl; return NULL; }
+	if ( (merge == "year" || merge == "both") && year != "run1") { std::cout<<"[ERROR] Option --merge year only possible for --year run1"<<std::endl; return NULL; }
     }
     std::vector <RooDataSet*> data;
     std::vector <TString> sm;
@@ -1249,129 +1252,181 @@ namespace GeneralUtils {
     TString dataName = "combData";
 
 
-    if ( year == "" )
+    
+    std::vector <TString> s;
+    std::vector <TString> m;
+    std::vector <TString> y;
+
+    s = GetSample(sample,debug);
+    m = GetMode(mode, debug );
+    y = GetYear(year, debug );
+    sm = GetSampleModeYear(sample, mode, year, "", debug);
+    
+    
+    for (unsigned int i=0; i<sm.size(); i++ )
       {
-        combData = GetDataSet(work, obs, sam, dat, sample, mode, merge, debug );
+	TString name = dat+sm[i];
+	data.push_back(GetDataSet(work,name,debug));
+	nEntries.push_back(data[i]->numEntries());
+      }
+
+    if( merge != "" )
+      {
+	std::vector <RooDataSet*> dataOut;
+	std::vector <RooDataSet*> dataOutTmp;
+	for (unsigned int i=0; i<sm.size(); i++ )
+	  {
+	    TString y3 = sm[i];
+	    TString y1 = sm[i];
+	    TString y2 = ""; 
+	    if ( merge == "pol" || merge == "both") 
+	      {
+		y2 = y1.ReplaceAll("up","down");
+	      }
+	    else
+	      {
+		y2 = y1.ReplaceAll("2011","2012");
+	      }
+	    // std::cout<<"y3: "<<y3<<" y1: "<<y1<<std::endl; 
+	    if ( ( (merge == "pol" || merge == "both") && y3.Contains("down") == false) || ( merge == "year" && y3.Contains("2011")))
+	      {
+		for (unsigned int j=0; j<sm.size(); j++ )
+		  {
+		    if ( sm[j] == y2 )
+		      {
+			
+			data[i]->append(*data[j]);
+			nEntries[i] += nEntries[j];
+			if ( debug == true ) { std::cout<<"Adding "<<data[i]->GetName()<<" "<<data[j]->GetName()
+							<<" "<<data[i]->numEntries()<<std::endl; }
+			TString nD = data[i]->GetName();
+			if ( merge == "pol" || merge == "both")
+			  {
+			    nD.ReplaceAll("up","both");
+			  }
+			else
+			  {
+			    nD.ReplaceAll("2011","run1");
+			  }
+			data[i]->SetName(nD.Data());
+			if ( debug == true ) { std::cout<<"New data name: "<<data[i]->GetName()<<std::endl;}
+			dataOutTmp.push_back(data[i]); 
+		      }
+		  }
+	      }
+	  }
+	
+	if ( merge == "both" )
+	  {
+	    
+	    sm = GetSampleModeYear(sample, mode, year,"pol", debug);
+	    for (unsigned int i=0; i<sm.size(); i++ )
+              {
+		if ( debug == true ) { std::cout<<"In dataOutTmp name: "<<dataOutTmp[i]->GetName()<<" with entries " << dataOutTmp[i]->numEntries()<<std::endl;}
+	      }
+
+	    for (unsigned int i=0; i<sm.size(); i++ )
+	      {
+		TString y3 = sm[i];
+		TString y1 = sm[i];
+		TString y2 = y1.ReplaceAll("2011","2012");
+		if (  y3.Contains("2011"))
+		  {
+		    for (unsigned int j=0; j<sm.size(); j++ )
+		      {
+			if ( sm[j] == y2 )
+			  {
+
+			    dataOutTmp[i]->append(*dataOutTmp[j]);
+			    nEntries[i] += nEntries[j];
+			    if ( debug == true ) { std::cout<<"Adding "<<dataOutTmp[i]->GetName()<<" "<<dataOutTmp[j]->GetName()
+							    <<" "<<dataOutTmp[i]->numEntries()<<std::endl; }
+			    TString nD = dataOutTmp[i]->GetName();
+			    nD.ReplaceAll("2011","run1");
+			    dataOutTmp[i]->SetName(nD.Data());
+			    if ( debug == true ) { std::cout<<"New data name: "<<dataOutTmp[i]->GetName()<<std::endl;}
+			    dataOut.push_back(dataOutTmp[i]);
+			  }
+		      }
+		  
+		  }
+	      
+	      }
+	  }
+	else
+	  {
+	    dataOut = dataOutTmp;
+	  }
+	
+	sm = GetSampleModeYear(sample, mode, year, merge, debug);
+	for (unsigned int i=0; i<sm.size(); i++ )
+	  {
+	    sam.defineType(sm[i].Data());
+	    if ( debug == true ) { std::cout<<"In dataOut name: "<<dataOut[i]->GetName()<<" with entries " << dataOut[i]->numEntries()<<std::endl;}
+	  }
+	
+	
+	combData = new RooDataSet(dataName.Data(),dataName.Data(),*obs, RooFit::Index(sam), RooFit::Import(sm[0].Data(),*dataOut[0]));
+	if ( debug == true )
+	  {
+	    std::cout<<"Adding: "<<dataOut[0]->GetName()<<" to combData"<<std::endl;
+	  }
+	
+	std::vector <RooDataSet*> combDataTmp;
+	for( unsigned int i=1; i<sm.size(); i++ )
+	  {
+	    //std::cout<<"sm: "<<sm[i]<<std::endl; 
+	    TString dataNameComb2 = Form("combData%d",i);
+	    TString nD = dataOut[i]->GetName();
+	    if ( debug == true ) 
+	      {
+		std::cout<<"Adding: "<<nD<<" to combData"<<std::endl;
+	      }
+	    combDataTmp.push_back(new RooDataSet(dataNameComb2.Data(),dataNameComb2.Data(),*obs, RooFit::Index(sam), RooFit::Import(sm[i].Data(),*dataOut[i])));
+	    combData->append(*combDataTmp[i-1]);
+	    
+	  }
       }
     else
       {
-
-	std::vector <TString> s;
-	std::vector <TString> m;
-	std::vector <TString> y;
-
-        s = GetSample(sample,debug);
-        m = GetMode(mode, debug );
-        y = GetYear(year, debug );
-        sm = GetSampleModeYear(sample, mode, year, false, debug);
-
-
-        for (unsigned int i=0; i<sm.size(); i++ )
-          {
-            TString name = dat+sm[i];
-            data.push_back(GetDataSet(work,name,debug));
-            nEntries.push_back(data[i]->numEntries());
-          }
-	if( merge == true )
-          {
-
-	    std::vector <RooDataSet*> dataOut;
-
-            for (unsigned int i=0; i<sm.size(); i++ )
-              {
-                TString y3 = sm[i];
-                TString y1 = sm[i];
-                TString y2 = y1.ReplaceAll("up","down");
-                if ( y3.Contains("down") == false )
-                  {
-                    for (unsigned int j=0; j<sm.size(); j++ )
-                      {
-                        if ( sm[j] == y2 )
-                          {
-
-                            data[i]->append(*data[j]);
-                            nEntries[i] += nEntries[j];
-			    if ( debug == true ) { std::cout<<"Adding "<<data[i]->GetName()<<" "<<data[j]->GetName()<<" "<<nEntries[i]<<std::endl; }
-                            TString nD = data[i]->GetName();
-                            nD.ReplaceAll("up","both");
-                            data[i]->SetName(nD.Data());
-			    if ( debug == true ) { std::cout<<"New data name: "<<data[i]->GetName()<<std::endl;}
-			    dataOut.push_back(data[i]); 
-                          }
-                      }
-                  }
-              }
-
-            sm = GetSampleModeYear(sample, mode, year, true, debug);
-            for (unsigned int i=0; i<m.size()*y.size(); i++ )
-              {
-                sam.defineType(sm[i].Data());
-              }
-
-            combData = new RooDataSet(dataName.Data(),dataName.Data(),*obs, RooFit::Index(sam), RooFit::Import(sm[0].Data(),*dataOut[0]));
+	for (unsigned int i=0; i<sm.size(); i++ )
+	  {
+	    sam.defineType(sm[i].Data());
+	    std::cout<<"[INFO] Sample mode year: "<<sm[i]<<std::endl; 
+	  }
+	
+	combData = new RooDataSet(dataName.Data(),dataName.Data(),*obs, RooFit::Index(sam), RooFit::Import(sm[0].Data(),*data[0]));
+	if ( debug == true )
+	  {
+	    std::cout<<"Adding: "<<data[0]->GetName()<<" to combData"<<std::endl;
+	  }
+	
+	std::vector <RooDataSet*> combDataTmp;
+	for( unsigned int i=1; i<sm.size(); i++ )
+	  {
+	    std::cout<<"smp: "<<sm[i]<<" i:"<<i<<" size: "<<sm.size()<<std::endl; 
+	    TString dataNameComb2 = Form("combData%d",i);
+	    combDataTmp.push_back(new RooDataSet(dataNameComb2.Data(),dataNameComb2.Data(),*obs, RooFit::Index(sam), RooFit::Import(sm[i].Data(),*data[i])));
 	    if ( debug == true )
 	      {
-		std::cout<<"Adding: "<<dataOut[0]->GetName()<<" to combData"<<std::endl;
+		std::cout<<"Adding: "<<data[i]->GetName()<<" to combData"<<std::endl;
 	      }
-
-
-	    std::vector <RooDataSet*> combDataTmp;
-	    
-            for( unsigned int i=1; i<sm.size(); i++ )
-              {
-		//std::cout<<"sm: "<<sm[i]<<std::endl; 
-		TString dataNameComb2 = Form("combData%d",i);
-                TString nD = dataOut[i]->GetName();
-		if ( debug == true ) 
-		  {
-		    std::cout<<"Adding: "<<nD<<" to combData"<<std::endl;
-		  }
-		combDataTmp.push_back(new RooDataSet(dataNameComb2.Data(),dataNameComb2.Data(),*obs, RooFit::Index(sam), RooFit::Import(sm[i].Data(),*dataOut[i])));
-		combData->append(*combDataTmp[i-1]);
-		    
+	    combData->append(*combDataTmp[i-1]);
               }
-	  }
-        else
-          {
-            for (unsigned int i=0; i<sm.size(); i++ )
-              {
-                sam.defineType(sm[i].Data());
-		std::cout<<"[INFO] Sample mode year: "<<sm[i]<<std::endl; 
-              }
-
-            combData = new RooDataSet(dataName.Data(),dataName.Data(),*obs, RooFit::Index(sam), RooFit::Import(sm[0].Data(),*data[0]));
-	    if ( debug == true )
-              {
-		std::cout<<"Adding: "<<data[0]->GetName()<<" to combData"<<std::endl;
-              }
-
-	    std::vector <RooDataSet*> combDataTmp;
-            for( unsigned int i=1; i<sm.size(); i++ )
-              {
-		std::cout<<"smp: "<<sm[i]<<" i:"<<i<<" size: "<<sm.size()<<std::endl; 
-                TString dataNameComb2 = Form("combData%d",i);
-                combDataTmp.push_back(new RooDataSet(dataNameComb2.Data(),dataNameComb2.Data(),*obs, RooFit::Index(sam), RooFit::Import(sm[i].Data(),*data[i])));
-		if ( debug == true )
-                  {
-		    std::cout<<"Adding: "<<data[i]->GetName()<<" to combData"<<std::endl;
-                  }
-		combData->append(*combDataTmp[i-1]);
-              }
-          }
-
       }
+   
     return combData;
   }
 
-  
-  std::vector <TString> GetSampleMode(TString& sample, TString& mode, bool merge, bool debug )
+  /*
+  std::vector <TString> GetSampleMode(TString& sample, TString& mode, TString merge, bool debug )
   {
     std::vector <TString> sm;
     std::vector <TString> s;
     std::vector <TString> m;
     
     if (debug == true ){ std::cout<<"[INFO] Sample "<<sample<<". Mode "<<mode<<std::endl; }
-    if ( merge == true && sample != "both") { std::cout<<"[ERROR] Option merge only possible for sample = both"<<std::endl; return sm; }
+    if ( (merge == "pol" || merge == "both") && sample != "both") { std::cout<<"[ERROR] Option --merge pol only possible for --pol both"<<std::endl; return NULL; }
 
     s =  GetSample(sample,debug);
     m =  GetMode(mode, debug );
@@ -1396,51 +1451,47 @@ namespace GeneralUtils {
     return sm; 
     
   }
+  */
 
-  std::vector <TString> GetSampleModeYear(TString& sample, TString& mode, TString& year, bool merge, bool debug )
+  std::vector <TString> GetSampleModeYear(TString& sample, TString& mode, TString& year, TString merge, bool debug )
   {
     std::vector <TString> smy;
     std::vector <TString> s;
     std::vector <TString> m;
     std::vector <TString> y;
 
-    if (debug == true ){ std::cout<<"[INFO] Sample "<<sample<<". Mode "<<mode<<" Year "<<year<<std::endl; }
-    if ( merge == true && sample != "both") { std::cout<<"[ERROR] Option merge only possible for sample = both"<<std::endl; return smy; }
+    if (debug == true ){ std::cout<<"[INFO] Sample "<<sample<<". Mode "<<mode<<" Year "<<year<<": Merge: "<<merge<<std::endl; }
+    if ( (merge == "pol" || merge == "both") && sample != "both") { std::cout<<"[ERROR] Option --merge pol only possible for --pol both"<<std::endl; return smy; }
+    if ( (merge == "year" || merge == "both") && year != "run1") { std::cout<<"[ERROR] Option --merge year only possible for --year run1"<<std::endl; return smy; }
+
 
     s =  GetSample(sample,debug);
     m =  GetMode(mode, debug );
     y =  GetYear(year, debug );
 
-    if ( y[0] == "")
-      {
-        smy = GetSampleMode(sample, mode, merge, debug);
-      }
-    else
-      {
-	if ( merge == false )
-	  for (unsigned int i=0; i<m.size(); i++ )
-	    {
-	      for(unsigned int j = 0; j<s.size(); j++ )
-		{
-		  for ( unsigned int k = 0; k<y.size(); k++ )
-		    {
-		      smy.push_back(s[j]+"_"+m[i]+"_"+y[k]);
-		      if ( debug == true ) { std::cout<<"[INFO] Sample mode year: "<<smy[smy.size()-1]<<std::endl;}
-		    }
-		}
-	    }
-	else  
+    //    if ( y[0] == "")
+    //  {
+    //    smy = GetSampleMode(sample, mode, merge, debug);
+    //  }
+    // else
+    //  {
+	if ( merge == "" )
+	  {
+	    for (unsigned int i=0; i<m.size(); i++ )
+	      {
+		for(unsigned int j = 0; j<s.size(); j++ )
+		  {
+		    for ( unsigned int k = 0; k<y.size(); k++ )
+		      {
+			smy.push_back(s[j]+"_"+m[i]+"_"+y[k]);
+			if ( debug == true ) { std::cout<<"[INFO] Sample mode year: "<<smy[smy.size()-1]<<std::endl;}
+		      }
+		  }
+	      }
+	  }
+	else if ( merge == "pol") 
           {
             TString s1 = "both";
-	    /*
-	    for (  unsigned int k = 0; k<smy.size(); k++ )
-	      {
-		if ( smy[k].Contains("down") == true ) 
-		  {
-		    smy[k].ReplaceAll("down","both"); 
-		  }
-		  }*/
-	    
             for (unsigned int i=0; i<m.size(); i++ )
               {
 		for( unsigned int k = 0; k<y.size(); k++ )
@@ -1451,7 +1502,30 @@ namespace GeneralUtils {
                   }
 	      }
           }
-      }
+	else if ( merge == "year" )
+	  {
+	    TString y1 = "run1"; 
+	    for (unsigned int i=0; i<m.size(); i++ )
+              {
+                for(unsigned int j = 0; j<s.size(); j++ )
+                  {
+		    smy.push_back(s[j]+"_"+m[i]+"_"+y1);
+		    if ( debug == true ) { std::cout<<"[INFO] Sample mode year: "<<smy[smy.size()-1]<<std::endl;}
+                  }
+              }
+
+	  }
+	else if ( merge == "both" )
+	  {
+	    TString s1 = "both";
+	    TString y1 = "run1";
+	    for (unsigned int i=0; i<m.size(); i++ )
+              {
+		smy.push_back(s1+"_"+m[i]+"_"+y1);
+		if ( debug == true ) { std::cout<<"[INFO] Sample mode year: "<<smy[smy.size()-1]<<std::endl;}
+              }
+	  }
+
     return smy;
 
   }
@@ -1464,6 +1538,22 @@ namespace GeneralUtils {
 
     return y;
   }
+
+  std::vector<TString> GetDataYear(TString check, TString merge, bool debug)
+  {
+    std::vector<TString> year;
+    if ( merge == "year" || merge == "both" )
+      {
+        year.push_back("2011");
+	year.push_back("2012");
+      }
+    else
+      {
+        year.push_back(CheckDataYear(check,debug));
+      }
+    return year;
+  }
+
 
   std::vector <TString>  GetSample(TString& sample, bool debug )
   {
@@ -1484,9 +1574,10 @@ namespace GeneralUtils {
     return m;
   }
 
+  /*
   std::vector <Int_t> GetEntriesCombData(RooWorkspace* work, 
 					 TString &dat, TString & sample, TString& mode,
-					 bool merge, bool debug )
+					 TString merge, bool debug )
   {
     std::vector <RooDataSet*> data;
     std::vector <TString> sm;
@@ -1529,7 +1620,7 @@ namespace GeneralUtils {
     return nE; 
 
   }
-
+  */
   //===========================================================================
   // Get data histogram ( dat ) from workspace (work)
   //==========================================================================
@@ -1605,7 +1696,7 @@ namespace GeneralUtils {
   {
     TString polarity = "";
     if (check.Contains("MD") == true  || check.Contains("down") == true || check.Contains("dw") == true || check.Contains("Down") == true || 
-	check.Contains("md") == true)
+	check.Contains("md") == true  || check.Contains("Dw") == true)
       {
         polarity = "down";
       }
@@ -1621,6 +1712,30 @@ namespace GeneralUtils {
     return polarity;
   }
 
+  TString CheckPolarityCapital(TString& check, bool debug)
+  {
+    TString pol = CheckPolarity(check,debug);
+    if ( pol == "down" ) { return "Down"; }
+    else if ( pol == "up" ) { return "Up"; }
+    else if ( pol == "both" ) { return "Both"; } 
+
+    return pol; 
+  }
+
+  std::vector<TString> GetPolarity(TString check, TString merge, bool debug)
+  {
+    std::vector<TString> pol;
+    if ( merge == "pol" || merge == "both" )
+      {
+	pol.push_back("down");
+	pol.push_back("up"); 
+      }
+    else
+      {
+	pol.push_back(CheckPolarity(check,debug));
+      }
+    return pol; 
+  }
   
   //===========================================================================
   // Check D/Ds final state (kkpi,kpipi,pipipi) from check
@@ -1962,6 +2077,34 @@ namespace GeneralUtils {
     return bachelor; 
   }
 
+  TString CheckBachelorLong(TString check, bool debug)
+  {
+    TString bachelor = "";
+
+    if( check.Contains("CombPi") == true ) { TString s1 = "CombPi"; TString s2 = ""; check.ReplaceAll(s1,s2); }
+    if( check.Contains("CombK") == true ) { TString s1 = "CombK"; TString s2 = ""; check.ReplaceAll(s1,s2); }
+    if( check.Contains("MC Bs2DsK") == true ) { TString s1 = "Bs2DsK"; TString s2 = ""; check.ReplaceAll(s1,s2); }
+    if( check.Contains("MC Bs2DsPi") == true ) { TString s1 = "Bs2DsPi"; TString s2 = ""; check.ReplaceAll(s1,s2); }
+
+    if( check.Contains("pion") == true || check.Contains("Pion") == true )
+
+      {
+        bachelor = "Pion";
+      }
+    else if ( check.Contains("kaon") == true || check.Contains("Kaon") == true)
+
+      {
+        bachelor = "Kaon";
+      }
+    else if ( check.Contains("proton") == true || check.Contains("Proton") == true )
+      {
+	bachelor = "Proton";
+      }
+
+    if ( debug == true) std::cout<<"[INFO] Sample: "<<bachelor<<std::endl;
+
+    return bachelor;
+  }
   //========================================================================== 
   // Check Stripping number                    
   //==========================================================================                
@@ -1980,6 +2123,10 @@ namespace GeneralUtils {
     else if ( check.Contains("Str20") == true|| check.Contains("str20") == true || check.Contains("Stripping20") == true || check.Contains("stripping20") ==true )
       {
 	str = "str20";
+      }
+    else if ( check.Contains("Str21r1") == true|| check.Contains("str21r1") == true || check.Contains("Stripping21r1") == true || check.Contains("stripping21r1") ==true )
+      {
+        str = "str20r1";
       }
     else if ( check.Contains("Str21") == true|| check.Contains("str21") == true || check.Contains("Stripping21") == true || check.Contains("stripping21") ==true )
       {
@@ -2000,6 +2147,45 @@ namespace GeneralUtils {
     return str; 
   }
 
+  TString CheckStrippingNumber(TString& check, bool debug)
+  {
+    TString str="";
+    if( check.Contains("Str17") == true || check.Contains("str17") == true || check.Contains("Stripping17") == true || check.Contains("stripping17") == true )
+      {
+        str = "17";
+      }
+    else if ( check.Contains("Str20r1") == true|| check.Contains("str20r1") == true || check.Contains("Stripping20r1") == true || check.Contains("stripping20r1") ==true )
+      {
+        str = "20r1";
+      }
+    else if ( check.Contains("Str20") == true|| check.Contains("str20") == true || check.Contains("Stripping20") == true || check.Contains("stripping20") ==true )
+      {
+        str = "20";
+      }
+    else if ( check.Contains("Str21r1") == true|| check.Contains("str21r1") == true || check.Contains("Stripping21r1") == true || check.Contains("stripping21r1") ==true )
+      {
+        str = "21r1";
+      }
+    else if ( check.Contains("Str21") == true|| check.Contains("str21") == true || check.Contains("Stripping21") == true || check.Contains("stripping21") ==true )
+      {
+	str = "21";
+      }
+    if (debug == true ){ std::cout<<"[INFO] Check Stripping: "<<str<<std::endl; }
+
+    return str;
+  }
+
+
+  TString CheckStrippingNumber(std::string& check, bool debug)
+  {
+    std::string str = "";
+    TString Check = check;
+    TString Str = "";
+    Str = CheckStrippingNumber(Check, debug);
+    str = Str;
+    return str;
+  }
+
   //==========================================================================    
   // Check data year                                                                 
   //==========================================================================                
@@ -2011,7 +2197,10 @@ namespace GeneralUtils {
       { year ="2011"; }
     else if (check.Contains("2012") == true )
       { year = "2012";}
-    return year;
+    else if (check.Contains("run1") == true || check.Contains("Run1") == true )
+      { year = "run1"; } 
+    if (debug == true ){ std::cout<<"[INFO] Check data year: "<<year<<std::endl; }
+    return year;    
   }
 
   TString CheckDataYear(std::string& check, bool debug)
@@ -2167,11 +2356,46 @@ namespace GeneralUtils {
     return list; 
   }
 
+
   std::vector <TString> AddToList(std::vector <TString> list, TString name)
   {
     list.push_back(name);
     return list; 
   }
+
+  
+  std::vector < std::vector <TString> > GetList2D(TString name, TString name2)
+  {
+    std::vector< std::vector < TString > > matrix;
+    std::vector<TString> myvector;
+    myvector.push_back(name);
+    myvector.push_back(name2); 
+    matrix.push_back(myvector);
+    
+    return matrix; 
+  }
+
+  std::vector < std::vector <TString> > AddToList2D(std::vector < std::vector <TString> > matrix, TString name,TString name2)
+  {
+    std::vector<TString> myvector;
+    myvector.push_back(name);
+    myvector.push_back(name2);
+    matrix.push_back(myvector);
+    return matrix; 
+    
+  }
+
+  void printList2D(std::vector < std::vector <TString> > matrix)
+  {
+    for(unsigned int i = 0; i < matrix.size(); i ++ )
+      {
+	for (unsigned int j = 0; j < matrix[i].size(); j ++ )
+	  {
+	    std::cout<<"element: "<<i<<" "<<j<<" : "<<matrix[i][j]<<std::endl; 
+	  }
+      }
+  }
+
 
   double pe_from_pid(int pid, double px, double py, double pz)
   {
