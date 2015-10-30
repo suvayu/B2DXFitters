@@ -4,6 +4,10 @@
 ! Purpose     : RooFit-based fitters for B -> D X
 !-----------------------------------------------------------------------------
 
+! 2015-10-30 - Alessandro Bertolin
+ - update of Bs2DsstPiConfigForNominalMassFit.py and config_Bs2DsstPi.txt
+   for the KPiPi and PiPiPi modes
+
 ! 2015-10-28 - Agnieszka Dziurda
  - new structure of data directory with config files:
    - each measurement has its own directory:
