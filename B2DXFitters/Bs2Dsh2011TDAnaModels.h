@@ -43,7 +43,7 @@ namespace Bs2Dsh2011TDAnaModels {
   RooAbsPdf* buildExponentialPlusSignalPDF(RooAbsReal& mass, RooWorkspace* workInt, TString samplemode, TString typemode, bool debug = false);
 
   RooAbsPdf* buildComboPIDKPDF(RooAbsReal& mass, RooWorkspace* workInt, RooWorkspace* work, 
-			       TString samplemode, TString typemode, bool debug = false);
+			       TString samplemode, TString typemode, TString merge, bool debug = false);
   
   RooAbsPdf* buildShiftedDoubleCrystalBallPDF(RooAbsReal& mass, RooWorkspace* workInt,
 					      TString samplemode, TString typemode, bool debug = false);
@@ -55,6 +55,10 @@ namespace Bs2Dsh2011TDAnaModels {
   RooProdPdf* buildProdPdfSpecBkgMDFit( RooWorkspace* workInt, RooWorkspace* work,
 					TString samplemode, TString typemode, TString typemodeDs = "", TString merge = "",  
 					int dim = 1, TString signalDs = "", bool debug = false);
+
+  RooAbsPdf* buildMergedSpecBkgMDFit(RooWorkspace* workInt, RooWorkspace* work,
+                                     TString samplemode, TString typemode, TString typemodeDs, TString merge,
+                                     int dim, TString signalDs, bool debug = false);
 
   RooAbsPdf* buildMassPdfSpecBkgMDFit(RooWorkspace* work,
 				     TString samplemode, TString typemode, TString typemodeDs = "",

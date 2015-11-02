@@ -434,6 +434,7 @@ namespace Bs2Dsh2011TDAnaModels {
 			       TString samplemode, 
 			       TString typemode,
 			       std::vector <TString> pidk,
+			       TString merge,
 			       bool debug)
   {
     RooArgList* listPDF = new RooArgList();
@@ -467,13 +468,16 @@ namespace Bs2Dsh2011TDAnaModels {
 
     TString y = CheckDataYear(samplemode,debug);
     TString sam = CheckPolarity(samplemode,debug);
+    TString mode = CheckDMode(samplemode, debug);
+    if ( mode == "" ) { mode == CheckKKPiMode(samplemode,debug);}
     RooRealVar lum;
 
     for (int i = 0; i<3; i++ )
       {
 	if ( pidk[i] == "True" || pidk[i] == "true")
 	  {
-	    pdf_pidk[i] = ObtainPIDKShape(work, m[i], sam, y, lum, false, debug);
+	    pdf_pidk[i] =  buildMergedSpecBkgMDFit(workInt, work, samplemode, m[i], "", merge, 3, "", debug);
+	    //if ( pdf_pidk[i] == NULL ) { pdf_pidk[i] =  buildMergedSpecBkgMDFit(workInt, work, samplemode, m[i], mode, merge, 3, "", debug);}
 	    if ( pdf_pidk[i] != NULL )
 	      {
 		std::cout<<"[INFO] Adding pdf: "<<pdf_pidk[i]->GetName()<<" to PIDK PDFs"<<std::endl;
@@ -994,7 +998,7 @@ namespace Bs2Dsh2011TDAnaModels {
 
     if (debug == true)
       {
-        cout<<"[INFO] build merged RooAbsPdf for: "<<typemode<<endl;
+        cout<<"[INFO] build merged RooAbsPdf for: "<<typemode<<" "<<typemodeDs<<endl;
       }
 
     std::vector<RooAbsPdf*> pdf_part; 
@@ -1030,38 +1034,46 @@ namespace Bs2Dsh2011TDAnaModels {
                 else
                   {
                     RooAbsPdf* pdfTmp = NULL;
-                    pdfTmp = trySignal(samplemode,signalDs,workInt, debug);
-                    if ( pdfTmp == NULL ) { pdfTmp = trySignal(smp,signalDs,workInt, debug); }
-                    pdf_part.push_back(pdfTmp);
+                    pdfTmp = trySignal(samplemode,signalDs,workInt, false);
+                    if ( pdfTmp == NULL ) { pdfTmp = trySignal(smp,signalDs,workInt, false); }
+                    CheckPDF( pdfTmp, debug);
+		    pdf_part.push_back(pdfTmp);
                   }
               }
 
             if ( dim == 3 )
               {
-		pdf_part.push_back(buildPIDKShapeMDFit(work, smp, typemode, typemodeDs, debug));
+		RooAbsPdf* pdfTmp = NULL;
+	        pdfTmp = buildPIDKShapeMDFit(work, smp, typemode, typemodeDs, false);
+		if( pdfTmp == NULL ) { pdfTmp =  buildPIDKShapeMDFit(work, smp, typemode, mode, false); }
+		if( pdfTmp == NULL ) { pdfTmp =  buildPIDKShapeMDFit(work, smp, typemode, "", false);}
+		CheckPDF( pdfTmp, debug); 
+		pdf_part.push_back(pdfTmp);
               }
           }
       }
 
-    if  ( merge == "pol" )
+    if ( pdf_part[0] != NULL && pdf_part[1] != NULL ) 
       {
-        pdf  = mergePdf(pdf_part[1], pdf_part[0], merge, y[0], workInt, debug);
+	if  ( merge == "pol" )
+	  {
+	    pdf  = mergePdf(pdf_part[1], pdf_part[0], merge, y[0], workInt, debug);
+	  }
+	else if ( merge == "year" )
+	  {
+	    pdf  = mergePdf(pdf_part[1], pdf_part[0], merge, sam[0], workInt, debug);
+	  }
+	else if ( merge == "both" )
+	  {
+	    pdf_part.push_back(mergePdf(pdf_part[2], pdf_part[0], "pol", y[0], workInt, debug));
+	    pdf_part.push_back(mergePdf(pdf_part[3], pdf_part[1], "pol", y[1], workInt, debug));
+	    pdf = mergePdf(pdf_part[4], pdf_part[5], "year", "run1", workInt, debug);
+	  }
+	else
+	  {
+	    pdf = pdf_part[0];
+	  }
       }
-    else if ( merge == "year" )
-      {
-        pdf  = mergePdf(pdf_part[1], pdf_part[0], merge, sam[0], workInt, debug);
-      }
-    else if ( merge == "both" )
-      {
-        pdf_part.push_back(mergePdf(pdf_part[2], pdf_part[0], "pol", y[0], workInt, debug));
-        pdf_part.push_back(mergePdf(pdf_part[3], pdf_part[1], "pol", y[1], workInt, debug));
-        pdf = mergePdf(pdf_part[4], pdf_part[5], "year", "run1", workInt, debug);
-      }
-    else
-      {
-        pdf = pdf_part[0];
-      }
-
     CheckPDF( pdf, debug );
 
     return pdf;
@@ -1789,7 +1801,7 @@ namespace Bs2Dsh2011TDAnaModels {
 		  {
 		    if ( typemode == "CombBkg") 
 		      {
-			pdf_pPIDK.push_back(buildComboPIDKPDF(pidkVar, work, workInt, smp, "CombBkg", pidk,debug));
+			pdf_pPIDK.push_back(buildComboPIDKPDF(pidkVar, work, workInt, smp, "CombBkg", pidk, merge,debug));
 		      }
 		    else
 		      {
@@ -1931,7 +1943,7 @@ namespace Bs2Dsh2011TDAnaModels {
                     nName = nName.ReplaceAll(m,mm[j]);
                     nName = nName.ReplaceAll(p,pp[k]);
                     pdf = (RooKeysPdf*)work->pdf(nName.Data());
-		    std::cout<<"name: "<<nName<<std::endl; 
+		    //std::cout<<"name: "<<nName<<std::endl; 
                     if ( pdf != NULL ) { break; }
                   }
                 if ( pdf != NULL ) { break; }

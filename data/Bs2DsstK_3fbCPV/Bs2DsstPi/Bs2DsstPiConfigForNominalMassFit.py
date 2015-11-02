@@ -150,7 +150,8 @@ def getconfig() :
     configdict["PIDKCombinatorialShape"] = {}
     configdict["PIDKCombinatorialShape"]["type"] = "Fixed"
     configdict["PIDKCombinatorialShape"]["components"] = { "Kaon":True, "Pion":True, "Proton":False }
-    configdict["PIDKCombinatorialShape"]["fracPIDK1"]  = { "2011":{"All":0.5}, "2012":{"All":0.5},  "Fixed":False }
+    configdict["PIDKCombinatorialShape"]["fracPIDK1"]   = { "Run1":{"All":0.5}, "Fixed":False }
+
 
     configdict["Bd2Ds(st)XShape"] = {}
     configdict["Bd2Ds(st)XShape"]["type"]    = "ShiftedSignal"

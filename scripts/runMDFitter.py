@@ -206,6 +206,7 @@ def runMDFitter( debug, sample, mode, sweight,
     charmMass = observables.find(MDSettings.GetMassDVarOutName().Data())
     bacPIDK = observables.find(MDSettings.GetPIDKVarOutName().Data())
     obs = [beautyMass, charmMass, bacPIDK]
+     
  ###------------------------------------------------------------------------------------------------------------------------------------###
     ###------------------------------------------------------------------------------------------------------------------------------###
  ###------------------------------------------------------------------------------------------------------------------------------------###   
@@ -369,7 +370,7 @@ def runMDFitter( debug, sample, mode, sweight,
     ###------------------------------------------------------------------------------------------------------------------------------------### 
           ###---------------------------------   Create the total PDF in Bs mass, Ds mass, PIDK --------------------------------------###  
     ###------------------------------------------------------------------------------------------------------------------------------------###  
-    
+    #exit(0)    
     
     N_Bkg_Tot = []
 
@@ -415,7 +416,7 @@ def runMDFitter( debug, sample, mode, sweight,
     import sys
     import random
     
-    fitter.fit(True, RooFit.Extended()) #,  RooFit.Verbose(False),  RooFit.ExternalConstraints(constList)) #, RooFit.InitialHesse(True))
+    fitter.fit(True, RooFit.Extended(), RooFit.NumCPU(4)) #,  RooFit.Verbose(False),  RooFit.ExternalConstraints(constList)) #, RooFit.InitialHesse(True))
     result = fitter.getFitResult()
     result.Print("v")
     floatpar = result.floatParsFinal()

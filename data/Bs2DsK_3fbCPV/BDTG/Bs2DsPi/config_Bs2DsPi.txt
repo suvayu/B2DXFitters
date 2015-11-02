@@ -10,8 +10,8 @@ DecayTree
 /afs/cern.ch/work/u/ueitschb/public/
 DsK_DAVINCI_2011_Dw_Precutted_BDTTraining_Bs2Dspi.root
 DsK_DAVINCI_2011_Up_Precutted_BDTTraining_Bs2Dspi.root
-DecayTree
-DecayTree
+DecayTree;5
+DecayTree;4
 ###
 
 #Bs2DsPi PhiPi 2011

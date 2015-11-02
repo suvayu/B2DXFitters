@@ -1542,7 +1542,7 @@ namespace WeightingUtils {
     TString mode = names[6];
         
     hist = (TH2F*)work->obj(histNameR.Data());
-    if ( hist != NULL ) { std::cout<<" Read histogram: "<<hist->GetName()<<std::endl;}
+    if ( hist != NULL ) { std::cout<<"[INFO] Read histogram: "<<hist->GetName()<<std::endl;}
     else {std::cout<<"[ERROR] Cannot read histogram: "<<histName.Data()<<std::endl;}
     histMC = (TH2F*)work->obj(histName.Data());
     

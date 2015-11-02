@@ -528,10 +528,12 @@ def prepareWorkspace( debug,
         MCNames = getMCNames( myconfigfile )
         for i in range(0,MCPIDUpNames.__len__()):
             print MCPIDUpNames[i]
-            workspace = WeightingUtils.ObtainHistRatio(TString(myconfigfile["dataName"]), TString(MCNames[1]),
+            MCName = matchMCName(MCNames,MCPIDUpNames[i])
+            print MCName
+            workspace = WeightingUtils.ObtainHistRatio(TString(myconfigfile["dataName"]), TString(MCName),
                                                        MDSettings, MCPIDUpNames[i], workspace, plotSettings, debug)
         
-            workspace = WeightingUtils.ObtainPIDShapeFromCalibSample(TString(myconfigfile["dataName"]), TString(MCNames[1]),
+            workspace = WeightingUtils.ObtainPIDShapeFromCalibSample(TString(myconfigfile["dataName"]), TString(MCName),
                                                                      MDSettings, MCPIDUpNames[i], workspace, plotSettings, debug)
         workspace.Print()
         GeneralUtils.SaveWorkspace(workspace,saveNameTS, debug)
@@ -539,10 +541,12 @@ def prepareWorkspace( debug,
 
         for i in range(0,MCPIDDownNames.__len__()):
             print MCPIDDownNames[i]
-            workspace = WeightingUtils.ObtainHistRatio(TString(myconfigfile["dataName"]), TString(MCNames[0]),
+            MCName = matchMCName(MCNames,MCPIDDownNames[i])
+            print MCName
+            workspace = WeightingUtils.ObtainHistRatio(TString(myconfigfile["dataName"]), TString(MCName),
                                                        MDSettings, MCPIDDownNames[i], workspace, plotSettings, debug)
             
-            workspace = WeightingUtils.ObtainPIDShapeFromCalibSample(TString(myconfigfile["dataName"]), TString(MCNames[0]),
+            workspace = WeightingUtils.ObtainPIDShapeFromCalibSample(TString(myconfigfile["dataName"]), TString(MCName),
                                                                      MDSettings, MCPIDDownNames[i], workspace, plotSettings, debug)
             
         workspace.Print()
