@@ -390,11 +390,11 @@ def runMDFitter( debug, sample, mode, sweight,
     totPDFa = []
     for i in range(0,bound):
         if signal:
-            listPDF.Add(sigEPDF[i])
+            listPDF.add(sigEPDF[i])
         if combo:
-            listPDF.Add( combEPDF[i] )
+            listPDF.add( combEPDF[i] )
         if other:
-            listPDF.Add(  bkgPDF[i] ) 
+            listPDF.add(  bkgPDF[i] ) 
         name = TString("TotEPDF_m_")+sm[i] 
         totPDFp.append(RooAddPdf( name.Data(), 'Model (signal & background) EPDF in mass', listPDF)) 
     
