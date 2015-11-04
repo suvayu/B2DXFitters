@@ -153,16 +153,16 @@ def getconfig() :
     configdict["PIDKCombinatorialShape"]["fracPIDK1"]   = { "Run1":{"All":0.5}, "Fixed":False }
 
     configdict["AdditionalParameters"] = {}
-    configdict["AdditionalParameters"]["g1_f1_frac"] = {"Run1":{"All":{"Both":{ "CentralValue":0.5, "Range":[0.0,1.0]}}}, "Fixed":False}
+    configdict["AdditionalParameters"]["g1_f1_frac"] = {"Run1":{"All":{"Both":{ "CentralValue":0.57, "Range":[0.0,1.0]}}}, "Fixed":True}
     configdict["AdditionalParameters"]["g1_f2_frac"] = {"Run1":{"All":{"Both":{ "CentralValue":0.5, "Range":[0.0,1.0]}}}, "Fixed":False}
     configdict["AdditionalParameters"]["g2_f1_frac"] = {"Run1":{"All":{"Both":{ "CentralValue":0.71, "Range":[0.0,1.0]}}}, "Fixed":True}
     configdict["AdditionalParameters"]["g3_f1_frac"] = {"Run1":{"All":{"Both":{ "CentralValue":0.71, "Range":[0.0,1.0]}}}, "Fixed":True}
-    configdict["AdditionalParameters"]["g3_f2_frac"] = {"Run1":{"All":{"Both":{ "CentralValue":0.6, "Range":[0.0,1.0]}}}, "Fixed":True}
+    configdict["AdditionalParameters"]["g3_f2_frac"] = {"Run1":{"All":{"Both":{ "CentralValue":0.6, "Range":[0.0,1.0]}}}, "Fixed":False}
 
     #expected yields                                                                                                                                                       
     configdict["Yields"] = {}
-    configdict["Yields"]["Bs2DsDsstRho"]   = {"Run1": {"NonRes":1000.0,  "PhiPi":1000.0,  "KstK":1000.0,  "KPiPi":1000.0,  "PiPiPi":1000.0},  "Fixed":False}
-    configdict["Yields"]["Bd2DsstK"]       = {"Run1": {"NonRes":300.0,  "PhiPi":300.0,  "KstK":300.0,  "KPiPi":300.0,  "PiPiPi":300.0},  "Fixed":False}
+    configdict["Yields"]["Bs2DsDsstRho"]   = {"Run1": {"NonRes":1000.0, "PhiPi":1000.0, "KstK":1000.0, "KPiPi":1000.0, "PiPiPi":100.0},  "Fixed":False}
+    configdict["Yields"]["Bd2DsstK"]       = {"Run1": {"NonRes":150.0,  "PhiPi":150.0,  "KstK":150.0,  "KPiPi":150.0,  "PiPiPi":150.0},  "Fixed":False}
     configdict["Yields"]["Bs2DsstPi"]      = {"Run1": {"NonRes":500.0,  "PhiPi":500.0,  "KstK":500.0,  "KPiPi":500.0,  "PiPiPi":500.0},  "Fixed":False}
     configdict["Yields"]["BsBd2DsKst"]     = {"Run1": {"NonRes":200.0,  "PhiPi":200.0,  "KstK":200.0,  "KPiPi":100.0,  "PiPiPi":100.0},  "Fixed":False}
     configdict["Yields"]["BsBd2DsstKst"]   = {"Run1": {"NonRes":700.0,  "PhiPi":700.0,  "KstK":700.0,  "KPiPi":700.0,  "PiPiPi":700.0},  "Fixed":False}
