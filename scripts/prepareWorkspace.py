@@ -228,7 +228,7 @@ def getMCPIDNames(myconfig):
     decay = myconfig["Decay"]
 
     decay2 = TString(decay) 
-    if decay2.Contains("K"):
+    if decay2.Contains("DsK"):
         part = ["Kaon","Pion","Proton"]
     else:
         part = ["Kaon","Pion"]
@@ -323,7 +323,7 @@ def getComboPIDNames(myconfig, DsModes):
         com = "CombPi"
 
     magnet = ["Up","Down"]
-    if decay2.Contains("K"):
+    if decay2.Contains("DsK"):
         part = ["Kaon","Pion","Proton"]
     else:
         part = ["Kaon","Pion"]
@@ -614,7 +614,7 @@ def prepareWorkspace( debug,
                 MDSettingsComb.SetDataCuts(Dmode, cutD)
                 print dmode, cutD, rhoD, mirrorD
 
-                if comboNames[i].Contains("Pi"):
+                if decay.Contains("Pi"):
                     name = TString("CombPi_")+TString(o)
                 else:
                     name = TString("CombK_")+TString(o)

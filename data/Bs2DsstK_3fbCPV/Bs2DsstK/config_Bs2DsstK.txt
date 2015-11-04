@@ -1,0 +1,392 @@
+
+#Bs2DsstK KKPi 2012
+/afs/cern.ch/work/a/abertoli/public/DsstrK/bdt-s21/
+Filter12-s21_Bs2DsstK_Data_dw.root
+Filter12-s21_Bs2DsstK_Data_up.root
+tuple
+tuple
+###
+
+#Bs2DsstK NonRes 2011
+/afs/cern.ch/work/a/abertoli/public/DsstrK/bdt-s21/
+Filter11-s21_Bs2DsstK_Data_dw.root
+Filter11-s21_Bs2DsstK_Data_up.root
+tuple
+tuple
+###
+
+#Bs2DsstK NonRes 2012
+/afs/cern.ch/work/a/abertoli/public/DsstrK/bdt-s21/
+Filter12-s21_Bs2DsstK_Data_dw.root
+Filter12-s21_Bs2DsstK_Data_up.root
+tuple
+tuple
+###
+
+#Bs2DsstK PhiPi 2011
+/afs/cern.ch/work/a/abertoli/public/DsstrK/bdt-s21/
+Filter11-s21_Bs2DsstK_Data_dw.root
+Filter11-s21_Bs2DsstK_Data_up.root
+tuple
+tuple
+###
+
+#Bs2DsstK PhiPi 2012
+/afs/cern.ch/work/a/abertoli/public/DsstrK/bdt-s21/
+Filter12-s21_Bs2DsstK_Data_dw.root
+Filter12-s21_Bs2DsstK_Data_up.root
+tuple
+tuple
+###
+
+#Bs2DsstK KstK 2011
+/afs/cern.ch/work/a/abertoli/public/DsstrK/bdt-s21/
+Filter11-s21_Bs2DsstK_Data_dw.root
+Filter11-s21_Bs2DsstK_Data_up.root
+tuple
+tuple
+###
+
+#Bs2DsstK KstK 2012
+/afs/cern.ch/work/a/abertoli/public/DsstrK/bdt-s21/
+Filter12-s21_Bs2DsstK_Data_dw.root
+Filter12-s21_Bs2DsstK_Data_up.root
+tuple
+tuple
+###
+
+#Bs2DsstK KPiPi 2011
+/afs/cern.ch/work/a/abertoli/public/DsstrK/bdt-s21/
+Filter11-s21_Bs2DsstK-K2Pi_Data_dw.root
+Filter11-s21_Bs2DsstK-K2Pi_Data_up.root
+tuple
+tuple
+###
+
+#Bs2DsstK KPiPi 2012
+/afs/cern.ch/work/a/abertoli/public/DsstrK/bdt-s21/
+Filter12-s21_Bs2DsstK-K2Pi_Data_dw.root
+Filter12-s21_Bs2DsstK-K2Pi_Data_up.root
+tuple
+tuple
+###
+
+#Bs2DsstK PiPiPi 2011
+/afs/cern.ch/work/a/abertoli/public/DsstrK/bdt-s21/
+Filter11-s21_Bs2DsstK-3Pi_Data_dw.root
+Filter11-s21_Bs2DsstK-3Pi_Data_up.root
+tuple
+tuple
+###
+
+#Bs2DsstK PiPiPi 2012
+/afs/cern.ch/work/a/abertoli/public/DsstrK/bdt-s21/
+Filter12-s21_Bs2DsstK-3Pi_Data_dw.root
+Filter12-s21_Bs2DsstK-3Pi_Data_up.root
+tuple
+tuple
+###
+
+#MC FileName KKPi MD 2012
+{"Mode":"Bs2DsRho",
+ "FileName":"/afs/cern.ch/work/a/abertoli/public/DsstrK/bdt-s21/Filter-s21_Bs2DsstK_Bs2Dsrho_dw.root",
+ "TreeName":"tuple;1"}
+{"Mode":"Bs2DsstRho",
+ "FileName":"/afs/cern.ch/work/a/abertoli/public/DsstrK/bdt-s21/Filter-s21_Bs2DsstK_Bs2Dsstrho_dw.root",
+ "TreeName":"tuple;1",
+ "Smooth":2.5}
+ {"Mode":"Bs2DsstPi",
+ "FileName":"/afs/cern.ch/work/a/abertoli/public/DsstrK/bdt-s21/Filter-s21_Bs2DsstK_Bs2Dsstpi_dw.root",
+ "TreeName":"tuple;1"}
+ {"Mode":"Bd2DsstK",
+ "FileName":"/afs/cern.ch/work/a/abertoli/public/DsstrK/bdt-s21/Filter-s21_Bs2DsstK_Bd2Dsstk_dw.root",
+ "TreeName":"tuple;1"}
+ {"Mode":"Bs2DsKst",
+ "FileName":"/afs/cern.ch/work/a/abertoli/public/DsstrK/bdt-s21/Filter-s21_Bs2DsstK_Bs2Dskst_dw.root",
+ "TreeName":"tuple;1"}
+ {"Mode":"Bd2DsKst",
+ "FileName":"/afs/cern.ch/work/a/abertoli/public/DsstrK/bdt-s21/Filter-s21_Bs2DsstK_Bs2Dskst_dw.root",
+ "TreeName":"tuple;1"}
+  {"Mode":"Bs2DsstKst",
+ "FileName":"/afs/cern.ch/work/a/abertoli/public/DsstrK/bdt-s21/Filter-s21_Bs2DsstK_Bs2Dsstkst_dw.root",
+ "TreeName":"tuple;1"}
+  {"Mode":"Bd2DsstKst",
+ "FileName":"/afs/cern.ch/work/a/abertoli/public/DsstrK/bdt-s21/Filter-s21_Bs2DsstK_Bs2Dsstkst_dw.root",
+ "TreeName":"tuple;1"}
+###
+
+#MC FileName KKPi MU 2012
+{"Mode":"Bs2DsRho",
+ "FileName":"/afs/cern.ch/work/a/abertoli/public/DsstrK/bdt-s21/Filter-s21_Bs2DsstK_Bs2Dsrho_up.root",
+ "TreeName":"tuple;1"}
+{"Mode":"Bs2DsstRho",
+ "FileName":"/afs/cern.ch/work/a/abertoli/public/DsstrK/bdt-s21/Filter-s21_Bs2DsstK_Bs2Dsstrho_up.root",
+ "TreeName":"tuple;1",
+ "Smooth":2.5}
+  {"Mode":"Bs2DsstPi",
+ "FileName":"/afs/cern.ch/work/a/abertoli/public/DsstrK/bdt-s21/Filter-s21_Bs2DsstK_Bs2Dsstpi_up.root",
+ "TreeName":"tuple;1"}
+ {"Mode":"Bd2DsstK",
+ "FileName":"/afs/cern.ch/work/a/abertoli/public/DsstrK/bdt-s21/Filter-s21_Bs2DsstK_Bd2Dsstk_up.root",
+ "TreeName":"tuple;1"}
+ {"Mode":"Bs2DsKst",
+ "FileName":"/afs/cern.ch/work/a/abertoli/public/DsstrK/bdt-s21/Filter-s21_Bs2DsstK_Bs2Dskst_up.root",
+ "TreeName":"tuple;1"}
+ {"Mode":"Bd2DsKst",
+ "FileName":"/afs/cern.ch/work/a/abertoli/public/DsstrK/bdt-s21/Filter-s21_Bs2DsstK_Bs2Dskst_up.root",
+ "TreeName":"tuple;1"}
+  {"Mode":"Bs2DsstKst",
+ "FileName":"/afs/cern.ch/work/a/abertoli/public/DsstrK/bdt-s21/Filter-s21_Bs2DsstK_Bs2Dsstkst_up.root",
+ "TreeName":"tuple;1"}
+  {"Mode":"Bd2DsstKst",
+ "FileName":"/afs/cern.ch/work/a/abertoli/public/DsstrK/bdt-s21/Filter-s21_Bs2DsstK_Bs2Dsstkst_up.root",
+ "TreeName":"tuple;1"}
+###
+
+#MC FileName KKPi MD 2011
+{"Mode":"Bs2DsRho",
+ "FileName":"/afs/cern.ch/work/a/abertoli/public/DsstrK/bdt-s21/Filter-s21_Bs2DsstK_Bs2Dsrho_dw.root",
+ "TreeName":"tuple;1"}
+{"Mode":"Bs2DsstRho",
+ "FileName":"/afs/cern.ch/work/a/abertoli/public/DsstrK/bdt-s21/Filter-s21_Bs2DsstK_Bs2Dsstrho_dw.root",
+ "TreeName":"tuple;1",
+ "Smooth":2.5}
+  {"Mode":"Bs2DsstPi",
+ "FileName":"/afs/cern.ch/work/a/abertoli/public/DsstrK/bdt-s21/Filter-s21_Bs2DsstK_Bs2Dsstpi_dw.root",
+ "TreeName":"tuple;1"}
+ {"Mode":"Bd2DsstK",
+ "FileName":"/afs/cern.ch/work/a/abertoli/public/DsstrK/bdt-s21/Filter-s21_Bs2DsstK_Bd2Dsstk_dw.root",
+ "TreeName":"tuple;1"}
+ {"Mode":"Bs2DsKst",
+ "FileName":"/afs/cern.ch/work/a/abertoli/public/DsstrK/bdt-s21/Filter-s21_Bs2DsstK_Bs2Dskst_dw.root",
+ "TreeName":"tuple;1"}
+ {"Mode":"Bd2DsKst",
+ "FileName":"/afs/cern.ch/work/a/abertoli/public/DsstrK/bdt-s21/Filter-s21_Bs2DsstK_Bs2Dskst_dw.root",
+ "TreeName":"tuple;1"}
+  {"Mode":"Bs2DsstKst",
+ "FileName":"/afs/cern.ch/work/a/abertoli/public/DsstrK/bdt-s21/Filter-s21_Bs2DsstK_Bs2Dsstkst_dw.root",
+ "TreeName":"tuple;1"}
+  {"Mode":"Bd2DsstKst",
+ "FileName":"/afs/cern.ch/work/a/abertoli/public/DsstrK/bdt-s21/Filter-s21_Bs2DsstK_Bs2Dsstkst_dw.root",
+ "TreeName":"tuple;1"}
+###
+
+#MC FileName KKPi MU 2011
+{"Mode":"Bs2DsRho",
+ "FileName":"/afs/cern.ch/work/a/abertoli/public/DsstrK/bdt-s21/Filter-s21_Bs2DsstK_Bs2Dsrho_up.root",
+ "TreeName":"tuple;1"}
+{"Mode":"Bs2DsstRho",
+ "FileName":"/afs/cern.ch/work/a/abertoli/public/DsstrK/bdt-s21/Filter-s21_Bs2DsstK_Bs2Dsstrho_up.root",
+ "TreeName":"tuple;1",
+ "Smooth":2.5}
+  {"Mode":"Bs2DsstPi",
+ "FileName":"/afs/cern.ch/work/a/abertoli/public/DsstrK/bdt-s21/Filter-s21_Bs2DsstK_Bs2Dsstpi_up.root",
+ "TreeName":"tuple;1"}
+ {"Mode":"Bd2DsstK",
+ "FileName":"/afs/cern.ch/work/a/abertoli/public/DsstrK/bdt-s21/Filter-s21_Bs2DsstK_Bd2Dsstk_up.root",
+ "TreeName":"tuple;1"}
+ {"Mode":"Bs2DsKst", 
+ "FileName":"/afs/cern.ch/work/a/abertoli/public/DsstrK/bdt-s21/Filter-s21_Bs2DsstK_Bs2Dskst_up.root",
+ "TreeName":"tuple;1"}
+ {"Mode":"Bd2DsKst",
+ "FileName":"/afs/cern.ch/work/a/abertoli/public/DsstrK/bdt-s21/Filter-s21_Bs2DsstK_Bs2Dskst_up.root",
+ "TreeName":"tuple;1"}
+  {"Mode":"Bs2DsstKst",
+ "FileName":"/afs/cern.ch/work/a/abertoli/public/DsstrK/bdt-s21/Filter-s21_Bs2DsstK_Bs2Dsstkst_up.root",
+ "TreeName":"tuple;1"}
+  {"Mode":"Bd2DsstKst",
+ "FileName":"/afs/cern.ch/work/a/abertoli/public/DsstrK/bdt-s21/Filter-s21_Bs2DsstK_Bs2Dsstkst_up.root",
+ "TreeName":"tuple;1"}
+###
+
+#Signal Bs2DsstK KKPi 2012
+/afs/cern.ch/work/a/abertoli/public/DsstrK/bdt-s21/
+Filter-s21_Bs2DsstK_Signal_dw.root
+Filter-s21_Bs2DsstK_Signal_up.root
+tuple
+tuple
+###
+
+#Signal Bs2DsstK NonRes 2012
+/afs/cern.ch/work/a/abertoli/public/DsstrK/bdt-s21/
+Filter-s21_Bs2DsstK_Signal_dw.root
+Filter-s21_Bs2DsstK_Signal_up.root
+tuple
+tuple
+###
+
+#Signal Bs2DsstK PhiPi 2012
+/afs/cern.ch/work/a/abertoli/public/DsstrK/bdt-s21/
+Filter-s21_Bs2DsstK_Signal_dw.root
+Filter-s21_Bs2DsstK_Signal_up.root
+tuple
+tuple
+###
+
+#Signal Bs2DsstK KstK 2012
+/afs/cern.ch/work/a/abertoli/public/DsstrK/bdt-s21/
+Filter-s21_Bs2DsstK_Signal_dw.root
+Filter-s21_Bs2DsstK_Signal_up.root
+tuple
+tuple
+###
+
+#Signal Bs2DsstK KPiPi 2012
+/afs/cern.ch/work/a/abertoli/public/DsstrK/bdt-s21/
+Filter-s21_Bs2DsstK_Signal_dw.root
+Filter-s21_Bs2DsstK_Signal_up.root
+tuple
+tuple
+###
+
+#Signal Bs2DsstK PiPiPi 2012
+/afs/cern.ch/work/a/abertoli/public/DsstrK/bdt-s21/
+Filter-s21_Bs2DsstK_Signal_dw.root
+Filter-s21_Bs2DsstK_Signal_up.root
+tuple
+tuple
+###
+
+#Signal Bs2DsstK KKPi 2011
+/afs/cern.ch/work/a/abertoli/public/DsstrK/bdt-s21/
+Filter-s21_Bs2DsstK_Signal_dw.root
+Filter-s21_Bs2DsstK_Signal_up.root
+tuple
+tuple
+###
+
+#Signal Bs2DsstK NonRes 2011
+/afs/cern.ch/work/a/abertoli/public/DsstrK/bdt-s21/
+Filter-s21_Bs2DsstK_Signal_dw.root
+Filter-s21_Bs2DsstK_Signal_up.root
+tuple
+tuple
+###
+
+#Signal Bs2DsstK PhiPi 2011
+/afs/cern.ch/work/a/abertoli/public/DsstrK/bdt-s21/
+Filter-s21_Bs2DsstK_Signal_dw.root
+Filter-s21_Bs2DsstK_Signal_up.root
+tuple
+tuple
+###
+
+#Signal Bs2DsstK KstK 2011
+/afs/cern.ch/work/a/abertoli/public/DsstrK/bdt-s21/
+Filter-s21_Bs2DsstK_Signal_dw.root
+Filter-s21_Bs2DsstK_Signal_up.root
+tuple
+tuple
+###
+
+#Signal Bs2DsstK KPiPi 2011
+/afs/cern.ch/work/a/abertoli/public/DsstrK/bdt-s21/
+Filter-s21_Bs2DsstK_Signal_dw.root
+Filter-s21_Bs2DsstK_Signal_up.root
+tuple
+tuple
+###
+
+#Signal Bs2DsstK PiPiPi 2011
+/afs/cern.ch/work/a/abertoli/public/DsstrK/bdt-s21/
+Filter-s21_Bs2DsstK_Signal_dw.root
+Filter-s21_Bs2DsstK_Signal_up.root
+tuple
+tuple
+###
+
+#Bs2DsstK Combinatorial KKPi 2011
+/afs/cern.ch/work/a/abertoli/public/DsstrK/bdt-s21/
+FilterRun1-s21_Bs2DsstK_Data_dw.root
+FilterRun1-s21_Bs2DsstK_Data_up.root
+tuple
+tuple
+###
+
+#Bs2DsstK Combinatorial KKPi 2012
+/afs/cern.ch/work/a/abertoli/public/DsstrK/bdt-s21/
+FilterRun1-s21_Bs2DsstK_Data_dw.root
+FilterRun1-s21_Bs2DsstK_Data_up.root
+tuple
+tuple
+###
+
+#Bs2DsstK Combinatorial NonRes 2011
+/afs/cern.ch/work/a/abertoli/public/DsstrK/bdt-s21/
+FilterRun1-s21_Bs2DsstK_Data_dw.root
+FilterRun1-s21_Bs2DsstK_Data_up.root
+tuple
+tuple
+###
+
+#Bs2DsstK Combinatorial NonRes 2012
+/afs/cern.ch/work/a/abertoli/public/DsstrK/bdt-s21/
+FilterRun1-s21_Bs2DsstK_Data_dw.root
+FilterRun1-s21_Bs2DsstK_Data_up.root
+tuple
+tuple
+###
+
+#Bs2DsstK Combinatorial PhiPi 2011
+/afs/cern.ch/work/a/abertoli/public/DsstrK/bdt-s21/
+FilterRun1-s21_Bs2DsstK_Data_dw.root
+FilterRun1-s21_Bs2DsstK_Data_up.root
+tuple
+tuple
+###
+
+#Bs2DsstK Combinatorial PhiPi 2012
+/afs/cern.ch/work/a/abertoli/public/DsstrK/bdt-s21/
+FilterRun1-s21_Bs2DsstK_Data_dw.root
+FilterRun1-s21_Bs2DsstK_Data_up.root
+tuple
+tuple
+###
+
+#Bs2DsstK Combinatorial KstK 2011
+/afs/cern.ch/work/a/abertoli/public/DsstrK/bdt-s21/
+FilterRun1-s21_Bs2DsstK_Data_dw.root
+FilterRun1-s21_Bs2DsstK_Data_up.root
+tuple
+tuple
+###
+
+#Bs2DsstK Combinatorial KstK 2012
+/afs/cern.ch/work/a/abertoli/public/DsstrK/bdt-s21/
+FilterRun1-s21_Bs2DsstK_Data_dw.root
+FilterRun1-s21_Bs2DsstK_Data_up.root
+tuple
+tuple
+###
+
+#Bs2DsstK Combinatorial KPiPi 2011
+/afs/cern.ch/work/a/abertoli/public/DsstrK/bdt-s21/
+FilterRun1-s21_Bs2DsstK-K2Pi_Data_dw.root
+FilterRun1-s21_Bs2DsstK-K2Pi_Data_up.root
+tuple
+tuple
+###
+
+#Bs2DsstK Combinatorial KPiPi 2012
+/afs/cern.ch/work/a/abertoli/public/DsstrK/bdt-s21/
+FilterRun1-s21_Bs2DsstK-K2Pi_Data_dw.root
+FilterRun1-s21_Bs2DsstK-K2Pi_Data_up.root
+tuple
+tuple
+###
+
+#Bs2DsstK Combinatorial PiPiPi 2011
+/afs/cern.ch/work/a/abertoli/public/DsstrK/bdt-s21/
+FilterRun1-s21_Bs2DsstK-3Pi_Data_dw.root
+FilterRun1-s21_Bs2DsstK-3Pi_Data_up.root
+tuple
+tuple
+###
+
+#Bs2DsstK Combinatorial PiPiPi 2012
+/afs/cern.ch/work/a/abertoli/public/DsstrK/bdt-s21/
+FilterRun1-s21_Bs2DsstK-3Pi_Data_dw.root
+FilterRun1-s21_Bs2DsstK-3Pi_Data_up.root
+tuple
+tuple
+###

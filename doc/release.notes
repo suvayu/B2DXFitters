@@ -4,6 +4,12 @@
 ! Purpose     : RooFit-based fitters for B -> D X
 !-----------------------------------------------------------------------------
 
+! 2015-11-04 - Agnieszka Dziurda
+ - update package for Ds*K:
+   - new config files 
+ - bug fix in prepareWorkspace.py
+ - update fitSignal.py to new fitter
+
 ! 2015-11-02 - Agnieszka Dziurda
  - bug fix in prepareWorkspace.py
  - reading PIDK templates separately for Ds modes 

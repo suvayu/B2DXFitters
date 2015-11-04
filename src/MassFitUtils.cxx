@@ -78,10 +78,9 @@ namespace MassFitUtils {
 
   void InitializeRealObs(TString tB, std::vector <Double_t> &varD, std::vector <Int_t> &varI, std::vector <Float_t> &varF, Bool_t debug)
   {
-    // ( tB == "Double_t" ) { varD.push_back(0.0); }
-    //se if ( tB == "Int_t" ) { varI.push_back(0); }
-    //se if ( tB == "Float_t") { varF.push_back(0.0); }
+    tB = tB; 
     varD.push_back(0.0);  varI.push_back(0); varF.push_back(0.0);
+    if ( debug == true ) { } 
   }
 
   Double_t GetValue( TString tB, Double_t &varD, Int_t &varI, Float_t &varF )
@@ -103,6 +102,8 @@ namespace MassFitUtils {
     Double_t val = GetValue(tB, varD, varI, varF); 
     Float_t c = 299792458.0;
     Float_t corr = c/1e9;
+    corr = corr; 
+
     if ( tN != "" )
       {
 	if ( tN == mdSet->GetTimeVarOutName() || tN == mdSet->GetTerrVarOutName() )
@@ -126,7 +127,9 @@ namespace MassFitUtils {
 	  }
 	else if ( tN == mdSet->GetMassBVarOutName() )
 	  {
+	    //    std::cout<<"val: "<<val<<" shift: "<<shift;
 	    val = val + shift; 
+	    //std::cout<<" val+shift: "<<val<<std::endl; 
 	  }
 	obsVar->setVal(val);
       }
@@ -163,6 +166,7 @@ namespace MassFitUtils {
     if ( tB == "Double_t") {  tr->SetBranchAddress(tN.Data(),    &varD); }
     else if( tB == "Int_t" ) { tr->SetBranchAddress(tN.Data(),    &varI); }
     else if( tB == "Float_t" ) { tr->SetBranchAddress(tN.Data(),    &varF); }
+    if ( debug  ) { } 
   }
 
   //===========================================================================
@@ -247,8 +251,6 @@ namespace MassFitUtils {
     TCut BDTG_cut   = mdSet->GetCut(mdSet->GetBDTGVar()); 
     TCut mass_cut   = mdSet->GetCut(mdSet->GetMassBVar()); 
     TCut massD_cut  = mdSet->GetCut(mdSet->GetMassDVar()); 
-    Float_t c = 299792458.0;
-    Float_t corr = c/1e9;
     TCut Time_cut = mdSet->GetCut(mdSet->GetTimeVar());
     TCut Terr_cut = mdSet->GetCut(mdSet->GetTerrVar());
     
@@ -1074,6 +1076,7 @@ namespace MassFitUtils {
       }
 
     BKGCut = MCCut1&&MCCut2;
+    if ( debug ) { } 
     return BKGCut;
   }
   
@@ -1100,6 +1103,7 @@ namespace MassFitUtils {
     
     MCID = Form("abs(%s_ID)==%d && abs(%s_ID)==321 && abs(%s_ID)==211 && abs(%s_ID)==%d",                                                                                       
 		BachPrefix.Data(), id_lab1, DsCh1Prefix.Data(), DsCh3Prefix.Data(), DsCh2Prefix.Data(), id_lab4);                           
+    if ( debug ) { } 
     return MCID;
   }
     
@@ -1131,14 +1135,13 @@ TCut GetCutMCBkg( MDFitterSettings* mdSet, TString mode, TString hypo, TString D
       }
 
     MCCut = BKGCATCut&&MCID&&P_cut&&BDTG_cut&&PT_cut&&nTr_cut&&addCuts;  
-    std::cout<<"Dmode: "<<Dmode<<std::endl;
     if (debug == true )
       {
 	std::cout<<"------Cut-----"<<std::endl;
 	std::cout<<MCCut<<std::endl;
 	std::cout<<"--------------"<<std::endl;
       }
-
+    if ( debug == true ) { } 
     return MCCut;
 
   }
@@ -1405,31 +1408,24 @@ TCut GetCutMCBkg( MDFitterSettings* mdSet, TString mode, TString hypo, TString D
     modeD = CheckDMode(sig, debug);
        
     if ( debug == true) std::cout<<"[INFO] ==> Create RooKeysPdf for PartReco backgrounds" <<std::endl;
-    
-    RooRealVar* weight;
+
+    TString namew = "weights";
+    RooRealVar* weight  = new RooRealVar(namew.Data(), namew.Data(), 0.0, 5.0);
     RooDataSet* dataSetMC[numBkg];
     RooDataSet* dataSetMCtmp[numBkg];
-    TH2F* corrHist[numBkg]; 
-    //TTree* treetmp[numBkg];
-    //TTree* treeMC[numBkg]; 
-
+    //TH2F* corrHist[numBkg];  
+    
     Int_t nentriesMC[numBkg];
     Float_t wMC(1.0), wRW(1.0), mMC(0), mDMC(0);
     
-    TString namew = "weights";
     if ( mdSet->CheckDataMCWeighting() == true || mdSet->CheckMassWeighting() == true) 
       {
-	weight = new RooRealVar(namew.Data(), namew.Data(), 0.0, 5.0);  // create new data set //
 	obs->add(*weight);
-      }
-
-    Float_t c = 299792458.0;
-    Float_t corr = 1e9/c;
-      
+      }  
     
     for(int i = 0; i< numBkg; i++ )
       {
-	
+	//corrHist[i] = NULL; 
 	TTree* treeMC = MCBkg[i]->GetTree();
 	TString md= MCBkg[i]->GetMode();
 	TString smp = MCBkg[i]->GetPolarity();   
@@ -1492,6 +1488,11 @@ TCut GetCutMCBkg( MDFitterSettings* mdSet, TString mode, TString hypo, TString D
 	if  (debug == true) std::cout<<"Number of entries: "<<nentriesMC[i]<<std::endl;
 	Double_t sh= -3.9;
 	if ( hypo.Contains("Bd") ) { sh = 3.75; } 
+	if ( (md == "Bd2DsstKst" && hypo.Contains("DsstK") ) || ( md == "Bd2DsKst" && hypo.Contains("DsstK") ))
+	  {
+	    sh = sh-86.8;
+	  }
+
 
 	long ag_counter(0), ag_shifted_counter(0), sa_counter(0);
 
@@ -1523,6 +1524,7 @@ TCut GetCutMCBkg( MDFitterSettings* mdSet, TString mode, TString hypo, TString D
 		    }
 		}
 	      TString name = mdSet->GetVarOutName(tN[k]);
+
 	      if ( cat == true ) { val = SetValCatObs(mdSet, obs, name , tB[k], varD[k], varI[k], varF[k]); }
 	      else{ val = SetValRealObs(mdSet, obs, name, tB[k], varD[k], varI[k], varF[k], hypo, sh ); }
 	      if ( tN[k] == mdSet->GetMomVar() ) { p = val; }
@@ -1627,7 +1629,7 @@ TCut GetCutMCBkg( MDFitterSettings* mdSet, TString mode, TString hypo, TString D
 	}
 
 	if ( correlations == true )
-	  {
+	  { 
 	    std::vector <TString> obsName;
 	    obsName.push_back(mdSet->GetMassBVarOutName());
 	    obsName.push_back(mdSet->GetMassDVarOutName());
@@ -1642,8 +1644,7 @@ TCut GetCutMCBkg( MDFitterSettings* mdSet, TString mode, TString hypo, TString D
 		  }
 	      }
 	    TString corrName = "corr_"+nm;
-	    corrHist[i] = NULL;
-	    corrHist[i] = GetCorrHist(dataSetMC[i], dataSetMCtmp[i], obs, obsName, corrName, plotSet, debug );
+	    GetCorrHist(dataSetMC[i], dataSetMCtmp[i], obs, obsName, corrName, plotSet, debug );
 	  }
 	    
 	work->import(*dataSetMC[i]);
@@ -2271,6 +2272,7 @@ TCut GetCutMCBkg( MDFitterSettings* mdSet, TString mode, TString hypo, TString D
     
     BKGCAT = Form("(%s_BKGCAT < 30 || %s_BKGCAT == 50) && (%s_BKGCAT<30 || %s_BKGCAT == 50)",
 		  BsPrefix.Data(),BsPrefix.Data(), DsPrefix.Data(), DsPrefix.Data());
+    if ( debug ) { } 
     return BKGCAT; 
   }
 
@@ -2308,6 +2310,7 @@ TCut GetCutMCBkg( MDFitterSettings* mdSet, TString mode, TString hypo, TString D
     
     MCID = Form("abs(%s_ID)==%d && abs(%s_ID)==%d && abs(%s_ID)==%d && abs(%s_ID)==%d",
 		BachPrefix.Data(), id_lab1, DsCh1Prefix.Data(), id_lab5, DsCh3Prefix.Data(), id_lab3, DsCh2Prefix.Data(), id_lab4);
+    if ( debug ) {} 
     return MCID; 
 
   }
@@ -2346,6 +2349,7 @@ TCut GetCutMCBkg( MDFitterSettings* mdSet, TString mode, TString hypo, TString D
 
     MCTRUEID = Form("abs(%s_TRUEID)==%d && abs(%s_TRUEID)==%d && abs(%s_TRUEID)==%d && abs(%s_TRUEID)==%d",
 		    BachPrefix.Data(), id_lab1, DsCh1Prefix.Data(), id_lab5, DsCh3Prefix.Data(), id_lab3, DsCh2Prefix.Data(), id_lab4);
+    if ( debug )  {} 
     return MCTRUEID;
   }
 
@@ -2374,7 +2378,7 @@ TCut GetCutMCBkg( MDFitterSettings* mdSet, TString mode, TString hypo, TString D
       {
         DHypo = Form("%s_M < 200 && %s_M < 200 && %s_M < 200",DsCh3Prefix.Data(), DsCh2Prefix.Data(), DsCh1Prefix.Data());
       }
-
+    if ( debug ) {} 
     return DHypo; 
 
   }
@@ -2488,11 +2492,11 @@ TCut GetCutMCBkg( MDFitterSettings* mdSet, TString mode, TString hypo, TString D
 	std::cout<<"tN: "<<tN[i]<<std::endl;
       }
 
-    RooRealVar* weight;
     TString wname = "weights";
+    RooRealVar* weight = new RooRealVar(wname.Data(), wname.Data(), 0.0, 5.0);
+  
     if (  mdSet->CheckDataMCWeighting() == true ||  mdSet->CheckMassWeighting() == true || reweight == true)
       {
-	weight = new RooRealVar(wname.Data(), wname.Data(), 0.0, 5.0);  // create new data set //
 	obs->add(*weight);
       }
     std::vector <std::string> FileName;
@@ -2549,10 +2553,7 @@ TCut GetCutMCBkg( MDFitterSettings* mdSet, TString mode, TString hypo, TString D
     TTree* treetmp = NULL;
     RooDataSet* dataSetMC[2];
     RooDataSet* dataSetMCtmp[2];
-    TH2F* corrHist[2];
     
-    Float_t c = 299792458.;
-    Float_t factor = 1e9/c;
     Double_t wRW=0;
     Double_t wE = 0;
     
@@ -2700,8 +2701,7 @@ TCut GetCutMCBkg( MDFitterSettings* mdSet, TString mode, TString hypo, TString D
 	      obsName.push_back(mdSet->GetTagOmegaVarOutName(k));
 	    }
 	  TString corrName = "corr_"+mode+"_"+s;
-	  corrHist[i] = NULL;
-	  corrHist[i] = GetCorrHist(dataSetMC[i], dataSetMCtmp[i], obs, obsName, corrName, plotSet, debug );
+	  GetCorrHist(dataSetMC[i], dataSetMCtmp[i], obs, obsName, corrName, plotSet, debug );
 	}
 
       
@@ -2790,6 +2790,8 @@ TCut GetCutMCBkg( MDFitterSettings* mdSet, TString mode, TString hypo, TString D
       }
 
     if ( plotSet == NULL ) { plotSet = new PlotSettings("plotSet","plotSet"); }
+    tagVar = tagVar;
+    tagOmegaVar = tagOmegaVar; 
 
     std::vector <MCBackground*> MCBkgMU;
     Int_t numBkgMU = CheckNumberOfBackgrounds(filesDirMU,sigMU, debug);
@@ -2977,7 +2979,7 @@ TCut GetCutMCBkg( MDFitterSettings* mdSet, TString mode, TString hypo, TString D
 
     std::vector <std::string> FileName;
     ReadOneName(filesDir,FileName,sig, debug);
-    TTree* tree[2];
+    //TTree* tree[2];
 
     //Read sample (means down or up)  from path //                                                                                                                                              
     //Read mode (means D mode: kkpi, kpipi or pipipi) from path //                                                                                                                              
@@ -3051,7 +3053,7 @@ TCut GetCutMCBkg( MDFitterSettings* mdSet, TString mode, TString hypo, TString D
     std::cout<<"name of config file: "<<filesDir<<std::endl;
     std::cout<<"hist1: "<<PIDhist_1<<std::endl;
     std::cout<<"hist2: "<<PIDhist_2<<std::endl;
-          
+    mProbVar = mProbVar;
     //Read MC samples//       
     std::vector <std::string> FileNameHypo;
     ReadOneName(filesDir,FileNameHypo,sigHypo, true);

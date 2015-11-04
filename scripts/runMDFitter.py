@@ -137,6 +137,10 @@ def getTotalBkgPDF(myconfigfile, beautyMass, charmMass, workspace, workInt, merg
         elif ( myconfigfile["Decay"] == "Bs2DsstPi"):
             if ( mm in cdm ):
                 bkgPDF.append(WS(workInt,Bs2DssthModels.build_Bs2DsstPi_BKG(beautyMass,charmMass, workspace, workInt, sm[i], merge, dim, debug )))
+        elif ( myconfigfile["Decay"] == "Bs2DsstK"):
+            if ( mm in cdm ):
+                bkgPDF.append(WS(workInt,Bs2DssthModels.build_Bs2DsstK_BKG(beautyMass,charmMass, workspace, workInt, sm[i], merge, dim, debug )))
+
     return bkgPDF
     
 #------------------------------------------------------------------------------
@@ -200,13 +204,13 @@ def runMDFitter( debug, sample, mode, sweight,
         workspaceToys.Print("v")
         workData = workspaceToys
         
+    
     observables = getObservables(MDSettings, workData, toys, debug)
-
     beautyMass = observables.find(MDSettings.GetMassBVarOutName().Data())
     charmMass = observables.find(MDSettings.GetMassDVarOutName().Data())
     bacPIDK = observables.find(MDSettings.GetPIDKVarOutName().Data())
     obs = [beautyMass, charmMass, bacPIDK]
-     
+        
  ###------------------------------------------------------------------------------------------------------------------------------------###
     ###------------------------------------------------------------------------------------------------------------------------------###
  ###------------------------------------------------------------------------------------------------------------------------------------###   
@@ -287,6 +291,8 @@ def runMDFitter( debug, sample, mode, sweight,
     
     nYields = []
     other = False
+    signal = False 
+    combo = False 
 
     for i in range(0,bound):
         print i
@@ -304,6 +310,9 @@ def runMDFitter( debug, sample, mode, sweight,
                 nameBkg = TString("n")+bkg+t+sm[i]+t+evts
             else:
                 nameBkg = TString("nSig")+t+sm[i]+t+evts
+                signal = True
+            if bkg == "Combinatorial":
+                combo = True
             if bkg != "Signal" and bkg != "Combinatorial" and bkg != "CombBkg":
                 other = True
 
@@ -317,12 +326,14 @@ def runMDFitter( debug, sample, mode, sweight,
     ###------------------------------------------------------------------------------------------------------------------------------------###
 
     keysSig = ["BsSignalShape","DsSignalShape","PIDKSignalShape"]
-    sigEPDF, workInt = getSigOrCombPDF(myconfigfile,keysSig,TString("Signal"),
-                                       workspace[0],workInt,sm,merge,bound,dim,obs, debug)
+    if signal:
+        sigEPDF, workInt = getSigOrCombPDF(myconfigfile,keysSig,TString("Signal"),
+                                           workspace[0],workInt,sm,merge,bound,dim,obs, debug)
 
     keysComb = ["BsCombinatorialShape","DsCombinatorialShape","PIDKCombinatorialShape"]
-    combEPDF, workInt = getSigOrCombPDF(myconfigfile,keysComb,TString("CombBkg"),
-                                        workspace[0],workInt,sm,merge,bound,dim,obs, debug)
+    if combo:
+        combEPDF, workInt = getSigOrCombPDF(myconfigfile,keysComb,TString("CombBkg"),
+                                            workspace[0],workInt,sm,merge,bound,dim,obs, debug)
     
     workInt = setBs2DsXParameters(myconfigfile, workInt, sm, merge,bound, beautyMass,debug)
     
@@ -374,19 +385,18 @@ def runMDFitter( debug, sample, mode, sweight,
     
     N_Bkg_Tot = []
 
-    
+    listPDF = RooArgList() 
     totPDFp = []
     totPDFa = []
     for i in range(0,bound):
-        name = TString("TotEPDF_m_")+sm[i]
-        print sigEPDF[i].GetName()
-        #print Bd2DsstKEPDF[i].GetName()
-        #print bkgPDF[i].GetName()
-        print combEPDF[i].GetName() 
-        if other == True: 
-            totPDFp.append(RooAddPdf( name.Data(), 'Model (signal & background) EPDF in mass', RooArgList( sigEPDF[i], combEPDF[i], bkgPDF[i])))
-        else:
-            totPDFp.append(RooAddPdf( name.Data(), 'Model (signal & background) EPDF in mass', RooArgList( sigEPDF[i], combEPDF[i])))
+        if signal:
+            listPDF.Add(sigEPDF[i])
+        if combo:
+            listPDF.Add( combEPDF[i] )
+        if other:
+            listPDF.Add(  bkgPDF[i] ) 
+        name = TString("TotEPDF_m_")+sm[i] 
+        totPDFp.append(RooAddPdf( name.Data(), 'Model (signal & background) EPDF in mass', listPDF)) 
     
     totPDF = RooSimultaneous("simPdf","simultaneous pdf",sam)
     for i in range(0,bound):
