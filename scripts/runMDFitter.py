@@ -384,19 +384,19 @@ def runMDFitter( debug, sample, mode, sweight,
     #exit(0)    
     
     N_Bkg_Tot = []
-
-    listPDF = RooArgList() 
+    listPDF = [] 
     totPDFp = []
     totPDFa = []
     for i in range(0,bound):
+        listPDF.append(RooArgList())
         if signal:
-            listPDF.add(sigEPDF[i])
+            listPDF[i].add(sigEPDF[i])
         if combo:
-            listPDF.add( combEPDF[i] )
+            listPDF[i].add( combEPDF[i] )
         if other:
-            listPDF.add(  bkgPDF[i] ) 
+            listPDF[i].add(  bkgPDF[i] ) 
         name = TString("TotEPDF_m_")+sm[i] 
-        totPDFp.append(RooAddPdf( name.Data(), 'Model (signal & background) EPDF in mass', listPDF)) 
+        totPDFp.append(RooAddPdf( name.Data(), 'Model (signal & background) EPDF in mass', listPDF[i])) 
     
     totPDF = RooSimultaneous("simPdf","simultaneous pdf",sam)
     for i in range(0,bound):
