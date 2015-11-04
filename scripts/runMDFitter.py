@@ -311,7 +311,7 @@ def runMDFitter( debug, sample, mode, sweight,
             else:
                 nameBkg = TString("nSig")+t+sm[i]+t+evts
                 signal = True
-            if bkg == "Combinatorial":
+            if bkg == "CombBkg" or bkg == "Combinatorial":
                 combo = True
             if bkg != "Signal" and bkg != "Combinatorial" and bkg != "CombBkg":
                 other = True
