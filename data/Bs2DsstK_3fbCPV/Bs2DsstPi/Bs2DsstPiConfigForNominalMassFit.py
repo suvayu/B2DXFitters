@@ -57,13 +57,13 @@ def getconfig() :
  
     configdict["CreateCombinatorial"] = {}
     configdict["CreateCombinatorial"]["BeautyMass"] = {} 
-    configdict["CreateCombinatorial"]["BeautyMass"]["All"]    = {"Cut":"FBs_DeltaM_M>5100&&FDs_M>1950.&&FDs_M<1990.&&FDs_FDCHI2_ORIVX>2.&&FDelta_M>205.&&FDelta_M<215.&&FBs_Veto==0.&&FBDT_Var>0.025&&FBac_P>1000.0&&FBac_P<650000.0&&FBac_PT>1000.0&&FBac_PT<45000.0",
+    configdict["CreateCombinatorial"]["BeautyMass"]["All"]    = {"Cut":"FBs_DeltaM_M>5100.&&FBs_DeltaM_M<6000.&&FDs_M>1950.&&FDs_M<1990.&&FDs_FDCHI2_ORIVX>2.&&FDelta_M>185.&&FDelta_M<195.&&FBs_Veto==0.&&FBDT_Var>0.025&&FBac_P>1000.&&FBac_P<650000.&&FBac_PT>1000.&&FBac_PT<45000.",
                                                                  "Rho":3.5, "Mirror":"Both"}
     configdict["CreateCombinatorial"]["BeautyMass"]["NonRes"] = {"Cut":"FDs_Dec==3"}
     configdict["CreateCombinatorial"]["BeautyMass"]["PhiPi"]  = {"Cut":"FDs_Dec==1"}
     configdict["CreateCombinatorial"]["BeautyMass"]["KstK"]   = {"Cut":"FDs_Dec==2"}
     configdict["CreateCombinatorial"]["BeautyMass"]["KPiPi"]  = {"Cut":"FDs_Dec==5&&FDs_FDCHI2_ORIVX>9.&&FPi_PIDK>10.&&FKp_PIDK<0.&&FKm_PIDK<0.&&FKst_M<1750."}
-    configdict["CreateCombinatorial"]["BeautyMass"]["PiPiPi"] = {"Cut":"FDs_Dec==4&&FDs_FDCHI2_ORIVX>9.&&FKp_PIDK<0.&&FKm_PIDK<0.&&FPi_PIDK<0.&&(FPhi_M<1700.&&FKst_M<1700.)"}
+    configdict["CreateCombinatorial"]["BeautyMass"]["PiPiPi"] = {"Cut":"FDs_Dec==4&&FDs_FDCHI2_ORIVX>9.&&FKp_PIDK<0.&&FKm_PIDK<0.&&FPi_PIDK<0.&&FPhi_M<1700.&&FKst_M<1700."}
 
     #weighting for PID templates
     configdict["ObtainPIDTemplates"] = { "Variables":["BacPT","nTracks"], "Bins":[20,20] }
@@ -150,8 +150,7 @@ def getconfig() :
     configdict["PIDKCombinatorialShape"] = {}
     configdict["PIDKCombinatorialShape"]["type"] = "Fixed"
     configdict["PIDKCombinatorialShape"]["components"] = { "Kaon":True, "Pion":True, "Proton":False }
-    configdict["PIDKCombinatorialShape"]["fracPIDK1"]   = { "Run1":{"All":0.5}, "Fixed":False }
-
+    configdict["PIDKCombinatorialShape"]["fracPIDK1"] = { "Run1":{"All":0.5}, "Fixed":False }
 
     configdict["Bd2Ds(st)XShape"] = {}
     configdict["Bd2Ds(st)XShape"]["type"]    = "ShiftedSignal"
