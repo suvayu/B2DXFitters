@@ -470,7 +470,7 @@ public:
   TString GetMassWeightingVar(int i) { return _weightMassTempVar[i]; }
   std::vector <TString> GetMassWeightingVar() { return _weightMassTempVar; } 
   void AddWeightingMassVar(TString name) { _weightMassTempVar.push_back(name);}
-  void SetRatioDataMC(Bool_t cut){ _weightMassTemp = cut; } 
+  void SetRatioDataMC(Bool_t cut){ _weightRatioDataMC = cut; } 
   void SetMassWeighting(Bool_t cut) { _weightMassTemp = cut; }
 
   void SetPIDComboShapeFor5Modes(){ _calibCombo = true; }

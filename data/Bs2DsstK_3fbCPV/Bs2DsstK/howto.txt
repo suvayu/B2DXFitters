@@ -22,6 +22,6 @@ python runMDFitter.py --debug --configName ../data/Bs2DsstK_3fbCPV/Bs2DsstK/Bs2D
 plot MDFitter
 --------------------------
 python plotMDFitter.py WS_MDFit_Results.root --configName ../data/Bs2DsstK_3fbCPV/Bs2DsstK/Bs2DsstKConfigForNominalMassFit.py --pol both --year run1 --mode all --merge both --dim 1
-
+source Csh/plot_shapes.csh WS_MDFit_Results.root ../data/Bs2DsstK_3fbCPV/Bs2DsstK/Bs2DsstKConfigForNominalMassFit.py > & log_plot_dsstk.txt &
 
 python fitSignal.py --debug --configName ../data/Bs2DsstK_3fbCPV/Bs2DsstPi/SignalConfigForFit.py --pol both --year run1 --mode all --merge both --var BeautyMass --fileName work_signal.root

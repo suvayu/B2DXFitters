@@ -87,6 +87,12 @@ tuple
 tuple
 ###
 
+#RatioDataMC2D
+/afs/cern.ch/work/a/adudziak/public/workspace/
+MomVsnTr_Comp_DPi_Down_hist.root
+MomVsnTr_Comp_DPi_Up_hist.root
+###
+
 #MC FileName KKPi MD 2012
 {"Mode":"Bs2DsRho",
  "FileName":"/afs/cern.ch/work/a/abertoli/public/DsstrK/bdt-s21/Filter-s21_Bs2DsstK_Bs2Dsrho_dw.root",

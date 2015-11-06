@@ -287,7 +287,7 @@ std::ostream & operator<< (std::ostream &out, const MDFitterSettings &s)
       if (s._weightMassTempVar.size() > 0 )
 	{
 	  out<<"Variables: ";
-	  for (int i = 0; i<s._weightMassTempVar.size(); i++)
+	  for (unsigned int i = 0; i<s._weightMassTempVar.size(); i++)
 	    {
 	      out<<s._weightMassTempVar[i]<<" "; 
 	    }
@@ -324,7 +324,7 @@ std::ostream & operator<< (std::ostream &out, const MDFitterSettings &s)
 	  out<<std::endl;
 	}
 
-      for(int i = 0; i < s._calib.size(); i++ )
+      for(unsigned int i = 0; i < s._calib.size(); i++ )
 	{
 	  out<<s._calib[i]<<std::endl; 
 	}
@@ -639,8 +639,6 @@ RooRealVar* MDFitterSettings::GetObs(TString varName, bool inName, bool log)
    { 
       Double_t range0 = GetRangeDown(varName);
       Double_t range1 = GetRangeUp(varName);
-      Float_t c = 299792458.0;
-      Float_t corr = c/1e9;
       TString  varOutName = "";
       if ( inName == false ) 
 	{

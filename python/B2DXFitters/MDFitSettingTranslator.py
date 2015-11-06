@@ -159,8 +159,10 @@ class Translator:
                             md.SetDsHypoCut(Dmode, myconfigfile['AdditionalCuts'][Dmode]['DsHypo'])
 
             if myconfigfile.has_key('WeightingMassTemplates'):
-                md.SetMassWeighting(True) 
+                if myconfigfile["WeightingMassTemplates"].has_key("RatioDataMC"):
+                    md.SetRatioDataMC(True)
                 if myconfigfile["WeightingMassTemplates"].has_key("Variables"):
+                    md.SetMassWeighting(True)
                     variables = myconfigfile["WeightingMassTemplates"]["Variables"]
                     for var in variables:
                         md.AddWeightingMassVar(var)

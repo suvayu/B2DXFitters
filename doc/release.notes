@@ -4,6 +4,11 @@
 ! Purpose     : RooFit-based fitters for B -> D X
 !-----------------------------------------------------------------------------
 
+! 2015-11-06 - Agnieszka Dziurda
+ - bug fix in MDFitterSettings (wrong RatioDataMC definition)
+ - update config files for DsstK/Pi 
+ - add scripts/Csh/plot_shapes.csh for plotting all 15 plots
+ 
 ! 2015-11-04 - Agnieszka Dziurda
  - update package for Ds*K:
    - new config files 

@@ -14,7 +14,7 @@ def getconfig() :
     # stripping (necessary in case of PIDK shapes)                               
     configdict["Stripping"] = {"2012":"21", "2011":"21r1"}
     # integrated luminosity in each year of data taking (necessary in case of PIDK shapes)
-    configdict["IntegratedLuminosity"] = {"2011":{"Down": 0.57, "Up": 0.43}, "2012":{"Down": 0.49, "Up": 0.51}} 
+    configdict["IntegratedLuminosity"] = {"2011":{"Down": 0.57, "Up": 0.43}, "2012":{"Down": 0.9894, "Up": 0.9985}} 
     # file name with paths to MC/data samples                                     
     configdict["dataName"]   = "../data/Bs2DsstK_3fbCPV/Bs2DsstPi/config_Bs2DsstPi.txt"
 
@@ -67,6 +67,7 @@ def getconfig() :
 
     #weighting for PID templates
     configdict["ObtainPIDTemplates"] = { "Variables":["BacPT","nTracks"], "Bins":[20,20] }
+    configdict["WeightingMassTemplates"]= { "RatioDataMC":True }
 
     #PID Calibration samples for PID shapes
     configdict["Calibrations"] = {}

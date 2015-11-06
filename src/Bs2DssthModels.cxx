@@ -106,6 +106,9 @@ namespace Bs2DssthModels {
     TString beautyVarName = mass.GetName();
     if(beautyVarName) { }
     TString name = ""; 
+    TString mode = CheckDMode(samplemode,debug);
+    if ( mode == "" ) { mode = CheckKKPiMode(samplemode, debug); }
+
 
     TString nBsBd2DsKstName = "nBsBd2DsKst_"+samplemode+"_Evts";
     RooRealVar* nBsBd2DsKstEvts = tryVar(nBsBd2DsKstName, workInt, debug);
@@ -159,7 +162,7 @@ namespace Bs2DssthModels {
         name ="PhysBkgBs2DsDsstRhoPdf_m_"+samplemode+"_Tot";
         pdf_Bs2DsDsstRho_Tot = new RooAddPdf(name.Data(), name.Data(),
 					     RooArgList(*pdf_Bs2DsstRho_Tot,*pdf_Bs2DsRho_Tot),
-					     RooArgList(*g1_f1,*g1_f2), true);
+					     RooArgList(*g1_f1), true);
         CheckPDF(pdf_Bs2DsDsstRho_Tot, debug);
 
 	name ="PhysBkgBs2DsDsstPiRhoPdf_m_"+samplemode+"_Tot";
@@ -186,10 +189,14 @@ namespace Bs2DssthModels {
     RooProdPdf* pdf_Bs2DsKst_Tot = NULL;
     RooProdPdf* pdf_Bd2DsKst_Tot = NULL;
     RooAddPdf* pdf_BsBd2DsKst_Tot = NULL;
+    RooAddPdf* pdf_BsBd2DsDsstPiRhoKst_Tot = NULL;
     RooExtendPdf* epdf_BsBd2DsKst   = NULL;
 
     TString g2_f1_Name = "g2_f1_frac_"+samplemode;
     RooRealVar* g2_f1 = tryVar(g2_f1_Name, workInt,debug);
+
+    TString g4_f1_Name = "g4_f1_frac_"+samplemode;
+    RooRealVar* g4_f1 = tryVar(g4_f1_Name, workInt,debug);
 
     if ( valnBsBd2DsKst != 0.0 )
       {
@@ -203,12 +210,24 @@ namespace Bs2DssthModels {
 					   RooArgList(*g2_f1), true);
         CheckPDF(pdf_BsBd2DsKst_Tot, debug);
 
+	/*
+	name ="PhysBkgBsBd2DsDsstPiRhoKstPdf_m_"+samplemode+"_Tot";
+        pdf_BsBd2DsDsstPiRhoKst_Tot = new RooAddPdf(name.Data(), name.Data(),
+                                                   RooArgList(*pdf_Bs2DsDsstPiRho_Tot,*pdf_BsBd2DsKst_Tot),
+                                                   RooArgList(*g4_f1), true);
+        CheckPDF(pdf_BsBd2DsDsstPiRhoKst_Tot, debug);
+	*/
+	
         name = "BsBd2DsKstEPDF_m_"+samplemode;
         epdf_BsBd2DsKst = new RooExtendPdf( name.Data() , pdf_BsBd2DsKst_Tot-> GetTitle(), *pdf_BsBd2DsKst_Tot  , *nBsBd2DsKstEvts   );
-        CheckPDF( epdf_BsBd2DsKst, debug );
+        //epdf_BsBd2DsKst = new RooExtendPdf( name.Data() , pdf_BsBd2DsKst_Tot-> GetTitle(), *pdf_BsBd2DsDsstPiRhoKst_Tot  , *nBsBd2DsKstEvts   );
+	CheckPDF( epdf_BsBd2DsKst, debug );
         list = AddEPDF(list, epdf_BsBd2DsKst, nBsBd2DsKstEvts, debug);
       }
 
+    RooAbsPdf* pdf_Bd2DsstK_Bs = NULL;
+    RooAbsPdf* pdf_Bd2DsstK_PIDK = NULL;
+    RooAbsPdf* pdf_Bd2DsstK_Ds = NULL;
     RooProdPdf* pdf_Bs2DsstKst_Tot = NULL;
     RooProdPdf* pdf_Bd2DsstKst_Tot = NULL;
     RooProdPdf* pdf_Bd2DsstK_Tot = NULL;
@@ -222,13 +241,25 @@ namespace Bs2DssthModels {
     TString g3_f2_Name = "g3_f2_frac_"+samplemode;
     RooRealVar* g3_f2 = tryVar(g3_f2_Name, workInt,debug);
 
-
     if ( valnBsBd2DsstKst != 0.0 )
       {
 
         pdf_Bs2DsstKst_Tot = buildProdPdfSpecBkgMDFit(workInt, work, samplemode, "Bs2DsstKst", "", merge, dim, charmVarName, debug);
 	pdf_Bd2DsstKst_Tot = buildProdPdfSpecBkgMDFit(workInt, work, samplemode, "Bd2DsstKst", "", merge, dim, charmVarName, debug);
-	pdf_Bd2DsstK_Tot = buildProdPdfSpecBkgMDFit(workInt, work, samplemode, "Bd2DsstK", "", merge, dim, charmVarName, debug);
+	//pdf_Bd2DsstK_Tot = buildProdPdfSpecBkgMDFit(workInt, work, samplemode, "Bd2DsstK", "", merge, dim, charmVarName, debug);
+
+	pdf_Bd2DsstK_Bs = buildShiftedDoubleCrystalBallPDF(mass, workInt, samplemode, "Bd2DsstK", debug);
+        if( dim > 2)
+          {
+            pdf_Bd2DsstK_PIDK = buildMergedSpecBkgMDFit(workInt, work, samplemode, "Bd2DsstK", "", merge, 3, "", debug);
+          }
+        if ( dim > 1 )
+          {
+            pdf_Bd2DsstK_Ds = trySignal(samplemode,charmVarName,workInt, debug);
+          }
+        TString m = "Bd2DsstK";
+        pdf_Bd2DsstK_Tot = GetRooProdPdfDim(m, samplemode, pdf_Bd2DsstK_Bs, pdf_Bd2DsstK_Ds, pdf_Bd2DsstK_PIDK, dim, debug  );
+
 
 	name ="PhysBkgBsBd2DsstKstPdf_m_"+samplemode+"_Tot";
         pdf_BsBd2DsstKst_Tot = new RooAddPdf(name.Data(), name.Data(),
@@ -240,7 +271,7 @@ namespace Bs2DssthModels {
         pdf_BsBd2DsstKKst_Tot = new RooAddPdf(name.Data(), name.Data(),
                                              RooArgList(*pdf_Bd2DsstK_Tot,*pdf_BsBd2DsstKst_Tot),
                                              RooArgList(*g3_f2), true);
-        CheckPDF(pdf_BsBd2DsstKst_Tot, debug);
+        CheckPDF(pdf_BsBd2DsstKst_Tot, debug);	
 
         name = "BsBd2DsstKstEPDF_m_"+samplemode;
 	epdf_BsBd2DsstKst = new RooExtendPdf( name.Data() , pdf_BsBd2DsstKKst_Tot-> GetTitle(), *pdf_BsBd2DsstKKst_Tot  , *nBsBd2DsstKstEvts   );
