@@ -4,6 +4,11 @@
 ! Purpose     : RooFit-based fitters for B -> D X
 !-----------------------------------------------------------------------------
 
+! 2015-11-10 - Alessandro Bertolin
+- added config_Bs2DsstPi.txt in Bs2DsstK_3fbBR/Bs2DsstPi
+- updated Bs2DsstPiConfigForNominalMassFit.py in Bs2DsstK_3fbBR/Bs2DsstPi
+  for the 1-dim fit used in the BR paper
+
 ! 2015-11-06 - Agnieszka Dziurda
  - bug fix in MDFitterSettings (wrong RatioDataMC definition)
  - update config files for DsstK/Pi 
