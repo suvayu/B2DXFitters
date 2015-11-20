@@ -4,6 +4,9 @@
 ! Purpose     : RooFit-based fitters for B -> D X
 !-----------------------------------------------------------------------------
 
+!============================================== v3r0 2015-11-20 ==============================
+! 2015-11-20 Diego Martinez Santos
+	 Make version v3r0
 ! 2015-11-10 - Alessandro Bertolin
 - added config_Bs2DsstPi.txt in Bs2DsstK_3fbBR/Bs2DsstPi
 - updated Bs2DsstPiConfigForNominalMassFit.py in Bs2DsstK_3fbBR/Bs2DsstPi
@@ -2475,43 +2478,4 @@
 ! 2012-04-13 - Agnieszka Dziurda, Eduardo Rodrigues
  - New script scripts/plotBs2DsPiMassModels.py to plot the Bs -> Ds pi mass
    models (relevant to the TD DsK analysis)
- - scripts/plotBs2DsKMassModels.py updated to be able to plot the complete
-   list of DsK background components
-
-! 2012-04-12 - Eduardo Rodrigues
- - GeneralUtils class added: contains for now various utility functions
-   from Agnieszka Dziurda. To be improved/extended
-
-! 2012-04-11 - Eduardo Rodrigues
- - FitMeTool: small improvements and added functionality
- - scripts/fitFromWorkspace.py: new script that makes it trivial to fit a model
-   to a data sample provided in a RooWorkspace on an input file to the user
-
-! 2012-04-06 - Eduardo Rodrigues
- - Major improvements to FitMeTool: all PDFs, functions, variables are now
-   stored in a workspace; make sure all object pointers in local workspace
-   are consistent; make sure the class can also deal with binned datasets
- - Added the possibility of using per-event decay time errors in the resolution
-   model input to a RooBDecay. Helper function for this added to GeneralModels
- - Scripts runBs2DsKCPAsymmObsFitterToyMC.py updated to be able to use per-event
-   decay time errors in the resolution function. But more testing is required
- - More code/files updated to follow the conventions
-
-! 2012-04-04 - Eduardo Rodrigues
- - New acceptance function (class) DTAcceptanceLHCbNote2007041 added.
-   It implements the acceptance function used in the 2007 sensitivity studies
-   documented in LHCb-2007-041
- - Conventions file updated
- - Several files updated to follow the conventions
- - Extra documentation added here and there
-
-! 2012-04-04 - Manuel Tobias Schiller
- - add missing dictionary for std::pair<std::string,RooAbsData*>
- - include signal, midid'ed DsPi and comb. Bg in DsK TD fitter
- - adapt the make_histos.py and plot_histos.py scripts to plot the total PDF
-
-! 2012-03-31 - Manuel Tobias Schiller
- - fix bad bug in TD fitter: Bs->DsK component PDF was non-zero for DsPi
-   events and vice versa
-
-! 2012-03-31 - Manuel 
+ - scripts/plotBs2DsKMassMo
