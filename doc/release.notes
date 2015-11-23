@@ -4,9 +4,14 @@
 ! Purpose     : RooFit-based fitters for B -> D X
 !-----------------------------------------------------------------------------
 
+! 2015-11-23 - Manuel Tobias Schiller
+ - correct include file paths in a few header files to help with standalone 
+   builds, should not have any effect for normal builds (and tests suggest
+   it's in fact true)
+
 !============================================== v3r0 2015-11-20 ==============================
 ! 2015-11-20 Diego Martinez Santos
-	 Make version v3r0
+    Make version v3r0
 ! 2015-11-10 - Alessandro Bertolin
 - added config_Bs2DsstPi.txt in Bs2DsstK_3fbBR/Bs2DsstPi
 - updated Bs2DsstPiConfigForNominalMassFit.py in Bs2DsstK_3fbBR/Bs2DsstPi
@@ -65,7 +70,7 @@
      variable created: nonres_both_run1, which will be shared in simultaneous fits to
      both magnet polarities and/or both year of data taking.
    - if you want to use not shared variable for year of data taking, use: 
-     	configdict["DsCombinatorialShape"]["cD"] = {"2012": {"NonRes":-0.05, "PhiPi":-0.05, "KstK":-0.05},                                                                                                                                            "2011": {"NonRes":-0.05, "PhiPi":-0.05, "KstK":-0.05}, "Fixed":False} 
+      configdict["DsCombinatorialShape"]["cD"] = {"2012": {"NonRes":-0.05, "PhiPi":-0.05, "KstK":-0.05},                                                                                                                                            "2011": {"NonRes":-0.05, "PhiPi":-0.05, "KstK":-0.05}, "Fixed":False} 
      and similar for both magnet polarities.
  - the package will be looking for variables, starting from specific one to more general:
    - firstly looking at the specific variable for example: polarity = down, year = 2011, dsmode = "nonres",

@@ -16,8 +16,8 @@
 #include "RooArgSet.h"
 #include "TFile.h"
 #include "RooWorkspace.h" 
-#include "B2DXFitters/GeneralUtils.h"
-#include "B2DXFitters/PlotSettings.h"
+#include "GeneralUtils.h"
+#include "PlotSettings.h"
 
 
 #include "math.h"

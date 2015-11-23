@@ -10,7 +10,7 @@
 #ifndef MDFITTERSETTINGS
 #define MDFITTERSETTINGS
 
-#include "B2DXFitters/PIDCalibrationSample.h"
+#include "PIDCalibrationSample.h"
 #include "TString.h"
 #include "TNamed.h"
 #include "TCut.h"
