@@ -205,6 +205,8 @@ TString MCBackground::CheckMode()
       _mode.Contains("Lambdac") == true) { Ds = "Lc";}
   else if (_mode.Contains("Dsst") == true || _mode.Contains("dsst") == true)
     { Ds ="Dsst";}
+  else if (_mode.Contains("Dst") == true || _mode.Contains("dst") == true)
+    { Ds = "Dst"; }
   else if ( (_mode.Contains("Ds") == true  || _mode.Contains("ds")== true) &&
 	    (_mode.Contains("Dsst") == false || _mode.Contains("dsst") == false ))
     { Ds = "Ds";}

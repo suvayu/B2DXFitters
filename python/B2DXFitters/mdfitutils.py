@@ -81,7 +81,6 @@ def getExpectedYield(mode,year,dsmode,pol,merge, myconfigfile):
                     y2012 =  myconfigfile["Yields"][mode]["2012"][dsmode.Data()]["Up"] + myconfigfile["Yields"][mode]["2012"][dsmode.Data()]["Down"]
                 elif myconfigfile["Yields"][mode]["2012"][dsmode.Data()].has_key("Both"):
                     y2012 = myconfigfile["Yields"][mode]["2012"][dsmode.Data()]["Both"]
-
                 return y2011+y2012
 
     else:
@@ -281,10 +280,11 @@ def getPIDKComponents(myconfigfile, key, component):
 def getSigOrCombPDF(myconfigfile,keys, typemode, work, workInt,sm, merge, bound,dim, obs, debug):
 
     beautyMass = obs[0]
-    charmMass = obs[0]
-    bacPIDK = obs[0]
-    prefix1 = typemode+"_"+beautyMass.GetName()
-    workInt = readVariables(myconfigfile, keys[0], prefix1, workInt, sm, merge, bound, debug)
+    charmMass = obs[1]
+    bacPIDK = obs[2]
+    if dim > 0:
+        prefix1 = typemode+"_"+beautyMass.GetName()
+        workInt = readVariables(myconfigfile, keys[0], prefix1, workInt, sm, merge, bound, debug)
     if dim > 1:
         charmMass = obs[1]
         prefix2 = typemode+"_"+charmMass.GetName()
@@ -313,7 +313,8 @@ def getSigOrCombPDF(myconfigfile,keys, typemode, work, workInt,sm, merge, bound,
     for i in range(0,bound):
         pdfNames = GeneralUtils.GetList2D(TString("pdf_names"), TString("pdf_keys"));
         
-        pdfNames = getPDFNameFromConfig(myconfigfile, keys[0], prefix1, pdfNames )
+        if dim > 0:
+            pdfNames = getPDFNameFromConfig(myconfigfile, keys[0], prefix1, pdfNames )
         if dim > 1:
             pdfNames = getPDFNameFromConfig(myconfigfile, keys[1], prefix2, pdfNames )
         if dim > 2:

@@ -140,7 +140,9 @@ def getTotalBkgPDF(myconfigfile, beautyMass, charmMass, workspace, workInt, merg
         elif ( myconfigfile["Decay"] == "Bs2DsstK"):
             if ( mm in cdm ):
                 bkgPDF.append(WS(workInt,Bs2DssthModels.build_Bs2DsstK_BKG(beautyMass,charmMass, workspace, workInt, sm[i], merge, dim, debug )))
-
+        elif ( myconfigfile["Decay"] == "Bd2DPi"):
+            if ( mm in cdm ):
+                bkgPDF.append(WS(workInt,Bd2DhModels.build_Bd2DPi_BKG_MDFitter(beautyMass,charmMass, workspace, workInt, sm[i], merge, dim, debug )))
     return bkgPDF
     
 #------------------------------------------------------------------------------
@@ -204,7 +206,7 @@ def runMDFitter( debug, sample, mode, sweight,
         workspaceToys.Print("v")
         workData = workspaceToys
         
-    
+
     observables = getObservables(MDSettings, workData, toys, debug)
     beautyMass = observables.find(MDSettings.GetMassBVarOutName().Data())
     charmMass = observables.find(MDSettings.GetMassDVarOutName().Data())
@@ -426,7 +428,7 @@ def runMDFitter( debug, sample, mode, sweight,
     import sys
     import random
     
-    fitter.fit(True, RooFit.Extended(), RooFit.NumCPU(4)) #,  RooFit.Verbose(False),  RooFit.ExternalConstraints(constList)) #, RooFit.InitialHesse(True))
+    fitter.fit(True, RooFit.Extended(), RooFit.NumCPU(4)) #,  RooFit.Verbose(True)) #,  RooFit.ExternalConstraints(constList)) #, RooFit.InitialHesse(True))
     result = fitter.getFitResult()
     result.Print("v")
     floatpar = result.floatParsFinal()

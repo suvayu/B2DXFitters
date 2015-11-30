@@ -1,124 +1,163 @@
-
 #Bs2DsK NonRes 2011
-root://eoslhcb.cern.ch//eos/lhcb/user/l/lbel/TD_DsK3fb/OFFLINE/
-DsK_2011_Dw_OFFLINE_Bs_DsK_nonres.root
-DsK_2011_Up_OFFLINE_Bs_DsK_nonres.root
+root://eoslhcb.cern.ch//eos/lhcb/user/l/lbel/TD_DsK3fb/MERGED/
+Bs_DsK_nonres_2011_Dw.root
+Bs_DsK_nonres_2011_Up.root
 DecayTree
 DecayTree
 ###
 
 #Bs2DsK PhiPi 2011
-root://eoslhcb.cern.ch//eos/lhcb/user/l/lbel/TD_DsK3fb/OFFLINE/
-DsK_2011_Dw_OFFLINE_Bs_DsK_phipi.root
-DsK_2011_Up_OFFLINE_Bs_DsK_phipi.root
+root://eoslhcb.cern.ch//eos/lhcb/user/l/lbel/TD_DsK3fb/MERGED/
+Bs_DsK_phipi_2011_Dw.root
+Bs_DsK_phipi_2011_Up.root
 DecayTree
 DecayTree
 ###
 
 #Bs2DsK KstK 2011
-root://eoslhcb.cern.ch//eos/lhcb/user/l/lbel/TD_DsK3fb/OFFLINE/
-DsK_2011_Dw_OFFLINE_Bs_DsK_KstK.root
-DsK_2011_Up_OFFLINE_Bs_DsK_KstK.root
+root://eoslhcb.cern.ch//eos/lhcb/user/l/lbel/TD_DsK3fb/MERGED/
+Bs_DsK_KstK_2011_Dw.root
+Bs_DsK_KstK_2011_Up.root
 DecayTree
 DecayTree
 ###
 
 #Bs2DsK KPiPi 2011
-root://eoslhcb.cern.ch//eos/lhcb/user/l/lbel/TD_DsK3fb/OFFLINE/
-DsK_2011_Dw_OFFLINE_Bs_DsK_Kpipi.root
-DsK_2011_Up_OFFLINE_Bs_DsK_Kpipi.root
+root://eoslhcb.cern.ch//eos/lhcb/user/l/lbel/TD_DsK3fb/MERGED/
+Bs_DsK_Kpipi_2011_Dw.root
+Bs_DsK_Kpipi_2011_Up.root
 DecayTree
 DecayTree
 ###
 
 #Bs2DsK PiPiPi 2011
-root://eoslhcb.cern.ch//eos/lhcb/user/l/lbel/TD_DsK3fb/OFFLINE/
-DsK_2011_Dw_OFFLINE_Bs_DsK_pipipi.root
-DsK_2011_Up_OFFLINE_Bs_DsK_pipipi.root
+root://eoslhcb.cern.ch//eos/lhcb/user/l/lbel/TD_DsK3fb/MERGED/
+Bs_DsK_pipipi_2011_Dw.root
+Bs_DsK_pipipi_2011_Up.root
 DecayTree
 DecayTree
 ###
 
 #Bs2DsK NonRes 2012
-root://eoslhcb.cern.ch//eos/lhcb/user/l/lbel/TD_DsK3fb/OFFLINE/
-DsK_2011_Dw_OFFLINE_Bs_DsK_nonres.root
-DsK_2011_Up_OFFLINE_Bs_DsK_nonres.root
+root://eoslhcb.cern.ch//eos/lhcb/user/l/lbel/TD_DsK3fb/MERGED/
+Bs_DsK_nonres_2012_Dw.root
+Bs_DsK_nonres_2012_Up.root
 DecayTree
 DecayTree
 ###
 
 #Bs2DsK PhiPi 2012
-root://eoslhcb.cern.ch//eos/lhcb/user/l/lbel/TD_DsK3fb/OFFLINE/
-DsK_2011_Dw_OFFLINE_Bs_DsK_phipi.root
-DsK_2011_Up_OFFLINE_Bs_DsK_phipi.root
+root://eoslhcb.cern.ch//eos/lhcb/user/l/lbel/TD_DsK3fb/MERGED/
+Bs_DsK_phipi_2012_Dw.root
+Bs_DsK_phipi_2012_Up.root
 DecayTree
 DecayTree
 ###
 
 #Bs2DsK KstK 2012
-root://eoslhcb.cern.ch//eos/lhcb/user/l/lbel/TD_DsK3fb/OFFLINE/
-DsK_2011_Dw_OFFLINE_Bs_DsK_KstK.root
-DsK_2011_Up_OFFLINE_Bs_DsK_KstK.root
+root://eoslhcb.cern.ch//eos/lhcb/user/l/lbel/TD_DsK3fb/MERGED/
+Bs_DsK_KstK_2012_Dw.root
+Bs_DsK_KstK_2012_Up.root
 DecayTree
 DecayTree
 ###
 
 #Bs2DsK KPiPi 2012
-root://eoslhcb.cern.ch//eos/lhcb/user/l/lbel/TD_DsK3fb/OFFLINE/
-DsK_2011_Dw_OFFLINE_Bs_DsK_Kpipi.root
-DsK_2011_Up_OFFLINE_Bs_DsK_Kpipi.root
+root://eoslhcb.cern.ch//eos/lhcb/user/l/lbel/TD_DsK3fb/MERGED/
+Bs_DsK_Kpipi_2012_Dw.root
+Bs_DsK_Kpipi_2012_Up.root
 DecayTree
 DecayTree
 ###
 
 #Bs2DsK PiPiPi 2012
-root://eoslhcb.cern.ch//eos/lhcb/user/l/lbel/TD_DsK3fb/OFFLINE/
-DsK_2011_Dw_OFFLINE_Bs_DsK_pipipi.root
-DsK_2011_Up_OFFLINE_Bs_DsK_pipipi.root
-DecayTree
-DecayTree
-###
-
-
-#Bs2DsPi KPiPi 2011
-/afs/cern.ch/work/a/adudziak/public/Bs2DsKFitTuple/
-MergedTree_Bs2DsX_MD_OFFLINE_DsPi_KPiPi.root
-MergedTree_Bs2DsX_MU_OFFLINE_DsPi_KPiPi.root
-DecayTree;1
-DecayTree;1
-###
-
-#Bs2DsPi KstK 2011
-/afs/cern.ch/work/a/adudziak/public/Bs2DsKFitTuple/
-MergedTree_Bs2DsX_MD_OFFLINE_DsPi_KstK.root
-MergedTree_Bs2DsX_MU_OFFLINE_DsPi_KstK.root
+root://eoslhcb.cern.ch//eos/lhcb/user/l/lbel/TD_DsK3fb/MERGED/
+Bs_DsK_pipipi_2012_Dw.root
+Bs_DsK_pipipi_2012_Up.root
 DecayTree
 DecayTree
 ###
 
 #Bs2DsPi NonRes 2011
-/afs/cern.ch/work/a/adudziak/public/Bs2DsKFitTuple/
-MergedTree_Bs2DsX_MD_OFFLINE_DsPi_NonRes.root
-MergedTree_Bs2DsX_MU_OFFLINE_DsPi_NonRes.root
+root://eoslhcb.cern.ch//eos/lhcb/user/l/lbel/TD_DsK3fb/MERGED/
+Bs_Dspi_nonres_2011_Dw.root
+Bs_Dspi_nonres_2011_Up.root
 DecayTree
 DecayTree
 ###
 
 #Bs2DsPi PhiPi 2011
-/afs/cern.ch/work/a/adudziak/public/Bs2DsKFitTuple/
-MergedTree_Bs2DsX_MD_OFFLINE_DsPi_PhiPi.root
-MergedTree_Bs2DsX_MU_OFFLINE_DsPi_PhiPi.root
+root://eoslhcb.cern.ch//eos/lhcb/user/l/lbel/TD_DsK3fb/MERGED/
+Bs_Dspi_phipi_2011_Dw.root
+Bs_Dspi_phipi_2011_Up.root
+DecayTree
+DecayTree
+###
+
+#Bs2DsPi KstK 2011
+root://eoslhcb.cern.ch//eos/lhcb/user/l/lbel/TD_DsK3fb/MERGED/
+Bs_Dspi_KstK_2011_Dw.root
+Bs_Dspi_KstK_2011_Up.root
+DecayTree
+DecayTree
+###
+
+#Bs2DsPi KPiPi 2011
+root://eoslhcb.cern.ch//eos/lhcb/user/l/lbel/TD_DsK3fb/MERGED/
+Bs_Dspi_Kpipi_2011_Dw.root
+Bs_Dspi_Kpipi_2011_Up.root
 DecayTree
 DecayTree
 ###
 
 #Bs2DsPi PiPiPi 2011
-/afs/cern.ch/work/a/adudziak/public/Bs2DsKFitTuple/
-MergedTree_Bs2DsX_MD_OFFLINE_DsPi_PiPiPi.root
-MergedTree_Bs2DsX_MU_OFFLINE_DsPi_PiPiPi.root
+root://eoslhcb.cern.ch//eos/lhcb/user/l/lbel/TD_DsK3fb/MERGED/
+Bs_Dspi_pipipi_2011_Dw.root
+Bs_Dspi_pipipi_2011_Up.root
 DecayTree
 DecayTree
 ###
+
+#Bs2DsPi NonRes 2012
+root://eoslhcb.cern.ch//eos/lhcb/user/l/lbel/TD_DsK3fb/MERGED/
+Bs_Dspi_nonres_2012_Dw.root
+Bs_Dspi_nonres_2012_Up.root
+DecayTree
+DecayTree
+###
+
+#Bs2DsPi PhiPi 2012
+root://eoslhcb.cern.ch//eos/lhcb/user/l/lbel/TD_DsK3fb/MERGED/
+Bs_Dspi_phipi_2012_Dw.root
+Bs_Dspi_phipi_2012_Up.root
+DecayTree
+DecayTree
+###
+
+#Bs2DsPi KstK 2012
+root://eoslhcb.cern.ch//eos/lhcb/user/l/lbel/TD_DsK3fb/MERGED/
+Bs_Dspi_KstK_2012_Dw.root
+Bs_Dspi_KstK_2012_Up.root
+DecayTree
+DecayTree
+###
+
+#Bs2DsPi KPiPi 2012
+root://eoslhcb.cern.ch//eos/lhcb/user/l/lbel/TD_DsK3fb/MERGED/
+Bs_Dspi_Kpipi_2012_Dw.root
+Bs_Dspi_Kpipi_2012_Up.root
+DecayTree
+DecayTree
+###
+
+#Bs2DsPi PiPiPi 2012
+root://eoslhcb.cern.ch//eos/lhcb/user/l/lbel/TD_DsK3fb/MERGED/
+Bs_Dspi_pipipi_2012_Dw.root
+Bs_Dspi_pipipi_2012_Up.root
+DecayTree
+DecayTree
+###
+
 
 #sWeights
 /afs/cern.ch/work/a/adudziak/public/sWeights/
@@ -155,64 +194,121 @@ MomVsnTr_Comp_DPi_Up_hist.root
 
 #MC FileName KKPi MD 2011
 {"Mode":"Bd2DK",     
- "FileName":"/afs/cern.ch/work/a/adudziak/public/MCJanuary2014/MergedTree_Bd2DK_D2KPiPi_BsHypo_BDTG.root",
+ "FileName":"root://eoslhcb.cern.ch//eos/lhcb/user/l/lbel/TD_DsK3fb_MC/Bd_D-K+_Dn/BDTG/B2DX_MC_11264011_Dn_BDTG_Bs.root",
  "TreeName":"DecayTree"}
 {"Mode":"Bs2DsPi",
- "FileName":"/afs/cern.ch/work/a/adudziak/public/MCJanuary2014/MergedTree_Bs2DsPi_Ds2KKPi_BsHypo_BDTG.root",
+ "FileName":"root://eoslhcb.cern.ch//eos/lhcb/user/l/lbel/TD_DsK3fb_MC/Bs_Dspi_KKpi_Dn/BDTG/B2DX_MC_13264021_Dn_BDTG_Bs.root",
  "TreeName":"DecayTree"} 
 {"Mode":"Bs2DsRho",  
- "FileName":"/afs/cern.ch/work/a/adudziak/public/MCJanuary2014/MergedTree_Bs2DsRho_Ds2KKPi_BsHypo_BDTG.root",
- "TreeName":"DecayTree"}
-{"Mode":"Bs2DsstK",  
- "FileName":"/afs/cern.ch/work/a/adudziak/public/MCJanuary2014/MergedTree_Bs2DsstK_Ds2KKPi_BsHypo_BDTG.root",
+ "FileName":"root://eoslhcb.cern.ch//eos/lhcb/user/l/lbel/TD_DsK3fb_MC/Bs_Dsrho_KKpi_Dn/BDTG/B2DX_MC_13264421_Dn_BDTG_Bs.root",
  "TreeName":"DecayTree"}
 {"Mode":"Bs2DsstPi", 
- "FileName":"/afs/cern.ch/work/a/adudziak/public/MCJanuary2014/MergedTree_Bs2DsstPi_Ds2KKPi_BsHypo_BDTG.root",
+ "FileName":"root://eoslhcb.cern.ch//eos/lhcb/user/l/lbel/TD_DsK3fb_MC/Bs_Dsstpi_KKpi_Dn/BDTG/B2DX_MC_13264221_Dn_BDTG_Bs.root",
  "TreeName":"DecayTree"}
 {"Mode":"Lb2Dsp",    
- "FileName":"/afs/cern.ch/work/a/adudziak/public/MCJanuary2014/MergedTree_Lb2Dsp_Ds2KKPi_BsHypo_BDTG.root",
+ "FileName":"root://eoslhcb.cern.ch//eos/lhcb/user/l/lbel/TD_DsK3fb_MC/Lb_Dsp_K+K-pi-_Dn/BDTG/B2DX_MC_15164041_Dn_BDTG_Bs.root",
  "TreeName":"DecayTree"}
 {"Mode":"Lb2Dsstp",  
- "FileName":"/afs/cern.ch/work/a/adudziak/public/MCJanuary2014/MergedTree_Lb2Dsstp_Ds2KKPi_BsHypo_BDTG.root",
+ "FileName":"root://eoslhcb.cern.ch//eos/lhcb/user/l/lbel/TD_DsK3fb_MC/Lb_Dsstp_K+K-pi-_Dn/BDTG/B2DX_MC_15364211_Dn_BDTG_Bs.root",
  "TreeName":"DecayTree"}
 {"Mode":"Lb2LcK",    
- "FileName":"/afs/cern.ch/work/a/adudziak/public/MCJanuary2014/MergedTree_Lb2LcK_Lc2pKPi_BsHypo_BDTG.root",
+ "FileName":"root://eoslhcb.cern.ch//eos/lhcb/user/l/lbel/TD_DsK3fb_MC/Lb_LambdacK_Dn/BDTG/B2DX_MC_15164031_Dn_BDTG_Bs.root",
  "TreeName":"DecayTree"}
 {"Mode":"Lb2LcPi",   
- "FileName":"/afs/cern.ch/work/a/adudziak/public/MCJanuary2014/MergedTree_Lb2LcPi_Lc2pKPi_BsHypo_BDTG.root",
+ "FileName":"root://eoslhcb.cern.ch//eos/lhcb/user/l/lbel/TD_DsK3fb_MC/Lb_Lambdacpi_Dn/BDTG/B2DX_MC_15164001_Dn_BDTG_Bs.root",
  "TreeName":"DecayTree"}
 {"Mode":"Bd2DPi",    
- "FileName":"/afs/cern.ch/work/a/adudziak/public/MCJanuary2014/MergedTree_Bd2DPi_D2KPiPi_BsHypo_BDTG.root",
+ "FileName":"root://eoslhcb.cern.ch//eos/lhcb/user/l/lbel/TD_DsK3fb_MC/Bd_D-pi+_Kpipi_CPV_Dn/BDTG/B2DX_MC_11164003_Dn_BDTG_Bs.root",
  "TreeName":"DecayTree"}
 ###
 
 #MC FileName KKPi MU 2011
 {"Mode":"Bd2DK",
- "FileName":"/afs/cern.ch/work/a/adudziak/public/MCJanuary2014/MergedTree_Bd2DK_D2KPiPi_BsHypo_BDTG.root",
+ "FileName":"root://eoslhcb.cern.ch//eos/lhcb/user/l/lbel/TD_DsK3fb_MC/Bd_D-K+_Up/BDTG/B2DX_MC_11264011_Up_BDTG_Bs.root",
+ "TreeName":"DecayTree"}
+{"Mode":"Bs2DsPi",
+ "FileName":"root://eoslhcb.cern.ch//eos/lhcb/user/l/lbel/TD_DsK3fb_MC/Bs_Dspi_KKpi_Up/BDTG/B2DX_MC_13264021_Up_BDTG_Bs.root",
  "TreeName":"DecayTree"}
 {"Mode":"Bs2DsRho",
- "FileName":"/afs/cern.ch/work/a/adudziak/public/MCJanuary2014/MergedTree_Bs2DsRho_Ds2KKPi_BsHypo_BDTG.root",
- "TreeName":"DecayTree"}
-{"Mode":"Bs2DsstK",
- "FileName":"/afs/cern.ch/work/a/adudziak/public/MCJanuary2014/MergedTree_Bs2DsstK_Ds2KKPi_BsHypo_BDTG.root",
+ "FileName":"root://eoslhcb.cern.ch//eos/lhcb/user/l/lbel/TD_DsK3fb_MC/Bs_Dsrho_KKpi_Up/BDTG/B2DX_MC_13264421_Up_BDTG_Bs.root",
  "TreeName":"DecayTree"}
 {"Mode":"Bs2DsstPi",
- "FileName":"/afs/cern.ch/work/a/adudziak/public/MCJanuary2014/MergedTree_Bs2DsstPi_Ds2KKPi_BsHypo_BDTG.root",
+ "FileName":"root://eoslhcb.cern.ch//eos/lhcb/user/l/lbel/TD_DsK3fb_MC/Bs_Dsstpi_KKpi_Up/BDTG/B2DX_MC_13264221_Up_BDTG_Bs.root",
  "TreeName":"DecayTree"}
 {"Mode":"Lb2Dsp",
- "FileName":"/afs/cern.ch/work/a/adudziak/public/MCJanuary2014/MergedTree_Lb2Dsp_Ds2KKPi_BsHypo_BDTG.root",
+ "FileName":"root://eoslhcb.cern.ch//eos/lhcb/user/l/lbel/TD_DsK3fb_MC/Lb_Dsp_K+K-pi-_Up/BDTG/B2DX_MC_15164041_Up_BDTG_Bs.root",
  "TreeName":"DecayTree"}
 {"Mode":"Lb2Dsstp",
- "FileName":"/afs/cern.ch/work/a/adudziak/public/MCJanuary2014/MergedTree_Lb2Dsstp_Ds2KKPi_BsHypo_BDTG.root",
+ "FileName":"root://eoslhcb.cern.ch//eos/lhcb/user/l/lbel/TD_DsK3fb_MC/Lb_Dsstp_K+K-pi-_Up/BDTG/B2DX_MC_15364211_Up_BDTG_Bs.root",
  "TreeName":"DecayTree"}
 {"Mode":"Lb2LcK",
- "FileName":"/afs/cern.ch/work/a/adudziak/public/MCJanuary2014/MergedTree_Lb2LcK_Lc2pKPi_BsHypo_BDTG.root",
+ "FileName":"root://eoslhcb.cern.ch//eos/lhcb/user/l/lbel/TD_DsK3fb_MC/Lb_LambdacK_Up/BDTG/B2DX_MC_15164031_Up_BDTG_Bs.root",
  "TreeName":"DecayTree"}
 {"Mode":"Lb2LcPi",
- "FileName":"/afs/cern.ch/work/a/adudziak/public/MCJanuary2014/MergedTree_Lb2LcPi_Lc2pKPi_BsHypo_BDTG.root",
+ "FileName":"root://eoslhcb.cern.ch//eos/lhcb/user/l/lbel/TD_DsK3fb_MC/Lb_Lambdacpi_Up/BDTG/B2DX_MC_15164001_Up_BDTG_Bs.root",
  "TreeName":"DecayTree"}
 {"Mode":"Bd2DPi",
- "FileName":"/afs/cern.ch/work/a/adudziak/public/MCJanuary2014/MergedTree_Bd2DPi_D2KPiPi_BsHypo_BDTG.root",
+ "FileName":"root://eoslhcb.cern.ch//eos/lhcb/user/l/lbel/TD_DsK3fb_MC/Bd_D-pi+_Kpipi_CPV_Up/BDTG/B2DX_MC_11164003_Up_BDTG_Bs.root",
+ "TreeName":"DecayTree"}
+###
+
+#MC FileName KKPi MD 2012
+{"Mode":"Bd2DK",
+ "FileName":"root://eoslhcb.cern.ch//eos/lhcb/user/l/lbel/TD_DsK3fb_MC/Bd_D-K+_Dn/BDTG/B2DX_MC_11264011_Dn_BDTG_Bs.root",
+ "TreeName":"DecayTree"}
+{"Mode":"Bs2DsPi",
+ "FileName":"root://eoslhcb.cern.ch//eos/lhcb/user/l/lbel/TD_DsK3fb_MC/Bs_Dspi_KKpi_Dn/BDTG/B2DX_MC_13264021_Dn_BDTG_Bs.root",
+ "TreeName":"DecayTree"}
+{"Mode":"Bs2DsRho",
+ "FileName":"root://eoslhcb.cern.ch//eos/lhcb/user/l/lbel/TD_DsK3fb_MC/Bs_Dsrho_KKpi_Dn/BDTG/B2DX_MC_13264421_Dn_BDTG_Bs.root",
+ "TreeName":"DecayTree"}
+{"Mode":"Bs2DsstPi",
+ "FileName":"root://eoslhcb.cern.ch//eos/lhcb/user/l/lbel/TD_DsK3fb_MC/Bs_Dsstpi_KKpi_Dn/BDTG/B2DX_MC_13264221_Dn_BDTG_Bs.root",
+ "TreeName":"DecayTree"}
+{"Mode":"Lb2Dsp",
+ "FileName":"root://eoslhcb.cern.ch//eos/lhcb/user/l/lbel/TD_DsK3fb_MC/Lb_Dsp_K+K-pi-_Dn/BDTG/B2DX_MC_15164041_Dn_BDTG_Bs.root",
+ "TreeName":"DecayTree"}
+{"Mode":"Lb2Dsstp",
+ "FileName":"root://eoslhcb.cern.ch//eos/lhcb/user/l/lbel/TD_DsK3fb_MC/Lb_Dsstp_K+K-pi-_Dn/BDTG/B2DX_MC_15364211_Dn_BDTG_Bs.root",
+ "TreeName":"DecayTree"}
+{"Mode":"Lb2LcK",
+ "FileName":"root://eoslhcb.cern.ch//eos/lhcb/user/l/lbel/TD_DsK3fb_MC/Lb_LambdacK_Dn/BDTG/B2DX_MC_15164031_Dn_BDTG_Bs.root",
+ "TreeName":"DecayTree"}
+{"Mode":"Lb2LcPi",
+ "FileName":"root://eoslhcb.cern.ch//eos/lhcb/user/l/lbel/TD_DsK3fb_MC/Lb_Lambdacpi_Dn/BDTG/B2DX_MC_15164001_Dn_BDTG_Bs.root",
+ "TreeName":"DecayTree"}
+{"Mode":"Bd2DPi",
+ "FileName":"root://eoslhcb.cern.ch//eos/lhcb/user/l/lbel/TD_DsK3fb_MC/Bd_D-pi+_Kpipi_CPV_Dn/BDTG/B2DX_MC_11164003_Dn_BDTG_Bs.root",
+ "TreeName":"DecayTree"}
+###
+
+#MC FileName KKPi MU 2012
+{"Mode":"Bd2DK",
+ "FileName":"root://eoslhcb.cern.ch//eos/lhcb/user/l/lbel/TD_DsK3fb_MC/Bd_D-K+_Up/BDTG/B2DX_MC_11264011_Up_BDTG_Bs.root",
+ "TreeName":"DecayTree"}
+{"Mode":"Bs2DsPi",
+ "FileName":"root://eoslhcb.cern.ch//eos/lhcb/user/l/lbel/TD_DsK3fb_MC/Bs_Dspi_KKpi_Up/BDTG/B2DX_MC_13264021_Up_BDTG_Bs.root",
+ "TreeName":"DecayTree"}
+{"Mode":"Bs2DsRho",
+ "FileName":"root://eoslhcb.cern.ch//eos/lhcb/user/l/lbel/TD_DsK3fb_MC/Bs_Dsrho_KKpi_Up/BDTG/B2DX_MC_13264421_Up_BDTG_Bs.root",
+ "TreeName":"DecayTree"}
+{"Mode":"Bs2DsstPi",
+ "FileName":"root://eoslhcb.cern.ch//eos/lhcb/user/l/lbel/TD_DsK3fb_MC/Bs_Dsstpi_KKpi_Up/BDTG/B2DX_MC_13264221_Up_BDTG_Bs.root",
+ "TreeName":"DecayTree"}
+{"Mode":"Lb2Dsp",
+ "FileName":"root://eoslhcb.cern.ch//eos/lhcb/user/l/lbel/TD_DsK3fb_MC/Lb_Dsp_K+K-pi-_Up/BDTG/B2DX_MC_15164041_Up_BDTG_Bs.root",
+ "TreeName":"DecayTree"}
+{"Mode":"Lb2Dsstp",
+ "FileName":"root://eoslhcb.cern.ch//eos/lhcb/user/l/lbel/TD_DsK3fb_MC/Lb_Dsstp_K+K-pi-_Up/BDTG/B2DX_MC_15364211_Up_BDTG_Bs.root",
+ "TreeName":"DecayTree"}
+{"Mode":"Lb2LcK",
+ "FileName":"root://eoslhcb.cern.ch//eos/lhcb/user/l/lbel/TD_DsK3fb_MC/Lb_LambdacK_Up/BDTG/B2DX_MC_15164031_Up_BDTG_Bs.root",
+ "TreeName":"DecayTree"}
+{"Mode":"Lb2LcPi",
+ "FileName":"root://eoslhcb.cern.ch//eos/lhcb/user/l/lbel/TD_DsK3fb_MC/Lb_Lambdacpi_Up/BDTG/B2DX_MC_15164001_Up_BDTG_Bs.root",
+ "TreeName":"DecayTree"}
+{"Mode":"Bd2DPi",
+ "FileName":"root://eoslhcb.cern.ch//eos/lhcb/user/l/lbel/TD_DsK3fb_MC/Bd_D-pi+_Kpipi_CPV_Up/BDTG/B2DX_MC_11164003_Up_BDTG_Bs.root",
  "TreeName":"DecayTree"}
 ###
 
@@ -243,77 +339,89 @@ MomVsnTr_Comp_DPi_Up_hist.root
  "TreeName":"DecayTree"}
 ###
 
-#Kfactor MC FileName MU
-{"Mode":"Bd2DK",
- "FileName":"/afs/cern.ch/work/a/adudziak/public/MCJanuary2014/MergedTree_Bd2DK_D2KPiPi_BsHypo_BDTG.root",
- "TreeName":"DecayTree"}
-{"Mode":"Bs2DsPi",
- "FileName":"/afs/cern.ch/work/a/adudziak/public/MCJanuary2014/MergedTree_Bs2DsPi_Ds2KKPi_BsHypo_BDTG.root",
- "TreeName":"DecayTree"}
-{"Mode":"Bs2DsRho",
- "FileName":"/afs/cern.ch/work/a/adudziak/public/MCJanuary2014/MergedTree_Bs2DsRho_Ds2KKPi_BsHypo_BDTG.root",
- "TreeName":"DecayTree"}
-{"Mode":"Bs2DsstPi",
- "FileName":"/afs/cern.ch/work/a/adudziak/public/MCJanuary2014/MergedTree_Bs2DsstPi_Ds2KKPi_BsHypo_BDTG.root",
- "TreeName":"DecayTree"}
-{"Mode":"Lb2Dsp",
- "FileName":"/afs/cern.ch/work/a/adudziak/public/MCJanuary2014/MergedTree_Lb2Dsp_Ds2KKPi_BsHypo_BDTG.root",
- "TreeName":"DecayTree"}
-{"Mode":"Lb2Dsstp",
- "FileName":"/afs/cern.ch/work/a/adudziak/public/MCJanuary2014/MergedTree_Lb2Dsstp_Ds2KKPi_BsHypo_BDTG.root",
- "TreeName":"DecayTree"}
-{"Mode":"Lb2LcK",
- "FileName":"/afs/cern.ch/work/a/adudziak/public/MCJanuary2014/MergedTree_Lb2LcK_Lc2pKPi_BsHypo_BDTG.root",
- "TreeName":"DecayTree"}
-{"Mode":"Lb2LcPi",
- "FileName":"/afs/cern.ch/work/a/adudziak/public/MCJanuary2014/MergedTree_Lb2LcPi_Lc2pKPi_BsHypo_BDTG.root",
- "TreeName":"DecayTree"}
-{"Mode":"Bd2DPi",
- "FileName":"/afs/cern.ch/work/a/adudziak/public/MCJanuary2014/MergedTree_Bd2DPi_D2KPiPi_BsHypo_BDTG.root",
- "TreeName":"DecayTree"}
-###
-
 
 #Signal Bs2DsK KstK 2011
-/afs/cern.ch/work/a/adudziak/public/MCJanuary2014/
-MergedTree_Bs2DsK_Ds2KKPi_BsHypo_OFFLINE_DsK_KstK.root
-MergedTree_Bs2DsK_Ds2KKPi_BsHypo_OFFLINE_DsK_KstK.root
-DecayTree;1
-DecayTree;1
+root://eoslhcb.cern.ch//eos/lhcb/user/a/adudziak/Bs2DsK_3fbCPV/MC/
+B2DX_MC_Dn_OFFLINE_Bs_DsK_KstK.root
+B2DX_MC_Up_OFFLINE_Bs_DsK_KstK.root
+DecayTree
+DecayTree
 ###
 
 #Signal Bs2DsK PhiPi 2011
-/afs/cern.ch/work/a/adudziak/public/MCJanuary2014/
-MergedTree_Bs2DsK_Ds2KKPi_BsHypo_OFFLINE_DsK_PhiPi.root
-MergedTree_Bs2DsK_Ds2KKPi_BsHypo_OFFLINE_DsK_PhiPi.root
-DecayTree;1
-DecayTree;1
+root://eoslhcb.cern.ch//eos/lhcb/user/a/adudziak/Bs2DsK_3fbCPV/MC/
+B2DX_MC_Dn_OFFLINE_Bs_DsK_phipi.root
+B2DX_MC_Up_OFFLINE_Bs_DsK_phipi.root
+DecayTree
+DecayTree
 ###
- 
+
 #Signal Bs2DsK NonRes 2011
-/afs/cern.ch/work/a/adudziak/public/MCJanuary2014/
-MergedTree_Bs2DsK_Ds2KKPi_BsHypo_OFFLINE_DsK_NonRes.root
-MergedTree_Bs2DsK_Ds2KKPi_BsHypo_OFFLINE_DsK_NonRes.root
-DecayTree;1
-DecayTree;1
+root://eoslhcb.cern.ch//eos/lhcb/user/a/adudziak/Bs2DsK_3fbCPV/MC/
+B2DX_MC_Dn_OFFLINE_Bs_DsK_nonres.root
+B2DX_MC_Up_OFFLINE_Bs_DsK_nonres.root
+DecayTree
+DecayTree
 ###
 
 
 #Signal Bs2DsK KPiPi 2011
-/afs/cern.ch/work/a/adudziak/public/MCJanuary2014/
-MergedTree_Bs2DsK_Ds2KPiPi_BsHypo_OFFLINE_DsK_KPiPi.root
-MergedTree_Bs2DsK_Ds2KPiPi_BsHypo_OFFLINE_DsK_KPiPi.root
-DecayTree;1
-DecayTree;1
+root://eoslhcb.cern.ch//eos/lhcb/user/a/adudziak/Bs2DsK_3fbCPV/MC/
+B2DX_MC_Dn_OFFLINE_Bs_DsK_Kpipi.root
+B2DX_MC_Up_OFFLINE_Bs_DsK_Kpipi.root
+DecayTree
+DecayTree
 ###
 
 #Signal Bs2DsK PiPiPi 2011
-/afs/cern.ch/work/a/adudziak/public/MCJanuary2014/
-MergedTree_Bs2DsK_Ds2PiPiPi_BsHypo_OFFLINE_DsK_PiPiPi.root
-MergedTree_Bs2DsK_Ds2PiPiPi_BsHypo_OFFLINE_DsK_PiPiPi.root
-DecayTree;1
-DecayTree;1
+root://eoslhcb.cern.ch//eos/lhcb/user/a/adudziak/Bs2DsK_3fbCPV/MC/
+B2DX_MC_Dn_OFFLINE_Bs_DsK_pipipi.root
+B2DX_MC_Up_OFFLINE_Bs_DsK_pipipi.root
+DecayTree
+DecayTree
 ###
+
+#Signal Bs2DsK KstK 2012
+root://eoslhcb.cern.ch//eos/lhcb/user/a/adudziak/Bs2DsK_3fbCPV/MC/
+B2DX_MC_Dn_OFFLINE_Bs_DsK_KstK.root
+B2DX_MC_Up_OFFLINE_Bs_DsK_KstK.root
+DecayTree
+DecayTree
+###
+
+#Signal Bs2DsK PhiPi 2012
+root://eoslhcb.cern.ch//eos/lhcb/user/a/adudziak/Bs2DsK_3fbCPV/MC/
+B2DX_MC_Dn_OFFLINE_Bs_DsK_phipi.root
+B2DX_MC_Up_OFFLINE_Bs_DsK_phipi.root
+DecayTree
+DecayTree
+###
+
+#Signal Bs2DsK NonRes 2012
+root://eoslhcb.cern.ch//eos/lhcb/user/a/adudziak/Bs2DsK_3fbCPV/MC/
+B2DX_MC_Dn_OFFLINE_Bs_DsK_nonres.root
+B2DX_MC_Up_OFFLINE_Bs_DsK_nonres.root
+DecayTree
+DecayTree
+###
+
+
+#Signal Bs2DsK KPiPi 2012
+root://eoslhcb.cern.ch//eos/lhcb/user/a/adudziak/Bs2DsK_3fbCPV/MC/
+B2DX_MC_Dn_OFFLINE_Bs_DsK_Kpipi.root
+B2DX_MC_Up_OFFLINE_Bs_DsK_Kpipi.root
+DecayTree
+DecayTree
+###
+
+#Signal Bs2DsK PiPiPi 2012
+root://eoslhcb.cern.ch//eos/lhcb/user/a/adudziak/Bs2DsK_3fbCPV/MC/
+B2DX_MC_Dn_OFFLINE_Bs_DsK_pipipi.root
+B2DX_MC_Up_OFFLINE_Bs_DsK_pipipi.root
+DecayTree
+DecayTree
+###
+
 
 
 #PID2m2

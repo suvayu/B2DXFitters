@@ -2233,11 +2233,11 @@ namespace GeneralUtils {
       {
 	if ( decay.Contains("Pi") == true )
 	  {
-            label = "#font[132]{Companion L(#pi#kern[0.1]{/#kern[0.1]{K}})}";
+            label = "#font[132]{Companion ln(|L(#pi#kern[0.1]{/#kern[0.1]{K}})|)}";
 	  }
 	else 
 	  {
-	    label = "#font[132]{Companion ln(L(K#kern[0.1]{/#kern[0.1]{#pi}}))}";
+	    label = "#font[132]{Companion ln(|L(K#kern[0.1]{/#kern[0.1]{#pi}})|)}";
 	  }
       }
     else if ( var.Contains("lab2") == true  ||  var.Contains("Ds_MM") == true  ||  var.Contains("CharmMass") == true)

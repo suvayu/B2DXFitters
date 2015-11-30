@@ -490,7 +490,18 @@ namespace Bs2Dsh2011TDAnaModels {
     if ( num > 2 ) { listFrac->add(*fracPIDK2); if (debug == true ) { std::cout<<"[INFO] Adding fraction: "<<fracPIDK2->GetName()<<std::endl;}}
 
     TString pdfName = typemode+"_"+varName+"_PIDKShape_"+samplemode;
-    pdf = new RooAddPdf( pdfName.Data(), pdfName.Data(), *listPDF, *listFrac, true);
+    if ( num == 2 )
+      {
+	pdf = new RooAddPdf( pdfName.Data(), pdfName.Data(), *listPDF, *listFrac);
+      }
+    else if ( num == 3 )
+      {
+	pdf = new RooAddPdf( pdfName.Data(), pdfName.Data(), *listPDF, *listFrac, true);
+      }
+    else
+      {
+	pdf = pdf_pidk[0]; 
+      }
     CheckPDF(pdf, debug);
 
     return pdf; 
@@ -788,20 +799,27 @@ namespace Bs2Dsh2011TDAnaModels {
     TString name="PhysBkg"+mode+"Pdf_m_"+samplemode+"_Tot";
     if ( dim == 1 )
       {
-	if ( debug == true ) { std::cout<<"1D "; }
+	if ( debug == true ) { std::cout<<"[INFO] 1 dimensional pdf "; }
 	pdf_Tot = new RooProdPdf(name.Data(), name.Data(), RooArgList(*pdf_Bs));
       }
     else if ( dim == 2) 
       {
-	if (debug == true ) { std::cout<<"2D "; }
+	if (debug == true ) { std::cout<<"[INFO] 2 dimensional pdf "; }
 	pdf_Tot = new RooProdPdf(name.Data(), name.Data(), RooArgList(*pdf_Bs,*pdf_Ds));
       }
     else if ( dim == 3 )
       {
-	if (debug == true ) { std::cout<<"3D "; }
+	if (debug == true ) { std::cout<<"[INFO] 3 dimensional pdf "; }
 	pdf_Tot = new RooProdPdf(name.Data(), name.Data(), RooArgList(*pdf_Bs,*pdf_Ds,*pdf_PIDK));
       }
     CheckPDF( pdf_Tot, debug );
+    if ( debug )
+      {
+	std::cout<<"[INFO] with components: "<<std::endl;
+	if ( pdf_Bs != NULL ) { std::cout<<"[INFO]   BeautyMass: "<<pdf_Bs->GetName()<<std::endl; } 
+	if ( pdf_Ds != NULL ) { std::cout<<"[INFO]   CharmMass: "<<pdf_Ds->GetName()<<std::endl; }
+	if ( pdf_PIDK != NULL ) { std::cout<<"[INFO]   BacPIDK: "<<pdf_PIDK->GetName()<<std::endl; }
+      }
     return pdf_Tot; 
   }
 
@@ -965,9 +983,9 @@ namespace Bs2Dsh2011TDAnaModels {
         if ( dim > 1 ) { pdf_pDs.push_back(mergePdf(pdf_pDs[3], pdf_pDs[1], "pol", y[1], workInt, debug));}
         if ( dim > 2 ) { pdf_pPIDK.push_back(mergePdf(pdf_pPIDK[3], pdf_pPIDK[1], "pol", y[1], workInt, debug));}
 
-        pdf_Bs = mergePdf(pdf_pBs[4], pdf_pBs[5], "year", "run1", workInt, debug);
-        if ( dim > 1 ) { pdf_Ds = mergePdf(pdf_pDs[4], pdf_pDs[5], "year", "run1", workInt, debug);}
-        if ( dim > 2 ) { pdf_PIDK = mergePdf(pdf_pPIDK[4], pdf_pPIDK[5], "year", "run1", workInt, debug);}
+        pdf_Bs = mergePdf(pdf_pBs[5], pdf_pBs[4], "year", "run1", workInt, debug);
+        if ( dim > 1 ) { pdf_Ds = mergePdf(pdf_pDs[5], pdf_pDs[4], "year", "run1", workInt, debug);}
+        if ( dim > 2 ) { pdf_PIDK = mergePdf(pdf_pPIDK[5], pdf_pPIDK[4], "year", "run1", workInt, debug);}
       }
     else
       {
@@ -1025,7 +1043,7 @@ namespace Bs2Dsh2011TDAnaModels {
 	      {
 		pdf_part.push_back(buildMassPdfSpecBkgMDFit(work, smp, typemode, typemodeDs, false, debug));
 	      }
-            if ( dim == 1)
+            if ( dim == 2)
               {
                 if ( signalDs == "" )
                   {
@@ -1067,7 +1085,7 @@ namespace Bs2Dsh2011TDAnaModels {
 	  {
 	    pdf_part.push_back(mergePdf(pdf_part[2], pdf_part[0], "pol", y[0], workInt, debug));
 	    pdf_part.push_back(mergePdf(pdf_part[3], pdf_part[1], "pol", y[1], workInt, debug));
-	    pdf = mergePdf(pdf_part[4], pdf_part[5], "year", "run1", workInt, debug);
+	    pdf = mergePdf(pdf_part[5], pdf_part[4], "year", "run1", workInt, debug);
 	  }
 	else
 	  {
@@ -1799,7 +1817,7 @@ namespace Bs2Dsh2011TDAnaModels {
 		
 		if ( dim > 2 )
 		  {
-		    if ( typemode == "CombBkg") 
+		    if ( typemode == "CombBkg" || typemode == "Combinatorial" ) 
 		      {
 			pdf_pPIDK.push_back(buildComboPIDKPDF(pidkVar, work, workInt, smp, "CombBkg", pidk, merge,debug));
 		      }
@@ -1836,9 +1854,9 @@ namespace Bs2Dsh2011TDAnaModels {
         if ( dim > 1 ) { pdf_pDs.push_back(mergePdf(pdf_pDs[3], pdf_pDs[1], "pol", y[1], workInt, debug));}
         if ( dim > 2 ) { pdf_pPIDK.push_back(mergePdf(pdf_pPIDK[3], pdf_pPIDK[1], "pol", y[1], workInt, debug));}
 
-	pdf_Bs = mergePdf(pdf_pBs[4], pdf_pBs[5], "year", "run1", workInt, debug);
-        if ( dim > 1 ) { pdf_Ds = mergePdf(pdf_pDs[4], pdf_pDs[5], "year", "run1", workInt, debug);}
-        if ( dim > 2 ) { pdf_PIDK = mergePdf(pdf_pPIDK[4], pdf_pPIDK[5], "year", "run1", workInt, debug);}
+	pdf_Bs = mergePdf(pdf_pBs[5], pdf_pBs[4], "year", "run1", workInt, debug);
+        if ( dim > 1 ) { pdf_Ds = mergePdf(pdf_pDs[5], pdf_pDs[4], "year", "run1", workInt, debug);}
+        if ( dim > 2 ) { pdf_PIDK = mergePdf(pdf_pPIDK[5], pdf_pPIDK[4], "year", "run1", workInt, debug);}
 	
       }
     else 

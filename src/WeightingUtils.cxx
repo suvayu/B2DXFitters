@@ -106,38 +106,51 @@ namespace WeightingUtils {
     if ( type.Contains("Comb") == true && type.Contains("Pion") == true)
       {
         if ( type.Contains("Down") == true || type.Contains("down") == true) { nm = "down"; } else {  nm = "up"; }
-        name="dataCombBkg_"+nm;
+	if ( type.Contains("2011") == true ) { nm = nm +"_2011"; } 
+	else if ( type.Contains("2012") == true ) { nm = nm+"_2012";}
+	else { nm = nm+"_unknown"; } 
+        name="name";
         //name = "dataSetBsDsPi_"+nm+"_hhhpi0";
-	histName = "hist2D_Comb_"+nm;
-        histNameR = "hist2D_Comb_ratio_"+nm;
+	histName = "hist2D_CombPi_"+nm;
+        histNameR = "hist2D_CombPi_ratio_"+nm;
 	nameCalib = "CalibSample_CombPi_"+nm; 
       }
     else if ( type.Contains("Comb") == true && type.Contains("Kaon") == true)
       {
         if ( type.Contains("Down") == true || type.Contains("down") == true) { nm = "down"; } else {  nm = "up"; }
-        name="dataCombBkg_"+nm;
+        if ( type.Contains("2011") == true ) { nm = nm +"_2011"; }
+        else if ( type.Contains("2012") == true ) { nm = nm+"_2012";}
+	else { nm = nm+"_unknown"; }
+	name="name";
         //name = "dataSetBsDsPi_"+nm+"_hhhpi0";
-	histName = "hist2DK_Comb_"+nm;
-        histNameR = "hist2DK_Comb_ratio_"+nm;
+	histName = "hist2D_CombK_"+nm;
+        histNameR = "hist2D_CombK_ratio_"+nm;
 	nameCalib = "CalibSample_CombK_"+nm;
       }
     else if ( type.Contains("Comb") == true && type.Contains("Proton") == true)
       {
         if ( type.Contains("Down") == true || type.Contains("down") == true) { nm = "down"; } else {  nm = "up"; }
-        name="dataCombBkg_"+nm;
-        histName = "hist2DP_Comb_"+nm;
-        histNameR = "hist2DP_Comb_ratio_"+nm;
+        if ( type.Contains("2011") == true ) { nm = nm +"_2011"; }
+        else if ( type.Contains("2012") == true ) { nm = nm+"_2012";}
+	else { nm = nm+"_unknown"; }
+
+	name="name";
+        histName = "hist2D_CombP_"+nm;
+        histNameR = "hist2D_CombP_ratio_"+nm;
 	nameCalib = "CalibSample_CombP_"+nm;
       }
     else if ( type.Contains("DPi") == true)
       {
         if ( type.Contains("Down") == true || type.Contains("down") == true) { nm = "down"; } else {  nm = "up"; }
-	year = CheckDataYear(type,debug);
-	if ( year != "") { year = "_"+year; }
+	if ( type.Contains("2011") == true ) { year = "_2011"; }
+        else if ( type.Contains("2012") == true ) { year = "_2012";}
+	else { year = "unknown"; } 
+	sample = CheckPolarity(type,debug);
 	name = "dataSet_Miss_"+nm+"_kpipi"+year;
         histName = "hist2D_Miss_"+nm;
         histNameR = "hist2D_Miss_ratio_"+nm;
 	nameCalib = "CalibSample_Miss_"+nm;
+	nm = "Bd2DPi_"+sample+"_kpipi"+year; 
       }
     else if( type.Contains("Bs2DsPi") == true && type.Contains("MC") == true )
       {
@@ -556,7 +569,22 @@ namespace WeightingUtils {
     //legend2->Draw("same");
     ch_RW->Update();
     ch_RW->SaveAs(save.Data());
-    
+
+    /*
+    delete dataMC;
+    delete dataMCNW;
+    delete legend;
+    delete legend2; 
+    delete lhcbtext;
+    delete tit; 
+    delete ch_RW;
+    delete mframe_PID;
+    delete mframe_Var2;
+    delete mframe_Var1; 
+    delete grMC;
+    delete grMCRW;
+    delete grMCNW;
+    delete gr;*/ 
   }
   
   RooAbsPdf* FitPDFShapeForPIDBsDsKPi(RooDataSet* data, RooRealVar* Var, TString& samplemode, PlotSettings* plotSet, bool debug)
@@ -857,7 +885,7 @@ namespace WeightingUtils {
     std::vector <TH2F*> hist2Data;
     std::vector <TH2F*> hist2Ratio;
     RooDataSet* dataCalib = NULL;
-    dataCalib = calib.PrepareDataSet( Var1, Var2, plotSet, debug); // GetDataCalibSample( calib, Var1, Var2, plotSet, debug );
+    dataCalib = calib.PrepareDataSet( Var1, Var2, NULL, plotSet, debug); // GetDataCalibSample( calib, Var1, Var2, plotSet, debug );
     TString histNameCalib = "hist2D_Calib";
     TH2F* histCalib = Get2DHist(dataCalib,Var1, Var2, md->GetBin(0), md->GetBin(1), histNameCalib, debug);
     Save2DHist(histCalib, plotSet);
@@ -936,10 +964,18 @@ namespace WeightingUtils {
 	    //Save2DHist(hist2Data[sizehist-1], ext);
 	    //Save2DHist(hist2Ratio[sizehist-1], ext);
 	    work->import(*hist2Ratio[sizehist-1]);
-	    work->import(*hist2Data[sizehist-1]); 
+	    work->import(*hist2Data[sizehist-1]);
+	    delete data;
 	  }
       }
+
+    delete Var1;
+    delete Var2; 
+    delete dataCalib;
+    delete histCalib; 
+
   return work;
+
 
   }
 
@@ -1004,7 +1040,7 @@ namespace WeightingUtils {
 
     TString ext = "pdf";
 
-    RooDataSet* dataC = calib.GetData(); 
+    RooDataSet* dataC = calib.PrepareDataSet( Var1, Var2, lab1_PIDK, plotSet, debug);
     if (debug == true ) { dataC->Print("v"); }
 
     RooRealVar* CalibWeight = NULL;
@@ -1020,15 +1056,15 @@ namespace WeightingUtils {
       {
 	CalibWeight = (RooRealVar*)dataC->get()->find(swlabel.Data());
       }
-    CalibPIDK = (RooRealVar*)dataC->get()->find(nameDLL.Data());
-    CalibVar1 = (RooRealVar*)dataC->get()->find(nVar1.Data());
-    CalibVar2 = (RooRealVar*)dataC->get()->find(nVar2.Data());
+    CalibPIDK = (RooRealVar*)dataC->get()->find(namePID.Data());
+    CalibVar1 = (RooRealVar*)dataC->get()->find(nameVar1.Data());
+    CalibVar2 = (RooRealVar*)dataC->get()->find(nameVar2.Data());
 
     if (debug == true )
       {
-        if ( CalibVar1 != NULL ) { std::cout<<"[INFO] Read "<<nVar1<<" from "<<dataC->GetName()<<std::endl; } else { std::cout<<"[ERROR] Cannot read variable "<<std::endl;}
-        if ( CalibVar2 != NULL ) { std::cout<<"[INFO] Read "<<nVar2<<" from "<<dataC->GetName()<<std::endl; } else{ std::cout<<"[ERROR] Cannot read variable "<<std::endl;}
-	if ( CalibPIDK != NULL ) { std::cout<<"[INFO] Read "<<nameDLL<<" from "<<dataC->GetName()<<std::endl; } else{ std::cout<<"[ERROR] Cannot read variable "<<std::endl;}
+        if ( CalibVar1 != NULL ) { std::cout<<"[INFO] Read "<<nameVar1<<" from "<<dataC->GetName()<<std::endl; } else { std::cout<<"[ERROR] Cannot read variable "<<std::endl;}
+        if ( CalibVar2 != NULL ) { std::cout<<"[INFO] Read "<<nameVar2<<" from "<<dataC->GetName()<<std::endl; } else{ std::cout<<"[ERROR] Cannot read variable "<<std::endl;}
+	if ( CalibPIDK != NULL ) { std::cout<<"[INFO] Read "<<namePID<<" from "<<dataC->GetName()<<std::endl; } else{ std::cout<<"[ERROR] Cannot read variable "<<std::endl;}
         if ( CalibWeight != NULL ) { std::cout<<"[INFO] Read "<<swlabel<<" from "<<dataC->GetName()<<std::endl; }
         else{
           if ( dataC->isWeighted() == true ) { std::cout<<"[INFO] Weight directly taken from RooDataSet"<<std::endl; }
@@ -1045,7 +1081,7 @@ namespace WeightingUtils {
     TString l3 = "Calib weighted";
 
     RooDataSet* dataCalib = NULL;
-    dataCalib = calib.PrepareDataSet( Var1, Var2, plotSet, debug); 
+    dataCalib = calib.PrepareDataSet( Var1, Var2, NULL, plotSet, debug); 
     
     TString histNameCalib = "hist2D_Calib";
     TH2F* histCalib = Get2DHist(dataCalib,Var1, Var2, bin1, bin2, histNameCalib, debug);
@@ -1127,7 +1163,7 @@ namespace WeightingUtils {
 
 		if( type.Contains("MC") == true && ( type.Contains("Bs2DsPi")==true || type.Contains("Bs2DsstPi") == true ))
 		  {
-		    PID3 = -PID3;
+		    //PID3 = -PID3;
 		    lab1_PIDK->setVal(PID3);
 		  }
 		else
@@ -1169,8 +1205,16 @@ namespace WeightingUtils {
 	    RooBinned1DQuinticBase<RooAbsPdf>* pdfPID2 = NULL;
 	    if ( (type.Contains("Pi") == true && type.Contains("MC") == true) )
               {
-                binHist = 200;
-		histPID = dataRW->createHistogram(namehist.Data(),*lab1_PIDK, RooFit::Binning(200,PID_down,PID_up));
+                if ( type.Contains("Pion") )
+		  {
+		    histPID = dataRW->createHistogram(namehist.Data(),*lab1_PIDK, RooFit::Binning(100, PID_down, PID_up)); //45,log(0.0001),log(-PID_down)));                   
+		    binHist = 100;
+		  }
+		else
+		  {
+		    histPID = dataRW->createHistogram(namehist.Data(),*lab1_PIDK, RooFit::Binning(50, PID_down, PID_up));
+		    binHist = 50;
+		  }
 	      }
             else
               {
@@ -1266,9 +1310,23 @@ namespace WeightingUtils {
                         work->import(*pdfPID2);
 		      }
 		  }
+		delete pdfPID2; 
+		delete dataRW; 
+		delete histPID; 
 	      }
 	  }
       }
+    delete Var1;
+    delete Var2;
+    delete lab1_PIDK;
+    delete dataC;
+    delete CalibWeight;
+    delete CalibVar1;
+    delete CalibVar2;
+    delete CalibPIDK;
+    delete dataCalib;
+    delete histCalib;
+    
     return work;
   } 
   
@@ -1310,6 +1368,8 @@ namespace WeightingUtils {
     Double_t Var1_up = md->GetRangeUp(md->GetVar(0));
     Double_t Var2_down = md->GetRangeDown(md->GetVar(1));
     Double_t Var2_up = md->GetRangeUp(md->GetVar(1));
+    Double_t PID_up = md->GetPIDKRangeUp();
+    Double_t PID_down = md->GetPIDKRangeDown();
     Int_t bin1 = md->GetBin(0);
     Int_t bin2 = md->GetBin(1);
 
@@ -1318,6 +1378,7 @@ namespace WeightingUtils {
 
     RooRealVar* Var1 = new RooRealVar(nameVar1.Data(),nameVar1.Data(),log(Var1_down), log(Var1_up));
     RooRealVar* Var2 = new RooRealVar(nameVar2.Data(),nameVar2.Data(),log(Var2_down), log(Var2_up)); //-5,6);
+    RooRealVar* lab1_PIDK = new RooRealVar(namePID.Data(), namePID.Data(), PID_down, PID_up);
 
     TString label1, label2;
     if ( nameVar1 != nameVar2 )
@@ -1337,7 +1398,7 @@ namespace WeightingUtils {
 
     std::vector <TH2F*> hist2Data;
     std::vector <TH2F*> hist2Ratio;
-    RooDataSet* dataCalib = calib.PrepareDataSet( Var1, Var2, plotSet, debug);
+    RooDataSet* dataCalib = calib.PrepareDataSet( Var1, Var2, lab1_PIDK, plotSet, debug);
     TString histNameCalib = "hist2D_Calib";
     TH2F* histCalib = Get2DHist(dataCalib,Var1, Var2, bin1, bin2, histNameCalib, debug);
     //Save2DHist(histCalib, plotSet);
@@ -1367,12 +1428,19 @@ namespace WeightingUtils {
 	    name = calibComb.GetDataName();
 	    name = name +"_"+pol+"_"+dmode+"_"+year;
 	    data = GetDataSet(work,name,debug);
-	    TString newName = "CalibSampleCombinatorial_"+pol+"_"+dmode+"_"+year;
-	    data = (RooDataSet*) data->Clone(newName.Data()); 
+	    TString pre = "Comb"; 
+	    if ( type.Contains("Kaon") == true ) { pre = "CombK"; }
+	    else if ( type.Contains("Pion") == true ) { pre = "CombPi"; }
+	    else if ( type.Contains("Proton") == true ) { pre = "CombP"; }
+	    histName = "hist2D_"+pre+"_"+pol+"_"+dmode+"_"+year;
+	    histNameR = "hist2D_"+pre+"_ratio_"+pol+"_"+dmode+"_"+year;
+	    TString newName = "CalibSampleCombinatorial_"+pre+"_"+pol+"_"+dmode+"_"+year;
+            data = (RooDataSet*) data->Clone(newName.Data());
+
 	  }
 	else
 	  {
-	    data = calibComb.PrepareDataSet( Var1, Var2, plotSet, debug);
+	    data = calibComb.PrepareDataSet( Var1, Var2, NULL, plotSet, debug);
 	  }
       }
     else
@@ -1380,11 +1448,14 @@ namespace WeightingUtils {
 	data = GetDataSet(work,name,debug);
       }
 
-    if ( type.Contains("MC") == true )
-      { data = new RooDataSet(data->GetName(), data->GetTitle(), *(data->get()), RooFit::Import(*data), RooFit::WeightVar("weights"));}
+    //if ( type.Contains("MC") == true )
+    data = new RooDataSet(data->GetName(), data->GetTitle(), *(data->get()), RooFit::Import(*data), RooFit::WeightVar("weights"));
 
     double scaleA = dataCalib->sumEntries()/data->sumEntries();
-    
+    if ( debug )
+      {
+	std::cout<<"[INFO] scale = "<<scaleA<<"  = ( "<<dataCalib->sumEntries()<<" / "<< data->sumEntries() <<" ) "<<std::endl; 
+      }
     hist2Data.push_back(Get2DHist(data,Var1, Var2, bin1, bin2, histName, debug));
     hist2Ratio.push_back(new TH2F(histNameR.Data(),histNameR.Data(),
 				  bin1,log(Var1_down),log(Var1_up),
@@ -1409,9 +1480,9 @@ namespace WeightingUtils {
 	    if ( binMC == 0 || binData < 0 || binData == 0 ) { binRatio = 0; binRatioErr=0; }
 	    else {
 	      binRatio = binData/binMC*scaleA;
-	      binRatioErr = binRatio*sqrt((binDataErr*binDataErr)/(binData*binData)+(binMCErr*binMCErr)/(binMC*binMC));
+	      binRatioErr = binRatio*sqrt(((binDataErr*binDataErr)/(binData*binData))+((binMCErr*binMCErr)/(binMC*binMC)));
 	    }
-	    //if( debug == true) std::cout<<"bin1D: "<<k<<" bin2D: "<<j<<" scale: "<<scaleA<<" binMC: "<<binMC<<" +/- "<<binMCErr<<" binData "<<binData<<" +/- "<<binDataErr<<" Ratio: "<<binRatio<<" +/- "<<binRatioErr<<std::endl;
+	    if( debug == true) std::cout<<"bin1D: "<<k<<" bin2D: "<<j<<" scale: "<<scaleA<<" binMC: "<<binMC<<" +/- "<<binMCErr<<" binData "<<binData<<" +/- "<<binDataErr<<" Ratio: "<<binRatio<<" +/- "<<binRatioErr<<std::endl;
 	    hist2Ratio[sizehist-1]->SetBinContent(k,j,binRatio);
 	    hist2Ratio[sizehist-1]->SetBinError(k,j,binRatioErr);
 	  }
@@ -1424,6 +1495,11 @@ namespace WeightingUtils {
 
     if ( type.Contains("Comb") == true) {  work->import(*data); }
     
+    delete Var1;
+    delete Var2;
+    delete dataCalib;
+    delete histCalib;
+
     return work;
     
   }
@@ -1480,32 +1556,32 @@ namespace WeightingUtils {
     if(debug == true) std::cout<<nameVar1<<" range: ("<<Var1_down<<","<<Var1_up<<")"<<std::endl;
     if(debug == true) std::cout<<nameVar2<<" range: ("<<Var2_down<<","<<Var2_up<<")"<<std::endl;
 
-    RooDataSet* dataC = calib.GetData();
+    RooDataSet* dataC = calib.PrepareDataSet( Var1, Var2, lab1_PIDK, plotSet, debug);
     if (debug == true ) { dataC->Print("v"); }
 
     RooRealVar* CalibWeight = NULL;
     RooRealVar* CalibVar1 = NULL;
     RooRealVar* CalibVar2 = NULL;
     RooRealVar* CalibPIDK = NULL;
-    TString nameDLL = calib.CheckPIDVarName();
-    TString nVar1 = calib.GetVar1Name();
-    TString nVar2 = calib.GetVar2Name();
-    TString swlabel = calib.GetWeightName();
+    //TString nameDLL = calib.CheckPIDVarName();
+    //TString nVar1 = Var1->GetName(); //calib.GetVar1Name();
+    //TString nVar2 = Var2calib.GetVar2Name();
+    //TString swlabel = calib.GetWeightName();
 
     if (dataC->isWeighted() == false )
       {
-        CalibWeight = (RooRealVar*)dataC->get()->find(swlabel.Data());
+        CalibWeight = (RooRealVar*)dataC->get()->find("weights");
       }
-    CalibPIDK = (RooRealVar*)dataC->get()->find(nameDLL.Data());
-    CalibVar1 = (RooRealVar*)dataC->get()->find(nVar1.Data());
-    CalibVar2 = (RooRealVar*)dataC->get()->find(nVar2.Data());
+    CalibPIDK = (RooRealVar*)dataC->get()->find(namePID.Data());
+    CalibVar1 = (RooRealVar*)dataC->get()->find(nameVar1.Data());
+    CalibVar2 = (RooRealVar*)dataC->get()->find(nameVar2.Data());
 
     if (debug == true )
       {
-	if ( CalibVar1 != NULL ) { std::cout<<"[INFO] Read "<<nVar1<<" from "<<dataC->GetName()<<std::endl; } else { std::cout<<"[ERROR] Cannot read variable "<<std::endl;}
-        if ( CalibVar2 != NULL ) { std::cout<<"[INFO] Read "<<nVar2<<" from "<<dataC->GetName()<<std::endl; } else{ std::cout<<"[ERROR] Cannot read variable "<<std::endl;}
-        if ( CalibPIDK != NULL ) { std::cout<<"[INFO] Read "<<nameDLL<<" from "<<dataC->GetName()<<std::endl; } else{ std::cout<<"[ERROR] Cannot read variable "<<std::endl;}
-        if ( CalibWeight != NULL ) { std::cout<<"[INFO] Read "<<swlabel<<" from "<<dataC->GetName()<<std::endl; }
+	if ( CalibVar1 != NULL ) { std::cout<<"[INFO] Read "<<nameVar1<<" from "<<dataC->GetName()<<std::endl; } else { std::cout<<"[ERROR] Cannot read variable "<<std::endl;}
+        if ( CalibVar2 != NULL ) { std::cout<<"[INFO] Read "<<nameVar2<<" from "<<dataC->GetName()<<std::endl; } else{ std::cout<<"[ERROR] Cannot read variable "<<std::endl;}
+        if ( CalibPIDK != NULL ) { std::cout<<"[INFO] Read "<<namePID<<" from "<<dataC->GetName()<<std::endl; } else{ std::cout<<"[ERROR] Cannot read variable "<<std::endl;}
+        if ( CalibWeight != NULL ) { std::cout<<"[INFO] Read weights from "<<dataC->GetName()<<std::endl; }
 	else{
           if ( dataC->isWeighted() == true ) { std::cout<<"[INFO] Weight directly taken from RooDataSet"<<std::endl; }
           else{ std::cout<<"[ERROR] Cannot read variable "<<std::endl;}
@@ -1519,9 +1595,9 @@ namespace WeightingUtils {
     TString l2 = "Calib";
     TString l3 = "Calib weighted";
 
-    RooDataSet* dataCalib = calib.PrepareDataSet( Var1, Var2, plotSet, debug);
+    //RooDataSet* dataCalib = dataC->Clone("data"); // calib.PrepareDataSet( Var1, Var2, NULL, plotSet, debug);
     TString histNameCalib = "hist2D_Calib";
-    TH2F* histCalib = Get2DHist(dataCalib,Var1, Var2, bin1, bin2, histNameCalib, debug);
+    TH2F* histCalib = Get2DHist(dataC,Var1, Var2, bin1, bin2, histNameCalib, debug);
 
     RooAbsPdf* pdfPID;
 
@@ -1540,11 +1616,6 @@ namespace WeightingUtils {
     TString nameCalib = names[4];
     TString sample = names[5];
     TString mode = names[6];
-        
-    hist = (TH2F*)work->obj(histNameR.Data());
-    if ( hist != NULL ) { std::cout<<"[INFO] Read histogram: "<<hist->GetName()<<std::endl;}
-    else {std::cout<<"[ERROR] Cannot read histogram: "<<histName.Data()<<std::endl;}
-    histMC = (TH2F*)work->obj(histName.Data());
     
     TString nn;
     if( type.Contains("Comb") == true) 
@@ -1554,17 +1625,31 @@ namespace WeightingUtils {
           {
             TString dmode = CheckDMode(type,debug);
 	    if ( dmode == "kkpi" || dmode == ""){ dmode = CheckKKPiMode(type, debug);}
-            nn = "Combinatorial_"+pol+"_"+dmode+"_"+year;
-	    nm = pol+"_"+dmode;
+	    nm = pol+"_"+dmode+"_"+year;
+	    TString pre= "Comb";
+	    if ( type.Contains("Kaon") == true ) { pre = "CombK"; }
+            else if ( type.Contains("Pion") == true ) { pre = "CombPi"; }
+            else if ( type.Contains("Proton") == true ) { pre = "CombP"; }
+            histName = "hist2D_"+pre+"_"+pol+"_"+dmode+"_"+year;
+            histNameR = "hist2D_"+pre+"_ratio_"+pol+"_"+dmode+"_"+year;
+	    nn = "Combinatorial_"+pre+"_"+pol+"_"+dmode+"_"+year;
           }
         else
           {
 	    nn = calibComb.GetLabel(); 
 	  }
       }
-    else if (type.Contains("DPi") == true) { nn = "Bd2DPi_"+nm;}
+ 
     else if (type.Contains("Bs2DsPi") == true && type.Contains("MC") != true) { nn = "Bs2DsPi_"+nm; }
     else {nn=nm;}
+
+    hist = (TH2F*)work->obj(histNameR.Data());
+    if ( hist != NULL ) { std::cout<<"[INFO] Read histogram: "<<hist->GetName()<<std::endl;}
+    else {std::cout<<"[ERROR] Cannot read histogram: "<<histNameR.Data()<<std::endl;}
+    histMC = (TH2F*)work->obj(histName.Data());
+    if ( histMC != NULL ) { std::cout<<"[INFO] Read histogram: "<<histMC->GetName()<<std::endl;}
+    else {std::cout<<"[ERROR] Cannot read histogram: "<<histName.Data()<<std::endl;}
+
 
     TString namew = "weights";
     RooRealVar* weights;
@@ -1603,16 +1688,16 @@ namespace WeightingUtils {
 	    nsig_sw3 = CalibWeight->getValV(setInt);
 	  }
 
-	if ( (type.Contains("Bs2DsPi") == true && type.Contains("MC") == true) || type.Contains("DPi") == true || 
-	     type.Contains("CombPi") == true || (type.Contains("Bs2DsstPi") == true && type.Contains("MC") == true) )
-	  {
-	    PID3 = -PID3; 
+	//if ( (type.Contains("Bs2DsPi") == true && type.Contains("MC") == true) || type.Contains("DPi") == true || 
+	//     type.Contains("CombPi") == true || (type.Contains("Bs2DsstPi") == true && type.Contains("MC") == true) )
+	//  {
+	//    PID3 = -PID3; 
+	//    lab1_PIDK->setVal(log(PID3));
+	//  }
+	//else
+	//  {
 	    lab1_PIDK->setVal(PID3);
-	  }
-	else
-	  {
-	    lab1_PIDK->setVal(PID3);
-	  }
+	    //  }
 	Var1->setVal(Var13);
 	Var2->setVal(Var23);
 	//std::cout<<"Var13: "<<Var13<<" Var23: "<<Var23<<std::endl;
@@ -1638,6 +1723,18 @@ namespace WeightingUtils {
 	  }
       }
   
+    if ( dataRW != NULL ) 
+      { 
+	if ( debug )
+	  {
+	    std::cout<<"[INFO] Created weighted RooDataSet: "<<dataRW->GetName()<<" with number of entries: "<<dataRW->numEntries()<<" and sum: "<<dataRW->sumEntries()<<std::endl; 
+	  }
+      }
+    else
+      {
+	std::cout<<"[ERROR] Weighted data set not created"<<std::endl; 
+      }
+  
     histRW = NULL;
     histName = "hist2D_rw_"+nm;
     histRW = Get2DHist(dataRW, Var1, Var2, bin1, bin2, histName, debug);
@@ -1648,8 +1745,17 @@ namespace WeightingUtils {
     if ( (type.Contains("Bs2DsPi") == true && type.Contains("MC") == true) || type.Contains("DPi") == true 
 	 || type.Contains("CombPi") == true || (type.Contains("Bs2DsstPi") == true && type.Contains("MC") == true) )
       {
-	histPID = dataRW->createHistogram(namehist.Data(),*lab1_PIDK, RooFit::Binning(200, PID_down, PID_up)); //45,log(0.0001),log(-PID_down)));
-	histBin = 200;
+
+	if ( type.Contains("Pion") )
+	  {
+	    histPID = dataRW->createHistogram(namehist.Data(),*lab1_PIDK, RooFit::Binning(100, PID_down, PID_up)); //45,log(0.0001),log(-PID_down)));
+	    histBin = 100;
+	  }
+	else
+	  {
+	    histPID = dataRW->createHistogram(namehist.Data(),*lab1_PIDK, RooFit::Binning(50, PID_down, PID_up));   
+            histBin = 50;
+	  }
       }
     else
       {
@@ -1677,7 +1783,7 @@ namespace WeightingUtils {
       {
 	if ( debug == true )
 	  {
-	    PlotWeightingSample(nn, dataCalib, dataRW, Var1, Var2, lab1_PIDK, bin1, bin2, bin3,
+	    PlotWeightingSample(nn, dataC, dataRW, Var1, Var2, lab1_PIDK, bin1, bin2, bin3,
 				type, l2, l3, work, plotSet, debug);
 	  }
 	
@@ -1686,9 +1792,9 @@ namespace WeightingUtils {
 	  {
 	    
 	    if( type.Contains("CombPi") == true ) { nn = "CombPi_"+nm; }
-	    if (type.Contains("Bs2DsPi") == true && type.Contains("MC") == true) { nn = "Bs2DsPi_"+sample+"_"+mode; }
-	    if (type.Contains("Bs2DsstPi") == true && type.Contains("MC") == true) { nn = "Bs2DsstPi_"+sample+"_"+mode; }
-	    nn = nn+year;
+	    if (type.Contains("Bs2DsPi") == true && type.Contains("MC") == true) { nn = "Bs2DsPi_"+sample+"_"+mode+year; }
+	    if (type.Contains("Bs2DsstPi") == true && type.Contains("MC") == true) { nn = "Bs2DsstPi_"+sample+"_"+mode+year; }
+	    //nn = nn+year;
 	    TString namepdf = "PIDKShape_"+nn;
             pdfPID2= new RooBinned1DQuinticBase<RooAbsPdf>(namepdf.Data(), namepdf.Data(), *histPID, *lab1_PIDK, true);
             RooAbsPdf* pdfSave = pdfPID2;
@@ -1700,7 +1806,7 @@ namespace WeightingUtils {
 	else
 	  {
 	    if( type.Contains("CombPi") == true ) { nn = "CombK_"+nm; }
-	    nn = nn+year;
+	    //nn = nn+year;
 	    TString namepdf = "PIDKShape_"+nn;
 	    pdfPID2= new RooBinned1DQuinticBase<RooAbsPdf>(namepdf.Data(), namepdf.Data(), *histPID, *lab1_PIDK, true);
 	    RooAbsPdf* pdfSave = pdfPID2;
@@ -1718,13 +1824,13 @@ namespace WeightingUtils {
 	      type.Contains("CombK") == true)
       {
 	TString dir = "PlotBsDsK2D";
-        if (debug == true) PlotWeightingSample(nn, dataCalib, dataRW, Var1, Var2, lab1_PIDK, bin1, bin2, bin3,
+        if (debug == true) PlotWeightingSample(nn, dataC, dataRW, Var1, Var2, lab1_PIDK, bin1, bin2, bin3,
 					       type, l2, l3, work, plotSet, debug);
 
 	if ( type.Contains("Pion") == true)
 	  {
 	    
-	    if( type.Contains("CombK") == true ) { nn = "CombPi_"+nm; nn = nn+year; }
+	    if( type.Contains("CombK") == true ) { nn = "CombPi_"+nm; } //nn = nn+year; }
 	    if (type.Contains("Bs2DsPi") == true && type.Contains("MC") != true) { nn = "Bs2DsPi_"+sample+"_"+mode+year; }
 	    if (type.Contains("Bs2DsstPi") == true && type.Contains("MC") != true) { nn = "Bs2DsstPi_"+sample+"_"+mode+year; }
 
@@ -1746,7 +1852,7 @@ namespace WeightingUtils {
 	  }
 	else if ( type.Contains("Kaon") == true)
 	  {
-	    if( type.Contains("CombK") == true ) { nn = "CombK_"+nm; nn = nn+year;}
+	    if( type.Contains("CombK") == true ) { nn = "CombK_"+nm; } //nn = nn+year;}
 	    if (type.Contains("Bs2DsK") == true && type.Contains("MC") == true) { nn = "Bs2DsK_"+sample+"_"+mode+year; }
 	    if (type.Contains("Bs2DsstK") == true && type.Contains("MC") == true) { nn = "Bs2DsstK_"+sample+"_"+mode+year; }
     	    TString namepdf = "PIDKShape_"+nn;
@@ -1761,13 +1867,13 @@ namespace WeightingUtils {
 	    TString strip = CheckStripping(type,debug);
 	    if ( strip == "str17" )
               {
-		if( type.Contains("CombK") == true ) { nn = "CombP_"+nm; nn = nn+year; }
+		if( type.Contains("CombK") == true ) { nn = "CombP_"+nm;} // nn = nn+year; }
 		pdfPID = FitPDFShapeForPIDBsDsKP(dataRW, lab1_PIDK, nn,  plotSet, debug);
 		work->import(*pdfPID);
 	      }
 	    else
 	      {
-		if( type.Contains("CombK") == true ) { nn = "CombP_"+nm; nn = nn+year;}
+		if( type.Contains("CombK") == true ) { nn = "CombP_"+nm;} // nn = nn+year;}
 		TString namepdf = "PIDKShape_"+nn;
 		pdfPID2= new RooBinned1DQuinticBase<RooAbsPdf>(namepdf.Data(), namepdf.Data(), *histPID, *lab1_PIDK, true);
 		RooAbsPdf* pdfSave = pdfPID2;
@@ -1776,8 +1882,21 @@ namespace WeightingUtils {
 		work->import(*pdfPID2);
 	      }
 	  }
+	//	delete pdfPID2;
+	//delete dataRW;
+	//delete histPID;
+
       }
-  
+    delete Var1;
+    delete Var2;
+    delete lab1_PIDK;
+    delete dataC;
+    //delete CalibWeight;
+    //delete CalibVar1;
+    //delete CalibVar2;
+    //delete CalibPIDK;
+    //delete histCalib;
+
   return work;
 }
   

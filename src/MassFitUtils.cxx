@@ -114,7 +114,7 @@ namespace MassFitUtils {
 	  {
 	    if ( mode.Contains("Pi") == true )
 	      {
-	        val = -val; 
+	        val = log(-val); 
 	      }
 	    else
 	      {
@@ -237,11 +237,11 @@ namespace MassFitUtils {
     //Set PID cut depends on mode// 
     TCut PID_cut;  
    if( mode.Contains("Pi") )    { 
-      PID_cut = Form("%s < %lf",mdSet->GetPIDKVar().Data(), mdSet->GetPIDKRangeDown()); 
-      if ( debug == true)  std::cout<<"Mode with Pi"<<std::endl;}
+     PID_cut = Form("%s < %lf && %s != -1000.0",mdSet->GetPIDKVar().Data(), -exp(mdSet->GetPIDKRangeDown()), mdSet->GetPIDKVar().Data()); 
+      if ( debug == true)  std::cout<<"[INFO] Mode with Pi"<<std::endl;}
     else if (mode.Contains("K")) { 
-      PID_cut = Form("%s > %lf",mdSet->GetPIDKVar().Data(), exp(mdSet->GetPIDKRangeDown())); 
-      if ( debug == true)  std::cout<<"Mode with K"<<std::endl; }
+      PID_cut = Form("%s > %lf && %s != -1000.0",mdSet->GetPIDKVar().Data(), exp(mdSet->GetPIDKRangeDown()), mdSet->GetPIDKVar().Data()); 
+      if ( debug == true)  std::cout<<"[INFO] Mode with K"<<std::endl; }
     else { if ( debug == true) std::cout<<"[ERROR] Wrong mode"; return work; }
 
     //Set other cuts//
@@ -760,7 +760,7 @@ namespace MassFitUtils {
       md[i-1] = CheckDMode(FileName[i], debug);
       y[i-1] = CheckDataYear(sig, debug);
       if ( md[i-1] == "kkpi" || md[i-1] == ""){ md[i-1] = CheckKKPiMode(FileName[i], debug);}
-      if ( y[i-1] != "") { y[i-1] = "_"+y[i-1]; }
+      //if ( y[i-1] != "") { y[i-1] = "_"+y[i-1]; }
     }
 
    
@@ -824,7 +824,7 @@ namespace MassFitUtils {
     
     for (int i = 0; i<2; i++){
       tmpc[i]=0;
-      TString s = smp[i]+"_"+md[i]+y[i]; //+"_"+hypo;
+      TString s = smp[i]+"_kpipi_"+y[i]; //+"_"+hypo;
       
       pdfDataMiss[i]=NULL;
       pdfDataDMiss[i]=NULL;
@@ -1018,7 +1018,7 @@ namespace MassFitUtils {
 
       if( plotSet->GetStatus() == true )
 	{
-	  TString s = smp[i]+"_"+md[i]; 
+	  //TString s = smp[i]+"_"+md[i]; 
 	  SaveDataSet(dataSet[i],  lab1_PT, s, mode, plotSet, debug);
 	  SaveDataSet(dataSet[i],  nTracks, s, mode, plotSet, debug);
 	  SaveDataSet(dataSet[i],  lab1_PIDK, s, mode, plotSet, debug);

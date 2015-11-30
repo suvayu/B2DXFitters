@@ -9,6 +9,8 @@ python prepareWorkspace.py --debug --configName ../data/Bs2DsstK_3fbCPV/Bs2DsstK
 python prepareWorkspace.py --debug --configName ../data/Bs2DsstK_3fbCPV/Bs2DsstK/Bs2DsstKConfigForNominalMassFit.py -i work_dsstk_3.root -s work_dsstk_4.root --SignalPID
 python prepareWorkspace.py --debug --configName ../data/Bs2DsstK_3fbCPV/Bs2DsstK/Bs2DsstKConfigForNominalMassFit.py -i work_dsstk_4.root -s work_dsstk_5.root --Comb
 python prepareWorkspace.py --debug --configName ../data/Bs2DsstK_3fbCPV/Bs2DsstK/Bs2DsstKConfigForNominalMassFit.py -i work_dsstk_4.root -s work_dsstk_6.root --CombPID
+
+source Csh/prepare_workspace.csh work_dsstpi.root ../data/Bs2DsstK_3fbCPV/Bs2DsstPi/Bs2DsstPiConfigForNominalMassFit.py > & log_work_dsstpi.txt &
   
 --------------------------
 run MDFit
@@ -16,8 +18,10 @@ run MDFit
 
 1D, 5 modes, merged both polarities and years of data taking:
 python runMDFitter.py --debug --configName ../data/Bs2DsstK_3fbCPV/Bs2DsstK/Bs2DsstKConfigForNominalMassFit.py --pol both --year run1 --mode all --merge both --dim 1 --fileName work_dsstk_6.root
+python runMDFitter.py --debug --configName ../data/Bs2DsstK_3fbCPV/Bs2DsstPi/Bs2DsstPiConfigForNominalMassFit.py --pol both --year run1 --mode all --merge both --dim 3 --fileName work_dsstpi.root -s WS_MDFit_DsstPi.root >& log_fit_dsstpi.txt &
 
-
+python runMDFitter.py --debug --configName ../data/Bs2DsstK_3fbCPV/Bs2DsstPi/Bs2DsstPiConfigForNominalMassFit.py --pol both --year 2011 --mode 3modeskkpi --merge pol --dim 3 --fileName work_dsstpi_basic_3.root -s WS_MDFit_DsstPi_2011.root > & log_fit_dsstpi_2011.txt &
+python runMDFitter.py --debug --configName ../data/Bs2DsstK_3fbCPV/Bs2DsstPi/Bs2DsstPiConfigForNominalMassFit.py --pol both --year 2012 --mode 3modeskkpi --merge pol --dim 3 --fileName work_dsstpi_basic_3.root -s WS_MDFit_DsstPi_2012.root > & log_fit_dsstpi_2012.txt &
 --------------------------
 plot MDFitter
 --------------------------

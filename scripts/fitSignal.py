@@ -211,10 +211,18 @@ def runMDFitter( debug, sample, mode, sweight,
     configNameTS = TString(configName)
     toys = False
 
-    var = GeneralUtils.GetObservable(workData, TString(varName), debug)
-    observables = RooArgSet() 
-    observables.add(var)
-    obs = [ var ] 
+    observables = getObservables(MDSettings, workData, toys, debug)
+    beautyMass = observables.find(MDSettings.GetMassBVarOutName().Data())
+    charmMass = observables.find(MDSettings.GetMassDVarOutName().Data())
+    bacPIDK = observables.find(MDSettings.GetPIDKVarOutName().Data())
+    obs = [beautyMass, charmMass, bacPIDK]
+    if varName == MDSettings.GetMassDVarOutName():
+        obs = [charmMass, beautyMass, bacPIDK]
+
+#    var = GeneralUtils.GetObservable(workData, TString(varName), debug)
+#    observables = RooArgSet() 
+#    observables.add(var)
+#    obs = [ var ] 
      
  ###------------------------------------------------------------------------------------------------------------------------------------###
     ###------------------------------------------------------------------------------------------------------------------------------###
@@ -317,7 +325,7 @@ def runMDFitter( debug, sample, mode, sweight,
 
     if varName == MDSettings.GetMassBVarOutName():
         keysSig = ["BsSignalShape", "fake", "fake"]
-    elif varName == MDSettings.GetMassBVarOutName():
+    elif varName == MDSettings.GetMassDVarOutName():
         keysSig = ["DsSignalShape", "fake", "fake"]
     else:
         keysSig= ["SignalShape", "fake", "fake"]

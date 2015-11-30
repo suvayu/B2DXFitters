@@ -303,96 +303,96 @@ tuple
 
 #Bs2DsstK Combinatorial KKPi 2011
 /afs/cern.ch/work/a/abertoli/public/DsstrK/bdt-s21/
-FilterRun1-s21_Bs2DsstK_Data_dw.root
-FilterRun1-s21_Bs2DsstK_Data_up.root
+Filter11-s21_Bs2DsstK_Data_dw.root
+Filter11-s21_Bs2DsstK_Data_up.root
 tuple
 tuple
 ###
 
 #Bs2DsstK Combinatorial KKPi 2012
 /afs/cern.ch/work/a/abertoli/public/DsstrK/bdt-s21/
-FilterRun1-s21_Bs2DsstK_Data_dw.root
-FilterRun1-s21_Bs2DsstK_Data_up.root
+Filter12-s21_Bs2DsstK_Data_dw.root
+Filter12-s21_Bs2DsstK_Data_up.root
 tuple
 tuple
 ###
 
 #Bs2DsstK Combinatorial NonRes 2011
 /afs/cern.ch/work/a/abertoli/public/DsstrK/bdt-s21/
-FilterRun1-s21_Bs2DsstK_Data_dw.root
-FilterRun1-s21_Bs2DsstK_Data_up.root
+Filter11-s21_Bs2DsstK_Data_dw.root
+Filter11-s21_Bs2DsstK_Data_up.root
 tuple
 tuple
 ###
 
 #Bs2DsstK Combinatorial NonRes 2012
 /afs/cern.ch/work/a/abertoli/public/DsstrK/bdt-s21/
-FilterRun1-s21_Bs2DsstK_Data_dw.root
-FilterRun1-s21_Bs2DsstK_Data_up.root
+Filter12-s21_Bs2DsstK_Data_dw.root
+Filter12-s21_Bs2DsstK_Data_up.root
 tuple
 tuple
 ###
 
 #Bs2DsstK Combinatorial PhiPi 2011
 /afs/cern.ch/work/a/abertoli/public/DsstrK/bdt-s21/
-FilterRun1-s21_Bs2DsstK_Data_dw.root
-FilterRun1-s21_Bs2DsstK_Data_up.root
+Filter11-s21_Bs2DsstK_Data_dw.root
+Filter11-s21_Bs2DsstK_Data_up.root
 tuple
 tuple
 ###
 
 #Bs2DsstK Combinatorial PhiPi 2012
 /afs/cern.ch/work/a/abertoli/public/DsstrK/bdt-s21/
-FilterRun1-s21_Bs2DsstK_Data_dw.root
-FilterRun1-s21_Bs2DsstK_Data_up.root
+Filter12-s21_Bs2DsstK_Data_dw.root
+Filter12-s21_Bs2DsstK_Data_up.root
 tuple
 tuple
 ###
 
 #Bs2DsstK Combinatorial KstK 2011
 /afs/cern.ch/work/a/abertoli/public/DsstrK/bdt-s21/
-FilterRun1-s21_Bs2DsstK_Data_dw.root
-FilterRun1-s21_Bs2DsstK_Data_up.root
+Filter11-s21_Bs2DsstK_Data_dw.root
+Filter11-s21_Bs2DsstK_Data_up.root
 tuple
 tuple
 ###
 
 #Bs2DsstK Combinatorial KstK 2012
 /afs/cern.ch/work/a/abertoli/public/DsstrK/bdt-s21/
-FilterRun1-s21_Bs2DsstK_Data_dw.root
-FilterRun1-s21_Bs2DsstK_Data_up.root
+Filter12-s21_Bs2DsstK_Data_dw.root
+Filter12-s21_Bs2DsstK_Data_up.root
 tuple
 tuple
 ###
 
 #Bs2DsstK Combinatorial KPiPi 2011
 /afs/cern.ch/work/a/abertoli/public/DsstrK/bdt-s21/
-FilterRun1-s21_Bs2DsstK-K2Pi_Data_dw.root
-FilterRun1-s21_Bs2DsstK-K2Pi_Data_up.root
+Filter11-s21_Bs2DsstK-K2Pi_Data_dw.root
+Filter11-s21_Bs2DsstK-K2Pi_Data_up.root
 tuple
 tuple
 ###
 
 #Bs2DsstK Combinatorial KPiPi 2012
 /afs/cern.ch/work/a/abertoli/public/DsstrK/bdt-s21/
-FilterRun1-s21_Bs2DsstK-K2Pi_Data_dw.root
-FilterRun1-s21_Bs2DsstK-K2Pi_Data_up.root
+Filter12-s21_Bs2DsstK-K2Pi_Data_dw.root
+Filter12-s21_Bs2DsstK-K2Pi_Data_up.root
 tuple
 tuple
 ###
 
 #Bs2DsstK Combinatorial PiPiPi 2011
 /afs/cern.ch/work/a/abertoli/public/DsstrK/bdt-s21/
-FilterRun1-s21_Bs2DsstK-3Pi_Data_dw.root
-FilterRun1-s21_Bs2DsstK-3Pi_Data_up.root
+Filter11-s21_Bs2DsstK-3Pi_Data_dw.root
+Filter11-s21_Bs2DsstK-3Pi_Data_up.root
 tuple
 tuple
 ###
 
 #Bs2DsstK Combinatorial PiPiPi 2012
 /afs/cern.ch/work/a/abertoli/public/DsstrK/bdt-s21/
-FilterRun1-s21_Bs2DsstK-3Pi_Data_dw.root
-FilterRun1-s21_Bs2DsstK-3Pi_Data_up.root
+Filter12-s21_Bs2DsstK-3Pi_Data_dw.root
+Filter12-s21_Bs2DsstK-3Pi_Data_up.root
 tuple
 tuple
 ###

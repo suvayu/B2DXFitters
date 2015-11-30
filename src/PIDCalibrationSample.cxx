@@ -34,7 +34,6 @@ PIDCalibrationSample::PIDCalibrationSample(const TString& name, const TString& t
   _file = NULL;  
   _work = NULL; 
   _data = NULL; 
- 
   _polarity = "unknown"; 
 
   _sample = "unknown";
@@ -61,7 +60,7 @@ PIDCalibrationSample::PIDCalibrationSample(const PIDCalibrationSample& other) :
   _dataName = other._dataName;
   _file = other._file;
   _work= other._work;
-  _data = other._data; 
+  _data = other._data;
 
   _polarity = other._polarity;
   _year = other._year;
@@ -98,7 +97,7 @@ std::ostream & operator<< (std::ostream &out, const PIDCalibrationSample &s)
 }
 
 
-RooDataSet* PIDCalibrationSample::PrepareDataSet(RooRealVar* Var1, RooRealVar* Var2,
+RooDataSet* PIDCalibrationSample::PrepareDataSet(RooRealVar* Var1, RooRealVar* Var2, RooRealVar* PIDK, 
 						 PlotSettings* plotSet,
 						 bool debug )
 {
@@ -114,6 +113,11 @@ RooDataSet* PIDCalibrationSample::PrepareDataSet(RooRealVar* Var1, RooRealVar* V
 
   TString nameVar1 = Var1->GetName();
   TString nameVar2 = Var2->GetName();
+  TString PIDKVar = "";
+  if ( PIDK != NULL )
+    {
+      PIDKVar = PIDK->GetName(); 
+    }
 
   if ( nameVar1 == nameVar2 ) { std::cout<<"[ERROR] The same variables: "<<nameVar1<<" == "<< nameVar2<<std::endl; return NULL;}
 
@@ -121,6 +125,31 @@ RooDataSet* PIDCalibrationSample::PrepareDataSet(RooRealVar* Var1, RooRealVar* V
   CalVar1 = (RooRealVar*)_data->get()->find(_var1Name.Data());
   RooRealVar* CalVar2 = NULL;
   CalVar2 = (RooRealVar*)_data->get()->find(_var2Name.Data());
+  RooRealVar* CalPIDK  = NULL; 
+  if ( PIDK != NULL ) { this->ObtainPIDVarName(true); CalPIDK = (RooRealVar*)_data->get()->find(_PIDName.Data()); }
+  
+  
+  Double_t MaxVar1 = Var1->getMax();
+  Double_t MinVar1 = Var1->getMin();
+  Double_t MaxVar2 = Var2->getMax();
+  Double_t MinVar2 = Var2->getMin();
+  Double_t MaxPIDK = 1000.0;
+  Double_t MinPIDK = -1000.0; 
+  if ( PIDK != NULL )
+    {
+      MaxPIDK = PIDK->getMax();
+      MinPIDK = PIDK->getMin(); 
+    }
+  if ( debug == true )
+    {
+      std::cout<<"[INFO] Var1: "<<Var1->GetName()<<" with range: ("<<MinVar1<<","<<MaxVar1<<")"<<std::endl; 
+      std::cout<<"[INFO] Var2: "<<Var2->GetName()<<" with range: ("<<MinVar2<<","<<MaxVar2<<")"<<std::endl;
+      if ( PIDK != NULL )
+	{
+	  std::cout<<"[INFO] Var2: "<<PIDK->GetName()<<" with range: ("<<MinPIDK<<","<<MaxPIDK<<")"<<std::endl;
+	}
+    }
+
   RooRealVar* CalWeight = NULL;
   if ( _data->isWeighted() == false )
     {
@@ -130,6 +159,9 @@ RooDataSet* PIDCalibrationSample::PrepareDataSet(RooRealVar* Var1, RooRealVar* V
     {
       if ( CalVar1 != NULL ) { std::cout<<"[INFO] Read "<<_var1Name<<" from "<<_data->GetName()<<std::endl; } else { std::cout<<"[ERROR] Cannot read variable "<<std::endl;}
       if ( CalVar2 != NULL ) { std::cout<<"[INFO] Read "<<_var2Name<<" from "<<_data->GetName()<<std::endl; } else{ std::cout<<"[ERROR] Cannot read variable "<<std::endl;}
+      if ( PIDK != NULL ) {
+	if ( CalPIDK != NULL ) { std::cout<<"[INFO] Read "<<_PIDName<<" from "<<_data->GetName()<<std::endl; } else{ std::cout<<"[ERROR] Cannot read variable "<<std::endl;} 
+      }
       if ( CalWeight != NULL ) { std::cout<<"[INFO] Read "<<_weightName<<" from "<<_data->GetName()<<std::endl; }
       else{
 	if ( _data->isWeighted() == true ) { std::cout<<"[INFO] Weight directly taken from RooDataSet"<<std::endl; }
@@ -144,8 +176,14 @@ RooDataSet* PIDCalibrationSample::PrepareDataSet(RooRealVar* Var1, RooRealVar* V
   TString label = this->GetLabel(); 
   TString nameCalib = "CalibSample"+label; 
 
-  dataRW = new RooDataSet(nameCalib.Data(),nameCalib.Data(),RooArgSet(*Var1,*Var2,*weights), namew.Data());
-
+  if ( PIDK != NULL )
+    {
+      dataRW = new RooDataSet(nameCalib.Data(),nameCalib.Data(),RooArgSet(*Var1,*Var2,*PIDK,*weights), namew.Data());
+    }
+  else
+    {
+      dataRW = new RooDataSet(nameCalib.Data(),nameCalib.Data(),RooArgSet(*Var1,*Var2,*weights), namew.Data());
+    }
   for (Long64_t jentry=0; jentry<_data->numEntries(); jentry++)
     {
       if ( jentry == 0 ) { std::cout<<"[INFO] 0% of sample done"<<std::endl;}
@@ -162,6 +200,12 @@ RooDataSet* PIDCalibrationSample::PrepareDataSet(RooRealVar* Var1, RooRealVar* V
       const RooArgSet* setInt = _data->get(jentry);
       Var1->setVal(CalVar1->getValV(setInt));
       Var2->setVal(CalVar2->getValV(setInt));
+      
+
+      if ( PIDK != NULL ) 
+	{
+	  PIDK->setVal(CalPIDK->getValV(setInt)); 
+	}
       Double_t w = 0;
 
       if (  _data->isWeighted() == true ) 
@@ -176,9 +220,23 @@ RooDataSet* PIDCalibrationSample::PrepareDataSet(RooRealVar* Var1, RooRealVar* V
 	{
 	  w = CalWeight->getValV(setInt);
 	}
-
-      weights->setVal(w); 
-      dataRW->add(RooArgSet(*Var1,*Var2,*weights),w,0);
+      
+      if ( CalVar1->getValV(setInt) > MinVar1 && CalVar1->getValV(setInt) < MaxVar1 &&
+	   CalVar2->getValV(setInt) > MinVar2 && CalVar2->getValV(setInt) < MaxVar2)
+	{
+	  weights->setVal(w); 
+	  if ( PIDK != NULL )
+	    {
+	      if ( CalPIDK->getValV(setInt) > MinPIDK && CalPIDK->getValV(setInt) < MaxPIDK )
+		{
+		  dataRW->add(RooArgSet(*Var1,*Var2,*PIDK,*weights),w,0);
+		}
+	    }
+	  else
+	    {
+	      dataRW->add(RooArgSet(*Var1,*Var2,*weights),w,0);
+	    }
+	}
     }
   if ( dataRW != NULL  ){
     std::cout<<"[INFO] ==> Create "<<dataRW->GetName()<<std::endl;
@@ -194,6 +252,12 @@ RooDataSet* PIDCalibrationSample::PrepareDataSet(RooRealVar* Var1, RooRealVar* V
       SaveDataSet(dataRW, Var2 , smp, mode, plotSet, debug);
     }
 
+
+  //delete CalVar1;
+  //delete CalVar2;
+  //delete CalWeight; 
+  //delete CalPIDK; 
+  
   return dataRW;
 
 }

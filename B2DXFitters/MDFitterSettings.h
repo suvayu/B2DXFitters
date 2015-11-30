@@ -195,8 +195,7 @@ public:
 
     _calib.push_back(calib); 
   }
-		      
-
+  
   PIDCalibrationSample GetCalibSample( TString sample, TString year, TString pol, TString strip, bool debug = false)
   {
     TString name = "Calib_"+sample+"_"+strip+"_"+year+"_"+pol;

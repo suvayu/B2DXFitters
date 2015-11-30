@@ -171,7 +171,7 @@ def getMCNames(myconfig):
     if decay2.Contains("Ds"):
         dsmode = "KKPi"
     elif decay2.Contains("D"):
-        dsmode = "KiPiPi"
+        dsmode = "KPiPi"
 
     year = myconfig["YearOfDataTaking"]
     magnet = ["MU","MD"]
@@ -332,7 +332,7 @@ def getComboPIDNames(myconfig, DsModes):
     if DsModes:
         Dmodes = myconfig["CharmModes"]
     else:
-        Dmodes = ["","","","",""] 
+        Dmodes = [""] 
     comboNames = []
     
     for y in year:
@@ -354,7 +354,7 @@ def getCombPar(mode, o,  myconfig):
         if myconfig["CreateCombinatorial"][o][mode].has_key("Cut"):
             cut = TString(myconfig["CreateCombinatorial"][o][mode]["Cut"])
         else:
-            cut = TString("None")
+            cut = TString("")
         if myconfig["CreateCombinatorial"][o][mode].has_key("Rho"):
             rho = myconfig["CreateCombinatorial"][o][mode]["Rho"]
         else:
@@ -363,10 +363,11 @@ def getCombPar(mode, o,  myconfig):
             mirror = TString(myconfig["CreateCombinatorial"][o][mode]["Mirror"])
         else:
             mirror = TString("None")
-        return cut, rho, mirror
     else:
-        print "[ERROR] Wrong mode: %s"%(mode)
-        exit(0)
+        cut = TString("")
+        rho = -1.0
+        mirror = TString("None")
+    return cut, rho, mirror
 
 def getCombProperties(rho, mirror, rhoD, mirrorD):
     print rho, rhoD, mirror, mirrorD
@@ -469,8 +470,8 @@ def prepareWorkspace( debug,
     workspace.Print()
 
 
-    if DataBkgPID == True:
-        DataBkg = True
+ #   if DataBkgPID == True:
+ #       DataBkg = True
 
     if DataBkg:
         dataBkgNames, decayBkg = getDataBkgNames( myconfigfile )
@@ -497,8 +498,8 @@ def prepareWorkspace( debug,
     GeneralUtils.SaveWorkspace(workspace,saveNameTS, debug)
     workspace.Print()
 
-    if MCPID:
-        MC = True
+#    if MCPID:
+#        MC = True
 
     if MC:
         MCNames = getMCNames( myconfigfile )
@@ -517,9 +518,11 @@ def prepareWorkspace( debug,
             year = myconfigfile["YearOfDataTaking"]
             sy = year.__len__()
             for i in range(0,sy):
+                print MCNames[2*i]
+                print MCNames[2*i+1]
                 workspace = MassFitUtils.CreatePdfSpecBackground(dataTS, TString(MCNames[2*i]), 
                                                                  dataTS, TString(MCNames[2*i+1]),
-                                                                 MDSettings, workspace, True, plotSettings, debug)
+                                                                 MDSettings, workspace, False, plotSettings, debug)
         GeneralUtils.SaveWorkspace(workspace,saveNameTS, debug)
         workspace.Print()
 
@@ -553,8 +556,8 @@ def prepareWorkspace( debug,
         GeneralUtils.SaveWorkspace(workspace,saveNameTS, debug)
         
 
-    if SignalPID:
-        Signal = True
+#    if SignalPID:
+#        Signal = True
 
     if Signal:
         signalNames = getSignalNames(myconfigfile)
@@ -564,7 +567,7 @@ def prepareWorkspace( debug,
             year = GeneralUtils.CheckDataYear(signalNames[i])
             workspace = MassFitUtils.ObtainSignal(TString(myconfigfile["dataName"]), signalNames[i],
                                                   MDSettings, decay, False, False, workspace, False,
-                                                  MDSettings.GetLum(year,"Down"), MDSettings.GetLum(year,"Up"), plotSettings, debug)
+                                                  1.0, 1.0, plotSettings, debug)
 
         workspace.Print()
         GeneralUtils.SaveWorkspace(workspace,saveNameTS, debug)
@@ -579,9 +582,8 @@ def prepareWorkspace( debug,
             
             workspace = WeightingUtils.ObtainPIDShapeFromCalibSampleOneSample(MDSettings, signalPIDNames[i], workspace, plotSettings, debug)
                         
-            
-        GeneralUtils.SaveWorkspace(workspace,saveNameTS, debug)
-        workspace.Print()
+            GeneralUtils.SaveWorkspace(workspace,saveNameTS, debug)
+            workspace.Print()
 
     if CombPID:
         if MDSettings.CheckPIDComboShapeForDsModes():
