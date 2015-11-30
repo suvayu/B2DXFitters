@@ -1499,12 +1499,13 @@ TCut GetCutMCBkg( MDFitterSettings* mdSet, TString mode, TString hypo, TString D
 	for (Long64_t jentry=0; jentry<nentriesMC[i]; jentry++) {
 	  
 	  treetmp->GetEntry(jentry);
-	  if (hypo.Contains("Bd") == true && ( md == "Bs2DsPi") && jentry%8 != 0 ) continue;
-          if (hypo.Contains("Bd") == true && ( md == "Bd2DK" ) && jentry%4 != 0 ) continue;
-          if (hypo.Contains("Bd") == true && ( md == "Bd2DstPi" ) && jentry%2 != 0 ) continue;
+	  if (hypo.Contains("Bd") == true && ( md == "Bs2DsPi") && jentry%4 != 0 ) continue;
+          if (hypo.Contains("Bd") == true && ( md == "Bd2DK" ) && jentry%2 != 0 ) continue;
+          //if (hypo.Contains("Bd") == true && ( md == "Bd2DstPi" ) && jentry%2 != 0 ) continue;
           if (hypo.Contains("DsPi") == true && ( md == "Bs2DsK" ) && jentry%16 != 0 ) continue;
           if (hypo.Contains("DsK") == true && ( md == "Bs2DsPi" ) && jentry%16 != 0 ) continue;
           if (hypo.Contains("DsK") == true && ( md == "Bd2DK" ) && jentry%2 != 0 ) continue;
+	  if (hypo.Contains("DsK") == true && ( md == "Bd2DPi" ) && jentry%2 != 0 ) continue;
 
 	  Double_t nTr(0), pT(0), p(0), pidk(0);
 	  Double_t val(0); 
