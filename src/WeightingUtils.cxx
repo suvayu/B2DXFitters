@@ -1310,9 +1310,9 @@ namespace WeightingUtils {
                         work->import(*pdfPID2);
 		      }
 		  }
-		delete pdfPID2; 
-		delete dataRW; 
-		delete histPID; 
+		//delete pdfPID2; 
+		//delete dataRW; 
+		//delete histPID; 
 	      }
 	  }
       }
@@ -1320,12 +1320,12 @@ namespace WeightingUtils {
     delete Var2;
     delete lab1_PIDK;
     delete dataC;
-    delete CalibWeight;
-    delete CalibVar1;
-    delete CalibVar2;
-    delete CalibPIDK;
-    delete dataCalib;
-    delete histCalib;
+    //   delete CalibWeight;
+    //delete CalibVar1;
+    //delete CalibVar2;
+    //delete CalibPIDK;
+    //delete dataCalib;
+    //delete histCalib;
     
     return work;
   } 
