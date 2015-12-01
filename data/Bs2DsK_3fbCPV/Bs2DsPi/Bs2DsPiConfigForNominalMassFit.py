@@ -7,7 +7,7 @@ def getconfig() :
 
     # considered decay mode                                                       
     configdict["Decay"] = "Bs2DsPi"
-    configdict["CharmModes"] = {"KstK","KPiPi","PiPiPi"} #,"NonRes","PhiPi","KstK","KPiPi","PiPiPi"}
+    configdict["CharmModes"] = {"KstK","NonRes","PhiPi","KstK","KPiPi","PiPiPi"}
     # year of data taking                                                                                                                          
     configdict["YearOfDataTaking"] = {"2011", "2012"}
     # stripping (necessary in case of PIDK shapes)                                                                                              
