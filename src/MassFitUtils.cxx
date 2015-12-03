@@ -152,7 +152,7 @@ namespace MassFitUtils {
 	else 
 	  {
 	    if ( val > 0.1) { obsCat->setIndex(1); }
-	    else if ( val < -0.1) { obsCat->setIndex(1); }
+	    else if ( val < -0.1) { obsCat->setIndex(-1); }
 	    else { obsCat->setIndex(0); } 
 	  }
       }
