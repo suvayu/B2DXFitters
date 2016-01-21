@@ -76,30 +76,33 @@ using namespace GeneralUtils;
 
 namespace MassFitUtils {
 
-  void InitializeRealObs(TString tB, std::vector <Double_t> &varD, std::vector <Int_t> &varI, std::vector <Float_t> &varF, Bool_t debug)
+  void InitializeRealObs(TString tB, std::vector <Double_t> &varD, std::vector <Int_t> &varI, std::vector <Float_t> &varF, std::vector<Short_t> &varS, Bool_t debug)
   {
     tB = tB; 
-    varD.push_back(0.0);  varI.push_back(0); varF.push_back(0.0);
+    varD.push_back(0.0);  varI.push_back(0); varF.push_back(0.0); varS.push_back(0); 
     if ( debug == true ) { } 
   }
 
-  Double_t GetValue( TString tB, Double_t &varD, Int_t &varI, Float_t &varF )
+  Double_t GetValue( TString tB, Double_t &varD, Int_t &varI, Float_t &varF, Short_t &varS )
   {
     Double_t val = 0;
     if ( tB == "Double_t") { val = varD; }
     else if( tB == "Int_t" ) { val = varI;  }
     else if( tB == "Float_t" ) { val = varF; }
+    else if( tB == "Short_t" ) { val = varS; } 
+
+    std::cout<<"val: "<<val<<" tb: "<<tB<<" double: "<<varD<<" int: "<<varI<<" float: "<<varF<<std::endl; 
     return val; 
 
   }
 
   Double_t SetValRealObs(MDFitterSettings* mdSet, RooArgSet* obs,
-		     TString tN, TString tB,
-		     Double_t &varD, Int_t &varI, Float_t &varF,
-		     TString mode, Double_t shift)
+			 TString tN, TString tB,
+			 Double_t &varD, Int_t &varI, Float_t &varF, Short_t &varS, 
+			 TString mode, Double_t shift)
   {
     RooRealVar* obsVar = (RooRealVar*)obs->find(tN.Data()); 
-    Double_t val = GetValue(tB, varD, varI, varF); 
+    Double_t val = GetValue(tB, varD, varI, varF, varS); 
     Float_t c = 299792458.0;
     Float_t corr = c/1e9;
     corr = corr; 
@@ -138,11 +141,11 @@ namespace MassFitUtils {
   
   
   Double_t SetValCatObs(MDFitterSettings* mdSet, RooArgSet* obs,
-		    TString tN, TString tB,
-		    Double_t &varD, Int_t &varI, Float_t &varF)
+			TString tN, TString tB,
+			Double_t &varD, Int_t &varI, Float_t &varF, Short_t &varS)
   {
     RooCategory* obsCat = (RooCategory*)obs->find(tN.Data());  
-    Double_t val = GetValue(tB, varD, varI, varF);
+    Double_t val = GetValue(tB, varD, varI, varF, varS);
     if ( tN != "" )
       {
 	if ( tN == mdSet->GetIDVarOutName() )
@@ -151,6 +154,7 @@ namespace MassFitUtils {
 	  }
 	else 
 	  {
+	    std::cout<<"obsCat: "<<tN<<" value: "<<val<<std::endl; 
 	    if ( val > 0.1) { obsCat->setIndex(1); }
 	    else if ( val < -0.1) { obsCat->setIndex(-1); }
 	    else { obsCat->setIndex(0); } 
@@ -160,12 +164,13 @@ namespace MassFitUtils {
   }
 
   void SetBranchAddress(TTree* tr, TString tB, TString tN, 
-			Double_t &varD, Int_t &varI, Float_t &varF,
+			Double_t &varD, Int_t &varI, Float_t &varF, Short_t &varS,
 			Bool_t debug)
   {
     if ( tB == "Double_t") {  tr->SetBranchAddress(tN.Data(),    &varD); }
     else if( tB == "Int_t" ) { tr->SetBranchAddress(tN.Data(),    &varI); }
     else if( tB == "Float_t" ) { tr->SetBranchAddress(tN.Data(),    &varF); }
+    else if( tB == "Short_t" ) { tr->SetBranchAddress(tN.Data(),    &varS); }
     if ( debug  ) { } 
   }
 
@@ -279,17 +284,17 @@ namespace MassFitUtils {
       treetmp = TreeCut(tree[i],All_cut,smp[i],mode, debug);
       
       std::vector <TString> tB; 		
-      std::vector <Double_t> varD; std::vector <Int_t> varI; std::vector <Float_t> varF;
+      std::vector <Double_t> varD; std::vector <Int_t> varI; std::vector <Float_t> varF; std::vector <Short_t> varS; 
       for(unsigned int i = 0; i<tN.size(); i++ )
 	{
 	  if ( tN[i] != "" ){ tB.push_back(treetmp->GetLeaf(tN[i].Data())->GetTypeName()); }
 	  else { tB.push_back(""); }
-	  InitializeRealObs(tB[i], varD, varI, varF, debug); 
+	  InitializeRealObs(tB[i], varD, varI, varF, varS, debug); 
 	}
       
       for(unsigned int k =0; k<tN.size(); k++ )
 	{
-	  SetBranchAddress(treetmp, tB[k], tN[k], varD[k], varI[k], varF[k], debug);
+	  SetBranchAddress(treetmp, tB[k], tN[k], varD[k], varI[k], varF[k], varS[k], debug);
 	}
       for (Long64_t jentry=0; jentry<treetmp->GetEntries(); jentry++) {
 	treetmp->GetEntry(jentry);
@@ -310,8 +315,8 @@ namespace MassFitUtils {
 		  }
 	      }
 	    TString name = mdSet->GetVarOutName(tN[k]); 
-	    if ( cat == true ) { SetValCatObs(mdSet, obs, name , tB[k], varD[k], varI[k], varF[k]); }
-	    else{ SetValRealObs(mdSet, obs, name, tB[k], varD[k], varI[k], varF[k], mode); }
+	    if ( cat == true ) { SetValCatObs(mdSet, obs, name , tB[k], varD[k], varI[k], varF[k], varS[k]); }
+	    else{ SetValRealObs(mdSet, obs, name, tB[k], varD[k], varI[k], varF[k], varS[k], mode); }
 	  }
 	if ( mode.Contains("Comb") == true )
 	  {
@@ -1437,33 +1442,33 @@ TCut GetCutMCBkg( MDFitterSettings* mdSet, TString mode, TString hypo, TString D
 	treetmp = TreeCut(treeMC, MCCut, smp, md, debug);  // create new tree after applied all cuts // 
 
 	std::vector <TString> tB;
-	std::vector <Double_t> varD; std::vector <Int_t> varI; std::vector <Float_t> varF;
+	std::vector <Double_t> varD; std::vector <Int_t> varI; std::vector <Float_t> varF; std::vector <Short_t> varS; 
 	for(unsigned int k = 0; k<tN.size(); k++ )
 	  {
 	    if ( tN[k] != "" ){ tB.push_back(treetmp->GetLeaf(tN[k].Data())->GetTypeName()); }
 	    else { tB.push_back(""); }
-	    InitializeRealObs(tB[k], varD, varI, varF, debug);
+	    InitializeRealObs(tB[k], varD, varI, varF, varS, debug);
 	  }
 
 	for(unsigned int k =0; k<tN.size(); k++ )
 	  {
-	    SetBranchAddress(treetmp, tB[k], tN[k], varD[k], varI[k], varF[k], debug);
+	    SetBranchAddress(treetmp, tB[k], tN[k], varD[k], varI[k], varF[k], varS[k], debug);
 	  }
 
 	std::vector <TString> tBW;
 	std::vector <TString> tNW;
-	std::vector <Double_t> varDW; std::vector <Int_t> varIW; std::vector <Float_t> varFW;
+	std::vector <Double_t> varDW; std::vector <Int_t> varIW; std::vector <Float_t> varFW; std::vector <Short_t> varSW;
 	if ( mdSet->CheckMassWeighting()==true )
 	  {
 	    tNW = mdSet->GetMassWeightingVar(); 
 	    for(unsigned int k = 0; k<tNW.size(); k++ )
 	      {
 		tBW.push_back(treetmp->GetLeaf(tNW[k].Data())->GetTypeName()); 
-		InitializeRealObs(tBW[k], varDW, varIW, varFW, debug);
+		InitializeRealObs(tBW[k], varDW, varIW, varFW, varSW, debug);
 	      }
 	    for(unsigned int k =0; k<tNW.size(); k++ )
 	      {
-		SetBranchAddress(treetmp, tBW[k], tNW[k], varDW[k], varIW[k], varFW[k], debug);
+		SetBranchAddress(treetmp, tBW[k], tNW[k], varDW[k], varIW[k], varFW[k], varSW[k], debug);
 	      }
 
 	  }
@@ -1526,8 +1531,8 @@ TCut GetCutMCBkg( MDFitterSettings* mdSet, TString mode, TString hypo, TString D
 		}
 	      TString name = mdSet->GetVarOutName(tN[k]);
 
-	      if ( cat == true ) { val = SetValCatObs(mdSet, obs, name , tB[k], varD[k], varI[k], varF[k]); }
-	      else{ val = SetValRealObs(mdSet, obs, name, tB[k], varD[k], varI[k], varF[k], hypo, sh ); }
+	      if ( cat == true ) { val = SetValCatObs(mdSet, obs, name , tB[k], varD[k], varI[k], varF[k], varS[k]); }
+	      else{ val = SetValRealObs(mdSet, obs, name, tB[k], varD[k], varI[k], varF[k], varS[k], hypo, sh ); }
 	      if ( tN[k] == mdSet->GetMomVar() ) { p = val; }
 	      if ( tN[k] == mdSet->GetTrMomVar() ) { pT = val; }
 	      if ( tN[k] == mdSet->GetTracksVar() ) { nTr = val; }
@@ -1546,7 +1551,7 @@ TCut GetCutMCBkg( MDFitterSettings* mdSet, TString mode, TString hypo, TString D
 	      std::vector <Double_t> pV;
 	      for(unsigned k = 0; k < tNW.size(); k++)
 		{
-		  pV.push_back(GetValue( tBW[k], varDW[k], varIW[k], varFW[k] ));
+		  pV.push_back(GetValue( tBW[k], varDW[k], varIW[k], varFW[k], varSW[k] ));
 		}
 	      
 	      // Please note that Ds and D mass hypo all applied in NTuple so no need to change mass hypo //
@@ -2566,17 +2571,17 @@ TCut GetCutMCBkg( MDFitterSettings* mdSet, TString mode, TString hypo, TString D
       Int_t nentriesMC = treetmp->GetEntries();
       
       std::vector <TString> tB;
-      std::vector <Double_t> varD; std::vector <Int_t> varI; std::vector <Float_t> varF;
+      std::vector <Double_t> varD; std::vector <Int_t> varI; std::vector <Float_t> varF; std::vector <Short_t> varS; 
       for(unsigned int k = 0; k<tN.size(); k++ )
 	{
 	  if ( tN[k] != "" ){ tB.push_back(treetmp->GetLeaf(tN[k].Data())->GetTypeName()); }
 	  else { tB.push_back(""); }
-	  InitializeRealObs(tB[k], varD, varI, varF, debug);
+	  InitializeRealObs(tB[k], varD, varI, varF, varS, debug);
 	}
 
       for(unsigned int k =0; k<tN.size(); k++ )
 	{
-	  SetBranchAddress(treetmp, tB[k], tN[k], varD[k], varI[k], varF[k], debug);
+	  SetBranchAddress(treetmp, tB[k], tN[k], varD[k], varI[k], varF[k], varS[k], debug);
 	}
 
       if ( mdSet->CheckDataMCWeighting() == true && smp[i] == "both"){ smp[i] = hRDM->GetPolarity(i); }
@@ -2624,8 +2629,8 @@ TCut GetCutMCBkg( MDFitterSettings* mdSet, TString mode, TString hypo, TString D
 		  }
 	      }
 	    TString name = mdSet->GetVarOutName(tN[k]);
-	    if ( cat == true ) { val = SetValCatObs(mdSet, obs, name , tB[k], varD[k], varI[k], varF[k]); }
-	    else{ val = SetValRealObs(mdSet, obs, name, tB[k], varD[k], varI[k], varF[k], mode); }
+	    if ( cat == true ) { val = SetValCatObs(mdSet, obs, name , tB[k], varD[k], varI[k], varF[k], varS[k]); }
+	    else{ val = SetValRealObs(mdSet, obs, name, tB[k], varD[k], varI[k], varF[k], varS[k], mode); }
 	    if ( tN[k] == mdSet->GetMomVar() ) { p = val; }
 	    if ( tN[k] == mdSet->GetTrMomVar() ) { pT = val; }
 	    if ( tN[k] == mdSet->GetTracksVar() ) { nTr = val; }
