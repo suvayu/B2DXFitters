@@ -4,6 +4,9 @@
 ! Purpose     : RooFit-based fitters for B -> D X
 !-----------------------------------------------------------------------------
 
+! 2016-01-21 - Agnieszka Dziurda
+ - adding "Short_t" to the list of supported branch types.
+
 ! 2015-11-30 - Agnieszka Dziurda
  - add B->DPi MDFit to package (config files and bkg model)
  - add config files for signal fitting (DsPi)
