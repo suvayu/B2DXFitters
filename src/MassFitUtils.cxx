@@ -91,7 +91,6 @@ namespace MassFitUtils {
     else if( tB == "Float_t" ) { val = varF; }
     else if( tB == "Short_t" ) { val = varS; } 
 
-    std::cout<<"val: "<<val<<" tb: "<<tB<<" double: "<<varD<<" int: "<<varI<<" float: "<<varF<<std::endl; 
     return val; 
 
   }
@@ -154,7 +153,7 @@ namespace MassFitUtils {
 	  }
 	else 
 	  {
-	    std::cout<<"obsCat: "<<tN<<" value: "<<val<<std::endl; 
+      
 	    if ( val > 0.1) { obsCat->setIndex(1); }
 	    else if ( val < -0.1) { obsCat->setIndex(-1); }
 	    else { obsCat->setIndex(0); } 
