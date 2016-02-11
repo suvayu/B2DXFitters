@@ -187,7 +187,7 @@ def runMDFitter( debug, sample, mode, sweight,
     plotSettings = PlotSettings("plotSettings","plotSettings", TString(dirPlot), extPlot , 100, True, False, True)
     plotSettings.Print("v")
 
-    mdt = Translator(myconfigfile,"MDSettings",False)
+    mdt = Translator(myconfigfile,"MDSettings",True)
 
     MDSettings = mdt.getConfig()
     MDSettings.Print("v")
@@ -239,7 +239,6 @@ def runMDFitter( debug, sample, mode, sweight,
         sampleTS = TString("both") 
     if merge == "year" or merge == "both":
         yearTS = TString("run1") 
-
     sam = RooCategory("sample","sample")
 
     sm = []
@@ -290,8 +289,8 @@ def runMDFitter( debug, sample, mode, sweight,
     for y in yy:
         lum = MDSettings.GetLumRatio(y)
         print lum[0],  lum[1] 
-        name = "lumRatio_"+y
-        lumRatio.append(WS(workInt,RooRealVar(name,name, lum[1])))
+        name = TString("lumRatio_")+TString(y)
+        lumRatio.append(WS(workInt,RooRealVar(name.Data(),name.Data(), lum[1])))
 
 
     workInt.Print("v")
