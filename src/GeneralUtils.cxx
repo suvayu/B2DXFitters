@@ -1696,7 +1696,7 @@ namespace GeneralUtils {
   {
     TString polarity = "";
     if (check.Contains("MD") == true  || check.Contains("down") == true || check.Contains("dw") == true || check.Contains("Down") == true || 
-	check.Contains("md") == true  || check.Contains("Dw") == true)
+	check.Contains("md") == true  || check.Contains("Dw") == true || check.Contains("Dn") == true )
       {
         polarity = "down";
       }
