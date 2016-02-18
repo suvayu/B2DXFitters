@@ -4,6 +4,9 @@
 ! Purpose     : RooFit-based fitters for B -> D X
 !-----------------------------------------------------------------------------
 
+! 2016-02-18 - Agnieszka Dziurda
+ - updated config files for DsK 
+
 ! 2016-02-14 - Agnieszka Dziurda
  - add config file for fiting signal Bd->DPi
  - fix "Dn" for down polarity 
