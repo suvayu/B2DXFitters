@@ -45,6 +45,8 @@
 	<class name = "PIDCalibrationSample" />
         <class name = "HistPID1D" />
         <class name = "HistPID2D" />
+	<class name = "RooIpatia2" />
+	<class name = "RooApollonios" />
 
 	<class pattern = "Bdecaytree" />
 

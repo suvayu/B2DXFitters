@@ -26,6 +26,8 @@
 #include "B2DXFitters/Bs2Dsh2011TDAnaModels.h"
 #include "B2DXFitters/GeneralUtils.h"
 #include "B2DXFitters/RooBinned1DQuinticBase.h"
+#include "B2DXFitters/RooIpatia2.h" 
+#include "B2DXFitters/RooApollonios.h"
 
 using namespace std;
 using namespace GeneralUtils;
@@ -427,6 +429,95 @@ namespace Bs2Dsh2011TDAnaModels {
     return pdf;
     
   }
+
+
+  RooAbsPdf* buildIpatiaPDF(RooAbsReal& mass, 
+			    RooWorkspace* workInt, 
+			    TString samplemode, 
+			    TString typemode, 
+			    bool debug)
+  {
+    if ( debug == true ) { std::cout<<"[INFO] --------- build Ipatia -------- "<<std::endl; }
+
+    RooRealVar* lVar = NULL;
+    RooRealVar* zetaVar = NULL;
+    RooRealVar* fbVar = NULL; 
+    RooRealVar* meanVar = NULL; 
+    RooRealVar* sigmaVar = NULL; 
+    RooRealVar* a1Var = NULL; 
+    RooRealVar* n1Var = NULL;
+    RooRealVar* a2Var = NULL; 
+    RooRealVar* n2Var = NULL; 
+
+    TString varName = mass.GetName();
+
+    TString lVarName = typemode+"_"+varName+"_l_"+samplemode;
+    lVar = tryVar(lVarName, workInt, debug);
+    TString zetaVarName = typemode+"_"+varName+"_zeta_"+samplemode;
+    zetaVar = tryVar(zetaVarName, workInt, debug);
+    TString fbVarName = typemode+"_"+varName+"_fb_"+samplemode;
+    fbVar = tryVar(fbVarName, workInt, debug);
+    TString meanVarName = typemode+"_"+varName+"_mean_"+samplemode;
+    meanVar = tryVar(meanVarName, workInt, debug);
+    TString sigmaVarName = typemode+"_"+varName+"_sigma_"+samplemode;
+    sigmaVar = tryVar(sigmaVarName, workInt, debug);
+    TString a1VarName = typemode+"_"+varName+"_a1_"+samplemode;
+    a1Var = tryVar(a1VarName, workInt, debug);
+    TString n1VarName = typemode+"_"+varName+"_n1_"+samplemode;
+    n1Var = tryVar(n1VarName, workInt, debug);
+    TString a2VarName = typemode+"_"+varName+"_a2_"+samplemode;
+    a2Var = tryVar(a2VarName, workInt, debug);
+    TString n2VarName = typemode+"_"+varName+"_n2_"+samplemode;
+    n2Var = tryVar(n2VarName, workInt, debug);
+
+
+    RooAbsPdf* pdf = NULL;
+    TString pdfName = typemode+"_"+varName+"_ipatia_"+samplemode;
+    pdf = new RooIpatia2( pdfName.Data(), pdfName.Data(), mass, *lVar, *zetaVar, *fbVar, *sigmaVar, *meanVar, *a1Var, *n1Var, *a2Var, *n2Var);
+    CheckPDF( pdf, debug );
+
+    return pdf;
+
+  }
+
+  RooAbsPdf* buildApolloniosPDF(RooAbsReal& mass,
+				RooWorkspace* workInt,
+				TString samplemode,
+				TString typemode,
+				bool debug)
+  {
+    if ( debug == true ) { std::cout<<"[INFO] --------- build Apollonios -------- "<<std::endl; }
+
+    RooRealVar* meanVar = NULL;
+    RooRealVar* sigmaVar = NULL;
+    RooRealVar* bVar = NULL;
+    RooRealVar* aVar = NULL;
+    RooRealVar* nVar = NULL;
+
+    TString varName = mass.GetName();
+
+    TString meanVarName = typemode+"_"+varName+"_mean_"+samplemode;
+    meanVar = tryVar(meanVarName, workInt, debug);
+    TString sigmaVarName = typemode+"_"+varName+"_sigma_"+samplemode;
+    sigmaVar = tryVar(sigmaVarName, workInt, debug);
+    TString aVarName = typemode+"_"+varName+"_a_"+samplemode;
+    aVar = tryVar(aVarName, workInt, debug);
+    TString bVarName = typemode+"_"+varName+"_b_"+samplemode;
+    bVar = tryVar(bVarName, workInt, debug);
+    TString nVarName = typemode+"_"+varName+"_n_"+samplemode;
+    nVar = tryVar(nVarName, workInt, debug);
+
+    RooAbsPdf* pdf = NULL;
+    TString pdfName = typemode+"_"+varName+"_apollonios_"+samplemode;
+    pdf = new RooApollonios( pdfName.Data(), pdfName.Data(), mass, *meanVar, *sigmaVar, *bVar, *aVar, *nVar);
+    CheckPDF( pdf, debug );
+
+    return pdf;
+
+  }
+
+
+
 
   RooAbsPdf* buildComboPIDKPDF(RooAbsReal& obs, 
 			       RooWorkspace* work, 
@@ -1403,7 +1494,9 @@ namespace Bs2Dsh2011TDAnaModels {
 
 	pdf_Bs2DsRho_Tot  = buildProdPdfSpecBkgMDFit(workInt, work, samplemode, "Bs2DsRho",  "", merge, dim, charmVarName, debug);
 	pdf_Bs2DsstPi_Tot = buildProdPdfSpecBkgMDFit(workInt, work, samplemode, "Bs2DsstPi", "", merge, dim, charmVarName, debug); 
-	pdf_Bs2DsPi_Tot   = buildProdPdfSpecBkgMDFit(workInt, work, samplemode, "Bs2DsPi", mode, merge, dim, charmVarName, debug);
+	pdf_Bs2DsPi_Tot   = buildProdPdfSpecBkgMDFit(workInt, work, samplemode, "Bs2DsPi",   "", merge, dim, charmVarName, debug);
+	
+	//pdf_Bs2DsPi_Tot   = buildProdPdfSpecBkgMDFit(workInt, work, samplemode, "Bs2DsPi", mode, merge, dim, charmVarName, debug);
 	
 	name="PhysBkgBs2DsDsstPiRhoPdf_m_"+samplemode+"_Tot";
 	pdf_Bs2DsDsstPiRho_Tot = new RooAddPdf(name.Data(), name.Data(), 
@@ -1649,6 +1742,14 @@ namespace Bs2Dsh2011TDAnaModels {
 	    if ( pdf != NULL ) { std::cout<<"[INFO] PDF taken as RooKeyPdf: "<<pdfName<<std::endl;}
 	    else { std::cout<<"[ERROR] Cannot read pdf: "<<pdfName<<std::endl;} 
 	  }
+      }
+    else if ( type.Contains("Ipatia") or type.Contains("Hypatia") )
+      {
+	pdf =  buildIpatiaPDF( mass, workInt, samplemode, typemode, debug);
+      }
+    else if ( type.Contains("Apollonios") == true )
+      {
+	pdf =  buildApolloniosPDF( mass, workInt, samplemode, typemode, debug);
       }
     else if ( type.Contains("CrystalBall" ) )
       {

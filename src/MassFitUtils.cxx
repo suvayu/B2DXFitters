@@ -45,6 +45,7 @@
 #include "RooAbsArg.h"
 #include "TLeaf.h"
 #include "TStyle.h"
+#include "RooRealVar.h"
 
 // B2DXFitters includes
 #include "RooArgSet.h"
@@ -76,20 +77,22 @@ using namespace GeneralUtils;
 
 namespace MassFitUtils {
 
-  void InitializeRealObs(TString tB, std::vector <Double_t> &varD, std::vector <Int_t> &varI, std::vector <Float_t> &varF, std::vector<Short_t> &varS, Bool_t debug)
+  void InitializeRealObs(TString tB, std::vector <Double_t> &varD, std::vector <Int_t> &varI, std::vector <Float_t> &varF, std::vector<Short_t> &varS,
+			 Bool_t debug)
   {
     tB = tB; 
-    varD.push_back(0.0);  varI.push_back(0); varF.push_back(0.0); varS.push_back(0); 
+    varD.push_back(0.0);  varI.push_back(0); varF.push_back(0.0); varS.push_back(0);  
     if ( debug == true ) { } 
   }
 
-  Double_t GetValue( TString tB, Double_t &varD, Int_t &varI, Float_t &varF, Short_t &varS )
+  Double_t GetValue( TString tB, Double_t &varD, Int_t &varI, Float_t &varF, Short_t &varS)
   {
     Double_t val = 0;
     if ( tB == "Double_t") { val = varD; }
     else if( tB == "Int_t" ) { val = varI;  }
     else if( tB == "Float_t" ) { val = varF; }
     else if( tB == "Short_t" ) { val = varS; } 
+   
 
     return val; 
 
@@ -163,7 +166,7 @@ namespace MassFitUtils {
   }
 
   void SetBranchAddress(TTree* tr, TString tB, TString tN, 
-			Double_t &varD, Int_t &varI, Float_t &varF, Short_t &varS,
+			Double_t &varD, Int_t &varI, Float_t &varF, Short_t &varS, 
 			Bool_t debug)
   {
     if ( tB == "Double_t") {  tr->SetBranchAddress(tN.Data(),    &varD); }
@@ -216,6 +219,15 @@ namespace MassFitUtils {
     RooArgSet* obs = mdSet->GetObsSet();
     obs->Print("v"); 
     std::vector <TString> tN = mdSet->GetVarNames();
+
+
+    //RooRealVar* Twobody_TOS = new RooRealVar("lab0_Hlt2Topo2BodyBBDTDecision_TOS","lab0_Hlt2Topo2BodyBBDTDecision_TOS",0,1);
+    //RooRealVar* Threebody_TOS = new RooRealVar("lab0_Hlt2Topo3BodyBBDTDecision_TOS","lab0_Hlt2Topo3BodyBBDTDecision_TOS",0,1);
+    //RooRealVar* Fourbody_TOS = new RooRealVar("lab0_Hlt2Topo4BodyBBDTDecision_TOS","lab0_Hlt2Topo4BodyBBDTDecision_TOS",0,1);
+
+    //obs->add(*Twobody_TOS);
+    //obs->add(*Threebody_TOS);
+    //obs->add(*Fourbody_TOS); 
 
     std::vector <std::string> FileName;
     ReadOneName(filesDir,FileName,sig, debug);
@@ -283,11 +295,13 @@ namespace MassFitUtils {
       treetmp = TreeCut(tree[i],All_cut,smp[i],mode, debug);
       
       std::vector <TString> tB; 		
-      std::vector <Double_t> varD; std::vector <Int_t> varI; std::vector <Float_t> varF; std::vector <Short_t> varS; 
+      std::vector <Double_t> varD; std::vector <Int_t> varI; std::vector <Float_t> varF; std::vector <Short_t> varS;  
       for(unsigned int i = 0; i<tN.size(); i++ )
 	{
-	  if ( tN[i] != "" ){ tB.push_back(treetmp->GetLeaf(tN[i].Data())->GetTypeName()); }
+	  std::cout<<tN[i]; 
+	  if ( tN[i] != "" ){ tB.push_back(treetmp->GetLeaf(tN[i].Data())->GetTypeName());      std::cout<<" tb: "<<treetmp->GetLeaf(tN[i].Data())->GetTypeName()<<std::endl;}
 	  else { tB.push_back(""); }
+       
 	  InitializeRealObs(tB[i], varD, varI, varF, varS, debug); 
 	}
       
@@ -295,11 +309,22 @@ namespace MassFitUtils {
 	{
 	  SetBranchAddress(treetmp, tB[k], tN[k], varD[k], varI[k], varF[k], varS[k], debug);
 	}
+      //Bool_t Twotopo, Threetopo, Fourtopo; 
+
+      //treetmp->SetBranchAddress("lab0_Hlt2Topo2BodyBBDTDecision_TOS",    &Twotopo);
+      //treetmp->SetBranchAddress("lab0_Hlt2Topo3BodyBBDTDecision_TOS",    &Threetopo);
+      //treetmp->SetBranchAddress("lab0_Hlt2Topo4BodyBBDTDecision_TOS",    &Fourtopo);
+
       for (Long64_t jentry=0; jentry<treetmp->GetEntries(); jentry++) {
 	treetmp->GetEntry(jentry);
 	for(unsigned k = 0; k < tN.size(); k++)
 	  {
 	 
+	    //Twobody_TOS->setVal(Twotopo);
+	    //Threebody_TOS->setVal(Threetopo);
+	    //Fourbody_TOS->setVal(Fourtopo); 
+
+	  
 	    Bool_t cat = false;
 	    if ( tN[k] == mdSet->GetIDVar() ) { cat = true; }
 	    if(  mdSet->CheckTagVar() == true )                                                                                                                                       
@@ -1441,7 +1466,7 @@ TCut GetCutMCBkg( MDFitterSettings* mdSet, TString mode, TString hypo, TString D
 	treetmp = TreeCut(treeMC, MCCut, smp, md, debug);  // create new tree after applied all cuts // 
 
 	std::vector <TString> tB;
-	std::vector <Double_t> varD; std::vector <Int_t> varI; std::vector <Float_t> varF; std::vector <Short_t> varS; 
+	std::vector <Double_t> varD; std::vector <Int_t> varI; std::vector <Float_t> varF; std::vector <Short_t> varS;  
 	for(unsigned int k = 0; k<tN.size(); k++ )
 	  {
 	    if ( tN[k] != "" ){ tB.push_back(treetmp->GetLeaf(tN[k].Data())->GetTypeName()); }
@@ -1490,7 +1515,7 @@ TCut GetCutMCBkg( MDFitterSettings* mdSet, TString mode, TString hypo, TString D
             dataSetMCtmp[i] = new RooDataSet(name.Data(),name.Data(),RooArgSet(*obs));
 	  }
 	if  (debug == true) std::cout<<"Number of entries: "<<nentriesMC[i]<<std::endl;
-	Double_t sh= -3.9;
+	Double_t sh= -2.0; //3.9;
 	if ( hypo.Contains("Bd") ) { sh = 3.75; } 
 	if ( (md == "Bd2DsstKst" && hypo.Contains("DsstK") ) || ( md == "Bd2DsKst" && hypo.Contains("DsstK") ))
 	  {

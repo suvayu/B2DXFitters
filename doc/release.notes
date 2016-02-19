@@ -6,6 +6,7 @@
 
 ! 2016-02-19 - Agnieszka Dziurda
  - on behalf of Giulia Bs->DsPi config files update
+ - add RooIpatia and RooApollonios as the signal fit model.  
 
 ! 2016-02-18 - Agnieszka Dziurda
  - updated config files for DsK 
