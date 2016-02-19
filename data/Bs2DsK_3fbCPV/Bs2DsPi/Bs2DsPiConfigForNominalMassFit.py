@@ -31,16 +31,20 @@ def getconfig() :
     configdict["BasicVariables"]["nTracks"]       = { "Range" : [15.0,    1000.0  ], "InputName" : "nTracks"}
     configdict["BasicVariables"]["BeautyTimeErr"] = { "Range" : [0.01,    0.1     ], "InputName" : "lab0_LifetimeFit_ctauErr"}
     configdict["BasicVariables"]["BacCharge"]     = { "Range" : [-1000.0, 1000.0  ], "InputName" : "lab1_ID"}
-    configdict["BasicVariables"]["BDTG"]          = { "Range" : [0.3,     1.0     ], "InputName" : "BDTGResponse_1"}
-    #configdict["BasicVariables"]["TagDecOS"]      = { "Range" : [-1.0,    1.0     ], "InputName" : "lab0_TAGDECISION_OS"}
-    #configdict["BasicVariables"]["TagDecSS"]      = { "Range" : [-1.0,    1.0     ], "InputName" : "lab0_SS_nnetKaon_DEC"}
-    #configdict["BasicVariables"]["MistagOS"]      = { "Range" : [ 0.0,    0.5     ], "InputName" : "lab0_TAGOMEGA_OS"}
-    #configdict["BasicVariables"]["MistagSS"]      = { "Range" : [ 0.0,    0.5     ], "InputName" : "lab0_SS_nnetKaon_PROB"}
+    configdict["BasicVariables"]["BDTG"]          = { "Range" : [0.0,     1.0     ], "InputName" : "BDTGResponse_2"}
+    configdict["BasicVariables"]["TagDecOS"]      = { "Range" : [-1.0,    1.0     ], "InputName" : "lab0_TAGDECISION_OS"}
+    configdict["BasicVariables"]["TagDecSS"]      = { "Range" : [-1.0,    1.0     ], "InputName" : "lab0_SS_nnetKaon_DEC"}
+    configdict["BasicVariables"]["MistagOS"]      = { "Range" : [ 0.0,    0.5     ], "InputName" : "lab0_TAGOMEGA_OS"}
+    configdict["BasicVariables"]["MistagSS"]      = { "Range" : [ 0.0,    0.5     ], "InputName" : "lab0_SS_nnetKaon_PROB"}
+    #configdict["BasicVariables"]["TagDecOS"]      = { "Range" : [-1.0,    1.0     ], "InputName" : "lab0_BsTaggingTool_TAGDECISION_OS"}
+    #configdict["BasicVariables"]["TagDecSS"]      = { "Range" : [-1.0,    1.0     ], "InputName" : "lab0_BsTaggingTool_SS_nnetKaon_DEC"}
+    #configdict["BasicVariables"]["MistagOS"]      = { "Range" : [ 0.0,    0.5     ], "InputName" : "lab0_BsTaggingTool_TAGOMEGA_OS"}
+    #configdict["BasicVariables"]["MistagSS"]      = { "Range" : [ 0.0,    0.5     ], "InputName" : "lab0_BsTaggingTool_SS_nnetKaon_PROB"}
 
     # tagging calibration                                                                                               
     configdict["TaggingCalibration"] = {}
-    configdict["TaggingCalibration"]["OS"] = {"p0": 0.3834, "p1": 0.9720, "average": 0.3813}
-    configdict["TaggingCalibration"]["SS"] = {"p0": 0.4244, "p1": 1.2180, "average": 0.4097}
+    configdict["TaggingCalibration"]["OS"] = {"p0": 0.375, "p1": 0.982, "average": 0.3688}
+    configdict["TaggingCalibration"]["SS"] = {"p0": 0.4429, "p1": 0.977, "average": 0.4377}
 
     # additional cuts applied to data sets                                                                                    
     configdict["AdditionalCuts"] = {}
@@ -115,44 +119,67 @@ def getconfig() :
     # Bs signal shapes                                                                                                                                   
     configdict["BsSignalShape"] = {}
     configdict["BsSignalShape"]["type"]    = "DoubleCrystalBallWithWidthRatio"
-    configdict["BsSignalShape"]["mean"]    = {"Run1": {"All":5367.51}, "Fixed":False}
-    configdict["BsSignalShape"]["sigma1"]  = {"Run1": {"NonRes":1.1538e+01,  "PhiPi":1.6598e+01,  "KstK":1.1646e+01,  "KPiPi":1.1428e+01,  "PiPiPi":1.1989e+01},  "Fixed":True}
-    configdict["BsSignalShape"]["sigma2"]  = {"Run1": {"NonRes":1.6181e+01,  "PhiPi":1.1488e+01,  "KstK":1.4992e+01,  "KPiPi":1.6866e+01,  "PiPiPi":1.7588e+01},  "Fixed":True}
-    configdict["BsSignalShape"]["alpha1"]  = {"Run1": {"NonRes":1.9050e+00,  "PhiPi":-2.0856e+00, "KstK":1.7019e+00,  "KPiPi":1.9066e+00,  "PiPiPi":1.8497e+00},  "Fixed":True}
-    configdict["BsSignalShape"]["alpha2"]  = {"Run1": {"NonRes":-2.0423e+00, "PhiPi":1.8947e+00,  "KstK":-1.8418e+00, "KPiPi":-2.2615e+00, "PiPiPi":-2.0560e+00}, "Fixed":True}
-    configdict["BsSignalShape"]["n1"]      = {"Run1": {"NonRes":1.1327e+00,  "PhiPi":5.2735e+00,  "KstK":1.2686e+00,  "KPiPi":1.1585e+00,  "PiPiPi":1.2326e+00},  "Fixed":True}
-    configdict["BsSignalShape"]["n2"]      = {"Run1": {"NonRes":6.1273e+00,  "PhiPi":1.1497e+00,  "KstK":9.6571e+00,  "KPiPi":4.1167e+00,  "PiPiPi":7.8246e+00},  "Fixed":True}
-    configdict["BsSignalShape"]["frac"]    = {"Run1": {"NonRes":5.5417e-01,  "PhiPi":4.4171e-01,  "KstK":4.6731e-01,  "KPiPi":5.9179e-01,  "PiPiPi":6.2376e-01},  "Fixed":True}
+    #configdict["BsSignalShape"]["mean"]    = {"Run1": {"All":5367.51}, "Fixed":False}
+    #configdict["BsSignalShape"]["sigma1"]  = {"Run1": {"NonRes":1.1538e+01,  "PhiPi":1.6598e+01,  "KstK":1.1646e+01,  "KPiPi":1.1428e+01,  "PiPiPi":1.1989e+01},  "Fixed":True}
+    #configdict["BsSignalShape"]["sigma2"]  = {"Run1": {"NonRes":1.6181e+01,  "PhiPi":1.1488e+01,  "KstK":1.4992e+01,  "KPiPi":1.6866e+01,  "PiPiPi":1.7588e+01},  "Fixed":True}
+    #configdict["BsSignalShape"]["alpha1"]  = {"Run1": {"NonRes":1.9050e+00,  "PhiPi":-2.0856e+00, "KstK":1.7019e+00,  "KPiPi":1.9066e+00,  "PiPiPi":1.8497e+00},  "Fixed":True}
+    #configdict["BsSignalShape"]["alpha2"]  = {"Run1": {"NonRes":-2.0423e+00, "PhiPi":1.8947e+00,  "KstK":-1.8418e+00, "KPiPi":-2.2615e+00, "PiPiPi":-2.0560e+00}, "Fixed":True}
+    #configdict["BsSignalShape"]["n1"]      = {"Run1": {"NonRes":1.1327e+00,  "PhiPi":5.2735e+00,  "KstK":1.2686e+00,  "KPiPi":1.1585e+00,  "PiPiPi":1.2326e+00},  "Fixed":True}
+    #configdict["BsSignalShape"]["n2"]      = {"Run1": {"NonRes":6.1273e+00,  "PhiPi":1.1497e+00,  "KstK":9.6571e+00,  "KPiPi":4.1167e+00,  "PiPiPi":7.8246e+00},  "Fixed":True}
+    #configdict["BsSignalShape"]["frac"]    = {"Run1": {"NonRes":5.5417e-01,  "PhiPi":4.4171e-01,  "KstK":4.6731e-01,  "KPiPi":5.9179e-01,  "PiPiPi":6.2376e-01},  "Fixed":True}
+
+    #configdict["BsSignalShape"]["mean"]    = {"Run1": {"All":5367.1}, "Fixed":False}
+    #configdict["BsSignalShape"]["sigma1"]  = {"Run1": {"NonRes":1.2631e+01,  "PhiPi":1.2631e+01,  "KstK":1.2631e+01,  "KPiPi":1.2631e+01,  "PiPiPi":1.2631e+01},  "Fixed":True}
+    #configdict["BsSignalShape"]["sigma2"]  = {"Run1": {"NonRes":2.1123e+01,  "PhiPi":2.1123e+01,  "KstK":2.1123e+01,  "KPiPi":2.1123e+01,  "PiPiPi":2.1123e+01},  "Fixed":True}
+    #configdict["BsSignalShape"]["alpha1"]  = {"Run1": {"NonRes":2.2967e+00,  "PhiPi":2.2967e+00, "KstK":2.2967e+00,  "KPiPi":2.2967e+00,  "PiPiPi":2.2967e+00},  "Fixed":True}
+    #configdict["BsSignalShape"]["alpha2"]  = {"Run1": {"NonRes":-1.7753e+00, "PhiPi":-1.7753e+00,  "KstK":-1.7753e+00, "KPiPi":-1.7753e+00, "PiPiPi":-1.7753e+00}, "Fixed":True}
+    #configdict["BsSignalShape"]["n1"]      = {"Run1": {"NonRes":1.1450e-01,  "PhiPi":1.1450e-01,  "KstK":1.1450e-01,  "KPiPi":1.1450e-01,  "PiPiPi":1.1450e-01},  "Fixed":True}
+    #configdict["BsSignalShape"]["n2"]      = {"Run1": {"NonRes":3.5189e+00,  "PhiPi":3.5189e+00,  "KstK":3.5189e+00,  "KPiPi":3.5189e+00,  "PiPiPi":3.5189e+00},  "Fixed":True}
+    #configdict["BsSignalShape"]["frac"]    = {"Run1": {"NonRes":4.1973e-01,  "PhiPi":4.1973e-01,  "KstK":4.1973e-01,  "KPiPi":4.1973e-01,  "PiPiPi":4.1973e-01},  "Fixed":True}
+
+    configdict["BsSignalShape"]["mean"]    = {"Run1": {"All":5367.1}, "Fixed":False}
+    configdict["BsSignalShape"]["sigma1"]  = {"Run1": {"All":1.2631e+01},  "Fixed":True}
+    configdict["BsSignalShape"]["sigma2"]  = {"Run1": {"All":2.1123e+01},  "Fixed":True}
+    configdict["BsSignalShape"]["alpha1"]  = {"Run1": {"All":2.2967e+00},  "Fixed":True}
+    configdict["BsSignalShape"]["alpha2"]  = {"Run1": {"All":-1.7753e+00}, "Fixed":True}
+    configdict["BsSignalShape"]["n1"]      = {"Run1": {"All":1.1450e-01},  "Fixed":True}
+    configdict["BsSignalShape"]["n2"]      = {"Run1": {"All":3.5189e+00},  "Fixed":True}
+    configdict["BsSignalShape"]["frac"]    = {"Run1": {"All":4.1973e-01},  "Fixed":True}
+
     #configdict["BsSignalShape"]["scaleSigma"] = { "2011": {"frac1": 1.22, "frac2":1.28}} 
 
     #Ds signal shapes                                                                                                                                       
     configdict["DsSignalShape"] = {}
     configdict["DsSignalShape"]["type"]    = "DoubleCrystalBallWithWidthRatio"
     configdict["DsSignalShape"]["mean"]    = {"Run1": {"All":1968.49}, "Fixed":False}
-    configdict["DsSignalShape"]["sigma1"]  = {"Run1": {"NonRes":4.3930e+00,  "PhiPi":8.7215e+00,  "KstK":7.8768e+00,  "KPiPi":6.7734e+00,  "PiPiPi":8.4187e+00}, "Fixed":True}
-    configdict["DsSignalShape"]["sigma2"]  = {"Run1": {"NonRes":7.1493e+00,  "PhiPi":4.6238e+00,  "KstK":4.5946e+00,  "KPiPi":6.4937e+00,  "PiPiPi":7.2604e+00}, "Fixed":True}
-    configdict["DsSignalShape"]["alpha1"]  = {"Run1": {"NonRes":2.1989e+00,  "PhiPi":1.7979e+00,  "KstK":1.9708e+00,  "KPiPi":9.1754e-01,  "PiPiPi":9.4869e-01}, "Fixed":True}
-    configdict["DsSignalShape"]["alpha2"]  = {"Run1": {"NonRes":-2.0186e+00, "PhiPi":-3.2123e+00, "KstK":-2.7746e+00, "KPiPi":-1.2753e+00, "PiPiPi":-1.0429e+00},"Fixed":True}
-    configdict["DsSignalShape"]["n1"]      = {"Run1": {"NonRes":7.9389e-01,  "PhiPi":2.6693e+00,  "KstK":2.0849e+00,  "KPiPi":9.2763e+00,  "PiPiPi":1.2886e+01}, "Fixed":True}
-    configdict["DsSignalShape"]["n2"]      = {"Run1": {"NonRes":5.5608e+00,  "PhiPi":4.4751e-01,  "KstK":1.0774e+00,  "KPiPi":4.6466e+01,  "PiPiPi":6.9998e+01}, "Fixed":True}
-    configdict["DsSignalShape"]["frac"]    = {"Run1": {"NonRes":0.25406,     "PhiPi":3.5389e-01,  "KstK":4.5702e-01,  "KPiPi":3.5803e-01,  "PiPiPi":4.9901e-01}, "Fixed":True}
+    configdict["DsSignalShape"]["sigma1"]  = {"Run1": {"KKPi":5.7041e+00,  "KPiPi":1.3522e+01,  "PiPiPi":9.0468e+00}, "Fixed":True}
+    configdict["DsSignalShape"]["sigma2"]  = {"Run1": {"KKPi":5.5589e+00,  "KPiPi":6.7624e+00,  "PiPiPi":8.1947e+00}, "Fixed":True}
+    configdict["DsSignalShape"]["alpha1"]  = {"Run1": {"KKPi":1.1289e+00,  "KPiPi":1.5928e+00,  "PiPiPi":8.0885e-01}, "Fixed":True}
+    configdict["DsSignalShape"]["alpha2"]  = {"Run1": {"KKPi":-1.120e+00, "KPiPi":-4.6258e+00, "PiPiPi":-1.2172},"Fixed":True}
+    configdict["DsSignalShape"]["n1"]      = {"Run1": {"KKPi":7.7474e+00,  "KPiPi":4.0475e+00,  "PiPiPi":2.2972e+01}, "Fixed":True}
+    configdict["DsSignalShape"]["n2"]      = {"Run1": {"KKPi":1.7351e+01,  "KPiPi":1.7169e-03,  "PiPiPi":1.2726e+01}, "Fixed":True}
+    configdict["DsSignalShape"]["frac"]    = {"Run1": {"KKPi":0.48104,  "KPiPi":2.2793e-01,  "PiPiPi":3.9952e-01}, "Fixed":True}
+
+    #configdict["DsSignalShape"]["mean"]    = {"Run1": {"All":1968.49}, "Fixed":False}
+    #configdict["DsSignalShape"]["sigma1"]  = {"Run1": {"NonRes":5.7041e+00,  "PhiPi":5.7041e+00,  "KstK":5.7041e+00,  "KPiPi":1.3522e+01,  "PiPiPi":9.0468e+00}, "Fixed":True}
+    #configdict["DsSignalShape"]["sigma2"]  = {"Run1": {"NonRes":5.5589e+00,  "PhiPi":5.5589e+00,  "KstK":5.5589e+00,  "KPiPi":6.7624e+00,  "PiPiPi":8.1947e+00}, "Fixed":True}
+    #configdict["DsSignalShape"]["alpha1"]  = {"Run1": {"NonRes":1.1289e+00,  "PhiPi":1.1289e+00,  "KstK":1.1289e+00,  "KPiPi":1.5928e+00,  "PiPiPi":8.0885e-01}, "Fixed":True}
+    #configdict["DsSignalShape"]["alpha2"]  = {"Run1": {"NonRes":-1.120e+00, "PhiPi":-1.120e+00, "KstK":-1.120e+00, "KPiPi":-4.6258e+00, "PiPiPi":-1.2172},"Fixed":True}
+    #configdict["DsSignalShape"]["n1"]      = {"Run1": {"NonRes":7.7474e+00,  "PhiPi":7.7474e+00,  "KstK":7.7474e+00,  "KPiPi":4.0475e+00,  "PiPiPi":2.2972e+01}, "Fixed":True}
+    #configdict["DsSignalShape"]["n2"]      = {"Run1": {"NonRes":1.7351e+01,  "PhiPi":1.7351e+01,  "KstK":1.7351e+01,  "KPiPi":1.7169e-03,  "PiPiPi":1.2726e+01}, "Fixed":True}
+    #configdict["DsSignalShape"]["frac"]    = {"Run1": {"NonRes":0.48104,     "PhiPi":0.48104,  "KstK":0.48104,  "KPiPi":2.2793e-01,  "PiPiPi":3.9952e-01}, "Fixed":True}
     #configdict["DsSignalShape"]["scaleSigma"] = { "2011": {"frac1": 1.16, "frac2":1.19}}
 
     # combinatorial background                                                                                                                              
     configdict["BsCombinatorialShape"] = {}
     configdict["BsCombinatorialShape"]["type"]  = "DoubleExponential"
-    configdict["BsCombinatorialShape"]["cB1"]   = {"Run1": {"NonRes":-3.5211e-03,  "PhiPi":-3.0873e-03,  "KstK":-2.3392e-03, "KPiPi":-1.0361e-03, "PiPiPi":-1.5277e-03}, 
-                                                   "Fixed": False}
+    configdict["BsCombinatorialShape"]["cB1"]   = {"Run1": {"NonRes":-3.5211e-03,  "PhiPi":-3.0873e-03,  "KstK":-2.3392e-03, "KPiPi":-1.0361e-03, "PiPiPi":-1.5277e-03},"Fixed": False}
     configdict["BsCombinatorialShape"]["cB2"]   = {"Run1": {"NonRes":0.0,          "PhiPi":0.0,          "KstK":0.0,         "KPiPi":0.0,         "PiPiPi":0.0}, "Fixed":True }
-    configdict["BsCombinatorialShape"]["frac"]  = {"Run1": {"NonRes":4.3067e-01,   "PhiPi":6.5400e-01,   "KstK":3.7409e-01,  "KPiPi":1.0,         "PiPiPi":1.0}, 
-                                                        "Fixed":{"KPiPi":True,"PiPiPi":True}}
-
+    configdict["BsCombinatorialShape"]["frac"]  = {"Run1": {"NonRes":4.3067e-01,   "PhiPi":6.5400e-01,   "KstK":3.7409e-01,  "KPiPi":1.0,         "PiPiPi":1.0}, "Fixed":False}
     configdict["DsCombinatorialShape"] = {}
     configdict["DsCombinatorialShape"]["type"]  = "ExponentialPlusSignal" 
-    configdict["DsCombinatorialShape"]["cD"]    = {"Run1": {"NonRes":-2.7520e-03,  "PhiPi":-2.7273e-03,  "KstK":-8.3967e-03, "KPiPi":-1.9193e-03, "PiPiPi":-4.5455e-03}, 
-                                                   "Fixed":False}
-    configdict["DsCombinatorialShape"]["fracD"] = {"Run1": {"NonRes":0.88620,      "PhiPi":0.37379,      "KstK":0.59093,     "KPiPi":1.0,         "PiPiPi":1.0}, 
-                                                   "Fixed":{"KPiPi":True,"PiPiPi":True}}
+    configdict["DsCombinatorialShape"]["cD"]    = {"Run1": {"NonRes":-2.7520e-03,  "PhiPi":-2.7273e-03,  "KstK":-8.3967e-03, "KPiPi":-1.9193e-03, "PiPiPi":-4.5455e-03},"Fixed":False}
+    configdict["DsCombinatorialShape"]["fracD"] = {"Run1": {"NonRes":0.88620,      "PhiPi":0.37379,      "KstK":0.59093,     "KPiPi":1.0,         "PiPiPi":1.0},"Fixed":False}
 
     configdict["PIDKCombinatorialShape"] = {}
     configdict["PIDKCombinatorialShape"]["type"] = "Fixed"
