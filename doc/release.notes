@@ -4,6 +4,9 @@
 ! Purpose     : RooFit-based fitters for B -> D X
 !-----------------------------------------------------------------------------
 
+! 2016-02-25 - Agnieszka Dziurda
+ - fix Bs2DsPi config file
+
 ! 2016-02-19 - Agnieszka Dziurda
  - on behalf of Giulia Bs->DsPi config files update
  - add RooIpatia and RooApollonios as the signal fit model.  
