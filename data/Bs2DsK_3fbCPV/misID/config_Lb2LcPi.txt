@@ -1,0 +1,64 @@
+#Lb2LcPi NonRes 2011
+root://eoslhcb.cern.ch//eos/lhcb/user/a/adudziak/Bs2DsK_3fbCPV/data/
+B2DX_2011_Dw_Dspi_nonres_LcHypo.root
+B2DX_2011_Up_Dspi_nonres_LcHypo.root
+DecayTree
+DecayTree
+###
+
+#Lb2LcPi PhiPi 2011
+root://eoslhcb.cern.ch//eos/lhcb/user/a/adudziak/Bs2DsK_3fbCPV/data/
+B2DX_2011_Dw_Dspi_phipi_LcHypo.root
+B2DX_2011_Up_Dspi_phipi_LcHypo.root
+DecayTree
+DecayTree
+###
+
+#Lb2LcPi KstK 2011
+root://eoslhcb.cern.ch//eos/lhcb/user/a/adudziak/Bs2DsK_3fbCPV/data/
+B2DX_2011_Dw_Dspi_KstK_LcHypo.root
+B2DX_2011_Up_Dspi_KstK_LcHypo.root
+DecayTree
+DecayTree
+###
+
+#Lb2LcPi KPiPi 2011
+root://eoslhcb.cern.ch//eos/lhcb/user/a/adudziak/Bs2DsK_3fbCPV/data/
+B2DX_2011_Dw_Dspi_Kpipi_LcHypo.root
+B2DX_2011_Up_Dspi_Kpipi_LcHypo.root
+DecayTree
+DecayTree
+###
+
+
+#Lb2LcPi NonRes 2012
+root://eoslhcb.cern.ch//eos/lhcb/user/a/adudziak/Bs2DsK_3fbCPV/data/
+B2DX_2012_Dw_Dspi_nonres_LcHypo.root
+B2DX_2012_Up_Dspi_nonres_LcHypo.root
+DecayTree
+DecayTree
+###
+
+#Lb2LcPi PhiPi 2012
+root://eoslhcb.cern.ch//eos/lhcb/user/a/adudziak/Bs2DsK_3fbCPV/data/
+B2DX_2012_Dw_Dspi_phipi_LcHypo.root
+B2DX_2012_Up_Dspi_phipi_LcHypo.root
+DecayTree
+DecayTree
+###
+
+#Lb2LcPi KstK 2012
+root://eoslhcb.cern.ch//eos/lhcb/user/a/adudziak/Bs2DsK_3fbCPV/data/
+B2DX_2012_Dw_Dspi_KstK_LcHypo.root
+B2DX_2012_Up_Dspi_KstK_LcHypo.root
+DecayTree
+DecayTree
+###
+
+#Lb2LcPi KPiPi 2012
+root://eoslhcb.cern.ch//eos/lhcb/user/a/adudziak/Bs2DsK_3fbCPV/data/
+B2DX_2012_Dw_Dspi_Kpipi_LcHypo.root
+B2DX_2012_Up_Dspi_Kpipi_LcHypo.root
+DecayTree
+DecayTree
+###
