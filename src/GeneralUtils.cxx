@@ -15,6 +15,7 @@
 #include <fstream>
 #include <stdexcept>
 #include <cmath>
+#include <utility>
 
 // ROOT and RooFit includes
 #include "TH1D.h"
@@ -388,6 +389,7 @@ namespace GeneralUtils {
     std::ifstream myfile(filesDir.Data());
 
     if ( debug == true) std::cout<<"[INFO] ==> GeneralUtils::ReadOneName(...). Read names from file"<<std::endl;
+    //std::cout<<"signature: "<<sig<<std::endl; 
 
     if (myfile.is_open())
       {
@@ -396,6 +398,7 @@ namespace GeneralUtils {
           {
 	     
             getline (myfile,line);
+	    //std::cout<<"poczatek"<<line<<"koniec"<<std::endl; 
             if(line == sig.Data() ){
               while( line != "###" ){
                 getline (myfile,line);
@@ -405,7 +408,14 @@ namespace GeneralUtils {
 	  }
       }
     else { if ( debug == true) std::cout<<"Unable to open a file"<<std::endl;}
-
+    /*
+    if ( debug == true ) { 
+      std::cout<<"file0"<<FileName[0]<<std::endl;
+      std::cout<<"file0"<<FileName[1]<<std::endl;
+      std::cout<<"file0"<<FileName[2]<<std::endl;
+      std::cout<<"file0"<<FileName[3]<<std::endl;
+      std::cout<<"file0"<<FileName[4]<<std::endl;
+      }*/
   }
 
   Int_t CheckNumberOfBackgrounds(TString& filesDir, TString& sig, bool debug)
@@ -446,14 +456,17 @@ namespace GeneralUtils {
   {
   
     if ( debug == true) std::cout<<"[INFO] ==> GeneralUtils::ReadTreeData(...). Read TTree from FileName"<<std::endl;
-
+    
     int i=sample;
     std::string name[5];
 
     TFile* file = NULL;
     TTree* tree = NULL;
-    
+
+   
     name[0] = FileName[0]+FileName[i+1];
+    if ( debug == true) std::cout<<"[INFO] file to open "<<name[0]<<std::endl; 
+
     file = TFile::Open(name[0].c_str());
     tree = (TTree*) file->Get(FileName[i+3].c_str());
     if  ( tree ==  NULL ) {
@@ -463,8 +476,8 @@ namespace GeneralUtils {
     else {  
       if ( debug == true)
 	{
-	  std::cout<<"Open file: "<<FileName[0]+FileName[i+1]<<std::endl;
-	  std::cout<<"with Tree: "<<tree->GetName()<<std::endl;
+	  //std::cout<<"Open file: "<<FileName[0]+FileName[i+1]<<std::endl;
+	  std::cout<<"[INFO] with Tree: "<<tree->GetName()<<std::endl;
 	  std::cout<<"----------------------------------------------------------"<<std::endl;
 	}
       return tree;
@@ -2290,6 +2303,10 @@ namespace GeneralUtils {
 	  {
 	    label = "#font[132]{m(D#kern[-0.3]{"+happymin+"}#kern[0.1]{#pi#lower[-0.95]{#scale[0.6]{+}}}) [MeV/#font[12]{c}^{2}]}";
 	  }
+	else if ( decay.Contains("LcPi") == true )
+	  {
+	    label = "#font[132]{m(#Lambda_{c}#kern[-0.3]{"+happymin+"}#kern[0.1]{#pi#lower[-0.95]{#scale[0.6]{+}}}) [MeV/#font[12]{c}^{2}]}";
+	  }
 	else
 	  {
 	    std::cout<<"[ERROR] Wrong charm decay: "<<decay<<std::endl;
@@ -2395,7 +2412,33 @@ namespace GeneralUtils {
 	  }
       }
   }
+  
+  std::pair <TString, TString> GetNameExpectedYields(TString mode,  bool debug)
+  {
+    TString Mode ="";
+    if(mode.Contains("DPi") ){ Mode = "Bd2DPi"; }
+    else if ( mode.Contains("LcPi")) { Mode = "Lb2LcPi"; }
+    else if ( mode.Contains("DsPi")) { Mode = "Bs2DsPi"; }
+    else if ( mode.Contains("DsK")) { Mode = "Bs2DsK"; }
+    else if ( mode.Contains("DK")) { Mode = "Bd2DK"; }
+    else if ( mode.Contains("DsstK")) { Mode = "Bs2Ds*K"; } 
+    else if ( mode.Contains("DsstPi")) { Mode = "Bs2Ds*Pi"; } 
+    else if ( mode.Contains("Dsp")) { Mode = "Lb2Dsp";} 
+    else if ( mode.Contains("Dsstp")) { Mode = "Lb2Dsstp";} 
+    else if ( mode.Contains("LcK")) { Mode = "Lb2LcK"; } 
+    else { Mode = mode; }
 
+    TString ModeD = "";
+    if (mode.Contains("DPi") || mode.Contains("DK")) { ModeD = "kpipi"; }
+    else if ( mode.Contains("Lc") ) { ModeD = "pkpi"; }
+    else {
+      ModeD =  CheckDMode(mode, debug);
+      if ( ModeD == "kkpi" || ModeD == ""){ ModeD = CheckKKPiMode(mode, debug);}
+    }
+    std::pair <TString,TString> hypo(Mode,ModeD); 
+    if (debug == true ) { std::cout<<"[INFO] Hypothesis name: "<<hypo.first<<" , "<<hypo.second<<std::endl; }
+    return hypo; 
+  }
 
   double pe_from_pid(int pid, double px, double py, double pz)
   {

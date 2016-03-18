@@ -22,7 +22,7 @@ def getconfig() :
     configdict["dataName"]   = "../data/Bs2DsK_3fbCPV/misID/config_ExpectedEvents.txt"
     #settings for control plots                                                                                                                                                           
     configdict["ControlPlots"] = {}
-    configdict["ControlPlots"] = { "Directory": "PlotLb2LcPi", "Extension":"pdf"}
+    configdict["ControlPlots"] = { "Directory": "PlotLb2LcPiNewPID", "Extension":"pdf"}
 
     # basic variables                                                                                        
     configdict["BasicVariables"] = {}

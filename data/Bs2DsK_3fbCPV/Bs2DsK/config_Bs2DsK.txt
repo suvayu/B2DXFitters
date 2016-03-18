@@ -168,6 +168,54 @@ merged
 ###
 
 
+#PID Pion 2012
+/afs/cern.ch/work/s/sgallori/public/forAgnieszka/PIDCalib_histos/
+Pi_Strip21_2012_MagDown_P.root
+Pi_Strip21_2012_MagUp_P.root
+###
+
+#PID Kaon 2012
+/afs/cern.ch/work/s/sgallori/public/forAgnieszka/PIDCalib_histos/
+K_Strip21_2012_MagDown_P.root
+K_Strip21_2012_MagUp_P.root
+###
+
+#PID ProtonXXX 2012
+/afs/cern.ch/work/s/sgallori/public/forAgnieszka/PIDCalib_histos/
+P_TotLc_Strip21_2012_MagDown_P.root
+P_TotLc_Strip21_2012_MagUp_P.root
+###
+
+#PID Proton 2012
+/afs/cern.ch/work/s/sgallori/public/forAgnieszka/PIDCalib_histos/
+P_Strip20_2012_MagDown_P.root
+P_Strip20_2012_MagUp_P.root
+###
+
+#PID Pion 2011
+/afs/cern.ch/work/s/sgallori/public/forAgnieszka/PIDCalib_histos/
+Pi_Strip21r1_2011_MagDown_P.root
+Pi_Strip21r1_2011_MagUp_P.root
+###
+
+#PID Kaon 2011
+/afs/cern.ch/work/s/sgallori/public/forAgnieszka/PIDCalib_histos/
+K_Strip21r1_2011_MagDown_P.root
+K_Strip21r1_2011_MagUp_P.root
+###
+
+#PID ProtonXXX 2011
+/afs/cern.ch/work/s/sgallori/public/forAgnieszka/PIDCalib_histos/
+P_TotLc_Strip21r1_2011_MagDown_P.root
+P_TotLc_Strip21r1_2011_MagUp_P.root
+###
+
+#PID Proton 2011
+/afs/cern.ch/work/s/sgallori/public/forAgnieszka/PIDCalib_histos/
+P_Strip20r1_2011_MagDown_P.root
+P_Strip20r1_2011_MagUp_P.root
+###
+
 #PIDp
 /afs/cern.ch/user/l/lcarson/public/ForAgnieszka/
 EffHistos_Reco12_39Mom_Proton_MagDown_TightCuts.root

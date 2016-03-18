@@ -116,61 +116,57 @@ import os, sys, gc
 # -----------------------------------------------------------------------------
 # Configuration settings
 # -----------------------------------------------------------------------------
-
-# FIT CONFIGURATION
-
-PIDcut = 10
-histname = "MyPionMisID_10"
-PIDmisscut= 0 
-pPIDcut = 5
-Pcut_down = 2000.0
-Pcut_up = 100000000000.0
-
-Dmass_down =1930
-Dmass_up = 2015
-DDmass_down = 1830
-DDmass_up = 1910
-
-# DATA FILES
-#filesDir      = '../data'
-dataName      = '../data/config_ExpectedEvents.txt'
-saveName      = 'work_'
-
 # MISCELLANEOUS
 bName = 'B_{s}'
-
+gROOT.SetBatch()
 
 #------------------------------------------------------------------------------
-def runExpectedYields( debug, mVar, mProbVar, save, BDTG, mode ) :
+def runExpectedYields(config, debug, mode ) :
 
-    dataTS = TString(dataName)
-    mVarTS = TString(mVar)
-    mProbVarTS = TString(mProbVar)
-    modeTS = TString(mode)
 
-    BDTGTS = TString(BDTG)
-    if  BDTGTS == "BDTGA":
-        BDTG_down = 0.3
-        BDTG_up = 1.0
-    elif BDTGTS == "BDTGC":
-        BDTG_down = 0.5
-        BDTG_up= 1.0
-    elif BDTGTS== "BDTG1":
-        BDTG_down = 0.3
-        BDTG_up= 0.7
-    elif BDTGTS== "BDTG2":
-        BDTG_down = 0.7
-        BDTG_up= 0.9
-    elif BDTGTS== "BDTG3":
-        BDTG_down = 0.9
-        BDTG_up= 1.0
-                                                                                        
-    print "BDTG Range: (%f,%f)"%(BDTG_down,BDTG_up)
+    myconfigfilegrabber = __import__(configName,fromlist=['getconfig']).getconfig
+    myconfigfile = myconfigfilegrabber()
 
-    plotSettings = PlotSettings("plotSettings","plotSettings", "PlotBs2DsPi3DBDTGA", "pdf", 100, true, false, true)
+    print "=========================================================="
+    print "PREPARING WORKSPACE IS RUNNING WITH THE FOLLOWING CONFIGURATION OPTIONS"
+    for option in myconfigfile :
+        if option == "constParams" :
+            for param in myconfigfile[option] :
+                print param, "is constant in the fit"
+        else :
+            print option, " = ", myconfigfile[option]
+    print "=========================================================="
+
+
+    RooAbsData.setDefaultStorageType(RooAbsData.Tree)
+
+    config = TString("../data/")+TString(configName)+TString(".py")
+    from B2DXFitters.MDFitSettingTranslator import Translator
+    mdt = Translator(myconfigfile,"MDSettings",True)
+
+    MDSettings = mdt.getConfig()
+    MDSettings.Print("v")
+
+    #plot settings:                                                                                                                                                                            
+    dirPlot = "Plot"
+    extPlot = "pdf"
+    if myconfigfile.has_key("ControlPlots"):
+        if myconfigfile["ControlPlots"].has_key("Directory"):
+            dirPlot = myconfigfile["ControlPlots"]["Directory"]
+            if not os.path.exists(dirPlot):
+                os.makedirs(dirPlot)
+        if myconfigfile["ControlPlots"].has_key("Extension"):
+            extPlot = myconfigfile["ControlPlots"]["Extension"]
+
+    plotSettings = PlotSettings("plotSettings","plotSettings", TString(dirPlot), extPlot , 100, True, False, True)
     plotSettings.Print("v")
 
-    if modeTS == "BDPi":
+
+    modeTS = TString(mode) 
+    dataTS  = TString(myconfigfile["dataName"])
+    decay = TString(myconfigfile["Decay"])
+
+    if modeTS == "Bd2DPi":
         
         number = MassFitUtils.ExpectedYield(dataTS, TString("#BdDPi BsHypo PhiPi"), TString("#BdDPi BdHypo"),
                                             TString("#PID2m2"), TString("MyKaonEff_m2"),
@@ -213,56 +209,38 @@ def runExpectedYields( debug, mVar, mProbVar, save, BDTG, mode ) :
                                             TString("BdDPi"),TString("kpipi"))
         
 
-    elif modeTS == "LbLcPi":
+    elif modeTS == "Lb2LcPi":
         number = MassFitUtils.ExpectedYield(dataTS, TString("#LbLcPi PhiPi"), TString("#LbLcPi PhiPi"),
-                                            TString("#PID2m2"), TString("MyKaonEff_m2"),
-                                            TString("#PIDp3"), TString("MyProtonMisID_pKm5"), #_KPim2"),
-                                            TString("#PIDp3"), TString("MyProtonMisID_pKm5"), #_KPi10"),
-                                            Pcut_down, Pcut_up,
-                                            BDTG_down, BDTG_up,
-                                            Dmass_down, Dmass_up,
-                                            mVarTS, mProbVarTS,
-                                            TString("LbLcPi"),TString("kkpi"))
+                                            TString("#PID Kaon 2012"), TString("MyKaonEff_m2"),
+                                            TString("#PID Proton 2012"), TString("MyProtonMisID_pKm5"), # _KPim2"),
+                                            TString("#PID Proton 2012"), TString("MyProtonMisID_pKm5"), #_KPi10"),
+                                            MDSettings,
+                                            plotSettings,
+                                            TString("Lb2LcPi, pKPi"),TString("Bs2DsPi, PhiPi"), debug)
 
         number = MassFitUtils.ExpectedYield(dataTS, TString("#LbLcPi KstK"), TString("#LbLcPi KstK"),
-                                            TString("#PID2m2"), TString("MyKaonEff_m2"),
-                                            TString("#PIDp3"), TString("MyProtonMisID_pKm5"), #_KPi5"),
-                                            TString("#PIDp3"), TString("MyProtonMisID_pKm5"), #_KPi10"),
-                                            Pcut_down, Pcut_up,
-                                            BDTG_down, BDTG_up,
-                                            Dmass_down, Dmass_up,
-                                            mVarTS, mProbVarTS,
-                                            TString("LbLcPi"),TString("kkpi"))
+                                            TString("#PID Kaon 2012"), TString("MyKaonEff_m2"),
+                                            TString("#PID Proton 2012"), TString("MyProtonMisID_pKm5"), #_KPi5"),
+                                            TString("#PID Proton 2012"), TString("MyProtonMisID_pKm5"), #_KPi10"),
+                                            MDSettings,
+                                            plotSettings,
+                                            TString("LbLcPi, pKPi"),TString("Bs2DsPi, KstK"), debug)
 
         number = MassFitUtils.ExpectedYield(dataTS, TString("#LbLcPi NonRes"), TString("#LbLcPi NonRes"),
-                                            TString("#PID"), TString("MyKaonEff_5"),
-                                            TString("#PIDp3"), TString("MyProtonMisID_pKm5"), #_KPi5"),
-                                            TString("#PIDp3"), TString("MyProtonMisID_pKm5"), #_KPi10"),
-                                            Pcut_down, Pcut_up,
-                                            BDTG_down, BDTG_up,
-                                            Dmass_down, Dmass_up,
-                                            mVarTS, mProbVarTS,
-                                            TString("LbLcPi"),TString("kkpi"))
+                                            TString("#PID Kaon 2012"), TString("MyKaonEff_5"),
+                                            TString("#PID Proton 2012"), TString("MyProtonMisID_pKm5"), #_KPi5"),
+                                            TString("#PID Proton 2012"), TString("MyProtonMisID_pKm5"), #_KPi10"),
+                                            MDSettings,
+                                            plotSettings,
+                                            TString("LbLcPi, pKPi"),TString("Bs2DsPi, NonRes"), debug)
         
         number = MassFitUtils.ExpectedYield(dataTS, TString("#LbLcPi KPiPi"), TString("#LbLcPi KPiPi"),
-                                            TString("#PID2m2"), TString("MyKaonMisID_5_p10"),
-                                            TString("#PIDp3"), TString("MyProtonMisID_pKm5"), #_KPi10"),
-                                            TString("#PIDp3"), TString("MyProtonMisID_pKm5"), #_KPi10"),
-                                            Pcut_down, Pcut_up,
-                                            BDTG_down, BDTG_up,
-                                            Dmass_down, Dmass_up,
-                                            mVarTS, mProbVarTS,
-                                            TString("LbLcPi"),TString("kpipi"))
-
-        number = MassFitUtils.ExpectedYield(dataTS, TString("#LbLcPi PiPiPi"), TString("#LbLcPi PiPiPi"),
-                                            TString("#PID"), TString("MyKaonEff_5"),
-                                            TString("#PIDp3"), TString("MyProtonMisID_pKm5"), #_KPi10"),
-                                            TString("#PIDp3"), TString("MyProtonMisID_pKm5"), #_KPi10"),
-                                            Pcut_down, Pcut_up,
-                                            BDTG_down, BDTG_up,
-                                            Dmass_down, Dmass_up,
-                                            mVarTS, mProbVarTS,
-                                            TString("LbLcPi"),TString("pipipi"))
+                                            TString("#PID Kaon 2012"), TString("MyKaonMisID_5_p10"),
+                                            TString("#PID Proton 2012"), TString("MyProtonMisID_pKm5"), #_KPi10"),
+                                            TString("#PID Proton 2012"), TString("MyProtonMisID_pKm5"), #_KPi10"),
+                                            MDSettings,
+                                            plotSettings,
+                                            TString("LbLcPi, pKPi"),TString("Bs2DsPi, KPiPi"), debug)
         
         
     elif modeTS == "BsDsPi":
@@ -431,37 +409,31 @@ parser.add_option( '-d', '--debug',
                    default = False,
                    help = 'print debug information while processing'
                    )
-parser.add_option( '-s', '--save',
-                   dest = 'save',
-                   default = 'dspi',
-                   help = 'save workspace to file work_dspi.root'
-                   )
-parser.add_option( '-i', '--initial-vars',
-                   dest = 'initvars',
-                   action = 'store_true',
-                   default = False,
-                   help = 'save the model PDF parameters before the fit (default: after the fit)'
-                   )
-parser.add_option( '-v', '--variable',
-                   dest = 'var',
-                   default = 'lab0_MassFitConsD_M',
-                   help = 'set observable '
-                   )
-parser.add_option( '-c', '--cutvariable',
-                   dest = 'ProbVar',
-                   default = 'lab1_PIDK',
-                   help = 'set observable '
-                   )
-parser.add_option( '--BDTG',
-                   dest = 'BDTG',
-                   default = 'BDTGA',
-                   help = 'Set BDTG range '
-                   )
+#parser.add_option( '-v', '--variable',
+#                   dest = 'var',
+#                   default = 'lab0_MassFitConsD_M',
+#                   help = 'set observable '
+#                   )
+#parser.add_option( '-c', '--cutvariable',
+#                   dest = 'ProbVar',
+#                   default = 'lab1_PIDK',
+#                   help = 'set observable '
+#                   )
+#parser.add_option( '--BDTG',
+#                   dest = 'BDTG',
+#                   default = 'BDTGA',
+#                   help = 'Set BDTG range '
+#                   )
 parser.add_option( '--mode',
                    dest = 'mode',
                    default = 'BDPi',
                    help = 'Set BDTG range '
                    )
+parser.add_option( '--configName',
+                   dest = 'configName',
+                   default = 'Bs2DsKConfigForNominalMassFitBDTGA'
+                   )
+
 
 # -----------------------------------------------------------------------------
 
@@ -471,7 +443,18 @@ if __name__ == '__main__' :
     if len( args ) > 0 :
         parser.print_help()
         exit( -1 )
-    
-    runExpectedYields( options.debug, options.var, options.ProbVar, options.save, options.BDTG, options.mode )
+
+
+    config = options.configName
+    last = config.rfind("/")
+    directory = config[:last+1]
+    configName = config[last+1:]
+    p = configName.rfind(".")
+    configName = configName[:p]
+
+    import sys
+    sys.path.append(directory)
+
+    runExpectedYields( configName , options.debug, options.mode )
 
 # -----------------------------------------------------------------------------

@@ -106,6 +106,34 @@ DecayTree;1
 ###
 
 
+#PID Pion 2012
+/afs/cern.ch/user/s/sgallori/public/forAgnieszka/PIDCalib_histos/
+Pi_Strip21_MagDown_P.root
+Pi_Strip21_MagUp_P.root
+###
+
+#PID Kaon 2012
+/afs/cern.ch/user/s/sgallori/public/forAgnieszka/PIDCalib_histos/
+K_Strip21_MagDown_P.root
+K_Strip21_MagUp_P.root
+###
+
+#PID ProtonXXX 2012
+/afs/cern.ch/user/s/sgallori/public/forAgnieszka/PIDCalib_histos/
+P_TotLc_Strip21_MagDown_P.root
+P_TotLc_Strip21_MagUp_P.root
+###
+
+#PID Proton 2012
+/afs/cern.ch/user/s/sgallori/public/forAgnieszka/PIDCalib_histos/
+P_Strip20_MagDown_P.root
+P_Strip20_MagUp_P.root
+###
+
+
+
+
+
 #PIDp
 /afs/cern.ch/user/l/lcarson/public/ForAgnieszka/
 EffHistos_Reco12_39Mom_Proton_MagDown_TightCuts.root

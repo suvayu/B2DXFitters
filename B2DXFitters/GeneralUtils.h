@@ -16,6 +16,7 @@
 #include <iostream>
 #include <string>
 #include <vector>
+#include <utility>
 
 // ROOT and RooFit includes
 #include "TFile.h"
@@ -385,6 +386,7 @@ namespace GeneralUtils {
   std::vector < std::vector <TString> > AddToList2D(std::vector < std::vector <TString> > matrix, TString name,TString name2);
   void printList2D(std::vector < std::vector <TString> > matrix);
 
+  std::pair <TString, TString> GetNameExpectedYields(TString mode, bool debug=false);
   double pe_from_pid(int pid, double px, double py, double pz);
 
 }

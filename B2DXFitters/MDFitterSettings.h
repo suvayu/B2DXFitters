@@ -11,6 +11,7 @@
 #define MDFITTERSETTINGS
 
 #include "PIDCalibrationSample.h"
+#include "HistPID1D.h"
 #include "TString.h"
 #include "TNamed.h"
 #include "TCut.h"
@@ -146,13 +147,13 @@ public:
   void SetBin(Int_t bin1, Int_t bin2, Int_t bin3 ) { _bin[0] = bin1; _bin[1] = bin2; _bin[3] = bin3; }
   void SetVar(Int_t var1, Int_t var2, Int_t var3 ) { _var[0] = var1; _var[1] = var2; _var[3] = var3; }
 
-  Int_t GetPIDBach()   { return  _PIDBach;   }
-  Int_t GetPIDChild()  { return  _PIDChild;  }
-  Int_t GetPIDProton() { return  _PIDProton; }
+  //  Int_t GetPIDBach()   { return  _PIDBach;   }
+  //Int_t GetPIDChild()  { return  _PIDChild;  }
+  //Int_t GetPIDProton() { return  _PIDProton; }
 
-  void SetPIDBach( Int_t value ) { _PIDBach = value; }
-  void SetPIDChild( Int_t value ) { _PIDChild = value; }
-  void SetPIDProton( Int_t value ) { _PIDProton = value; }
+  //void SetPIDBach( Int_t value ) { _PIDBach = value; }
+  // void SetPIDChild( Int_t value ) { _PIDChild = value; }
+  //void SetPIDProton( Int_t value ) { _PIDProton = value; }
 
   void SetLum(TString year, Double_t valmd, Double_t valmu); 
   Double_t GetLum(TString year, TString pol); 
@@ -466,14 +467,35 @@ public:
   
   Bool_t CheckDataMCWeighting() { return _weightRatioDataMC; }
   Bool_t CheckMassWeighting() { return _weightMassTemp; } 
-  TString GetMassWeightingVar(int i) { return _weightMassTempVar[i]; }
-  std::vector <TString> GetMassWeightingVar() { return _weightMassTempVar; } 
-  void AddWeightingMassVar(TString name) { _weightMassTempVar.push_back(name);}
   void SetRatioDataMC(Bool_t cut){ _weightRatioDataMC = cut; } 
   void SetMassWeighting(Bool_t cut) { _weightMassTemp = cut; }
 
   void SetPIDComboShapeFor5Modes(){ _calibCombo = true; }
   Bool_t CheckPIDComboShapeForDsModes(){ return _calibCombo; }
+
+  void SetPIDProperties(TString key, TString file1, TString file2, TString var, TString histName); 
+  TString GetPIDFileName(TString key, TString year); 
+  std::pair<TString,TString> GetPIDHist(TString key); 
+  TString GetPIDHistName(TString key); 
+  TString GetPIDHistVar(TString key); 
+  HistPID1D  GetHistPID1D(TString key,  TString year);
+
+  void SetConfigFile(TString config) { _data = config; } 
+  TString GetConfigFile() { return _data; }
+  
+  void SetMassShift(TString var, Double_t shift) 
+  { 
+    if ( var == _mVarOut ) { _massShift.first = shift; }
+    else if ( var == _mDVarOut ) { _massShift.second = shift; } 
+  }
+
+  Double_t GetMassShift(TString var)
+  {
+    if ( var == _mVarOut ) { return _massShift.first; }
+    else if ( var == _mDVarOut ) { return _massShift.second; }
+    else { return 0.0; }
+  }
+
 protected:
 
   std::vector <Double_t> _massBRange;
@@ -512,11 +534,11 @@ protected:
   std::vector <Int_t> _bin;
   std::vector <TString> _var;
 
-  Int_t _PIDBach;
-  Int_t _PIDChild;
-  Int_t _PIDProton;
+  //  Int_t _PIDBach;
+  //Int_t _PIDChild;
+  //Int_t _PIDProton;
   Int_t _weightDim;
-  std::vector <TString> _weightMassTempVar;
+  //std::vector <TString> _weightMassTempVar;
   Bool_t _weightMassTemp;
   Bool_t _weightRatioDataMC; 
 
@@ -556,7 +578,24 @@ protected:
   std::vector <Int_t> _addBKGCATCuts;
   std::vector <Int_t> _addDsHypoCuts;
   std::vector <TString> _prefixDsChild;
- 
+
+  std::vector <TString> _PIDHpion;
+  std::vector <TString> _PIDHkaon;
+  std::vector <TString> _PIDHproton; 
+
+  std::pair <TString, TString> _filePIDBacEff;
+  std::pair <TString, TString> _filePIDBacMisID;
+  std::pair <TString, TString> _filePIDChildMisID;
+  std::pair <TString, TString> _filePIDChildProtonMisID;
+
+  std::pair <TString, TString> _PIDBacEff;
+  std::pair <TString, TString> _PIDBacMisID;
+  std::pair <TString, TString> _PIDChildMisID;
+  std::pair <TString, TString> _PIDChildProtonMisID; 
+  
+  std::pair <Double_t, Double_t> _massShift; 
+  
+  TString _data; 
 
 private:
   ClassDef(MDFitterSettings, 1);

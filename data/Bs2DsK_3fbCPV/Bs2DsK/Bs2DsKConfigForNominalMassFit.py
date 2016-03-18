@@ -54,7 +54,19 @@ def getconfig() :
     configdict["DsChildrenPrefix"] = {"Child1":"lab3","Child2":"lab4","Child3": "lab5"}
 
     #weighting templates by PID eff/misID
-    configdict["WeightingMassTemplates"]= { "Variables":["lab4_P","lab5_P"], "PIDBach": 5, "PIDChild": 0, "PIDProton": 5, "RatioDataMC":True }
+    configdict["WeightingMassTemplates"]= { ###"Variables":["lab4_P","lab3_P"],                                                                                                                      
+                                            "PIDBachEff":            { "FileLabel": { "2011":"#PID Kaon 2011", "2012":"#PID Kaon 2012"},
+                                                                       "Var":"lab1_P", "HistName":"MyKaonEff_0"},
+                                            "PIDBachMisID":          { "FileLabel": { "2011":"#PID Kaon 2011", "2012":"#PID Kaon 2012"},
+                                                                       "Var":"lab1_P", "HistName":"MyKaonMisID_0"},
+                                            "PIDChildKaonPionMisID": { "FileLabel": { "2011":"#PID Pion 2011", "2012":"#PID Pion 2012"},
+                                                                       "Var":"lab3_P", "HistName":"MyPionMisID_0"},
+                                            "PIDChildProtonMisID":   { "FileLabel": { "2011":"#PID Proton 2011", "2012":"#PID Proton 2012"},
+                                                                       "Var":"lab4_P", "HistName":"MyProtonMisID_pKm5_KPi5"},
+                                            "RatioDataMC":True,
+                                            "Shift":{ "BeautyMass": -2.0, "CharmMass": 0.0} }
+
+#    configdict["WeightingMassTemplates"]= { "Variables":["lab4_P","lab5_P"], "PIDBach": 5, "PIDChild": 0, "PIDProton": 5, "RatioDataMC":True }
     
     #weighting for PID templates
     configdict["ObtainPIDTemplates"] = { "Variables":["BacPT","nTracks"], "Bins":[20,20] }

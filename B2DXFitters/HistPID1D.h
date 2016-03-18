@@ -54,6 +54,7 @@ public:
     TH1F* hist = GetHist(pol);
     Int_t bin = hist->FindBin(val);  
     _val = hist->GetBinContent(bin);
+    //    std::cout<<"Bin: "<<bin<<" with input value: "<<val<<" and output: "<<_val<<std::endl; 
     return _val;
   }
   

@@ -149,22 +149,22 @@ namespace MassFitUtils {
   //===========================================================================
   // Get name of PID hist for bachelor  - background MC
   //===========================================================================
-  TString GetHistNameBachPIDBkgMC(MDFitterSettings* mdSet, TString hypo, bool debug = false );
+  //TString GetHistNameBachPIDBkgMC(MDFitterSettings* mdSet, TString hypo, bool debug = false );
 
   //===========================================================================
   // Get name of PID hist for Ds child -  background MC
   //===========================================================================
-  TString GetHistNameChildPIDBkgMC(MDFitterSettings* mdSet, TString hypo, bool debug = false );
+  //  TString GetHistNameChildPIDBkgMC(MDFitterSettings* mdSet, TString hypo, bool debug = false );
 
   //===========================================================================
   // Get name of PID hist for proton veto - background MC
   //===========================================================================
-  TString GetHistNameProtonPIDBkgMC(MDFitterSettings* mdSet, TString hypo, bool debug = false);
+  //TString GetHistNameProtonPIDBkgMC(MDFitterSettings* mdSet, TString hypo, bool debug = false);
 
   //===========================================================================
   // Get name of PID hist for bachelor eff -  background MC
   //===========================================================================
-  TString GetHistNameBachPIDEffBkgMC(MDFitterSettings* mdSet, TString hypo, bool debug = false);
+  // TString GetHistNameBachPIDEffBkgMC(MDFitterSettings* mdSet, TString hypo, bool debug = false);
 
   //===========================================================================                                                                               
   // Get correlation factor between observables                                                                                                    
@@ -334,15 +334,17 @@ namespace MassFitUtils {
   // mProbVar - variable using in PID cut (for example lab1_PIDK)
   // mode - mode of decay
   //==========================================================================
+
+  TCut GetOwnCut(std::pair<TString,TString> hypo, MDFitterSettings* mdSet, bool debug = false); 
+  TCut GetHypoCut(std::pair<TString,TString> own, std::pair<TString,TString> hypo, MDFitterSettings* mdSet, bool debug = false);
+
   void ExpectedYield(TString& filesDir, TString& sigBs, TString& sigBd, 
 		     TString& sigPID_lab4, TString& PIDcut_lab4,
 		     TString& sigPID_lab51, TString& PIDcut_lab51,
 		     TString& sigPID_lab52, TString& PIDcut_lab52,
-		     double Pcut_down, double Pcut_up,
-		     double BDTG_down, double BDTG_up,
-		     double Dmass_down, double Dmass_up,
-		     TString &mVar, TString& mProbVar,
-		     TString& mode,TString &mode2
+		     MDFitterSettings* mdSet,
+		     PlotSettings* plotSet,
+		     TString& mode,TString &mode2, Bool_t debug = false
 		     );
 
   //==========================================================================

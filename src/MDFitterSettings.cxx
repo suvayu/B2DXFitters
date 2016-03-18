@@ -13,6 +13,7 @@
 
 #include "B2DXFitters/MDFitterSettings.h" 
 #include "B2DXFitters/GeneralUtils.h"
+#include "B2DXFitters/HistPID1D.h"
 #include "TString.h"
 #include "RooRealVar.h"
 #include "RooArgSet.h"
@@ -29,11 +30,25 @@ MDFitterSettings::MDFitterSettings(const TString& name, const TString& title)
 {
   TNamed(name,title);
 
-  _PIDBach = 0;
-  _PIDChild = 0;
-  _PIDProton = 0;
-
   _weightDim = 0.0;
+  _massShift.first = 0;
+  _massShift.second = 0; 
+
+  _data = ""; 
+
+  _filePIDBacEff.first = "";
+  _filePIDBacEff.second = "";
+  _filePIDBacMisID.first = "";
+  _filePIDBacMisID.second = "";
+  _filePIDChildMisID.first = "";
+  _filePIDChildMisID.second = "";
+  _filePIDChildProtonMisID.first = "";
+  _filePIDChildProtonMisID.second = "";
+
+  _PIDBacEff.first = ""; _PIDBacEff.second = "";
+  _PIDBacMisID.first = ""; _PIDBacMisID.second = "";
+  _PIDChildMisID.first = ""; _PIDChildMisID.second = "";
+  _PIDChildProtonMisID.first = ""; _PIDChildProtonMisID.second = "";
 
   for(int i = 0; i< 2; i++ )
     {
@@ -136,10 +151,6 @@ MDFitterSettings::MDFitterSettings(const MDFitterSettings& other) :
 
   _bin = other._bin;
   _var = other._var;
-
-  _PIDBach   = other._PIDBach;
-  _PIDChild  = other._PIDChild;
-  _PIDProton = other._PIDProton;
 
   _lumRatio = other._lumRatio;
   _weightDim = other._weightDim;
@@ -280,19 +291,47 @@ std::ostream & operator<< (std::ostream &out, const MDFitterSettings &s)
       out<<"-------------------------------------------------------------------"<<std::endl;
       out<<"\t Mass templates will be weighted using following settings: "<<std::endl;
       out<<"-------------------------------------------------------------------"<<std::endl;
-  
-      out<<"PIDK bachelor: "<<s._PIDBach<<std::endl;
-      out<<"PIDK child: "<<s._PIDChild<<std::endl;
-      out<<"PIDK proton: "<<s._PIDProton<<std::endl;
-      if (s._weightMassTempVar.size() > 0 )
-	{
-	  out<<"Variables: ";
-	  for (unsigned int i = 0; i<s._weightMassTempVar.size(); i++)
-	    {
-	      out<<s._weightMassTempVar[i]<<" "; 
-	    }
-	  out<<std::endl;
-	}
+
+      out<<" Shift for "<<s._mVarOut<<" is: "<<s._massShift.first<<std::endl;
+      out<<" Shift for "<<s._mDVarOut<<" is: "<<s._massShift.first<<std::endl;
+      out<<" Bachelor Efficinecy: "<<std::endl;
+      out<<" \t file for 2011: "<<s._filePIDBacEff.first<<std::endl;
+      out<<" \t file for 2012: "<<s._filePIDBacEff.second<<std::endl;
+      out<<" \t name of histogram: "<<s._PIDBacEff.first<<std::endl;
+      out<<" \t variable weighted: "<<s._PIDBacEff.second<<std::endl;
+      out<<"-------------------------------------------------------------------"<<std::endl;
+      out<<" Bachelor MisID: "<<std::endl;
+      out<<" \t file for 2011: "<<s._filePIDBacMisID.first<<std::endl;
+      out<<" \t file for 2012: "<<s._filePIDBacMisID.second<<std::endl;
+      out<<" \t name of histogram: "<<s._PIDBacMisID.first<<std::endl;
+      out<<" \t variable weighted: "<<s._PIDBacMisID.second<<std::endl;
+      out<<"-------------------------------------------------------------------"<<std::endl;
+      out<<" Kaon/Pion MisID: "<<std::endl;
+      out<<" \t file for 2011: "<<s._filePIDChildMisID.first<<std::endl;
+      out<<" \t file for 2012: "<<s._filePIDChildMisID.second<<std::endl;
+      out<<" \t name of histogram: "<<s._PIDChildMisID.first<<std::endl;
+      out<<" \t variable weighted: "<<s._PIDChildMisID.second<<std::endl;
+      out<<"-------------------------------------------------------------------"<<std::endl;
+      out<<" Proton MisID: "<<std::endl;
+      out<<" \t file for 2011: "<<s._filePIDChildProtonMisID.first<<std::endl;
+      out<<" \t file for 2012: "<<s._filePIDChildProtonMisID.second<<std::endl;
+      out<<" \t name of histogram: "<<s._PIDChildProtonMisID.first<<std::endl;
+      out<<" \t variable weighted: "<<s._PIDChildProtonMisID.second<<std::endl;
+      out<<"-------------------------------------------------------------------"<<std::endl;
+
+
+      //      out<<"PIDK bachelor: "<<s._PIDBach<<std::endl;
+      //out<<"PIDK child: "<<s._PIDChild<<std::endl;
+      //out<<"PIDK proton: "<<s._PIDProton<<std::endl;
+      //if (s._weightMassTempVar.size() > 0 )
+      //	{
+      //	  out<<"Variables: ";
+      //  for (unsigned int i = 0; i<s._weightMassTempVar.size(); i++)
+      //    {
+      //      out<<s._weightMassTempVar[i]<<" "; 
+      //    }
+      //  out<<std::endl;
+      //	}
       out<<"Prefix for Ds children: "<<s._prefixDsChild[0]<<" "<<s._prefixDsChild[1]<<" "<<s._prefixDsChild[2]<<std::endl;
     }
 
@@ -1341,3 +1380,123 @@ std::vector <Double_t> MDFitterSettings::GetLumRatio(TString check)
   return lumRat; 
   
 }
+
+
+void MDFitterSettings::SetPIDProperties(TString key, TString file2011, TString file2012, TString var, TString histName)
+{
+  if ( key == "PIDBachEff") 
+    {
+      _filePIDBacEff.first = file2011;
+      _filePIDBacEff.second = file2012;
+      _PIDBacEff.first = histName;
+      _PIDBacEff.second = var; 
+    }
+  else if ( key == "PIDBachMisID") 
+    {
+      _filePIDBacMisID.first =file2011;
+      _filePIDBacMisID.second = file2012;
+      _PIDBacMisID.first = histName;
+      _PIDBacMisID.second= var;
+    }
+  else if ( key == "PIDChildKaonPionMisID") 
+    {
+      _filePIDChildMisID.first =file2011;
+      _filePIDChildMisID.second = file2012;
+      _PIDChildMisID.first = histName;
+      _PIDChildMisID.second= var;
+    }
+  else if ( key == "PIDChildProtonMisID") 
+    {
+      _filePIDChildProtonMisID.first =file2011;
+      _filePIDChildProtonMisID.second = file2012;
+      _PIDChildProtonMisID.first = histName;
+      _PIDChildProtonMisID.second= var;
+    }
+
+}
+
+
+TString MDFitterSettings::GetPIDFileName(TString key, TString year)
+{
+  if ( key == "PIDBachEff")
+    {
+      if ( year == "2011" ) { return _filePIDBacEff.first; }
+      else {  return _filePIDBacEff.second; }
+    }
+  else if ( key == "PIDBachMisID")
+    {
+      if ( year == "2011") {return  _filePIDBacMisID.first; }
+      else { return _filePIDBacMisID.second; }
+    }
+  else if ( key == "PIDChildKaonPionMisID" ) 
+    {
+      if ( year == "2011" ) { return _filePIDChildMisID.first; }
+      else { return _filePIDChildMisID.second; }
+    }
+  else if ( key == "PIDChildProtonMisID")
+    {
+      if ( year == "2011" ) { return _filePIDChildProtonMisID.first; }
+      else { return _filePIDChildProtonMisID.second; }
+    }
+  return ""; 
+}
+
+
+std::pair<TString,TString> MDFitterSettings::GetPIDHist(TString key)
+{
+  std::pair<TString,TString> n;
+ 
+  if ( key == "PIDBachEff"){ return _PIDBacEff;}
+  else if ( key == "PIDBachMisID"){ return _PIDBacMisID; }
+  else if ( key == "PIDChildKaonPionMisID" ) { return _PIDChildMisID; }
+  else if ( key == "PIDChildProtonMisID") { return  _PIDChildProtonMisID; }
+  return n;
+
+} 
+
+TString MDFitterSettings::GetPIDHistName(TString key)
+{
+  if ( key == "PIDBachEff"){ return _PIDBacEff.first;}
+  else if ( key == "PIDBachMisID"){ return _PIDBacMisID.first; }
+  else if ( key == "PIDChildKaonPionMisID" ) { return _PIDChildMisID.first; }
+  else if ( key == "PIDChildProtonMisID") { return  _PIDChildProtonMisID.first; }
+  return "";
+}
+
+TString MDFitterSettings::GetPIDHistVar(TString key)
+{
+  if ( key == "PIDBachEff"){ return _PIDBacEff.second;}
+  else if ( key == "PIDBachMisID"){ return _PIDBacMisID.second; }
+  else if ( key == "PIDChildKaonPionMisID" ) { return _PIDChildMisID.second; }
+  else if ( key == "PIDChildProtonMisID") { return  _PIDChildProtonMisID.second; }
+  return "";
+}
+
+HistPID1D MDFitterSettings::GetHistPID1D(TString key, TString year)
+{
+
+  TString fileName = GetPIDFileName(key,year);
+  TString fileName2 = GetPIDFileName(key,year); 
+  if ( fileName == "#PID" ) { fileName2 = "#PID2"; } 
+  if ( fileName == "#PID2m2" ) { fileName2 = "#PID2m22"; }
+ 
+  TString histName = GetPIDHistName(key);
+
+  if ( fileName == fileName2 )
+    {
+      std::cout<<"[INFO] Get histogram "<<histName<<" from file: "<<fileName<<std::endl; 
+      std::cout<<_data<<std::endl; 
+      HistPID1D hist(histName, histName, _data, fileName);
+      return hist; 
+    }
+  else
+    {
+      std::cout<<"[INFO] Get histogram "<<histName<<" from files: "<<fileName<<" and "<<fileName2<<std::endl;
+      std::cout<<_data<<std::endl;
+      HistPID1D hist(histName, histName, _data, fileName, fileName2);
+      return hist; 
+    }
+}
+
+
+

@@ -3,6 +3,10 @@
 ! Responsible : Agnieszka Dziurda, Manuel Schiller
 ! Purpose     : RooFit-based fitters for B -> D X
 !-----------------------------------------------------------------------------
+! 2016-03-18 - Agnieszka Dziurda
+ - split PID histograms for 2011 and 2012
+ - minor changes in config files to handle it
+ - move shift for MC to config file
 
 ! 2016-02-25 - Agnieszka Dziurda
  - fix Bs2DsPi config file
