@@ -3,6 +3,10 @@
 ! Responsible : Agnieszka Dziurda, Manuel Schiller
 ! Purpose     : RooFit-based fitters for B -> D X
 !-----------------------------------------------------------------------------
+
+! 2016-03-24 - Agnieszka Dziurda
+ - split R parameter for Ds final states, now declarated in config! 
+
 ! 2016-03-18 - Agnieszka Dziurda
  - split PID histograms for 2011 and 2012
  - minor changes in config files to handle it

@@ -117,9 +117,9 @@ namespace Bs2Dsh2011TDAnaModels {
 
     if ( widthRatio ) 
       {
-	TString name = TString("Signal_")+varName+TString("_R");
-        R = new RooRealVar(name.Data(),name.Data(), 1.0, 0.8, 1.2);
-        name = TString("Signal_") + varName + TString("_sigmafcb1_")+samplemode;
+	TString RName = TString("Signal_")+varName+TString("_R_")+samplemode;
+        R = tryVar(RName, workInt, debug);
+        TString name = TString("Signal_") + varName + TString("_sigmafcb1_")+samplemode;
         sigma1For = new RooFormulaVar(name.Data(), name.Data(),"@0*@1", RooArgList(*sigma1Var,*R));
         if ( debug == true ) { std::cout<<"[INFO] Create/read "<<name<<std::endl; }
 	name = TString("Signal_") + varName + TString("_sigmafcb2_")+samplemode;

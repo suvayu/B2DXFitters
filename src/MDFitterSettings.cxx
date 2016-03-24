@@ -293,7 +293,7 @@ std::ostream & operator<< (std::ostream &out, const MDFitterSettings &s)
       out<<"-------------------------------------------------------------------"<<std::endl;
 
       out<<" Shift for "<<s._mVarOut<<" is: "<<s._massShift.first<<std::endl;
-      out<<" Shift for "<<s._mDVarOut<<" is: "<<s._massShift.first<<std::endl;
+      out<<" Shift for "<<s._mDVarOut<<" is: "<<s._massShift.second<<std::endl;
       out<<" Bachelor Efficinecy: "<<std::endl;
       out<<" \t file for 2011: "<<s._filePIDBacEff.first<<std::endl;
       out<<" \t file for 2012: "<<s._filePIDBacEff.second<<std::endl;
