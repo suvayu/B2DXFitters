@@ -4,6 +4,11 @@
 ! Purpose     : RooFit-based fitters for B -> D X
 !-----------------------------------------------------------------------------
 
+
+
+! 2016-03-25 - Agnieszka Dziurda
+ - remove obsolete scripts for preparing workspace, fits and plotting. 
+
 ! 2016-03-24 - Agnieszka Dziurda
  - split R parameter for Ds final states, now declarated in config! 
 
