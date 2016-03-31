@@ -21,7 +21,7 @@ namespace Bs2Dsh2011TDAnaModels {
   RooAbsPdf* buildCrystalBallPDF( RooAbsReal& mass, RooWorkspace* workInt, TString samplemode, TString typemode, bool debug = false);
 
   RooAbsPdf* buildDoubleCrystalBallPDF( RooAbsReal& mass, RooWorkspace* workInt, TString samplemode,
-					TString typemode, bool widthRatio, bool debug = false);
+					TString typemode, bool widthRatio, bool sharedMean, bool debug = false);
   
   //===============================================================================
   // Double gaussian function where all parameters are RooRealVar
@@ -30,9 +30,9 @@ namespace Bs2Dsh2011TDAnaModels {
   RooAbsPdf* buildGaussPDF( RooAbsReal& mass, RooWorkspace* workInt, TString samplemode, TString typemode, bool debug = false);
   
   RooAbsPdf* buildDoubleGaussPDF( RooAbsReal& mass, RooWorkspace* workInt, TString samplemode,
-				  TString typemode, bool widthRatio, bool debug = false);
+				  TString typemode, bool widthRatio, bool sharedMean, bool debug = false);
 
-  RooAbsPdf* buildExponentialPlusGaussPDF(RooAbsReal& mass, RooWorkspace* workInt, TString samplemode, TString typemode, bool debug = false);
+  RooAbsPdf* buildExponentialPlusGaussPDF(RooAbsReal& mass, RooWorkspace* workInt, TString samplemode, TString typemode, bool sharedMean, bool debug = false);
 
   RooAbsPdf* buildExponentialPDF(RooAbsReal& mass, RooWorkspace* workInt, TString samplemode, TString typemode, bool debug = false);
 
@@ -45,6 +45,9 @@ namespace Bs2Dsh2011TDAnaModels {
   RooAbsPdf* buildIpatiaPDF(RooAbsReal& mass, RooWorkspace* workInt, TString samplemode, TString typemode, bool debug = false);
 
   RooAbsPdf* buildApolloniosPDF(RooAbsReal& mass, RooWorkspace* workInt, TString samplemode, TString typemode, bool debug = false);
+
+  RooAbsPdf* buildExponentialPlusDoubleCrystalBallPDF(RooAbsReal& mass, RooWorkspace* workInt, 
+						      TString samplemode, TString typemode, bool widthRatio, bool sharedMean, bool debug = false);
 
   RooAbsPdf* buildComboPIDKPDF(RooAbsReal& mass, RooWorkspace* workInt, RooWorkspace* work, 
 			       TString samplemode, TString typemode, TString merge, bool debug = false);

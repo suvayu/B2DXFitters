@@ -1221,7 +1221,8 @@ RooArgSet* MDFitterSettings::GetObsSet(bool inName, bool regular, bool id, bool 
       for(unsigned int i = 0; i < tN.size(); i++)
 	{
 	  //std::cout<<"[INFO] tN: "<<tN[i]<<std::endl; 
-	  if ( tN[i] == _nTracksVar || tN[i] == _pVar || tN[i] == _ptVar  )
+	  if ( tN[i] == _nTracksVar || tN[i] == _pVar || tN[i] == _ptVar 
+	       || tN[i] == _nTracksVarOut || tN[i] == _pVarOut || tN[i] == _ptVarOut)
 	    {
 	      obsReg.push_back(this->GetObs(tN[i],inName,true));
 	    }

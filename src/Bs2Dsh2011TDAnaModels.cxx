@@ -79,6 +79,7 @@ namespace Bs2Dsh2011TDAnaModels {
 					TString samplemode,
 					TString type,
 					bool widthRatio, 
+					bool sharedMean,
 					bool debug)
   {
 
@@ -99,6 +100,7 @@ namespace Bs2Dsh2011TDAnaModels {
     TString varName = obs.GetName();
 
     TString meanName = type+"_"+varName+"_mean_"+samplemode;
+    if ( sharedMean) { meanName = "Signal_"+varName+"_mean_"+samplemode; }
     mean = tryVar(meanName, workInt, debug);
     TString alpha1Name = type+"_"+varName+"_alpha1_"+samplemode;
     alpha1Var = tryVar(alpha1Name, workInt, debug);
@@ -117,12 +119,12 @@ namespace Bs2Dsh2011TDAnaModels {
 
     if ( widthRatio ) 
       {
-	TString RName = TString("Signal_")+varName+TString("_R_")+samplemode;
+	TString RName = type+TString("_")+varName+TString("_R_")+samplemode;
         R = tryVar(RName, workInt, debug);
-        TString name = TString("Signal_") + varName + TString("_sigmafcb1_")+samplemode;
+        TString name = type+TString("_") + varName + TString("_sigmafcb1_")+samplemode;
         sigma1For = new RooFormulaVar(name.Data(), name.Data(),"@0*@1", RooArgList(*sigma1Var,*R));
         if ( debug == true ) { std::cout<<"[INFO] Create/read "<<name<<std::endl; }
-	name = TString("Signal_") + varName + TString("_sigmafcb2_")+samplemode;
+	name = type+TString("_") + varName + TString("_sigmafcb2_")+samplemode;
         sigma2For = new RooFormulaVar(name.Data(), name.Data(),"@0*@1", RooArgList(*sigma2Var,*R));
 	if ( debug == true ) { std::cout<<"[INFO] Create/read "<<name<<std::endl; }
       }
@@ -192,6 +194,7 @@ namespace Bs2Dsh2011TDAnaModels {
 				  TString samplemode,
 				  TString typemode,
 				  bool widthRatio, 
+				  bool sharedMean, 
 				  bool debug)
   {
 
@@ -207,6 +210,7 @@ namespace Bs2Dsh2011TDAnaModels {
     TString varName = obs.GetName();
 
     TString meanName = typemode+"_"+varName+"_mean_"+samplemode;
+    if ( sharedMean ) { meanName = "Signal_"+varName+"_mean_"+samplemode; }
     mean = tryVar(meanName, workInt, debug);
     TString sigma1Name = typemode+"_"+varName+"_sigma1_"+samplemode;
     sigma1Var = tryVar(sigma1Name, workInt, debug);
@@ -217,12 +221,12 @@ namespace Bs2Dsh2011TDAnaModels {
 
     if ( widthRatio )
       {
-        TString name = TString("Signal_")+varName+TString("_R");
+        TString name = typemode+TString("_")+varName+TString("_R");
         R = new RooRealVar(name.Data(),name.Data(), 1.0, 0.8, 1.2);
-        name = TString("Signal_") + varName + TString("_sigmafg1_")+samplemode;
+        name = typemode+TString("_") + varName + TString("_sigmafg1_")+samplemode;
         sigma1For = new RooFormulaVar(name.Data(), name.Data(),"@0*@1", RooArgList(*sigma1Var,*R));
         if ( debug == true ) { std::cout<<"[INFO] Create/read "<<name<<std::endl; }
-        name = TString("Signal_") + varName + TString("_sigmafg2_")+samplemode;
+        name = typemode+TString("_") + varName + TString("_sigmafg2_")+samplemode;
         sigma2For = new RooFormulaVar(name.Data(), name.Data(),"@0*@1", RooArgList(*sigma2Var,*R));
 	if ( debug == true ) { std::cout<<"[INFO] Create/read "<<name<<std::endl; }
       }
@@ -259,6 +263,7 @@ namespace Bs2Dsh2011TDAnaModels {
                                           RooWorkspace* workInt,
                                           TString samplemode,
                                           TString typemode,
+					  bool sharedMean, 
                                           bool debug)
   {
     if ( debug == true ) { std::cout<<"[INFO] --------- build Exponential plus Gaussian -------- "<<std::endl; }
@@ -271,6 +276,7 @@ namespace Bs2Dsh2011TDAnaModels {
     TString varName = obs.GetName();
 
     TString meanName = typemode+"_"+varName+"_mean_"+samplemode;
+    if ( sharedMean ) { meanName = "Signal_"+varName+"_mean_"+samplemode; }
     mean = tryVar(meanName, workInt, debug);
     TString sigma1Name = typemode+"_"+varName+"_sigma_"+samplemode;
     sigma1Var = tryVar(sigma1Name, workInt, debug);
@@ -428,6 +434,26 @@ namespace Bs2Dsh2011TDAnaModels {
 
     return pdf;
     
+  }
+
+  RooAbsPdf* buildExponentialPlusDoubleCrystalBallPDF(RooAbsReal& obs, RooWorkspace* workInt,
+                                                      TString samplemode, TString typemode, bool widthRatio, bool sharedMean, bool debug)
+  {
+    RooAbsPdf* pdf0 = buildExponentialPDF(obs, workInt, samplemode, typemode, debug);
+    RooAbsPdf* pdf1 = buildDoubleCrystalBallPDF( obs, workInt, samplemode, typemode, widthRatio, sharedMean, debug);
+
+    RooRealVar* fracVar = NULL;
+    TString varName = obs.GetName();
+    TString fracDsCombName = typemode+"_"+varName+"_fracD_"+samplemode;
+    fracVar = tryVar(fracDsCombName, workInt, debug);
+
+    RooAddPdf* pdf = NULL;
+    TString pdfName = typemode+"_"+varName+"_expodCB_"+samplemode;
+    pdf = new RooAddPdf( pdfName.Data(), pdfName.Data(),  RooArgList(*pdf1,*pdf0), *fracVar );
+    CheckPDF(pdf, debug);
+
+    return pdf;
+
   }
 
 
@@ -1304,7 +1330,7 @@ namespace Bs2Dsh2011TDAnaModels {
     if (debug == true) cout<<"---------------  Read PDF's from the workspace -----------------"<<endl;
     
     RooExtendPdf* epdf_Bd2DPi = NULL;
-    epdf_Bd2DPi = buildExtendPdfSpecBkgMDFit( workInt, work, samplemode, "Bd2DPi", "kpipi", merge, dim, "", debug);
+    epdf_Bd2DPi = buildExtendPdfSpecBkgMDFit( workInt, work, samplemode, "Bd2DPi", "", merge, dim, "", debug);
     Double_t valBd2DPi = CheckEvts(workInt, samplemode, "Bd2DPi",debug);
     list = AddEPDF(list, epdf_Bd2DPi, valBd2DPi, debug);
 
@@ -1723,6 +1749,11 @@ namespace Bs2Dsh2011TDAnaModels {
     Double_t val = 10.0; 
     TString varName = mass.GetName(); 
 
+    Bool_t sharedMean = false;
+    if ( type.Contains("SharedMean") == true ) { sharedMean = true; }
+    Bool_t widthRatio = false;
+    if ( type.Contains("WithWidthRatio") == true ) { widthRatio = true; }
+
     if ( extended == true )
       {
 	TString nName = "nSig_"+samplemode+"_Evts";
@@ -1753,13 +1784,13 @@ namespace Bs2Dsh2011TDAnaModels {
       }
     else if ( type.Contains("CrystalBall" ) )
       {
-	if ( type == "DoubleCrystalBall" )
-	  {
-	    pdf =  buildDoubleCrystalBallPDF( mass, workInt, samplemode, typemode, false, debug);
-	  }
-	else if ( type == "DoubleCrystalBallWithWidthRatio" )
-	  {
-	    pdf =  buildDoubleCrystalBallPDF( mass, workInt, samplemode, typemode, true, debug);
+	if ( type.Contains("Exponential") )
+          {
+            pdf= buildExponentialPlusDoubleCrystalBallPDF(mass, workInt, samplemode, typemode, widthRatio, sharedMean, debug);
+          }
+        else if ( type.Contains("DoubleCrystalBall") )
+          {
+            pdf =  buildDoubleCrystalBallPDF( mass, workInt, samplemode, typemode, widthRatio, sharedMean, debug);
 	  }
 	else if ( type == "CrystalBall" )
           {
@@ -1772,17 +1803,13 @@ namespace Bs2Dsh2011TDAnaModels {
       }
     else if ( type.Contains("Gaussian") )
       {
-	if ( type == "DoubleGaussian") 
+	if ( type.Contains("DoubleGaussian")) 
 	  {
-	    pdf = buildDoubleGaussPDF( mass, workInt, samplemode, typemode, false, debug);
-	  }
-	else if ( type == "DoubleGaussianWithWidthRatio" )
-	  {
-	    pdf = buildDoubleGaussPDF( mass, workInt, samplemode, typemode, true, debug);
+	    pdf = buildDoubleGaussPDF( mass, workInt, samplemode, typemode, widthRatio, sharedMean, debug);
 	  }
 	else if ( type == "Gaussian" )
           {
-            pdf = buildDoubleGaussPDF( mass, workInt, samplemode, typemode, debug);
+            pdf = buildGaussPDF( mass, workInt, samplemode, typemode, debug);
           }
 	else
           {

@@ -198,73 +198,73 @@ PtVsnTrVsP_Comp_DPi_Up_hist.root
 
 #MC FileName KKPi MD 2011
 {"Mode":"Bd2DPi",
- "FileName":"root://eoslhcb.cern.ch//eos/lhcb/wg/b2oc/TD_DsK_3fb/TD_DsK3fb_MC_SMEARED/FINAL/B2DX_MC_Bd_D-pi+_Kpipi_CPV_Dn_BDTG_Bs.root",
+ "FileName":"root://eoslhcb.cern.ch//eos/lhcb/wg/b2oc/TD_DsK_3fb/TD_DsK3fb_MC/FINAL/B2DX_MC_Bd_D-pi+_Kpipi_CPV_Dn_BDTG_Bs.root",
  "TreeName":"DecayTree"}
 {"Mode":"Bs2DsRho",
- "FileName":"root://eoslhcb.cern.ch//eos/lhcb/wg/b2oc/TD_DsK_3fb/TD_DsK3fb_MC_SMEARED/FINAL/B2DX_MC_Bs_Dsrho_KKpi_Dn_BDTG_Bs.root",
+ "FileName":"root://eoslhcb.cern.ch//eos/lhcb/wg/b2oc/TD_DsK_3fb/TD_DsK3fb_MC/FINAL/B2DX_MC_Bs_Dsrho_KKpi_Dn_BDTG_Bs.root",
  "TreeName":"DecayTree"}
 {"Mode":"Bs2DsstPi",
- "FileName":"root://eoslhcb.cern.ch//eos/lhcb/wg/b2oc/TD_DsK_3fb/TD_DsK3fb_MC_SMEARED/FINAL/B2DX_MC_Bs_Dsstpi_KKpi_Dn_BDTG_Bs.root",
+ "FileName":"root://eoslhcb.cern.ch//eos/lhcb/wg/b2oc/TD_DsK_3fb/TD_DsK3fb_MC/FINAL/B2DX_MC_Bs_Dsstpi_KKpi_Dn_BDTG_Bs.root",
  "TreeName":"DecayTree"}
 {"Mode":"Lb2LcPi",
- "FileName":"root://eoslhcb.cern.ch//eos/lhcb/wg/b2oc/TD_DsK_3fb/TD_DsK3fb_MC_SMEARED/FINAL/B2DX_MC_Lb_Lambdacpi_Dn_BDTG_Bs.root",
+ "FileName":"root://eoslhcb.cern.ch//eos/lhcb/wg/b2oc/TD_DsK_3fb/TD_DsK3fb_MC/FINAL/B2DX_MC_Lb_Lambdacpi_Dn_BDTG_Bs.root",
  "TreeName":"DecayTree"}
 {"Mode":"Bs2DsK",
- "FileName":"root://eoslhcb.cern.ch//eos/lhcb/wg/b2oc/TD_DsK_3fb/TD_DsK3fb_MC_SMEARED/FINAL/B2DX_MC_Bs_DsK_KKpi_CPV_Dn_BDTG_Bs.root",
+ "FileName":"root://eoslhcb.cern.ch//eos/lhcb/wg/b2oc/TD_DsK_3fb/TD_DsK3fb_MC/FINAL/B2DX_MC_Bs_DsK_KKpi_CPV_Dn_BDTG_Bs.root",
  "TreeName":"DecayTree"}
 ###
 
 #MC FileName KKPi MU 2011
 {"Mode":"Bd2DPi",
- "FileName":"root://eoslhcb.cern.ch//eos/lhcb/wg/b2oc/TD_DsK_3fb/TD_DsK3fb_MC_SMEARED/FINAL/B2DX_MC_Bd_D-pi+_Kpipi_CPV_Up_BDTG_Bs.root",
+ "FileName":"root://eoslhcb.cern.ch//eos/lhcb/wg/b2oc/TD_DsK_3fb/TD_DsK3fb_MC/FINAL/B2DX_MC_Bd_D-pi+_Kpipi_CPV_Up_BDTG_Bs.root",
  "TreeName":"DecayTree"}
 {"Mode":"Bs2DsRho",
- "FileName":"root://eoslhcb.cern.ch//eos/lhcb/wg/b2oc/TD_DsK_3fb/TD_DsK3fb_MC_SMEARED/FINAL/B2DX_MC_Bs_Dsrho_KKpi_Up_BDTG_Bs.root",
+ "FileName":"root://eoslhcb.cern.ch//eos/lhcb/wg/b2oc/TD_DsK_3fb/TD_DsK3fb_MC/FINAL/B2DX_MC_Bs_Dsrho_KKpi_Up_BDTG_Bs.root",
  "TreeName":"DecayTree"}
 {"Mode":"Bs2DsstPi",
- "FileName":"root://eoslhcb.cern.ch//eos/lhcb/wg/b2oc/TD_DsK_3fb/TD_DsK3fb_MC_SMEARED/FINAL/B2DX_MC_Bs_Dsstpi_KKpi_Up_BDTG_Bs.root",
+ "FileName":"root://eoslhcb.cern.ch//eos/lhcb/wg/b2oc/TD_DsK_3fb/TD_DsK3fb_MC/FINAL/B2DX_MC_Bs_Dsstpi_KKpi_Up_BDTG_Bs.root",
  "TreeName":"DecayTree"}
 {"Mode":"Lb2LcPi",
- "FileName":"root://eoslhcb.cern.ch//eos/lhcb/wg/b2oc/TD_DsK_3fb/TD_DsK3fb_MC_SMEARED/FINAL/B2DX_MC_Lb_Lambdacpi_Up_BDTG_Bs.root",
+ "FileName":"root://eoslhcb.cern.ch//eos/lhcb/wg/b2oc/TD_DsK_3fb/TD_DsK3fb_MC/FINAL/B2DX_MC_Lb_Lambdacpi_Up_BDTG_Bs.root",
  "TreeName":"DecayTree"}
 {"Mode":"Bs2DsK",
- "FileName":"root://eoslhcb.cern.ch//eos/lhcb/wg/b2oc/TD_DsK_3fb/TD_DsK3fb_MC_SMEARED/FINAL/B2DX_MC_Bs_DsK_KKpi_CPV_Up_BDTG_Bs.root",
+ "FileName":"root://eoslhcb.cern.ch//eos/lhcb/wg/b2oc/TD_DsK_3fb/TD_DsK3fb_MC/FINAL/B2DX_MC_Bs_DsK_KKpi_CPV_Up_BDTG_Bs.root",
  "TreeName":"DecayTree"}
 ###
 
 #MC FileName KKPi MD 2012
 {"Mode":"Bd2DPi",
- "FileName":"root://eoslhcb.cern.ch//eos/lhcb/wg/b2oc/TD_DsK_3fb/TD_DsK3fb_MC_SMEARED/FINAL/B2DX_MC_Bd_D-pi+_Kpipi_CPV_Dn_BDTG_Bs.root",
+ "FileName":"root://eoslhcb.cern.ch//eos/lhcb/wg/b2oc/TD_DsK_3fb/TD_DsK3fb_MC/FINAL/B2DX_MC_Bd_D-pi+_Kpipi_CPV_Dn_BDTG_Bs.root",
  "TreeName":"DecayTree"}
 {"Mode":"Bs2DsRho",
- "FileName":"root://eoslhcb.cern.ch//eos/lhcb/wg/b2oc/TD_DsK_3fb/TD_DsK3fb_MC_SMEARED/FINAL/B2DX_MC_Bs_Dsrho_KKpi_Dn_BDTG_Bs.root",
+ "FileName":"root://eoslhcb.cern.ch//eos/lhcb/wg/b2oc/TD_DsK_3fb/TD_DsK3fb_MC/FINAL/B2DX_MC_Bs_Dsrho_KKpi_Dn_BDTG_Bs.root",
  "TreeName":"DecayTree"}
 {"Mode":"Bs2DsstPi",
- "FileName":"root://eoslhcb.cern.ch//eos/lhcb/wg/b2oc/TD_DsK_3fb/TD_DsK3fb_MC_SMEARED/FINAL/B2DX_MC_Bs_Dsstpi_KKpi_Dn_BDTG_Bs.root",
+ "FileName":"root://eoslhcb.cern.ch//eos/lhcb/wg/b2oc/TD_DsK_3fb/TD_DsK3fb_MC/FINAL/B2DX_MC_Bs_Dsstpi_KKpi_Dn_BDTG_Bs.root",
  "TreeName":"DecayTree"}
 {"Mode":"Lb2LcPi",
- "FileName":"root://eoslhcb.cern.ch//eos/lhcb/wg/b2oc/TD_DsK_3fb/TD_DsK3fb_MC_SMEARED/FINAL/B2DX_MC_Lb_Lambdacpi_Dn_BDTG_Bs.root",
+ "FileName":"root://eoslhcb.cern.ch//eos/lhcb/wg/b2oc/TD_DsK_3fb/TD_DsK3fb_MC/FINAL/B2DX_MC_Lb_Lambdacpi_Dn_BDTG_Bs.root",
  "TreeName":"DecayTree"}
 {"Mode":"Bs2DsK",
- "FileName":"root://eoslhcb.cern.ch//eos/lhcb/wg/b2oc/TD_DsK_3fb/TD_DsK3fb_MC_SMEARED/FINAL/B2DX_MC_Bs_DsK_KKpi_CPV_Dn_BDTG_Bs.root",
+ "FileName":"root://eoslhcb.cern.ch//eos/lhcb/wg/b2oc/TD_DsK_3fb/TD_DsK3fb_MC/FINAL/B2DX_MC_Bs_DsK_KKpi_CPV_Dn_BDTG_Bs.root",
  "TreeName":"DecayTree"}
 ###
 
 #MC FileName KKPi MU 2012
 {"Mode":"Bd2DPi",
- "FileName":"root://eoslhcb.cern.ch//eos/lhcb/wg/b2oc/TD_DsK_3fb/TD_DsK3fb_MC_SMEARED/FINAL/B2DX_MC_Bd_D-pi+_Kpipi_CPV_Up_BDTG_Bs.root",
+ "FileName":"root://eoslhcb.cern.ch//eos/lhcb/wg/b2oc/TD_DsK_3fb/TD_DsK3fb_MC/FINAL/B2DX_MC_Bd_D-pi+_Kpipi_CPV_Up_BDTG_Bs.root",
  "TreeName":"DecayTree"}
 {"Mode":"Bs2DsRho",
- "FileName":"root://eoslhcb.cern.ch//eos/lhcb/wg/b2oc/TD_DsK_3fb/TD_DsK3fb_MC_SMEARED/FINAL/B2DX_MC_Bs_Dsrho_KKpi_Up_BDTG_Bs.root",
+ "FileName":"root://eoslhcb.cern.ch//eos/lhcb/wg/b2oc/TD_DsK_3fb/TD_DsK3fb_MC/FINAL/B2DX_MC_Bs_Dsrho_KKpi_Up_BDTG_Bs.root",
  "TreeName":"DecayTree"}
 {"Mode":"Bs2DsstPi",
- "FileName":"root://eoslhcb.cern.ch//eos/lhcb/wg/b2oc/TD_DsK_3fb/TD_DsK3fb_MC_SMEARED/FINAL/B2DX_MC_Bs_Dsstpi_KKpi_Up_BDTG_Bs.root",
+ "FileName":"root://eoslhcb.cern.ch//eos/lhcb/wg/b2oc/TD_DsK_3fb/TD_DsK3fb_MC/FINAL/B2DX_MC_Bs_Dsstpi_KKpi_Up_BDTG_Bs.root",
  "TreeName":"DecayTree"}
 {"Mode":"Lb2LcPi",
- "FileName":"root://eoslhcb.cern.ch//eos/lhcb/wg/b2oc/TD_DsK_3fb/TD_DsK3fb_MC_SMEARED/FINAL/B2DX_MC_Lb_Lambdacpi_Up_BDTG_Bs.root",
+ "FileName":"root://eoslhcb.cern.ch//eos/lhcb/wg/b2oc/TD_DsK_3fb/TD_DsK3fb_MC/FINAL/B2DX_MC_Lb_Lambdacpi_Up_BDTG_Bs.root",
  "TreeName":"DecayTree"}
 {"Mode":"Bs2DsK",
- "FileName":"root://eoslhcb.cern.ch//eos/lhcb/wg/b2oc/TD_DsK_3fb/TD_DsK3fb_MC_SMEARED/FINAL/B2DX_MC_Bs_DsK_KKpi_CPV_Up_BDTG_Bs.root",
+ "FileName":"root://eoslhcb.cern.ch//eos/lhcb/wg/b2oc/TD_DsK_3fb/TD_DsK3fb_MC/FINAL/B2DX_MC_Bs_DsK_KKpi_CPV_Up_BDTG_Bs.root",
  "TreeName":"DecayTree"}
 ###
 
@@ -333,7 +333,7 @@ DecayTree
 DecayTree
 ###
 
-#Signal Bs2DsPi PiPiPi 2011
+#Signal Bs2DsPi PiPiPi 2011 hhhhhhhhhhhhhhh
 root://eoslhcb.cern.ch//eos/lhcb/wg/b2oc/TD_DsK_3fb/TD_DsK3fb_MC/FINAL/
 B2DX_MC_Bs_Dspi_pipipi_Up_BDTG_Bs.root
 B2DX_MC_Bs_Dspi_pipipi_Dn_BDTG_Bs.root
@@ -342,8 +342,7 @@ DecayTree
 ###
 
 
-
-#Signal Bs2DsPi PiPiPi 2011 hhhhhh
+#Signal Bs2DsPi PiPiPi 2011
 root://eoslhcb.cern.ch//eos/lhcb/wg/b2oc/TD_DsK_3fb/TD_DsK3fb_MC/FINAL/
 B2DX_MC_Bs_Dspi_pipipi_Dn_OFFLINE_Bs_Dspi_pipipi.root
 B2DX_MC_Bs_Dspi_pipipi_Up_OFFLINE_Bs_Dspi_pipipi.root
@@ -393,12 +392,6 @@ DecayTree
 ###
 
 
-#root://eoslhcb.cern.ch//eos/lhcb/wg/b2oc/TD_DsK_3fb/TD_DsK3fb_MC_SMEARED/FINAL/
-#B2DX_MC_Dn_OFFLINE_Bs_Dspi_pipipi.root
-#B2DX_MC_Up_OFFLINE_Bs_Dspi_pipipi.root
-#DecayTree
-#DecayTree
-###
 
 
 #PID2m2

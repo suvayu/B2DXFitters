@@ -148,7 +148,7 @@ def getTotalBkgPDF(myconfigfile, beautyMass, charmMass, workspace, workInt, merg
 #------------------------------------------------------------------------------
 def runMDFitter( debug, sample, mode, sweight,  
                  fileNameAll, fileNameToys, workName, sweightName,
-                 configName, wider, merge, dim, fileDataName, year) :
+                 configName, wider, merge, dim, fileDataName, year, binned) :
 
     # Get the configuration file
     myconfigfilegrabber = __import__(configName,fromlist=['getconfig']).getconfig
@@ -212,7 +212,8 @@ def runMDFitter( debug, sample, mode, sweight,
     charmMass = observables.find(MDSettings.GetMassDVarOutName().Data())
     bacPIDK = observables.find(MDSettings.GetPIDKVarOutName().Data())
     obs = [beautyMass, charmMass, bacPIDK]
-        
+
+    
  ###------------------------------------------------------------------------------------------------------------------------------------###
     ###------------------------------------------------------------------------------------------------------------------------------###
  ###------------------------------------------------------------------------------------------------------------------------------------###   
@@ -248,6 +249,7 @@ def runMDFitter( debug, sample, mode, sweight,
                               RooFit.Index(sam),
                               RooFit.Import(sm[0].Data(),data[0]))
     else:
+        
         combData =  GeneralUtils.GetDataSet(workData, observables, sam, datasetTS, sampleTS, modeTS, yearTS, merge, debug )
         combData.Print("v")
 
@@ -416,7 +418,14 @@ def runMDFitter( debug, sample, mode, sweight,
     fitter.setObservables( observables )
 
     fitter.setModelPDF( totPDF )
-    fitter.setData(combData) 
+    if binned:
+        print "[INFO] Binned data does not work yet"
+        #beautyMass.setBins(250)
+        #charmMass.setBins(250)
+        #bacPIDK.setBins(250) 
+        #combData_binned = RooDataHist("combData_binned","combData_binned",observables,combData)
+
+    fitter.setData(combData)  
 
     plot_init   = options.initvars         and ( options.wsname != None )
     plot_fitted = ( not options.initvars ) and ( options.wsname != None )
@@ -429,6 +438,7 @@ def runMDFitter( debug, sample, mode, sweight,
     import random
     
     fitter.fit(True, RooFit.Extended(), RooFit.NumCPU(4)) #,  RooFit.Verbose(True)) #,  RooFit.ExternalConstraints(constList)) #, RooFit.InitialHesse(True))
+    fitter.setData(combData)
     result = fitter.getFitResult()
     result.Print("v")
     floatpar = result.floatParsFinal()
@@ -559,6 +569,13 @@ parser.add_option( '--year',
                    default = "",
                    help = 'year of data taking can be: 2011, 2012, run1')
 
+parser.add_option( '--binned',
+                   dest = 'binned',
+                   default = False,
+                   action = 'store_true',
+                   help = 'binned data Set'
+                   )
+
 # -----------------------------------------------------------------------------
 
 if __name__ == '__main__' :
@@ -582,6 +599,6 @@ if __name__ == '__main__' :
     runMDFitter( options.debug,  options.pol, options.mode, options.sweight, 
                  options.fileNameAll, options.fileNameToys, options.workName,
                  options.sweightName, configName, options.wider, 
-                 options.merge, options.dim, options.fileData, options.year)
+                 options.merge, options.dim, options.fileData, options.year, options.binned)
 
 # -----------------------------------------------------------------------------

@@ -1264,7 +1264,6 @@ namespace GeneralUtils {
     RooDataSet* combData = NULL;
     TString dataName = "combData";
 
-
     
     std::vector <TString> s;
     std::vector <TString> m;
@@ -1310,7 +1309,7 @@ namespace GeneralUtils {
 			
 			data[i]->append(*data[j]);
 			nEntries[i] += nEntries[j];
-			if ( debug == true ) { std::cout<<"Adding "<<data[i]->GetName()<<" "<<data[j]->GetName()
+			if ( debug == true ) { std::cout<<"[INFO] Adding "<<data[i]->GetName()<<" "<<data[j]->GetName()
 							<<" "<<data[i]->numEntries()<<std::endl; }
 			TString nD = data[i]->GetName();
 			if ( merge == "pol" || merge == "both")
@@ -1322,7 +1321,7 @@ namespace GeneralUtils {
 			    nD.ReplaceAll("2011","run1");
 			  }
 			data[i]->SetName(nD.Data());
-			if ( debug == true ) { std::cout<<"New data name: "<<data[i]->GetName()<<std::endl;}
+			if ( debug == true ) { std::cout<<"[INFO] New data name: "<<data[i]->GetName()<<std::endl;}
 			dataOutTmp.push_back(data[i]); 
 		      }
 		  }
@@ -1335,7 +1334,7 @@ namespace GeneralUtils {
 	    sm = GetSampleModeYear(sample, mode, year,"pol", debug);
 	    for (unsigned int i=0; i<sm.size(); i++ )
               {
-		if ( debug == true ) { std::cout<<"In dataOutTmp name: "<<dataOutTmp[i]->GetName()<<" with entries " << dataOutTmp[i]->numEntries()<<std::endl;}
+		if ( debug == true ) { std::cout<<"[INFO] In dataOutTmp name: "<<dataOutTmp[i]->GetName()<<" with entries " << dataOutTmp[i]->numEntries()<<std::endl;}
 	      }
 
 	    for (unsigned int i=0; i<sm.size(); i++ )
@@ -1352,12 +1351,12 @@ namespace GeneralUtils {
 
 			    dataOutTmp[i]->append(*dataOutTmp[j]);
 			    nEntries[i] += nEntries[j];
-			    if ( debug == true ) { std::cout<<"Adding "<<dataOutTmp[i]->GetName()<<" "<<dataOutTmp[j]->GetName()
+			    if ( debug == true ) { std::cout<<"[INFO] Adding "<<dataOutTmp[i]->GetName()<<" "<<dataOutTmp[j]->GetName()
 							    <<" "<<dataOutTmp[i]->numEntries()<<std::endl; }
 			    TString nD = dataOutTmp[i]->GetName();
 			    nD.ReplaceAll("2011","run1");
 			    dataOutTmp[i]->SetName(nD.Data());
-			    if ( debug == true ) { std::cout<<"New data name: "<<dataOutTmp[i]->GetName()<<std::endl;}
+			    if ( debug == true ) { std::cout<<"[INFO] New data name: "<<dataOutTmp[i]->GetName()<<std::endl;}
 			    dataOut.push_back(dataOutTmp[i]);
 			  }
 		      }
@@ -1375,14 +1374,15 @@ namespace GeneralUtils {
 	for (unsigned int i=0; i<sm.size(); i++ )
 	  {
 	    sam.defineType(sm[i].Data());
-	    if ( debug == true ) { std::cout<<"In dataOut name: "<<dataOut[i]->GetName()<<" with entries " << dataOut[i]->numEntries()<<std::endl;}
+	    if ( debug == true ) { std::cout<<"[INFO] In dataOut name: "<<dataOut[i]->GetName()<<" with entries " << dataOut[i]->numEntries()<<std::endl;}
 	  }
 	
 	
+	//const RooArgSet* obs2 = dataOut[0]->get(); 
 	combData = new RooDataSet(dataName.Data(),dataName.Data(),*obs, RooFit::Index(sam), RooFit::Import(sm[0].Data(),*dataOut[0]));
 	if ( debug == true )
 	  {
-	    std::cout<<"Adding: "<<dataOut[0]->GetName()<<" to combData"<<std::endl;
+	    std::cout<<"[INFO] Adding: "<<dataOut[0]->GetName()<<" to combData"<<std::endl;
 	  }
 	
 	std::vector <RooDataSet*> combDataTmp;
@@ -1393,8 +1393,9 @@ namespace GeneralUtils {
 	    TString nD = dataOut[i]->GetName();
 	    if ( debug == true ) 
 	      {
-		std::cout<<"Adding: "<<nD<<" to combData"<<std::endl;
+		std::cout<<"[INFO] Adding: "<<nD<<" to combData"<<std::endl;
 	      }
+	    obs->Print(); 
 	    combDataTmp.push_back(new RooDataSet(dataNameComb2.Data(),dataNameComb2.Data(),*obs, RooFit::Index(sam), RooFit::Import(sm[i].Data(),*dataOut[i])));
 	    combData->append(*combDataTmp[i-1]);
 	    
@@ -1408,21 +1409,22 @@ namespace GeneralUtils {
 	    std::cout<<"[INFO] Sample mode year: "<<sm[i]<<std::endl; 
 	  }
 	
+	//const RooArgSet* obs2 = data[0]->get();
 	combData = new RooDataSet(dataName.Data(),dataName.Data(),*obs, RooFit::Index(sam), RooFit::Import(sm[0].Data(),*data[0]));
 	if ( debug == true )
 	  {
-	    std::cout<<"Adding: "<<data[0]->GetName()<<" to combData"<<std::endl;
+	    std::cout<<"[INFO] Adding: "<<data[0]->GetName()<<" to combData"<<std::endl;
 	  }
 	
 	std::vector <RooDataSet*> combDataTmp;
 	for( unsigned int i=1; i<sm.size(); i++ )
 	  {
-	    std::cout<<"smp: "<<sm[i]<<" i:"<<i<<" size: "<<sm.size()<<std::endl; 
+	    std::cout<<"[INFO] smp: "<<sm[i]<<" i:"<<i<<" size: "<<sm.size()<<std::endl; 
 	    TString dataNameComb2 = Form("combData%d",i);
 	    combDataTmp.push_back(new RooDataSet(dataNameComb2.Data(),dataNameComb2.Data(),*obs, RooFit::Index(sam), RooFit::Import(sm[i].Data(),*data[i])));
 	    if ( debug == true )
 	      {
-		std::cout<<"Adding: "<<data[i]->GetName()<<" to combData"<<std::endl;
+		std::cout<<"[INFO] Adding: "<<data[i]->GetName()<<" to combData"<<std::endl;
 	      }
 	    combData->append(*combDataTmp[i-1]);
               }

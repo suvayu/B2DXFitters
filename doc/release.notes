@@ -5,6 +5,11 @@
 !-----------------------------------------------------------------------------
 
 ! 2016-03-31 - Agnieszka Dziurda
+ - new shape: exponential + double Crystal Ball
+ - fix bug in observables
+ - update configs for Bs2DsPi
+
+! 2016-03-31 - Agnieszka Dziurda
  - split ratio data/MC for 2011 and 2012,
  - add common script for sFit:
    - runSFit.py - for fitting
