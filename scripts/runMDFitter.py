@@ -438,7 +438,7 @@ def runMDFitter( debug, sample, mode, sweight,
     import random
     
     fitter.fit(True, RooFit.Extended(), RooFit.NumCPU(4)) #,  RooFit.Verbose(True)) #,  RooFit.ExternalConstraints(constList)) #, RooFit.InitialHesse(True))
-    fitter.setData(combData)
+    #fitter.setData(combData)
     result = fitter.getFitResult()
     result.Print("v")
     floatpar = result.floatParsFinal()
