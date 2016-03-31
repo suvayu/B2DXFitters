@@ -76,7 +76,10 @@ namespace SFitUtils {
   RooWorkspace* ReadDataFromSWeights(TString& pathFile,
 				     TString& treeName,
 				     MDFitterSettings* mdSet,
-				     TString& part,
+				     TString pol,
+                                     TString mode,
+                                     TString year,
+                                     TString merge,
 				     bool weighted,
 				     bool toys,
 				     bool applykfactor,
@@ -86,29 +89,30 @@ namespace SFitUtils {
     if ( debug == true) 
       {
 	std::cout<<"[INFO] ==> GeneralUtils::ReadDataFromSWeights(...). Read data set from sWeights NTuple "<<std::endl;
-	std::cout<<"path of file: "<<pathFile<<std::endl;
-	std::cout<<"name of tree: "<<treeName<<std::endl;
-	std::cout<<"apply kfactor: "<<applykfactor<<std::endl;
-	std::cout<<"Mode: "<<part<<std::endl;
+	std::cout<<"[INFO] path of file: "<<pathFile<<std::endl;
+	std::cout<<"[INFO] name of tree: "<<treeName<<std::endl;
+	std::cout<<"[INFO] apply kfactor: "<<applykfactor<<std::endl;
+	std::cout<<"[INFO] pol: "<<pol<<", Ds mode: "<<mode<<", year: "<<year<<", merge: "<<merge<<std::endl;
       }
 
     RooWorkspace* work = NULL;
     work =  new RooWorkspace("workspace","workspace");
     TTree* treeSW = ReadTreeMC(pathFile.Data(),treeName.Data(), debug);
      
-    RooRealVar* lab0_TAU      = new RooRealVar(mdSet->GetTimeVar(),                mdSet->GetTimeVar(),
+    RooRealVar* lab0_TAU      = new RooRealVar(mdSet->GetTimeVarOutName(),             mdSet->GetTimeVarOutName(),
                                                mdSet->GetTimeRangeDown(),          mdSet->GetTimeRangeUp());
-    RooRealVar* lab0_TAUERR   = new RooRealVar(mdSet->GetTerrVar(),                mdSet->GetTerrVar(),
+    RooRealVar* lab0_TAUERR   = new RooRealVar(mdSet->GetTerrVarOutName(),             mdSet->GetTerrVarOutName(),
                                                mdSet->GetTerrRangeDown(),          mdSet->GetTerrRangeUp());
        
     std::vector <RooCategory*> lab0_TAG;
+
     if (toys == false )
       {
 	if( mdSet->CheckTagVar() == true )
 	  {
 	    for(int i = 0; i<mdSet->GetNumTagVar(); i++)
 	      {
-		lab0_TAG.push_back(new RooCategory(mdSet->GetTagVar(i), "flavour tagging result"));
+		lab0_TAG.push_back(new RooCategory(mdSet->GetTagVarOutName(i), "flavour tagging result"));
 		TString BName = Form("B_%d",i);
 		TString BbarName = Form("Bbar_%d",i);
 		TString UnName = Form("Utagged_%d",i);
@@ -138,7 +142,7 @@ namespace SFitUtils {
 	  {
 	    for(int i = 0; i<mdSet->GetNumTagOmegaVar(); i++)
 	      {
-		lab0_TAGOMEGA.push_back(mdSet->GetObs(mdSet->GetTagOmegaVar(i)));
+		lab0_TAGOMEGA.push_back(mdSet->GetObs(mdSet->GetTagOmegaVarOutName(i)));
 	      }
 	  }
       }
@@ -147,81 +151,16 @@ namespace SFitUtils {
 	lab0_TAGOMEGA.push_back(new RooRealVar("tagOmegaComb","tagOmegaComb",0.0, 0.5));
       }
     
-    RooCategory* qf = new RooCategory("qf", "bachelor charge");
+    RooCategory* qf = new RooCategory(mdSet->GetIDVarOutName(), "bachelor charge");
     qf->defineType("h+",  1);
     qf->defineType("h-", -1);
 
-    
-    //RooRealVar* lab1_ID = new RooRealVar(idVar.Data(),idVar.Data(),1.,-1.,1.);           
-    //RooRealVar* nTracks = new RooRealVar("nTracks","nTracks",15,1000);
-    //RooRealVar* lab1_P = new RooRealVar("lab1_P","lab1_P",0,650000);
-    //RooRealVar* lab1_PIDK = new RooRealVar("lab1_PIDK","lab1_PIDK",log(5), log(150)); //-150,150);
-    //RooRealVar* lab1_PIDp = new RooRealVar("lab1_PIDp","lab1_PIDp",-150,150);
-    //RooRealVar* lab1_PT = new RooRealVar("lab1_PT","lab1_PT",0,45000);
+    std::vector <TString> s = GetSampleModeYear(pol, mode, year, merge, debug);
 
-
-    std::vector <TString> s;
-    if( pathFile.Contains("3modeskkpi") == true or pathFile.Contains("3MODESKKPI") == true )
-      {
-	if(debug == true) { std::cout<<"[INFO] 3 Ds final states: NonRes, PhiPi, Kstk"<<std::endl; }
-	s.push_back("both_nonres");
-        s.push_back("both_phipi");
-        s.push_back("both_kstk");
-      }
-    else
-      {
-	if( debug == true ) { std::cout<<"[INFO] 5 Ds final states: NonRes, PhiPi, KstK, KPiPi, PiPiPi"<<std::endl; }
-	if(part.Contains("BDPi") == true ) 
-	  {
-	    s.push_back("both");
-	  }
-	else
-	  {
-	    if ( pathFile.Contains("both") == true || toys == true)
-              {
-		s.push_back("both_nonres");
-                s.push_back("both_phipi");
-                s.push_back("both_kstk");
-                s.push_back("both_kpipi");
-                s.push_back("both_pipipi");
-              }
-            else if ( pathFile.Contains("up") == true )
-              {
-                s.push_back("up_nonres");
-                s.push_back("up_phipi");
-                s.push_back("up_kstk");
-                s.push_back("up_kpipi");
-		s.push_back("up_pipipi");
-              }
-            else if ( pathFile.Contains("down") == true )
-              {
-                s.push_back("down_nonres");
-                s.push_back("down_phipi");
-                s.push_back("down_kstk");
-                s.push_back("down_kpipi");
-                s.push_back("down_pipipi");
-              }
-
-	  }
-      }
-    
-    if ( toys == true && ( pathFile.Contains("toys1m") == true || pathFile.Contains("Toys1M") == true || pathFile.Contains("TOYS1M") == true ) )
-      {
-	if (debug == true ) { std::cout<<"[INFO]  1D Toys: read only PhiPi"<<std::endl;}
-        s.push_back("both_phipi");
-      }
-	
     Int_t bound = s.size();
     if ( debug == true ) { std::cout<<"[INFO] sWeights bound: "<<bound<<std::endl;}
     TString cat;
-    cat = "dataSet_time_"+part;
-    
-    /*
-    std::vector <TString> catcont2;
-    catcont2.push_back("Mixed");
-    catcont2.push_back("Unmixed");
-    catcont2.push_back("Untagged");
-    */
+    cat = "dataSet_time";
 
     RooDataSet*  dataSet;
     RooRealVar*  weights;
@@ -229,6 +168,12 @@ namespace SFitUtils {
     RooArgSet* obs = new RooArgSet(*lab0_TAU,
 				   *lab0_TAUERR,
 				   *qf);
+    if ( debug )
+      {
+	std::cout<<"[INFO] Variable "<<lab0_TAU->GetName()<<" in data set."<<std::endl;
+	std::cout<<"[INFO] Variable "<<lab0_TAUERR->GetName()<<" in data set."<<std::endl;
+	std::cout<<"[INFO] Variable "<<qf->GetName()<<" in data set."<<std::endl;
+      }
     if ( toys == false )
       {
 	if( mdSet->CheckTagVar() == true )
@@ -236,7 +181,7 @@ namespace SFitUtils {
 	    for(int i = 0; i<mdSet->GetNumTagVar(); i++)
 	      {
 		obs->add(*lab0_TAG[i]);
-		std::cout<<"Adding "<<lab0_TAG[i]->GetName()<<std::endl;
+		std::cout<<"[INFO] Variable "<<lab0_TAG[i]->GetName()<<" in data set."<<std::endl;
 	      }
 	  }
 	if( mdSet->CheckTagOmegaVar() == true )
@@ -244,7 +189,7 @@ namespace SFitUtils {
 	    for(int i = 0; i<mdSet->GetNumTagOmegaVar(); i++)
 	      {
 		obs->add(*lab0_TAGOMEGA[i]);
-		std::cout<<"Adding "<<lab0_TAGOMEGA[i]->GetName()<<std::endl;
+		std::cout<<"[INFO] Variable "<<lab0_TAGOMEGA[i]->GetName()<<" in data set."<<std::endl;
 	      }
 	  }
       }
@@ -283,11 +228,11 @@ namespace SFitUtils {
     Double_t trueid; 
     Double_t mass;
             
-    treeSW->SetBranchAddress(mdSet->GetTimeVar().Data(), &tau);
-    treeSW->SetBranchAddress(mdSet->GetTerrVar().Data(), &tauerr);
-    TString nameID = mdSet->GetIDVar()+"_idx"; 
+    treeSW->SetBranchAddress(mdSet->GetTimeVarOutName().Data(), &tau);
+    treeSW->SetBranchAddress(mdSet->GetTerrVarOutName().Data(), &tauerr);
+    TString nameID = mdSet->GetIDVarOutName()+"_idx"; 
     treeSW->SetBranchAddress(nameID.Data(), &ID);
-    treeSW->SetBranchAddress(mdSet->GetMassBVar().Data(), &mass);
+    treeSW->SetBranchAddress(mdSet->GetMassBVarOutName().Data(), &mass);
     Int_t tag[mdSet->GetNumTagVar()];
     Double_t omega[mdSet->GetNumTagOmegaVar()];
     
@@ -297,7 +242,7 @@ namespace SFitUtils {
 	  {
 	    for(int k = 0; k<mdSet->GetNumTagVar(); k++)
 	      {
-		TString nameTag = mdSet->GetTagVar(k)+"_idx";
+		TString nameTag = mdSet->GetTagVarOutName(k)+"_idx";
 		treeSW->SetBranchAddress(nameTag, &tag[k]);
 	      }
 	  }
@@ -305,7 +250,7 @@ namespace SFitUtils {
 	  {
 	    for(int k = 0; k<mdSet->GetNumTagOmegaVar(); k++)
 	      {
-		treeSW->SetBranchAddress(mdSet->GetTagOmegaVar(k).Data(), &omega[k]);
+		treeSW->SetBranchAddress(mdSet->GetTagOmegaVarOutName(k).Data(), &omega[k]);
 	  }
 	  }
       }
@@ -319,14 +264,6 @@ namespace SFitUtils {
       {
 	treeSW->SetBranchAddress("lab0_TRUEID", &trueid);
       }
-    
-    
-    // Double_t nTr;
-    //treeSW->SetBranchAddress("lab1_P", &p);
-    //treeSW->SetBranchAddress("nTracks",&nTr);
-    //treeSW->SetBranchAddress("lab1_PIDK",&PIDK);
-    //treeSW->SetBranchAddress("lab1_PIDp",&PIDp);
-    //treeSW->SetBranchAddress("lab1_PT", &pt);
     
     for (int i = 0; i<bound; i++)
       {
@@ -432,6 +369,9 @@ namespace SFitUtils {
       sqSumsW += sum_sw*sum_sw;
       //if ( m > mdSet->GetTimeRangeDown() && m < mdSet->GetTimeRangeUp())
       //	{
+      if ( m > mdSet->GetTimeRangeDown() && m < mdSet->GetTimeRangeUp() &&
+	   merr > mdSet->GetTerrRangeDown() && merr <mdSet->GetTerrRangeUp() ) 
+	{
 	  if (weighted == true )
 	    {
 	      dataSet->add(*obs,sum_sw,0);
@@ -440,6 +380,7 @@ namespace SFitUtils {
 	    {
 	      dataSet->add(*obs);
 	    }
+	}
 	  //	}
       //std::cout << "this event has time = " << m << " and error = " << merr << " with weight = " << sum_sw << std::endl;  
       
@@ -493,21 +434,15 @@ namespace SFitUtils {
 		p0[k] = new RooRealVar(Form("p0_%d",k),Form("p0_%d",k),mdSet->GetCalibp0(k));
 		p1[k] = new RooRealVar(Form("p1_%d",k),Form("p1_%d",k),mdSet->GetCalibp1(k));
 		av[k] = new RooRealVar(Form("av_%d",k),Form("av_%d",k),mdSet->GetCalibAv(k));
-		TString nameCalib = mdSet->GetTagOmegaVar(k)+"_calib";
+		TString nameCalib = mdSet->GetTagOmegaVarOutName(k)+"_calib";
 		calibMistag[k] = new MistagCalibration(nameCalib.Data(), nameCalib.Data(),
 						       *lab0_TAGOMEGA[k], *p0[k], *p1[k], *av[k]);
 		dataSet->addColumn(*calibMistag[k]);
 		tagOmegaList->add(*calibMistag[k]);
+		if ( debug ) { std::cout<<"[INFO] Variable "<<nameCalib<<" in data set."<<std::endl; }
 	      }
 	  }
 	
-	if( debug == true )
-	  {
-	    std::cout<<"[INFO] Taggers list: "<<std::endl;
-	    tagList->Print("v");
-	    std::cout<<"[INFO] Mistags list: "<<std::endl;
-	    tagOmegaList->Print("v");
-	  }
 	
 	DLLTagCombiner* combiner = new DLLTagCombiner("tagCombiner","tagCombiner",*tagList,*tagOmegaList);
 	TagDLLToTagDec* tagDecComb = new TagDLLToTagDec("tagDecComb","tagDecComb",*combiner,*tagList);
@@ -515,8 +450,15 @@ namespace SFitUtils {
 	
 	dataSet->addColumn(*tagDecComb);
 	dataSet->addColumn(*tagOmegaComb);
-      }
+	if ( debug )
+	  {
+	    if ( tagDecComb != NULL ) { std::cout<<"[INFO] Variable tagDecComb in data set. "<<std::endl; } 
+	    if ( tagOmegaComb != NULL ) {std::cout<<"[INFO] Variable tagDecComb in data set. "<<std::endl; }
+	
+	  }
 
+      }
+      
     work->import(*dataSet);
     return work;
 

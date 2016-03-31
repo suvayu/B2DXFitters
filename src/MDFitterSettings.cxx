@@ -50,6 +50,8 @@ MDFitterSettings::MDFitterSettings(const TString& name, const TString& title)
   _PIDChildMisID.first = ""; _PIDChildMisID.second = "";
   _PIDChildProtonMisID.first = ""; _PIDChildProtonMisID.second = "";
 
+  _ratioDMC.first = ""; _ratioDMC.second = ""; 
+
   for(int i = 0; i< 2; i++ )
     {
       std::vector<Double_t> row;
@@ -188,6 +190,20 @@ MDFitterSettings::MDFitterSettings(const MDFitterSettings& other) :
   _p0 = other._p0;
   _p1 = other._p1;
   _av = other._av;
+
+  _ratioDMC = other._ratioDMC; 
+  _filePIDBacEff = other._filePIDBacEff;
+  _filePIDBacMisID = other._filePIDBacMisID;
+  _filePIDChildMisID = other._filePIDChildMisID;
+  _filePIDChildProtonMisID = other._filePIDChildProtonMisID;
+  
+  _PIDBacEff = other._PIDBacEff;
+  _PIDBacMisID = other._PIDBacMisID;
+  _PIDChildMisID = other._PIDChildMisID;
+  _PIDChildProtonMisID = other._PIDChildProtonMisID;
+
+  _massShift = other._massShift; 
+
 }
 
 MDFitterSettings::~MDFitterSettings() { }
@@ -318,8 +334,11 @@ std::ostream & operator<< (std::ostream &out, const MDFitterSettings &s)
       out<<" \t name of histogram: "<<s._PIDChildProtonMisID.first<<std::endl;
       out<<" \t variable weighted: "<<s._PIDChildProtonMisID.second<<std::endl;
       out<<"-------------------------------------------------------------------"<<std::endl;
-
-
+      out<<"-------------------------------------------------------------------"<<std::endl;
+      out<<" Ratio data MC: "<<s._weightRatioDataMC<<std::endl;
+      out<<" \t label for 2011: "<<s._ratioDMC.first<<std::endl;
+      out<<" \t label for 2012: "<<s._ratioDMC.second<<std::endl; 
+      out<<"-------------------------------------------------------------------"<<std::endl;
       //      out<<"PIDK bachelor: "<<s._PIDBach<<std::endl;
       //out<<"PIDK child: "<<s._PIDChild<<std::endl;
       //out<<"PIDK proton: "<<s._PIDProton<<std::endl;
@@ -624,9 +643,40 @@ Bool_t MDFitterSettings::CheckVarName( TString name ) {
       if( _tagOmegaVarNames[i] == name) { check = true; }
     }
 
-  
   return check;
 }
+
+Bool_t MDFitterSettings::CheckVarOutName( TString name ) {
+
+Bool_t check = false;
+
+if( name == _mVarOut) { check = true; }
+if( name == _mDVarOut) { check = true;  }
+if( name == _tVarOut) { check = true; }
+if( name == _terrVarOut) { check = true; }
+if( name == _idVarOut) { check = true; }
+if( name == _PIDVarOut) { check = true; }
+if( name == _BDTGVarOut) { check = true; }
+if( name == _nTracksVarOut) { check = true; }
+if( name == _pVarOut) { check = true; }
+if( name == _ptVarOut) { check = true; }
+
+for(unsigned int i = 0; i<_addVarNames.size(); i++ )
+  {
+    if( _addVarNamesOut[i] == name) { check = true; }
+  }
+for(unsigned int i = 0; i<_tagVarNames.size(); i++ )
+  {
+    if( _tagVarNamesOut[i] == name) { check = true; }
+  }
+for(unsigned int i = 0; i<_tagOmegaVarNames.size(); i++ )
+  {
+    if( _tagOmegaVarNamesOut[i] == name) { check = true; }
+  }
+
+return check;
+}
+
 
 TString MDFitterSettings::GetVarOutName(TString var)
 {
@@ -673,20 +723,23 @@ TString MDFitterSettings::GetVarOutName(TString var)
 RooRealVar* MDFitterSettings::GetObs(TString varName, bool inName, bool log)
 {
   RooRealVar* Var = NULL;
+  Bool_t check = CheckVarOutName(varName);
+  if ( inName == true ) { check = CheckVarName(varName);}
 
-  if ( CheckVarName(varName) == true )
+  if ( check == true )
    { 
-      Double_t range0 = GetRangeDown(varName);
-      Double_t range1 = GetRangeUp(varName);
-      TString  varOutName = "";
-      if ( inName == false ) 
-	{
-	  varOutName = GetVarOutName(varName); 
-	}
-      else
-	{
-	  varOutName = varName; 
-	}
+     
+     Double_t range0 = GetRangeDown(varName);
+     Double_t range1 = GetRangeUp(varName);
+     TString  varOutName = "";
+     if ( inName == true ) 
+       {
+	 varOutName = GetVarOutName(varName); 
+       }
+     else
+       {
+	 varOutName = varName; 
+       }
       if ( range0 != 1234.456 && range1 != 1234.456)
 	{
 	  if( log == false )
@@ -754,6 +807,52 @@ std::vector <TString> MDFitterSettings::GetVarNames(Bool_t reg, Bool_t id, Bool_
     }
   return names;
 }
+
+std::vector <TString> MDFitterSettings::GetVarOutNames(Bool_t reg, Bool_t id, Bool_t add, Bool_t tag, Bool_t tagOmega)
+{
+  std::vector <TString> names;
+  if ( reg == true )
+    {
+
+      if ( _mVarOut != "") { names.push_back(_mVarOut);}
+      if ( _mDVarOut != "") { names.push_back(_mDVarOut);}
+      if ( _PIDVarOut != "") { names.push_back(_PIDVarOut);}
+      if ( _tVarOut != "") { names.push_back(_tVarOut);}
+      if ( _terrVarOut != "" ) { names.push_back(_terrVarOut);}
+      if ( _BDTGVarOut != "" ) { names.push_back(_BDTGVarOut);}
+      if ( _pVarOut != "" ) { names.push_back(_pVarOut);}
+      if ( _ptVarOut != "") { names.push_back(_ptVarOut);}
+      if ( _nTracksVarOut != "" ) { names.push_back(_nTracksVarOut);}
+    }
+  if ( id == true )
+    {
+      names.push_back(_idVarOut);
+    }
+
+  if (add == true )
+    {
+      for ( unsigned int i =0; i <_addVarNamesOut.size(); i++ )
+	{
+          names.push_back(_addVarNamesOut[i]);
+        }
+    }
+  if ( tag == true )
+    {
+      for ( unsigned int i =0; i <_tagVarNamesOut.size(); i++ )
+        {
+          names.push_back(_tagVarNamesOut[i]);
+        }
+    }
+  if ( tagOmega == true )
+    {
+      for ( unsigned int i =0; i <_tagOmegaVarNamesOut.size(); i++ )
+        {
+          names.push_back(_tagOmegaVarNamesOut[i]);
+        }
+    }
+  return names;
+}
+
 
 TString MDFitterSettings::GetDataCuts(TString& mode)
 {
@@ -1114,11 +1213,14 @@ RooArgSet* MDFitterSettings::GetObsSet(bool inName, bool regular, bool id, bool 
 {
   RooArgSet* obs = new RooArgSet();
   std::vector <RooRealVar*> obsReg;
-  std::vector <TString> tN = this->GetVarNames(true,false,false,false,false);
+  std::vector <TString> tN;
+  if ( inName == true ) { tN = this->GetVarNames(true,false,false,false,false); }
+  else { tN = this->GetVarOutNames(true,false,false,false,false); }
   if ( regular == true )
     {
       for(unsigned int i = 0; i < tN.size(); i++)
 	{
+	  //std::cout<<"[INFO] tN: "<<tN[i]<<std::endl; 
 	  if ( tN[i] == _nTracksVar || tN[i] == _pVar || tN[i] == _ptVar  )
 	    {
 	      obsReg.push_back(this->GetObs(tN[i],inName,true));
@@ -1153,11 +1255,14 @@ RooArgSet* MDFitterSettings::GetObsSet(bool inName, bool regular, bool id, bool 
     {
       for(int i = 0; i<this->GetNumAddVar(); i++)
 	{
-	  addVar.push_back(this->GetObs(this->GetAddVarName(i),inName));
+	  TString name = "";
+	  if ( inName == true ) { name = this->GetAddVarName(i); }
+	  else { this->GetAddVarOutName(i); }
+	  addVar.push_back(this->GetObs(name,inName));
 	  obs->add(*addVar[i]); 
 	}
     }
-
+ 
   std::vector <RooCategory*> tagObs;
   if( tag == true && _tagVar == true )
     {
@@ -1182,13 +1287,17 @@ RooArgSet* MDFitterSettings::GetObsSet(bool inName, bool regular, bool id, bool 
 	  obs->add(*tagObs[i]); 
 	}                                                                                                                                                                         
     }
-
+  
   std::vector <RooRealVar*> tagOmegaObs;
   if ( tagomega == true && _tagOmegaVar == true )
     {
       for(int i = 0; i<this->GetNumTagOmegaVar(); i++)                                                                                                                            
-	{                                                                                                                                                                         
-	  tagOmegaObs.push_back(this->GetObs(this->GetTagOmegaVar(i),inName));                                                                                                   
+	{ 
+	  TString name = "";
+          if ( inName == true ) { name = this->GetTagOmegaVar(i); }
+          else { name = this->GetTagOmegaVarOutName(i); }
+	
+	  tagOmegaObs.push_back(this->GetObs(name,inName));                                                                                                   
 	  obs->add(*tagOmegaObs[i]);
 	}
     }
@@ -1500,3 +1609,24 @@ HistPID1D MDFitterSettings::GetHistPID1D(TString key, TString year)
 
 
 
+void MDFitterSettings::SetLabelDataMC(TString label, TString year)
+{
+  if ( year == "2011") { _ratioDMC.first = label; }
+  else if ( year == "2012" ) { _ratioDMC.second = label; } 
+  else
+    {
+      std::cout<<"[ERROR] Label for DataMC difference not set! Please check year: "<<year<<std::endl; 
+    }
+}
+
+TString MDFitterSettings::GetLabelDataMC(TString year)
+{
+  TString l="";
+  if ( year == "2011") { return _ratioDMC.first; }
+  else if ( year == "2012" ) { return _ratioDMC.second; }
+  else
+    {
+      std::cout<<"[ERROR] Label for DataMC difference not found! Please check year: "<<year<<std::endl;
+    }
+  return l; 
+}

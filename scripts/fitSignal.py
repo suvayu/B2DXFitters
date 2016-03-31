@@ -204,7 +204,7 @@ def runMDFitter( debug, sample, mode, sweight,
             print signalNames[i]
             year = GeneralUtils.CheckDataYear(signalNames[i])
             workData = MassFitUtils.ObtainSignal(TString(myconfigfile["dataName"]), signalNames[i],
-                                                 MDSettings, decay, False, False, workData, False,
+                                                 MDSettings, decay, True, False, workData, False,
                                                  MDSettings.GetLum(year,"Down"), MDSettings.GetLum(year,"Up"), plotSettings, debug)
         GeneralUtils.SaveWorkspace(workData,saveNameTS, debug)
     #exit(0) 

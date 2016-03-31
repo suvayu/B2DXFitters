@@ -4,7 +4,12 @@
 ! Purpose     : RooFit-based fitters for B -> D X
 !-----------------------------------------------------------------------------
 
-
+! 2016-03-31 - Agnieszka Dziurda
+ - split ratio data/MC for 2011 and 2012,
+ - add common script for sFit:
+   - runSFit.py - for fitting
+   - plotSFit.py - for plotting
+ - minor updates. 
 
 ! 2016-03-25 - Agnieszka Dziurda
  - remove obsolete scripts for preparing workspace, fits and plotting. 

@@ -63,7 +63,7 @@ def getconfig() :
                                                                        "Var":"lab3_P", "HistName":"MyPionMisID_0"},
                                             "PIDChildProtonMisID":   { "FileLabel": { "2011":"#PID Proton 2011", "2012":"#PID Proton 2012"},
                                                                        "Var":"lab4_P", "HistName":"MyProtonMisID_pKm5_KPi5"},
-                                            "RatioDataMC":True,
+                                            "RatioDataMC":{ "2011":"#RatioDataMC 2011", "2012": "#RatioDataMC 2012"},
                                             "Shift":{ "BeautyMass": -2.0, "CharmMass": 0.0} }
 
 #    configdict["WeightingMassTemplates"]= { "Variables":["lab4_P","lab5_P"], "PIDBach": 5, "PIDChild": 0, "PIDProton": 5, "RatioDataMC":True }

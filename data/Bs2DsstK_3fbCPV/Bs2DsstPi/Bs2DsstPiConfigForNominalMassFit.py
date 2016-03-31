@@ -25,12 +25,12 @@ def getconfig() :
     configdict["BasicVariables"] = {}
     configdict["BasicVariables"]["BeautyMass"]    = { "Range" : [5100,    6000    ], "InputName" : "FBs_DeltaM_M"}
     configdict["BasicVariables"]["CharmMass"]     = { "Range" : [2080,    2150    ], "InputName" : "FDsstr_DeltaM_M"}
-    configdict["BasicVariables"]["BeautyTime"]    = { "Range" : [0.0,     1.e+9   ], "InputName" : "FBs_LF_ctau"}
+    configdict["BasicVariables"]["BeautyTime"]    = { "Range" : [0.4,     15.0    ], "InputName" : "FBs_LF_ctau"}
     configdict["BasicVariables"]["BacP"]          = { "Range" : [1000.,   650000.0], "InputName" : "FBac_P"}
     configdict["BasicVariables"]["BacPT"]         = { "Range" : [1000.,   45000.0 ], "InputName" : "FBac_PT"}
-    configdict["BasicVariables"]["BacPIDK"]       = { "Range" : [-7.0,    6.0], "InputName" : "FBac_PIDK"}
+    configdict["BasicVariables"]["BacPIDK"]       = { "Range" : [-7.0,    6.0     ], "InputName" : "FBac_PIDK"}
     configdict["BasicVariables"]["nTracks"]       = { "Range" : [15.,     1000.0  ], "InputName" : "FnTracks"}
-    configdict["BasicVariables"]["BeautyTimeErr"] = { "Range" : [0.0,     1.e+9   ], "InputName" : "FBs_LF_ctauErr"}
+    configdict["BasicVariables"]["BeautyTimeErr"] = { "Range" : [0.01,    0.1     ], "InputName" : "FBs_LF_ctauErr"}
     configdict["BasicVariables"]["BacCharge"]     = { "Range" : [-1000.0, 1000.0  ], "InputName" : "FBac_ID"}
     configdict["BasicVariables"]["BDTG"]          = { "Range" : [0.025,   1.0     ], "InputName" : "FBDT_Var"}
     configdict["BasicVariables"]["TagDecOS"]      = { "Range" : [-1.0,    1.0     ], "InputName" : "FBs_TAGDECISION_OS"}

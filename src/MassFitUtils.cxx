@@ -1347,9 +1347,9 @@ TCut GetCutMCBkg( MDFitterSettings* mdSet, TString mode, TString hypo, TString D
     if ( debug == true)
       {
 	std::cout<<"[INFO] ==> GeneralUtils::ObtainSpecBack(...). Obtain dataSets for all partially reconstructed backgrounds"<<std::endl;
-	std::cout<<"name of config file: "<<filesDir<<std::endl;
-	std::cout<<"Data mode: "<<hypo<<std::endl;
-	std::cout<<"Global weight: "<<globalWeight<<std::endl;
+	std::cout<<"[INFO] \t name of config file: "<<filesDir<<std::endl;
+	std::cout<<"[INFO] \t Data mode: "<<hypo<<std::endl;
+	std::cout<<"[INFO] \t Global weight: "<<globalWeight<<std::endl;
       }
     
     RooWorkspace* work = NULL;
@@ -1415,7 +1415,8 @@ TCut GetCutMCBkg( MDFitterSettings* mdSet, TString mode, TString hypo, TString D
     HistPID2D* hRDM = NULL;
     if (mdSet->CheckDataMCWeighting() == true )
       {
-	TString RDM = "#RatioDataMC2D";
+	TString RDM = mdSet->GetLabelDataMC(yy);
+	std::cout<<"RDM: "<<RDM<<std::endl; 
 	TString nameHistRatio = "histRatio";
 	hRDM = new HistPID2D(nameHistRatio, nameHistRatio, filesDir, RDM);
       }
@@ -2537,14 +2538,6 @@ TCut GetCutMCBkg( MDFitterSettings* mdSet, TString mode, TString hypo, TString D
     std::vector <std::string> FileName;
     ReadOneName(filesDir,FileName,sig,debug);
 
-    HistPID2D* hRDM = NULL;
-    if (  mdSet->CheckDataMCWeighting() == true || reweight == true )
-      {
-	TString RDM = "#RatioDataMC2D";
-	TString nameHistRDM = "histRatio";
-	hRDM = new HistPID2D(nameHistRDM, nameHistRDM, filesDir, RDM); 
-      }
-
     TTree* tree[2];
     
     for( int i=0; i<2; i++)
@@ -2571,6 +2564,13 @@ TCut GetCutMCBkg( MDFitterSettings* mdSet, TString mode, TString hypo, TString D
         heff = mdSet->GetHistPID1D("PIDBachEff",yy);
       }
 
+    HistPID2D* hRDM = NULL;
+    if (  mdSet->CheckDataMCWeighting() == true || reweight == true )
+      {
+        TString RDM = mdSet->GetLabelDataMC(yy);
+        TString nameHistRDM = "histRatio";
+        hRDM = new HistPID2D(nameHistRDM, nameHistRDM, filesDir, RDM);
+      }
        
     if ( debug == true) std::cout<<"mode: "<<mode<<std::endl;
     

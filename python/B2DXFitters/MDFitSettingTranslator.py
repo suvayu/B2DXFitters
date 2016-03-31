@@ -164,6 +164,13 @@ class Translator:
                 md.SetMassWeighting(True)
                 if myconfigfile["WeightingMassTemplates"].has_key("RatioDataMC"):
                     md.SetRatioDataMC(True)
+                    if myconfigfile["WeightingMassTemplates"]["RatioDataMC"].has_key("2011"):
+                        md.SetLabelDataMC(myconfigfile["WeightingMassTemplates"]["RatioDataMC"]["2011"], "2011")
+                    if myconfigfile["WeightingMassTemplates"]["RatioDataMC"].has_key("2012"):
+                        md.SetLabelDataMC(myconfigfile["WeightingMassTemplates"]["RatioDataMC"]["2012"], "2012")
+                    if type(myconfigfile["WeightingMassTemplates"]["RatioDataMC"]) != dict:
+                        md.SetLabelDataMC(myconfigfile["WeightingMassTemplates"]["RatioDataMC"], "2011")
+                        md.SetLabelDataMC(myconfigfile["WeightingMassTemplates"]["RatioDataMC"], "2012")
                 if myconfigfile["WeightingMassTemplates"].has_key("Shift"):
                     shift = myconfigfile["WeightingMassTemplates"]["Shift"]
                     #print shift 

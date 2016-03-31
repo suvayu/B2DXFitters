@@ -7,13 +7,13 @@ def getconfig() :
     
     # considered decay mode
     configdict["Decay"] = "Bs2DsPi"
-    configdict["CharmModes"] = {"NonRes","PhiPi","KstK","KPiPi","PiPiPi"} 
+    configdict["CharmModes"] = {"PiPiPi"} #"NonRes","PhiPi","KstK","KPiPi","PiPiPi"} 
     # year of data taking
     configdict["YearOfDataTaking"] = {"2011"} 
     # stripping (necessary in case of PIDK shapes)
     configdict["Stripping"] = {"2011":"21r1","2012":"21"}
     # integrated luminosity in each year of data taking (necessary in case of PIDK shapes) 
-    configdict["IntegratedLuminosity"] = {"2011": {"Down": 0.59, "Up": 0.44}, "2012":{"Down": 0.9894, "Up": 0.9985}}
+    configdict["IntegratedLuminosity"] = {"2011": {"Down": 1.00, "Up": 1.0}, "2012":{"Down": 0.9894, "Up": 0.9985}} #0.59, 0.44
     # file name with paths to MC/data samples
     configdict["dataName"]   = "../data/Bs2DsK_3fbCPV/Bs2DsPi/config_Bs2DsPi.txt"
     #settings for control plots 
@@ -45,7 +45,17 @@ def getconfig() :
     configdict["DsChildrenPrefix"] = {"Child1":"lab3","Child2":"lab4","Child3": "lab5"}
 
     #weighting templates by PID eff/misID
-    configdict["WeightingMassTemplates"]= { "Variables":["lab4_P","lab5_P"], "PIDBach": 0, "PIDChild": 0, "PIDProton": 5, "RatioDataMC":True }
+    configdict["WeightingMassTemplates"]= { "PIDBachEff":            { "FileLabel": { "2011":"#PID Pion 2011", "2012":"#PID Pion 2012"},
+                                                                       "Var":"lab1_P", "HistName":"MyPionEff_0"},
+                                            "PIDBachMisID":          { "FileLabel": { "2011":"#PID Pion 2011", "2012":"#PID Pion 2012"},
+                                                                       "Var":"lab1_P", "HistName":"MyPionMisID_0"},
+                                            "PIDChildKaonPionMisID": { "FileLabel": { "2011":"#PID Pion 2011", "2012":"#PID Pion 2012"},
+                                                                       "Var":"lab3_P", "HistName":"MyPionMisID_0"},
+                                            "PIDChildProtonMisID":   { "FileLabel": { "2011":"#PID Proton 2011", "2012":"#PID Proton 2012"},
+                                                                       "Var":"lab4_P", "HistName":"MyProtonMisID_pKm5_KPi5"},
+                                            "RatioDataMC":True,
+                                            "Shift":{ "BeautyMass": -2.0, "CharmMass": 0.0} }
+
     
     #weighting for PID templates
     configdict["ObtainPIDTemplates"] = { "Variables":["BacPT","nTracks"], "Bins":[20,20] }
@@ -59,9 +69,9 @@ def getconfig() :
     configdict["BsSignalShape"]["sigma2"]  = {"Run1": {"All":1.6005e+01}, "Fixed":False}
     configdict["BsSignalShape"]["alpha1"]  = {"Run1": {"All":2.2118e+00}, "Fixed":False}
     configdict["BsSignalShape"]["alpha2"]  = {"Run1": {"All":-2.4185e+00}, "Fixed":False}
-    configdict["BsSignalShape"]["n1"]      = {"Run1": {"All":1.0019e+00}, "Fixed":False}
-    configdict["BsSignalShape"]["n2"]      = {"Run1": {"All":3.1469e+00}, "Fixed":False}
-    configdict["BsSignalShape"]["frac"]    = {"Run1": {"All":6.1755e-01}, "Fixed":False}
+    configdict["BsSignalShape"]["n1"]      = {"Run1": {"All":10.0}, "Fixed":True}
+    configdict["BsSignalShape"]["n2"]      = {"Run1": {"All":10.0}, "Fixed":True}
+    configdict["BsSignalShape"]["frac"]    = {"Run1": {"All":0.5}, "Fixed":True}
 
     #Ds signal shapes                                                                                                
     configdict["DsSignalShape"] = {}
@@ -71,11 +81,11 @@ def getconfig() :
     configdict["DsSignalShape"]["sigma2"]  = {"Run1": {"KKPi":5.1848e+00,  "KPiPi":5.2073e+00,  "PiPiPi":7.3773e+00}, "Fixed":False}
     #configdict["DsSignalShape"]["alpha1"]  = {"Run1": {"KKPi":1.2252e+00,  "KPiPi":1.7131e+00,  "PiPiPi":9.0639e-01}, "Fixed":False}
     #configdict["DsSignalShape"]["alpha2"]  = {"Run1": {"KKPi":-1.1167e+00, "KPiPi":-2.5276e+00, "PiPiPi":-1.1122e+00}, "Fixed":False}
-    configdict["DsSignalShape"]["alpha1"]  = {"Run1": {"KKPi":1.1289e+00,  "KPiPi":1.5928e+00,  "PiPiPi": 8.0885e-01}, "Fixed":True}
-    configdict["DsSignalShape"]["alpha2"]  = {"Run1": {"KKPi":-1.1200e+00, "KPiPi":-4.6258e+00, "PiPiPi":-1.2172e+00}, "Fixed":True}
-    configdict["DsSignalShape"]["n1"]      = {"Run1": {"KKPi":4.6625e+00,  "KPiPi":2.0239e+00,  "PiPiPi":1.1486e+01}, "Fixed":False}
-    configdict["DsSignalShape"]["n2"]      = {"Run1": {"KKPi":6.9989e+01,  "KPiPi":1.0860e+00,  "PiPiPi":4.0001e+01}, "Fixed":False}
-    configdict["DsSignalShape"]["frac"]    = {"Run1": {"KKPi":4.7565e-01,  "KPiPi":5.5084e-01,  "PiPiPi":4.8729e-01}, "Fixed":False}
+    configdict["DsSignalShape"]["alpha1"]  = {"Run1": {"KKPi":1.1289e+00,  "KPiPi":1.5928e+00,  "PiPiPi": 8.0885e-01}, "Fixed":False}
+    configdict["DsSignalShape"]["alpha2"]  = {"Run1": {"KKPi":-1.1200e+00, "KPiPi":-4.6258e+00, "PiPiPi":-1.2172e+00}, "Fixed":False}
+    configdict["DsSignalShape"]["n1"]      = {"Run1": {"KKPi":4.6625e+00,  "KPiPi":2.0239e+00,  "PiPiPi":10.0}, "Fixed":True}
+    configdict["DsSignalShape"]["n2"]      = {"Run1": {"KKPi":6.9989e+01,  "KPiPi":1.0860e+00,  "PiPiPi":10.0}, "Fixed":True}
+    configdict["DsSignalShape"]["frac"]    = {"Run1": {"KKPi":4.7565e-01,  "KPiPi":5.5084e-01,  "PiPiPi":0.5}, "Fixed":True}
 
     #expected yields                                                                                                                                                              
     configdict["Yields"] = {}

@@ -249,9 +249,9 @@ public:
 
 
   std::vector <TString> GetTagVar() { return _tagVarNames; }
-  std::vector <TString> GetTagOmegaVar() { return _tagOmegaVarNames; }
-  
+  std::vector <TString> GetTagOmegaVar() { return _tagOmegaVarNames; }  
   std::vector <TString> GetVarNames(Bool_t reg = true, Bool_t id = true, Bool_t add = true, Bool_t tag = true, Bool_t tagOmega = true);
+  std::vector <TString> GetVarOutNames(Bool_t reg, Bool_t id, Bool_t add, Bool_t tag, Bool_t tagOmega);
 
   void SetMassBVar(TString name)    { _mVar        = name; }
   void SetMassDVar(TString name)    { _mDVar       = name; }
@@ -313,7 +313,9 @@ public:
   TString GetAddVarName(int i ) { return _addVarNames[i]; }
   TString GetAddVarOutName(int i ) { return _addVarNamesOut[i]; }
   Bool_t CheckVarName( TString name );
+  Bool_t CheckVarOutName (TString name); 
   TString GetVarOutName(TString name);
+
 
   void AddVar(TString name, Double_t dw, Double_t up ) { 
     _addVarNames.push_back(name);
@@ -496,6 +498,9 @@ public:
     else { return 0.0; }
   }
 
+  void SetLabelDataMC(TString label, TString year); 
+  TString GetLabelDataMC(TString year); 
+
 protected:
 
   std::vector <Double_t> _massBRange;
@@ -541,6 +546,7 @@ protected:
   //std::vector <TString> _weightMassTempVar;
   Bool_t _weightMassTemp;
   Bool_t _weightRatioDataMC; 
+  std::pair <TString, TString> _ratioDMC; 
 
   std::vector < std::vector <Double_t> > _lumRatio;
   std::vector < bool > _lumFlag; 

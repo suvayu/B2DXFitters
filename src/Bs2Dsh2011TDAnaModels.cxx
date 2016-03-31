@@ -1318,7 +1318,7 @@ namespace Bs2Dsh2011TDAnaModels {
     //-----------------------------------------//
 
     RooExtendPdf* epdf_Bs2DsK = NULL;
-    epdf_Bs2DsK = buildExtendPdfSpecBkgMDFit( workInt, work, samplemode, "Bs2DsK", "", merge, dim, "", debug);
+    epdf_Bs2DsK = buildExtendPdfSpecBkgMDFit( workInt, work, samplemode, "Bs2DsK", "", merge, dim, charmVarName, debug);
     Double_t valBs2DsK = CheckEvts(workInt, samplemode, "Bs2DsK",debug);
     list = AddEPDF(list, epdf_Bs2DsK, valBs2DsK, debug);
 

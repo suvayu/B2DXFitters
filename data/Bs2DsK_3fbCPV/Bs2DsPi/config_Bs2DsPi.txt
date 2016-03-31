@@ -176,6 +176,20 @@ MomVsnTr_Comp_DPi_Down_hist.root
 MomVsnTr_Comp_DPi_Up_hist.root
 ###
 
+
+#RatioDataMC 2011
+/afs/cern.ch/work/s/sgallori/public/forAgnieszka/dataMC_weights/
+MomVsnTr_Comp_DPi_2011_dw_hist.root
+MomVsnTr_Comp_DPi_2011_up_hist.root
+###
+
+#RatioDataMC 2012
+/afs/cern.ch/work/s/sgallori/public/forAgnieszka/dataMC_weights/
+MomVsnTr_Comp_DPi_2012_dw_hist.root
+MomVsnTr_Comp_DPi_2012_up_hist.root
+###
+
+
 #RatioDataMC3D
 /afs/cern.ch/work/a/adudziak/public/workspace/
 PtVsnTrVsP_Comp_DPi_Down_hist.root
@@ -287,7 +301,7 @@ PtVsnTrVsP_Comp_DPi_Up_hist.root
 
 
 #Signal Bs2DsPi KstK 2011
-root://eoslhcb.cern.ch//eos/lhcb/wg/b2oc/TD_DsK_3fb/TD_DsK3fb_MC_SMEARED/FINAL/
+root://eoslhcb.cern.ch//eos/lhcb/wg/b2oc/TD_DsK_3fb/TD_DsK3fb_MC/FINAL/
 B2DX_MC_Bs_Dspi_KKpi_Dn_OFFLINE_Bs_Dspi_KstK.root
 B2DX_MC_Bs_Dspi_KKpi_Up_OFFLINE_Bs_Dspi_KstK.root
 DecayTree
@@ -295,7 +309,7 @@ DecayTree
 ###
 
 #Signal Bs2DsPi PhiPi 2011
-root://eoslhcb.cern.ch//eos/lhcb/wg/b2oc/TD_DsK_3fb/TD_DsK3fb_MC_SMEARED/FINAL/
+root://eoslhcb.cern.ch//eos/lhcb/wg/b2oc/TD_DsK_3fb/TD_DsK3fb_MC/FINAL/
 B2DX_MC_Bs_Dspi_KKpi_Dn_OFFLINE_Bs_Dspi_phipi.root
 B2DX_MC_Bs_Dspi_KKpi_Up_OFFLINE_Bs_Dspi_phipi.root
 DecayTree
@@ -303,7 +317,7 @@ DecayTree
 ###
 
 #Signal Bs2DsPi NonRes 2011
-root://eoslhcb.cern.ch//eos/lhcb/wg/b2oc/TD_DsK_3fb/TD_DsK3fb_MC_SMEARED/FINAL/
+root://eoslhcb.cern.ch//eos/lhcb/wg/b2oc/TD_DsK_3fb/TD_DsK3fb_MC/FINAL/
 B2DX_MC_Bs_Dspi_KKpi_Dn_OFFLINE_Bs_Dspi_nonres.root
 B2DX_MC_Bs_Dspi_KKpi_Up_OFFLINE_Bs_Dspi_nonres.root
 DecayTree
@@ -312,7 +326,7 @@ DecayTree
 
 
 #Signal Bs2DsPi KPiPi 2011
-root://eoslhcb.cern.ch//eos/lhcb/wg/b2oc/TD_DsK_3fb/TD_DsK3fb_MC_SMEARED/FINAL/
+root://eoslhcb.cern.ch//eos/lhcb/wg/b2oc/TD_DsK_3fb/TD_DsK3fb_MC/FINAL/
 B2DX_MC_Bs_Dspi_Kpipi_Dn_OFFLINE_Bs_Dspi_Kpipi.root
 B2DX_MC_Bs_Dspi_Kpipi_Up_OFFLINE_Bs_Dspi_Kpipi.root
 DecayTree
@@ -320,7 +334,17 @@ DecayTree
 ###
 
 #Signal Bs2DsPi PiPiPi 2011
-root://eoslhcb.cern.ch//eos/lhcb/wg/b2oc/TD_DsK_3fb/TD_DsK3fb_MC_SMEARED/FINAL/
+root://eoslhcb.cern.ch//eos/lhcb/wg/b2oc/TD_DsK_3fb/TD_DsK3fb_MC/FINAL/
+B2DX_MC_Bs_Dspi_pipipi_Up_BDTG_Bs.root
+B2DX_MC_Bs_Dspi_pipipi_Dn_BDTG_Bs.root
+DecayTree
+DecayTree
+###
+
+
+
+#Signal Bs2DsPi PiPiPi 2011 hhhhhh
+root://eoslhcb.cern.ch//eos/lhcb/wg/b2oc/TD_DsK_3fb/TD_DsK3fb_MC/FINAL/
 B2DX_MC_Bs_Dspi_pipipi_Dn_OFFLINE_Bs_Dspi_pipipi.root
 B2DX_MC_Bs_Dspi_pipipi_Up_OFFLINE_Bs_Dspi_pipipi.root
 DecayTree
@@ -328,7 +352,7 @@ DecayTree
 ###
 
 #Signal Bs2DsPi KstK 2012
-root://eoslhcb.cern.ch//eos/lhcb/wg/b2oc/TD_DsK_3fb/TD_DsK3fb_MC_SMEARED/FINAL/
+root://eoslhcb.cern.ch//eos/lhcb/wg/b2oc/TD_DsK_3fb/TD_DsK3fb_MC/FINAL/
 B2DX_MC_Bs_Dspi_KKpi_Dn_OFFLINE_Bs_Dspi_KstK.root
 B2DX_MC_Bs_Dspi_KKpi_Up_OFFLINE_Bs_Dspi_KstK.root
 DecayTree
@@ -336,7 +360,7 @@ DecayTree
 ###
 
 #Signal Bs2DsPi PhiPi 2012
-root://eoslhcb.cern.ch//eos/lhcb/wg/b2oc/TD_DsK_3fb/TD_DsK3fb_MC_SMEARED/FINAL/
+root://eoslhcb.cern.ch//eos/lhcb/wg/b2oc/TD_DsK_3fb/TD_DsK3fb_MC/FINAL/
 B2DX_MC_Bs_Dspi_KKpi_Dn_OFFLINE_Bs_Dspi_phipi.root
 B2DX_MC_Bs_Dspi_KKpi_Up_OFFLINE_Bs_Dspi_phipi.root
 DecayTree
@@ -344,7 +368,7 @@ DecayTree
 ###
 
 #Signal Bs2DsPi NonRes 2012
-root://eoslhcb.cern.ch//eos/lhcb/wg/b2oc/TD_DsK_3fb/TD_DsK3fb_MC_SMEARED/FINAL/
+root://eoslhcb.cern.ch//eos/lhcb/wg/b2oc/TD_DsK_3fb/TD_DsK3fb_MC/FINAL/
 B2DX_MC_Bs_Dspi_KKpi_Dn_OFFLINE_Bs_Dspi_nonres.root
 B2DX_MC_Bs_Dspi_KKpi_Up_OFFLINE_Bs_Dspi_nonres.root
 DecayTree
@@ -353,7 +377,7 @@ DecayTree
 
 
 #Signal Bs2DsPi KPiPi 2012
-root://eoslhcb.cern.ch//eos/lhcb/wg/b2oc/TD_DsK_3fb/TD_DsK3fb_MC_SMEARED/FINAL/
+root://eoslhcb.cern.ch//eos/lhcb/wg/b2oc/TD_DsK_3fb/TD_DsK3fb_MC/FINAL/
 B2DX_MC_Bs_Dspi_Kpipi_Dn_OFFLINE_Bs_Dspi_Kpipi.root
 B2DX_MC_Bs_Dspi_Kpipi_Up_OFFLINE_Bs_Dspi_Kpipi.root
 DecayTree
@@ -361,7 +385,7 @@ DecayTree
 ###
 
 #Signal Bs2DsPi PiPiPi 2012
-root://eoslhcb.cern.ch//eos/lhcb/wg/b2oc/TD_DsK_3fb/TD_DsK3fb_MC_SMEARED/FINAL/
+root://eoslhcb.cern.ch//eos/lhcb/wg/b2oc/TD_DsK_3fb/TD_DsK3fb_MC/FINAL/
 B2DX_MC_Bs_Dspi_pipipi_Dn_OFFLINE_Bs_Dspi_pipipi.root
 B2DX_MC_Bs_Dspi_pipipi_Up_OFFLINE_Bs_Dspi_pipipi.root
 DecayTree
