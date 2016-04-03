@@ -267,13 +267,14 @@ namespace GeneralUtils {
   //                       TString &dat, TString & sample, TString& mode,
   //                       TString merge, bool debug );
   RooDataSet* GetDataSet(RooWorkspace* work, RooArgSet* obs, RooCategory& sam,
-                         TString &dat, TString & sample, TString& mode, TString& year,
+                         TString &dat, TString & sample, TString& mode, TString& year, TString& hypo,
                          TString merge, bool debug );
 
-  std::vector <TString> GetSampleModeYear(TString& sample, TString& mode, TString& year, TString merge, bool debug = false);
+  std::vector <TString> GetSampleModeYearHypo(TString& sample, TString& mode, TString& year, TString& hypo, TString merge, bool debug = false);
   //std::vector <TString> GetSampleMode(TString& sample, TString& mode, TString merge, bool debug );
   std::vector <TString>  GetSample(TString& sample, bool debug = false);
   std::vector <TString>  GetMode(TString& mode, bool debug = false);
+  std::vector <TString>  GetHypo(TString& hypo, bool debug = false);
   std::vector <TString>  GetYear(TString& year, bool debug = false);
   std::vector<TString> GetDataYear(TString check, TString merge, bool debug = false);
   //std::vector <Int_t> GetEntriesCombData(RooWorkspace* work, 
@@ -320,6 +321,12 @@ namespace GeneralUtils {
   //==========================================================================                                                                                        
   TString CheckKKPiMode(std::string& check, bool debug = false);
   TString CheckKKPiMode(TString& check, bool debug = false);
+
+  //==========================================================================
+  // Check bachelor mass hypothesys (k, pi) from check
+  //==========================================================================
+  TString CheckHypo(std::string& check, bool debug = false);
+  TString CheckHypo(TString& check, bool debug = false);
 
   //==========================================================================       
   // Get decay in Latex                                                       

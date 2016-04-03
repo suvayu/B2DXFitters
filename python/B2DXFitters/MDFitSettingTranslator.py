@@ -52,7 +52,7 @@ class Translator:
             exit(0) 
 
         if myconfigfile.has_key('TaggingCalibration'):
-            tags = ["OS","SS"]
+            tags = ["OS", "SS"]
             for tag in tags:
                 if myconfigfile["TaggingCalibration"].has_key(tag):
                     md.AddCalibration(myconfigfile["TaggingCalibration"][tag]["p0"],

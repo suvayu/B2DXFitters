@@ -99,6 +99,7 @@ ulimit -s $((   8 * 1024))
 exec $schedtool /usr/bin/time -v env python -O -- "$0" "$@"
 """
 __doc__ = """ real docstring """
+#"
 # -----------------------------------------------------------------------------
 # Load necessary libraries
 # -----------------------------------------------------------------------------
@@ -155,7 +156,7 @@ def runMDFitter( debug, sample, mode, sweight,
     myconfigfile = myconfigfilegrabber()
     
     print "=========================================================="
-    print "PREPARING WORKSPACE IS RUNNING WITH THE FOLLOWING CONFIGURATION OPTIONS"
+    print "RUN MD FITTER IS RUNNING WITH THE FOLLOWING CONFIGURATION OPTIONS"
     for option in myconfigfile :
         if option == "constParams" :
             for param in myconfigfile[option] :

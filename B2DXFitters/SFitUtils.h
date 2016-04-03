@@ -45,18 +45,20 @@ namespace SFitUtils {
   //===========================================================================
 
   RooWorkspace* ReadDataFromSWeights(TString& pathFile,
-				     TString& treeName,
-				     MDFitterSettings* set, 
-				     //TString& part,
-				     TString pol,
-				     TString mode,
-				     TString year,
-				     TString merge = "",
-				     bool weighted = true,
-				     bool toys = false,
-				     bool applykfactor = false,
-				     bool        debug = false
-				     );
+                                     TString& treeName,
+                                     MDFitterSettings* mdSet,
+                                     TString pol,
+                                     TString mode,
+                                     TString year,
+                                     TString hypo,
+                                     TString merge,
+                                     bool weighted = true,
+                                     bool toys = false,
+                                     bool applykfactor = false,
+                                     bool sWeightsCorr = false,
+                                     bool singletagger = false,
+                                     bool        debug = false
+                                     );
   
   //===========================================================================
   // Create Mistag templates

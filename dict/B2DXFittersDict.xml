@@ -74,6 +74,7 @@
 	<class name="RooCubicSplineFun"/>
 	<class name="RooBinnedFun"/>
 	<class name="RooGaussEfficiencyModel"/>
+        <class name="RooJohnsonSU"/>
 	<class name="RooKResModel">
 	    <field name = "_interpolation" transient = "true" />
 	    <field name = "_cacheMgr" transient = "true" />

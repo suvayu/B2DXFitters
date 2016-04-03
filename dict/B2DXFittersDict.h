@@ -34,6 +34,7 @@
 #include "B2DXFitters/Bs2DssthModels.h"
 #include "B2DXFitters/RooApollonios.h"
 #include "B2DXFitters/RooIpatia2.h"
+#include "B2DXFitters/RooJohnsonSU.h"
 
 #include "B2DXFitters/RooBinnedPdf.h"
 #include "B2DXFitters/RooAbsEffResModel.h"

@@ -37,6 +37,7 @@ MCBackground::MCBackground(const TString& name, const TString& title)
   _rho = 1.0;
   _opt = "";
   _pol = ""; 
+  _hypo = "";
   _file = NULL; 
 }
 
@@ -50,6 +51,7 @@ MCBackground::MCBackground(const TString& name, const TString& title, TString& n
   _opt = "Both";
   _pol = CheckPolarity(sig,false);
   _year = CheckDataYear(sig,false); 
+  _hypo = CheckHypo(sig,false);
 
   std::ifstream myfile(nameFile.Data());
   std::string line, line1;
@@ -169,6 +171,7 @@ MCBackground::MCBackground(const MCBackground& other):TNamed(other)
   _opt = other._opt; 
   _pol = other._pol;
   _year = other._year;
+  _hypo = other._hypo;
 }
 
 MCBackground::~MCBackground() { }
@@ -178,7 +181,7 @@ std::ostream & operator<< (std::ostream &out, const MCBackground &s)
   out<<"MCBackground for mode: "<<s._mode<<std::endl;
   out<<"FileName: "<<s._fileName<<std::endl;
   out<<"TreeName: "<<s._treeName<<std::endl;
-  out<<"Polarity, year: "<<s._pol<<","<<s._year<<std::endl; 
+  out<<"Polarity, year, hypo: "<<s._pol<<","<<s._year<<","<<s._hypo<<std::endl; 
   out<<"RooKeysPdf options (rho,mirrors):("<<s._rho<<","<<s._opt<<")"<<std::endl;
   return out; 
 }
@@ -208,7 +211,8 @@ TString MCBackground::CheckMode()
   else if (_mode.Contains("Dst") == true || _mode.Contains("dst") == true)
     { Ds = "Dst"; }
   else if ( (_mode.Contains("Ds") == true  || _mode.Contains("ds")== true) &&
-	    (_mode.Contains("Dsst") == false || _mode.Contains("dsst") == false ))
+            (_mode.Contains("Dsst") == false || _mode.Contains("dsst") == false ) &&
+            (_mode.Contains("Dst") == false || _mode.Contains("dst") == false ))
     { Ds = "Ds";}
   else if (( _mode.Contains("D") == true  || _mode.Contains("d") == true )  &&
 	   (_mode.Contains("Ds") == false  || _mode.Contains("ds") == false) && _mode.Contains("ambda") == false)

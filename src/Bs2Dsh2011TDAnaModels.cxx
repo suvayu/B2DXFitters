@@ -39,10 +39,10 @@ namespace Bs2Dsh2011TDAnaModels {
   // Crystal Ball                                                                                                                                                                        
   //===============================================================================  
   RooAbsPdf* buildCrystalBallPDF( RooAbsReal& obs, 
-				  RooWorkspace* workInt, 
-				  TString samplemode, 
-				  TString typemode, 
-				  bool debug)
+                                  RooWorkspace* workInt, 
+                                  TString samplemode, 
+                                  TString typemode, 
+                                  bool debug)
   {
     if ( debug == true ) { std::cout<<"[INFO] --------- build double Crystal Ball -------- "<<std::endl; }
 
@@ -75,12 +75,12 @@ namespace Bs2Dsh2011TDAnaModels {
   //===============================================================================
 
   RooAbsPdf* buildDoubleCrystalBallPDF( RooAbsReal& obs,
-					RooWorkspace* workInt,
-					TString samplemode,
-					TString type,
-					bool widthRatio, 
-					bool sharedMean,
-					bool debug)
+                                        RooWorkspace* workInt,
+                                        TString samplemode,
+                                        TString type,
+                                        bool widthRatio,
+                                        bool sharedMean,
+                                        bool debug)
   {
 
     if ( debug == true ) { std::cout<<"[INFO] --------- build double Crystal Ball -------- "<<std::endl; }
@@ -117,18 +117,18 @@ namespace Bs2Dsh2011TDAnaModels {
     TString fracName = type+"_"+varName+"_frac_"+samplemode;
     fracVar = tryVar(fracName, workInt, debug);
 
-    if ( widthRatio ) 
-      {
-	TString RName = type+TString("_")+varName+TString("_R_")+samplemode;
-        R = tryVar(RName, workInt, debug);
-        TString name = type+TString("_") + varName + TString("_sigmafcb1_")+samplemode;
-        sigma1For = new RooFormulaVar(name.Data(), name.Data(),"@0*@1", RooArgList(*sigma1Var,*R));
-        if ( debug == true ) { std::cout<<"[INFO] Create/read "<<name<<std::endl; }
-	name = type+TString("_") + varName + TString("_sigmafcb2_")+samplemode;
-        sigma2For = new RooFormulaVar(name.Data(), name.Data(),"@0*@1", RooArgList(*sigma2Var,*R));
-	if ( debug == true ) { std::cout<<"[INFO] Create/read "<<name<<std::endl; }
-      }
-
+    if ( widthRatio )
+    {
+      TString RName = type+TString("_")+varName+TString("_R_")+samplemode;
+      R = tryVar(RName, workInt, debug);
+      TString name = type+TString("_") + varName + TString("_sigmafcb1_")+samplemode;
+      sigma1For = new RooFormulaVar(name.Data(), name.Data(),"@0*@1", RooArgList(*sigma1Var,*R));
+      if ( debug == true ) { std::cout<<"[INFO] Create/read "<<name<<std::endl; }
+      name = type+TString("_") + varName + TString("_sigmafcb2_")+samplemode;
+      sigma2For = new RooFormulaVar(name.Data(), name.Data(),"@0*@1", RooArgList(*sigma2Var,*R));
+      if ( debug == true ) { std::cout<<"[INFO] Create/read "<<name<<std::endl; }
+    }
+    
     RooAbsPdf* pdf = NULL;
 
     RooCBShape* pdf1 = NULL;
@@ -137,15 +137,15 @@ namespace Bs2Dsh2011TDAnaModels {
     TString pdf2Name = type+"_"+varName+"_crystalBall2_"+samplemode;
     
     if ( widthRatio )
-      {
-	pdf1 = new RooCBShape( pdf1Name.Data(), pdf1Name.Data(), obs, *mean, *sigma1For, *alpha1Var, *n1Var);
-	pdf2 = new RooCBShape( pdf2Name.Data(), pdf2Name.Data(), obs, *mean, *sigma2For, *alpha2Var, *n2Var);
-      }
+    {
+      pdf1 = new RooCBShape( pdf1Name.Data(), pdf1Name.Data(), obs, *mean, *sigma1For, *alpha1Var, *n1Var);
+      pdf2 = new RooCBShape( pdf2Name.Data(), pdf2Name.Data(), obs, *mean, *sigma2For, *alpha2Var, *n2Var);
+    }
     else
-      {
-	pdf1 = new RooCBShape( pdf1Name.Data(), pdf1Name.Data(), obs, *mean, *sigma1Var, *alpha1Var, *n1Var);
-        pdf2 = new RooCBShape( pdf2Name.Data(), pdf2Name.Data(), obs, *mean, *sigma2Var, *alpha2Var, *n2Var);
-      }
+    {
+      pdf1 = new RooCBShape( pdf1Name.Data(), pdf1Name.Data(), obs, *mean, *sigma1Var, *alpha1Var, *n1Var);
+      pdf2 = new RooCBShape( pdf2Name.Data(), pdf2Name.Data(), obs, *mean, *sigma2Var, *alpha2Var, *n2Var);
+    }
     CheckPDF( pdf1, debug );
     CheckPDF( pdf2, debug);
 
@@ -158,13 +158,13 @@ namespace Bs2Dsh2011TDAnaModels {
 
 
   //===============================================================================  
-  // Gausssian                                                                         
+  // Gaussian                                                                         
   //===============================================================================
   RooAbsPdf* buildGaussPDF( RooAbsReal& obs, 
-			    RooWorkspace* workInt, 
-			    TString samplemode, 
-			    TString typemode, 
-			    bool debug)
+                            RooWorkspace* workInt, 
+                            TString samplemode, 
+                            TString typemode, 
+                            bool debug)
   {
     if ( debug == true ) { std::cout<<"[INFO] --------- build Gaussian -------- "<<std::endl; }
     RooRealVar* mean = NULL;
@@ -187,15 +187,15 @@ namespace Bs2Dsh2011TDAnaModels {
 
 
   //===============================================================================                                                                                                      
-  // Double Gausssian 
+  // Double Gaussian 
   //=============================================================================== 
   RooAbsPdf* buildDoubleGaussPDF( RooAbsReal& obs,
-				  RooWorkspace* workInt,
-				  TString samplemode,
-				  TString typemode,
-				  bool widthRatio, 
-				  bool sharedMean, 
-				  bool debug)
+                                  RooWorkspace* workInt,
+                                  TString samplemode,
+                                  TString typemode,
+                                  bool widthRatio, 
+                                  bool sharedMean, 
+                                  bool debug)
   {
 
     if ( debug == true ) { std::cout<<"[INFO] --------- build double Gaussian -------- "<<std::endl; } 
@@ -220,32 +220,32 @@ namespace Bs2Dsh2011TDAnaModels {
     fracVar = tryVar(fracName, workInt, debug);
 
     if ( widthRatio )
-      {
-        TString name = typemode+TString("_")+varName+TString("_R");
-        R = new RooRealVar(name.Data(),name.Data(), 1.0, 0.8, 1.2);
-        name = typemode+TString("_") + varName + TString("_sigmafg1_")+samplemode;
-        sigma1For = new RooFormulaVar(name.Data(), name.Data(),"@0*@1", RooArgList(*sigma1Var,*R));
-        if ( debug == true ) { std::cout<<"[INFO] Create/read "<<name<<std::endl; }
-        name = typemode+TString("_") + varName + TString("_sigmafg2_")+samplemode;
-        sigma2For = new RooFormulaVar(name.Data(), name.Data(),"@0*@1", RooArgList(*sigma2Var,*R));
-	if ( debug == true ) { std::cout<<"[INFO] Create/read "<<name<<std::endl; }
-      }
-
+    {
+      TString name = typemode+TString("_")+varName+TString("_R");
+      R = new RooRealVar(name.Data(),name.Data(), 1.0, 0.8, 1.2);
+      name = typemode+TString("_") + varName + TString("_sigmafg1_")+samplemode;
+      sigma1For = new RooFormulaVar(name.Data(), name.Data(),"@0*@1", RooArgList(*sigma1Var,*R));
+      if ( debug == true ) { std::cout<<"[INFO] Create/read "<<name<<std::endl; }
+      name = typemode+TString("_") + varName + TString("_sigmafg2_")+samplemode;
+      sigma2For = new RooFormulaVar(name.Data(), name.Data(),"@0*@1", RooArgList(*sigma2Var,*R));
+      if ( debug == true ) { std::cout<<"[INFO] Create/read "<<name<<std::endl; }
+    }
+    
     RooGaussian* pdf1 = NULL;
     TString pdf1Name = typemode+"_"+varName+"_Gauss1_"+samplemode;
     RooGaussian* pdf2 = NULL;
     TString pdf2Name = typemode+"_"+varName+"_Gauss2_"+samplemode;
 
     if (widthRatio) 
-      {
-	pdf1 = new RooGaussian( pdf1Name.Data(), pdf1Name.Data(), obs, *mean, *sigma1For);
-	pdf2 = new RooGaussian( pdf2Name.Data(), pdf2Name.Data(), obs, *mean, *sigma2For);
-      } 
+    {
+      pdf1 = new RooGaussian( pdf1Name.Data(), pdf1Name.Data(), obs, *mean, *sigma1For);
+      pdf2 = new RooGaussian( pdf2Name.Data(), pdf2Name.Data(), obs, *mean, *sigma2For);
+    } 
     else
-      {
-	pdf1 = new RooGaussian( pdf1Name.Data(), pdf1Name.Data(), obs, *mean, *sigma1Var);
-        pdf2 = new RooGaussian( pdf2Name.Data(), pdf2Name.Data(), obs, *mean, *sigma2Var);
-      }
+    {
+      pdf1 = new RooGaussian( pdf1Name.Data(), pdf1Name.Data(), obs, *mean, *sigma1Var);
+      pdf2 = new RooGaussian( pdf2Name.Data(), pdf2Name.Data(), obs, *mean, *sigma2Var);
+    }
  
     CheckPDF( pdf1, debug );
     CheckPDF( pdf2, debug);
@@ -263,7 +263,7 @@ namespace Bs2Dsh2011TDAnaModels {
                                           RooWorkspace* workInt,
                                           TString samplemode,
                                           TString typemode,
-					  bool sharedMean, 
+                                          bool sharedMean, 
                                           bool debug)
   {
     if ( debug == true ) { std::cout<<"[INFO] --------- build Exponential plus Gaussian -------- "<<std::endl; }
@@ -304,10 +304,10 @@ namespace Bs2Dsh2011TDAnaModels {
   }
 
   RooAbsPdf* buildExponentialPDF(RooAbsReal& obs, 
-				 RooWorkspace* workInt, 
-				 TString samplemode, 
-				 TString typemode, 
-				 bool debug)
+                                 RooWorkspace* workInt, 
+                                 TString samplemode, 
+                                 TString typemode, 
+                                 bool debug)
   {
     if ( debug == true ) { std::cout<<"[INFO] --------- build Exponential -------- "<<std::endl; }
     
@@ -327,10 +327,10 @@ namespace Bs2Dsh2011TDAnaModels {
   }
 
   RooAbsPdf* buildDoubleExponentialPDF(RooAbsReal& obs, 
-				       RooWorkspace* workInt, 
-				       TString samplemode, 
-				       TString typemode, 
-				       bool debug)
+                                       RooWorkspace* workInt, 
+                                       TString samplemode, 
+                                       TString typemode, 
+                                       bool debug)
   {
     if ( debug == true ) { std::cout<<"[INFO] --------- build double Exponential -------- "<<std::endl; }
 
@@ -367,10 +367,10 @@ namespace Bs2Dsh2011TDAnaModels {
   }
 
   RooAbsPdf* buildExponentialTimesLinearPDF(RooAbsReal& obs, 
-					    RooWorkspace* workInt, 
-					    TString samplemode, 
-					    TString typemode, 
-					    bool debug)
+                                            RooWorkspace* workInt, 
+                                            TString samplemode, 
+                                            TString typemode, 
+                                            bool debug)
   {
 
     if ( debug == true ) { std::cout<<"[INFO] --------- build Exponential times Linear -------- "<<std::endl; }
@@ -403,10 +403,10 @@ namespace Bs2Dsh2011TDAnaModels {
   }
 
   RooAbsPdf* buildExponentialPlusSignalPDF(RooAbsReal& obs, 
-					   RooWorkspace* workInt, 
-					   TString samplemode, 
-					   TString typemode,
-					   bool debug)
+                                           RooWorkspace* workInt, 
+                                           TString samplemode, 
+                                           TString typemode,
+                                           bool debug)
   {
     if ( debug == true ) { std::cout<<"[INFO] --------- build Exponential plus Signal -------- "<<std::endl; }
     RooRealVar* cDVar = NULL;
@@ -546,13 +546,13 @@ namespace Bs2Dsh2011TDAnaModels {
 
 
   RooAbsPdf* buildComboPIDKPDF(RooAbsReal& obs, 
-			       RooWorkspace* work, 
-			       RooWorkspace* workInt, 
-			       TString samplemode, 
-			       TString typemode,
-			       std::vector <TString> pidk,
-			       TString merge,
-			       bool debug)
+                               RooWorkspace* work, 
+                               RooWorkspace* workInt, 
+                               TString samplemode, 
+                               TString typemode,
+                               std::vector <TString> pidk,
+                               TString merge,
+                               bool debug)
   {
     RooArgList* listPDF = new RooArgList();
     RooArgList* listFrac = new RooArgList();
@@ -566,20 +566,20 @@ namespace Bs2Dsh2011TDAnaModels {
 
     Int_t num = 0; 
     for( int i = 0; i<3; i++ )
-      {
-	if ( pidk[i] == "True" || pidk[i] == "true" ) { num++; }
-      }
+    {
+      if ( pidk[i] == "True" || pidk[i] == "true" ) { num++; }
+    }
 
     if (num > 1 )
-      {
-	TString fracPIDK1Name = typemode+"_"+varName+"_fracPIDK1_"+samplemode;
-	fracPIDK1 =tryVar(fracPIDK1Name, workInt, debug);  
-      }
+    {
+      TString fracPIDK1Name = typemode+"_"+varName+"_fracPIDK1_"+samplemode;
+      fracPIDK1 =tryVar(fracPIDK1Name, workInt, debug);  
+    }
     if ( num > 2 )
-      {
-	TString fracPIDK2Name = typemode+"_"+varName+"_fracPIDK2_"+samplemode;
-	fracPIDK2 = tryVar(fracPIDK2Name, workInt, debug); 
-      }
+    {
+      TString fracPIDK2Name = typemode+"_"+varName+"_fracPIDK2_"+samplemode;
+      fracPIDK2 = tryVar(fracPIDK2Name, workInt, debug); 
+    }
 
     TString m[] = {"CombPi","CombK","CombP"};
 
@@ -590,42 +590,42 @@ namespace Bs2Dsh2011TDAnaModels {
     RooRealVar lum;
 
     for (int i = 0; i<3; i++ )
+    {
+      if ( pidk[i] == "True" || pidk[i] == "true")
       {
-	if ( pidk[i] == "True" || pidk[i] == "true")
-	  {
-	    pdf_pidk[i] =  buildMergedSpecBkgMDFit(workInt, work, samplemode, m[i], "", merge, 3, "", debug);
-	    //if ( pdf_pidk[i] == NULL ) { pdf_pidk[i] =  buildMergedSpecBkgMDFit(workInt, work, samplemode, m[i], mode, merge, 3, "", debug);}
-	    if ( pdf_pidk[i] != NULL )
+        pdf_pidk[i] =  buildMergedSpecBkgMDFit(workInt, work, samplemode, m[i], "", merge, 3, "", debug);
+        //if ( pdf_pidk[i] == NULL ) { pdf_pidk[i] =  buildMergedSpecBkgMDFit(workInt, work, samplemode, m[i], mode, merge, 3, "", debug);}
+        if ( pdf_pidk[i] != NULL )
 	      {
-		std::cout<<"[INFO] Adding pdf: "<<pdf_pidk[i]->GetName()<<" to PIDK PDFs"<<std::endl;
-		listPDF->add(*pdf_pidk[i]);
+          std::cout<<"[INFO] Adding pdf: "<<pdf_pidk[i]->GetName()<<" to PIDK PDFs"<<std::endl;
+          listPDF->add(*pdf_pidk[i]);
 	      }
-	  }
       }
+    }
 
     if ( num > 1 ) { listFrac->add(*fracPIDK1); if (debug == true ) { std::cout<<"[INFO] Adding fraction: "<<fracPIDK1->GetName()<<std::endl;} }
     if ( num > 2 ) { listFrac->add(*fracPIDK2); if (debug == true ) { std::cout<<"[INFO] Adding fraction: "<<fracPIDK2->GetName()<<std::endl;}}
 
     TString pdfName = typemode+"_"+varName+"_PIDKShape_"+samplemode;
     if ( num == 2 )
-      {
-	pdf = new RooAddPdf( pdfName.Data(), pdfName.Data(), *listPDF, *listFrac);
-      }
+    {
+      pdf = new RooAddPdf( pdfName.Data(), pdfName.Data(), *listPDF, *listFrac);
+    }
     else if ( num == 3 )
-      {
-	pdf = new RooAddPdf( pdfName.Data(), pdfName.Data(), *listPDF, *listFrac, true);
-      }
+    {
+      pdf = new RooAddPdf( pdfName.Data(), pdfName.Data(), *listPDF, *listFrac, true);
+    }
     else
-      {
-	pdf = pdf_pidk[0]; 
-      }
+    {
+      pdf = pdf_pidk[0]; 
+    }
     CheckPDF(pdf, debug);
 
     return pdf; 
   }
 
   RooAbsPdf* buildShiftedDoubleCrystalBallPDF(RooAbsReal& obs, RooWorkspace* workInt,
-					      TString samplemode, TString typemode, bool debug)
+                                              TString samplemode, TString typemode, bool debug)
   {
 
     if ( debug == true ) { std::cout<<"[INFO] --------- build Shifted double Crystal Ball -------- "<<std::endl; }
@@ -706,10 +706,10 @@ namespace Bs2Dsh2011TDAnaModels {
   
   RooAbsPdf* ObtainMassShape(RooWorkspace* work,
                              TString mode,
-			     TString year,
-			     bool dsMass,
-			     RooRealVar& lumRatio,
-			     bool debug)
+                             TString year,
+                             bool dsMass,
+                             RooRealVar& lumRatio,
+                             bool debug)
   {
     RooAbsPdf* pdf_Mass = NULL;
     RooAbsPdf* pdf_Mass1 = NULL;
@@ -725,42 +725,42 @@ namespace Bs2Dsh2011TDAnaModels {
     if ( year.Contains("_")  == false ) { year = "_"+year;} 
 
     if ( mode.Contains("Bd2DPi")== true && dsFS == "kpipi")
-      {
+    {
         
-	name = "PhysBkgBd2DPiPdf_m_down_kpipi"+year+Ds;
-	pdf_Mass1 = (RooKeysPdf*)work->pdf(name.Data());
-	CheckPDF( pdf_Mass1, debug);
+      name = "PhysBkgBd2DPiPdf_m_down_kpipi"+year+Ds;
+      pdf_Mass1 = (RooKeysPdf*)work->pdf(name.Data());
+      CheckPDF( pdf_Mass1, debug);
 	
-        name = "PhysBkgBd2DPiPdf_m_up_kpipi"+year+Ds;
-	pdf_Mass2 = (RooKeysPdf*)work->pdf(name.Data());
-	CheckPDF( pdf_Mass2, debug);
+      name = "PhysBkgBd2DPiPdf_m_up_kpipi"+year+Ds;
+      pdf_Mass2 = (RooKeysPdf*)work->pdf(name.Data());
+      CheckPDF( pdf_Mass2, debug);
 
-	name = "PhysBkgBd2DPiPdf_m_both_kpipi"+year+Ds;
-        pdf_Mass = new RooAddPdf( name.Data(), name.Data(),RooArgList(*pdf_Mass2,*pdf_Mass1), RooArgList(lumRatio));
-      }
+      name = "PhysBkgBd2DPiPdf_m_both_kpipi"+year+Ds;
+      pdf_Mass = new RooAddPdf( name.Data(), name.Data(),RooArgList(*pdf_Mass2,*pdf_Mass1), RooArgList(lumRatio));
+    }
     else if ( (mode.Contains("BsDsPi") == true || mode.Contains("Bs2DsPi") ) && dsFS != "" )
-      {
-	TString sam = CheckPolarity(mode,debug);
-	TString dsfs = CheckDMode(mode,debug);
-	if ( dsfs == "" ) { dsfs = CheckKKPiMode(mode, debug); }
+    {
+      TString sam = CheckPolarity(mode,debug);
+      TString dsfs = CheckDMode(mode,debug);
+      if ( dsfs == "" ) { dsfs = CheckKKPiMode(mode, debug); }
 
-	name = "PhysBkgBs2DsPiPdf_m_down_"+dsfs+year+Ds;
-        pdf_Mass1 = (RooKeysPdf*)work->pdf(name.Data());
-	CheckPDF( pdf_Mass1, debug);
+      name = "PhysBkgBs2DsPiPdf_m_down_"+dsfs+year+Ds;
+      pdf_Mass1 = (RooKeysPdf*)work->pdf(name.Data());
+      CheckPDF( pdf_Mass1, debug);
 
-	name = "PhysBkgBs2DsPiPdf_m_up_"+dsfs+year+Ds;
-        pdf_Mass2 = (RooKeysPdf*)work->pdf(name.Data());
-        CheckPDF( pdf_Mass2, debug);
+      name = "PhysBkgBs2DsPiPdf_m_up_"+dsfs+year+Ds;
+      pdf_Mass2 = (RooKeysPdf*)work->pdf(name.Data());
+      CheckPDF( pdf_Mass2, debug);
 
-	name = "PhysBkgBs2DsPiPdf_m_both_"+dsfs+year+Ds;
-        pdf_Mass = new RooAddPdf( name.Data(), name.Data(),RooArgList(*pdf_Mass2,*pdf_Mass1), RooArgList(lumRatio));
-      }
+      name = "PhysBkgBs2DsPiPdf_m_both_"+dsfs+year+Ds;
+      pdf_Mass = new RooAddPdf( name.Data(), name.Data(),RooArgList(*pdf_Mass2,*pdf_Mass1), RooArgList(lumRatio));
+    }
     else
-      {
-	name = "PhysBkg"+mode+"Pdf_m_both"+year+Ds;
-        pdf_Mass = (RooKeysPdf*)work->pdf(name.Data());
+    {
+      name = "PhysBkg"+mode+"Pdf_m_both"+year+Ds;
+      pdf_Mass = (RooKeysPdf*)work->pdf(name.Data());
         
-      }
+    }
     CheckPDF( pdf_Mass, debug);
     return pdf_Mass;
   }
@@ -770,12 +770,12 @@ namespace Bs2Dsh2011TDAnaModels {
   //===============================================================================
 
   RooAbsPdf* ObtainPIDKShape(RooWorkspace* work,
-			     TString mode,
-			     TString pol,
-			     TString year,
-			     RooRealVar& lumRatio,
-			     bool DsMode,
-			     bool debug)
+                             TString mode,
+                             TString pol,
+                             TString year,
+                             RooRealVar& lumRatio,
+                             bool DsMode,
+                             bool debug)
   {
     RooAbsPdf* pdf_PIDK = NULL;
     RooAbsPdf* pdf_PIDK1 = NULL;
@@ -791,41 +791,41 @@ namespace Bs2Dsh2011TDAnaModels {
     TString dsFinalState = "";
     if ( year != "" ) { year = "_"+year; }
     if ( DsMode == true ) 
-      { 
-	TString dsFS = CheckDMode(mode,debug);
-	if ( dsFS == "" ) { dsFS = CheckKKPiMode(mode, debug); }
-	if ( dsFS != "" ) { dsFinalState = "_"+dsFS;}
+    { 
+      TString dsFS = CheckDMode(mode,debug);
+      if ( dsFS == "" ) { dsFS = CheckKKPiMode(mode, debug); }
+      if ( dsFS != "" ) { dsFinalState = "_"+dsFS;}
 
-	if( mode.Contains("DsPi") == true ) { mode2 = "Bs2DsPi";}
-	else if ( mode.Contains("DsK") == true ) { mode2 = "Bs2DsK";}
-	else if ( mode.Contains("DsstPi") == true ) { mode2 = "Bs2DsstPi"; }
-	else if ( mode.Contains("DsstK") == true ) { mode2 = "Bs2DsstK"; } 
-      }
+      if( mode.Contains("DsPi") == true ) { mode2 = "Bs2DsPi";}
+      else if ( mode.Contains("DsK") == true ) { mode2 = "Bs2DsK";}
+      else if ( mode.Contains("DsstPi") == true ) { mode2 = "Bs2DsstPi"; }
+      else if ( mode.Contains("DsstK") == true ) { mode2 = "Bs2DsstK"; } 
+    }
     else
-      {
-	mode2 = mode;
-      }
+    {
+      mode2 = mode;
+    }
 
     
     
     if ( pol == "both")
-      {
-        name ="PIDKShape_"+mode2+"_down"+dsFinalState+year; 
-        pdf_PIDK1 = GetRooBinned1DFromWorkspace(work, name, debug);
+    {
+      name ="PIDKShape_"+mode2+"_down"+dsFinalState+year; 
+      pdf_PIDK1 = GetRooBinned1DFromWorkspace(work, name, debug);
 
-        name ="PIDKShape_"+mode2+"_up"+dsFinalState+year; 
-        pdf_PIDK2 = GetRooBinned1DFromWorkspace(work, name, debug);
+      name ="PIDKShape_"+mode2+"_up"+dsFinalState+year; 
+      pdf_PIDK2 = GetRooBinned1DFromWorkspace(work, name, debug);
 
-        name = "PIDKShape_"+mode2+"_both"+dsFinalState+year;
-        pdf_PIDK = new RooAddPdf( name.Data(), name.Data(),RooArgList(*pdf_PIDK2,*pdf_PIDK1), RooArgList(lumRatio));
+      name = "PIDKShape_"+mode2+"_both"+dsFinalState+year;
+      pdf_PIDK = new RooAddPdf( name.Data(), name.Data(),RooArgList(*pdf_PIDK2,*pdf_PIDK1), RooArgList(lumRatio));
 
-      }
+    }
     else
-      {
-        name = "PIDKShape_"+mode2+"_"+pol+dsFinalState+year;
+    {
+      name = "PIDKShape_"+mode2+"_"+pol+dsFinalState+year;
 
-        pdf_PIDK = (RooAddPdf*)work->pdf(name.Data());
-      }
+      pdf_PIDK = (RooAddPdf*)work->pdf(name.Data());
+    }
 
     CheckPDF( pdf_PIDK, debug );    
     return pdf_PIDK;
@@ -837,13 +837,13 @@ namespace Bs2Dsh2011TDAnaModels {
   //===============================================================================
 
   RooProdPdf* ObtainRooProdPdfForMDFitter(RooWorkspace* work,
-					  TString mode,
-					  TString pol,
-					  TString year, 
-					  RooRealVar& lumRatio,
-					  RooAbsPdf* pdf_DsMass,
-					  Int_t dim, 
-					  bool debug)
+                                          TString mode,
+                                          TString pol,
+                                          TString year, 
+                                          RooRealVar& lumRatio,
+                                          RooAbsPdf* pdf_DsMass,
+                                          Int_t dim, 
+                                          bool debug)
   {
 
     RooAbsPdf* pdf_Bs = NULL;
@@ -858,42 +858,42 @@ namespace Bs2Dsh2011TDAnaModels {
     pdf_Bs = ObtainMassShape(work, mode, year, false, lumRatio, debug);  
 
     if ( dim > 1 )
+    {
+      if ( pdf_DsMass == NULL )
       {
-	if ( pdf_DsMass == NULL )
-	  {
-	    pdf_Ds = ObtainMassShape(work, mode, year, true, lumRatio, debug);
-	  }
-	else
-	  {
-	    pdf_Ds = pdf_DsMass;
-	    TString namePDF = pdf_DsMass->GetName();
-	    Var = CheckDMode(namePDF,debug);
-	    if ( Var == "" ) { Var = CheckKKPiMode(namePDF, debug); }
-	    modeDs = "_"+Var;
-	    
-	  }
+        pdf_Ds = ObtainMassShape(work, mode, year, true, lumRatio, debug);
       }
+      else
+      {
+        pdf_Ds = pdf_DsMass;
+        TString namePDF = pdf_DsMass->GetName();
+        Var = CheckDMode(namePDF,debug);
+        if ( Var == "" ) { Var = CheckKKPiMode(namePDF, debug); }
+        modeDs = "_"+Var;
+	    
+      }
+    }
 
     if ( mode.Contains("Bs2DsPi") == true || (mode.Contains("Bs2DsK") ==true && mode.Contains("Bs2DsKst") == false) )
+    {
+      if ( dim > 2) 
       {
-	if ( dim > 2) 
-	  {
-	    pdf_PIDK = ObtainPIDKShape(work, mode, pol, year, lumRatio, true, debug);
-	  }
-	if ( mode.Contains("Bs2DsPi") == true) { mode2 = "Bs2DsPi"; } else { mode2 = "Bs2DsK"; }
-	//Var = CheckDMode(mode,debug);
-	//if ( Var == "" ) { Var = CheckKKPiMode(mode, debug); }
-	//modeDs = "_"+Var;
+        pdf_PIDK = ObtainPIDKShape(work, mode, pol, year, lumRatio, true, debug);
       }
+      if ( mode.Contains("Bs2DsPi") == true) { mode2 = "Bs2DsPi"; } else { mode2 = "Bs2DsK"; }
+      //Var = CheckDMode(mode,debug);
+      //if ( Var == "" ) { Var = CheckKKPiMode(mode, debug); }
+      //modeDs = "_"+Var;
+    }
     else
-      {
+    {
       
-	if( mode.Contains("Bd2DPi") ) { mode2 = "Bd2DPi"; } else {mode2 = mode; }
-	if (dim > 2)
-	  {
-	    pdf_PIDK = ObtainPIDKShape(work, mode2, pol, year, lumRatio, false, debug);
-	  }
+      if( mode.Contains("Bd2DPi") ) { mode2 = "Bd2DPi"; } else {mode2 = mode; }
+      if (dim > 2)
+      {
+        pdf_PIDK = ObtainPIDKShape(work, mode2, pol, year, lumRatio, false, debug);
       }
+    }
     
     RooProdPdf* pdf_Tot = NULL;
     TString samplemode = pol+modeDs; 
@@ -915,28 +915,28 @@ namespace Bs2Dsh2011TDAnaModels {
     RooProdPdf* pdf_Tot = NULL;
     TString name="PhysBkg"+mode+"Pdf_m_"+samplemode+"_Tot";
     if ( dim == 1 )
-      {
-	if ( debug == true ) { std::cout<<"[INFO] 1 dimensional pdf "; }
-	pdf_Tot = new RooProdPdf(name.Data(), name.Data(), RooArgList(*pdf_Bs));
-      }
+    {
+      if ( debug == true ) { std::cout<<"[INFO] 1 dimensional pdf "; }
+      pdf_Tot = new RooProdPdf(name.Data(), name.Data(), RooArgList(*pdf_Bs));
+    }
     else if ( dim == 2) 
-      {
-	if (debug == true ) { std::cout<<"[INFO] 2 dimensional pdf "; }
-	pdf_Tot = new RooProdPdf(name.Data(), name.Data(), RooArgList(*pdf_Bs,*pdf_Ds));
-      }
+    {
+      if (debug == true ) { std::cout<<"[INFO] 2 dimensional pdf "; }
+      pdf_Tot = new RooProdPdf(name.Data(), name.Data(), RooArgList(*pdf_Bs,*pdf_Ds));
+    }
     else if ( dim == 3 )
-      {
-	if (debug == true ) { std::cout<<"[INFO] 3 dimensional pdf "; }
-	pdf_Tot = new RooProdPdf(name.Data(), name.Data(), RooArgList(*pdf_Bs,*pdf_Ds,*pdf_PIDK));
-      }
+    {
+      if (debug == true ) { std::cout<<"[INFO] 3 dimensional pdf "; }
+      pdf_Tot = new RooProdPdf(name.Data(), name.Data(), RooArgList(*pdf_Bs,*pdf_Ds,*pdf_PIDK));
+    }
     CheckPDF( pdf_Tot, debug );
     if ( debug )
-      {
-	std::cout<<"[INFO] with components: "<<std::endl;
-	if ( pdf_Bs != NULL ) { std::cout<<"[INFO]   BeautyMass: "<<pdf_Bs->GetName()<<std::endl; } 
-	if ( pdf_Ds != NULL ) { std::cout<<"[INFO]   CharmMass: "<<pdf_Ds->GetName()<<std::endl; }
-	if ( pdf_PIDK != NULL ) { std::cout<<"[INFO]   BacPIDK: "<<pdf_PIDK->GetName()<<std::endl; }
-      }
+    {
+      std::cout<<"[INFO] with components: "<<std::endl;
+      if ( pdf_Bs != NULL ) { std::cout<<"[INFO]   BeautyMass: "<<pdf_Bs->GetName()<<std::endl; } 
+      if ( pdf_Ds != NULL ) { std::cout<<"[INFO]   CharmMass: "<<pdf_Ds->GetName()<<std::endl; }
+      if ( pdf_PIDK != NULL ) { std::cout<<"[INFO]   BacPIDK: "<<pdf_PIDK->GetName()<<std::endl; }
+    }
     return pdf_Tot; 
   }
 
@@ -947,7 +947,7 @@ namespace Bs2Dsh2011TDAnaModels {
   RooProdPdf* ObtainRooProdPdfForFullFitter(RooWorkspace* work,
                                             TString mode,
                                             TString pol,
-					    TString year,
+                                            TString year,
                                             RooRealVar& lumRatio,
                                             RooAbsPdf* pdf_Time,
                                             RooAbsPdf* pdf_DsMass,
@@ -959,25 +959,25 @@ namespace Bs2Dsh2011TDAnaModels {
 
     pdf_Bs = ObtainMassShape(work, mode, year, false, lumRatio, debug);
     if ( pdf_DsMass == NULL )
-      {
-	pdf_Ds = ObtainMassShape(work, mode, year, true,  lumRatio, debug);
-      }
+    {
+      pdf_Ds = ObtainMassShape(work, mode, year, true,  lumRatio, debug);
+    }
     else
-      {
-	pdf_Ds = pdf_DsMass;
-      }
+    {
+      pdf_Ds = pdf_DsMass;
+    }
 
     TString dmode = CheckDMode(mode, debug);
     if ( dmode == "" ) { dmode == CheckKKPiMode(mode,debug);}
 
     if ( dmode != "" )
-      {
-        pdf_PIDK = ObtainPIDKShape(work, mode, pol, year, lumRatio, true, debug);
-      }
+    {
+      pdf_PIDK = ObtainPIDKShape(work, mode, pol, year, lumRatio, true, debug);
+    }
     else
-      {
-        pdf_PIDK = ObtainPIDKShape(work, mode, pol, year, lumRatio, false, debug);
-      }
+    {
+      pdf_PIDK = ObtainPIDKShape(work, mode, pol, year, lumRatio, false, debug);
+    }
 
     RooProdPdf* pdf_Tot = NULL;
     TString name="PhysBkg"+mode+"Pdf_m_"+pol+"_Tot";
@@ -989,8 +989,8 @@ namespace Bs2Dsh2011TDAnaModels {
 
 
   RooExtendPdf* buildExtendPdfSpecBkgMDFit( RooWorkspace* workInt, RooWorkspace* work,
-					    TString samplemode, TString typemode, TString typemodeDs, 
-					    TString merge, int dim, TString signalDs, bool debug)
+                                            TString samplemode, TString typemode, TString typemodeDs, 
+                                            TString merge, int dim, TString signalDs, bool debug)
   {
     RooExtendPdf* epdf = NULL; 
     RooProdPdf* pdf_Tot = NULL;
@@ -1000,27 +1000,27 @@ namespace Bs2Dsh2011TDAnaModels {
     Double_t val = nEvts->getValV();
 
     if ( val != 0.0 )
-      {
-	pdf_Tot = buildProdPdfSpecBkgMDFit(workInt, work, samplemode, typemode, typemodeDs, merge, dim, signalDs, debug);
+    {
+      pdf_Tot = buildProdPdfSpecBkgMDFit(workInt, work, samplemode, typemode, typemodeDs, merge, dim, signalDs, debug);
 
-	TString epdfName = typemode+"EPDF_m_"+samplemode;
-        epdf = new RooExtendPdf(epdfName.Data() , pdf_Tot->GetTitle(), *pdf_Tot, *nEvts );
-        CheckPDF(epdf, debug);
-      }
+      TString epdfName = typemode+"EPDF_m_"+samplemode;
+      epdf = new RooExtendPdf(epdfName.Data() , pdf_Tot->GetTitle(), *pdf_Tot, *nEvts );
+      CheckPDF(epdf, debug);
+    }
     return epdf;    
   }
 
  
 
   RooProdPdf* buildProdPdfSpecBkgMDFit( RooWorkspace* workInt, RooWorkspace* work,
-					TString samplemode, TString typemode, TString typemodeDs, 
-					TString merge, int dim, 
-					TString signalDs, bool debug)
+                                        TString samplemode, TString typemode, TString typemodeDs, 
+                                        TString merge, int dim, 
+                                        TString signalDs, bool debug)
   {
     if (debug == true)
-      {
-        cout<<"[INFO] build RooProdPdf for: "<<typemode<<endl;
-      }
+    {
+      cout<<"[INFO] build RooProdPdf for: "<<typemode<<endl;
+    }
 
     RooProdPdf* pdf_Tot = NULL;
 
@@ -1043,77 +1043,77 @@ namespace Bs2Dsh2011TDAnaModels {
 
 
     for(unsigned int i = 0; i < sam.size(); i++ )
+    {
+      for (unsigned int j =0; j < y.size(); j++ )
       {
-	for (unsigned int j =0; j < y.size(); j++ )
-	  {
 
-	    TString smp = sam[i]+"_"+mode+"_"+y[j];
-	    pdf_pBs.push_back(buildMassPdfSpecBkgMDFit(work, smp, typemode, typemodeDs, false, debug));
-	    if ( dim > 1)
+        TString smp = sam[i]+"_"+mode+"_"+y[j];
+        pdf_pBs.push_back(buildMassPdfSpecBkgMDFit(work, smp, typemode, typemodeDs, false, debug));
+        if ( dim > 1)
 	      {
-		if ( signalDs == "" )
-		  {  
-		    pdf_pDs.push_back(buildMassPdfSpecBkgMDFit(work, smp, typemode, typemodeDs, true, debug));
-		  }
-		else
-		  {
-		    RooAbsPdf* pdfTmp = NULL; 
-		    pdfTmp = trySignal(samplemode,signalDs,workInt, debug);
-		    if ( pdfTmp == NULL ) { pdfTmp = trySignal(smp,signalDs,workInt, debug); } 
-		    pdf_pDs.push_back(pdfTmp);
-		  }
+          if ( signalDs == "" )
+          {  
+            pdf_pDs.push_back(buildMassPdfSpecBkgMDFit(work, smp, typemode, typemodeDs, true, debug));
+          }
+          else
+          {
+            RooAbsPdf* pdfTmp = NULL; 
+            pdfTmp = trySignal(samplemode,signalDs,workInt, debug);
+            if ( pdfTmp == NULL ) { pdfTmp = trySignal(smp,signalDs,workInt, debug); } 
+            pdf_pDs.push_back(pdfTmp);
+          }
 	      }	    
-	    if ( dim > 2 )
+        if ( dim > 2 )
 	      {
-		if ( typemode == "Bd2DPi" && typemodeDs == "kpipi" )
-		  {
-		    pdf_pPIDK.push_back(buildPIDKShapeMDFit(work, smp, typemode, "", debug));
-		  }
-		else
-		  {
-		    pdf_pPIDK.push_back(buildPIDKShapeMDFit(work, smp, typemode, typemodeDs, debug));
-		  }
+          if ( typemode == "Bd2DPi" && typemodeDs == "kpipi" )
+          {
+            pdf_pPIDK.push_back(buildPIDKShapeMDFit(work, smp, typemode, "", debug));
+          }
+          else
+          {
+            pdf_pPIDK.push_back(buildPIDKShapeMDFit(work, smp, typemode, typemodeDs, debug));
+          }
 	      }
-	  }
       }
+    }
 
     if  ( merge == "pol" )
-      {
+    {
 
-        pdf_Bs = mergePdf(pdf_pBs[1], pdf_pBs[0], merge, y[0], workInt, debug);
-        if ( dim > 1 ) { pdf_Ds = mergePdf(pdf_pDs[1], pdf_pDs[0], merge, y[0], workInt, debug); }
-        if ( dim > 2 ) { pdf_PIDK = mergePdf(pdf_pPIDK[1], pdf_pPIDK[0], merge, y[0], workInt, debug); }
-      }
+      pdf_Bs = mergePdf(pdf_pBs[1], pdf_pBs[0], merge, y[0], workInt, debug);
+      if ( dim > 1 ) { pdf_Ds = mergePdf(pdf_pDs[1], pdf_pDs[0], merge, y[0], workInt, debug); }
+      if ( dim > 2 ) { pdf_PIDK = mergePdf(pdf_pPIDK[1], pdf_pPIDK[0], merge, y[0], workInt, debug); }
+    }
     else if ( merge == "year" )
-      {
-	pdf_Bs = mergePdf(pdf_pBs[1], pdf_pBs[0], merge, sam[0], workInt, debug);
-	if ( dim > 1 ) { pdf_Ds = mergePdf(pdf_pDs[1], pdf_pDs[0], merge, sam[0], workInt, debug); }
-        if ( dim > 2 ) { pdf_PIDK = mergePdf(pdf_pPIDK[1], pdf_pPIDK[0], merge, sam[0], workInt, debug);}
-      }
+    {
+      pdf_Bs = mergePdf(pdf_pBs[1], pdf_pBs[0], merge, sam[0], workInt, debug);
+      if ( dim > 1 ) { pdf_Ds = mergePdf(pdf_pDs[1], pdf_pDs[0], merge, sam[0], workInt, debug); }
+      if ( dim > 2 ) { pdf_PIDK = mergePdf(pdf_pPIDK[1], pdf_pPIDK[0], merge, sam[0], workInt, debug);}
+    }
     else if ( merge == "both" )
-      {
-        pdf_pBs.push_back(mergePdf(pdf_pBs[2], pdf_pBs[0], "pol", y[0], workInt, debug));
-        if ( dim > 1 ) { pdf_pDs.push_back(mergePdf(pdf_pDs[2], pdf_pDs[0], "pol", y[0], workInt, debug)); }
-        if ( dim > 2 ) { pdf_pPIDK.push_back(mergePdf(pdf_pPIDK[2], pdf_pPIDK[0], "pol", y[0], workInt, debug));}
+    {
+      pdf_pBs.push_back(mergePdf(pdf_pBs[2], pdf_pBs[0], "pol", y[0], workInt, debug));
+      if ( dim > 1 ) { pdf_pDs.push_back(mergePdf(pdf_pDs[2], pdf_pDs[0], "pol", y[0], workInt, debug)); }
+      if ( dim > 2 ) { pdf_pPIDK.push_back(mergePdf(pdf_pPIDK[2], pdf_pPIDK[0], "pol", y[0], workInt, debug));}
 
-        pdf_pBs.push_back(mergePdf(pdf_pBs[3], pdf_pBs[1], "pol", y[1], workInt, debug));
-        if ( dim > 1 ) { pdf_pDs.push_back(mergePdf(pdf_pDs[3], pdf_pDs[1], "pol", y[1], workInt, debug));}
-        if ( dim > 2 ) { pdf_pPIDK.push_back(mergePdf(pdf_pPIDK[3], pdf_pPIDK[1], "pol", y[1], workInt, debug));}
+      pdf_pBs.push_back(mergePdf(pdf_pBs[3], pdf_pBs[1], "pol", y[1], workInt, debug));
+      if ( dim > 1 ) { pdf_pDs.push_back(mergePdf(pdf_pDs[3], pdf_pDs[1], "pol", y[1], workInt, debug));}
+      if ( dim > 2 ) { pdf_pPIDK.push_back(mergePdf(pdf_pPIDK[3], pdf_pPIDK[1], "pol", y[1], workInt, debug));}
 
-        pdf_Bs = mergePdf(pdf_pBs[5], pdf_pBs[4], "year", "run1", workInt, debug);
-        if ( dim > 1 ) { pdf_Ds = mergePdf(pdf_pDs[5], pdf_pDs[4], "year", "run1", workInt, debug);}
-        if ( dim > 2 ) { pdf_PIDK = mergePdf(pdf_pPIDK[5], pdf_pPIDK[4], "year", "run1", workInt, debug);}
-      }
+      pdf_Bs = mergePdf(pdf_pBs[5], pdf_pBs[4], "year", "run1", workInt, debug);
+      if ( dim > 1 ) { pdf_Ds = mergePdf(pdf_pDs[5], pdf_pDs[4], "year", "run1", workInt, debug);}
+      if ( dim > 2 ) { pdf_PIDK = mergePdf(pdf_pPIDK[5], pdf_pPIDK[4], "year", "run1", workInt, debug);}
+    }
     else
+    {
+      pdf_Bs = pdf_pBs[0];
+      if ( dim > 1 ) { pdf_Ds = pdf_pDs[0];}
+      if ( dim > 2 ) { pdf_PIDK = pdf_pPIDK[0];}
+    }
+    /*
+      else
       {
-        pdf_Bs = pdf_pBs[0];
-        if ( dim > 1 ) { pdf_Ds = pdf_pDs[0];}
-        if ( dim > 2 ) { pdf_PIDK = pdf_pPIDK[0];}
-      }
-      /*
-    else
-      {
-        pdf_PIDK = ObtainPIDKShape(work, mode, pol, year, lumRatio, false, debug);
+      pdf_PIDK = ObtainPIDKShape(work, mode, pol, year, lumRatio, false, debug);
       }
     */
 
@@ -1132,9 +1132,9 @@ namespace Bs2Dsh2011TDAnaModels {
   {
 
     if (debug == true)
-      {
-        cout<<"[INFO] build merged RooAbsPdf for: "<<typemode<<" "<<typemodeDs<<endl;
-      }
+    {
+      cout<<"[INFO] build merged RooAbsPdf for: "<<typemode<<" "<<typemodeDs<<endl;
+    }
 
     std::vector<RooAbsPdf*> pdf_part; 
     RooAbsPdf* pdf = NULL; 
@@ -1151,72 +1151,72 @@ namespace Bs2Dsh2011TDAnaModels {
 
 
     for(unsigned int i = 0; i < sam.size(); i++ )
+    {
+      for (unsigned int j =0; j < y.size(); j++ )
       {
-        for (unsigned int j =0; j < y.size(); j++ )
-          {
 
-            TString smp = sam[i]+"_"+mode+"_"+y[j];
-	    if ( dim == 1 )
+        TString smp = sam[i]+"_"+mode+"_"+y[j];
+        if ( dim == 1 )
 	      {
-		pdf_part.push_back(buildMassPdfSpecBkgMDFit(work, smp, typemode, typemodeDs, false, debug));
+          pdf_part.push_back(buildMassPdfSpecBkgMDFit(work, smp, typemode, typemodeDs, false, debug));
 	      }
-            if ( dim == 2)
-              {
-                if ( signalDs == "" )
-                  {
-                    pdf_part.push_back(buildMassPdfSpecBkgMDFit(work, smp, typemode, typemodeDs, true, debug));
-                  }
-                else
-                  {
-                    RooAbsPdf* pdfTmp = NULL;
-                    pdfTmp = trySignal(samplemode,signalDs,workInt, false);
-                    if ( pdfTmp == NULL ) { pdfTmp = trySignal(smp,signalDs,workInt, false); }
-                    CheckPDF( pdfTmp, debug);
-		    pdf_part.push_back(pdfTmp);
-                  }
-              }
-
-            if ( dim == 3 )
-              {
-		RooAbsPdf* pdfTmp = NULL;
-	        pdfTmp = buildPIDKShapeMDFit(work, smp, typemode, typemodeDs, false);
-		if( pdfTmp == NULL ) { pdfTmp =  buildPIDKShapeMDFit(work, smp, typemode, mode, false); }
-		if( pdfTmp == NULL ) { pdfTmp =  buildPIDKShapeMDFit(work, smp, typemode, "", false);}
-		CheckPDF( pdfTmp, debug); 
-		pdf_part.push_back(pdfTmp);
-              }
+        if ( dim == 2)
+        {
+          if ( signalDs == "" )
+          {
+            pdf_part.push_back(buildMassPdfSpecBkgMDFit(work, smp, typemode, typemodeDs, true, debug));
           }
+          else
+          {
+            RooAbsPdf* pdfTmp = NULL;
+            pdfTmp = trySignal(samplemode,signalDs,workInt, false);
+            if ( pdfTmp == NULL ) { pdfTmp = trySignal(smp,signalDs,workInt, false); }
+            CheckPDF( pdfTmp, debug);
+            pdf_part.push_back(pdfTmp);
+          }
+        }
+
+        if ( dim == 3 )
+        {
+          RooAbsPdf* pdfTmp = NULL;
+	        pdfTmp = buildPIDKShapeMDFit(work, smp, typemode, typemodeDs, false);
+          if( pdfTmp == NULL ) { pdfTmp =  buildPIDKShapeMDFit(work, smp, typemode, mode, false); }
+          if( pdfTmp == NULL ) { pdfTmp =  buildPIDKShapeMDFit(work, smp, typemode, "", false);}
+          CheckPDF( pdfTmp, debug); 
+          pdf_part.push_back(pdfTmp);
+        }
       }
+    }
 
     if ( pdf_part[0] != NULL && pdf_part[1] != NULL ) 
+    {
+      if  ( merge == "pol" )
       {
-	if  ( merge == "pol" )
-	  {
-	    pdf  = mergePdf(pdf_part[1], pdf_part[0], merge, y[0], workInt, debug);
-	  }
-	else if ( merge == "year" )
-	  {
-	    pdf  = mergePdf(pdf_part[1], pdf_part[0], merge, sam[0], workInt, debug);
-	  }
-	else if ( merge == "both" )
-	  {
-	    pdf_part.push_back(mergePdf(pdf_part[2], pdf_part[0], "pol", y[0], workInt, debug));
-	    pdf_part.push_back(mergePdf(pdf_part[3], pdf_part[1], "pol", y[1], workInt, debug));
-	    pdf = mergePdf(pdf_part[5], pdf_part[4], "year", "run1", workInt, debug);
-	  }
-	else
-	  {
-	    pdf = pdf_part[0];
-	  }
+        pdf  = mergePdf(pdf_part[1], pdf_part[0], merge, y[0], workInt, debug);
       }
+      else if ( merge == "year" )
+      {
+        pdf  = mergePdf(pdf_part[1], pdf_part[0], merge, sam[0], workInt, debug);
+      }
+      else if ( merge == "both" )
+      {
+        pdf_part.push_back(mergePdf(pdf_part[2], pdf_part[0], "pol", y[0], workInt, debug));
+        pdf_part.push_back(mergePdf(pdf_part[3], pdf_part[1], "pol", y[1], workInt, debug));
+        pdf = mergePdf(pdf_part[5], pdf_part[4], "year", "run1", workInt, debug);
+      }
+      else
+      {
+        pdf = pdf_part[0];
+      }
+    }
     CheckPDF( pdf, debug );
 
     return pdf;
   }
 
   RooAbsPdf* buildMassPdfSpecBkgMDFit(RooWorkspace* work,
-                                     TString samplemode, TString typemode, TString typemodeDs,
-                                     bool charmShape, bool debug)
+                                      TString samplemode, TString typemode, TString typemodeDs,
+                                      bool charmShape, bool debug)
   {
 
     
@@ -1229,13 +1229,13 @@ namespace Bs2Dsh2011TDAnaModels {
     if (charmShape == true ) { Ds = "_Ds"; }
 
     if ( typemodeDs != "" )
-      {
-	name = "PhysBkg"+typemode+"Pdf_m_"+p+"_"+typemodeDs+"_"+y+Ds;	 
-      }
+    {
+      name = "PhysBkg"+typemode+"Pdf_m_"+p+"_"+typemodeDs+"_"+y+Ds;	 
+    }
     else
-      {
-	name = "PhysBkg"+typemode+"Pdf_m_both_"+y+Ds;
-      }
+    {
+      name = "PhysBkg"+typemode+"Pdf_m_both_"+y+Ds;
+    }
     
     pdf_Mass = tryPdf(name, work, debug);
     CheckPDF( pdf_Mass, debug);
@@ -1255,13 +1255,13 @@ namespace Bs2Dsh2011TDAnaModels {
     TString name = "";
 
     if ( typemodeDs != "" )
-      {
-        name =  name = "PIDKShape_"+typemode+"_"+p+"_"+typemodeDs+"_"+y;
-      }
+    {
+      name =  name = "PIDKShape_"+typemode+"_"+p+"_"+typemodeDs+"_"+y;
+    }
     else
-      {
-        name = "PIDKShape_"+typemode+"_"+p+"_"+y;
-      }
+    {
+      name = "PIDKShape_"+typemode+"_"+p+"_"+y;
+    }
 
     pdf_PIDK = tryPdf(name, work, debug);
     CheckPDF( pdf_PIDK, debug);
@@ -1275,18 +1275,18 @@ namespace Bs2Dsh2011TDAnaModels {
   //===============================================================================
 
   RooAbsPdf* build_Bs2DsPi_BKG_MDFitter( RooAbsReal& mass,
-					 RooAbsReal& massDs,
-					 RooWorkspace* work,
-					 RooWorkspace* workInt,
-					 TString &samplemode,
-					 TString merge,
-					 Int_t dim, 
-					 bool debug
-					 ){
+                                         RooAbsReal& massDs,
+                                         RooWorkspace* work,
+                                         RooWorkspace* workInt,
+                                         TString &samplemode,
+                                         TString merge,
+                                         Int_t dim, 
+                                         bool debug
+                                         ){
     if (debug == true)
-      {
-	cout<<"[INFO] =====> Build background model Bs->DsPi --------------"<<endl;
-      }
+    {
+      cout<<"[INFO] =====> Build background model Bs->DsPi --------------"<<endl;
+    }
 
     RooArgList* list = new RooArgList();
     TString charmVarName = massDs.GetName();
@@ -1310,19 +1310,19 @@ namespace Bs2Dsh2011TDAnaModels {
     RooProdPdf* pdf_Bd2DsPi_Tot = NULL;
 
     if ( valBs2DsDsstPiRho != 0.0 )
+    {
+      pdf_Bd2DsPi_Bs = buildShiftedDoubleCrystalBallPDF(mass, workInt, samplemode, "Bd2DsPi", debug);
+      if( dim > 2)
       {
-        pdf_Bd2DsPi_Bs = buildShiftedDoubleCrystalBallPDF(mass, workInt, samplemode, "Bd2DsPi", debug);
-        if( dim > 2)
-          {
-            pdf_Bd2DsPi_PIDK = buildMergedSpecBkgMDFit(workInt, work, samplemode, "Bs2DsPi", mode, merge, 3, "", debug);
-          }
-        if ( dim > 1 )
-          {
-            pdf_Bd2DsPi_Ds = trySignal(samplemode,charmVarName,workInt, debug);
-          }
-        TString m = "Bd2DsPi";
-        pdf_Bd2DsPi_Tot = GetRooProdPdfDim(m, samplemode, pdf_Bd2DsPi_Bs, pdf_Bd2DsPi_Ds, pdf_Bd2DsPi_PIDK, dim, debug  );
+        pdf_Bd2DsPi_PIDK = buildMergedSpecBkgMDFit(workInt, work, samplemode, "Bs2DsPi", mode, merge, 3, "", debug);
       }
+      if ( dim > 1 )
+      {
+        pdf_Bd2DsPi_Ds = trySignal(samplemode,charmVarName,workInt, debug);
+      }
+      TString m = "Bd2DsPi";
+      pdf_Bd2DsPi_Tot = GetRooProdPdfDim(m, samplemode, pdf_Bd2DsPi_Bs, pdf_Bd2DsPi_Ds, pdf_Bd2DsPi_PIDK, dim, debug  );
+    }
 
     // --------------------------------- Read PDFs from Workspace -------------------------------------------------//
 
@@ -1358,45 +1358,45 @@ namespace Bs2Dsh2011TDAnaModels {
     RooExtendPdf* epdf_Bs2DsDsstPiRho   = NULL;
 
     if ( valBs2DsDsstPiRho!= 0)
-      {
+    {
       
-	pdf_Bs2DsstPi_Bs = buildMergedSpecBkgMDFit(workInt, work, samplemode, "Bs2DsstPi", "", merge, 1, "", debug);
-        if( dim > 2)
-          {
-            pdf_Bs2DsstPi_PIDK = buildMergedSpecBkgMDFit(workInt, work, samplemode, "Bs2DsPi", mode, merge, 3, "", debug);
-          }
-        if ( dim > 1 )
-          {
-            pdf_Bs2DsstPi_Ds = trySignal(samplemode,charmVarName,workInt, debug);
-          }
-
-	m = "Bs2DsstPi";
-	pdf_Bs2DsstPi_Tot = GetRooProdPdfDim(m, samplemode, pdf_Bs2DsstPi_Bs, pdf_Bs2DsstPi_Ds, pdf_Bs2DsstPi_PIDK, dim, debug  );
-	
-	name="PhysBkgBs2DsDsstPiPdf_m_"+samplemode+"_Tot";
-	pdf_Bs2DsDsstPiRho_Tot = new RooAddPdf( name.Data(),
-						name.Data(),
-						RooArgList(*pdf_Bs2DsstPi_Tot, *pdf_Bd2DsPi_Tot), //, *pdf_Bs2DsRho), //,*pdf_Bs2DsstRho),
-						RooArgList(*g1_f1) //,g1_f2), rec
-						);
-	CheckPDF(pdf_Bs2DsDsstPiRho_Tot, debug);
-
-	name = "Bs2DsDsstPiRhoEPDF_m_"+samplemode;
-	epdf_Bs2DsDsstPiRho = new RooExtendPdf( name.Data() , pdf_Bs2DsDsstPiRho_Tot-> GetTitle(), *pdf_Bs2DsDsstPiRho_Tot  , *nBs2DsDsstPiRhoEvts);
-	CheckPDF(epdf_Bs2DsDsstPiRho, debug);
-	list = AddEPDF(list, epdf_Bs2DsDsstPiRho, nBs2DsDsstPiRhoEvts, debug);
+      pdf_Bs2DsstPi_Bs = buildMergedSpecBkgMDFit(workInt, work, samplemode, "Bs2DsstPi", "", merge, 1, "", debug);
+      if( dim > 2)
+      {
+        pdf_Bs2DsstPi_PIDK = buildMergedSpecBkgMDFit(workInt, work, samplemode, "Bs2DsPi", mode, merge, 3, "", debug);
       }
+      if ( dim > 1 )
+      {
+        pdf_Bs2DsstPi_Ds = trySignal(samplemode,charmVarName,workInt, debug);
+      }
+
+      m = "Bs2DsstPi";
+      pdf_Bs2DsstPi_Tot = GetRooProdPdfDim(m, samplemode, pdf_Bs2DsstPi_Bs, pdf_Bs2DsstPi_Ds, pdf_Bs2DsstPi_PIDK, dim, debug  );
+	
+      name="PhysBkgBs2DsDsstPiPdf_m_"+samplemode+"_Tot";
+      pdf_Bs2DsDsstPiRho_Tot = new RooAddPdf( name.Data(),
+                                              name.Data(),
+                                              RooArgList(*pdf_Bs2DsstPi_Tot, *pdf_Bd2DsPi_Tot), //, *pdf_Bs2DsRho), //,*pdf_Bs2DsstRho),
+                                              RooArgList(*g1_f1) //,g1_f2), rec
+                                              );
+      CheckPDF(pdf_Bs2DsDsstPiRho_Tot, debug);
+
+      name = "Bs2DsDsstPiRhoEPDF_m_"+samplemode;
+      epdf_Bs2DsDsstPiRho = new RooExtendPdf( name.Data() , pdf_Bs2DsDsstPiRho_Tot-> GetTitle(), *pdf_Bs2DsDsstPiRho_Tot  , *nBs2DsDsstPiRhoEvts);
+      CheckPDF(epdf_Bs2DsDsstPiRho, debug);
+      list = AddEPDF(list, epdf_Bs2DsDsstPiRho, nBs2DsDsstPiRhoEvts, debug);
+    }
     
     RooAbsPdf* pdf_totBkg = NULL;
     name = "BkgEPDF_m_"+samplemode;
     pdf_totBkg = new RooAddPdf( name.Data(), name.Data(),*list);
     
     if (debug == true)
-      {
-	cout<<endl;
-	if( pdf_totBkg != NULL ){ cout<<" ------------- CREATED TOTAL BACKGROUND PDF: SUCCESFULL------------"<<endl; }
-	else { cout<<" ---------- CREATED TOTAL BACKGROUND PDF: FAILED ----------------"<<endl;}
-      }
+    {
+      cout<<endl;
+      if( pdf_totBkg != NULL ){ cout<<" ------------- CREATED TOTAL BACKGROUND PDF: SUCCESFULL------------"<<endl; }
+      else { cout<<" ---------- CREATED TOTAL BACKGROUND PDF: FAILED ----------------"<<endl;}
+    }
     return pdf_totBkg;
     
   }
@@ -1408,21 +1408,21 @@ namespace Bs2Dsh2011TDAnaModels {
   //===============================================================================
 
   RooAbsPdf* build_Bs2DsK_BKG_MDFitter(RooAbsReal& mass,
-				       RooAbsReal& massDs,
-				       RooWorkspace* work,
-				       RooWorkspace* workInt,
-				       TString &samplemode,
-				       TString merge,
-				       Int_t dim, 
-				       bool debug){
+                                       RooAbsReal& massDs,
+                                       RooWorkspace* work,
+                                       RooWorkspace* workInt,
+                                       TString &samplemode,
+                                       TString merge,
+                                       Int_t dim, 
+                                       bool debug){
     
 
     if (debug == true)
-      {
-        cout<<"--------------------------------------------------------"<<endl;
-        cout<<"=====> Build background model BsDsK for simultaneous fit"<<endl;
-	cout<<"--------------------------------------------------------"<<endl;
-      }
+    {
+      cout<<"--------------------------------------------------------"<<endl;
+      cout<<"=====> Build background model BsDsK for simultaneous fit"<<endl;
+      cout<<"--------------------------------------------------------"<<endl;
+    }
 
     RooArgList* list = new RooArgList();
     TString charmVarName = massDs.GetName();
@@ -1457,28 +1457,28 @@ namespace Bs2Dsh2011TDAnaModels {
     RooProdPdf* pdf_Bd2DsK_Tot = NULL;
 
     if ( valBs2DsDssKKst != 0.0 )
+    {
+      pdf_Bd2DsK_Bs = buildShiftedDoubleCrystalBallPDF(mass, workInt, samplemode, "Bd2DsK", debug);
+      if( dim > 2)
       {
-	pdf_Bd2DsK_Bs = buildShiftedDoubleCrystalBallPDF(mass, workInt, samplemode, "Bd2DsK", debug);
-	if( dim > 2)
-	  {
-	    pdf_Bd2DsK_PIDK = buildMergedSpecBkgMDFit(workInt, work, samplemode, "Bs2DsK", mode, merge, 3, "", debug);
-	  }
-	if ( dim > 1 )
-	  {
-	    pdf_Bd2DsK_Ds = trySignal(samplemode,charmVarName,workInt, debug);
-	  }
-	TString m = "Bd2DsK"; 
-	pdf_Bd2DsK_Tot = GetRooProdPdfDim(m, samplemode, pdf_Bd2DsK_Bs, pdf_Bd2DsK_Ds, pdf_Bd2DsK_PIDK, dim, debug  );
+        pdf_Bd2DsK_PIDK = buildMergedSpecBkgMDFit(workInt, work, samplemode, "Bs2DsK", mode, merge, 3, "", debug);
       }
+      if ( dim > 1 )
+      {
+        pdf_Bd2DsK_Ds = trySignal(samplemode,charmVarName,workInt, debug);
+      }
+      TString m = "Bd2DsK"; 
+      pdf_Bd2DsK_Tot = GetRooProdPdfDim(m, samplemode, pdf_Bd2DsK_Bs, pdf_Bd2DsK_Ds, pdf_Bd2DsK_PIDK, dim, debug  );
+    }
 
     RooExtendPdf* epdf_Bs2DsDsstKKst = NULL;
     if ( valBs2DsDssKKst != 0.0 )
-      {
-        name = "Bs2DsDsstKKstEPDF_m_"+samplemode;
-        epdf_Bs2DsDsstKKst = new RooExtendPdf( name.Data() , pdf_Bd2DsK_Tot->GetTitle(), *pdf_Bd2DsK_Tot, *nBs2DsDssKKstEvts   );
-        CheckPDF( epdf_Bs2DsDsstKKst, debug );
-        list = AddEPDF(list, epdf_Bs2DsDsstKKst, nBs2DsDssKKstEvts, debug);
-      }
+    {
+      name = "Bs2DsDsstKKstEPDF_m_"+samplemode;
+      epdf_Bs2DsDsstKKst = new RooExtendPdf( name.Data() , pdf_Bd2DsK_Tot->GetTitle(), *pdf_Bd2DsK_Tot, *nBs2DsDssKKstEvts   );
+      CheckPDF( epdf_Bs2DsDsstKKst, debug );
+      list = AddEPDF(list, epdf_Bs2DsDsstKKst, nBs2DsDssKKstEvts, debug);
+    }
 
     // --------------------------------- Read PDFs from Workspace -------------------------------------------------//                      
     
@@ -1516,20 +1516,19 @@ namespace Bs2Dsh2011TDAnaModels {
     RooAddPdf*  pdf_Bs2DsDsstPiRho_Tot = NULL;
     
     if ( valBsLb2DsDsstPPiRho != 0.0 )
-      {
+    {
+      pdf_Bs2DsRho_Tot  = buildProdPdfSpecBkgMDFit(workInt, work, samplemode, "Bs2DsRho",  "", merge, dim, charmVarName, debug);
+      pdf_Bs2DsstPi_Tot = buildProdPdfSpecBkgMDFit(workInt, work, samplemode, "Bs2DsstPi", "", merge, dim, charmVarName, debug); 
+      pdf_Bs2DsPi_Tot   = buildProdPdfSpecBkgMDFit(workInt, work, samplemode, "Bs2DsPi",   "", merge, dim, charmVarName, debug);
 
-	pdf_Bs2DsRho_Tot  = buildProdPdfSpecBkgMDFit(workInt, work, samplemode, "Bs2DsRho",  "", merge, dim, charmVarName, debug);
-	pdf_Bs2DsstPi_Tot = buildProdPdfSpecBkgMDFit(workInt, work, samplemode, "Bs2DsstPi", "", merge, dim, charmVarName, debug); 
-	pdf_Bs2DsPi_Tot   = buildProdPdfSpecBkgMDFit(workInt, work, samplemode, "Bs2DsPi",   "", merge, dim, charmVarName, debug);
-	
 	//pdf_Bs2DsPi_Tot   = buildProdPdfSpecBkgMDFit(workInt, work, samplemode, "Bs2DsPi", mode, merge, dim, charmVarName, debug);
-	
-	name="PhysBkgBs2DsDsstPiRhoPdf_m_"+samplemode+"_Tot";
-	pdf_Bs2DsDsstPiRho_Tot = new RooAddPdf(name.Data(), name.Data(), 
-					       RooArgList(*pdf_Bs2DsPi_Tot,*pdf_Bs2DsstPi_Tot, *pdf_Bs2DsRho_Tot), 
-					       RooArgList(*g2_f1,*g2_f2), true);
-	CheckPDF(pdf_Bs2DsDsstPiRho_Tot, debug);
-      }
+      
+      name="PhysBkgBs2DsDsstPiRhoPdf_m_"+samplemode+"_Tot";
+      pdf_Bs2DsDsstPiRho_Tot = new RooAddPdf(name.Data(), name.Data(), 
+                                             RooArgList(*pdf_Bs2DsPi_Tot,*pdf_Bs2DsstPi_Tot, *pdf_Bs2DsRho_Tot), 
+                                             RooArgList(*g2_f1,*g2_f2), true);
+      CheckPDF(pdf_Bs2DsDsstPiRho_Tot, debug);
+    }
     
     RooProdPdf* pdf_Lb2Dsp_Tot = NULL;
     RooProdPdf* pdf_Lb2Dsstp_Tot = NULL;
@@ -1538,27 +1537,27 @@ namespace Bs2Dsh2011TDAnaModels {
     RooExtendPdf* epdf_BsLb2DsDsstPPiRho   = NULL;
 
     if ( valBsLb2DsDsstPPiRho != 0.0 )
-      {
+    {
 
-	pdf_Lb2Dsp_Tot = buildProdPdfSpecBkgMDFit(workInt, work, samplemode, "Lb2Dsp",  "", merge, dim, charmVarName, debug);
-	pdf_Lb2Dsstp_Tot = buildProdPdfSpecBkgMDFit(workInt, work, samplemode, "Lb2Dsstp",  "", merge, dim, charmVarName, debug);	
+      pdf_Lb2Dsp_Tot = buildProdPdfSpecBkgMDFit(workInt, work, samplemode, "Lb2Dsp",  "", merge, dim, charmVarName, debug);
+      pdf_Lb2Dsstp_Tot = buildProdPdfSpecBkgMDFit(workInt, work, samplemode, "Lb2Dsstp",  "", merge, dim, charmVarName, debug);	
 
-	name="PhysBkgLb2DsDsstPPdf_m_"+samplemode+"_Tot";
-	pdf_Lb2DsDsstP_Tot = new RooAddPdf(name.Data(), name.Data(), *pdf_Lb2Dsp_Tot, *pdf_Lb2Dsstp_Tot, *g3_f1);
-	CheckPDF(pdf_Lb2DsDsstP_Tot, debug);
+      name="PhysBkgLb2DsDsstPPdf_m_"+samplemode+"_Tot";
+      pdf_Lb2DsDsstP_Tot = new RooAddPdf(name.Data(), name.Data(), *pdf_Lb2Dsp_Tot, *pdf_Lb2Dsstp_Tot, *g3_f1);
+      CheckPDF(pdf_Lb2DsDsstP_Tot, debug);
 	
-	name="PhysBkgBsLb2DsDsstPPiRhoPdf_m_"+samplemode+"_Tot";
-	pdf_BsLb2DsDsstPPiRho_Tot = new RooAddPdf(name.Data(), name.Data(),
-						  RooArgList(*pdf_Bs2DsDsstPiRho_Tot, *pdf_Lb2DsDsstP_Tot),
-				 RooArgList(*g5_f1));
-	CheckPDF(pdf_BsLb2DsDsstPPiRho_Tot, debug);
+      name="PhysBkgBsLb2DsDsstPPiRhoPdf_m_"+samplemode+"_Tot";
+      pdf_BsLb2DsDsstPPiRho_Tot = new RooAddPdf(name.Data(), name.Data(),
+                                                RooArgList(*pdf_Bs2DsDsstPiRho_Tot, *pdf_Lb2DsDsstP_Tot),
+                                                RooArgList(*g5_f1));
+      CheckPDF(pdf_BsLb2DsDsstPPiRho_Tot, debug);
     
-	name = "BsLb2DsDsstPPiRhoEPDF_m_"+samplemode;
-	epdf_BsLb2DsDsstPPiRho = new RooExtendPdf( name.Data() , pdf_BsLb2DsDsstPPiRho_Tot-> GetTitle(),
-						   *pdf_BsLb2DsDsstPPiRho_Tot  , *nBsLb2DsDsstPPiRhoEvts   );
-	CheckPDF( epdf_BsLb2DsDsstPPiRho, debug );
-	list = AddEPDF(list, epdf_BsLb2DsDsstPPiRho, nBsLb2DsDsstPPiRhoEvts, debug);
-      }
+      name = "BsLb2DsDsstPPiRhoEPDF_m_"+samplemode;
+      epdf_BsLb2DsDsstPPiRho = new RooExtendPdf( name.Data() , pdf_BsLb2DsDsstPPiRho_Tot-> GetTitle(),
+                                                 *pdf_BsLb2DsDsstPPiRho_Tot  , *nBsLb2DsDsstPPiRhoEvts   );
+      CheckPDF( epdf_BsLb2DsDsstPPiRho, debug );
+      list = AddEPDF(list, epdf_BsLb2DsDsstPPiRho, nBsLb2DsDsstPPiRhoEvts, debug);
+    }
     
     //--------------------------------- FULL PDF --------------------------//
     
@@ -1566,11 +1565,11 @@ namespace Bs2Dsh2011TDAnaModels {
     name = "BkgEPDF_m_"+samplemode;
     pdf_totBkg = new RooAddPdf( name.Data(), name.Data(), *list); 
     if (debug == true)
-      {
-	cout<<endl;
-	if( pdf_totBkg != NULL ){ cout<<" ------------- CREATED TOTAL BACKGROUND PDF: SUCCESFULL------------"<<endl; }
-	else { cout<<" ---------- CREATED TOTAL BACKGROUND PDF: FAILED ----------------"<<endl;}
-      }
+    {
+      cout<<endl;
+      if( pdf_totBkg != NULL ){ cout<<" ------------- CREATED TOTAL BACKGROUND PDF: SUCCESFULL------------"<<endl; }
+      else { cout<<" ---------- CREATED TOTAL BACKGROUND PDF: FAILED ----------------"<<endl;}
+    }
     return pdf_totBkg;
   }
 
@@ -1661,15 +1660,15 @@ namespace Bs2Dsh2011TDAnaModels {
   bool CheckPDF(RooAbsPdf* pdf, bool debug)
   {
     if( pdf != NULL )
-      { 
-	if (debug == true) cout<<"[INFO] Create/Read "<<pdf->GetName()<<endl;
-	return true;
-      }
+    { 
+      if (debug == true) cout<<"[INFO] Create/Read "<<pdf->GetName()<<endl;
+      return true;
+    }
     else 
-      { 
-	if (debug == true) cout<<"[ERROR] Cannot create/read PDF"<<endl;
-	return false;
-      }
+    { 
+      if (debug == true) cout<<"[ERROR] Cannot create/read PDF"<<endl;
+      return false;
+    }
   }
 
   //===============================================================================
@@ -1679,10 +1678,10 @@ namespace Bs2Dsh2011TDAnaModels {
   bool CheckVar(RooRealVar* var, bool debug)
   {
     if (var != NULL)
-      {
-        if (debug == true) cout<<"[INFO] Create RooRealVar: "<<var->GetName()<<endl;
-	return true;
-      }
+    {
+      if (debug == true) cout<<"[INFO] Create RooRealVar: "<<var->GetName()<<endl;
+      return true;
+    }
     else {
       if (debug == true) cout<<"[ERROR] Cannot create RooRealVar"<<endl;
       return false;
@@ -1694,40 +1693,40 @@ namespace Bs2Dsh2011TDAnaModels {
   {
     Double_t ev = numEvts->getValV();
     if ( ev != 0.0 )
+    {
+      list->add(*pdf);
+      if (debug == true )
       {
-	list->add(*pdf);
-	if (debug == true )
-	  {
-	    std::cout<<"[INFO] "<<pdf->GetName()<<" added to pdf list with inital number of events:"<<ev<<std::endl; 
-	  }
+        std::cout<<"[INFO] "<<pdf->GetName()<<" added to pdf list with inital number of events:"<<ev<<std::endl; 
       }
+    }
     else
+    {
+      if (debug == true )
       {
-	if (debug == true )
-          {
-	    std::cout<<"[INFO] "<<pdf->GetName()<<" NOT added to pdf list, number of events:"<<ev<<std::endl;
-          }
+        std::cout<<"[INFO] "<<pdf->GetName()<<" NOT added to pdf list, number of events:"<<ev<<std::endl;
       }
+    }
     return list; 
   }
 
   RooArgList* AddEPDF(RooArgList* list, RooExtendPdf* pdf, Double_t ev, bool debug)
   {
     if ( ev != 0.0 )
+    {
+      list->add(*pdf);
+      if (debug == true )
       {
-        list->add(*pdf);
-        if (debug == true )
-          {
-	    std::cout<<"[INFO] "<<pdf->GetName()<<" added to pdf list with inital number of events:"<<ev<<std::endl;
-          }
+        std::cout<<"[INFO] "<<pdf->GetName()<<" added to pdf list with inital number of events:"<<ev<<std::endl;
       }
+    }
     else
+    {
+      if (debug == true )
       {
-        if (debug == true )
-          {
-	    std::cout<<"[INFO] PDF NOT added to pdf list, number of events:"<<ev<<std::endl;
-          }
+        std::cout<<"[INFO] PDF NOT added to pdf list, number of events:"<<ev<<std::endl;
       }
+    }
     return list;
   }
 
@@ -1736,10 +1735,10 @@ namespace Bs2Dsh2011TDAnaModels {
                                    RooWorkspace* work,
                                    RooWorkspace* workInt,
                                    TString samplemode,
-				   TString typemode, 
+                                   TString typemode, 
                                    TString type,
-				   TString pdfName, 
-				   bool extended, 
+                                   TString pdfName, 
+                                   bool extended, 
                                    bool debug)
   {
 
@@ -1755,142 +1754,141 @@ namespace Bs2Dsh2011TDAnaModels {
     if ( type.Contains("WithWidthRatio") == true ) { widthRatio = true; }
 
     if ( extended == true )
-      {
-	TString nName = "nSig_"+samplemode+"_Evts";
-	nEvts = GetObservable(workInt, nName, debug);
-	val = nEvts->getValV();
-      }
+    {
+      TString nName = "nSig_"+samplemode+"_Evts";
+      nEvts = GetObservable(workInt, nName, debug);
+      val = nEvts->getValV();
+    }
     else
-      {
-	nEvts = new RooRealVar("fake","fake",val); 
-      }
+    {
+      nEvts = new RooRealVar("fake","fake",val); 
+    }
     
     if ( type == "RooKeysPdf" )
+    {
+      pdf = (RooKeysPdf*)work->pdf(pdfName.Data());
+      if ( debug == true ) 
       {
-	pdf = (RooKeysPdf*)work->pdf(pdfName.Data());
-	if ( debug == true ) 
-	  {
-	    if ( pdf != NULL ) { std::cout<<"[INFO] PDF taken as RooKeyPdf: "<<pdfName<<std::endl;}
-	    else { std::cout<<"[ERROR] Cannot read pdf: "<<pdfName<<std::endl;} 
-	  }
+        if ( pdf != NULL ) { std::cout<<"[INFO] PDF taken as RooKeyPdf: "<<pdfName<<std::endl;}
+        else { std::cout<<"[ERROR] Cannot read pdf: "<<pdfName<<std::endl;} 
       }
+    }
     else if ( type.Contains("Ipatia") or type.Contains("Hypatia") )
-      {
-	pdf =  buildIpatiaPDF( mass, workInt, samplemode, typemode, debug);
-      }
+    {
+      pdf =  buildIpatiaPDF( mass, workInt, samplemode, typemode, debug);
+    }
     else if ( type.Contains("Apollonios") == true )
-      {
-	pdf =  buildApolloniosPDF( mass, workInt, samplemode, typemode, debug);
-      }
+    {
+      pdf =  buildApolloniosPDF( mass, workInt, samplemode, typemode, debug);
+    }
     else if ( type.Contains("CrystalBall" ) )
+    {
+      if ( type.Contains("Exponential") )
       {
-	if ( type.Contains("Exponential") )
-          {
-            pdf= buildExponentialPlusDoubleCrystalBallPDF(mass, workInt, samplemode, typemode, widthRatio, sharedMean, debug);
-          }
-        else if ( type.Contains("DoubleCrystalBall") )
-          {
-            pdf =  buildDoubleCrystalBallPDF( mass, workInt, samplemode, typemode, widthRatio, sharedMean, debug);
-	  }
-	else if ( type == "CrystalBall" )
-          {
-            pdf =  buildCrystalBallPDF( mass, workInt, samplemode, typemode, debug);
-          }
-	else
-	  {
-	    std::cout<<"[ERROR] function: "<<type<<" not defined"<<std::endl; 
-	  }
+        pdf= buildExponentialPlusDoubleCrystalBallPDF(mass, workInt, samplemode, typemode, widthRatio, sharedMean, debug);
       }
+      else if ( type.Contains("DoubleCrystalBall") )
+      {
+        pdf =  buildDoubleCrystalBallPDF( mass, workInt, samplemode, typemode, widthRatio, sharedMean, debug);
+      }
+      else if ( type == "CrystalBall" )
+      {
+        pdf =  buildCrystalBallPDF( mass, workInt, samplemode, typemode, debug);
+      }
+      else
+      {
+        std::cout<<"[ERROR] function: "<<type<<" not defined"<<std::endl; 
+      }
+    }
     else if ( type.Contains("Gaussian") )
+    {
+      if ( type.Contains("DoubleGaussian")) 
       {
-	if ( type.Contains("DoubleGaussian")) 
-	  {
-	    pdf = buildDoubleGaussPDF( mass, workInt, samplemode, typemode, widthRatio, sharedMean, debug);
-	  }
-	else if ( type == "Gaussian" )
-          {
-            pdf = buildGaussPDF( mass, workInt, samplemode, typemode, debug);
-          }
-	else
-          {
-	    std::cout<<"[ERROR] function: "<<type<<" not defined"<<std::endl;
-          }
+        pdf = buildDoubleGaussPDF( mass, workInt, samplemode, typemode, widthRatio, sharedMean, debug);
       }
+      else if ( type == "Gaussian" )
+      {
+        pdf = buildGaussPDF( mass, workInt, samplemode, typemode, debug);
+      }
+      else
+      {
+        std::cout<<"[ERROR] function: "<<type<<" not defined"<<std::endl;
+      }
+    }
     else if ( type.Contains("Exponential") ) 
+    {
+      if ( type == "ExponentialPlusGaussian" )
       {
-	if ( type == "ExponentialPlusGaussian" )
-	  {
-	    pdf = buildExponentialPlusGaussPDF(mass, workInt, samplemode, typemode, debug);
-	  }
-	else if ( type == "Exponential" ) 
-	  {
-	    pdf = buildExponentialPDF(mass, workInt, samplemode, typemode, debug);
-	  }
-	else if ( type == "DoubleExponential" )
-	  {
-	    pdf = buildDoubleExponentialPDF(mass, workInt, samplemode, typemode, debug);
-	  }
-	else if ( type == "ExponentialTimesLinear" )
-	  {
-	    pdf = buildExponentialTimesLinearPDF(mass, workInt, samplemode, typemode, debug);
-	  }
-	else if ( type == "ExponentialPlusSignal")
-	  {
-	    pdf = buildExponentialPlusSignalPDF(mass, workInt, samplemode, typemode, debug);
-	  }
-	else
-          {
-	    std::cout<<"[ERROR] function: "<<type<<" not defined"<<std::endl;
-          }
+        pdf = buildExponentialPlusGaussPDF(mass, workInt, samplemode, typemode, debug);
       }
+      else if ( type == "Exponential" ) 
+      {
+        pdf = buildExponentialPDF(mass, workInt, samplemode, typemode, debug);
+      }
+      else if ( type == "DoubleExponential" )
+      {
+        pdf = buildDoubleExponentialPDF(mass, workInt, samplemode, typemode, debug);
+      }
+      else if ( type == "ExponentialTimesLinear" )
+      {
+        pdf = buildExponentialTimesLinearPDF(mass, workInt, samplemode, typemode, debug);
+      }
+      else if ( type == "ExponentialPlusSignal")
+      {
+        pdf = buildExponentialPlusSignalPDF(mass, workInt, samplemode, typemode, debug);
+      }
+      else
+      {
+        std::cout<<"[ERROR] function: "<<type<<" not defined"<<std::endl;
+      }
+    }
     else
-      {
-	std::cout<<"[ERROR] Type of PDF: "<<type<<" is not specified. Please add to 'build_Signal_MDFitter' function."<<std::endl;  
-	return NULL;
-      }
-
+    {
+      std::cout<<"[ERROR] Type of PDF: "<<type<<" is not specified. Please add to 'build_Signal_MDFitter' function."<<std::endl;  
+      return NULL;
+    }
+    
     TString name = ""; 
     if ( extended == true )
-      {
-	name = "SigEPDF_"+samplemode;
-	epdf = new RooExtendPdf( name.Data() , pdf->GetTitle(), *pdf  , *nEvts   );
-	CheckPDF( epdf, debug );
-      }
+    {
+      name = "SigEPDF_"+samplemode;
+      epdf = new RooExtendPdf( name.Data() , pdf->GetTitle(), *pdf  , *nEvts   );
+      CheckPDF( epdf, debug );
+    }
     else
-      {
-	epdf  = pdf;
-      }
-
+    {
+      epdf  = pdf;
+    }
+    
     return epdf; 
   }
-
   
-
+  
   RooAbsPdf* build_SigOrCombo(RooAbsReal& mass,
-			      RooAbsReal& massDs,
-			      RooAbsReal& pidkVar, 
-			      RooWorkspace* work,
-			      RooWorkspace* workInt,
-			      TString samplemode,
-			      TString typemode, 
-			      TString merge, 
-			      TString decay, 
-			      std::vector <TString> types,
-			      std::vector <std::vector <TString> > pdfNames,
-			      std::vector <TString> pidk,
-			      Int_t dim,
-			      bool debug)
+                              RooAbsReal& massDs,
+                              RooAbsReal& pidkVar, 
+                              RooWorkspace* work,
+                              RooWorkspace* workInt,
+                              TString samplemode,
+                              TString typemode, 
+                              TString merge, 
+                              TString decay, 
+                              std::vector <TString> types,
+                              std::vector <std::vector <TString> > pdfNames,
+                              std::vector <TString> pidk,
+                              Int_t dim,
+                              bool debug)
   {
 
 
     if (debug == true)
-      {
-        cout<<"[INFO] =====> Build "<<typemode<<" model with merge: "<<merge<<endl;
-	cout<<"[INFO] Types of shapes: "<<std::endl;
-        cout<<"[INFO] BeautyMass: "<<types[0]<<std::endl;
-        cout<<"[INFO] CharmMass: "<<types[1]<<std::endl;
-	cout<<"[INFO] BacPIDK: "<<types[2]<<" with components: Kaon = "<<pidk[0]<<" Pion = "<<pidk[1]<<" Proton = "<<pidk[2]<<std::endl;
-      }
+    {
+      cout<<"[INFO] =====> Build "<<typemode<<" model with merge: "<<merge<<endl;
+      cout<<"[INFO] Types of shapes: "<<std::endl;
+      cout<<"[INFO] BeautyMass: "<<types[0]<<std::endl;
+      cout<<"[INFO] CharmMass: "<<types[1]<<std::endl;
+      cout<<"[INFO] BacPIDK: "<<types[2]<<" with components: Kaon = "<<pidk[0]<<" Pion = "<<pidk[1]<<" Proton = "<<pidk[2]<<std::endl;
+    }
 
     RooExtendPdf* epdf   = NULL;
     TString nName = ""; 
@@ -1906,13 +1904,13 @@ namespace Bs2Dsh2011TDAnaModels {
     RooProdPdf* pdf_Tot = NULL;
 
     if ( typemode == "Signal" )
-      {
-	nName = "nSig_"+samplemode+"_Evts";
-      }
+    {
+      nName = "nSig_"+samplemode+"_Evts";
+    }
     else
-      {
-	nName = "n"+typemode+"_"+samplemode+"_Evts";
-      }
+    {
+      nName = "n"+typemode+"_"+samplemode+"_Evts";
+    }
      
     nEvts = tryVar(nName, workInt, debug);
     Double_t val = nEvts->getValV();
@@ -1928,88 +1926,88 @@ namespace Bs2Dsh2011TDAnaModels {
     sam = GetPolarity(samplemode, merge, debug);
     std::cout<<"mode: "<<mode<<std::endl; 
     if ( val != 0.0 )
+    {
+      for(unsigned int i = 0; i < sam.size(); i++ )
       {
-	for(unsigned int i = 0; i < sam.size(); i++ )
-	  {
-	    for (unsigned int j =0; j < y.size(); j++ )
+        for (unsigned int j =0; j < y.size(); j++ )
 	      {
 		
-		TString smp = sam[i]+"_"+mode+"_"+y[j];
-		TString pdfNameBs = findRooKeysPdf(pdfNames, TString(mass.GetName()), smp, debug); 
-		pdf_pBs.push_back(ObtainSignalMassShape(mass, work, workInt, smp, typemode, types[0], pdfNameBs, false, debug));
-		if ( dim > 1)
-		  {
-		    TString pdfNameDs = findRooKeysPdf(pdfNames, TString(massDs.GetName()), smp, debug);
-		    pdf_pDs.push_back(ObtainSignalMassShape(massDs, work, workInt, smp, typemode, types[1], pdfNameDs, false, debug));
-		  }
+          TString smp = sam[i]+"_"+mode+"_"+y[j];
+          TString pdfNameBs = findRooKeysPdf(pdfNames, TString(mass.GetName()), smp, debug); 
+          pdf_pBs.push_back(ObtainSignalMassShape(mass, work, workInt, smp, typemode, types[0], pdfNameBs, false, debug));
+          if ( dim > 1)
+          {
+            TString pdfNameDs = findRooKeysPdf(pdfNames, TString(massDs.GetName()), smp, debug);
+            pdf_pDs.push_back(ObtainSignalMassShape(massDs, work, workInt, smp, typemode, types[1], pdfNameDs, false, debug));
+          }
 		
-		if ( dim > 2 )
-		  {
-		    if ( typemode == "CombBkg" || typemode == "Combinatorial" ) 
-		      {
-			pdf_pPIDK.push_back(buildComboPIDKPDF(pidkVar, work, workInt, smp, "CombBkg", pidk, merge,debug));
-		      }
-		    else
-		      {
-			pdf_pPIDK.push_back(buildPIDKShapeMDFit(work,smp,decay, mode, debug));
-		      }
-		  }	
+          if ( dim > 2 )
+          {
+            if ( typemode == "CombBkg" || typemode == "Combinatorial" ) 
+            {
+              pdf_pPIDK.push_back(buildComboPIDKPDF(pidkVar, work, workInt, smp, "CombBkg", pidk, merge,debug));
+            }
+            else
+            {
+              pdf_pPIDK.push_back(buildPIDKShapeMDFit(work,smp,decay, mode, debug));
+            }
+          }	
 	      }
-	  }
       }
+    }
  
 
     if  ( merge == "pol" ) 
-      {
+    {
 	
-	pdf_Bs = mergePdf(pdf_pBs[1], pdf_pBs[0], merge, y[0], workInt, debug);
-	if ( dim > 1 ) { pdf_Ds = mergePdf(pdf_pDs[1], pdf_pDs[0], merge, y[0], workInt, debug); }
-	if ( dim > 2 ) { pdf_PIDK = mergePdf(pdf_pPIDK[1], pdf_pPIDK[0], merge, y[0], workInt, debug); }
-      }
+      pdf_Bs = mergePdf(pdf_pBs[1], pdf_pBs[0], merge, y[0], workInt, debug);
+      if ( dim > 1 ) { pdf_Ds = mergePdf(pdf_pDs[1], pdf_pDs[0], merge, y[0], workInt, debug); }
+      if ( dim > 2 ) { pdf_PIDK = mergePdf(pdf_pPIDK[1], pdf_pPIDK[0], merge, y[0], workInt, debug); }
+    }
     else if ( merge == "year" )
-      {
-	pdf_Bs = mergePdf(pdf_pBs[1], pdf_pBs[0], merge, sam[0], workInt, debug);
-	if ( dim > 1 ) { pdf_Ds = mergePdf(pdf_pDs[1], pdf_pDs[0], merge, sam[0], workInt, debug); }
-	if ( dim > 2 ) { pdf_PIDK = mergePdf(pdf_pPIDK[1], pdf_pPIDK[0], merge, sam[0], workInt, debug);}
-      }
+    {
+      pdf_Bs = mergePdf(pdf_pBs[1], pdf_pBs[0], merge, sam[0], workInt, debug);
+      if ( dim > 1 ) { pdf_Ds = mergePdf(pdf_pDs[1], pdf_pDs[0], merge, sam[0], workInt, debug); }
+      if ( dim > 2 ) { pdf_PIDK = mergePdf(pdf_pPIDK[1], pdf_pPIDK[0], merge, sam[0], workInt, debug);}
+    }
     else if ( merge == "both" )
-      {
-	pdf_pBs.push_back(mergePdf(pdf_pBs[2], pdf_pBs[0], "pol", y[0], workInt, debug));
-	if ( dim > 1 ) { pdf_pDs.push_back(mergePdf(pdf_pDs[2], pdf_pDs[0], "pol", y[0], workInt, debug)); }
-	if ( dim > 2 ) { pdf_pPIDK.push_back(mergePdf(pdf_pPIDK[2], pdf_pPIDK[0], "pol", y[0], workInt, debug));}
+    {
+      pdf_pBs.push_back(mergePdf(pdf_pBs[2], pdf_pBs[0], "pol", y[0], workInt, debug));
+      if ( dim > 1 ) { pdf_pDs.push_back(mergePdf(pdf_pDs[2], pdf_pDs[0], "pol", y[0], workInt, debug)); }
+      if ( dim > 2 ) { pdf_pPIDK.push_back(mergePdf(pdf_pPIDK[2], pdf_pPIDK[0], "pol", y[0], workInt, debug));}
 	
-	pdf_pBs.push_back(mergePdf(pdf_pBs[3], pdf_pBs[1], "pol", y[1], workInt, debug));
-        if ( dim > 1 ) { pdf_pDs.push_back(mergePdf(pdf_pDs[3], pdf_pDs[1], "pol", y[1], workInt, debug));}
-        if ( dim > 2 ) { pdf_pPIDK.push_back(mergePdf(pdf_pPIDK[3], pdf_pPIDK[1], "pol", y[1], workInt, debug));}
+      pdf_pBs.push_back(mergePdf(pdf_pBs[3], pdf_pBs[1], "pol", y[1], workInt, debug));
+      if ( dim > 1 ) { pdf_pDs.push_back(mergePdf(pdf_pDs[3], pdf_pDs[1], "pol", y[1], workInt, debug));}
+      if ( dim > 2 ) { pdf_pPIDK.push_back(mergePdf(pdf_pPIDK[3], pdf_pPIDK[1], "pol", y[1], workInt, debug));}
 
-	pdf_Bs = mergePdf(pdf_pBs[5], pdf_pBs[4], "year", "run1", workInt, debug);
-        if ( dim > 1 ) { pdf_Ds = mergePdf(pdf_pDs[5], pdf_pDs[4], "year", "run1", workInt, debug);}
-        if ( dim > 2 ) { pdf_PIDK = mergePdf(pdf_pPIDK[5], pdf_pPIDK[4], "year", "run1", workInt, debug);}
+      pdf_Bs = mergePdf(pdf_pBs[5], pdf_pBs[4], "year", "run1", workInt, debug);
+      if ( dim > 1 ) { pdf_Ds = mergePdf(pdf_pDs[5], pdf_pDs[4], "year", "run1", workInt, debug);}
+      if ( dim > 2 ) { pdf_PIDK = mergePdf(pdf_pPIDK[5], pdf_pPIDK[4], "year", "run1", workInt, debug);}
 	
-      }
+    }
     else 
-      {
-	pdf_Bs = pdf_pBs[0];
-	if ( dim > 1 ) { pdf_Ds = pdf_pDs[0];}
-	if ( dim > 2 ) { pdf_PIDK = pdf_pPIDK[0];}
-      }
+    {
+      pdf_Bs = pdf_pBs[0];
+      if ( dim > 1 ) { pdf_Ds = pdf_pDs[0];}
+      if ( dim > 2 ) { pdf_PIDK = pdf_pPIDK[0];}
+    }
 
      
     pdf_Tot = GetRooProdPdfDim(typemode, samplemode, pdf_Bs, pdf_Ds, pdf_PIDK, dim, debug  );
     if ( typemode == "Signal" )
-      {
-	TString name = typemode+"ProdPDF_"+samplemode;  
-	pdf_Tot->SetName(name); 
-      }
+    {
+      TString name = typemode+"ProdPDF_"+samplemode;  
+      pdf_Tot->SetName(name); 
+    }
     TString epdfName=""; 
     if ( typemode == "Signal") 
-      {
-	epdfName = "SigEPDF_"+samplemode;
-      }
+    {
+      epdfName = "SigEPDF_"+samplemode;
+    }
     else
-      {
-	epdfName = typemode+"EPDF_"+samplemode;
-      }
+    {
+      epdfName = typemode+"EPDF_"+samplemode;
+    }
 
     epdf = new RooExtendPdf( epdfName.Data() , pdf_Tot->GetTitle(), *pdf_Tot  , *nEvts   );
     CheckPDF( epdf, debug );
@@ -2021,10 +2019,10 @@ namespace Bs2Dsh2011TDAnaModels {
   {
 
     if ( pdf1->GetName() == pdf2->GetName() ) 
-      {
-	if(debug == true ) { std::cout<<"[INFO] Pdfs the same: "<<pdf1->GetName()<<" = "<<pdf2->GetName()<<". Nothing done."<<std::endl; }
-	return pdf1; 
-      }
+    {
+      if(debug == true ) { std::cout<<"[INFO] Pdfs the same: "<<pdf1->GetName()<<" = "<<pdf2->GetName()<<". Nothing done."<<std::endl; }
+      return pdf1; 
+    }
     TString lumRatioName = "lumRatio_"+lum;
     RooRealVar* lumRatio = GetObservable(workInt, lumRatioName, false);
     RooAbsPdf* pdf = NULL; 
@@ -2033,22 +2031,22 @@ namespace Bs2Dsh2011TDAnaModels {
     
     
     if ( merge == "pol" )
-      {
-	if ( name.Contains("down") ) { name.ReplaceAll("down","both"); }
-	else if ( name.Contains("up") ) { name.ReplaceAll("up","both"); }
-      }
+    {
+      if ( name.Contains("down") ) { name.ReplaceAll("down","both"); }
+      else if ( name.Contains("up") ) { name.ReplaceAll("up","both"); }
+    }
     else if ( merge == "year" ) 
-      {
-	if ( name.Contains("2011") ) { name.ReplaceAll("2011","run1");}
-	else if ( name.Contains("2012") ){ name.ReplaceAll("2012","run1");}
-      }
+    {
+      if ( name.Contains("2011") ) { name.ReplaceAll("2011","run1");}
+      else if ( name.Contains("2012") ){ name.ReplaceAll("2012","run1");}
+    }
     name = name + "_" + merge; 
     pdf = new RooAddPdf( name.Data(), name.Data(),RooArgList(*pdf1,*pdf2), RooArgList(*lumRatio));
 
     if ( debug == true )
-      {
-	std::cout<<"[INFO] Adding "<<pdf1->GetName()<<" to "<<pdf2->GetName()<<" = "<<pdf->GetName()<<" with fraction: "<<lumRatio->getValV()<<std::endl; 
-      }
+    {
+      std::cout<<"[INFO] Adding "<<pdf1->GetName()<<" to "<<pdf2->GetName()<<" = "<<pdf->GetName()<<" with fraction: "<<lumRatio->getValV()<<std::endl; 
+    }
     return pdf; 
   }
 
@@ -2058,6 +2056,7 @@ namespace Bs2Dsh2011TDAnaModels {
     TString y = CheckDataYear(name,false);
     TString m = CheckDMode(name,false);
     if ( m == "") { m = CheckKKPiMode(name, false);}
+    TString h = CheckHypo(name,false);
     TString t = "_";
 
     TString name_prev = name;
@@ -2068,35 +2067,41 @@ namespace Bs2Dsh2011TDAnaModels {
     TString yy[] = {y,"run1"};
     TString mm[] = {m,"all","kkpi"};
     TString pp[] = {p,"both"};
+    TString hh[] = {h,"Bd2DPi","Bd2DK","Bs2DsK","Bs2DsPi"};
     int s = 3;
     if ( m == "pipipi" || m == "kpipi" )
-      {
-        s = 2;
-      }
+    {
+      s = 2;
+    }
     
     if ( pdf == NULL )
+    {
+      for( int i = 0; i<2; i++)
       {
-        for( int i = 0; i<2; i++)
-          {
 
-            for (int j = 0; j<s; j++ )
-              {
-                for (int k =0; k<2; k++ )
-                  {
-                    TString nName = name_prev;
-                    //std::cout<<"prev: "<<name_prev<<std::endl;                                                                                                                          
-                    nName = nName.ReplaceAll(y,yy[i]);
-                    nName = nName.ReplaceAll(m,mm[j]);
-                    nName = nName.ReplaceAll(p,pp[k]);
-                    pdf = (RooKeysPdf*)work->pdf(nName.Data());
-		    //std::cout<<"name: "<<nName<<std::endl; 
-                    if ( pdf != NULL ) { break; }
-                  }
-                if ( pdf != NULL ) { break; }
-              }
+        for (int j = 0; j<s; j++ )
+        {
+          for (int k =0; k<2; k++ )
+          {
+            for (int l=0; l<5; l++)
+            {  
+              TString nName = name_prev;
+              //std::cout<<"prev: "<<name_prev<<std::endl;                                                                                                                          
+              nName = nName.ReplaceAll(y,yy[i]);
+              nName = nName.ReplaceAll(m,mm[j]);
+              nName = nName.ReplaceAll(p,pp[k]);
+              if(h!=""){nName = nName.ReplaceAll(h,hh[l]);}
+              pdf = (RooKeysPdf*)work->pdf(nName.Data());
+              //std::cout<<"name: "<<nName<<std::endl;
+              if ( pdf != NULL ) { break; }
+            }            
             if ( pdf != NULL ) { break; }
           }
+          if ( pdf != NULL ) { break; }
+        }
+        if ( pdf != NULL ) { break; }
       }
+    }
 
     if( pdf != NULL ){ if ( debug == true) {std::cout<<"[INFO] Read pdf: "<<pdf->GetName()<<std::endl;} return pdf; }
     else{ std::cout<<"[ERROR] Cannot read pdf."<<std::endl; return NULL;}
@@ -2109,8 +2114,8 @@ namespace Bs2Dsh2011TDAnaModels {
     TString y = CheckDataYear(name,false);
     TString m = CheckDMode(name,false);
     if ( m == "") { m = CheckKKPiMode(name, false);}
+    TString h = CheckHypo(name,false);
     TString t = "_";
-
     
     TString name_prev = name;
     TString name2 = name; 
@@ -2120,34 +2125,40 @@ namespace Bs2Dsh2011TDAnaModels {
     TString yy[] = {y,"run1"}; 
     TString mm[] = {m,"all","kkpi"};
     TString pp[] = {p,"both"}; 
+    TString hh[] = {h,"Bd2DPi","Bd2DK","Bs2DsK","Bs2DsPi"};
     int s = 3; 
     if ( m == "pipipi" || m == "kpipi" ) 
-      {
-	s = 2; 
-      }
+    {
+      s = 2; 
+    }
     
     if ( nEvts == NULL )
+    {
+      for( int i = 0; i<2; i++)
       {
-	for( int i = 0; i<2; i++)
-	  {
 	      
-	    for (int j = 0; j<s; j++ )
+        for (int j = 0; j<s; j++ )
 	      {
-		for (int k =0; k<2; k++ )
-		  {
-		    TString nName = name_prev;
-		    //std::cout<<"prev: "<<name_prev<<std::endl;
-		    nName = nName.ReplaceAll(y,yy[i]);
-		    nName = nName.ReplaceAll(m,mm[j]);
-		    nName = nName.ReplaceAll(p,pp[k]);
-		    nEvts = GetObservable(workInt, nName, false);
-		    if ( nEvts != NULL ) { break; } 
-		  }
-		if ( nEvts != NULL ) { break; }
+          for (int k =0; k<2; k++ )
+          {
+            for (int l=0; l<5; l++)
+            { 
+              TString nName = name_prev;
+              //std::cout<<"prev: "<<name_prev<<std::endl;
+              nName = nName.ReplaceAll(y,yy[i]);
+              nName = nName.ReplaceAll(m,mm[j]);
+              nName = nName.ReplaceAll(p,pp[k]);
+              if(h!=""){nName = nName.ReplaceAll(h,hh[l]);}
+              nEvts = GetObservable(workInt, nName, false);
+              if ( nEvts != NULL ) { break; }
+            }
+            if ( nEvts != NULL ) { break; } 
+          }
+          if ( nEvts != NULL ) { break; }
 	      }
-	    if ( nEvts != NULL ) { break; }
-	  }
+        if ( nEvts != NULL ) { break; }
       }
+    }
 
     if( nEvts != NULL ){ if ( debug == true) {std::cout<<"[INFO] Read observable: "<<nEvts->GetName()<<std::endl;} return nEvts; }
     else{ std::cout<<"[ERROR] Cannot read observable."<<std::endl; return NULL;}    
@@ -2175,15 +2186,15 @@ namespace Bs2Dsh2011TDAnaModels {
     suffix2.push_back("_pol_year"); 
 
     for ( unsigned i = 0; i < suffix.size(); i++) 
+    {
+      for ( unsigned j = 0; j <suffix2.size(); j++ )
       {
-	for ( unsigned j = 0; j <suffix2.size(); j++ )
-	  {
-	    TString pdfName = "Signal_"+varName+suffix[i]+samplemode+suffix2[j];
-	    pdf = (RooAbsPdf*) workInt -> pdf(pdfName.Data()); 
-	    if ( pdf != NULL ){ break; }
-	  }
-	if ( pdf != NULL ){ break; }
+        TString pdfName = "Signal_"+varName+suffix[i]+samplemode+suffix2[j];
+        pdf = (RooAbsPdf*) workInt -> pdf(pdfName.Data()); 
+        if ( pdf != NULL ){ break; }
       }
+      if ( pdf != NULL ){ break; }
+    }
 
     CheckPDF(pdf,debug); 
     return pdf; 
@@ -2197,63 +2208,91 @@ namespace Bs2Dsh2011TDAnaModels {
     TString y = CheckDataYear(smp,false);
     TString m = CheckDMode(smp,false);
     if ( m == "") { m = CheckKKPiMode(smp, false);}
+    TString h = CheckHypo(smp,false);
     TString t = "_";
 
     int pdfID = -1.0; 
     for (unsigned int g = 0; g<pdfNames.size(); g++ )
-      {
-	if ( pdfNames[g][1].Contains(m)  == true  && pdfNames[g][1].Contains(y) == true 
-	     && pdfNames[g][1].Contains(p)  == true && pdfNames[g][1].Contains(var)  == true ) 
-	  {
-	    pdfID =g; 
-	    break;
-	  }
+    {
+      if(h!="")
+      {   
+        if ( pdfNames[g][1].Contains(m)  == true  && pdfNames[g][1].Contains(y) == true     
+             && pdfNames[g][1].Contains(p)  == true && pdfNames[g][1].Contains(var)== true && pdfNames[g][1].Contains(h) == true)
+        {
+          pdfID =g; 
+          break;
+        }
       }
+      else
+      {
+        if ( pdfNames[g][1].Contains(m)  == true  && pdfNames[g][1].Contains(y) == true
+             && pdfNames[g][1].Contains(p)  == true && pdfNames[g][1].Contains(var)== true)
+        {
+          pdfID =g;
+          break; 
+        } 
+      }
+    }
     
     if ( pdfID == -1 )
+    {
+      TString yy[] = {y,"run1"};
+      TString mm[] = {m,"all","kkpi"};
+      TString pp[] = {p,"both"};
+      TString hh[] = {h,"Bd2DPi","Bd2DK","Bs2DsK","Bs2DsPi"};
+      int s = 3;
+      if ( m == "pipipi" || m == "kpipi" )
       {
-	TString yy[] = {y,"run1"};
-	TString mm[] = {m,"all","kkpi"};
-	TString pp[] = {p,"both"};
-	int s = 3;
-	if ( m == "pipipi" || m == "kpipi" )
-	  {
-	    s = 2;
-	  }
-
-	for (unsigned int g = 0; g<pdfNames.size(); g++ )
-	  {
-	    for( int i = 0; i<2; i++)
-	      {
-		for (int j = 0; j<s; j++ )
-		  {
-		    for (int k =0; k<2; k++ )
-		      {
-			if ( pdfNames[g][1].Contains(mm[j])  == true  && pdfNames[g][1].Contains(yy[i]) == true
-			     && pdfNames[g][1].Contains(pp[k])  == true && pdfNames[g][1].Contains(var)  == true )
-			  {
-			    pdfID =g;
-			    break;
-			  }
-			
-		      }
-		    if ( pdfID>-1 ) { break; }
-		  }
-		if ( pdfID>-1 ) { break; }
-	      }
-	    if ( pdfID>-1 ) { break; }
-	  }	
+        s = 2;
       }
 
+      for (unsigned int g = 0; g<pdfNames.size(); g++ )
+      {
+        for( int i = 0; i<2; i++)
+	      {
+          for (int j = 0; j<s; j++ )
+          {
+            for (int k =0; k<2; k++ )
+            {
+              for (int l =0; l<5; l++ )
+              { 
+                if(h!="")
+                { 
+                  if ( pdfNames[g][1].Contains(mm[j])  == true  && pdfNames[g][1].Contains(yy[i]) == true
+                       && pdfNames[g][1].Contains(pp[k])  == true && pdfNames[g][1].Contains(var)  == true && pdfNames[g][1].Contains(hh[l]) == true)
+                  {
+                    pdfID =g;
+                    break;
+                  }
+                }
+                else
+                {
+                  if ( pdfNames[g][1].Contains(mm[j])  == true  && pdfNames[g][1].Contains(yy[i]) == true
+                       && pdfNames[g][1].Contains(pp[k])  == true && pdfNames[g][1].Contains(var)  == true)
+                  {
+                    pdfID =g;
+                    break; 
+                  }
+                }
+                if ( pdfID>-1 ) { break; }
+              }
+              if ( pdfID>-1 ) { break; }
+            }
+            if ( pdfID>-1 ) { break; }
+          }
+          if ( pdfID>-1 ) { break; }
+        }
+      }
+    }
 
     if ( pdfID > -1) 
-      {
-	if ( debug == true ) { std::cout<<"[INFO] Found PDF with pdfId: "<<pdfID<<" and name: "<<pdfNames[pdfID][0]<<std::endl;}
-	pdfName = pdfNames[pdfID][0];
-      }
-
+    {
+      if ( debug == true ) { std::cout<<"[INFO] Found PDF with pdfId: "<<pdfID<<" and name: "<<pdfNames[pdfID][0]<<std::endl;}
+      pdfName = pdfNames[pdfID][0];
+    }
+    
     return pdfName; 
   }
-
-
+  
+  
 }

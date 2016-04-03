@@ -106,6 +106,7 @@ __doc__ = """ real docstring """
 # -----------------------------------------------------------------------------
 # Load necessary libraries
 # -----------------------------------------------------------------------------
+#"
 from B2DXFitters import *
 from ROOT import *
 
@@ -131,7 +132,7 @@ def getDataNames ( myconfig ):
         for dmode in Dmodes:
             dataName = "#"+decay+" "+dmode+" "+y
             dataNames.append(TString(dataName))
-
+            
     return dataNames
 
 # -----------------------------------------------------------------------------                                                                                                         
@@ -165,7 +166,12 @@ def getDataBkgNames( myconfig ):
 # Get signature of background obtained from MC                                                                                                                                        
 # -----------------------------------------------------------------------------
 def getMCNames(myconfig):
+
     decay = myconfig["Decay"]
+    
+    hypo = ""
+    if "Hypothesis" in myconfig.keys():
+        hypo = " "+myconfig["Hypothesis"]+"Hypo"
     
     decay2 = TString(decay)
     if decay2.Contains("Ds"):
@@ -179,8 +185,7 @@ def getMCNames(myconfig):
     MCNames = []
     for y in year:
         for m in magnet:
-            name = "#MC FileName "+dsmode+" "+m+" "+y
-            #name = "#MC FileName DsPi "+m+" "+y
+            name = "#MC FileName "+dsmode+" "+m+" "+y+hypo
             MCNames.append(TString(name))
 
     return MCNames
@@ -260,10 +265,14 @@ def getSignalNames(myconfig):
     Dmodes = myconfig["CharmModes"]
     year = myconfig["YearOfDataTaking"]
 
+    hypo = ""
+    if "Hypothesis" in myconfig.keys():
+        hypo = " "+myconfig["Hypothesis"]+"Hypo"
+    
     signalNames = []
     for y in year:
         for dmode in Dmodes:
-            name = "#Signal "+decay+" "+dmode+" "+y
+            name = "#Signal "+decay+" "+dmode+" "+y+hypo
             signalNames.append(TString(name))
         
     return signalNames

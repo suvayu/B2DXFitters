@@ -76,6 +76,7 @@ def printPDFTermsOnDataSet(dataset, terms = []):
     calculation goes wrong (inside user C++ code, or because of invalid
     entries in the data sample).
     """
+    import ROOT
     print 72 * '#'
     print 'DEBUG: DUMPING TERMS FOR EACH ENTRY IN DATASET'
     print 72 * '#'
@@ -189,3 +190,43 @@ def configDictFromFile(name):
     lines = file(name, 'r').readlines()
     return configDictFromString(''.join(lines), name)
 
+def PytoTreeLeaves(type):
+        """
+        convert python datatype to TTree ROOT datatype
+        """
+
+        typecode = None
+        if type == 'h':
+            typecode = 'S'
+        elif type == 'i':
+            typecode = 'I'
+        elif type == 'f':
+            typecode = 'F'
+        elif type == 'd':
+            typecode = 'D'
+        else:
+            print "utils.PytoTreeLeaves(...) ==> ERROR: Python typecode " + type + " is not handled"
+            exit(-1)
+            
+        return typecode
+
+
+def TreeLeavesToPy(type):
+        """
+        convert python datatype to TTree ROOT datatype
+        """
+        
+        typecode = None
+        if type == 'S':
+            typecode = 'h'
+        elif type == 'I':
+            typecode = 'i'
+        elif type == 'F':
+            typecode = 'f'
+        elif type == 'D':
+            typecode = 'd'
+        else:
+            print "utils.TreeLeavesToPy(...) ==> ERROR: TTree type " + type + " is not handled"
+            exit(0)
+            
+        return typecode
