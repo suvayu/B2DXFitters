@@ -11,7 +11,16 @@
     },
 
     'IsData': False,
-    'Blinding': False,
+    'Blinding': True,
 
-    'constParams' : []
+    # 40 fs average resolution
+    'DecayTimeResolutionModel':  { 'sigmas': [ 0.040, ], 'fractions': [] },
+    'DecayTimeResolutionBias': 0., # if there is a shift
+    'DecayTimeResolutionScaleFactor': 1.0, # usually the errors need a bit of scaling
+
+    'AcceptanceFunction': None,
+
+    'constParams': [
+        '.*_scalefactor', # anything ending in '_scalefactor'...
+        ],
 }
