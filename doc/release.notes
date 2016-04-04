@@ -4,6 +4,21 @@
 ! Purpose     : RooFit-based fitters for B -> D X
 !-----------------------------------------------------------------------------
 
+! 2016-04-03 - Vincenzo Battista
+ - Mass hypothesis handling included in prepareWorkspace. MassFitUtils, GeneralUtils, 
+   MCBackground, Bs2Dsh2011TDAnaModels modified accordingly.
+ - RooJohnsonSU model included. Some models defined in Bd2DhModels.
+ - Utilities for batch job submission of toy generation, mass and time fit included.
+ - "CreatePullTree" function added to FitResultGrabberUtils. For any mass/time fit to
+   a toy, this function create a tuple with pulls for all the floating variables in
+   the fit. 
+ - "DrawPullsForToys" script included. It can be used for any kind of fit, and it relies
+   on tuples created by CreatePullTree. 
+ - "ChangeMassHypothesis" script included. This script can update the mass hypo of any 
+   particle in a B -> DX like decay, for an arbitrary number of D, D daughters and X.
+ - Included Bd2DPi config files.
+ - Other minor updates.
+
 ! 2016-03-31 - Agnieszka Dziurda
  - new shape: exponential + double Crystal Ball
  - fix bug in observables
