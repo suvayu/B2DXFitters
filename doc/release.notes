@@ -4,6 +4,9 @@
 ! Purpose     : RooFit-based fitters for B -> D X
 !-----------------------------------------------------------------------------
 
+! 2016-04-05 - Vincenzo Battista
+ - Remove obsolete scripts plotBd2DPiMassFit.py and plotBd2DPiTimeFit.py
+
 ! 2016-04-03 - Vincenzo Battista
  - Mass hypothesis handling included in prepareWorkspace. MassFitUtils, GeneralUtils, 
    MCBackground, Bs2Dsh2011TDAnaModels modified accordingly.
