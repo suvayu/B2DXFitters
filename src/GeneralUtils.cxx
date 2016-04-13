@@ -1314,7 +1314,6 @@ namespace GeneralUtils {
     std::vector <Int_t> nEntries;
     RooDataSet* combData = NULL;
     TString dataName = "combData";
-
     
     std::vector <TString> s;
     std::vector <TString> m;
@@ -1326,7 +1325,6 @@ namespace GeneralUtils {
     y = GetYear(year, debug );
     h = GetHypo(hypo, debug);
     sm = GetSampleModeYearHypo(sample, mode, year, hypo, "", debug);
-    
     
     for (unsigned int i=0; i<sm.size(); i++ )
     {
@@ -1454,7 +1452,7 @@ namespace GeneralUtils {
       for (unsigned int i=0; i<sm.size(); i++ )
       {
         sam.defineType(sm[i].Data());
-        std::cout<<"[INFO] Sample mode year: "<<sm[i]<<std::endl; 
+        std::cout<<"[INFO] Sample mode year hypo: "<<sm[i]<<std::endl; 
       }
       //const RooArgSet* obs2 = data[0]->get();
       combData = new RooDataSet(dataName.Data(),dataName.Data(),*obs, RooFit::Index(sam), RooFit::Import(sm[0].Data(),*data[0]));
@@ -1655,7 +1653,8 @@ namespace GeneralUtils {
   std::vector <TString>  GetHypo(TString& hypo, bool debug )
   {
     std::vector <TString> h;
-    h.push_back(hypo+TString("Hypo"));
+    if(hypo != ""){ h.push_back(hypo+TString("Hypo")); }
+    else{ h.push_back(TString("")); }
 
     return h;
   }  
@@ -2020,13 +2019,13 @@ namespace GeneralUtils {
              ( mode.Contains("Ds") != true || mode.Contains("ds") == true )) {Ds = "D";}
     else { Ds ="bkg";}
 
-    if ( mode.Contains("Pi") == true || mode.Contains("pi") == true ) { Bach = "#pi"; }
-    else if( (mode.Contains("p") == true || mode.Contains("P") == true ) && (mode.Contains("pi") == true || mode.Contains("Pi") == true )) 
+    if ( mode.Contains("Pi_") == true || mode.Contains("pi_") == true ) { Bach = "#pi"; }
+    else if( (mode.Contains("p_") == true || mode.Contains("P_") == true ) && (mode.Contains("pi_") == true || mode.Contains("Pi_") == true )) 
     {Bach = "p";}
-    else if( (mode.Contains("K") == true || mode.Contains("k") == true )&& (mode.Contains("Kst")!=true || mode.Contains("kst") != true) ) 
+    else if( (mode.Contains("K_") == true || mode.Contains("k_") == true )&& (mode.Contains("Kst_")!=true || mode.Contains("kst_") != true) ) 
     {Bach = "K";}
-    else if( ( mode.Contains("Kst") == true || mode.Contains("kst") == true ) ) {Bach ="K^{*}";}
-    else if( mode.Contains("Rho") == true || mode.Contains("rho") == true ) {Bach = "#rho";}
+    else if( ( mode.Contains("Kst_") == true || mode.Contains("kst_") == true ) ) {Bach ="K^{*}";}
+    else if( mode.Contains("Rho_") == true || mode.Contains("rho_") == true ) {Bach = "#rho";}
     else { Bach ="";}
 
     if ( DsState.Contains("kkpi") == true ) { DsStateTex = Ds+ar+" KK#pi"; }

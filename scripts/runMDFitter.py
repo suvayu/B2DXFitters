@@ -147,7 +147,7 @@ def getTotalBkgPDF(myconfigfile, beautyMass, charmMass, workspace, workInt, merg
     return bkgPDF
     
 #------------------------------------------------------------------------------
-def runMDFitter( debug, sample, mode, sweight,  
+def runMDFitter( debug, sample, mode, hypo, sweight,  
                  fileNameAll, fileNameToys, workName, sweightName,
                  configName, wider, merge, dim, fileDataName, year, binned) :
 
@@ -251,10 +251,10 @@ def runMDFitter( debug, sample, mode, sweight,
                               RooFit.Import(sm[0].Data(),data[0]))
     else:
         
-        combData =  GeneralUtils.GetDataSet(workData, observables, sam, datasetTS, sampleTS, modeTS, yearTS, merge, debug )
+        combData =  GeneralUtils.GetDataSet(workData, observables, sam, datasetTS, sampleTS, modeTS, yearTS, TString(""), merge, debug )
         combData.Print("v")
 
-        sm = GeneralUtils.GetSampleModeYear(sampleTS, modeTS, yearTS, merge, debug )
+        sm = GeneralUtils.GetSampleModeYearHypo(sampleTS, modeTS, yearTS, TString(""), merge, debug )
         s = GeneralUtils.GetSample(sampleTS, debug)
         m = GeneralUtils.GetMode(modeTS,debug)
         y = GeneralUtils.GetYear(yearTS,debug)
@@ -516,6 +516,7 @@ parser.add_option( '-m', '--mode',
                    default = 'kkpi',
                    help = 'Mode: choose all, kkpi, kpipi, pipipi, nonres, kstk, phipi, 3modeskkpi'
                    )
+
 parser.add_option( '-w', '--sweight',
                    dest = 'sweight',
                    action = 'store_true',

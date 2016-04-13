@@ -6,6 +6,8 @@
 
 ! 2016-04-13 - Vincenzo Battista
  - Adding "RooJohnsonSU.h" in include files
+ - Temporary fix for GetDataSet and GetSampleModeYearHypo 
+   inside runMDFitter (neglect hypo handling)
 
 ! 2016-04-05 - Vincenzo Battista
  - Remove obsolete scripts plotBd2DPiMassFit.py and plotBd2DPiTimeFit.py
