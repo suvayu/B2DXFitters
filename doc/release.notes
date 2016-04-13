@@ -4,6 +4,9 @@
 ! Purpose     : RooFit-based fitters for B -> D X
 !-----------------------------------------------------------------------------
 
+! 2016-04-13 - Vincenzo Battista
+ - Adding "RooJohnsonSU.h" in include files
+
 ! 2016-04-05 - Vincenzo Battista
  - Remove obsolete scripts plotBd2DPiMassFit.py and plotBd2DPiTimeFit.py
 
