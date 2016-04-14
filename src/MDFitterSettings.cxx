@@ -1256,9 +1256,10 @@ RooArgSet* MDFitterSettings::GetObsSet(bool inName, bool regular, bool id, bool 
     {
       for(int i = 0; i<this->GetNumAddVar(); i++)
 	{
+	   
 	  TString name = "";
-	  if ( inName == true ) { name = this->GetAddVarName(i); }
-	  else { this->GetAddVarOutName(i); }
+	  if ( inName == true ) { name = _addVarNames[i]; }
+	  else { name = _addVarNamesOut[i]; } 
 	  addVar.push_back(this->GetObs(name,inName));
 	  obs->add(*addVar[i]); 
 	}

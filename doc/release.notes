@@ -4,6 +4,9 @@
 ! Purpose     : RooFit-based fitters for B -> D X
 !-----------------------------------------------------------------------------
 
+! 2016-04-14 - Agnieszka Dziurda
+ - bugfix for Additional parameters
+
 ! 2016-04-14 Vincenzo Battista
  - Small bugfix in runMDFitter and GeneralUtils
 
