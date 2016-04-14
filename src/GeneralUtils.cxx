@@ -1580,7 +1580,7 @@ namespace GeneralUtils {
           for(unsigned int l=0; l<h.size(); l++ )
           {
             if(h[l] != "") {smyh.push_back(s[j]+"_"+m[i]+"_"+y1+"_"+h[l]);}
-            else {smyh.push_back(s[j]+"_"+m[i]+"_"+y1+"_"+h[l]);}
+            else {smyh.push_back(s[j]+"_"+m[i]+"_"+y1);}
             if ( debug == true ) { std::cout<<"[INFO] Sample mode year hypo: "<<smyh[smyh.size()-1]<<std::endl;}
           } 
         }
@@ -1595,8 +1595,8 @@ namespace GeneralUtils {
       {
         for(unsigned int l=0; l<h.size(); l++ )
         { 
-          if(h[l] != "") {smyh.push_back(s1+"_"+m[i]+"_"+y1);}
-          else {smyh.push_back(s1+"_"+m[i]+"_"+y1+"_"+h[l]);}
+          if(h[l] != "") {smyh.push_back(s1+"_"+m[i]+"_"+y1+"_"+h[l]);}
+          else {smyh.push_back(s1+"_"+m[i]+"_"+y1);}
           if ( debug == true ) { std::cout<<"[INFO] Sample mode year hypo: "<<smyh[smyh.size()-1]<<std::endl;}
         }   
       }
