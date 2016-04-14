@@ -147,7 +147,7 @@ def getTotalBkgPDF(myconfigfile, beautyMass, charmMass, workspace, workInt, merg
     return bkgPDF
     
 #------------------------------------------------------------------------------
-def runMDFitter( debug, sample, mode, hypo, sweight,  
+def runMDFitter( debug, sample, mode, sweight,  
                  fileNameAll, fileNameToys, workName, sweightName,
                  configName, wider, merge, dim, fileDataName, year, binned) :
 

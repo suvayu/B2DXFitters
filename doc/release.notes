@@ -4,6 +4,9 @@
 ! Purpose     : RooFit-based fitters for B -> D X
 !-----------------------------------------------------------------------------
 
+! 2016-04-14 Vincenzo Battista
+ - Small bugfix in runMDFitter
+
 ! 2016-04-13 - Vincenzo Battista
  - Adding "RooJohnsonSU.h" in include files
  - Temporary fix for GetDataSet and GetSampleModeYearHypo 
