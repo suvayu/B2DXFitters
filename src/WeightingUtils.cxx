@@ -363,7 +363,7 @@ namespace WeightingUtils {
 
     RooDataSet*  dataMC = GetDataSet(work,name,debug);
     RooDataSet*  dataMCNW = GetDataSet(work,name,debug);
-    if ( label1.Contains("MC") == true )
+    if ( label1.Contains("MC") == true && dataMC->isWeighted() == false)
       { dataMC = new RooDataSet(dataMC->GetName(), dataMC->GetTitle(), *(dataMC->get()), RooFit::Import(*dataMC), RooFit::WeightVar("weights"));}
 
 
@@ -923,7 +923,7 @@ namespace WeightingUtils {
 	      }
 
 	    RooDataSet*  data = GetDataSet(work,name,debug);
-	    if ( type.Contains("MC") == true ) 
+	    if ( type.Contains("MC") == true && data->isWeighted() == false) 
 	      { data = new RooDataSet(data->GetName(), data->GetTitle(), *(data->get()), RooFit::Import(*data), RooFit::WeightVar("weights"));}
 	    
 	    double scaleA = dataCalib->sumEntries()/data->sumEntries();
@@ -1449,7 +1449,8 @@ namespace WeightingUtils {
       }
 
     //if ( type.Contains("MC") == true )
-    data = new RooDataSet(data->GetName(), data->GetTitle(), *(data->get()), RooFit::Import(*data), RooFit::WeightVar("weights"));
+    if ( data->isWeighted() == false )
+      { data = new RooDataSet(data->GetName(), data->GetTitle(), *(data->get()), RooFit::Import(*data), RooFit::WeightVar("weights")); }
 
     double scaleA = dataCalib->sumEntries()/data->sumEntries();
     if ( debug )
