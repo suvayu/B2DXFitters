@@ -363,8 +363,11 @@ namespace WeightingUtils {
 
     RooDataSet*  dataMC = GetDataSet(work,name,debug);
     RooDataSet*  dataMCNW = GetDataSet(work,name,debug);
-    if ( label1.Contains("MC") == true && dataMC->isWeighted() == false)
-      { dataMC = new RooDataSet(dataMC->GetName(), dataMC->GetTitle(), *(dataMC->get()), RooFit::Import(*dataMC), RooFit::WeightVar("weights"));}
+    if ( label1.Contains("MC") == true && dataMC->isWeighted() == false )
+      { 
+	if (debug == true ) { std::cout<<"[INFO] Data sample: "<<dataMC->GetTitle()<<" not weighted, apply weights"<<std::endl; } 
+	dataMC = new RooDataSet(dataMC->GetName(), dataMC->GetTitle(), *(dataMC->get()), RooFit::Import(*dataMC), RooFit::WeightVar("weights"));
+      }
 
 
     double scaleA = dataCalib->sumEntries()/dataMC->sumEntries();
@@ -925,6 +928,7 @@ namespace WeightingUtils {
 	    RooDataSet*  data = GetDataSet(work,name,debug);
 	    if ( type.Contains("MC") == true && data->isWeighted() == false) 
 	      { data = new RooDataSet(data->GetName(), data->GetTitle(), *(data->get()), RooFit::Import(*data), RooFit::WeightVar("weights"));}
+	    //else {data = new RooDataSet(data->GetName(), data->GetTitle(), *(data->get()), RooFit::Import(*data)); }
 	    
 	    double scaleA = dataCalib->sumEntries()/data->sumEntries();
 	    
@@ -965,7 +969,7 @@ namespace WeightingUtils {
 	    //Save2DHist(hist2Ratio[sizehist-1], ext);
 	    work->import(*hist2Ratio[sizehist-1]);
 	    work->import(*hist2Data[sizehist-1]);
-	    delete data;
+	    //delete data;
 	  }
       }
 
@@ -1450,8 +1454,10 @@ namespace WeightingUtils {
 
     //if ( type.Contains("MC") == true )
     if ( data->isWeighted() == false )
-      { data = new RooDataSet(data->GetName(), data->GetTitle(), *(data->get()), RooFit::Import(*data), RooFit::WeightVar("weights")); }
-
+      {
+	if ( debug == true ) { std::cout<<"[INFO] Data sample: "<<data->GetTitle()<<" not weighted, apply weights: "<<std::endl; } 
+	data = new RooDataSet(data->GetName(), data->GetTitle(), *(data->get()), RooFit::Import(*data), RooFit::WeightVar("weights"));
+      }
     double scaleA = dataCalib->sumEntries()/data->sumEntries();
     if ( debug )
       {
