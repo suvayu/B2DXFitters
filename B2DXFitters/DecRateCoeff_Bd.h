@@ -1,3 +1,15 @@
+/*!
+ * \brief     cosh/sinh/cos/sin coefficients in decay rate equations
+ * \author    Alex Birnkraut, Christophe Cauet, Frank Meier, Julian Wishahi
+ * \date      2016-04-22
+ *
+ * This class calculates the coefficients which go in front of the
+ * cosh/sinh/cos/sin terms in the decay rate equations (RooBDecay). By forming
+ * a suitable sum over the true initial state flavour inside the class
+ * implementation, it is possible to treat production, detection and tagging
+ * efficiency asymmetries from first principles.
+ * The class was developed based on the idea of Manuel Schiller.
+ */
 #ifndef DECRATECOEFF_BD
 #define DECRATECOEFF_BD
 
