@@ -34,6 +34,25 @@ namespace Bd2DhModels {
 					Int_t dim,
 					bool debug = true
 					);
+
+  RooAbsPdf* buildJohnsonSUPDF( RooAbsReal& obs,
+                                RooWorkspace* workInt,
+                                TString samplemode,
+                                TString typemode,
+                                bool debug = true);
+  
+  RooAbsPdf* buildJohnsonSUPlusGaussianPDF( RooAbsReal& obs,
+                                            RooWorkspace* workInt,
+                                            TString samplemode,
+                                            TString typemode,
+                                            bool debug = true);
+  
+  RooAbsPdf* buildJohnsonSUPlus2GaussianPDF( RooAbsReal& obs,
+                                             RooWorkspace* workInt,
+                                             TString samplemode,
+                                             TString typemode,
+                                             bool sameMean,
+                                             bool debug);
   
 } // end of namespace
 

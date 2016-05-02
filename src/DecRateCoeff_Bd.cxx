@@ -1,6 +1,7 @@
 #include "Riostream.h"
 
-#include "DecRateCoeff_Bd.h"
+#include "B2DXFitters/DecRateCoeff_Bd.h"
+
 #include "RooAbsReal.h"
 #include "RooAbsCategory.h"
 #include "RooCategory.h"

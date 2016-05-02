@@ -65,6 +65,7 @@ template class std::pair<std::string,RooAbsData*>;
 #include "B2DXFitters/RooBinned1DQuinticBase.h"
 
 #include "B2DXFitters/DecRateCoeff.h"
+#include "B2DXFitters/DecRateCoeff_Bd.h"
 
 #include "B2DXFitters/RooAbsGaussModelEfficiency.h"
 #include "B2DXFitters/RooCubicSplineKnot.h"

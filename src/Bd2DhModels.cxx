@@ -180,12 +180,12 @@ namespace Bd2DhModels {
     RooJohnsonSU *pdf2 = NULL;
     TString pdf2Name = typemode+"_"+varName+"_johnsonSU_"+samplemode;
     pdf1 = new RooGaussian( pdf1Name.Data(), pdf1Name.Data(), obs, *meanG, *sigmaGVar);
-    pdf2 = new RooJohnsonSU( pdf1Name.Data(), pdf1Name.Data(), obs, *meanJ, *sigmaJVar, *nuJVar, *tauJVar);
+    pdf2 = new RooJohnsonSU( pdf2Name.Data(), pdf2Name.Data(), obs, *meanJ, *sigmaJVar, *nuJVar, *tauJVar);
     
     TString pdfName = typemode+"_"+varName+"_JohnsonSUPlusGaussian_"+samplemode;
     pdf = new RooAddPdf( pdfName.Data(), pdfName.Data(), *pdf1, *pdf2, *fracVar);
     CheckPDF( pdf, debug );
-
+    
     return pdf;
   }
   
@@ -254,13 +254,13 @@ namespace Bd2DhModels {
     pdf1 = new RooGaussian( pdf1Name.Data(), pdf1Name.Data(), obs, *meanG1, *sigma1GVar);
     if(sameMean)
     {
-      pdf2 = new RooGaussian( pdf1Name.Data(), pdf1Name.Data(), obs, *meanG1, *sigma1GVar);
+      pdf2 = new RooGaussian( pdf2Name.Data(), pdf2Name.Data(), obs, *meanG1, *sigma2GVar);
     }
     else
     {
-      pdf2 = new RooGaussian( pdf1Name.Data(), pdf1Name.Data(), obs, *meanG1, *sigma2GVar);
+      pdf2 = new RooGaussian( pdf2Name.Data(), pdf2Name.Data(), obs, *meanG2, *sigma2GVar);
     }
-    pdf3 = new RooJohnsonSU( pdf1Name.Data(), pdf1Name.Data(), obs, *meanJ, *sigmaJVar, *nuJVar, *tauJVar);
+    pdf3 = new RooJohnsonSU( pdf3Name.Data(), pdf3Name.Data(), obs, *meanJ, *sigmaJVar, *nuJVar, *tauJVar);
     CheckPDF( pdf1, debug );
     CheckPDF( pdf2, debug );
     CheckPDF( pdf3, debug );
