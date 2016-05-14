@@ -4,6 +4,11 @@
 ! Purpose     : RooFit-based fitters for B -> D X
 !-----------------------------------------------------------------------------
 
+! 2016-05-14 - Agnieszka Dziurda
+ - sFit update: use one tagger
+ - new config files for fitting splines 
+ - update other config files 
+
 ! 2016-05-02 - Vincenzo Battista
  - Including DecRateCoeff_Bd in B2DXFittersDict and
    setting #include "B2DXFitters/DecRateCoeff_Bd.h"
