@@ -256,7 +256,7 @@ std::ostream & operator<< (std::ostream &out, const MDFitterSettings &s)
       out<<"Tagging calibration:"<<std::endl;
       for( unsigned int i = 0; i < s._tagVarNames.size(); i++ )
         {
-          out<<"p0: "<<s._p0[i]<<", p1: "<<s._p1[i]<<", average: "<<s._av[i]<<std::endl;
+          out<<"\t "<<s._matchTag[i]<<": p0: "<<s._p0[i]<<", p1: "<<s._p1[i]<<", average: "<<s._av[i]<<" use: "<<s._useTag[i]<<std::endl;
         }
     }
 
@@ -1631,4 +1631,108 @@ TString MDFitterSettings::GetLabelDataMC(TString year)
       std::cout<<"[ERROR] Label for DataMC difference not found! Please check year: "<<year<<std::endl;
     }
   return l; 
+}
+
+
+void MDFitterSettings::CorrectTagging()
+{
+  Int_t size1 = _useTag.size();
+  Int_t size2 = this->GetNumTagVar();
+  if ( size1 != size2 )
+    {
+     for(int i =0; i<size2; i++)
+	{
+	  _useTag[i] = _useTag[i+size2]; 
+	}
+    }
+    
+}
+
+TString MDFitterSettings::CheckTagger(TString name)
+{
+  if (name.Contains("OS") ) { return "OS"; }
+  else if (name.Contains("SSK")) { return "SSK";}
+  else if (name.Contains("SSp")) { return "SSp";}
+  else if (name.Contains("SS")) { return "SS";} 
+  else { return "Unknown";} 
+}
+
+
+void MDFitterSettings::SetCalibration(TString match, Double_t p0, Double_t p1, Double_t av, Bool_t use)
+{
+  for ( int i = 0; i < this->GetNumTagVar(); i++ )
+    {
+      if ( _matchTag[i]  == match )
+	{
+	  _p0[i] = p0;
+	  _p1[i] = p1; 
+	  _av[i] = av;
+	  _useTag[i] = use; 
+	}
+    }
+
+  
+}
+
+Int_t MDFitterSettings::CheckNumUsedTag()
+{
+  Int_t num=0;
+  for (int i = 0; i < _useTag.size(); i ++ )
+    {
+      if ( _useTag[i] == 1) { num++; }
+    }
+  return num; 
+}
+
+Double_t MDFitterSettings::GetCalibp0(TString match)
+{
+  Double_t val =0.0;
+  for(int i = 0; i < this->GetNumTagVar(); i++)
+    {
+      if ( match == _matchTag[i] )
+	{
+          val = _p0[i]; 
+	}
+    }
+  return val; 
+}
+
+Double_t MDFitterSettings::GetCalibp1(TString match)
+{
+  Double_t val =0.0;
+  for(int i = 0; i < this->GetNumTagVar(); i++)
+    {
+      if ( match == _matchTag[i] )
+	{
+          val = _p1[i];
+        }
+    }
+  return val;
+}
+
+Double_t MDFitterSettings::GetCalibAv(TString match)
+{
+  Double_t val =0.0;
+  for(int i = 0; i < this->GetNumTagVar(); i++)
+    {
+      if ( match == _matchTag[i] )
+	{
+          val = _p0[i];
+        }
+    }
+  return val;
+}
+
+std::vector <TString> MDFitterSettings::CheckTaggerList()
+{
+  std::vector <TString> tagList; 
+  for(int i = 0; i < this->GetNumTagVar(); i++)
+    {
+      if ( _useTag[i] == true )
+        {
+          tagList.push_back(_matchTag[i]);
+        }
+    }
+  return tagList; 
+
 }

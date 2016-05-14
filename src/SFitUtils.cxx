@@ -106,25 +106,34 @@ namespace SFitUtils {
                                                mdSet->GetTimeRangeDown(),                 mdSet->GetTimeRangeUp());
     RooRealVar* lab0_TAUERR   = new RooRealVar(mdSet->GetTerrVarOutName(),                mdSet->GetTerrVarOutName(),
                                                mdSet->GetTerrRangeDown(),                 mdSet->GetTerrRangeUp());
-    
+    RooRealVar* lab0_TAUERR_calib   = new RooRealVar("terr_scaled", "terr_scaled", 0.01, 0.15);
+
     std::vector <RooCategory*> lab0_TAG;
 
     if (toys == false )
     {
+      if (debug) {std::cout<<"[INFO] Number of all taggers: "<<mdSet->GetNumTagVar()<<", number of used taggers: "<<mdSet->CheckNumUsedTag()<<std::endl;  }
+
       if( mdSet->CheckTagVar() == true )
       {
         if( mdSet->CheckTagVar() == true )
         {
           for(int i = 0; i<mdSet->GetNumTagVar(); i++)
           {
-            lab0_TAG.push_back(new RooCategory(mdSet->GetTagVarOutName(i), "flavour tagging result"));
-            TString BName = Form("B_%d",i);
-            TString BbarName = Form("Bbar_%d",i);
-            TString UnName = Form("Utagged_%d",i);
-            lab0_TAG[i]->defineType(BName.Data(),     1);
-            lab0_TAG[i]->defineType(BbarName.Data(), -1);
-            lab0_TAG[i]->defineType(UnName.Data(),    0);
-            
+	    std::cout<<" i: "<<i<<" name: "<<mdSet->GetTagVarOutName(i)<<std::endl; 
+	    if ( mdSet->CheckUseTag(i) == true ) 
+	      {
+		std::cout<<"[INFO] Use tagger "<<i<<": "<<mdSet->CheckUseTag(i)<<std::endl; 
+		
+		lab0_TAG.push_back(new RooCategory(mdSet->GetTagVarOutName(i), "flavour tagging result"));
+		Int_t sizeTag = lab0_TAG.size();
+		TString BName = Form("B_%d",sizeTag-1);
+		TString BbarName = Form("Bbar_%d",sizeTag-1);
+		TString UnName = Form("Utagged_%d",sizeTag-1);  
+		lab0_TAG[sizeTag-1]->defineType(BName.Data(),     1);
+		lab0_TAG[sizeTag-1]->defineType(BbarName.Data(), -1);
+		lab0_TAG[sizeTag-1]->defineType(UnName.Data(),    0);
+	      }
           }
         }
       }
@@ -150,7 +159,10 @@ namespace SFitUtils {
       {
         for(int i = 0; i<mdSet->GetNumTagOmegaVar(); i++)
 	      {
-          lab0_TAGOMEGA.push_back(mdSet->GetObs(mdSet->GetTagOmegaVarOutName(i)));
+		if ( mdSet->CheckUseTag(i) == true )
+		  {
+		    lab0_TAGOMEGA.push_back(mdSet->GetObs(mdSet->GetTagOmegaVarOutName(i)));
+		  }
 	      }
       }
     }
@@ -175,6 +187,7 @@ namespace SFitUtils {
 
     RooArgSet* obs = new RooArgSet(*lab0_TAU,
                                    *lab0_TAUERR,
+				   *lab0_TAUERR_calib,
                                    *qf);
     if ( debug )
     {
@@ -186,19 +199,19 @@ namespace SFitUtils {
     {
       if( mdSet->CheckTagVar() == true )
       {
-        for(int i = 0; i<mdSet->GetNumTagVar(); i++)
-	      {
-          obs->add(*lab0_TAG[i]);
-          std::cout<<"[INFO] Variable "<<lab0_TAG[i]->GetName()<<" in data set."<<std::endl;
-	      }
+        for(int i = 0; i<mdSet->CheckNumUsedTag(); i++)
+	  {
+	    obs->add(*lab0_TAG[i]);
+	    std::cout<<"[INFO] Variable "<<lab0_TAG[i]->GetName()<<" in data set."<<std::endl; 
+	  }
       }
       if( mdSet->CheckTagOmegaVar() == true )
       {
-        for(int i = 0; i<mdSet->GetNumTagOmegaVar(); i++)
-	      {
-          obs->add(*lab0_TAGOMEGA[i]);
-          std::cout<<"[INFO] Variable "<<lab0_TAGOMEGA[i]->GetName()<<" in data set."<<std::endl;
-	      }
+        for(int i = 0; i<mdSet->CheckNumUsedTag(); i++)
+	  {
+	    obs->add(*lab0_TAGOMEGA[i]);
+	    std::cout<<"[INFO] Variable "<<lab0_TAGOMEGA[i]->GetName()<<" in data set."<<std::endl;
+	  }
       }
     }
     else
@@ -351,6 +364,7 @@ namespace SFitUtils {
 
       lab0_TAU->setVal(m);
       lab0_TAUERR->setVal(merr);
+      lab0_TAUERR_calib->setVal(1.37*merr); 
       //if (tagweight > 0.5) tagweight = 0.5;
       //lab0_TAGOMEGA->setVal(tagweight);
       
@@ -372,7 +386,7 @@ namespace SFitUtils {
       {
         if(  mdSet->CheckTagVar() == true )
         {
-          for(int k = 0; k<mdSet->GetNumTagVar(); k++)
+          for(int k = 0; k<mdSet->CheckNumUsedTag(); k++)
           {
             if( tag[k] > 0.1 ) {   tag[k] = 1; tagEff[k] += sum_sw; }
             else if ( tag[k] < -0.1 ) { tag[k] = -1; tagEff[k] += sum_sw; }
@@ -383,7 +397,7 @@ namespace SFitUtils {
         }
         if(  mdSet->CheckTagOmegaVar() == true )
         {
-          for(int k = 0; k<mdSet->GetNumTagOmegaVar(); k++)
+          for(int k = 0; k<mdSet->CheckNumUsedTag(); k++)
           {
             if (omega[k] > 0.5){ omega[k] = 0.5;}
             lab0_TAGOMEGA[k]->setVal(omega[k]);
@@ -433,8 +447,8 @@ namespace SFitUtils {
       RooArgList* tagList= new RooArgList();
       RooArgList* tagOmegaList = new RooArgList();
       
-      Int_t tagNum = mdSet->GetNumTagVar();
-      Int_t mistagNum = mdSet->GetNumTagOmegaVar();
+      Int_t tagNum = mdSet->CheckNumUsedTag();
+      Int_t mistagNum = mdSet->CheckNumUsedTag();
       
       if (tagNum != mistagNum)
       {
@@ -447,7 +461,7 @@ namespace SFitUtils {
       }
       if(  mdSet->CheckTagVar() == true )
       {
-        for(int k = 0; k<mdSet->GetNumTagVar(); k++)
+        for(int k = 0; k<mdSet->CheckNumUsedTag(); k++)
 	      {
           tagList->add(*lab0_TAG[k]);
 	      }
@@ -460,19 +474,22 @@ namespace SFitUtils {
 	
       if(  mdSet->CheckTagOmegaVar() == true )
       {
-        for(int k = 0; k<mdSet->GetNumTagOmegaVar(); k++)
-	      {
-          std::cout<<"[INF0] Calibration: p0="<<mdSet->GetCalibp0(k)<<" p1: "<<mdSet->GetCalibp1(k)<<" av: "<<mdSet->GetCalibAv(k)<<std::endl;
-          p0[k] = new RooRealVar(Form("p0_%d",k),Form("p0_%d",k),mdSet->GetCalibp0(k));
-          p1[k] = new RooRealVar(Form("p1_%d",k),Form("p1_%d",k),mdSet->GetCalibp1(k));
-          av[k] = new RooRealVar(Form("av_%d",k),Form("av_%d",k),mdSet->GetCalibAv(k));
-          TString nameCalib = mdSet->GetTagOmegaVarOutName(k)+"_calib";
-          calibMistag[k] = new MistagCalibration(nameCalib.Data(), nameCalib.Data(),
-                                                 *lab0_TAGOMEGA[k], *p0[k], *p1[k], *av[k]);
-          dataSet->addColumn(*calibMistag[k]);
-          tagOmegaList->add(*calibMistag[k]);
-          if ( debug ) { std::cout<<"[INFO] Variable "<<nameCalib<<" in data set."<<std::endl; }
-	      }
+        for(int k = 0; k<mdSet->CheckNumUsedTag(); k++)
+	  {
+	    
+	    TString match = mdSet->CheckTagger(lab0_TAG[k]->GetName());
+	    std::cout<<"[INF0] Calibration for "<<match<<": p0="<<mdSet->GetCalibp0(match)<<" p1: "<<mdSet->GetCalibp1(match)<<" av: "<<mdSet->GetCalibAv(match)<<std::endl;
+	    p0[k] = new RooRealVar(Form("p0_%d",k),Form("p0_%d",k),mdSet->GetCalibp0(match));
+	    p1[k] = new RooRealVar(Form("p1_%d",k),Form("p1_%d",k),mdSet->GetCalibp1(match));
+	    av[k] = new RooRealVar(Form("av_%d",k),Form("av_%d",k),mdSet->GetCalibAv(match));
+	    TString namepre = lab0_TAGOMEGA[k]->GetName();
+	    TString nameCalib = namepre+"_calib";
+	    calibMistag[k] = new MistagCalibration(nameCalib.Data(), nameCalib.Data(),
+						   *lab0_TAGOMEGA[k], *p0[k], *p1[k], *av[k]);
+	    dataSet->addColumn(*calibMistag[k]);
+	    tagOmegaList->add(*calibMistag[k]);
+	    if ( debug ) { std::cout<<"[INFO] Variable "<<nameCalib<<" in data set."<<std::endl; }
+	  }
       }
       
       DLLTagCombiner* combiner = new DLLTagCombiner("tagCombiner","tagCombiner",*tagList,*tagOmegaList);
@@ -506,8 +523,8 @@ namespace SFitUtils {
     RooRealVar* mistag = (RooRealVar*)obs->find("tagOmegaComb");
     mistag->setRange(0,0.5);
 
-    Int_t tagNum = mdSet->GetNumTagVar();
-    Int_t mistagNum = mdSet->GetNumTagOmegaVar();
+    Int_t tagNum = mdSet->CheckNumUsedTag();
+    Int_t mistagNum = mdSet->CheckNumUsedTag();
 
     if (tagNum != mistagNum)
     {
