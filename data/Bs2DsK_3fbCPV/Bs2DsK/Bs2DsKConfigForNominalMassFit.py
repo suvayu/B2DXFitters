@@ -18,7 +18,7 @@ def getconfig() :
     configdict["dataName"]   = "../data/Bs2DsK_3fbCPV/Bs2DsK/config_Bs2DsK.txt"
     #settings for control plots 
     configdict["ControlPlots"] = {} 
-    configdict["ControlPlots"] = { "Directory": "PlotBs2DsKDEBUG", "Extension":"pdf"} 
+    configdict["ControlPlots"] = { "Directory": "PlotBs2DsK", "Extension":"pdf"} 
         
     # basic variables
     configdict["BasicVariables"] = {}
@@ -56,9 +56,9 @@ def getconfig() :
     #weighting templates by PID eff/misID
     configdict["WeightingMassTemplates"]= { ###"Variables":["lab4_P","lab3_P"],                                                                                                                      
                                             "PIDBachEff":            { "FileLabel": { "2011":"#PID Kaon 2011", "2012":"#PID Kaon 2012"},
-                                                                       "Var":"lab1_P", "HistName":"MyKaonEff_0"},
-                                            "PIDBachMisID":          { "FileLabel": { "2011":"#PID Kaon 2011", "2012":"#PID Kaon 2012"},
-                                                                       "Var":"lab1_P", "HistName":"MyKaonMisID_0"},
+                                                                       "Var":"lab1_P", "HistName":"MyKaonEff_5"},
+                                            "PIDBachMisID":          { "FileLabel": { "2011":"#PID Pion 2011", "2012":"#PID Pion 2012"},
+                                                                       "Var":"lab1_P", "HistName":"MyPionMisID_5"},
                                             "PIDChildKaonPionMisID": { "FileLabel": { "2011":"#PID Pion 2011", "2012":"#PID Pion 2012"},
                                                                        "Var":"lab3_P", "HistName":"MyPionMisID_0"},
                                             "PIDChildProtonMisID":   { "FileLabel": { "2011":"#PID Proton 2011", "2012":"#PID Proton 2012"},
@@ -122,6 +122,7 @@ def getconfig() :
     configdict["BsSignalShape"]["n1"]      = {"Run1": {"All":6.9185e-01}, "Fixed":True}
     configdict["BsSignalShape"]["n2"]      = {"Run1": {"All":4.4661e+00}, "Fixed":True}
     configdict["BsSignalShape"]["frac"]    = {"Run1": {"All":4.8586e-01}, "Fixed":True}
+    configdict["BsSignalShape"]["R"]       = {"Run1": {"KKPi":1.00,        "KPiPi":1.0,         "PiPiPi":1.0}, "Fixed":False}
 
     #Ds signal shapes                                                                                                
     configdict["DsSignalShape"] = {}
@@ -134,15 +135,16 @@ def getconfig() :
     configdict["DsSignalShape"]["n1"]      = {"Run1": {"KKPi":2.7216e+00,  "KPiPi":6.4536e-01,  "PiPiPi":2.2972e+01}, "Fixed":True}
     configdict["DsSignalShape"]["n2"]      = {"Run1": {"KKPi":1.5657e+00,  "KPiPi":5.3673e-05,  "PiPiPi":7.9997e+01}, "Fixed":True}
     configdict["DsSignalShape"]["frac"]    = {"Run1": {"KKPi":4.8243e-01,  "KPiPi":3.8620e-01,  "PiPiPi":5.3743e-01}, "Fixed":True}
- 
+    configdict["DsSignalShape"]["R"]       = {"Run1": {"KKPi":1.00,        "KPiPi":1.0,         "PiPiPi":1.0}, "Fixed":False}
+
     # combinatorial background                                                                              
     configdict["BsCombinatorialShape"] = {}
     configdict["BsCombinatorialShape"]["type"] = "Exponential"
-    configdict["BsCombinatorialShape"]["cB"]   = {"Run1":{"NonRes":-1.1530e-03,  "PhiPi":-9.2354e-04,  "KstK":-1.3675e-03, "KPiPi":-9.8158e-04, "PiPiPi":-1.0890e-03}, "Fixed":False}
+    configdict["BsCombinatorialShape"]["cB"]   = {"Run1":{"NonRes":-1.1530e-02,  "PhiPi":-9.2354e-03,  "KstK":-1.3675e-02, "KPiPi":-9.8158e-03, "PiPiPi":-1.0890e-03}, "Fixed":False}
 
     configdict["DsCombinatorialShape"] = {}
     configdict["DsCombinatorialShape"]["type"]    = "ExponentialPlusSignal"
-    configdict["DsCombinatorialShape"]["cD"]      = {"Run1": {"NonRes":-4.4329e-03,  "PhiPi":-8.8642e-03,  "KstK":-5.2652e-03, "KPiPi":-1.0743e-03, "PiPiPi":-1.1877e-03}, 
+    configdict["DsCombinatorialShape"]["cD"]      = {"Run1": {"NonRes":-4.4329e-03,  "PhiPi":-8.8642e-03,  "KstK":-5.2652e-03, "KPiPi":-5.0743e-03, "PiPiPi":-5.1877e-03}, 
                                                      "Fixed":False}
     configdict["DsCombinatorialShape"]["fracD"]   = {"Run1": {"NonRes":4.3067e-01,   "PhiPi":6.5400e-01,   "KstK":3.7409e-01,  "KPiPi":0.5,         "PiPiPi":0.5},         
                                                      "Fixed":False}

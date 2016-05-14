@@ -9,7 +9,7 @@ def getconfig() :
     configdict["Decay"] = "Bs2DsPi"
     configdict["CharmModes"] = {"KstK","NonRes","PhiPi","KPiPi","PiPiPi"}
     # year of data taking                                                                                                                          
-    configdict["YearOfDataTaking"] = {"2011", "2012"}
+    configdict["YearOfDataTaking"] = {"2012"}
     # stripping (necessary in case of PIDK shapes)                                                                                              
     configdict["Stripping"] = {"2012":"21", "2011":"21r1"}
     # integrated luminosity in each year of data taking (necessary in case of PIDK shapes)                                                                  
@@ -18,7 +18,7 @@ def getconfig() :
     configdict["dataName"]   = "../data/Bs2DsK_3fbCPV/Bs2DsPi/config_Bs2DsPi.txt"
     #settings for control plots                                                                                                                                                           
     configdict["ControlPlots"] = {}
-    configdict["ControlPlots"] = { "Directory": "PlotBs2DsPi", "Extension":"pdf"}
+    configdict["ControlPlots"] = { "Directory": "PlotBs2DsPiNoLog", "Extension":"pdf"}
 
     # basic variables                                                                                        
     configdict["BasicVariables"] = {}
@@ -27,7 +27,7 @@ def getconfig() :
     configdict["BasicVariables"]["BeautyTime"]    = { "Range" : [0.4,     15.0    ], "InputName" : "lab0_LifetimeFit_ctau"}
     configdict["BasicVariables"]["BacP"]          = { "Range" : [3000.0,  650000.0], "InputName" : "lab1_P"}
     configdict["BasicVariables"]["BacPT"]         = { "Range" : [400.0,   45000.0 ], "InputName" : "lab1_PT"}
-    configdict["BasicVariables"]["BacPIDK"]       = { "Range" : [-7.0,    6.0     ], "InputName" : "lab1_PIDK"}
+    configdict["BasicVariables"]["BacPIDK"]       = { "Range" : [-7.0,    6.0     ], "InputName" : "lab1_PIDK"} #-7.0,6.0
     configdict["BasicVariables"]["nTracks"]       = { "Range" : [15.0,    1000.0  ], "InputName" : "nTracks"}
     configdict["BasicVariables"]["BeautyTimeErr"] = { "Range" : [0.01,    0.1     ], "InputName" : "lab0_LifetimeFit_ctauErr"}
     configdict["BasicVariables"]["BacCharge"]     = { "Range" : [-1000.0, 1000.0  ], "InputName" : "lab1_ID"}
@@ -39,7 +39,7 @@ def getconfig() :
 
     # tagging calibration                                                                                               
     configdict["TaggingCalibration"] = {}
-    configdict["TaggingCalibration"]["OS"] = {"p0": 0.375, "p1": 0.982, "average": 0.3688}
+    configdict["TaggingCalibration"]["OS"] = {"p0": 0.375,  "p1": 0.982, "average": 0.3688}
     configdict["TaggingCalibration"]["SS"] = {"p0": 0.4429, "p1": 0.977, "average": 0.4377}
 
     # additional cuts applied to data sets                                                                                    
@@ -73,8 +73,8 @@ def getconfig() :
     configdict["WeightingMassTemplates"]= { ###"Variables":["lab4_P","lab3_P"], 
                                             "PIDBachEff":            { "FileLabel": { "2011":"#PID Pion 2011", "2012":"#PID Pion 2012"}, 
                                                                        "Var":"lab1_P", "HistName":"MyPionEff_0"},
-                                            "PIDBachMisID":          { "FileLabel": { "2011":"#PID Pion 2011", "2012":"#PID Pion 2012"}, 
-                                                                       "Var":"lab1_P", "HistName":"MyPionMisID_0"},
+                                            "PIDBachMisID":          { "FileLabel": { "2011":"#PID Kaon 2011", "2012":"#PID Kaon 2012"}, 
+                                                                       "Var":"lab1_P", "HistName":"MyKaonMisID_0"},
                                             "PIDChildKaonPionMisID": { "FileLabel": { "2011":"#PID Pion 2011", "2012":"#PID Pion 2012"}, 
                                                                        "Var":"lab3_P", "HistName":"MyPionMisID_0"}, 
                                             "PIDChildProtonMisID":   { "FileLabel": { "2011":"#PID Proton 2011", "2012":"#PID Proton 2012"}, 
@@ -87,35 +87,49 @@ def getconfig() :
     configdict["Calibrations"] = {}
     configdict["Calibrations"]["2011"] = {}
     configdict["Calibrations"]["2011"]["Pion"]   = {}
-    configdict["Calibrations"]["2011"]["Pion"]["Up"]   = {"FileName":"root://eoslhcb.cern.ch//eos/lhcb/user/a/adudziak/Bs2DsK_3fbCPV/CalibrationSamples/Calib_Dst_Up_Pi_PID0_Str20r1.root"}
-    configdict["Calibrations"]["2011"]["Pion"]["Down"] = {"FileName":"root://eoslhcb.cern.ch//eos/lhcb/user/a/adudziak/Bs2DsK_3fbCPV/CalibrationSamples/Calib_Dst_Down_Pi_PID0_Str20r1.root"}
+    configdict["Calibrations"]["2011"]["Pion"]["Up"]   = {"FileName":"root://eoslhcb.cern.ch//eos/lhcb/user/a/adudziak/Bs2DsK_3fbCPV/CalibrationSamples/Calib_Dst_Up_Pi_PID0_Str21r1.root"}
+    configdict["Calibrations"]["2011"]["Pion"]["Down"] = {"FileName":"root://eoslhcb.cern.ch//eos/lhcb/user/a/adudziak/Bs2DsK_3fbCPV/CalibrationSamples/Calib_Dst_Down_Pi_PID0_Str21r1.root"}
     configdict["Calibrations"]["2011"]["Kaon"]   = {}
-    configdict["Calibrations"]["2011"]["Kaon"]["Up"]   = { "FileName":"root://eoslhcb.cern.ch//eos/lhcb/user/a/adudziak/Bs2DsK_3fbCPV/CalibrationSamples/Calib_Dst_Up_K_PID0_Str20r1.root"}
-    configdict["Calibrations"]["2011"]["Kaon"]["Down"] = { "FileName":"root://eoslhcb.cern.ch//eos/lhcb/user/a/adudziak/Bs2DsK_3fbCPV/CalibrationSamples/Calib_Dst_Down_K_PID0_Str20r1.root"}
+    configdict["Calibrations"]["2011"]["Kaon"]["Up"]   = { "FileName":"root://eoslhcb.cern.ch//eos/lhcb/user/a/adudziak/Bs2DsK_3fbCPV/CalibrationSamples/Calib_Dst_Up_K_PID0_Str21r1.root"}
+    configdict["Calibrations"]["2011"]["Kaon"]["Down"] = { "FileName":"root://eoslhcb.cern.ch//eos/lhcb/user/a/adudziak/Bs2DsK_3fbCPV/CalibrationSamples/Calib_Dst_Down_K_PID0_Str21r1.root"}
     configdict["Calibrations"]["2011"]["Combinatorial"]   = {}
     configdict["Calibrations"]["2011"]["Combinatorial"]   = {}
-    configdict["Calibrations"]["2011"]["Combinatorial"]["Up"] = { "FileName":"/afs/cern.ch/work/a/adudziak/public/workspace/work_Comb_DsPi_5358.root",
-                                                                  "WorkName":"workspace", "DataName":"dataCombBkg_up", "Type":"Special",
+    configdict["Calibrations"]["2011"]["Combinatorial"]["Up"] = { "FileName":"/afs/cern.ch/work/g/gtellari/public/Bs2DsK_3fb/PIDK_combo_shapes/work_Comb_DsPi_Run1.root",
+                                                                  "WorkName":"workspace", "DataName":"dataCombBkg_up_2011", "Type":"Special",
                                                                   "WeightName":"sWeights", "PIDVarName":"lab1_PIDK", "Variables":["lab1_PT","nTracks"]}
-    configdict["Calibrations"]["2011"]["Combinatorial"]["Down"] = { "FileName":"/afs/cern.ch/work/a/adudziak/public/workspace/work_Comb_DsPi_5358.root",
-                                                                    "WorkName":"workspace", "DataName":"dataCombBkg_down", "Type":"Special",
+    configdict["Calibrations"]["2011"]["Combinatorial"]["Down"] = { "FileName":"/afs/cern.ch/work/g/gtellari/public/Bs2DsK_3fb/PIDK_combo_shapes/work_Comb_DsPi_Run1.root",
+                                                                    "WorkName":"workspace", "DataName":"dataCombBkg_down_2011", "Type":"Special",
                                                                     "WeightName":"sWeights", "PIDVarName":"lab1_PIDK", "Variables":["lab1_PT","nTracks"]}
+    
+    #configdict["Calibrations"]["2011"]["Combinatorial"]["Up"] = { "FileName":"/afs/cern.ch/work/a/adudziak/public/workspace/work_Comb_DsPi_5358.root",
+    #                                                              "WorkName":"workspace", "DataName":"dataCombBkg_up", "Type":"Special",
+    #                                                              "WeightName":"sWeights", "PIDVarName":"lab1_PIDK", "Variables":["lab1_PT","nTracks"]}
+    #configdict["Calibrations"]["2011"]["Combinatorial"]["Down"] = { "FileName":"/afs/cern.ch/work/a/adudziak/public/workspace/work_Comb_DsPi_5358.root",
+    #                                                                "WorkName":"workspace", "DataName":"dataCombBkg_down", "Type":"Special",
+    #                                                                "WeightName":"sWeights", "PIDVarName":"lab1_PIDK", "Variables":["lab1_PT","nTracks"]}
 
     configdict["Calibrations"]["2012"] = {}
     configdict["Calibrations"]["2012"]["Pion"]   = {}
-    configdict["Calibrations"]["2012"]["Pion"]["Up"]   = {"FileName":"root://eoslhcb.cern.ch//eos/lhcb/user/a/adudziak/Bs2DsK_3fbCPV/CalibrationSamples/Calib_Dst_Up_Pi_PID0_Str20.root"}
-    configdict["Calibrations"]["2012"]["Pion"]["Down"] = {"FileName":"root://eoslhcb.cern.ch//eos/lhcb/user/a/adudziak/Bs2DsK_3fbCPV/CalibrationSamples/Calib_Dst_Down_Pi_PID0_Str20.root"}
+    configdict["Calibrations"]["2012"]["Pion"]["Up"]   = {"FileName":"root://eoslhcb.cern.ch//eos/lhcb/user/a/adudziak/Bs2DsK_3fbCPV/CalibrationSamples/Calib_Dst_Up_Pi_PID0_Str21.root"}
+    configdict["Calibrations"]["2012"]["Pion"]["Down"] = {"FileName":"root://eoslhcb.cern.ch//eos/lhcb/user/a/adudziak/Bs2DsK_3fbCPV/CalibrationSamples/Calib_Dst_Down_Pi_PID0_Str21.root"}
     configdict["Calibrations"]["2012"]["Kaon"]   = {}
-    configdict["Calibrations"]["2012"]["Kaon"]["Up"]   = { "FileName":"root://eoslhcb.cern.ch//eos/lhcb/user/a/adudziak/Bs2DsK_3fbCPV/CalibrationSamples/Calib_Dst_Up_K_PID0_Str20.root"}
-    configdict["Calibrations"]["2012"]["Kaon"]["Down"] = { "FileName":"root://eoslhcb.cern.ch//eos/lhcb/user/a/adudziak/Bs2DsK_3fbCPV/CalibrationSamples/Calib_Dst_Down_K_PID0_Str20.root"}
+    configdict["Calibrations"]["2012"]["Kaon"]["Up"]   = { "FileName":"root://eoslhcb.cern.ch//eos/lhcb/user/a/adudziak/Bs2DsK_3fbCPV/CalibrationSamples/Calib_Dst_Up_K_PID0_Str21.root"}
+    configdict["Calibrations"]["2012"]["Kaon"]["Down"] = { "FileName":"root://eoslhcb.cern.ch//eos/lhcb/user/a/adudziak/Bs2DsK_3fbCPV/CalibrationSamples/Calib_Dst_Down_K_PID0_Str21.root"}
     configdict["Calibrations"]["2012"]["Combinatorial"]   = {}
     configdict["Calibrations"]["2012"]["Combinatorial"]   = {}
-    configdict["Calibrations"]["2012"]["Combinatorial"]["Up"] = { "FileName":"/afs/cern.ch/work/a/adudziak/public/workspace/work_Comb_DsPi_5358.root",
-                                                                  "WorkName":"workspace", "DataName":"dataCombBkg_up", "Type":"Special",
+    configdict["Calibrations"]["2012"]["Combinatorial"]["Up"] = { "FileName":"/afs/cern.ch/work/g/gtellari/public/Bs2DsK_3fb/PIDK_combo_shapes/work_Comb_DsPi_Run1.root",
+                                                                  "WorkName":"workspace", "DataName":"dataCombBkg_up_2012", "Type":"Special",
                                                                   "WeightName":"sWeights", "PIDVarName":"lab1_PIDK", "Variables":["lab1_PT","nTracks"]}
-    configdict["Calibrations"]["2012"]["Combinatorial"]["Down"] = { "FileName":"/afs/cern.ch/work/a/adudziak/public/workspace/work_Comb_DsPi_5358.root",
-                                                                    "WorkName":"workspace", "DataName":"dataCombBkg_down", "Type":"Special",
+    configdict["Calibrations"]["2012"]["Combinatorial"]["Down"] = { "FileName":"/afs/cern.ch/work/g/gtellari/public/Bs2DsK_3fb/PIDK_combo_shapes/work_Comb_DsPi_Run1.root",
+                                                                    "WorkName":"workspace", "DataName":"dataCombBkg_down_2012", "Type":"Special",
                                                                     "WeightName":"sWeights", "PIDVarName":"lab1_PIDK", "Variables":["lab1_PT","nTracks"]}
+
+    #configdict["Calibrations"]["2012"]["Combinatorial"]["Up"] = { "FileName":"/afs/cern.ch/work/a/adudziak/public/workspace/work_Comb_DsPi_5358.root",
+    #                                                              "WorkName":"workspace", "DataName":"dataCombBkg_up", "Type":"Special",
+    #                                                              "WeightName":"sWeights", "PIDVarName":"lab1_PIDK", "Variables":["lab1_PT","nTracks"]}
+    #configdict["Calibrations"]["2012"]["Combinatorial"]["Down"] = { "FileName":"/afs/cern.ch/work/a/adudziak/public/workspace/work_Comb_DsPi_5358.root",
+    #                                                                "WorkName":"workspace", "DataName":"dataCombBkg_down", "Type":"Special",
+    #                                                                "WeightName":"sWeights", "PIDVarName":"lab1_PIDK", "Variables":["lab1_PT","nTracks"]}
 
 
     #----------------------------------------------------------------------------------------------------------------------------------------------------------------#
@@ -151,8 +165,9 @@ def getconfig() :
     # combinatorial background                                                                                                                              
     configdict["BsCombinatorialShape"] = {}
     configdict["BsCombinatorialShape"]["type"]  = "DoubleExponential"
-    configdict["BsCombinatorialShape"]["cB1"]   = {"Run1": {"NonRes":-3.5211e-03,  "PhiPi":-3.0873e-03,  "KstK":-2.3392e-03, "KPiPi":-1.0361e-03, "PiPiPi":-1.5277e-03},"Fixed": False}
-    configdict["BsCombinatorialShape"]["cB2"]   = {"Run1": {"NonRes":0.0,          "PhiPi":0.0,          "KstK":0.0,         "KPiPi":0.0,         "PiPiPi":0.0}, "Fixed":True }
+    configdict["BsCombinatorialShape"]["cB1"]   = {"Run1": {"NonRes":-3.5211e-02,  "PhiPi":-3.0873e-02,  "KstK":-2.3392e-02, "KPiPi":-1.0361e-02, "PiPiPi":-1.5277e-02},"Fixed": False}
+    configdict["BsCombinatorialShape"]["cB2"]   = {"Run1": {"NonRes":0.0,       "PhiPi":0.0,       "KstK":0.0,      "KPiPi":0.0,         "PiPiPi":0.0}, 
+                                                   "Fixed":True }
     configdict["BsCombinatorialShape"]["frac"]  = {"Run1": {"NonRes":4.3067e-01,   "PhiPi":6.5400e-01,   "KstK":3.7409e-01,  "KPiPi":0.5,         "PiPiPi":0.5}, "Fixed":False}
     
     configdict["DsCombinatorialShape"] = {}
@@ -172,7 +187,7 @@ def getconfig() :
     configdict["PIDKCombinatorialShape"] = {}
     configdict["PIDKCombinatorialShape"]["type"] = "Fixed"
     configdict["PIDKCombinatorialShape"]["components"] = { "Kaon":True, "Pion":True, "Proton":False }
-    configdict["PIDKCombinatorialShape"]["fracPIDK1"]   = { "Run1":{"All":0.9}, "Fixed":False }
+    configdict["PIDKCombinatorialShape"]["fracPIDK1"]   = { "Run1":{"KKPi":0.8, "KPiPi":0.8, "PiPiPi":0.8 }, "Fixed":False }
 
     #Bd2Dsh background
     #shape for BeautyMass, for CharmMass as well as BacPIDK taken by default the same as signal 
@@ -192,8 +207,8 @@ def getconfig() :
     configdict["Yields"] = {}
     configdict["Yields"]["Bd2DPi"]          = {"2011": { "NonRes":374.0,   "PhiPi":6.0,     "KstK":93.0,    "KPiPi":30.0,    "PiPiPi":0.0},
                                                "2012": { "NonRes":748.0,   "PhiPi":12.0,    "KstK":186.0,   "KPiPi":60.0,    "PiPiPi":0.0},  "Fixed":True}
-    configdict["Yields"]["Lb2LcPi"]         = {"2011": { "NonRes":290.0,   "PhiPi":36.0,    "KstK":69.0,    "KPiPi":1.0,     "PiPiPi":0.0},
-                                               "2012": { "NonRes":580.0,   "PhiPi":72.0,    "KstK":138.0,   "KPiPi":2.0,     "PiPiPi":0.0},  "Fixed":True}
+    configdict["Yields"]["Lb2LcPi"]         = {"2011": { "NonRes":250.0,   "PhiPi":36.0,    "KstK":69.0,    "KPiPi":1.0,     "PiPiPi":0.0},
+                                               "2012": { "NonRes":500.0,   "PhiPi":72.0,    "KstK":138.0,   "KPiPi":2.0,     "PiPiPi":0.0},  "Fixed":True}
     configdict["Yields"]["Bs2DsK"]          = {"2011": { "NonRes":40.0,    "PhiPi":47.0,    "KstK":40.0,    "KPiPi":8.0,     "PiPiPi":21.0},
                                                "2012": { "NonRes":80.0,    "PhiPi":94.0,    "KstK":80.0,    "KPiPi":16.0,    "PiPiPi":42.0}, "Fixed":True}
     configdict["Yields"]["Bs2DsDsstPiRho"]  = {"2011": { "NonRes":100.0,   "PhiPi":100.0,   "KstK":100.0,   "KPiPi":100.0,   "PiPiPi":100.0},

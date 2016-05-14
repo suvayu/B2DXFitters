@@ -185,8 +185,8 @@ MomVsnTr_Comp_DPi_2011_up_hist.root
 
 #RatioDataMC 2012
 /afs/cern.ch/work/s/sgallori/public/forAgnieszka/dataMC_weights/
-MomVsnTr_Comp_DPi_2012_dw_hist.root
-MomVsnTr_Comp_DPi_2012_up_hist.root
+MomVsnTr_Comp_DPi_2011_dw_hist.root
+MomVsnTr_Comp_DPi_2011_up_hist.root
 ###
 
 

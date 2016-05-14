@@ -8,7 +8,7 @@ def getconfig() :
     # considered decay mode                                                       
     configdict["Decay"] = "Bs2DsstPi"
     #configdict["CharmModes"] = {"NonRes", "PhiPi", "KstK"}
-    configdict["CharmModes"] = {"KPiPi", "PiPiPi"} #{"NonRes", "PhiPi", "KstK"} #, "KPiPi", "PiPiPi"}
+    configdict["CharmModes"] = {"NonRes", "PhiPi", "KstK", "KPiPi", "PiPiPi"}
     # year of data taking                                                                                 
     configdict["YearOfDataTaking"] = {"2012", "2011"}
     # stripping (necessary in case of PIDK shapes)                               
@@ -25,7 +25,7 @@ def getconfig() :
     configdict["BasicVariables"] = {}
     configdict["BasicVariables"]["BeautyMass"]    = { "Range" : [5100,    6000    ], "InputName" : "FBs_DeltaM_M"}
     configdict["BasicVariables"]["CharmMass"]     = { "Range" : [2080,    2150    ], "InputName" : "FDsstr_DeltaM_M"}
-    configdict["BasicVariables"]["BeautyTime"]    = { "Range" : [0.4,     15.0    ], "InputName" : "FBs_LF_ctau"}
+    configdict["BasicVariables"]["BeautyTime"]    = { "Range" : [0.4,     12.0    ], "InputName" : "FBs_LF_ctau"}
     configdict["BasicVariables"]["BacP"]          = { "Range" : [1000.,   650000.0], "InputName" : "FBac_P"}
     configdict["BasicVariables"]["BacPT"]         = { "Range" : [1000.,   45000.0 ], "InputName" : "FBac_PT"}
     configdict["BasicVariables"]["BacPIDK"]       = { "Range" : [-7.0,    6.0     ], "InputName" : "FBac_PIDK"}
