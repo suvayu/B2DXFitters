@@ -225,7 +225,8 @@ def getTotPDF(w, sam, mod, year, merge, comp, debug):
     c = []
     n = []
 
-    smy = sm = GeneralUtils.GetSampleModeYear(TString(sam), TString(mod), TString(year), merge, debug )
+    hypo = TString("") 
+    smy = sm = GeneralUtils.GetSampleModeYearHypo(TString(sam), TString(mod), TString(year), hypo, merge, debug )
     for p in comp:
         for s in smy:
             var = w.var("n%s_%s_Evts"%(p,s))
@@ -293,7 +294,7 @@ def getTotPDF(w, sam, mod, year, merge, comp, debug):
 #------------------------------------------------------------------------------ 
 def getDataCut(sam, mod, year, merge, debug):
     
-    smy = sm = GeneralUtils.GetSampleModeYear(TString(sam), TString(mod), TString(year), merge, debug )
+    smy = sm = GeneralUtils.GetSampleModeYearHypo(TString(sam), TString(mod), TString(year), TString(""), merge, debug )
 
     c = [ ]
     for s in smy:
@@ -322,8 +323,9 @@ def plotDataSet( dataset, frame, Bin ) :
 #------------------------------------------------------------------------------
 def plotFitModel( model, frame, var, sam, mode, year, merge, decay, comp, color) :
     #if debug :
-    
-    smy = sm = GeneralUtils.GetSampleModeYear(TString(sam), TString(mod), TString(year), merge, debug )
+
+    hypo = TString("")
+    smy = sm = GeneralUtils.GetSampleModeYearHypo(TString(sam), TString(mod), TString(year), TString(hypo), merge, debug )
     
     c = []
     for p in comp:
@@ -615,7 +617,7 @@ if __name__ == '__main__' :
             print "[ERROR] You need to specify position of legend in configfile using 'LegendSettings'"
             exit(0) 
     else:
-        frame_m.GetYaxis().SetRangeUser(0.0001,frame_m.GetMaximum()*1.1)
+        frame_m.GetYaxis().SetRangeUser(5.0,frame_m.GetMaximum()*1.1)
         legend = TLegend( 0.05, 0.05, 0.95, 0.95 )
         legend.SetTextSize(0.09)
 
