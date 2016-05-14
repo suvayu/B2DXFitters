@@ -138,6 +138,8 @@ def setConstantIfSoConfigured(var,myconfigfile) :
 #------------------------------------------------------------------------------
 def getCPparameters(decay,myconfigfile):
 
+    from B2DXFitters import cpobservables
+
     if decay.Contains("K"):
         argLf = myconfigfile["StrongPhase"]-myconfigfile["WeakPhase"]
         argLbarfbar = myconfigfile["StrongPhase"]+myconfigfile["WeakPhase"]
@@ -176,6 +178,85 @@ def getCPparameters(decay,myconfigfile):
     setConstantIfSoConfigured(sigDbar,myconfigfile)
     
     return sigC, sigS, sigD, sigCbar, sigSbar, sigDbar
+
+
+def getTagEff(myconfig, ws, mdSet, par):
+    numTag = mdSet.GetNumTagVar()
+    tagList = []
+    for i in range(0,numTag):
+        if mdSet.CheckUseTag(i) == True:
+            tagList.append(str(mdSet.GetTagMatch(i)))
+
+    from B2DXFitters.WS import WS as WS
+    tagEffList = RooArgList()
+    tagEffSig = [] 
+    tagEff = 0.0 
+    
+    if tagList.__len__() == 1:
+        if myconfig["TaggingCalibration"].has_key(tagList[0]): 
+            if myconfig["TaggingCalibration"][tagList[0]].has_key(par):
+                tagEff = myconfig["TaggingCalibration"][tagList[0]][par]
+                tagEffSig.append(WS(ws,RooRealVar(par+'_'+tagList[0], 'Signal tagging efficiency', tagEff, 0.0, 1.0))) 
+                setConstantIfSoConfigured(tagEffSig[0],myconfig)
+                tagEffList.add(tagEffSig[0])
+            else:
+                print "[ERROR] Tagging efficiency is unknown. Please check the config file." 
+                exit(0) 
+        else:
+            print "[ERROR] Tagging efficiency is unknown. Please check the config file."
+            exit(0)
+    elif tagList.__len__()  == 2:
+        tagEff0 = myconfig["TaggingCalibration"][tagList[0]][par]
+        tagEff1 = myconfig["TaggingCalibration"][tagList[1]][par]
+        tagList.append("Both")
+        tagValue = [tagEff0 - tagEff0*tagEff1,  tagEff1 - tagEff0*tagEff1, tagEff0*tagEff1] 
+        i = 0 
+        for tag in tagList:
+            tagEffSig.append(WS(ws,RooRealVar(par+'_'+tag, 'Signal tagging efficiency', tagValue[i], 0.0, 1.0)))
+            s = tagEffSig.__len__()
+            setConstantIfSoConfigured(tagEffSig[s-1],myconfig)
+            tagEffList.add(tagEffSig[s-1]) 
+            i = i+1
+    else:
+        print "[ERROR] More than two taggers are not supported"
+        exit(0) 
+    return tagEffList, ws 
+
+
+def getCalibratedMistag(myconfig, ws, mdSet, mistag, par):
+    numTag = mdSet.GetNumTagVar()
+    tagList = []
+    for i in range(0,numTag):
+        if mdSet.CheckUseTag(i) == True:
+            tagList.append(str(mdSet.GetTagMatch(i)))
+
+    from B2DXFitters.WS import WS as WS
+    p0 = []
+    p1 = []
+    av = []
+    
+    mistagCalibList = RooArgList()
+    mistagCalib = []
+    print tagList 
+    if tagList.__len__()  == 2:
+        tagList.append("Both") 
+
+    tagNum = mdSet.CheckNumUsedTag()
+    numOfTemp = pow(2,tagNum)-1;
+    
+    for i in range(0,numOfTemp):
+        name = par+'_'+str(tagList[i])
+        p0.append(WS(ws,RooRealVar('p0_'+str(name), 'p0_B_'+str(name), myconfig["TaggingCalibration"][tagList[i]]["p0"], 0.0, 0.5)))                        
+        p1.append(WS(ws,RooRealVar('p1_'+str(name), 'p1_B_'+str(name), myconfig["TaggingCalibration"][tagList[i]]["p1"], 0.5, 1.5)))                 
+        av.append(WS(ws,RooRealVar('average_'+str(name), 'av_B_'+str(name), myconfig["TaggingCalibration"][tagList[i]]["average"], 0.0, 1.0)))
+        s = p0.__len__()
+        setConstantIfSoConfigured(p0[i],myconfig)
+        setConstantIfSoConfigured(p1[i],myconfig)
+        setConstantIfSoConfigured(av[i],myconfig)
+        mistagCalib.append(MistagCalibration("mistagCalib_"+str(name), "mistagCalib_"+str(name), mistag, p0[i], p1[i], av[i]))
+        mistagCalibList.add(mistagCalib[i])
+
+    return mistagCalibList, ws
 
 
 #------------------------------------------------------------------------------
@@ -226,16 +307,17 @@ def runSFit(debug, wsname,
     ws = RooWorkspace("intWork","intWork")
 
     decay = TString(myconfigfile["Decay"]) 
-
+    hypo = ""
 
     workspace.append(SFitUtils.ReadDataFromSWeights(TString(pathName), TString(treeName), MDSettings, 
-                                                    TString(sample), TString(mode), TString(year), merge, 
-                                                    False, toys, False, debug))
+                                                    TString(sample), TString(mode), TString(year), TString(hypo), merge, 
+                                                    False, toys, False, False, False, debug))
     workspaceW.append(SFitUtils.ReadDataFromSWeights(TString(pathName), TString(treeName), MDSettings, 
-                                                     TString(sample), TString(mode), TString(year), merge,
-                                                     True, toys, False, debug))
+                                                     TString(sample), TString(mode), TString(year), TString(hypo), merge,
+                                                     True, toys, False, False, False, debug))
         
     workspace[0].Print()
+    
     #exit(0) 
     zero = RooConstVar('zero', '0', 0.)
     one = RooConstVar('one', '1', 1.)
@@ -326,8 +408,11 @@ def runSFit(debug, wsname,
         print '[INFO] Resolution model: Triple gaussian model'
         trm = PTResModels.tripleGausEffModel( time, spl,
                                               myconfigfile["Resolution"]["scaleFactor"], myconfigfile["Resolution"]["meanBias"],
-                                              myconfigfile["Resolution"]["shape"]["sigma1"], myconfigfile["Resolution"]["shape"]["sigma2"], myconfigfile["Resolution"]["shape"]["sigma3"],
-                                              myconfigfile["Resolution"]["shape"]["frac1"], myconfigfile["Resolution"]["shape"]["frac2"],
+                                              myconfigfile["Resolution"]["shape"]["sigma1"], 
+                                              myconfigfile["Resolution"]["shape"]["sigma2"], 
+                                              myconfigfile["Resolution"]["shape"]["sigma3"],
+                                              myconfigfile["Resolution"]["shape"]["frac1"], 
+                                              myconfigfile["Resolution"]["shape"]["frac2"],
                                               debug
                                               )
         
@@ -336,21 +421,37 @@ def runSFit(debug, wsname,
         # the decay time error is an extra observable !
         print '[INFO] Resolution model: Gaussian with per-event observable'
 
+        #sf = getScaleFactor(myconfigfile, debug) 
         observables.add( terr )
         trm_mean  = RooRealVar( 'trm_mean' , 'Gaussian resolution model mean', myconfigfile["Resolution"]["meanBias"], 'ps' )
-        trm_scale = RooRealVar( 'trm_scale', 'Gaussian resolution model scale factor', myconfigfile["Resolution"]["scaleFactor"] )
-        trm = RooGaussEfficiencyModel("resmodel", "resmodel", time, spl, trm_mean, terr, trm_scale, trm_scale )
+        trm_scale = RooRealVar( 'trm_scale', 'Gaussian resolution model scale factor', 1.0) #myconfigfile["Resolution"]["scaleFactor"] )
+        #terr_scaled = ScaleFactor("terr_scaled", "Resolution scale factor", terr, sf[0], sf[1], sf[2])
+        trm_scale_p0  = RooRealVar( 'trm_scale_p0' , 'Gaussian resolution model mean', -1.59675e-02, 'ps' )
+        trm_scale_p1  = RooRealVar( 'trm_scale_p1' , 'Gaussian resolution model mean', 2.05905, 'ps' )
+        trm_scale_p2  = RooRealVar( 'trm_scale_p2' , 'Gaussian resolution model mean', -7.67665, 'ps' )
+        terr_scaled = RooFormulaVar( 'trm_scaled_terr',"scale", "@0+@1*@3+@2*@3*@3",RooArgList(trm_scale_p0,trm_scale_p1,trm_scale_p2,terr))
+        #observables.add( terr_scaled ) 
+        trm = RooGaussEfficiencyModel("resmodel", "resmodel", time, spl, trm_mean, terr_scaled, trm_mean, trm_scale )
 
-        terrWork = GeneralUtils.LoadWorkspace(TString(myconfigfile["Resolution"]["templates"]["fileName"]), 
-                                              TString(myconfigfile["Resolution"]["templates"]["workName"]), debug)
+        #terrWork = GeneralUtils.LoadWorkspace(TString(myconfigfile["Resolution"]["templates"]["fileName"]), 
+        #                                      TString(myconfigfile["Resolution"]["templates"]["workName"]), debug)
         terrpdf = GeneralUtils.CreateHistPDF(dataWA, terr, TString(myconfigfile["Resolution"]["templates"]["templateName"]), 20, debug)
 
     # Per-event mistag
     # ---------------------------
     
+    tagNum = MDSettings.CheckNumUsedTag()
+    numOfTemp = pow(2,tagNum)-1;
+    print tagNum, numOfTemp 
+
     if pereventmistag:
         print "[INFO] Mistag model: per-event observable" 
+        #mistagCalibListB, ws = getCalibratedMistag(myconfigfile,ws,MDSettings,mistag, 'B')
+        #mistagCalibListBbar, ws = getCalibratedMistag(myconfigfile,ws,MDSettings,mistag, 'Bbar')
+        #ws.Print() 
+        #print "[INFO] Mistag model: per-event observable" 
         # we need calibrated mistag
+        
         p0B = []
         p0Bbar = []
         p1B = []
@@ -365,32 +466,44 @@ def runSFit(debug, wsname,
         mistagCalibListB = RooArgList()
         mistagCalibListBbar = RooArgList()
 
+        numTag = MDSettings.GetNumTagVar()
+        tagList = []
+        for i in range(0,numTag):
+            if MDSettings.CheckUseTag(i) == True:
+                tagList.append(str(MDSettings.GetTagMatch(i)))
 
-        for i in range(0,3):
-            p0B.append(WS(ws,RooRealVar('p0_B_'+str(i), 'p0_B_'+str(i), myconfigfile["constr_p0_B"][i]))) #, 0., 0.5)))
-            p1B.append(WS(ws,RooRealVar('p1_B_'+str(i), 'p1_B_'+str(i), myconfigfile["constr_p1_B"][i]))) #, 0.5, 1.5)))
-            avB.append(WS(ws,RooRealVar('av_B_'+str(i), 'av_B_'+str(i), myconfigfile["constr_av_B"][i])))
-            mistagCalibB.append(MistagCalibration("mistagCalib_B_"+str(i), "mistagCalib_B_"+str(i), mistag, p0B[i], p1B[i], avB[i]))
+        if tagList.__len__()  == 2:
+            tagList.append("Both")
+
+        i = 0
+        print numOfTemp, tagList.__len__()
+        for i in range(0,numOfTemp):
+        #for tag in tagList:
+            name = 'B_'+str(tagList[i])
+            p0B.append(WS(ws,RooRealVar('p0_'+str(name), 'p0_'+str(name),  myconfigfile["TaggingCalibration"][tagList[i]]["p0"], 0., 0.5)))
+            p1B.append(WS(ws,RooRealVar('p1_'+str(name), 'p1_'+str(name),  myconfigfile["TaggingCalibration"][tagList[i]]["p1"], 0.5, 1.5)))
+            avB.append(WS(ws,RooRealVar('average_'+str(name), 'av_'+str(name),  myconfigfile["TaggingCalibration"][tagList[i]]["average"], 0.0, 1.0)))
+            setConstantIfSoConfigured(p0B[i],myconfigfile)
+            setConstantIfSoConfigured(p1B[i],myconfigfile)
+            setConstantIfSoConfigured(avB[i],myconfigfile)
+            mistagCalibB.append(MistagCalibration("mistagCalib_"+str(name), "mistagCalib_"+str(name), mistag, p0B[i], p1B[i], avB[i]))
             mistagCalibListB.add(mistagCalibB[i])
-            print myconfigfile["constr_p0_B"][i], myconfigfile["constr_p1_B"][i], myconfigfile["constr_av_B"][i]
-
-        for i in range(0,3):
-            p0Bbar.append(WS(ws,RooRealVar('p0_Bbar_'+str(i), 'p0_B_'+str(i), myconfigfile["constr_p0_Bbar"][i]))) #, 0., 0.5)))
-            p1Bbar.append(WS(ws,RooRealVar('p1_Bbar_'+str(i), 'p1_B_'+str(i), myconfigfile["constr_p1_Bbar"][i]))) #, 0.5, 1.5)))
-            avBbar.append(WS(ws,RooRealVar('av_Bbar_'+str(i), 'av_B_'+str(i), myconfigfile["constr_av_Bbar"][i])))
-            mistagCalibBbar.append(MistagCalibration("mistagCalib_Bbar_"+str(i), "mistagCalib_B_"+str(i), mistag, p0Bbar[i], p1Bbar[i], avBbar[i]))
+            i=i+1
+        i = 0
+        for i in range(0,numOfTemp):
+            name = 'Bbar_'+str(tagList[i])
+            p0Bbar.append(WS(ws,RooRealVar('p0_'+str(name), 'p0_'+str(name),  myconfigfile["TaggingCalibration"][tagList[i]]["p0"], 0., 0.5)))          
+            p1Bbar.append(WS(ws,RooRealVar('p1_'+str(name), 'p1_'+str(name),  myconfigfile["TaggingCalibration"][tagList[i]]["p1"], 0.5, 1.5))) 
+            avBbar.append(WS(ws,RooRealVar('average_'+str(name), 'av_'+str(name),  myconfigfile["TaggingCalibration"][tagList[i]]["average"], 0.0, 1.0)))
+            setConstantIfSoConfigured(p0Bbar[i],myconfigfile)
+            setConstantIfSoConfigured(p1Bbar[i],myconfigfile)
+            setConstantIfSoConfigured(avBbar[i],myconfigfile)
+            mistagCalibBbar.append(MistagCalibration("mistagCalib_"+str(name), "mistagCalib_"+str(name), mistag, p0Bbar[i], p1Bbar[i], avBbar[i]))
             mistagCalibListBbar.add(mistagCalibBbar[i])
-            print myconfigfile["constr_p0_Bbar"][i], myconfigfile["constr_p1_Bbar"][i], myconfigfile["constr_av_Bbar"][i]
-    
+            i = i +1
+        
+        mistagPDFList = SFitUtils.CreateMistagTemplates(dataWA, MDSettings, 50, True, debug)
 
-        mistagWork = GeneralUtils.LoadWorkspace(TString(myconfigfile["MistagFile"]), TString(myconfigfile["MistagWork"]), debug)
-        mistagPDF = []
-        mistagPDFList = RooArgList()
-        for i in range(0,3):
-            mistagPDF.append(Bs2Dsh2011TDAnaModels.GetRooHistPdfFromWorkspace(mistagWork, TString(myconfigfile["MistagTempName"][i]), debug))
-            mistagPDFList.add(mistagPDF[i])                 
-            n = TString("mistag_")+TString(str(i))
-            GeneralUtils.SaveTemplate(NULL, mistagPDF[i], mistag, n)
     else :
         print "[INFO] Mistag model: average mistag" 
         mistagHistPdf = None 
@@ -402,24 +515,13 @@ def runSFit(debug, wsname,
     one2 = RooConstVar('one2', '1', 1.)
     C,S,D, Cbar, Sbar,Dbar = getCPparameters(decay,myconfigfile) 
     
-    # Tagging                                                                                                                                                                                    
-    # -------                                                                                                                                                                                    
-    tagEffSigList = RooArgList()
-    tagEffSig = []
-    for i in range(0,3):
-        tagEffSig.append(WS(ws,RooRealVar('tagEffSig_'+str(i+1), 'Signal tagging efficiency', myconfigfile["TagEffSig"][i]))) #, 0.0, 1.0)))
-        print tagEffSig[i].GetName()
-        tagEffSigList.add(tagEffSig[i])
+    # Tagging                                                                                                                                                                                  
+    # -------                                                                                                                                                                                  
+    tagEffSigList, ws  = getTagEff(myconfigfile,ws,MDSettings,"tagEff")
 
     # Production, detector and tagging asymmetries
     # --------------------------------------------
-         
-    aTagEffSig = []
-    aTagEffSigList = RooArgList()
-    for i in range(0,3):
-        aTagEffSig.append(WS(ws,RooRealVar('aTagEff_'+str(i+1), 'atageff', myconfigfile["aTagEffSig"][i]))) #, -0.05, 0.05)))
-        print aTagEffSig[i].GetName()
-        aTagEffSigList.add(aTagEffSig[i])
+    aTagEffSigList, ws  = getTagEff(myconfigfile,ws,MDSettings,"aTagEff")
 
     if not toys:
         ws.Print("v")
@@ -668,7 +770,7 @@ parser.add_option( '-p', '--pol','--polarity',
 parser.add_option( '-m', '--mode',
                    dest = 'mode',
                    metavar = 'MODE',
-                   default = 'kkpi',
+                   default = 'all',
                    help = 'Mode: choose all, kkpi, kpipi, pipipi, nonres, kstk, phipi, 3modeskkpi'
                    )
 parser.add_option( '--merge',
@@ -690,7 +792,7 @@ parser.add_option( '--unblind',
                    )
 parser.add_option( '--year',
                    dest = 'year',
-                   default = "",
+                   default = "run1",
                    help = 'year of data taking can be: 2011, 2012, run1')
 
 # -----------------------------------------------------------------------------

@@ -173,7 +173,7 @@ def plotFitModel(model, frame, wksp, myconfigfile, log) :
         rel = 200
     else:
         rel = 1000
-    #rel = 30                                                                                                                                                                                  
+    rel = 30                                                                                                                                                                                  
     fr = spl.plotOn(frame, RooFit.LineColor(kRed),  RooFit.Normalization(rel, RooAbsReal.Relative),RooFit.Name("sPline"))
     fr = model.plotOn(frame,
                       RooFit.LineColor(kBlue+3), RooFit.Name("FullPdf"))
