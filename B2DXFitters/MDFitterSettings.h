@@ -393,6 +393,12 @@ public:
     _tagVarRU.push_back(up);
     _tagVarRD.push_back(dw);
     if ( _tagVar == false ) { _tagVar = true; }
+    _p0.push_back(1.0); 
+    _p1.push_back(1.0);
+    _av.push_back(1.0); 
+    _useTag.push_back(true);
+    TString match = this->CheckTagger(name);
+    _matchTag.push_back(match);
   }
  
   void AddTagVar(TString inName, TString outName, Double_t dw, Double_t up ) {
@@ -400,7 +406,13 @@ public:
     _tagVarNamesOut.push_back(outName);
     _tagVarRU.push_back(up);
     _tagVarRD.push_back(dw);
+    _p0.push_back(1.0);
+    _p1.push_back(1.0);
+    _av.push_back(1.0);
+    _useTag.push_back(true);
     if ( _tagVar == false ) { _tagVar = true; }
+    TString match = this->CheckTagger(outName); 
+    _matchTag.push_back(match); 
   }
 
   Bool_t CheckTagOmegaVar() { return _tagOmegaVar; }
@@ -425,13 +437,28 @@ public:
   void SetCalibp1(Int_t i, Double_t val){ _p1[i] = val;}
   void SetCalibAv(Int_t i, Double_t val){ _av[i] = val;}
   
+  Double_t GetCalibp0(TString match);
+  Double_t GetCalibp1(TString match);
+  Double_t GetCalibAv(TString match);
+
   void SetCalibp0(std::vector <Double_t> val){ _p0 = val;}
   void SetCalibp1(std::vector <Double_t> val){ _p1 = val;}
   void SetCalibAv(std::vector <Double_t> val){ _av = val;}
-  
-  void SetCalibration(Int_t i, Double_t p0, Double_t p1, Double_t av) { _p0[i] = p0; _p1[i] = p1; _av[i] = av; }
-  void AddCalibration(Double_t p0, Double_t p1, Double_t av) { _p0.push_back(p0); _p1.push_back(p1); _av.push_back(av); }
-  
+
+  void SetCalibration(TString match, Double_t p0, Double_t p1, Double_t av, Bool_t use);
+  void SetCalibration(Int_t i, Double_t p0, Double_t p1, Double_t av) { _p0[i] = p0; _p1[i] = p1; _av[i] = av; _useTag[i] = true; }
+  void AddCalibration(Double_t p0, Double_t p1, Double_t av, Bool_t use) { _p0.push_back(p0); _p1.push_back(p1); _av.push_back(av); _useTag.push_back(use); }
+
+  TString GetTagMatch(Int_t i) { return _matchTag[i]; }
+  Bool_t CheckUseTag(Int_t i) { return _useTag[i]; } 
+  void SetUseTag(Int_t i, Bool_t use){ _useTag[i] = use; }  
+  Int_t GetSizeUseTag(){ return _useTag.size(); } 
+  void CorrectTagging(); 
+  TString CheckTagger(TString name); 
+  std::vector <TString> CheckTaggerList(); 
+  Int_t CheckNumUsedTag(); 
+
+
   Double_t GetCalibp0(Int_t i) { return _p0[i]; }
   Double_t GetCalibp1(Int_t i) { return _p1[i];}
   Double_t GetCalibAv(Int_t i) { return _av[i];}
@@ -566,6 +593,8 @@ protected:
   std::vector <Double_t> _tagVarRD;
   Bool_t _tagVar;
 
+  
+
   std::vector <TString>  _tagOmegaVarNames;
   std::vector <TString>  _tagOmegaVarNamesOut;
   std::vector <Double_t> _tagOmegaVarRU;
@@ -575,6 +604,8 @@ protected:
   std::vector <Double_t> _p0;
   std::vector <Double_t> _p1;
   std::vector <Double_t> _av;
+  std::vector <Bool_t> _useTag; 
+  std::vector <TString> _matchTag; 
 
   std::vector <TString> _addModeCuts; 
   std::vector <TString> _addDataCuts; 
