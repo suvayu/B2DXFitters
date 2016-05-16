@@ -55,9 +55,16 @@ class Translator:
             tags = ["OS", "SS"]
             for tag in tags:
                 if myconfigfile["TaggingCalibration"].has_key(tag):
-                    md.AddCalibration(myconfigfile["TaggingCalibration"][tag]["p0"],
+                    use = True
+                    if myconfigfile["TaggingCalibration"][tag].has_key("use"):
+                        use = myconfigfile["TaggingCalibration"][tag]["use"] 
+                    md.SetCalibration(tag,
+                                      myconfigfile["TaggingCalibration"][tag]["p0"],
                                       myconfigfile["TaggingCalibration"][tag]["p1"],
-                                      myconfigfile["TaggingCalibration"][tag]["average"])
+                                      myconfigfile["TaggingCalibration"][tag]["average"],
+                                      use)
+            
+            
 
         if full == True:            
             if myconfigfile.has_key("ObtainPIDTemplates"):
