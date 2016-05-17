@@ -261,18 +261,19 @@ namespace SFitUtils {
     {
       if( mdSet->CheckTagVar() == true )
       {
-        for(int k = 0; k<mdSet->GetNumTagVar(); k++)
-	      {
-          TString nameTag = mdSet->GetTagVarOutName(k)+"_idx";
-          treeSW->SetBranchAddress(nameTag, &tag[k]);
-	      }
+        for(int k = 0; k<mdSet->CheckNumUsedTag(); k++)
+	  {
+	    TString pre = lab0_TAG[k]->GetName();
+	    TString nameTag = pre +"_idx";
+	    treeSW->SetBranchAddress(nameTag, &tag[k]);
+	  }
       }
       if( mdSet->CheckTagOmegaVar() == true )
       {
-        for(int k = 0; k<mdSet->GetNumTagOmegaVar(); k++)
-	      {
-          treeSW->SetBranchAddress(mdSet->GetTagOmegaVarOutName(k).Data(), &omega[k]);
-        }
+        for(int k = 0; k<mdSet->CheckNumUsedTag(); k++)
+	  {
+	    treeSW->SetBranchAddress(lab0_TAGOMEGA[k]->GetName(), &omega[k]);
+	  }
       }
     }
     
