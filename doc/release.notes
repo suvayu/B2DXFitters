@@ -5,6 +5,9 @@
 !-----------------------------------------------------------------------------
 
 ! 2016-05-14 - Agnieszka Dziurda
+ - bug fix found by Giulia in SFitUtils.cxx
+
+! 2016-05-14 - Agnieszka Dziurda
  - sFit update: use one tagger
  - new config files for fitting splines 
  - update other config files 
