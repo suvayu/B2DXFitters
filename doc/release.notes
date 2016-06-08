@@ -4,6 +4,15 @@
 ! Purpose     : RooFit-based fitters for B -> D X
 !-----------------------------------------------------------------------------
 
+! 2016-06-08 - Vincenzo Battista
+ - "timepdfutils_Bd.py" included in "python/B2DXFitters" directory.
+   This utility, based on "timepdfutils.py" from Manuel Schiller, help
+   to build a total time pdf with "everything" included (resolution,
+   acceptance, asymmetries, two taggers...) with a one-line command, and it uses the 
+   "DecRateCoeff_Bd" class from Dortmund.
+ - Two tutorials included in "tutorials" folder. These scripts illustrate
+   the usage of "timepdfutils_Bd.py".
+
 ! 2016-05-14 - Agnieszka Dziurda
  - bug fix found by Giulia in SFitUtils.cxx
 
