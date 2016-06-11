@@ -29,6 +29,7 @@
 #include "RooMsgService.h"
 #include "RooDataSet.h"
 #include "RooArgSet.h"
+#include "RooErrorHandler.h"
 
 // code injection into RooAbsAnaConvPdf.h: make RooKConvGenContext
 // RooAbsAnaConvPdf's friend
