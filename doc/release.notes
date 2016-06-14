@@ -4,6 +4,9 @@
 ! Purpose     : RooFit-based fitters for B -> D X
 !-----------------------------------------------------------------------------
 
+!============================================== v3r1 2016-6-14 ==============================
+! 2016-6-14 Carlos Vazquez Sierra
+	 Make version v3r1
 ! 2016-06-08 - Vincenzo Battista
  - "timepdfutils_Bd.py" included in "python/B2DXFitters" directory.
    This utility, based on "timepdfutils.py" from Manuel Schiller, help
@@ -2498,95 +2501,4 @@
     fixed small bug for option -v
   . runBsDsPiMassFitterOnData.py and runBsDsKMassFitterOnData.py
     fixed small bug for option -v and fitter.printYieldsInRange() function
-  . runBsDsKMassFitterOnData.py and config_Bs2Dsh2011TDAna_Bs2DsK.txt
-    created template for Bd->DsK, took it from MC sample
-  . plotBs2DsPiMassModels.py
-    fixed small bug in plotting signal
-  . GeneralUtils
-    added function setSignal
-
-! 2012-04-28 - Agnieszka Dziurda
- - the mass fitter for Bs -> DsK:
-   . script runBsDsKMassFitterOnData.py was modified
-     new option -w: "yes" or "no" (saving sWeights to the file)
-     new option -o: "all", "kkpi", "kpipi", "pipipi" (possibilities for fitting)
-     new option -m: "both", "up", "down" (possibilities for fitting)
-     all mixing options -o and -m work well
-   . script plotBs2DsKMassModels.py was modified
-     new option   -o: "all", "kkpi", "kpipi", "pipipi"
-     all mixing options -o and -m work well
-   . in Bs2Dsh2011TDAnaModels.cxx fixed some small bugs
-
-! 2012-04-27 - Eduardo Rodrigues
- - Tiny fix to GeneralModels
-
-! 2012-04-26 - Agnieszka Dziurda
- - Added savesWeights function to FitMeTool
- - Added the simultaneous fit for BsDsK
-
-! 2012-04-23 - Eduardo Rodrigues
- - Added more models to GeneralModels and more functionality to FitMeTool
-
-! 2012-04-22 - Manuel Tobias Schiller
- - TD DsK fitter:
-   - tune RooFit integration settings to get rid of bad convergence cases
-   - update values for weak and strong phase, lambda
-   - update some of the plotting scripts
-
-! 2012-04-21 - Agnieszka Dziurda
- - Small bugs fixed in GeneralUtils
-
-! 2012-04-20 - Agnieszka Dziurda
- - add Bs -> Ds K mass fit:
-   . Script scripts/prepareBsDsKMassFitterOnData.py added. It prepares the
-     workspace with the necessary mass models and data
-   . Script scripts/runBsDsKMassFitterOnData.py added to plot the Bs -> Ds pi
-     mass models
-   . Configuration file data/config_Bs2Dsh2011TDAna_Bs2DsK.txt added.
-     It contains config info the the mass fit
-   . Script scripts/plotBs2DsKMassModels.py updated
-   . Class GeneralUtils extended with a bunch of code for the new scripts above
- - modify python scripts for Bs -> DsPi mass fit for several additional options
-
-! 2012-04-18 - Manuel Tobias Schiller
- - replace RooFormulaVars with compiled C++ classes to speed up computations
- - fix stupid bug in DsK TD fit which made fit aware of type of individual
-   events (signal/DsPi/comb. BG)
- - adapt plotting script to changes in last item (not everything is tested,
-   though)
- - per event proper time errors are disabled for now (appears to be a bug in
-   RooFit; apparently it generates the acceptance and not the full PDF)
- - since the different variants of the buildRooBDecay* function do essentially
-   the same thing, I refactored a bit such that they all share the same code
-   to avoid duplication
-
-! 2012-04-18 - Eduardo Rodrigues
- - Small additions to GeneralUtils, bug fixes to the Dsh mass model making
-
-! 2012-04-18 - Agnieszka Dziurda
-- Fixed a few bugs in GeneralUtils (in function SetBsDsPi)
-- Changed file data/config_Bs2Dsh2011TDAna_Bs2DsPi.txt.
-  Bs->DsPi data are taken from Sajan's public area.
-
-! 2012-04-17 - Agnieszka Dziurda, Eduardo Rodrigues
- - A variety of new things for the 2011 Bs -> Ds pi mass fit part of the
-   time-dependent Bs -> Ds K analysis:
-   . Class Bs2Dsh2011TDAnaModels added. It contains the code necessary for the
-     creation of the mass models
-   . Script scripts/prepareBsDsPiMassFitterOnData.py added. It prepares the
-     workspace with the necessary mass models and data
-   . Script scripts/runBsDsPiMassFitterOnData.py added to plot the Bs -> Ds pi
-     mass models
-   . Configuration file data/config_Bs2Dsh2011TDAna_Bs2DsPi.txt added.
-     It contains config info the the mass fit ... obviously ;-)
-   . Script scripts/plotBs2DsPiMassModels.py updated
-   . Class GeneralUtils extended with a bunch of code for the new scripts above
- - To give it a go do the following:
-   . python prepareBsDsPiMassFitterOnData.py
-   . python runBsDsPiMassFitterOnData.py -s DsPi
-   . python -i plotBs2DsPiMassModels.py WS_DsPi.root
-
-! 2012-04-13 - Agnieszka Dziurda, Eduardo Rodrigues
- - New script scripts/plotBs2DsPiMassModels.py to plot the Bs -> Ds pi mass
-   models (relevant to the TD DsK analysis)
- - scripts/plotBs2DsKMassMo
+  . runBsDsKMassFitterOnData.py and c
