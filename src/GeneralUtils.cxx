@@ -470,6 +470,13 @@ namespace GeneralUtils {
 
     file = TFile::Open(name[0].c_str());
     tree = (TTree*) file->Get(FileName[i+3].c_str());
+    
+    if ( debug == true){
+      std::cout<<"[INFO] file content:"<<std::endl;
+      file->ls();
+      std::cout<<"[INFO] tree to read "<<FileName[i+3].c_str()<<std::endl;
+    }
+    
     if  ( tree ==  NULL ) {
       std::cout<<" Cannot open file: "<<FileName[0]+FileName[i+1]<<std::endl;
       return NULL;
@@ -1546,8 +1553,14 @@ namespace GeneralUtils {
 		      {
             for(unsigned int l=0; l<h.size(); l++ )
             { 
-              if(h[l] != "") {smyh.push_back(s[j]+"_"+m[i]+"_"+y[k]+"_"+h[l]);}
-              else {smyh.push_back(s[j]+"_"+m[i]+"_"+y[k]);}
+              if(m[i] != ""){
+                if(h[l] != "") {smyh.push_back(s[j]+"_"+m[i]+"_"+y[k]+"_"+h[l]);}
+                else {smyh.push_back(s[j]+"_"+m[i]+"_"+y[k]);}
+              }
+              else{
+                if(h[l] != "") {smyh.push_back(s[j]+"_"+y[k]+"_"+h[l]);}
+                else {smyh.push_back(s[j]+"_"+y[k]);}  
+              }
               if ( debug == true ) { std::cout<<"[INFO] Sample mode year hypo: "<<smyh[smyh.size()-1]<<std::endl;}
             } 
 		      }
@@ -1563,8 +1576,14 @@ namespace GeneralUtils {
         {
           for(unsigned int l=0; l<h.size(); l++ )
           {  
-            if(h[l] != "") {smyh.push_back(s1+"_"+m[i]+"_"+y[k]+"_"+h[l]);}
-            else {smyh.push_back(s1+"_"+m[i]+"_"+y[k]);}
+            if(m[i] != ""){
+              if(h[l] != "") {smyh.push_back(s1+"_"+m[i]+"_"+y[k]+"_"+h[l]);}
+              else {smyh.push_back(s1+"_"+m[i]+"_"+y[k]);}
+            }
+            else{
+              if(h[l] != "") {smyh.push_back(s1+"_"+y[k]+"_"+h[l]); }
+              else {smyh.push_back(s1+"_"+y[k]);} 
+            }
             if ( debug == true ) { std::cout<<"[INFO] Sample mode year hypo: "<<smyh[smyh.size()-1]<<std::endl;}
           }
         }
@@ -1579,8 +1598,14 @@ namespace GeneralUtils {
         {
           for(unsigned int l=0; l<h.size(); l++ )
           {
-            if(h[l] != "") {smyh.push_back(s[j]+"_"+m[i]+"_"+y1+"_"+h[l]);}
-            else {smyh.push_back(s[j]+"_"+m[i]+"_"+y1);}
+            if(m[i] != ""){
+              if(h[l] != "") {smyh.push_back(s[j]+"_"+m[i]+"_"+y1+"_"+h[l]);}
+              else {smyh.push_back(s[j]+"_"+m[i]+"_"+y1);}
+            }
+            else{
+              if(h[l] != "") {smyh.push_back(s[j]+"_"+y1+"_"+h[l]);}
+              else{smyh.push_back(s[j]+"_"+y1);}  
+            }
             if ( debug == true ) { std::cout<<"[INFO] Sample mode year hypo: "<<smyh[smyh.size()-1]<<std::endl;}
           } 
         }
@@ -1595,8 +1620,14 @@ namespace GeneralUtils {
       {
         for(unsigned int l=0; l<h.size(); l++ )
         { 
-          if(h[l] != "") {smyh.push_back(s1+"_"+m[i]+"_"+y1+"_"+h[l]);}
-          else {smyh.push_back(s1+"_"+m[i]+"_"+y1);}
+          if(m[i] != ""){
+            if(h[l] != "") {smyh.push_back(s1+"_"+m[i]+"_"+y1+"_"+h[l]);}
+            else {smyh.push_back(s1+"_"+m[i]+"_"+y1);}
+          }
+          else{
+            if(h[l] != "") {smyh.push_back(s1+"_"+y1+"_"+h[l]);}
+            else{smyh.push_back(s1+"_"+y1);}
+          }
           if ( debug == true ) { std::cout<<"[INFO] Sample mode year hypo: "<<smyh[smyh.size()-1]<<std::endl;}
         }   
       }
@@ -1652,9 +1683,23 @@ namespace GeneralUtils {
 
   std::vector <TString>  GetHypo(TString& hypo, bool debug )
   {
-    std::vector <TString> h;
+    /*std::vector <TString> h;
     if(hypo != ""){ h.push_back(hypo+TString("Hypo")); }
-    else{ h.push_back(TString("")); }
+    else{ h.push_back(TString("")); }*/
+    std::vector <TString> h;
+    if(hypo == ""){ h.push_back(""); }
+    else if(hypo.Contains("_"))
+    {
+      if(debug){std::cout<<"[INFO] GeneralUtils::GetHypo(..): Multiple hypothesys selected. Splitting string"<<std::endl;}
+      h = SplitString(hypo, "_");
+      for(unsigned int hyp=0; hyp<h.size(); ++hyp){
+        h[hyp] = h[hyp]+TString("Hypo");
+      }
+    }
+    else
+    {
+      h.push_back(hypo+TString("Hypo"));
+    }    
 
     return h;
   }  
@@ -1972,7 +2017,7 @@ namespace GeneralUtils {
     TString hypo = "";
     TString Check = check;
     hypo = CheckHypo(Check, debug);
-    return hypo; 
+    return hypo;
   }
 
   TString CheckHypo(TString& check, bool debug)
@@ -1982,8 +2027,8 @@ namespace GeneralUtils {
     else if(check.Contains("DKHypo") || check.Contains("DkHypo")) { hypo = "Bd2DKHypo"; }
     else if(check.Contains("DsPiHypo") || check.Contains("DspiHypo")) { hypo = "Bs2DsPiHypo"; }
     else if(check.Contains("DsKHypo") || check.Contains("DskHypo")) { hypo = "Bs2DsKHypo"; }
-      
-    if ( debug == true) std::cout<<"[INFO] Sample: "<<hypo<<std::endl;
+    
+    if ( debug == true) std::cout<<"[INFO] Hypo: "<<hypo<<std::endl;
     return hypo;
   }
   

@@ -27,10 +27,10 @@ namespace Bs2Dsh2011TDAnaModels {
   // Double gaussian function where all parameters are RooRealVar
   //===============================================================================
 
-  RooAbsPdf* buildGaussPDF( RooAbsReal& mass, RooWorkspace* workInt, TString samplemode, TString typemode, bool debug = false);
+  RooAbsPdf* buildGaussPDF( RooAbsReal& mass, RooWorkspace* workInt, TString samplemode, TString typemode, bool shiftMean = false, bool debug = false);
   
   RooAbsPdf* buildDoubleGaussPDF( RooAbsReal& mass, RooWorkspace* workInt, TString samplemode,
-				  TString typemode, bool widthRatio, bool sharedMean, bool debug = false);
+                                  TString typemode, bool widthRatio, bool sharedMean, bool shiftMean, bool debug = false);
 
   RooAbsPdf* buildExponentialPlusGaussPDF(RooAbsReal& mass, RooWorkspace* workInt, TString samplemode, TString typemode, bool sharedMean, bool debug = false);
 
@@ -42,7 +42,7 @@ namespace Bs2Dsh2011TDAnaModels {
 
   RooAbsPdf* buildExponentialPlusSignalPDF(RooAbsReal& mass, RooWorkspace* workInt, TString samplemode, TString typemode, bool debug = false);
 
-  RooAbsPdf* buildIpatiaPDF(RooAbsReal& mass, RooWorkspace* workInt, TString samplemode, TString typemode, bool debug = false);
+  RooAbsPdf* buildIpatiaPDF(RooAbsReal& mass, RooWorkspace* workInt, TString samplemode, TString typemode, bool shiftMean, bool debug = false);
 
   RooAbsPdf* buildApolloniosPDF(RooAbsReal& mass, RooWorkspace* workInt, TString samplemode, TString typemode, bool debug = false);
 

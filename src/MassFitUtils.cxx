@@ -233,6 +233,7 @@ Double_t SetValCatObs(MDFitterSettings* mdSet, RooArgSet* obs,
     //Read mode (means D mode: kkpi, kpipi or pipipi) from path //
     TString smp[2], md[2], y[2], h[2];
 
+    bool doPIDcut=true;
     for (int i=1; i<3; i++){
       smp[i-1] = CheckPolarity(FileName[i], debug);
       md[i-1] = CheckDMode(sig, debug);
@@ -240,28 +241,27 @@ Double_t SetValCatObs(MDFitterSettings* mdSet, RooArgSet* obs,
       h[i-1] = CheckHypo(sig, debug);
       if ( md[i-1] == "kkpi" || md[i-1] == ""){ md[i-1] = CheckKKPiMode(sig, debug);}
       if ( y[i-1] != "") { y[i-1] = "_"+y[i-1]; }
-      if ( h[i-1] != "") { h[i-1] = "_"+h[i-1];}
+      if ( h[i-1] != "") { h[i-1] = "_"+h[i-1]; doPIDcut=false;}
       
     }
     
     //Set PID cut depends on mode// 
     TCut PID_cut;  
-    if( mode.Contains("Pi") )    { 
-      PID_cut = Form("%s < %lf && %s != -1000.0",mdSet->GetPIDKVar().Data(), -exp(mdSet->GetPIDKRangeDown()), mdSet->GetPIDKVar().Data()); 
-      if ( debug == true)  std::cout<<"[INFO] Mode with Pi"<<std::endl;}
-    else if (mode.Contains("K")) { 
-      PID_cut = Form("%s > %lf && %s != -1000.0",mdSet->GetPIDKVar().Data(), exp(mdSet->GetPIDKRangeDown()), mdSet->GetPIDKVar().Data()); 
-      if ( debug == true)  std::cout<<"[INFO] Mode with K"<<std::endl; }
-    else { if ( debug == true) std::cout<<"[ERROR] Wrong mode"; return work; }
+    if(doPIDcut) {
+      if( mode.Contains("Pi"))    { 
+        PID_cut = Form("%s < %lf && %s != -1000.0",mdSet->GetPIDKVar().Data(), -exp(mdSet->GetPIDKRangeDown()), mdSet->GetPIDKVar().Data()); 
+        if ( debug == true)  std::cout<<"[INFO] Mode with Pi"<<std::endl;}
+      else if (mode.Contains("K")) { 
+        PID_cut = Form("%s > %lf && %s != -1000.0",mdSet->GetPIDKVar().Data(), exp(mdSet->GetPIDKRangeDown()), mdSet->GetPIDKVar().Data()); 
+        if ( debug == true)  std::cout<<"[INFO] Mode with K"<<std::endl; }
+      else { if ( debug == true) std::cout<<"[ERROR] Wrong mode"; return work; }
+    }    
 
     //Set other cuts//
     TCut P_cut      = mdSet->GetCut(mdSet->GetMomVar()); 
     TCut PT_cut     = mdSet->GetCut(mdSet->GetTrMomVar()); 
     TCut nTr_cut    = mdSet->GetCut(mdSet->GetTracksVar()); 
-    TCut BDTG_cut   = "";
-    if ( mode.Contains("Bd2DPi") == false || mode.Contains("BdDPi") == false || mode.Contains("B2DPi") == false 
-         || mode.Contains("Bd2DK") == false || mode.Contains("BdDK") == false || mode.Contains("B2DK") == false) 
-    {BDTG_cut = mdSet->GetCut(mdSet->GetBDTGVar());}
+    TCut BDTG_cut   = mdSet->GetCut(mdSet->GetBDTGVar());
     TCut mass_cut   = mdSet->GetCut(mdSet->GetMassBVar()); 
     TCut massD_cut  = mdSet->GetCut(mdSet->GetMassDVar()); 
     TCut Time_cut = mdSet->GetCut(mdSet->GetTimeVar());
@@ -423,7 +423,7 @@ Double_t SetValCatObs(MDFitterSettings* mdSet, RooArgSet* obs,
         dataSet[i]->addColumn(*tagOmegaComb);
       }
       
-      TString s = smp[i]+"_"+md[i];
+      TString s = smp[i]+"_"+md[i]+h[i];
       
       if ( plotSet->GetStatus()  == true )
       {

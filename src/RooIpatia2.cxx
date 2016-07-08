@@ -201,10 +201,10 @@ ClassImp(RooIpatia2)
      //delta = sigma;
      if (l<=-1.0) { delta = sigma *sqrt(-2+cons1);}
      else {
-       printf("WARNING: zeta ==0 and l > -1 ==> not defined rms. Changing the meaning of sigma, but I keep fitting anyway\n");
+       //printf("WARNING: zeta ==0 and l > -1 ==> not defined rms. Changing the meaning of sigma, but I keep fitting anyway\n");
        delta = sigma;
-      
-     }
+       
+       }
      delta2 = delta*delta;
      if (d < -asigma ) {
        cons1 = TMath::Exp(-beta*asigma);

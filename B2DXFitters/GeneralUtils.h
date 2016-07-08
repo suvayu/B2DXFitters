@@ -385,7 +385,7 @@ namespace GeneralUtils {
   //==========================================================================
   RooArgList* GetCoeffFromBinning(RooBinning* binning, RooRealVar* time, bool debug = false);
 
-
+  std::vector <TString> SplitString(TString string, TString pattern);
   std::vector <TString> GetList(TString name, TString name2 = "", TString name3 = "");
   std::vector <TString> AddToList(std::vector <TString> list, TString name);
 

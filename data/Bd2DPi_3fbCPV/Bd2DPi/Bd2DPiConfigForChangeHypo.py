@@ -9,29 +9,29 @@ def getconfig() :
 
     # PrefixID's: all the following fields are mandatory (choose either ID or newID for each particle)
     # The number of Bachelors, Charm particles and Charm children is flexible
-    configdict["Charm1ChildrenPrefix"] = { "Child1"   : {"Name": "lab0_FitDaughtersPVConst_Dplus_P0",
+    configdict["Charm1ChildrenPrefix"] = { "Child1"   : {"Name": "lab0_FitDaughtersConst_Dplus_P0",
                                                          "ID": "K"},
 
-                                           "Child2"   : {"Name": "lab0_FitDaughtersPVConst_Dplus_P1",
+                                           "Child2"   : {"Name": "lab0_FitDaughtersConst_Dplus_P1",
                                                          "ID": "Pi"},
 
-                                           "Child3"   : {"Name": "lab0_FitDaughtersPVConst_Dplus_P2",
+                                           "Child3"   : {"Name": "lab0_FitDaughtersConst_Dplus_P2",
                                                          "ID": "Pi"}
                                            }
     
-    configdict["BeautyChildrenPrefix"] = { "Bachelor1" : {"Name": "lab0_FitDaughtersPVConst_P0",
+    configdict["BeautyChildrenPrefix"] = { "Bachelor1" : {"Name": "lab0_FitDaughtersConst_P0",
                                                           "newID": "K"},
                                            
-                                           "Charm1"    : {"Name": "lab0_FitDaughtersPVConst_Dplus",
+                                           "Charm1"    : {"Name": "lab0_FitDaughtersConst_Dplus",
                                                           "ID": "D"}
                                            }
     
-    configdict["BeautyPrefix"] = { "Name": "lab0_FitDaughtersPVConst" }
+    configdict["BeautyPrefix"] = { "Name": "lab0_FitDaughtersConst" }
 
     # Handle multiple candidates (if any). Comment out if not needed
-    # configdict["Index"] = "lab0_FitDaughtersPVConst_nPV"
+    #configdict["Index"] = "lab0_FitDaughtersConst_nPV"
 
-    #Additional "_pedix" in the branch name. Leave "" in not pedix is required
+    #Additional "_pedix" in the branch name. Leave "" if not pedix is required
     configdict["Pedix"] = "_flat"
     
     return configdict

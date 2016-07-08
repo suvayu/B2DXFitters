@@ -163,23 +163,39 @@ namespace Bs2Dsh2011TDAnaModels {
   RooAbsPdf* buildGaussPDF( RooAbsReal& obs, 
                             RooWorkspace* workInt, 
                             TString samplemode, 
-                            TString typemode, 
+                            TString typemode,
+                            bool shiftMean,
                             bool debug)
   {
     if ( debug == true ) { std::cout<<"[INFO] --------- build Gaussian -------- "<<std::endl; }
     RooRealVar* mean = NULL;
     RooRealVar* sigma1Var =NULL;
+    RooRealVar* shiftVar = NULL;
+    RooFormulaVar *meanShiftVar = NULL;
 
     TString varName = obs.GetName();
 
     TString meanName = typemode+"_"+varName+"_mean_"+samplemode;
     mean = tryVar(meanName, workInt, debug);
+    if(mean == NULL) mean = tryVar("Signal_"+varName+"_mean_"+samplemode, workInt, debug);
+    if (shiftMean)
+    {  
+      TString shiftVarName = typemode+"_"+varName+"_shift_"+samplemode; 
+      shiftVar = tryVar(shiftVarName, workInt, debug);
+      TString meanShiftVarName = typemode+"_"+varName+"_meanShift_"+samplemode;
+      meanShiftVar = new RooFormulaVar(meanShiftVarName.Data(), meanShiftVarName.Data(), "@0+@1", RooArgList(*mean,*shiftVar));
+    }
+    
     TString sigma1Name = typemode+"_"+varName+"_sigma_"+samplemode;
     sigma1Var = tryVar(sigma1Name, workInt, debug);
 
     RooGaussian* pdf = NULL;
     TString pdfName = typemode+"_"+varName+"_gauss_"+samplemode;
-    pdf = new RooGaussian( pdfName.Data(), pdfName.Data(), obs, *mean, *sigma1Var);
+    if(shiftMean)
+      pdf = new RooGaussian( pdfName.Data(), pdfName.Data(), obs, *meanShiftVar, *sigma1Var);
+    else
+      pdf = new RooGaussian( pdfName.Data(), pdfName.Data(), obs, *mean, *sigma1Var);
+    
     CheckPDF( pdf, debug );
     
     return pdf; 
@@ -194,13 +210,16 @@ namespace Bs2Dsh2011TDAnaModels {
                                   TString samplemode,
                                   TString typemode,
                                   bool widthRatio, 
-                                  bool sharedMean, 
+                                  bool sharedMean,
+                                  bool shiftMean,
                                   bool debug)
   {
 
     if ( debug == true ) { std::cout<<"[INFO] --------- build double Gaussian -------- "<<std::endl; } 
 
     RooRealVar* mean = NULL;
+    RooRealVar* shiftVar = NULL;
+    RooFormulaVar *meanShiftVar = NULL;
     RooRealVar* sigma1Var =NULL;
     RooRealVar* sigma2Var = NULL;
     RooRealVar* fracVar = NULL;
@@ -212,6 +231,13 @@ namespace Bs2Dsh2011TDAnaModels {
     TString meanName = typemode+"_"+varName+"_mean_"+samplemode;
     if ( sharedMean ) { meanName = "Signal_"+varName+"_mean_"+samplemode; }
     mean = tryVar(meanName, workInt, debug);
+    if (shiftMean)
+    {      
+      TString shiftVarName = typemode+"_"+varName+"_shift_"+samplemode; 
+      shiftVar = tryVar(shiftVarName, workInt, debug);
+      TString meanShiftVarName = typemode+"_"+varName+"_meanShift_"+samplemode;
+      meanShiftVar = new RooFormulaVar(meanShiftVarName.Data(), meanShiftVarName.Data(), "@0+@1", RooArgList(*mean,*shiftVar));
+    }
     TString sigma1Name = typemode+"_"+varName+"_sigma1_"+samplemode;
     sigma1Var = tryVar(sigma1Name, workInt, debug);
     TString sigma2Name = typemode+"_"+varName+"_sigma2_"+samplemode;
@@ -236,17 +262,33 @@ namespace Bs2Dsh2011TDAnaModels {
     RooGaussian* pdf2 = NULL;
     TString pdf2Name = typemode+"_"+varName+"_Gauss2_"+samplemode;
 
-    if (widthRatio) 
+    if(shiftMean)
     {
-      pdf1 = new RooGaussian( pdf1Name.Data(), pdf1Name.Data(), obs, *mean, *sigma1For);
-      pdf2 = new RooGaussian( pdf2Name.Data(), pdf2Name.Data(), obs, *mean, *sigma2For);
-    } 
-    else
-    {
-      pdf1 = new RooGaussian( pdf1Name.Data(), pdf1Name.Data(), obs, *mean, *sigma1Var);
-      pdf2 = new RooGaussian( pdf2Name.Data(), pdf2Name.Data(), obs, *mean, *sigma2Var);
+      if (widthRatio)
+      {  
+        pdf1 = new RooGaussian( pdf1Name.Data(), pdf1Name.Data(), obs, *meanShiftVar, *sigma1For); 
+        pdf2 = new RooGaussian( pdf2Name.Data(), pdf2Name.Data(), obs, *meanShiftVar, *sigma2For);
+      }
+      else
+      { 
+        pdf1 = new RooGaussian( pdf1Name.Data(), pdf1Name.Data(), obs, *meanShiftVar, *sigma1Var); 
+        pdf2 = new RooGaussian( pdf2Name.Data(), pdf2Name.Data(), obs, *meanShiftVar, *sigma2Var);
+      }
     }
- 
+    else
+    {  
+      if (widthRatio) 
+      {
+        pdf1 = new RooGaussian( pdf1Name.Data(), pdf1Name.Data(), obs, *mean, *sigma1For);
+        pdf2 = new RooGaussian( pdf2Name.Data(), pdf2Name.Data(), obs, *mean, *sigma2For);
+      } 
+      else
+      {
+        pdf1 = new RooGaussian( pdf1Name.Data(), pdf1Name.Data(), obs, *mean, *sigma1Var);
+        pdf2 = new RooGaussian( pdf2Name.Data(), pdf2Name.Data(), obs, *mean, *sigma2Var);
+      }
+    }
+
     CheckPDF( pdf1, debug );
     CheckPDF( pdf2, debug);
 
@@ -458,17 +500,20 @@ namespace Bs2Dsh2011TDAnaModels {
 
 
   RooAbsPdf* buildIpatiaPDF(RooAbsReal& mass, 
-			    RooWorkspace* workInt, 
-			    TString samplemode, 
-			    TString typemode, 
-			    bool debug)
+                            RooWorkspace* workInt, 
+                            TString samplemode, 
+                            TString typemode,
+                            bool shiftMean,
+                            bool debug)
   {
     if ( debug == true ) { std::cout<<"[INFO] --------- build Ipatia -------- "<<std::endl; }
 
     RooRealVar* lVar = NULL;
     RooRealVar* zetaVar = NULL;
     RooRealVar* fbVar = NULL; 
-    RooRealVar* meanVar = NULL; 
+    RooRealVar* meanVar = NULL;
+    RooRealVar* shiftVar = NULL;
+    RooFormulaVar *meanShiftVar = NULL;
     RooRealVar* sigmaVar = NULL; 
     RooRealVar* a1Var = NULL; 
     RooRealVar* n1Var = NULL;
@@ -485,8 +530,17 @@ namespace Bs2Dsh2011TDAnaModels {
     fbVar = tryVar(fbVarName, workInt, debug);
     TString meanVarName = typemode+"_"+varName+"_mean_"+samplemode;
     meanVar = tryVar(meanVarName, workInt, debug);
+    if (meanVar == NULL) meanVar = tryVar("Signal_"+varName+"_mean_"+samplemode, workInt, debug);
+    if (shiftMean)
+    {
+      TString shiftVarName = typemode+"_"+varName+"_shift_"+samplemode;
+      shiftVar = tryVar(shiftVarName, workInt, debug);
+      TString meanShiftVarName = typemode+"_"+varName+"_meanShift_"+samplemode;
+      meanShiftVar = new RooFormulaVar(meanShiftVarName.Data(), meanShiftVarName.Data(), "@0+@1", RooArgList(*meanVar,*shiftVar));
+    }
     TString sigmaVarName = typemode+"_"+varName+"_sigma_"+samplemode;
     sigmaVar = tryVar(sigmaVarName, workInt, debug);
+    if (sigmaVar == NULL) sigmaVar = tryVar("Signal_"+varName+"_sigma_"+samplemode, workInt, debug);
     TString a1VarName = typemode+"_"+varName+"_a1_"+samplemode;
     a1Var = tryVar(a1VarName, workInt, debug);
     TString n1VarName = typemode+"_"+varName+"_n1_"+samplemode;
@@ -499,7 +553,11 @@ namespace Bs2Dsh2011TDAnaModels {
 
     RooAbsPdf* pdf = NULL;
     TString pdfName = typemode+"_"+varName+"_ipatia_"+samplemode;
-    pdf = new RooIpatia2( pdfName.Data(), pdfName.Data(), mass, *lVar, *zetaVar, *fbVar, *sigmaVar, *meanVar, *a1Var, *n1Var, *a2Var, *n2Var);
+    if(shiftMean)
+      pdf = new RooIpatia2( pdfName.Data(), pdfName.Data(), mass, *lVar, *zetaVar, *fbVar, *sigmaVar, *meanShiftVar, *a1Var, *n1Var, *a2Var, *n2Var);
+    else
+      pdf = new RooIpatia2( pdfName.Data(), pdfName.Data(), mass, *lVar, *zetaVar, *fbVar, *sigmaVar, *meanVar, *a1Var, *n1Var, *a2Var, *n2Var);
+    
     CheckPDF( pdf, debug );
 
     return pdf;

@@ -925,7 +925,7 @@ void FitMeTool::printYieldsInRange( const char* wildcard,
 
   // Get all model PDF variables matching a wildcard
   // -----------------------------------------------
-  RooArgSet* vars = getMatchingVariableNames( "*Evts" );
+  RooArgSet* vars = getMatchingVariableNames( "*Evts*" );
   if ( vars && vars -> getSize() == 0 ) {
     printf( "[WARNING] Found no variable matching the wildcard '%s' ! Please check.\n",
             wildcard );
@@ -1162,7 +1162,17 @@ RooArgSet* FitMeTool::getMatchingVariableNames( const char* wildcard )
 //=============================================================================
 // Prepare and save sWeights
 //=============================================================================
-void FitMeTool::savesWeights(const char* observableName, RooDataSet* data, TString& mode )
+void FitMeTool::savesWeights(const char* observableName, 
+                             RooDataSet* data, 
+                             TString& mode,
+                             bool save2file,
+                             const RooCmdArg& arg1,
+                             const RooCmdArg& arg2,
+                             const RooCmdArg& arg3,
+                             const RooCmdArg& arg4,
+                             const RooCmdArg& arg5,
+                             const RooCmdArg& arg6,
+                             const RooCmdArg& arg7)
 {
   if ( m_config_debug )
     printf( "==> FitMeTool::savesWeights( obs=%s, data=%s, mode=%s )\n",
@@ -1195,12 +1205,12 @@ void FitMeTool::savesWeights(const char* observableName, RooDataSet* data, TStri
     return;
   }
   
-  // Get all model PDF yield variables - assuming they match the wildcard "*Evts"
+  // Get all model PDF yield variables - assuming they match the wildcard "*Evts*"
   // ----------------------------------------------------------------------------
-  RooArgSet* vars2 = getMatchingVariableNames( "*Evts" );
+  RooArgSet* vars2 = getMatchingVariableNames( "*Evts*" );
   RooArgList* vars = new RooArgList( *vars2 );
   if ( vars && vars -> getSize() == 0 ) {
-    printf( "[WARNING] Found no yield variable matching the wildcard \"*Evts\" ! Please check.\n");
+    printf( "[WARNING] Found no yield variable matching the wildcard \"*Evts*\" ! Please check.\n");
     return;
   }  
 
@@ -1233,8 +1243,8 @@ void FitMeTool::savesWeights(const char* observableName, RooDataSet* data, TStri
     if ( param &&
          ( ! vars -> contains( *param ) ) &&
          ( ! param -> isConstant() ) ) {
-      printf( "[WARNING] Variable \"%s\" set to constant - sPlot technique requirement.\n",
-              param -> GetName() );
+      printf( "[WARNING] Variable \"%s\" set to constant (%lf) - sPlot technique requirement.\n",
+              param -> GetName(), param -> getVal() );
       param -> setConstant();
     }
     /*
@@ -1260,7 +1270,14 @@ void FitMeTool::savesWeights(const char* observableName, RooDataSet* data, TStri
     //  param -> setConstant(kFALSE);
     //}
   }
-  fit();
+  fit(save2file,
+      arg1,
+      arg2,
+      arg3,
+      arg4,
+      arg5,
+      arg6,
+      arg7);
   // Produce the new dataset with the sWeights for the yield variable
   // ----------------------------------------------------------------
   RooStats::SPlot* splot = NULL;
