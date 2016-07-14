@@ -18,7 +18,7 @@ def getconfig() :
                                                       "Name"                   : "BeautyMass",
                                                       "InputName"              : "lab0_FitDaughtersConst_M_flat"}
 
-    configdict["BasicVariables"]["CharmMass"]     = { "Range"                  : [1835,    1903    ],
+    configdict["BasicVariables"]["CharmMass"]     = { "Range"                  : [1830,    1910    ],
                                                       "Name"                   : "CharmMass",
                                                       "InputName"              : "obsMassDminus"}
 
@@ -84,7 +84,7 @@ def getconfig() :
 
     #Useful constants
     Pipeak = 5.28017e+03
-    Kpeak = 5.28038e+03
+    Kpeak = 5.28032e+03
 
     #Global variables (shared by different PDFs)
     configdict["GlobalVariables"] = {}
@@ -273,8 +273,8 @@ def getconfig() :
                                                              "cB"           : [-5.08454e-03, -8.0e-03, -2.0e-03]}
 
     #Axes titles
-    configdict["AxisTitle"] = {"BeautyMass": {"Bd2DPi":"D#pi mass",
-                                              "Bd2DK":"DK mass"}}
+    configdict["AxisTitle"] = {"BeautyMass": {"Bd2DPi":"D#pi mass (MeV/c^{2})",
+                                              "Bd2DK":"DK mass (MeV/c^{2})"}}
 
     #Range
     configdict["Range"] = {"BeautyMass": {"Range": [configdict["BasicVariables"]["BeautyMass"]["Range"][0],
@@ -283,7 +283,7 @@ def getconfig() :
 
     #Range and sample for sWeights
     configdict["sWeights"] = {"Hypo" : "Bd2DPi",
-                              "Range" : {"BeautyMass" : [5180.0, 5400.0] }
+                              "Range" : {"BeautyMass" : [5180.0, 5600.0] }
                               }
 
     #Log scale

@@ -4,6 +4,19 @@
 ! Purpose     : RooFit-based fitters for B -> D X
 !-----------------------------------------------------------------------------
 
+! 2016-07-15 - Vincenzo Battista
+ - New "toyFactory.py" script added.
+   This utility allows to generate toys in the most
+   flexible way using DecRateCoeff_Bd.
+   A "toyFactoryConfig.py" options file is added as well
+   as example.
+   This script is currently in "beta" version, since observables
+   other than time, time error and mistag cannot be generated.
+   Anyway, adding support for other observables (mass, PID...) is
+   very straightforward (the BuildPDF function needs to be
+   implemented).  
+ - Few updates to runMDFitter_Bd.py and its config file.   
+
 ! 2016-07-08 - Vincenzo Battista
  - Included (temporary?) fitter for Bd->DPi, called
    "runMDFitter_Bd.py", and the associated config file

@@ -1202,8 +1202,28 @@ def runMDFitter_Bd( debug,
 		print ""
                 
 		fitResult.Print("v")
-		fitResult.covarianceMatrix().Print("v")
-		fitResult.correlationMatrix().Print("v")
+
+		covMat = fitResult.covarianceMatrix()
+		corrMat = fitResult.correlationMatrix()
+
+		covMat.Print("v")
+		corrMat.Print("v")
+
+		#Plot correlation and covariance matrices
+		gStyle.SetOptStat(0)
+		gStyle.SetPaintTextFormat("4.1f")
+		
+		cCov = TCanvas("cCov")
+		cCov.cd()
+		covMat.Draw("TEXT45COLZ")
+		namefile = outputplotdir+"MDFit_CovarianceMatrix.pdf"
+		cCov.SaveAs(namefile)
+
+		cCorr = TCanvas("cCov")
+		cCorr.cd()
+		corrMat.Draw("TEXT45COLZ")
+		namefile = outputplotdir+"MDFit_CorrelationMatrix.pdf"
+		cCorr.SaveAs(namefile)
 
 		#Update what is contained in workspace
 		fitResult = WS(workspaceOut, fitResult)
