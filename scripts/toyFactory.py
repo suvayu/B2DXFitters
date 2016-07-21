@@ -852,6 +852,7 @@ def BuildTotalDataset(workspaceIn, myconfigfile, toyDict, debug):
 #-----------------------------------------------------------------------------
 #-----------------------------------------------------------------------------
 def toyFactory(configName,
+               seed,
                outputdir,
                workOut,
                workfileOut,
@@ -892,6 +893,15 @@ def toyFactory(configName,
     one = WS(workspaceIn, RooConstVar("one", "1", 1.0))
     zero = WS(workspaceIn, RooConstVar("zero", "0", 0.0))
 
+    print ""
+    print "=========================================================="
+    print "Set generation seed to "+str(seed)
+    print "=========================================================="
+    print ""
+
+    gInterpreter.ProcessLine('gRandom->SetSeed('+str(int(seed))+')')
+    RooRandom.randomGenerator().SetSeed(int(seed))
+    
     print ""
     print "=========================================================="
     print "Build observables"
@@ -1038,7 +1048,11 @@ parser.add_option( '--configName',
                    default = 'MyConfigFile',
                    help = 'configuration file name'
                    )
-
+parser.add_option( '--seed',
+                   dest = 'seed',
+                   default = 193627,
+                   help = 'seed for generation'
+                   )
 parser.add_option( '--outputdir',
                    dest = 'outputdir',
                    default = '',
@@ -1105,6 +1119,7 @@ if __name__ == '__main__' :
     print "Directory: "+directory
 
     toyFactory(configName,
+               options.seed,
                options.outputdir,
                options.workOut,
                options.workfileOut,
