@@ -37,6 +37,7 @@
 #include "B2DXFitters/RooJohnsonSU.h"
 
 #include "B2DXFitters/RooBinnedPdf.h"
+#include "B2DXFitters/RooSwimmingAcceptance.h"
 #include "B2DXFitters/RooAbsEffResModel.h"
 #include "B2DXFitters/RooEffConvGenContext.h"
 #include "B2DXFitters/RooEffResModel.h"

@@ -74,6 +74,10 @@
 	</class>
 	<class name="RooCubicSplineFun"/>
 	<class name="RooBinnedFun"/>
+	<class name="RooSwimmingAcceptance">
+	    <field name = "m_tps" transient = "true" />
+	    <field name = "m_M" transient = "true" />
+	</class>
 	<class name="RooGaussEfficiencyModel"/>
         <class name="RooJohnsonSU"/>
 	<class name="RooKResModel">
