@@ -4,6 +4,14 @@
 ! Purpose     : RooFit-based fitters for B -> D X
 !-----------------------------------------------------------------------------
 
+! 2016-08-01 - Manuel Tobias Schiller
+ - RooSwimmingAcceptance: use the spline acceptance framework to turn a series
+   of turning points into a per-event acceptance (initial version, debugging
+   and tuning still needed)
+ - RooAbsGaussModelEfficiency: small change to use C++ standard library math
+   functions where possible (faster); no functional changes
+ - modify dictionaries to include new class
+
 ! 2016-07-15 - Vincenzo Battista
  - New "toyFactory.py" script added.
    This utility allows to generate toys in the most
@@ -27,10 +35,10 @@
 
 !============================================== v3r1 2016-6-14 ==============================
 ! 2016-6-14 Carlos Vazquez Sierra
-	 Make version v3r1
+    Make version v3r1
 !============================================== v3r1 2016-6-14 ==============================
 ! 2016-6-14 Carlos Vazquez Sierra
-	 Make version v3r1
+    Make version v3r1
 ! 2016-06-08 - Vincenzo Battista
  - "timepdfutils_Bd.py" included in "python/B2DXFitters" directory.
    This utility, based on "timepdfutils.py" from Manuel Schiller, help
