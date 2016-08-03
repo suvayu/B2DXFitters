@@ -4,6 +4,11 @@
 ! Purpose     : RooFit-based fitters for B -> D X
 !-----------------------------------------------------------------------------
 
+! 2016-08-03 - Manuel Tobias Schiller
+ - added example for the plotting of swimming acceptances, see
+
+   tutorial/MCTimeFitWithSwimmingMinimal.cpp
+
 ! 2016-08-03 - Vincenzo Battista
  - toyFactory (and config file) upgraded in order to
    generate an arbitrary number of time-independent observables.
