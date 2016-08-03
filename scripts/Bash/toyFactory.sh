@@ -20,10 +20,13 @@ while (( $seed < $stop )); do
     
     cd $pyscriptpath
 
-    python ${pyscriptpath}toyFactory.py --configName $config --seed $seed --workfileOut GenToy_${nickname}_${seed}.root --debug --outputdir $output >& ${output}log_${nickname}_${seed}.txt
+    python ${pyscriptpath}toyFactory.py --saveTree --configName $config --seed $seed --workfileOut GenToyWorkspace_${nickname}_${seed}.root --treefileOut GenToyTree_${nickname}_${seed}.root  --debug --outputdir $output #>& ${output}log_${nickname}_${seed}.txt
 
-    xrdcp -f ${output}GenToy_${nickname}_${seed}.root root://eoslhcb.cern.ch/${eosoutput}GenToy_${nickname}_${seed}.root
-    rm -f ${output}GenToy_${nickname}_${seed}.root
+    xrdcp -f ${output}GenToyWorkspace_${nickname}_${seed}.root root://eoslhcb.cern.ch/${eosoutput}GenToyWorkspace_${nickname}_${seed}.root
+    rm -f ${output}GenToyWorkspace_${nickname}_${seed}.root
+
+    xrdcp -f ${output}GenToyTree_${nickname}_${seed}.root root://eoslhcb.cern.ch/${eosoutput}GenToyTree_${nickname}_${seed}.root
+    rm -f ${output}GenToyTree_${nickname}_${seed}.root
 
     xrdcp -f ${output}log_${nickname}_${seed}.txt root://eoslhcb.cern.ch/${eosoutput}log_${nickname}_${seed}.txt
 

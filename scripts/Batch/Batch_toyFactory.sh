@@ -42,6 +42,7 @@ export pyscriptpath="/afs/cern.ch/user/v/vibattis/cmtuser/Urania_v4r0/PhysFit/B2
 #Clear directories
 rm -rf $output
 mkdir -p $output
+
 /afs/cern.ch/project/eos/installation/lhcb/bin/eos.select rm -r ${eosoutput}
 /afs/cern.ch/project/eos/installation/lhcb/bin/eos.select mkdir -p ${eosoutput}
 
@@ -65,13 +66,12 @@ while (( $stop <= $fullstop )); do
     #Submit jobs
     bsub -q $queue -M $mlimit -e ${output}ERROR -o ${output}OUTPUT -n 1,2 -R "span[hosts=-1]" -J ${jobname}_${seed} source ${bashscriptpath}toyFactory.sh $seed $stop $output $eosoutput $nickname $config $pyscriptpath
     
-    #source ${bashscriptpath}toyFactory.sh $seed $stop $output $eosoutput $nickname $config $pyscriptpath
+    source ${bashscriptpath}toyFactory.sh $seed $stop $output $eosoutput $nickname $config $pyscriptpath
 
     #Sleep to avoid afs overload (not sure this is the best trick)
     if [[ "$(($job % 50))" -eq 0 ]]; then
 	echo "Sleeping..."
 	sleep 30
-	job=0
     fi
     
     #Increase counters

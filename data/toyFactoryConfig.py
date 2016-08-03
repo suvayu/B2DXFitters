@@ -9,9 +9,9 @@ def getconfig() :
     ############################################################
     
     configdict["Observables"] = {}
-    configdict["Observables"] = {#"BeautyMass":    {"Type"  : "RooRealVar",
-                                 #                  "Title" : "B mass (MeV/c^2)",
-                                 #                  "Range" : [5090, 6000]},
+    configdict["Observables"] = {"BeautyMass":    {"Type"  : "RooRealVar",
+                                                   "Title" : "B mass (MeV/c^2)",
+                                                   "Range" : [5090, 6000]},
                                  #"CharmMass":     {"Type" : "RooRealVar",
                                  #                  "Title" : "D mass (MeV/c^2)",
                                  #                  "Range" : [1835, 1903]},
@@ -55,35 +55,112 @@ def getconfig() :
     configdict["Hypothesys"] = ["Bd2DPi", "Bd2DK"]
 
     ############################################################
-    #Signal decay and Charm decay mode
+    #Signal decay, Charm decay mode and year of data taking
+    #Splitting per magnet polarity not implemented, at the moment
     ############################################################
 
     configdict["Decay"] = "Bd2DPi"
     configdict["CharmModes"] = ["KPiPi"]
+    configdict["Years"] = ["run1"]
 
     ############################################################ 
     #List of components with yields to generate.
     #The content of this dictionary determines, for each
-    #PID bin, how many PDF components are generated.
+    #PID bin and year, how many PDF components are generated.
     #If there is only signal, a TTree ready for sFit is
     #generated directly, without need for doing a (useless)
     #mass fit.
     ############################################################
     
     configdict["Components"] = {}
-    configdict["Components"] = {"Signal"    : {"Bd2DPi": {"KPiPi": [5000] }, "Bd2DK": {"KPiPi": [4000]}},
-                                "Bd2DK"     : {"Bd2DPi": {"KPiPi" :[1000] }, "Bd2DK": {"KPiPi": [900]}},
-                                "Comb"      : {"Bd2DPi": {"KPiPi": [500] }, "Bd2DK": {"KPiPi": [400]}}
-                                }
+    configdict["Components"] = {"Signal"        : {"Bd2DPi": {"run1": {"KPiPi": [15000] } }, "Bd2DK": {"run1": {"KPiPi": [5000] } } },
+                                "Combinatorial" : {"Bd2DPi": {"run1": {"KPiPi": [8000] } }, "Bd2DK": {"run1": {"KPiPi": [2000] } } },
+                                "Bd2DRho"       : {"Bd2DPi": {"run1": {"KPiPi": [8000] } }, "Bd2DK": {"run1": {"KPiPi": [2000] } } } }
+                                
 
     ############################################################
     #"Code" to identify the True ID for each component
     ############################################################
 
     configdict["TrueID"] = {}
-    configdict["TrueID"] = {"Signal" : 100,
-                            "Bd2DK"  : 200,
-                            "Comb"   : 300}
+    configdict["TrueID"] = {"Signal"        : 100,
+                            "Combinatorial" : 200,
+                            "Bd2DRho"       : 300}
+
+    ############################################################
+    #List of PDFs for "time-independent" observables
+    #Dictionary structure: observable->component->bachelor hypo->year->D mode
+    ############################################################
+
+    configdict["PDFList"] = {}
+    configdict["PDFList"]["BeautyMass"] = {}
+    configdict["PDFList"]["BeautyMass"]["Signal"] = {"Bd2DPi":
+                                                     {"run1":
+                                                      {"KPiPi":
+                                                       {"Type"       : "Ipatia",
+                                                        "mean"       : [5.28017e+03],
+                                                        "sigma"      : [2.02063e+01],
+                                                        "zeta"       : [0.0],
+                                                        "fb"         : [0.0],
+                                                        "l"          : [-3.20961e+00],
+                                                        "a1"         : [1.42911e+00], #left
+                                                        "a2"         : [1.86674e+00], #right
+                                                        "n1"         : [2.74488e+00], #left
+                                                        "n2"         : [3.18373e+00]} #right
+                                                       }
+                                                      },
+                                                     "Bd2DK":
+                                                     {"run1":
+                                                      {"KPiPi":
+                                                       {"Type"       : "Ipatia",
+                                                        "mean"       : [5.32715e+03],
+                                                        "sigma"      : [2.33716e+01],
+                                                        "zeta"       : [0.0],
+                                                        "fb"         : [0.0],
+                                                        "l"          : [-9.07419e+00],
+                                                        "a1"         : [2.70454e+00],
+                                                        "a2"         : [7.03565e-01],
+                                                        "n1"         : [3.66284e-01],
+                                                        "n2"         : [2.08885e+00]}
+                                                       }
+                                                      }
+                                                     }
+    configdict["PDFList"]["BeautyMass"]["Combinatorial"] = {"Bd2DPi":
+                                                            {"run1":
+                                                             {"KPiPi":
+                                                              {"Type":    "Exponential",
+                                                               "cB"  :    [-2.27055e-03]}
+                                                              }
+                                                             },
+                                                            "Bd2DK":
+                                                            {"run1":
+                                                             {"KPiPi":
+                                                              {"Type":    "Exponential",
+                                                               "cB"  :    [-5.08454e-03]}
+                                                              }
+                                                             }
+                                                            }
+    configdict["PDFList"]["BeautyMass"]["Bd2DRho"] = {"Bd2DPi":
+                                                      {"run1":
+                                                       {"KPiPi":
+                                                        {"Type"      : "JohnsonSU",
+                                                         "mean"      : [4.65054e+03],
+                                                         "sigma"     : [1.09666e+03],
+                                                         "nu"        : [-2.04803e+00],
+                                                         "tau"       : [1.32664e+00]}
+                                                        }
+                                                       },
+                                                      "Bd2DK":
+                                                      {"run1":
+                                                       {"KPiPi":
+                                                        {"Type": "FromWorkspace",
+                                                         "File": "/afs/cern.ch/work/a/adudziak/public/workspace/DsK3fbPAPER/nominal_1stdraft/work_dspi_hlt_mcpid_signalpid_combok.root",
+                                                         "Workspace" : "workspace",
+                                                         "Name"      : "PhysBkgBs2DsRhoPdf_m_both_2012"
+                                                         }
+                                                        }
+                                                       }
+                                                      }
 
     ############################################################ 
     #Tagging calibration and mistag PDF. If "MistagPDF" : None,
@@ -139,7 +216,7 @@ def getconfig() :
     configdict["ResolutionAcceptance"] = {}
     for comp in configdict["Components"].iterkeys():
         configdict["ResolutionAcceptance"][comp] = {}
-        configdict["ResolutionAcceptance"][comp] = {"TimeErrorPDF":
+        configdict["ResolutionAcceptance"][comp] = {"TimeErrorPDF": #None,
                                                     {"Type": "Mock",
                                                      "ResolutionAverage" : [0.5]
                                                      },

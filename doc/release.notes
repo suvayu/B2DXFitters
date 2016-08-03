@@ -4,6 +4,10 @@
 ! Purpose     : RooFit-based fitters for B -> D X
 !-----------------------------------------------------------------------------
 
+! 2016-08-03 - Vincenzo Battista
+ - toyFactory (and config file) upgraded in order to
+   generate an arbitrary number of time-independent observables.
+
 ! 2016-08-01 - Manuel Tobias Schiller
  - RooSwimmingAcceptance: use the spline acceptance framework to turn a series
    of turning points into a per-event acceptance (initial version, debugging
@@ -11,6 +15,11 @@
  - RooAbsGaussModelEfficiency: small change to use C++ standard library math
    functions where possible (faster); no functional changes
  - modify dictionaries to include new class
+
+ 2016-07-22 - Vincenzo Battista
+ - Included "Batch/Batch_toyFactory.sh" to handle
+   batch submission of multiple jobs to generate toys.
+   toyFactory.py and Bash/toyFactory.sh modified accordingly.
 
 ! 2016-07-15 - Vincenzo Battista
  - New "toyFactory.py" script added.
