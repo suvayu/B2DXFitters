@@ -4,6 +4,20 @@
 ! Purpose     : RooFit-based fitters for B -> D X
 !-----------------------------------------------------------------------------
 
+! 2016-08-17 - Agnieszka Dziurda 
+ - updates for DsK analysis:
+   - 2D weighting by misID/eff histograms
+   - more flexible weighting (setting variables for each variable)
+   - adding eta to basic variables
+   - more control plotting for MC samples
+   - posibility of pseudo 3D weighting for PIDK shapes
+   - more flexible HistPID2D
+   - some bug fixes in combo PIDK shapes
+   - bug fix for setting shifts without weighting 
+   - other small changes
+ - adding the most recent config files for nominal fit and splits 
+
+
 ! 2016-08-03 - Manuel Tobias Schiller
  - added example for the plotting of swimming acceptances, see
 

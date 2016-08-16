@@ -167,54 +167,42 @@ merged
 merged
 ###
 
-
-#PID Pion 2012
+#PIDK Pion 2011
 /afs/cern.ch/work/s/sgallori/public/forAgnieszka/PIDCalib_histos/
-Pi_Strip21_2012_MagDown_P.root
-Pi_Strip21_2012_MagUp_P.root
+Pi_Strip21r1_2011_MagDown_nTracks_P.root
+Pi_Strip21r1_2011_MagUp_nTracks_P.root
 ###
 
-#PID Kaon 2012
+#PIDK Pion 2012
 /afs/cern.ch/work/s/sgallori/public/forAgnieszka/PIDCalib_histos/
-K_Strip21_2012_MagDown_P.root
-K_Strip21_2012_MagUp_P.root
+Pi_Strip21_2012_MagDown_nTracks_P.root
+Pi_Strip21_2012_MagUp_nTracks_P.root
 ###
 
-#PID ProtonXXX 2012
+#PIDK Kaon 2011
 /afs/cern.ch/work/s/sgallori/public/forAgnieszka/PIDCalib_histos/
-P_TotLc_Strip21_2012_MagDown_P.root
-P_TotLc_Strip21_2012_MagUp_P.root
+K_Strip21r1_2011_MagDown_nTracks_P.root
+K_Strip21r1_2011_MagUp_nTracks_P.root
 ###
 
-#PID Proton 2012
+#PIDK Kaon 2012
 /afs/cern.ch/work/s/sgallori/public/forAgnieszka/PIDCalib_histos/
-P_Strip20_2012_MagDown_P.root
-P_Strip20_2012_MagUp_P.root
+K_Strip21_2012_MagDown_nTracks_P.root
+K_Strip21_2012_MagUp_nTracks_P.root
 ###
 
-#PID Pion 2011
+#PIDK Proton 2011
 /afs/cern.ch/work/s/sgallori/public/forAgnieszka/PIDCalib_histos/
-Pi_Strip21r1_2011_MagDown_P.root
-Pi_Strip21r1_2011_MagUp_P.root
+P_Strip21r1_2011_MagDown_nTracks_P.root
+P_Strip21r1_2011_MagUp_nTracks_P.root
 ###
 
-#PID Kaon 2011
+#PIDK Proton 2012
 /afs/cern.ch/work/s/sgallori/public/forAgnieszka/PIDCalib_histos/
-K_Strip21r1_2011_MagDown_P.root
-K_Strip21r1_2011_MagUp_P.root
+P_Strip21_2012_MagDown_nTracks_P.root
+P_Strip21_2012_MagUp_nTracks_P.root
 ###
 
-#PID ProtonXXX 2011
-/afs/cern.ch/work/s/sgallori/public/forAgnieszka/PIDCalib_histos/
-P_TotLc_Strip21r1_2011_MagDown_P.root
-P_TotLc_Strip21r1_2011_MagUp_P.root
-###
-
-#PID Proton 2011
-/afs/cern.ch/work/s/sgallori/public/forAgnieszka/PIDCalib_histos/
-P_Strip20r1_2011_MagDown_P.root
-P_Strip20r1_2011_MagUp_P.root
-###
 
 #PIDp
 /afs/cern.ch/user/l/lcarson/public/ForAgnieszka/
@@ -251,6 +239,31 @@ MomVsnTr_Comp_DPi_2011_up_hist.root
 MomVsnTr_Comp_DPi_2012_dw_hist.root
 MomVsnTr_Comp_DPi_2012_up_hist.root
 ###
+
+#RatioDataMC 2011 PNTr
+/afs/cern.ch/work/s/sgallori/public/forAgnieszka/dataMC_weights/p_nTracks/
+weights_DPi_2011_dw.root
+weights_DPi_2011_up.root
+###
+
+#RatioDataMC 2012 PNTr
+/afs/cern.ch/work/s/sgallori/public/forAgnieszka/dataMC_weights/p_nTracks/
+weights_DPi_2012_dw.root
+weights_DPi_2012_up.root
+###
+
+#RatioDataMC 2011 PTnTr
+/afs/cern.ch/user/a/adudziak/roofit/MDFitter/3fb/dataMCWeights/
+weights_DPi_2011_dw.root
+weights_DPi_2011_up.root
+###
+
+#RatioDataMC 2012 PTnTr
+/afs/cern.ch/user/a/adudziak/roofit/MDFitter/3fb/dataMCWeights/
+weights_DPi_2012_dw.root
+weights_DPi_2012_up.root
+###
+
 
 #MC FileName KKPi MD 2011
 {"Mode":"Bd2DK",     
@@ -402,7 +415,7 @@ MomVsnTr_Comp_DPi_2012_up_hist.root
 
 
 #Signal Bs2DsK KstK 2011
-root://eoslhcb.cern.ch//eos/lhcb/wg/b2oc/TD_DsK_3fb/TD_DsK3fb_MC_SMEARED/FINAL/
+root://eoslhcb.cern.ch//eos/lhcb/wg/b2oc/TD_DsK_3fb/TD_DsK3fb_MC/FINAL/
 B2DX_MC_Bs_DsK_KKpi_CPV_Dn_OFFLINE_Bs_DsK_KstK.root
 B2DX_MC_Bs_DsK_KKpi_CPV_Up_OFFLINE_Bs_DsK_KstK.root
 DecayTree
@@ -410,7 +423,7 @@ DecayTree
 ###
 
 #Signal Bs2DsK PhiPi 2011
-root://eoslhcb.cern.ch//eos/lhcb/wg/b2oc/TD_DsK_3fb/TD_DsK3fb_MC_SMEARED/FINAL/
+root://eoslhcb.cern.ch//eos/lhcb/wg/b2oc/TD_DsK_3fb/TD_DsK3fb_MC/FINAL/
 B2DX_MC_Bs_DsK_KKpi_CPV_Dn_OFFLINE_Bs_DsK_phipi.root
 B2DX_MC_Bs_DsK_KKpi_CPV_Up_OFFLINE_Bs_DsK_phipi.root
 DecayTree
@@ -418,7 +431,7 @@ DecayTree
 ###
 
 #Signal Bs2DsK NonRes 2011
-root://eoslhcb.cern.ch//eos/lhcb/wg/b2oc/TD_DsK_3fb/TD_DsK3fb_MC_SMEARED/FINAL/
+root://eoslhcb.cern.ch//eos/lhcb/wg/b2oc/TD_DsK_3fb/TD_DsK3fb_MC/FINAL/
 B2DX_MC_Bs_DsK_KKpi_CPV_Dn_OFFLINE_Bs_DsK_nonres.root
 B2DX_MC_Bs_DsK_KKpi_CPV_Up_OFFLINE_Bs_DsK_nonres.root
 DecayTree
@@ -427,7 +440,7 @@ DecayTree
 
 
 #Signal Bs2DsK KPiPi 2011
-root://eoslhcb.cern.ch//eos/lhcb/wg/b2oc/TD_DsK_3fb/TD_DsK3fb_MC_SMEARED/FINAL/
+root://eoslhcb.cern.ch//eos/lhcb/wg/b2oc/TD_DsK_3fb/TD_DsK3fb_MC/FINAL/
 B2DX_MC_Bs_DsK_Kpipi_CPV_Dn_OFFLINE_Bs_DsK_Kpipi.root
 B2DX_MC_Bs_DsK_Kpipi_CPV_Up_OFFLINE_Bs_DsK_Kpipi.root
 DecayTree
@@ -435,7 +448,7 @@ DecayTree
 ###
 
 #Signal Bs2DsK PiPiPi 2011
-root://eoslhcb.cern.ch//eos/lhcb/wg/b2oc/TD_DsK_3fb/TD_DsK3fb_MC_SMEARED/FINAL/
+root://eoslhcb.cern.ch//eos/lhcb/wg/b2oc/TD_DsK_3fb/TD_DsK3fb_MC/FINAL/
 B2DX_MC_Bs_DsK_pipipi_CPV_Dn_OFFLINE_Bs_DsK_pipipi.root
 B2DX_MC_Bs_DsK_pipipi_CPV_Up_OFFLINE_Bs_DsK_pipipi.root
 DecayTree
@@ -443,7 +456,7 @@ DecayTree
 ###
 
 #Signal Bs2DsK KstK 2012
-root://eoslhcb.cern.ch//eos/lhcb/wg/b2oc/TD_DsK_3fb/TD_DsK3fb_MC_SMEARED/FINAL/
+root://eoslhcb.cern.ch//eos/lhcb/wg/b2oc/TD_DsK_3fb/TD_DsK3fb_MC/FINAL/
 B2DX_MC_Bs_DsK_KKpi_CPV_Dn_OFFLINE_Bs_DsK_KstK.root
 B2DX_MC_Bs_DsK_KKpi_CPV_Up_OFFLINE_Bs_DsK_KstK.root
 DecayTree
@@ -451,7 +464,7 @@ DecayTree
 ###
 
 #Signal Bs2DsK PhiPi 2012
-root://eoslhcb.cern.ch//eos/lhcb/wg/b2oc/TD_DsK_3fb/TD_DsK3fb_MC_SMEARED/FINAL/
+root://eoslhcb.cern.ch//eos/lhcb/wg/b2oc/TD_DsK_3fb/TD_DsK3fb_MC/FINAL/
 B2DX_MC_Bs_DsK_KKpi_CPV_Dn_OFFLINE_Bs_DsK_phipi.root
 B2DX_MC_Bs_DsK_KKpi_CPV_Up_OFFLINE_Bs_DsK_phipi.root
 DecayTree
@@ -459,7 +472,7 @@ DecayTree
 ###
 
 #Signal Bs2DsK NonRes 2012
-root://eoslhcb.cern.ch//eos/lhcb/wg/b2oc/TD_DsK_3fb/TD_DsK3fb_MC_SMEARED/FINAL/
+root://eoslhcb.cern.ch//eos/lhcb/wg/b2oc/TD_DsK_3fb/TD_DsK3fb_MC/FINAL/
 B2DX_MC_Bs_DsK_KKpi_CPV_Dn_OFFLINE_Bs_DsK_nonres.root
 B2DX_MC_Bs_DsK_KKpi_CPV_Up_OFFLINE_Bs_DsK_nonres.root
 DecayTree
@@ -468,7 +481,7 @@ DecayTree
 
 
 #Signal Bs2DsK KPiPi 2012
-root://eoslhcb.cern.ch//eos/lhcb/wg/b2oc/TD_DsK_3fb/TD_DsK3fb_MC_SMEARED/FINAL/
+root://eoslhcb.cern.ch//eos/lhcb/wg/b2oc/TD_DsK_3fb/TD_DsK3fb_MC/FINAL/
 B2DX_MC_Bs_DsK_Kpipi_CPV_Dn_OFFLINE_Bs_DsK_Kpipi.root
 B2DX_MC_Bs_DsK_Kpipi_CPV_Up_OFFLINE_Bs_DsK_Kpipi.root
 DecayTree
@@ -476,7 +489,7 @@ DecayTree
 ###
 
 #Signal Bs2DsK PiPiPi 2012
-root://eoslhcb.cern.ch//eos/lhcb/wg/b2oc/TD_DsK_3fb/TD_DsK3fb_MC_SMEARED/FINAL/
+root://eoslhcb.cern.ch//eos/lhcb/wg/b2oc/TD_DsK_3fb/TD_DsK3fb_MC/FINAL/
 B2DX_MC_Bs_DsK_pipipi_CPV_Dn_OFFLINE_Bs_DsK_pipipi.root
 B2DX_MC_Bs_DsK_pipipi_CPV_Up_OFFLINE_Bs_DsK_pipipi.root
 DecayTree

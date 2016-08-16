@@ -651,12 +651,13 @@ namespace Bs2Dsh2011TDAnaModels {
     {
       if ( pidk[i] == "True" || pidk[i] == "true")
       {
-        pdf_pidk[i] =  buildMergedSpecBkgMDFit(workInt, work, samplemode, m[i], "", merge, 3, "", debug);
-        //if ( pdf_pidk[i] == NULL ) { pdf_pidk[i] =  buildMergedSpecBkgMDFit(workInt, work, samplemode, m[i], mode, merge, 3, "", debug);}
+
+	pdf_pidk[i] =  buildPIDKShapeMDFit(work,samplemode, m[i], "",debug);
+       
         if ( pdf_pidk[i] != NULL )
 	      {
-          std::cout<<"[INFO] Adding pdf: "<<pdf_pidk[i]->GetName()<<" to PIDK PDFs"<<std::endl;
-          listPDF->add(*pdf_pidk[i]);
+		std::cout<<"[INFO] Adding pdf: "<<pdf_pidk[i]->GetName()<<" to PIDK PDFs"<<std::endl;
+		listPDF->add(*pdf_pidk[i]);
 	      }
       }
     }
@@ -1314,7 +1315,7 @@ namespace Bs2Dsh2011TDAnaModels {
 
     if ( typemodeDs != "" )
     {
-      name =  name = "PIDKShape_"+typemode+"_"+p+"_"+typemodeDs+"_"+y;
+      name = "PIDKShape_"+typemode+"_"+p+"_"+typemodeDs+"_"+y;
     }
     else
     {

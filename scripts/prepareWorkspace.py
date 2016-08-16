@@ -454,8 +454,10 @@ def prepareWorkspace( debug,
     #exit(0) 
 
     from B2DXFitters.MDFitSettingTranslator import Translator
-    mdt = Translator(myconfigfile,"MDSettings",True)
-
+    if MCPID or SignalPID or CombPID:
+        mdt = Translator(myconfigfile,"MDSettings",True)
+    else:
+        mdt = Translator(myconfigfile,"MDSettings",False)
     MDSettings = mdt.getConfig()
     MDSettings.Print("v")
     #exit(0)

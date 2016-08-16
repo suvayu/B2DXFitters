@@ -148,84 +148,64 @@ class Translator:
                               myconfigfile["AdditionalVariables"][t]["Range"][0],
                               myconfigfile["AdditionalVariables"][t]["Range"][1])
 
-        if full == True:
-            if myconfigfile.has_key('AdditionalCuts'):
-                Dmodes = ["All","KKPi","KPiPi","PiPiPi","NonRes","KstK","PhiPi","HHHPi0"]
-                i = 0
-                for Dmode in Dmodes:
-                    if myconfigfile['AdditionalCuts'].has_key(Dmode):
-                        if myconfigfile['AdditionalCuts'][Dmode].has_key("Data"):
-                            md.SetDataCuts(Dmode, myconfigfile['AdditionalCuts'][Dmode]['Data'])
-                        if myconfigfile['AdditionalCuts'][Dmode].has_key("MC"):
-                            md.SetMCCuts(Dmode, myconfigfile['AdditionalCuts'][Dmode]['MC'])
-                        if myconfigfile['AdditionalCuts'][Dmode].has_key("MCID"):
-                            md.SetIDCut(Dmode, myconfigfile['AdditionalCuts'][Dmode]['MCID'])
-                        if myconfigfile['AdditionalCuts'][Dmode].has_key("MCTRUEID"):
-                            md.SetTRUEIDCut(Dmode, myconfigfile['AdditionalCuts'][Dmode]['MCTRUEID'])
-                        if myconfigfile['AdditionalCuts'][Dmode].has_key("BKGCAT"):
-                            md.SetBKGCATCut(Dmode, myconfigfile['AdditionalCuts'][Dmode]['BKGCAT'])
-                        if myconfigfile['AdditionalCuts'][Dmode].has_key("DsHypo"):
-                            md.SetDsHypoCut(Dmode, myconfigfile['AdditionalCuts'][Dmode]['DsHypo'])
+        
+        if myconfigfile.has_key('AdditionalCuts'):
+            Dmodes = ["All","KKPi","KPiPi","PiPiPi","NonRes","KstK","PhiPi","HHHPi0"]
+            i = 0
+            for Dmode in Dmodes:
+                if myconfigfile['AdditionalCuts'].has_key(Dmode):
+                    if myconfigfile['AdditionalCuts'][Dmode].has_key("Data"):
+                        md.SetDataCuts(Dmode, myconfigfile['AdditionalCuts'][Dmode]['Data'])
+                    if myconfigfile['AdditionalCuts'][Dmode].has_key("MC"):
+                        md.SetMCCuts(Dmode, myconfigfile['AdditionalCuts'][Dmode]['MC'])
+                    if myconfigfile['AdditionalCuts'][Dmode].has_key("MCID"):
+                        md.SetIDCut(Dmode, myconfigfile['AdditionalCuts'][Dmode]['MCID'])
+                    if myconfigfile['AdditionalCuts'][Dmode].has_key("MCTRUEID"):
+                        md.SetTRUEIDCut(Dmode, myconfigfile['AdditionalCuts'][Dmode]['MCTRUEID'])
+                    if myconfigfile['AdditionalCuts'][Dmode].has_key("BKGCAT"):
+                        md.SetBKGCATCut(Dmode, myconfigfile['AdditionalCuts'][Dmode]['BKGCAT'])
+                    if myconfigfile['AdditionalCuts'][Dmode].has_key("DsHypo"):
+                        md.SetDsHypoCut(Dmode, myconfigfile['AdditionalCuts'][Dmode]['DsHypo'])
 
-            if myconfigfile.has_key('WeightingMassTemplates'):
-                md.SetMassWeighting(True)
-                if myconfigfile["WeightingMassTemplates"].has_key("RatioDataMC"):
-                    md.SetRatioDataMC(True)
-                    if myconfigfile["WeightingMassTemplates"]["RatioDataMC"].has_key("2011"):
-                        md.SetLabelDataMC(myconfigfile["WeightingMassTemplates"]["RatioDataMC"]["2011"], "2011")
-                    if myconfigfile["WeightingMassTemplates"]["RatioDataMC"].has_key("2012"):
-                        md.SetLabelDataMC(myconfigfile["WeightingMassTemplates"]["RatioDataMC"]["2012"], "2012")
-                    if type(myconfigfile["WeightingMassTemplates"]["RatioDataMC"]) != dict:
-                        md.SetLabelDataMC(myconfigfile["WeightingMassTemplates"]["RatioDataMC"], "2011")
-                        md.SetLabelDataMC(myconfigfile["WeightingMassTemplates"]["RatioDataMC"], "2012")
-                if myconfigfile["WeightingMassTemplates"].has_key("Shift"):
-                    shift = myconfigfile["WeightingMassTemplates"]["Shift"]
-                    #print shift 
-                    for s in shift:
-                     #   print s 
-                        print myconfigfile["WeightingMassTemplates"]["Shift"][s]
-                        md.SetMassShift(s,myconfigfile["WeightingMassTemplates"]["Shift"][s])
-                
-                hists = myconfigfile["WeightingMassTemplates"]
-                for hist in hists:
-                    if hist != "RatioDataMC" and hist != "Shift":
-                        file2011 = ""
-                        file2012 = ""
-                        if myconfigfile["WeightingMassTemplates"][hist].has_key("FileLabel"):
-                            if myconfigfile["WeightingMassTemplates"][hist]["FileLabel"].has_key("2011"):
-                                file2011 = myconfigfile["WeightingMassTemplates"][hist]["FileLabel"]["2011"]
-                            if myconfigfile["WeightingMassTemplates"][hist]["FileLabel"].has_key("2012"):
-                                file2012 = myconfigfile["WeightingMassTemplates"][hist]["FileLabel"]["2012"]
-                            if myconfigfile["WeightingMassTemplates"][hist]["FileLabel"].has_key("2011") == False and myconfigfile["WeightingMassTemplates"][hist]["FileLabel"].has_key("2012") == False: 
-                                file2011 = myconfigfile["WeightingMassTemplates"][hist]["FileLabel"]
-                                file2012 = file2011
-                        if myconfigfile["WeightingMassTemplates"][hist].has_key("Var"):
-                            var = myconfigfile["WeightingMassTemplates"][hist]["Var"]
-                        if myconfigfile["WeightingMassTemplates"][hist].has_key("HistName"):
-                            histName = myconfigfile["WeightingMassTemplates"][hist]["HistName"]
-                        md.SetPIDProperties(hist, file2011, file2012, var, histName)
-
-#                if myconfigfile["WeightingMassTemplates"].has_key("Variables"):
-#                    md.SetMassWeighting(True)
-#                    variables = myconfigfile["WeightingMassTemplates"]["Variables"]
-#                    for var in variables:
-#                        md.AddWeightingMassVar(var)
-#                if myconfigfile["WeightingMassTemplates"].has_key('PIDProton'):
-#                    md.SetPIDProton(myconfigfile["WeightingMassTemplates"]['PIDProton'])
-#                if myconfigfile["WeightingMassTemplates"].has_key('PIDBach'):
-#                    md.SetPIDBach(myconfigfile["WeightingMassTemplates"]['PIDBach'])
-#                if myconfigfile["WeightingMassTemplates"].has_key('PIDChild'):
-#                    md.SetPIDChild(myconfigfile["WeightingMassTemplates"]['PIDChild'])
-
-            if myconfigfile.has_key('DsChildrenPrefix'):
-                if myconfigfile['DsChildrenPrefix'].has_key("Child1"):
-                    md.SetChildPrefix(0,myconfigfile['DsChildrenPrefix']['Child1'])
-                if myconfigfile['DsChildrenPrefix'].has_key("Child2"):
-                    md.SetChildPrefix(1,myconfigfile['DsChildrenPrefix']['Child2'])
-                if myconfigfile['DsChildrenPrefix'].has_key("Child3"):
-                    md.SetChildPrefix(2,myconfigfile['DsChildrenPrefix']['Child3'])
+        if myconfigfile.has_key('WeightingMassTemplates'):
             
+            if myconfigfile["WeightingMassTemplates"].has_key("Shift"):
+                shift = myconfigfile["WeightingMassTemplates"]["Shift"] 
+                for s in shift:
+                    print myconfigfile["WeightingMassTemplates"]["Shift"][s]
+                    md.SetMassShift(s,myconfigfile["WeightingMassTemplates"]["Shift"][s])
+                
+            hists = myconfigfile["WeightingMassTemplates"]
+            for hist in hists:
+                if hist != "Shift":
+                    md.SetMassWeighting(True)
+                    file2011 = ""
+                    file2012 = ""
+                    if myconfigfile["WeightingMassTemplates"][hist].has_key("FileLabel"):
+                        if myconfigfile["WeightingMassTemplates"][hist]["FileLabel"].has_key("2011"):
+                            file2011 = myconfigfile["WeightingMassTemplates"][hist]["FileLabel"]["2011"]
+                        if myconfigfile["WeightingMassTemplates"][hist]["FileLabel"].has_key("2012"):
+                            file2012 = myconfigfile["WeightingMassTemplates"][hist]["FileLabel"]["2012"]
+                        if myconfigfile["WeightingMassTemplates"][hist]["FileLabel"].has_key("2011") == False and myconfigfile["WeightingMassTemplates"][hist]["FileLabel"].has_key("2012") == False: 
+                            file2011 = myconfigfile["WeightingMassTemplates"][hist]["FileLabel"]
+                            file2012 = file2011
+                    if myconfigfile["WeightingMassTemplates"][hist].has_key("Var"):
+                        var = myconfigfile["WeightingMassTemplates"][hist]["Var"]
+                    if myconfigfile["WeightingMassTemplates"][hist].has_key("HistName"):
+                        histName = myconfigfile["WeightingMassTemplates"][hist]["HistName"]        
+                    md.SetPIDProperties(hist, file2011, file2012, var[0], var[1], histName)
+                        #print hist, file2011, file2012, var[0], var[1], histName 
+            if myconfigfile["WeightingMassTemplates"].has_key("RatioDataMC"):
+                md.SetRatioDataMC(True)
 
+        if myconfigfile.has_key('DsChildrenPrefix'):
+            if myconfigfile['DsChildrenPrefix'].has_key("Child1"):
+                md.SetChildPrefix(0,myconfigfile['DsChildrenPrefix']['Child1'])
+            if myconfigfile['DsChildrenPrefix'].has_key("Child2"):
+                md.SetChildPrefix(1,myconfigfile['DsChildrenPrefix']['Child2'])
+            if myconfigfile['DsChildrenPrefix'].has_key("Child3"):
+                md.SetChildPrefix(2,myconfigfile['DsChildrenPrefix']['Child3'])
+            
         self.mdfit = md
         
     def getConfig( self ) :

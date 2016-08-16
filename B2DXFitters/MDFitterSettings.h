@@ -12,6 +12,7 @@
 
 #include "PIDCalibrationSample.h"
 #include "HistPID1D.h"
+#include "HistPID2D.h"
 #include "TString.h"
 #include "TNamed.h"
 #include "TCut.h"
@@ -203,7 +204,7 @@ public:
     PIDCalibrationSample calib(name.Data(),name.Data());
 
     if (debug == true ) { std::cout<<"[INFO] Match: "<<sample<<"  "<<year<<" "<<pol<<" "<<strip<<std::endl; } 
-    for(int i = 0; _calib.size(); i++ )
+    for(unsigned int i = 0; i < _calib.size(); i++ )
       {
 	TString st = _calib[i].GetSampleType(); 
 	TString y = _calib[i].GetYear();
@@ -502,12 +503,15 @@ public:
   void SetPIDComboShapeFor5Modes(){ _calibCombo = true; }
   Bool_t CheckPIDComboShapeForDsModes(){ return _calibCombo; }
 
-  void SetPIDProperties(TString key, TString file1, TString file2, TString var, TString histName); 
+  void SetPIDProperties(TString key, TString file1, TString file2, TString var1, TString var2, TString histName); 
   TString GetPIDFileName(TString key, TString year); 
-  std::pair<TString,TString> GetPIDHist(TString key); 
+  //TString GetPIDHist(TString key); 
   TString GetPIDHistName(TString key); 
-  TString GetPIDHistVar(TString key); 
-  HistPID1D  GetHistPID1D(TString key,  TString year);
+  TString GetPIDHistVar(TString key, int i);
+  std::vector <TString> GetPIDHistVar(Bool_t weight, Bool_t dataMC, Bool_t debug);
+  std::pair <TString, TString> GetPIDHistVar(TString key);
+  HistPID1D GetHistPID1D(TString key,  TString year);
+  HistPID2D GetHistPID2D(TString key, TString year);
 
   void SetConfigFile(TString config) { _data = config; } 
   TString GetConfigFile() { return _data; }
@@ -573,7 +577,6 @@ protected:
   //std::vector <TString> _weightMassTempVar;
   Bool_t _weightMassTemp;
   Bool_t _weightRatioDataMC; 
-  std::pair <TString, TString> _ratioDMC; 
 
   std::vector < std::vector <Double_t> > _lumRatio;
   std::vector < bool > _lumFlag; 
@@ -622,13 +625,26 @@ protected:
 
   std::pair <TString, TString> _filePIDBacEff;
   std::pair <TString, TString> _filePIDBacMisID;
+  std::pair <TString, TString> _filePIDBacProtonMisID;
   std::pair <TString, TString> _filePIDChildMisID;
   std::pair <TString, TString> _filePIDChildProtonMisID;
 
-  std::pair <TString, TString> _PIDBacEff;
-  std::pair <TString, TString> _PIDBacMisID;
-  std::pair <TString, TString> _PIDChildMisID;
-  std::pair <TString, TString> _PIDChildProtonMisID; 
+  TString _PIDBacEff;
+  TString _PIDBacMisID;
+  TString _PIDBacProtonMisID;
+  TString _PIDChildMisID;
+  TString _PIDChildProtonMisID;
+
+  std::pair <TString, TString> _PIDBacEffVarName;
+  std::pair <TString, TString> _PIDBacMisIDVarName;
+  std::pair <TString, TString> _PIDBacProtonMisIDVarName; 
+  std::pair <TString, TString> _PIDChildMisIDVarName;
+  std::pair <TString, TString> _PIDChildProtonMisIDVarName; 
+
+  std::pair <TString, TString> _ratioDMC;
+  TString _ratioDMCHistName; 
+  std::pair <TString, TString> _ratioDMCVarName;
+
   
   std::pair <Double_t, Double_t> _massShift; 
   

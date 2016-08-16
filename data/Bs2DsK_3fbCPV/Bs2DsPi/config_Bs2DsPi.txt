@@ -102,13 +102,13 @@ merged
 merged
 ###
 
-#PID Pion 2012
+#PID Pion 2012 1D
 /afs/cern.ch/work/s/sgallori/public/forAgnieszka/PIDCalib_histos/
 Pi_Strip21_2012_MagDown_P.root
 Pi_Strip21_2012_MagUp_P.root
 ###
 
-#PID Kaon 2012
+#PID Kaon 2012 1D
 /afs/cern.ch/work/s/sgallori/public/forAgnieszka/PIDCalib_histos/
 K_Strip21_2012_MagDown_P.root
 K_Strip21_2012_MagUp_P.root
@@ -120,31 +120,31 @@ P_TotLc_Strip21_2012_MagDown_P.root
 P_TotLc_Strip21_2012_MagUp_P.root
 ###
 
-#PID Proton 2012
+#PID Proton 2012 1D
 /afs/cern.ch/work/s/sgallori/public/forAgnieszka/PIDCalib_histos/
 P_Strip20_2012_MagDown_P.root
 P_Strip20_2012_MagUp_P.root
 ###
 
-#PID Pion 2011
+#PID Pion 2011 1D
 /afs/cern.ch/work/s/sgallori/public/forAgnieszka/PIDCalib_histos/
 Pi_Strip21r1_2011_MagDown_P.root
 Pi_Strip21r1_2011_MagUp_P.root
 ###
 
-#PID Kaon 2011
+#PID Kaon 2011 1D
 /afs/cern.ch/work/s/sgallori/public/forAgnieszka/PIDCalib_histos/
 K_Strip21r1_2011_MagDown_P.root
 K_Strip21r1_2011_MagUp_P.root
 ###
 
-#PID ProtonXXX 2011
+#PID ProtonXXX 2011 1D
 /afs/cern.ch/work/s/sgallori/public/forAgnieszka/PIDCalib_histos/
 P_TotLc_Strip21r1_2011_MagDown_P.root
 P_TotLc_Strip21r1_2011_MagUp_P.root
 ###
 
-#PID Proton 2011
+#PID Proton 2011 1D
 /afs/cern.ch/work/s/sgallori/public/forAgnieszka/PIDCalib_histos/
 P_Strip20r1_2011_MagDown_P.root
 P_Strip20r1_2011_MagUp_P.root
@@ -161,6 +161,42 @@ EffHistos_Reco12_39Mom_Proton_MagUp_TightCuts.root
 /afs/cern.ch/user/l/lcarson/public/ForAgnieszka/
 EffHistos_Reco12_39Mom_MagDown_0123.root
 EffHistos_Reco12_39Mom_MagUp_012.root
+###
+
+#PIDK Pion 2011
+/afs/cern.ch/work/s/sgallori/public/forAgnieszka/PIDCalib_histos/
+Pi_Strip21r1_2011_MagDown_nTracks_P.root
+Pi_Strip21r1_2011_MagUp_nTracks_P.root
+###
+
+#PIDK Pion 2012
+/afs/cern.ch/work/s/sgallori/public/forAgnieszka/PIDCalib_histos/
+Pi_Strip21_2012_MagDown_nTracks_P.root
+Pi_Strip21_2012_MagUp_nTracks_P.root
+###
+
+#PIDK Kaon 2011
+/afs/cern.ch/work/s/sgallori/public/forAgnieszka/PIDCalib_histos/
+K_Strip21r1_2011_MagDown_nTracks_P.root
+K_Strip21r1_2011_MagUp_nTracks_P.root
+###
+
+#PIDK Kaon 2012
+/afs/cern.ch/work/s/sgallori/public/forAgnieszka/PIDCalib_histos/
+K_Strip21_2012_MagDown_nTracks_P.root
+K_Strip21_2012_MagUp_nTracks_P.root
+###
+
+#PIDK Proton 2011
+/afs/cern.ch/work/s/sgallori/public/forAgnieszka/PIDCalib_histos/
+P_Strip21r1_2011_MagDown_nTracks_P.root
+P_Strip21r1_2011_MagUp_nTracks_P.root
+###
+
+#PIDK Proton 2012
+/afs/cern.ch/work/s/sgallori/public/forAgnieszka/PIDCalib_histos/
+P_Strip21_2012_MagDown_nTracks_P.root
+P_Strip21_2012_MagUp_nTracks_P.root
 ###
 
 
@@ -185,9 +221,35 @@ MomVsnTr_Comp_DPi_2011_up_hist.root
 
 #RatioDataMC 2012
 /afs/cern.ch/work/s/sgallori/public/forAgnieszka/dataMC_weights/
-MomVsnTr_Comp_DPi_2011_dw_hist.root
-MomVsnTr_Comp_DPi_2011_up_hist.root
+MomVsnTr_Comp_DPi_2012_dw_hist.root
+MomVsnTr_Comp_DPi_2012_up_hist.root
 ###
+
+#RatioDataMC 2011 PEta
+/afs/cern.ch/work/s/sgallori/public/forAgnieszka/dataMC_weights/p_eta/
+weights_DPi_2011_dw.root
+weights_DPi_2011_up.root
+###
+
+#RatioDataMC 2012 PEta
+/afs/cern.ch/work/s/sgallori/public/forAgnieszka/dataMC_weights/p_eta/
+weights_DPi_2012_dw.root
+weights_DPi_2012_up.root
+###
+
+
+#RatioDataMC 2011 PNTr
+/afs/cern.ch/work/s/sgallori/public/forAgnieszka/dataMC_weights/p_nTracks/
+weights_DPi_2011_dw.root
+weights_DPi_2011_up.root
+###
+
+#RatioDataMC 2012 PNTr
+/afs/cern.ch/work/s/sgallori/public/forAgnieszka/dataMC_weights/p_nTracks/
+weights_DPi_2012_dw.root
+weights_DPi_2012_up.root
+###
+
 
 
 #RatioDataMC3D

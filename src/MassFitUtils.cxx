@@ -108,6 +108,7 @@ namespace MassFitUtils {
     Float_t c = 299792458.0;
     Float_t corr = c/1e9;
     corr = corr; 
+    mode = mode; 
 
     if ( tN != "" )
     {
@@ -117,14 +118,7 @@ namespace MassFitUtils {
       }
       else if ( tN == mdSet->GetPIDKVarOutName() )
       {
-        if ( mode.Contains("Pi") == true )
-	      {
-	        val = log(-val); 
-	      }
-        else
-	      {
-          val = log(val); 
-	      }
+        val = log(fabs(val));
       }
       else if ( tN == mdSet->GetTracksVarOutName() || tN == mdSet->GetMomVarOutName() || tN == mdSet->GetTrMomVarOutName() )
       {
@@ -132,9 +126,7 @@ namespace MassFitUtils {
       }
       else if ( tN == mdSet->GetMassBVarOutName() || tN == mdSet->GetMassDVarOutName() )
       {
-        //    std::cout<<"val: "<<val<<" shift: "<<shift;
         val = val + shift; 
-        //std::cout<<" val+shift: "<<val<<std::endl; 
       }
       obsVar->setVal(val);
     }
@@ -218,6 +210,9 @@ Double_t SetValCatObs(MDFitterSettings* mdSet, RooArgSet* obs,
     if ( plotSet == NULL ) { plotSet = new PlotSettings("plotSet","plotSet"); }
     RooArgSet* obs = mdSet->GetObsSet();
     obs->Print("v"); 
+    RooRealVar* Eta = new RooRealVar("BacEta","BacEta",1.5,5.0);
+    obs->add(*Eta);
+
     std::vector <TString> tN = mdSet->GetVarNames();
 
     std::vector <std::string> FileName;
@@ -314,12 +309,16 @@ Double_t SetValCatObs(MDFitterSettings* mdSet, RooArgSet* obs,
 
       for (Long64_t jentry=0; jentry<treetmp->GetEntries(); jentry++) {
         treetmp->GetEntry(jentry);
+
+	Double_t pT(0), p(0);
+	Double_t pl(0), eta(0);
+	Double_t val(0);
+
         for(unsigned k = 0; k < tN.size(); k++)
         {
           //Twobody_TOS->setVal(Twotopo);
           //Threebody_TOS->setVal(Threetopo);
           //Fourbody_TOS->setVal(Fourtopo); 
-          
           
           Bool_t cat = false;
           if ( tN[k] == mdSet->GetIDVar() ) { cat = true; }
@@ -336,8 +335,17 @@ Double_t SetValCatObs(MDFitterSettings* mdSet, RooArgSet* obs,
           }
           TString name = mdSet->GetVarOutName(tN[k]); 
           if ( cat == true ) { SetValCatObs(mdSet, obs, name , tB[k], varD[k], varI[k], varF[k], varS[k]); }
-          else{ SetValRealObs(mdSet, obs, name, tB[k], varD[k], varI[k], varF[k], varS[k], mode); }
+          else{ val = SetValRealObs(mdSet, obs, name, tB[k], varD[k], varI[k], varF[k], varS[k], mode); }
+
+	  if ( tN[k] == mdSet->GetMomVar() ) { p = val; }
+          if ( tN[k] == mdSet->GetTrMomVar() ) { pT = val; }
+
         }
+
+	pl = sqrt(exp(p)*exp(p) - exp(pT)*exp(pT));
+        eta = 0.5 * log((exp(p) + pl) / (exp(p) - pl));
+        Eta->setVal(eta); 
+
         if ( mode.Contains("Comb") == true )
         {
           if ( jentry < 10000 )
@@ -451,6 +459,7 @@ Double_t SetValCatObs(MDFitterSettings* mdSet, RooArgSet* obs,
             SaveDataSet(dataSet[i], var, s, mode, plotSet, debug);
           }
         }
+	SaveDataSet(dataSet[i], Eta, s, mode, plotSet, debug);
       }
       
       work->import(*dataSet[i]);
@@ -1138,6 +1147,8 @@ Double_t SetValCatObs(MDFitterSettings* mdSet, RooArgSet* obs,
     TCut PT_cut     = mdSet->GetCut(mdSet->GetTrMomVar());
     TCut nTr_cut    = mdSet->GetCut(mdSet->GetTracksVar());
     TCut BDTG_cut   = mdSet->GetCut(mdSet->GetBDTGVar());
+    TCut Time_cut   = mdSet->GetCut(mdSet->GetTimeVar());
+    TCut Terr_cut   = mdSet->GetCut(mdSet->GetTerrVar());
 
     TCut addCuts = (TCut)mdSet->GetMCCuts(Dmode);
     
@@ -1153,7 +1164,7 @@ Double_t SetValCatObs(MDFitterSettings* mdSet, RooArgSet* obs,
       MCID = GetMCIDCutBkg( mdSet, hypo, debug);
     }
 
-    MCCut = BKGCATCut&&MCID&&P_cut&&BDTG_cut&&PT_cut&&nTr_cut&&addCuts;  
+    MCCut = BKGCATCut&&MCID&&P_cut&&BDTG_cut&&PT_cut&&nTr_cut&&Time_cut&&Terr_cut&&addCuts;
     if (debug == true )
     {
       std::cout<<"------Cut-----"<<std::endl;
@@ -1364,64 +1375,61 @@ Double_t SetValCatObs(MDFitterSettings* mdSet, RooArgSet* obs,
     if ( plotSet == NULL ) { plotSet = new PlotSettings("plotSet","plotSet"); }
     RooArgSet* obs = mdSet->GetObsSet(false, true, false, false, true, true);
     obs->Print("v");
+    RooRealVar* Eta = new RooRealVar("BacEta","BacEta",1.5,5.0);
+    obs->add(*Eta);
+
     std::vector <TString> tN = mdSet->GetVarNames(true,false,false,true,true);
-    for(unsigned int i = 0; i<tN.size(); i++ )
-    {
-      std::cout<<"tN: "<<tN[i]<<std::endl;
-    }
 
     // Read MC File // 
     TString yy =""; 
     std::vector <MCBackground*> MCBkg; 
+    Bool_t checkBacProton = false;
     Int_t numBkg = CheckNumberOfBackgrounds(filesDir,sig, debug);  
     for(int i = 1; i<numBkg+1; i++ )
     {
       MCBkg.push_back(new MCBackground(Form("MCBkg%d",i),"MCBackground",filesDir,sig,i));
       MCBkg[i-1]->Print("v"); 
       yy = MCBkg[0]->GetYear();
+      if ( MCBkg[i-1]->GetMode().Contains("Dsp") || MCBkg[i-1]->GetMode().Contains("Dsstp") )
+	{
+	  checkBacProton = true; 
+	}
     }
     
-    HistPID1D hBach;
-    HistPID1D hChild;
-    HistPID1D hBachEff;
-    HistPID1D hProton;
-    
+    HistPID2D hBach;
+    HistPID2D hChild;
+    HistPID2D hBachEff;
+    HistPID2D hBachProton; 
+    HistPID2D hProton;
+
+
     if ( mdSet->CheckMassWeighting() == true)
     {
-      //Read all necessary histogram for misID//
-      //TString PID = "#PID";
-      //TString PID2 = "#PID2";
-      //TString PIDp = "";
-      //if ( hypo.Contains("Bd") == true) { PIDp = "#PIDp"; } else { PIDp = "#PIDp3";}
-      //	TString nameHistBach = GetHistNameBachPIDBkgMC(mdSet,hypo,debug); 
-      //	TString nameHistMiss = GetHistNameChildPIDBkgMC(mdSet,hypo,debug);
-      //TString nameHistEff  = GetHistNameBachPIDEffBkgMC(mdSet,hypo,debug);
-      //TString nameHistProton = GetHistNameProtonPIDBkgMC(mdSet,hypo,debug);
-      hBach =  mdSet->GetHistPID1D("PIDBachMisID",yy); //new HistPID1D(nameHistBach, nameHistBach, filesDir, PID, PID2);
-      hChild =  mdSet->GetHistPID1D("PIDChildKaonPionMisID",yy); //new HistPID1D(nameHistMiss, nameHistMiss, filesDir, PID, PID2);
-      hBachEff =  mdSet->GetHistPID1D("PIDBachEff",yy); //new HistPID1D(nameHistEff, nameHistEff, filesDir, PID, PID2);
-      hProton =  mdSet->GetHistPID1D("PIDChildProtonMisID",yy); //new HistPID1D(nameHistProton, nameHistProton, filesDir, PIDp);
+      hBach =  mdSet->GetHistPID2D("PIDBachMisID",yy);
+      hChild =  mdSet->GetHistPID2D("PIDChildKaonPionMisID",yy);
+      hBachEff =  mdSet->GetHistPID2D("PIDBachEff",yy);
+      hProton =  mdSet->GetHistPID2D("PIDChildProtonMisID",yy);
+      if ( checkBacProton ) { hBachProton = mdSet->GetHistPID2D("PIDBachProtonMisID",yy); }
+
       if ( debug == true )
-      {
-        std::cout<<hBach<<std::endl;
-        std::cout<<hChild<<std::endl;
-        std::cout<<hBachEff<<std::endl;
-        std::cout<<hProton<<std::endl;
-        
-        hBach.SavePlot(plotSet);
-        hChild.SavePlot(plotSet);
-        hBachEff.SavePlot(plotSet);
-        hProton.SavePlot(plotSet);
-      }
+	{
+	  std::cout<<hBach<<std::endl;
+	  if ( checkBacProton ) { std::cout<<hBachProton<<std::endl; } 
+	  std::cout<<hChild<<std::endl;
+	  std::cout<<hBachEff<<std::endl;
+	  std::cout<<hProton<<std::endl;
+	}
     }
     
-    HistPID2D* hRDM = NULL;
+    HistPID2D hRDM;
     if (mdSet->CheckDataMCWeighting() == true )
     {
-      TString RDM = mdSet->GetLabelDataMC(yy);
-      std::cout<<"RDM: "<<RDM<<std::endl; 
-      TString nameHistRatio = "histRatio";
-      hRDM = new HistPID2D(nameHistRatio, nameHistRatio, filesDir, RDM);
+      hRDM = mdSet->GetHistPID2D("RatioDataMC",yy);
+
+      if ( debug == true )
+        {
+	  std::cout<<hRDM<<std::endl;
+        }
     }
     
     // Read sample (means down or up)  from path //
@@ -1474,14 +1482,16 @@ Double_t SetValCatObs(MDFitterSettings* mdSet, RooArgSet* obs,
       std::vector <TString> tBW;
       std::vector <TString> tNW;
       std::vector <Double_t> varDW; std::vector <Int_t> varIW; std::vector <Float_t> varFW; std::vector <Short_t> varSW;
-      if ( mdSet->CheckMassWeighting()==true )
+      if ( mdSet->CheckMassWeighting()==true || mdSet->CheckDataMCWeighting() == true)
       {
         
-        tNW.push_back(mdSet->GetPIDHistVar("PIDChildKaonPionMisID"));
-        tNW.push_back(mdSet->GetPIDHistVar("PIDChildProtonMisID"));
+	tNW = mdSet->GetPIDHistVar(mdSet->CheckMassWeighting(), mdSet->CheckDataMCWeighting(), debug); 
+	
         for(unsigned int k = 0; k<tNW.size(); k++ )
         {
+	  if ( debug == true ) { std::cout<<"[INFO] Read variables for weighting: "<<tNW[k]; } 
           tBW.push_back(treetmp->GetLeaf(tNW[k].Data())->GetTypeName()); 
+	  if ( debug == true ) { std::cout<<" with type: "<<tBW[k]<<std::endl; }
           InitializeRealObs(tBW[k], varDW, varIW, varFW, varSW, debug);
         }
         for(unsigned int k =0; k<tNW.size(); k++ )
@@ -1490,6 +1500,7 @@ Double_t SetValCatObs(MDFitterSettings* mdSet, RooArgSet* obs,
         }
         
       }
+
       nentriesMC[i] = treetmp->GetEntries();
       
       if ( debug == true) std::cout<<"Calculating "<<md<<" "<<smp<<std::endl;
@@ -1532,12 +1543,23 @@ Double_t SetValCatObs(MDFitterSettings* mdSet, RooArgSet* obs,
         if (hypo.Contains("Bd") == true && ( md == "Bd2DK" ) && jentry%2 != 0 ) continue;
         //if (hypo.Contains("Bd") == true && ( md == "Bd2DstPi" ) && jentry%2 != 0 ) continue;
         if (hypo.Contains("DsPi") == true && ( md == "Bs2DsK" ) && jentry%16 != 0 ) continue;
-        if (hypo.Contains("DsK") == true && ( md == "Bs2DsPi" ) && jentry%16 != 0 ) continue;
+        if (hypo.Contains("DsK") == true && ( md == "Bs2DsPi" ) && jentry%2 != 0 ) continue;
         if (hypo.Contains("DsK") == true && ( md == "Bd2DK" ) && jentry%2 != 0 ) continue;
         if (hypo.Contains("DsK") == true && ( md == "Bd2DPi" ) && jentry%2 != 0 ) continue;
         
-        Double_t nTr(0), pT(0), p(0), pidk(0);
+        Double_t pidk(0);
         Double_t val(0); 
+	Double_t pl(0), eta(0);
+
+	std::vector <TString> basicName;
+	std::vector <Double_t> basicVal; 
+
+	basicName.push_back(mdSet->GetMomVar());
+	basicName.push_back(mdSet->GetTrMomVar());
+	basicName.push_back(mdSet->GetTracksVar()); 
+	
+	basicVal.push_back(-99999.0); basicVal.push_back(-99999.0); basicVal.push_back(-999999.0); 
+
         for(unsigned k = 0; k < tN.size(); k++)
         {
           Bool_t cat = false;
@@ -1562,63 +1584,88 @@ Double_t SetValCatObs(MDFitterSettings* mdSet, RooArgSet* obs,
             else if (  tN[k] == mdSet->GetMassDVar() ) { sh = shDs;}
             val = SetValRealObs(mdSet, obs, name, tB[k], varD[k], varI[k], varF[k], varS[k], hypo, sh ); 
           }
-          if ( tN[k] == mdSet->GetMomVar() ) { p = val; }
-          if ( tN[k] == mdSet->GetTrMomVar() ) { pT = val; }
-          if ( tN[k] == mdSet->GetTracksVar() ) { nTr = val; }
+	  
+          if ( tN[k] == mdSet->GetMomVar() ) { basicVal[0] = val; }
+          if ( tN[k] == mdSet->GetTrMomVar() ) { basicVal[1] = val; }
+          if ( tN[k] == mdSet->GetTracksVar() ) { basicVal[2] = val; }
           if ( tN[k] == mdSet->GetMassBVar() ) { mMC = val; }
           if ( tN[k] == mdSet->GetMassDVar() ) { mDMC = val;}
           if ( tN[k] == mdSet->GetPIDKVar() ) { pidk = val; }
         }
         
-        if ( mdSet->CheckDataMCWeighting() == true )
+
+	pl = sqrt(exp(basicVal[0])*exp(basicVal[0]) - exp(basicVal[1])*exp(basicVal[1]));
+        eta = 0.5 * log((exp(basicVal[0]) + pl) / (exp(basicVal[0]) - pl));
+        Eta->setVal(eta);
+
+	std::vector <Double_t> pRV;
+        if ( mdSet->CheckDataMCWeighting() == true || mdSet->CheckMassWeighting() == true)
         {
-          wRW = hRDM->GetWeight(pT,nTr, smp);
-        }
+	  for(unsigned k = 0; k < tNW.size(); k++)
+	    {
+	      pRV.push_back(GetValue( tBW[k], varDW[k], varIW[k], varFW[k], varSW[k] )); 
+	    }
+	}
+	
+	if ( mdSet->CheckDataMCWeighting() == true )
+	  {
+	    std::pair<Double_t,Double_t> valRDM = hRDM.GetValues(mdSet->GetPIDHistVar("RatioDataMC",0), mdSet->GetPIDHistVar("RatioDataMC",1), 
+								 basicName, basicVal, tNW, pRV);
+	    wRW = hRDM.GetWeight(log(valRDM.first), log(valRDM.second), smp); 
+	  }
         
         if ( mdSet->CheckMassWeighting() == true )
         {
-          std::vector <Double_t> pV;
-          for(unsigned k = 0; k < tNW.size(); k++)
-          {
-            pV.push_back(GetValue( tBW[k], varDW[k], varIW[k], varFW[k], varSW[k] ));
-          }
-          
+	  Double_t wBE =  hBachEff.GetValues(mdSet->GetPIDHistVar("PIDBachEff",0), mdSet->GetPIDHistVar("PIDBachEff",1), basicName, basicVal, tNW, pRV, smp);
+	  Double_t wBMisID = hBach.GetValues(mdSet->GetPIDHistVar("PIDBachMisID",0), mdSet->GetPIDHistVar("PIDBachMisID",1), basicName, basicVal, tNW, pRV, smp);
+	  Double_t wChKPiMisID = hChild.GetValues(mdSet->GetPIDHistVar("PIDChildKaonPionMisID",0), mdSet->GetPIDHistVar("PIDChildKaonPionMisID",1),
+						  basicName, basicVal, tNW, pRV, smp);
+	  Double_t wChPMisID = hProton.GetValues(mdSet->GetPIDHistVar("PIDChildProtonMisID",0), mdSet->GetPIDHistVar("PIDChildProtonMisID",1),
+						 basicName, basicVal, tNW, pRV, smp);
+	  Double_t wBPMisID(0.0);
+	  if ( checkBacProton )
+	    {
+	      wBPMisID = hBachProton.GetValues(mdSet->GetPIDHistVar("PIDBachProtonMisID",0), mdSet->GetPIDHistVar("PIDBachProtonMisID",1), 
+					       basicName, basicVal, tNW, pRV, smp);
+	    }
           // Please note that Ds and D mass hypo all applied in NTuple so no need to change mass hypo //
           if (hypo.Contains("K"))  // PartReco for BsDsK 
           {
             if( md.Contains("Kst") == true  || md.Contains("K") == true  )
             {
-              if ( md.Contains("Bd")  == true ) { wMC = hChild.GetWeight(pV[0],smp)*hBachEff.GetWeight(exp(p),smp); }
-              else if ( md.Contains("Lc") == true ) { wMC = hProton.GetWeight(pV[1],smp)*hBachEff.GetWeight(exp(p),smp); }
-              else{ wMC = hBachEff.GetWeight(exp(p),smp); }
+              if ( md.Contains("Bd")  == true ) { wMC = wChKPiMisID*wBE; }
+              else if ( md.Contains("Lc") == true ) { wMC = wChPMisID*wBE; }
+	      else if ( md.Contains("Dsp") == true || md.Contains("Dsstp") ) { wMC = wBPMisID; }
+              else{ wMC = wBE; }
             }
             else   // mode with {Pi,Rho,p}, bachelor has to be reweighted //  
             {
-              if ( md.Contains("Bd") == true ) { wMC = hChild.GetWeight(pV[0],smp)*hBach.GetWeight(exp(p),smp); }
-              else if ( md.Contains("Lc") == true) { wMC = hProton.GetWeight(pV[1],smp)*hBach.GetWeight(exp(p),smp); }
-              else{ wMC = hBach.GetWeight(exp(p),smp); }
+              if ( md.Contains("Bd") == true ) { wMC = wChKPiMisID*wBMisID; }
+              else if ( md.Contains("Lc") == true) { wMC = wChPMisID*wBMisID; }
+              else{ wMC = wBMisID; }
             }
           }
           else if (hypo.Contains("Pi")){  //PartReco for BsDsPi 
             if ( hypo.Contains("Bd") == true )
             {
-              if( md == "Lb2LcPi" ){ wMC = hProton.GetWeight(pV[1],smp)*hBachEff.GetWeight(exp(p),smp); }
-              else if( md == "Bs2DsPi") { wMC = hChild.GetWeight(pV[0],smp)*hBachEff.GetWeight(exp(p),smp); }
-              else if( md == "Bd2DK" ) { wMC = hBach.GetWeight(exp(p),smp); }
-              else { wMC = hBachEff.GetWeight(exp(p),smp); }
+              if( md == "Lb2LcPi" ){ wMC = wChPMisID*wBE; }
+              else if( md == "Bs2DsPi") { wMC = wChKPiMisID*wBE; }
+              else if( md == "Bd2DK" ) { wMC = wBMisID; }
+              else { wMC = wBE; }
             }
             else
             {
-              if( md == "Lb2LcPi" ) { wMC = hProton.GetWeight(pV[1],smp)*hBachEff.GetWeight(exp(p),smp); }
-              else if (md.Contains("Bd") == true ){ wMC = hChild.GetWeight(pV[0],smp)*hBachEff.GetWeight(exp(p),smp);}
-              else if ( md.Contains("Kst") == true  || md.Contains("K") == true ){ wMC = hBach.GetWeight(exp(p),smp); }
-              else { wMC = hBachEff.GetWeight(exp(p),smp); }
+              if( md == "Lb2LcPi" ) { wMC = wChPMisID*wBE; }
+              else if (md.Contains("Bd") == true ){  wMC = wChKPiMisID*wBE;}
+              else if ( md.Contains("Kst") == true  || md.Contains("K") == true ){ wMC = wBMisID; }
+              else { wMC = wBE; }
             }
           }
         }
         
         if (  mdSet->CheckDataMCWeighting() == true ||  mdSet->CheckMassWeighting() == true )
         {
+	  //std::cout<<wMC<<" "<<wRW<<std::endl; 
           weight->setVal(wMC*wRW*globalWeight);
         }
         
@@ -1634,11 +1681,13 @@ Double_t SetValCatObs(MDFitterSettings* mdSet, RooArgSet* obs,
           
           ag_shifted_counter++;
           
+	  /*
           if (hypo.Contains("Pi"))
           {
             // if ( pidk > mdSet->GetPIDBach())
             //  {
-            if( mdSet->CheckDataMCWeighting() == true ||  mdSet->CheckMassWeighting() == true )  { dataSetMCtmp[i]->add(*obs,wMC*wRW*globalWeight,0); }
+            if( mdSet->CheckDataMCWeighting() == true ||  mdSet->CheckMassWeighting() == true )  
+	      { dataSetMCtmp[i]->add(*obs,wMC*wRW*globalWeight,0); }
             else { dataSetMCtmp[i]->add(*obs); }
             //  }
           }
@@ -1646,10 +1695,11 @@ Double_t SetValCatObs(MDFitterSettings* mdSet, RooArgSet* obs,
           {
             //if ( pidk > log(mdSet->GetPIDBach()))
             //  {
-            if( mdSet->CheckDataMCWeighting() == true ||  mdSet->CheckMassWeighting() == true )  { dataSetMCtmp[i]->add(*obs,wMC*wRW*globalWeight,0); }
+            if( mdSet->CheckDataMCWeighting() == true ||  mdSet->CheckMassWeighting() == true )  
+	      { dataSetMCtmp[i]->add(*obs,wMC*wRW*globalWeight,0); }
             else { dataSetMCtmp[i]->add(*obs); }
             //  }
-          }
+	    }*/
         }
         
       }
@@ -1679,10 +1729,37 @@ Double_t SetValCatObs(MDFitterSettings* mdSet, RooArgSet* obs,
         }
         TString corrName = "corr_"+nm;
         GetCorrHist(dataSetMC[i], dataSetMCtmp[i], obs, obsName, corrName, plotSet, debug );
+
+	for (unsigned int k = 0; k<tN.size(); k++ )
+          {
+            Bool_t cat = false;
+            if ( tN[k] == mdSet->GetIDVar() ) { cat = true; }
+            if(  mdSet->CheckTagVar() == true )
+              {
+                for(int m = 0; m<mdSet->GetNumTagVar(); m++)
+                  {
+                    if ( tN[k] ==  mdSet->GetTagVar(m) )
+                      {
+			cat = true;
+			break;
+                      }
+                  }
+              }
+            if ( cat == false )
+              {
+                TString name = mdSet->GetVarOutName(tN[k]);
+		RooRealVar* var = (RooRealVar*)obs->find(name.Data());
+                SaveDataSet(dataSetMC[i], var, nm, md, plotSet, debug);
+              }
+          }
+        RooRealVar* var = (RooRealVar*)obs->find("BacEta");
+        SaveDataSet(dataSetMC[i], var, nm, md, plotSet, debug);
+
+
       }
       
       work->import(*dataSetMC[i]);
-      
+      delete treetmp;
     }
     return work;
   }
@@ -2522,8 +2599,12 @@ Double_t SetValCatObs(MDFitterSettings* mdSet, RooArgSet* obs,
 
     if ( plotSet == NULL ) { plotSet = new PlotSettings("plotSet","plotSet"); }
 
-    RooArgSet* obs = mdSet->GetObsSet(false, true, false, false, true, true);
+    RooArgSet* obs = mdSet->GetObsSet(); 
+    
+    RooRealVar* Eta = new RooRealVar("BacEta","BacEta",1.5,5.0);
+    obs->add(*Eta);
     obs->Print("v");
+
     std::vector <TString> tN = mdSet->GetVarNames(true,false,false,true,true);
     for(unsigned int i = 0; i<tN.size(); i++ )
     {
@@ -2562,19 +2643,24 @@ Double_t SetValCatObs(MDFitterSettings* mdSet, RooArgSet* obs,
 
     }
 
-    HistPID1D heff;
+    HistPID2D heff;
     if (  mdSet->CheckMassWeighting() == true || reweight == true)
       {
-        heff = mdSet->GetHistPID1D("PIDBachEff",yy);
+        heff = mdSet->GetHistPID2D("PIDBachEff",yy);
+	std::cout<<heff<<std::endl;
       }
-    
-    HistPID2D* hRDM = NULL;
-    if (  mdSet->CheckDataMCWeighting() == true || reweight == true )
+
+    HistPID2D hRDM;
+    if (mdSet->CheckDataMCWeighting() == true )
       {
-        TString RDM = mdSet->GetLabelDataMC(yy);
-        TString nameHistRDM = "histRatio";
-        hRDM = new HistPID2D(nameHistRDM, nameHistRDM, filesDir, RDM);
+	hRDM = mdSet->GetHistPID2D("RatioDataMC",yy);
+
+	if ( debug == true )
+	  {
+	    std::cout<<hRDM<<std::endl;
+	  }
       }
+
        
     if ( debug == true) std::cout<<"mode: "<<mode<<std::endl;
     
@@ -2606,7 +2692,31 @@ Double_t SetValCatObs(MDFitterSettings* mdSet, RooArgSet* obs,
         SetBranchAddress(treetmp, tB[k], tN[k], varD[k], varI[k], varF[k], varS[k], debug);
       }
 
-      if ( mdSet->CheckDataMCWeighting() == true && smp[i] == "both"){ smp[i] = hRDM->GetPolarity(i); }
+      std::vector <TString> tBW;
+      std::vector <TString> tNW;
+      std::vector <Double_t> varDW; std::vector <Int_t> varIW; std::vector <Float_t> varFW; std::vector <Short_t> varSW;
+      if ( mdSet->CheckMassWeighting()==true || mdSet->CheckDataMCWeighting() == true)
+	{
+
+	  tNW = mdSet->GetPIDHistVar(mdSet->CheckMassWeighting(), mdSet->CheckDataMCWeighting(), debug);
+
+	  for(unsigned int k = 0; k<tNW.size(); k++ )
+	    {
+	      if ( debug == true ) { std::cout<<"[INFO] Read variables for weighting: "<<tNW[k]; }
+	      tBW.push_back(treetmp->GetLeaf(tNW[k].Data())->GetTypeName());
+	      if ( debug == true ) { std::cout<<" with type: "<<tBW[k]<<std::endl; }
+	      InitializeRealObs(tBW[k], varDW, varIW, varFW, varSW, debug);
+	    }
+	  for(unsigned int k =0; k<tNW.size(); k++ )
+	    {
+	      SetBranchAddress(treetmp, tBW[k], tNW[k], varDW[k], varIW[k], varFW[k], varSW[k], debug);
+	    }
+
+	}
+
+
+
+      if ( mdSet->CheckDataMCWeighting() == true && smp[i] == "both"){ smp[i] = hRDM.GetPolarity(i); }
       if (  mdSet->CheckMassWeighting() == true  && smp[i] == "both"){ smp[i] = heff.GetPolarity(i); }
 
       Double_t globalWeight = 1.0;
@@ -2633,8 +2743,19 @@ Double_t SetValCatObs(MDFitterSettings* mdSet, RooArgSet* obs,
       for (Long64_t jentry=0; jentry<nentriesMC; jentry++) {
         treetmp->GetEntry(jentry); 
 
-        Double_t nTr(0), pT(0), p(0), pidk(0);
+        Double_t pidk(0);
         Double_t val(0);
+	Double_t pl(0), eta(0);
+
+	std::vector <TString> basicName;
+	std::vector <Double_t> basicVal;
+
+	basicName.push_back(mdSet->GetMomVar());
+        basicName.push_back(mdSet->GetTrMomVar());
+	basicName.push_back(mdSet->GetTracksVar());
+
+        basicVal.push_back(-99999.0); basicVal.push_back(-99999.0); basicVal.push_back(-999999.0);
+
         for(unsigned k = 0; k < tN.size(); k++)
         {
           Bool_t cat = false;
@@ -2653,24 +2774,43 @@ Double_t SetValCatObs(MDFitterSettings* mdSet, RooArgSet* obs,
           TString name = mdSet->GetVarOutName(tN[k]);
           if ( cat == true ) { val = SetValCatObs(mdSet, obs, name , tB[k], varD[k], varI[k], varF[k], varS[k]); }
           else{ val = SetValRealObs(mdSet, obs, name, tB[k], varD[k], varI[k], varF[k], varS[k], mode); }
-          if ( tN[k] == mdSet->GetMomVar() ) { p = val; }
-          if ( tN[k] == mdSet->GetTrMomVar() ) { pT = val; }
-          if ( tN[k] == mdSet->GetTracksVar() ) { nTr = val; }
+	  
+	  if ( tN[k] == mdSet->GetMomVar() ) { basicVal[0] = val; }
+          if ( tN[k] == mdSet->GetTrMomVar() ) { basicVal[1] = val; }
+          if ( tN[k] == mdSet->GetTracksVar() ) { basicVal[2] = val; }
           if ( tN[k] == mdSet->GetPIDKVar() ) { pidk = val; }
         }
-        
+
+	pl = sqrt(exp(basicVal[0])*exp(basicVal[0]) - exp(basicVal[1])*exp(basicVal[1]));
+        eta = 0.5 * log((exp(basicVal[0]) + pl) / (exp(basicVal[0]) - pl));
+
+        Eta->setVal(eta);
+
+	std::vector <Double_t> pRV;
+	if ( mdSet->CheckDataMCWeighting() == true || mdSet->CheckMassWeighting() == true)
+	  {
+	    for(unsigned k = 0; k < tNW.size(); k++)
+	      {
+		pRV.push_back(GetValue( tBW[k], varDW[k], varIW[k], varFW[k], varSW[k] ));
+	      }
+	  }
+
         if ( mdSet->CheckDataMCWeighting() == true )
-        {
-          wRW = hRDM->GetWeight(pT,nTr, smp[i]); 
-        }
-        if (  mdSet->CheckMassWeighting() == true )
-        {
-          wE = heff.GetWeight(exp(p), smp[i]); 
-        }
-        
+          {
+	    std::pair<Double_t,Double_t> valRDM = hRDM.GetValues(mdSet->GetPIDHistVar("RatioDataMC",0), mdSet->GetPIDHistVar("RatioDataMC",1),
+                                                                 basicName, basicVal, tNW, pRV);
+            wRW = hRDM.GetWeight(log(valRDM.first), log(valRDM.second), smp[i]);
+          }
+
+        if ( mdSet->CheckMassWeighting() == true )
+	  {
+	    wE =  heff.GetValues(mdSet->GetPIDHistVar("PIDBachEff",0), mdSet->GetPIDHistVar("PIDBachEff",1), basicName, basicVal, tNW, pRV, smp[i]);
+	  }
+
         if (  mdSet->CheckDataMCWeighting() == true ||  mdSet->CheckMassWeighting() == true || reweight == true)
         {
-          weight->setVal(wE*globalWeight); 
+	  
+          weight->setVal(wE*wRW*globalWeight); 
           dataSetMC[i]->add(*obs,wRW*wE*globalWeight,0);
         }
         else
@@ -2720,6 +2860,7 @@ Double_t SetValCatObs(MDFitterSettings* mdSet, RooArgSet* obs,
       obsName.push_back(mdSet->GetPIDKVarOutName());
       obsName.push_back(mdSet->GetTimeVarOutName());
       obsName.push_back(mdSet->GetTerrVarOutName());
+      obsName.push_back(mdSet->GetBDTGVarOutName());
       if(  mdSet->CheckTagOmegaVar() == true )
       {
         for(int k = 0; k<mdSet->GetNumTagOmegaVar(); k++)
@@ -3422,62 +3563,43 @@ Double_t SetValCatObs(MDFitterSettings* mdSet, RooArgSet* obs,
         std::cout<<"[INFO] total: "<<nE_lab1[i]/0.271811<<" procent: "<<nE_lab1[i]*ratio[i]/n_events_Hypo[i]*100/0.271811<<"%"<<std::endl;
       }
       std::cout<<"----------------------------------------------------------------"<<std::endl;
-      
-      // Reweighting for DK and LcK under DsK by MyPionEff_0 and MyKaonEff_5 
-      // with plotting results
-	    /*	
-          if ( mode == "BdDPi" || mode == "LbLcPi")
-          {
-          for (Long64_t jentry=0; jentry< n_events_Hypo[i]; jentry++)
-          {
-          ttmp2[i]->GetEntry(jentry);
-          Float_t lab1_PT3F = lab1_PT2;
-          Float_t nTr3F = nTrack2;
-          Int_t binRW = hrdm[i]->FindBin(log(lab1_PT3F),log(nTr3F)); //,log(lab1_P3));
-          Double_t wRW = hrdm[i]->GetBinContent(binRW);
-          
-          Int_t bin1 = h_1[i]->FindBin(lab1_P2*wRW);
-          Double_t w1 = h_1[i]->GetBinContent(bin1);
-          
-          bin1 = heff0->FindBin(lab1_P2*wRW);
-          Double_t weff0 = heff0->GetBinContent(bin1);
-          
-          bin1 = heff10->FindBin(lab1_P2*wRW);
-          Double_t weff10 = heff10->GetBinContent(bin1);
-          if ( mode == "BdDPi" || mode == "LbLcPi")
-          {
-          for (Long64_t jentry=0; jentry< n_events_Hypo[i]; jentry++)
-          {
-          ttmp2[i]->GetEntry(jentry);
 
-          Double_t wRW = hRDM->GetWeight(log(lab1_PT2),log(nTrack2), smpHypo[i]);
-          Double_t w1 = h[0]->GetWeight(lab1_P2*wRW,smpHypo[i]);
-          Double_t weff0 = heff0->GetWeight(lab1_P2*wRW,smpHypo[i]);
-          Double_t weff10 = heff10->GetWeight(lab1_P2*wRW,smpHypo[i]);
-          Double_t wmisID5 = hmisID5->GetWeight(lab1_P2*wRW,smpHypo[i]);
-          
-          Double_t y=0;
-          if ( weff0 != 0 && weff10 !=0) { y = w1/weff0*weff10;}
-          
-          Double_t y2=0;
-          if ( weff0 != 0 && wmisID5 !=0) { y2 = w1/weff0*wmisID5;}
-          
-          nE_lab1[i] = nE_lab1[i]+y;
-          nE_lab1MisID[i] = nE_lab1MisID[i]+y2;
-          //std::cout<<"jentry: "<<jentry<<" "<<w1<<" "<<weff0<<" ";
-          //std::cout<<weff10<<" "<<y<<td::endl;
+      nE_lab1[i] = 0.0;
+      nE_lab1MisID[i] = 0.0;
 
-          }
-          std::cout<<"----------------------------------------------------------------"<<std::endl;                                                                                              
-          std::cout<<"[INFO] For: "<<nameOwn.first<<" "<<nameOwn.second<<" sample "<<smpOwn[i]<<std::endl;                                                                                    
-          std::cout<<"[INFO]     under hypothesis"<<nameHypo.first<<" "<<nameHypo.second<<std::endl;               
+      if ( nameOwn.first.Contains("LcPi") || nameOwn.first.Contains("Bd2DPi"))
+	{
+          for (Long64_t jentry=0; jentry< n_events_Hypo[i]; jentry++)
+            {
+              ttmp2[i]->GetEntry(jentry);
+
+              Double_t wRW = hRDM->GetWeight(log(lab1_PT2),log(nTrack2), smpHypo[i]);
+              Double_t weff0 = heff0->GetWeight(lab1_P2*wRW,smpHypo[i]);
+              Double_t weff10 = heff5->GetWeight(lab1_P2*wRW,smpHypo[i]);
+              Double_t wmisID5 = hmisID5->GetWeight(lab1_P2*wRW,smpHypo[i]);
+
+              Double_t y=0;
+              if ( weff0 != 0 && weff10 !=0) { y = (weff10/weff0);}
+
+              Double_t y2=0;
+              if ( weff0 != 0 && wmisID5 !=0) { y2 = (wmisID5/weff0);}
+               
+
+              nE_lab1[i] = nE_lab1[i]+y;
+              nE_lab1MisID[i] = nE_lab1MisID[i]+y2;  
+
+            }
+          std::cout<<"----------------------------------------------------------------"<<std::endl;                                   
+          std::cout<<"[INFO] For: "<<nameOwn.first<<" "<<nameOwn.second<<" sample "<<smpOwn[i]<<std::endl;                            
+          std::cout<<"[INFO]     under hypothesis"<<nameHypo.first<<" "<<nameHypo.second<<std::endl;
           std::cout<<"[INFO] eff1: "<<nE_lab1[i]<<" procent: "<<nE_lab1[i]/n_events_Hypo[i]*100<<"%"<<std::endl;
           std::cout<<"[INFO] misID1: "<<nE_lab1MisID[i]<<" procent: "<<nE_lab1MisID[i]/n_events_Hypo[i]*100<<"%"<<std::endl;
           std::cout<<"[INFO] All_misID: "<<all_misID*nE_lab1[i]/n_events_Hypo[i]*100<<"%"<<std::endl;
           std::cout<<"[INFO] All_misID2: "<<all_misID*nE_lab1MisID[i]/n_events_Hypo[i]*100<<"%"<<std::endl;
           std::cout<<"----------------------------------------------------------------"<<std::endl;
-	    
-	    }*/
+
+        }
+
       
     }
       /*    

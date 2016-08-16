@@ -2473,10 +2473,10 @@ namespace GeneralUtils {
           label = "#font[132]{m(#Lambda_{c}#kern[-0.3]{"+happymin+"}#kern[0.1]{#pi#lower[-0.95]{#scale[0.6]{+}}}) [MeV/#font[12]{c}^{2}]}";
         }
 	else
-  {
-    std::cout<<"[ERROR] Wrong charm decay: "<<decay<<std::endl;
-    return label;
-  }
+	  {
+	    std::cout<<"[ERROR] Wrong charm decay: "<<decay<<std::endl;
+	    return label;
+	  }
       }
       else if ( decay.Contains("DsstK") == true ) 
       {
@@ -2494,6 +2494,11 @@ namespace GeneralUtils {
       {
         label = "#font[132]{m(D#kern[-0.3]{"+happymin+"}#kern[0.1]{#pi#lower[-0.95]{#scale[0.6]{+}}}) [MeV/#font[12]{c}^{2}]}";
       }
+      else if ( decay.Contains("LcPi") == true )
+        {
+          label = "#font[132]{m(#Lambda_{c}#kern[-0.3]{"+happymin+"}#kern[0.1]{#pi#lower[-0.95]{#scale[0.6]{+}}}) [MeV/#font[12]{c}^{2}]}";
+        }
+
       else
       {
         std::cout<<"[ERROR] Wrong charm decay: "<<decay<<std::endl;

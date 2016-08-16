@@ -18,7 +18,7 @@ def getconfig() :
     configdict["dataName"]   = "../data/Bs2DsK_3fbCPV/Bs2DsK/config_Bs2DsK.txt"
     #settings for control plots 
     configdict["ControlPlots"] = {} 
-    configdict["ControlPlots"] = { "Directory": "PlotBs2DsK_Nominal", "Extension":"pdf"} 
+    configdict["ControlPlots"] = { "Directory": "PlotBs2DsK_BsP2", "Extension":"pdf"} 
         
     # basic variables
     configdict["BasicVariables"] = {}
@@ -45,8 +45,8 @@ def getconfig() :
     HLTcut = "&&(lab0_Hlt1TrackAllL0Decision_TOS && (lab0_Hlt2IncPhiDecision_TOS ==1 || lab0_Hlt2Topo2BodyBBDTDecision_TOS == 1 || lab0_Hlt2Topo3BodyBBDTDecision_TOS == 1))"
     # additional cuts applied to data sets
     configdict["AdditionalCuts"] = {}
-    configdict["AdditionalCuts"]["All"]    = { "Data": "lab2_TAU>0&&lab1_PIDmu<2"+HLTcut,            
-                                               "MC" : "lab2_TAU>0&&lab1_M>200&&lab1_PIDK !=-1000.0"+HLTcut, "MCID":True, "MCTRUEID":True, "BKGCAT":True, "DsHypo":True}
+    configdict["AdditionalCuts"]["All"]    = { "Data": "lab0_P>=120000&&lab2_TAU>0&&lab1_PIDmu<2"+HLTcut,            
+                                               "MC" : "lab0_P>=120000&&lab2_TAU>0&&lab1_M>200&&lab1_PIDK !=-1000.0"+HLTcut, "MCID":True, "MCTRUEID":True, "BKGCAT":True, "DsHypo":True}
     configdict["AdditionalCuts"]["KKPi"]   = { "Data": "lab2_FDCHI2_ORIVX > 2", "MC" : "lab2_FDCHI2_ORIVX > 2"}
     configdict["AdditionalCuts"]["KPiPi"]  = { "Data": "lab2_FDCHI2_ORIVX > 9", "MC" : "lab2_FDCHI2_ORIVX > 9"}
     configdict["AdditionalCuts"]["PiPiPi"] = { "Data": "lab2_FDCHI2_ORIVX > 9&&lab45_MM<1700", "MC" : "lab2_FDCHI2_ORIVX > 9"}
@@ -69,6 +69,7 @@ def getconfig() :
                                             "RatioDataMC":{ "FileLabel": {"2011":"#RatioDataMC 2011 PNTr", "2012": "#RatioDataMC 2012 PNTr"},
                                                             "Var":["lab1_P","nTracks"], "HistName":"histRatio"},
                                             "Shift":{ "BeautyMass": -2.0, "CharmMass": 0.0} }
+
     
     #weighting for PID templates
     configdict["ObtainPIDTemplates"] = { "Variables":["BacPT","nTracks"], "Bins":[30,30] }
@@ -126,6 +127,7 @@ def getconfig() :
     configdict["BsSignalShape"]["frac"]    = {"Run1": {"NonRes":0.5,         "PhiPi":0.5,         "KstK":0.5,         "KPiPi":0.5,         "PiPiPi":0.5},         "Fixed":True}
     configdict["BsSignalShape"]["R"]       = {"Run1": {"NonRes":1.0663e+00,  "PhiPi":1.1014e+00,  "Kstk":1.0789e+00,  "KPiPi":1.1124e+00,  "PiPiPi":1.0607e+00},  "Fixed":True}
 
+
     #Ds signal shapes                                                                                                
     configdict["DsSignalShape"] = {}
     configdict["DsSignalShape"]["type"]    = "DoubleCrystalBallWithWidthRatio"
@@ -145,7 +147,6 @@ def getconfig() :
     configdict["BsCombinatorialShape"]["type"] = "Exponential"
     configdict["BsCombinatorialShape"]["cB"]   = {"Run1":{"NonRes":-1.1530e-02,  "PhiPi":-9.2354e-03,  "KstK":-1.3675e-02, "KPiPi":-9.8158e-03, "PiPiPi":-1.0890e-03}, "Fixed":False}
 
-
     configdict["DsCombinatorialShape"] = {}
     configdict["DsCombinatorialShape"] = {}
     configdict["DsCombinatorialShape"]["type"]  = "ExponentialPlusDoubleCrystalBallWithWidthRatioSharedMean"
@@ -161,13 +162,11 @@ def getconfig() :
     configdict["DsCombinatorialShape"]["cB"]      = {"Run1": {"NonRes":-4.4329e-03,  "PhiPi":-8.8642e-03,  "KstK":-5.2652e-03, "KPiPi":-5.0743e-03, "PiPiPi":-5.1877e-03},"Fixed":False}
     configdict["DsCombinatorialShape"]["fracD"]   = {"Run1": {"NonRes":0.88620,      "PhiPi":0.37379,     "KstK":0.59093,      "KPiPi":0.5,         "PiPiPi":0.5},"Fixed":False}
 
-    
     configdict["PIDKCombinatorialShape"] = {}
     configdict["PIDKCombinatorialShape"]["type"] = "Fixed"
     configdict["PIDKCombinatorialShape"]["components"] = { "Kaon":True, "Pion":True, "Proton":True }
     configdict["PIDKCombinatorialShape"]["fracPIDK1"]   = { "Run1":{"NonRes":0.9, "PhiPi":0.9, "KstK":0.9, "KPiPi":0.8, "PiPiPi":0.8 }, "Fixed":False }
     configdict["PIDKCombinatorialShape"]["fracPIDK2"]   = { "Run1":{"NonRes":0.9, "PhiPi":0.9, "KstK":0.9, "KPiPi":0.8, "PiPiPi":0.8 }, "Fixed":False }
-
 
     #Bd2Dsh background                                                                                           
     #shape for BeautyMass, for CharmMass as well as BacPIDK taken by default the same as signal                                                                

@@ -526,12 +526,8 @@ namespace WeightingUtils {
     mframe_Var2->SetTitle(Title.Data());
 
     RooPlot* mframe_PID = PID->frame();
+    dataCalib->plotOn(mframe_PID,RooFit::MarkerColor(plotSet->GetColorData(2)), RooFit::Binning(bin3));
     dataCalibRW->plotOn(mframe_PID,RooFit::MarkerColor(plotSet->GetColorData(0)), RooFit::Binning(bin3));
-    if ( label1.Contains("Comb") != true )
-      {
-	dataMC->plotOn(mframe_PID,RooFit::MarkerColor(plotSet->GetColorData(2)), RooFit::Binning(bin3), RooFit::Rescale(scaleA));
-      }
-    //mframe_Var2->GetXaxis()->SetTitle(l2.Data());
     mframe_PID->SetTitle(Title.Data());
     mframe_PID->SetLabelFont(132);
     mframe_PID->SetTitleFont(132);
@@ -572,6 +568,17 @@ namespace WeightingUtils {
     //legend2->Draw("same");
     ch_RW->Update();
     ch_RW->SaveAs(save.Data());
+
+    TString savePIDK1 = dataCalibRW->GetName();
+    TString savePIDK = dir+"/pidk_"+savePIDK1+"."+ext;
+    TCanvas *ch_PIDK = new TCanvas("c2h_PIDK","",10,10,2400,1200);
+    ch_PIDK->SetFillColor(0);
+    mframe_PID->Draw();
+    legend->Draw("same");
+    lhcbtext->DrawTextNDC( 0.72 , 0.80, "LHCb");                                                                                                                                
+    ch_PIDK->Update();
+    ch_PIDK->SaveAs(savePIDK.Data());
+
 
     /*
     delete dataMC;
@@ -856,12 +863,26 @@ namespace WeightingUtils {
 
     PIDCalibrationSample calib = md->GetCalibSample(bach, year, pol, strip, debug);
     
-    TString nameVar1 = md->GetVar(0); 
+    TString nameVar1 = md->GetVar(0);
     TString nameVar2 = md->GetVar(1);
     calib.ObtainVar1Name(nameVar1, debug);
     calib.ObtainVar2Name(nameVar2, debug);
-    RooRealVar* Var1 = new RooRealVar(nameVar1.Data(),nameVar1.Data(),log(md->GetRangeDown(md->GetVar(0))), log(md->GetRangeUp(md->GetVar(0))));
-    RooRealVar* Var2 = new RooRealVar(nameVar2.Data(),nameVar2.Data(),log(md->GetRangeDown(md->GetVar(1))), log(md->GetRangeUp(md->GetVar(1)))); //-5,6);
+
+    Double_t Var1_down = md->GetRangeDown(md->GetVar(0));
+    Double_t Var1_up = md->GetRangeUp(md->GetVar(0));
+    Double_t Var2_down = md->GetRangeDown(md->GetVar(1));
+    Double_t Var2_up = md->GetRangeUp(md->GetVar(1));
+    if ( nameVar1 == "BacEta") { Var1_down = 1.5; Var1_up = 5.0;}
+    else { if ( debug ) { std::cout<<"[INFO] Applying log scale for Var1 range: "<<Var1_down<<","<<Var1_up<<")"<<std::endl; }
+      Var1_down = log(Var1_down); Var1_up = log(Var1_up); }
+    if ( nameVar2 == "BacEta") { Var2_down = 1.5; Var2_up = 5.0;}
+    else {
+      std::cout<<"[INFO] Applying log scale for Var2 range: ("<<Var2_down<<","<<Var2_up<<")"<<std::endl;
+      Var2_down = log(Var2_down); Var2_up = log(Var2_up);
+    }
+    RooRealVar* Var1 = new RooRealVar(nameVar1.Data(), nameVar1.Data(), Var1_down, Var1_up);
+    RooRealVar* Var2 = new RooRealVar(nameVar2.Data(), nameVar2.Data(), Var2_down, Var2_up);
+
     
     TString label1, label2;
     if ( nameVar1 != nameVar2 )
@@ -935,8 +956,9 @@ namespace WeightingUtils {
 	    hist2Data.push_back(Get2DHist(data,Var1, Var2, md->GetBin(0), md->GetBin(1), histName, debug));
 	    
 	    hist2Ratio.push_back(new TH2F(histNameR.Data(),histNameR.Data(),
-					  md->GetBin(0),log(md->GetRangeDown(md->GetVar(0))),log(md->GetRangeUp(md->GetVar(0))),
-					  md->GetBin(1),log(md->GetRangeDown(md->GetVar(1))),log(md->GetRangeUp(md->GetVar(1)))));
+                                          md->GetBin(0),Var1_down,Var1_up,
+                                          md->GetBin(1),Var2_down,Var2_up));
+
 	    int sizehist = hist2Ratio.size();
 	    hist2Ratio[sizehist-1]->SetStats(kFALSE);
 	    hist2Ratio[sizehist-1]->GetXaxis()->SetTitle(label1.Data());
@@ -1016,19 +1038,29 @@ namespace WeightingUtils {
     TString nameVar1 = md->GetVar(0);
     TString nameVar2 = md->GetVar(1);
     TString namePID = md->GetPIDKVarOutName();
+    Double_t PID_up = md->GetPIDKRangeUp();
+    Double_t PID_down = md->GetPIDKRangeDown();
+    Int_t bin1 = md->GetBin(0);
+    Int_t bin2 = md->GetBin(1);
+
+    calib.ObtainVar1Name(nameVar1, debug);
+    calib.ObtainVar2Name(nameVar2, debug);
+
     Double_t Var1_down = md->GetRangeDown(md->GetVar(0));
     Double_t Var1_up = md->GetRangeUp(md->GetVar(0));
     Double_t Var2_down = md->GetRangeDown(md->GetVar(1));
     Double_t Var2_up = md->GetRangeUp(md->GetVar(1));
-    Double_t PID_up = md->GetPIDKRangeUp();
-    Double_t PID_down = md->GetPIDKRangeDown(); 
-    Int_t bin1 = md->GetBin(0);
-    Int_t bin2 = md->GetBin(1);
-    
-    calib.ObtainVar1Name(nameVar1, debug); 
-    calib.ObtainVar2Name(nameVar2, debug); 
-    RooRealVar* Var1 = new RooRealVar(nameVar1.Data(),nameVar1.Data(),log(Var1_down), log(Var1_up));
-    RooRealVar* Var2 = new RooRealVar(nameVar2.Data(),nameVar2.Data(),log(Var2_down), log(Var2_up)); 
+    if ( nameVar1 == "BacEta") { Var1_down = 1.5; Var1_up = 5.0;}
+    else { if ( debug ) { std::cout<<"[INFO] Applying log scale for Var1 range: ("<<Var1_down<<","<<Var1_up<<")"<<std::endl; }
+      Var1_down = log(Var1_down); Var1_up = log(Var1_up); }
+    if ( nameVar2 == "BacEta") { Var2_down = 1.5; Var2_up = 5.0;}
+    else {
+      std::cout<<"[INFO] Applying log scale for Var2 range: ("<<Var2_down<<","<<Var2_up<<")"<<std::endl;
+      Var2_down = log(Var2_down); Var2_up = log(Var2_up);
+    }
+    RooRealVar* Var1 = new RooRealVar(nameVar1.Data(), nameVar1.Data(), Var1_down, Var1_up);
+    RooRealVar* Var2 = new RooRealVar(nameVar2.Data(), nameVar2.Data(), Var2_down, Var2_up);
+
     RooRealVar* lab1_PIDK = new RooRealVar(namePID.Data(), namePID.Data(), PID_down, PID_up);
      
     if(debug == true) std::cout<<nameVar1<<" range: ("<<Var1_down<<","<<Var1_up<<")"<<std::endl;
@@ -1368,10 +1400,6 @@ namespace WeightingUtils {
     TString nameVar1 = md->GetVar(0);
     TString nameVar2 = md->GetVar(1);
     TString namePID = md->GetPIDKVarOutName();
-    Double_t Var1_down = md->GetRangeDown(md->GetVar(0));
-    Double_t Var1_up = md->GetRangeUp(md->GetVar(0));
-    Double_t Var2_down = md->GetRangeDown(md->GetVar(1));
-    Double_t Var2_up = md->GetRangeUp(md->GetVar(1));
     Double_t PID_up = md->GetPIDKRangeUp();
     Double_t PID_down = md->GetPIDKRangeDown();
     Int_t bin1 = md->GetBin(0);
@@ -1380,8 +1408,20 @@ namespace WeightingUtils {
     calib.ObtainVar1Name(nameVar1, debug);
     calib.ObtainVar2Name(nameVar2, debug);
 
-    RooRealVar* Var1 = new RooRealVar(nameVar1.Data(),nameVar1.Data(),log(Var1_down), log(Var1_up));
-    RooRealVar* Var2 = new RooRealVar(nameVar2.Data(),nameVar2.Data(),log(Var2_down), log(Var2_up)); //-5,6);
+    Double_t Var1_down = md->GetRangeDown(md->GetVar(0));
+    Double_t Var1_up = md->GetRangeUp(md->GetVar(0));
+    Double_t Var2_down = md->GetRangeDown(md->GetVar(1));
+    Double_t Var2_up = md->GetRangeUp(md->GetVar(1));
+    if ( nameVar1 == "BacEta") { Var1_down = 1.5; Var1_up = 5.0;}
+    else { if ( debug ) { std::cout<<"[INFO] Applying log scale for Var1 range: "<<Var1_down<<","<<Var1_up<<")"<<std::endl; }
+      Var1_down = log(Var1_down); Var1_up = log(Var1_up); }
+    if ( nameVar2 == "BacEta") { Var2_down = 1.5; Var2_up = 5.0;}
+    else {
+      std::cout<<"[INFO] Applying log scale for Var2 range: ("<<Var2_down<<","<<Var2_up<<")"<<std::endl;
+      Var2_down = log(Var2_down); Var2_up = log(Var2_up);
+    }
+    RooRealVar* Var1 = new RooRealVar(nameVar1.Data(), nameVar1.Data(), Var1_down, Var1_up);
+    RooRealVar* Var2 = new RooRealVar(nameVar2.Data(), nameVar2.Data(), Var2_down, Var2_up);
     RooRealVar* lab1_PIDK = new RooRealVar(namePID.Data(), namePID.Data(), PID_down, PID_up);
 
     TString label1, label2;
@@ -1465,8 +1505,8 @@ namespace WeightingUtils {
       }
     hist2Data.push_back(Get2DHist(data,Var1, Var2, bin1, bin2, histName, debug));
     hist2Ratio.push_back(new TH2F(histNameR.Data(),histNameR.Data(),
-				  bin1,log(Var1_down),log(Var1_up),
-				  bin2,log(Var2_down),log(Var2_up)));
+                                  bin1,Var1_down,Var1_up,
+                                  bin2,Var2_down,Var2_up));
     int sizehist = hist2Ratio.size();
     hist2Ratio[sizehist-1]->SetStats(kFALSE);
     hist2Ratio[sizehist-1]->GetXaxis()->SetTitle(label1.Data());
@@ -1544,10 +1584,6 @@ namespace WeightingUtils {
     TString nameVar1 = md->GetVar(0);
     TString nameVar2 = md->GetVar(1);
     TString namePID = md->GetPIDKVarOutName();
-    Double_t Var1_down = md->GetRangeDown(md->GetVar(0));
-    Double_t Var1_up = md->GetRangeUp(md->GetVar(0));
-    Double_t Var2_down = md->GetRangeDown(md->GetVar(1));
-    Double_t Var2_up = md->GetRangeUp(md->GetVar(1));
     Double_t PID_up = md->GetPIDKRangeUp();
     Double_t PID_down = md->GetPIDKRangeDown();
     Int_t bin1 = md->GetBin(0);
@@ -1556,9 +1592,23 @@ namespace WeightingUtils {
     calib.ObtainVar1Name(nameVar1, debug);
     calib.ObtainVar2Name(nameVar2, debug);
 
-    RooRealVar* Var1 = new RooRealVar(nameVar1.Data(),nameVar1.Data(),log(Var1_down), log(Var1_up));
-    RooRealVar* Var2 = new RooRealVar(nameVar2.Data(),nameVar2.Data(),log(Var2_down), log(Var2_up));
+    Double_t Var1_down = md->GetRangeDown(md->GetVar(0));
+    Double_t Var1_up = md->GetRangeUp(md->GetVar(0));
+    Double_t Var2_down = md->GetRangeDown(md->GetVar(1));
+    Double_t Var2_up = md->GetRangeUp(md->GetVar(1));
+    if ( nameVar1 == "BacEta") { Var1_down = 1.5; Var1_up = 5.0;}
+    else { if ( debug ) { std::cout<<"[INFO] Applying log scale for Var1 range: "<<Var1_down<<","<<Var1_up<<")"<<std::endl; }
+      Var1_down = log(Var1_down); Var1_up = log(Var1_up); }
+    if ( nameVar2 == "BacEta") { Var2_down = 1.5; Var2_up = 5.0;}
+    else {
+      std::cout<<"[INFO] Applying log scale for Var2 range: ("<<Var2_down<<","<<Var2_up<<")"<<std::endl;
+      Var2_down = log(Var2_down); Var2_up = log(Var2_up);
+    }
+    RooRealVar* Var1 = new RooRealVar(nameVar1.Data(), nameVar1.Data(), Var1_down, Var1_up);
+    RooRealVar* Var2 = new RooRealVar(nameVar2.Data(), nameVar2.Data(), Var2_down, Var2_up);
+
     RooRealVar* lab1_PIDK = new RooRealVar(namePID.Data(), namePID.Data(), PID_down, PID_up);
+
     
     if(debug == true) std::cout<<nameVar1<<" range: ("<<Var1_down<<","<<Var1_up<<")"<<std::endl;
     if(debug == true) std::cout<<nameVar2<<" range: ("<<Var2_down<<","<<Var2_up<<")"<<std::endl;
@@ -1670,12 +1720,12 @@ namespace WeightingUtils {
 	 || type.Contains("CombPi") == true || (type.Contains("Bs2DsstPi") == true && type.Contains("MC") == true) )
       {
 	dataRW = new RooDataSet(nameCalib.Data(),nameCalib.Data(),RooArgSet(*lab1_PIDK,*Var1,*Var2,*weights), namew.Data());
-	histPID = new TH1D(namehist.Data(), namehist.Data(), 200, PID_down, PID_up); //50, log(0.0001), log(-PID_down));
+	//histPID = new TH1D(namehist.Data(), namehist.Data(), 200, PID_down, PID_up); //50, log(0.0001), log(-PID_down));
       }
     else
       {
 	dataRW = new RooDataSet(nameCalib.Data(),nameCalib.Data(),RooArgSet(*lab1_PIDK,*Var1,*Var2,*weights), namew.Data());
-	histPID = new TH1D(namehist.Data(), namehist.Data(), 50, PID_down, PID_up);
+	///	histPID = new TH1D(namehist.Data(), namehist.Data(), 50, PID_down, PID_up);
       }
 	   
     for (Long64_t jentry=0; jentry<dataC->numEntries(); jentry++)
@@ -1694,19 +1744,10 @@ namespace WeightingUtils {
 	  {
 	    nsig_sw3 = CalibWeight->getValV(setInt);
 	  }
-
-	//if ( (type.Contains("Bs2DsPi") == true && type.Contains("MC") == true) || type.Contains("DPi") == true || 
-	//     type.Contains("CombPi") == true || (type.Contains("Bs2DsstPi") == true && type.Contains("MC") == true) )
-	//  {
-	//    PID3 = -PID3; 
-	//    lab1_PIDK->setVal(log(PID3));
-	//  }
-	//else
-	//  {
-	    lab1_PIDK->setVal(PID3);
-	    //  }
+	lab1_PIDK->setVal(PID3);
 	Var1->setVal(Var13);
 	Var2->setVal(Var23);
+
 	//std::cout<<"Var13: "<<Var13<<" Var23: "<<Var23<<std::endl;
 	Int_t binRW = hist->FindBin(Var13,Var23);
 	wRW = hist->GetBinContent(binRW);
@@ -1810,10 +1851,9 @@ namespace WeightingUtils {
             work->import(*pdfPID2);
 
 	  }
-	else
+	else  if ( type.Contains("Kaon") == true)
 	  {
 	    if( type.Contains("CombPi") == true ) { nn = "CombK_"+nm; }
-	    //nn = nn+year;
 	    TString namepdf = "PIDKShape_"+nn;
 	    pdfPID2= new RooBinned1DQuinticBase<RooAbsPdf>(namepdf.Data(), namepdf.Data(), *histPID, *lab1_PIDK, true);
 	    RooAbsPdf* pdfSave = pdfPID2;
@@ -1821,9 +1861,27 @@ namespace WeightingUtils {
 	    SaveTemplate( dataRW, pdfSave, lab1_PIDK,  nn, t, plotSet, debug );
 	    work->import(*pdfPID2);
 	    
-	    //pdfPID = FitPDFShapeForPIDBsDsPiK(dataRW, lab1_PIDK, nn,  plotSet, debug);
-	    //work->import(*pdfPID);
 	  }
+	else
+          {
+            TString strip = CheckStripping(type,debug);
+            if ( strip == "str17" )
+              {
+                if( type.Contains("CombPi") == true ) { nn = "CombP_"+nm;}                                                          
+                pdfPID = FitPDFShapeForPIDBsDsKP(dataRW, lab1_PIDK, nn,  plotSet, debug);
+                work->import(*pdfPID);
+              }
+            else
+              {
+                if( type.Contains("CombPi") == true ) { nn = "CombP_"+nm;} 
+                TString namepdf = "PIDKShape_"+nn;
+                pdfPID2= new RooBinned1DQuinticBase<RooAbsPdf>(namepdf.Data(), namepdf.Data(), *histPID, *lab1_PIDK, true);
+                RooAbsPdf* pdfSave = pdfPID2;
+                TString t = "";
+                SaveTemplate( dataRW, pdfSave, lab1_PIDK,  nn, t, plotSet, debug );
+                work->import(*pdfPID2);
+              }
+          }
       }
     else if ( (type.Contains("MC") == true && type.Contains("Bs2DsK") == true ) ||
 	      (type.Contains("MC") == true && type.Contains("Bs2DsstK") == true ) ||
@@ -1837,7 +1895,7 @@ namespace WeightingUtils {
 	if ( type.Contains("Pion") == true)
 	  {
 	    
-	    if( type.Contains("CombK") == true ) { nn = "CombPi_"+nm; } //nn = nn+year; }
+	    if( type.Contains("CombK") == true ) { nn = "CombPi_"+nm; } 
 	    if (type.Contains("Bs2DsPi") == true && type.Contains("MC") != true) { nn = "Bs2DsPi_"+sample+"_"+mode+year; }
 	    if (type.Contains("Bs2DsstPi") == true && type.Contains("MC") != true) { nn = "Bs2DsstPi_"+sample+"_"+mode+year; }
 
