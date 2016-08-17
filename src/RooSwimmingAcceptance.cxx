@@ -19,6 +19,7 @@
 #include <cmath>
 #include <complex>
 #include <numeric>
+#include <limits>
 
 // ROOT
 #include "TH1.h"
@@ -42,23 +43,26 @@ bool RooSwimmingAcceptance::updateTPs(double min, double max) const
 {
     //assert(min <= max);
     m_tps.clear();
-    m_tps.push_back(min);
-    bool state = m_initialTPState, retVal = !m_initialTPState;
+    bool retVal = !m_initialTPState;
     RooFIter fit = m_tpList.fwdIterator();
+    const RooAbsReal *ptp = nullptr;
+    double tp = -std::numeric_limits<double>::infinity();
     unsigned n = m_nTp;
-    for (const RooAbsReal *ptp = static_cast<const RooAbsReal*>(fit.next());
-         ptp && n--;
-         ptp = static_cast<const RooAbsReal*>(fit.next()), state = !state) {
-        const double tp = ptp->getVal();
-        if (tp > min && tp < max) {
-            if (1 == m_tps.size()) retVal = !state;
-            m_tps.push_back(tp);
-        } else if (tp <= min) {
-            continue;
-        } else if (tp >= max) {
-            break;
-        }
+    // start by skipping the turning points < min, keep track of state of
+    // acceptance (on/off) in retVal
+    while (n-- && (retVal = !retVal,
+                ptp = static_cast<const RooAbsReal*>(fit.next())) &&
+            (tp = ptp->getVal()) < min) {}
+    // add the first TP to m_tps restricted to the range [min, max], keep track
+    // if it's turning the acceptance on or off
+    if (min < tp && tp < max) m_tps.push_back(min), retVal = !retVal;
+    if (tp < max) m_tps.push_back(tp);
+    // add the remaining TP < max
+    while (n-- && (ptp = static_cast<const RooAbsReal*>(fit.next())) &&
+            (tp = ptp->getVal()) < max) {
+        m_tps.push_back(tp);
     }
+    // and end with max
     m_tps.push_back(max);
     //assert(m_tps.size() >= 2);
     //assert(std::is_sorted(m_tps.begin(), m_tps.end()));

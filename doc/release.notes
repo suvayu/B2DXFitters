@@ -4,6 +4,14 @@
 ! Purpose     : RooFit-based fitters for B -> D X
 !-----------------------------------------------------------------------------
 
+! 2016-08-17 - Manuel Tobias Schiller
+ - RooSwimmingAcceptance: rewrite updateTPs method to work on lxplus, too
+   (background information: there was a difference in the outcome of
+   comparisions depending on compiler flags, most likely due to the difference
+   between real 64 bit doubles in SSE registers and the 80 bit extended format
+   used internally in the x87 FPU registers); this new code seems to be more
+   robust and works both on lxplus and my laptop
+
 ! 2016-08-17 - Agnieszka Dziurda 
  - updates for DsK analysis:
    - 2D weighting by misID/eff histograms
