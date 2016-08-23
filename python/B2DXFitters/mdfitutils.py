@@ -114,19 +114,19 @@ def setConstantIfSoConfigured(var, par, mode, dmode, pol, myconfigfile):
 
 def getObservables (MDSettings, workData, toys, debug):
 
-    if (not toys ):
-        observables = MDSettings.GetObsSet(False,True,True,True,True, True)
-    else:
-        observables = MDSettings.GetObsSet(False,True,True,True,False, False)
+#    if (not toys ):
+    observables = MDSettings.GetObsSet(False,True,True,True,True, True)
+#    else:
+#        observables = MDSettings.GetObsSet(False,True,True,True,False, False)
 
-    if MDSettings.CheckTagVar() == True:
-        tagDecCombName = TString("tagDecComb")
-        tagDecComb = GeneralUtils.GetCategory(workData, tagDecCombName, debug)
-        tagOmegaCombName= TString("tagOmegaComb")
-        tagOmegaComb = GeneralUtils.GetObservable(workData, tagOmegaCombName, debug)
+#    if MDSettings.CheckTagVar() == True:
+#        tagDecCombName = TString("tagDecComb")
+#        tagDecComb = GeneralUtils.GetCategory(workData, tagDecCombName, debug)
+#        tagOmegaCombName= TString("tagOmegaComb")
+#        tagOmegaComb = GeneralUtils.GetObservable(workData, tagOmegaCombName, debug)
 
-        observables.add(tagDecComb)
-        observables.add(tagOmegaComb)
+#        observables.add(tagDecComb)
+#        observables.add(tagOmegaComb)
 
     if debug:
         observables.Print("v")

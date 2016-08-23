@@ -341,6 +341,7 @@ namespace GeneralUtils {
   // Get Ds mode in capital letters                                                                                                                                               
   //==========================================================================           
   TString GetModeCapital(TString& check, bool debug = false);
+  TString GetModeLower(TString& check, bool debug = false);
 
   //=========================================================================       
   // Check BDTG bin                                              

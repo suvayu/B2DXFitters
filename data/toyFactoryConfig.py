@@ -73,9 +73,9 @@ def getconfig() :
     ############################################################
     
     configdict["Components"] = {}
-    configdict["Components"] = {"Signal"        : {"Bd2DPi": {"run1": {"KPiPi": [15000] } }, "Bd2DK": {"run1": {"KPiPi": [5000] } } },
-                                "Combinatorial" : {"Bd2DPi": {"run1": {"KPiPi": [8000] } }, "Bd2DK": {"run1": {"KPiPi": [2000] } } },
-                                "Bd2DRho"       : {"Bd2DPi": {"run1": {"KPiPi": [8000] } }, "Bd2DK": {"run1": {"KPiPi": [2000] } } } }
+    configdict["Components"] = {"Signal"        : {"Bd2DPi": {"run1": {"KPiPi": [15000] } }, "Bd2DK": {"run1": {"KPiPi": [5000] } } }} #
+#                                "Combinatorial" : {"Bd2DPi": {"run1": {"KPiPi": [8000] } }, "Bd2DK": {"run1": {"KPiPi": [2000] } } },
+ #                               "Bd2DRho"       : {"Bd2DPi": {"run1": {"KPiPi": [8000] } }, "Bd2DK": {"run1": {"KPiPi": [2000] } } } }
                                 
 
     ############################################################

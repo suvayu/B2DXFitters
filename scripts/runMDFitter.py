@@ -197,16 +197,14 @@ def runMDFitter( debug, sample, mode, sweight,
     else:
         workData = GeneralUtils.LoadWorkspace(TString(fileDataName),workNameTS, debug)
 
-    
     configNameTS = TString(configName)
-    if configNameTS.Contains("Toys") == False:
-        toys = False
+    if myconfigfile.has_key("Toys"): 
+        if myconfigfile["Toys"] == False:
+            toys = False
+        else: 
+            toys = True 
     else:
-        toys = True
-        workspaceToys = (GeneralUtils.LoadWorkspace(TString(fileNameToys),workNameTS, debug))
-        workspaceToys.Print("v")
-        workData = workspaceToys
-        
+        toys = False
 
     observables = getObservables(MDSettings, workData, toys, debug)
     beautyMass = observables.find(MDSettings.GetMassBVarOutName().Data())
@@ -240,15 +238,27 @@ def runMDFitter( debug, sample, mode, sweight,
     ### Obtain data set ###
     if toys:
         s = [TString("both")]
-        m = [TString(mode)]
-        sm.append(s[0]+t+m[0])
-        sam.defineType(sm[0].Data())
-        data.append(GeneralUtils.GetDataSet(workspaceToys,datasetTS+sm[0],debug))
-        nEntries.append(data[0].numEntries())
+        mm = GeneralUtils.GetMode(modeTS,debug)
+        y = [TString("run1")]
+        d = decayTS 
+        h = TString("Hypo") 
+        for m in mm:
+            sm.append(s[0]+t+m+t+y[0]) #+t+d+h)
+        for samplemode in sm:
+            sam.defineType(samplemode.Data())
+            data.append(GeneralUtils.GetDataSet(workData,datasetTS+samplemode+t+d+h,debug))
+        for d in data:
+            nEntries.append(d.numEntries())
 
-        combData = RooDataSet("combData","combined data",RooArgSet(observables),
-                              RooFit.Index(sam),
-                              RooFit.Import(sm[0].Data(),data[0]))
+        combData = RooDataSet("combData","combined data",RooArgSet(observables), RooFit.Index(sam), RooFit.Import(sm[0].Data(),data[0]))
+        if debug:
+            print "[INFO] Creating combData with data set: ",data[0].GetName() 
+        for i in range(0,len(data)):
+            if ( i != 0 ):
+                combDatatmp = RooDataSet("totData","totData", data[0].get(), RooFit.Index(sam),RooFit.Import(sm[i].Data(),data[i]))
+                combData.append(combDatatmp)
+                if debug:
+                    print "[INFO] Appending data set: ",data[i].GetName() 
     else:
         
         combData =  GeneralUtils.GetDataSet(workData, observables, sam, datasetTS, sampleTS, modeTS, yearTS, TString(""), merge, debug )
@@ -264,7 +274,7 @@ def runMDFitter( debug, sample, mode, sweight,
     ranmode = m.__len__()*y.__len__()
     ransample = s.__len__()
     
-    
+    #exit(0)     
 
     #exit(0) 
     ###------------------------------------------------------------------------------------------------------------------------------------###    

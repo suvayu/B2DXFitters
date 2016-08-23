@@ -1519,6 +1519,10 @@ namespace GeneralUtils {
     }
   */
 
+  //RooDataSet* GetDataSetToys(RooWorkspace* work, RooArgSet* obs, RooCategory& sam,
+  //			     TString &dat, TString & sample, TString& mode, TString& year, TString& hypo,
+  //			     TString merge, bool debug )
+
   std::vector <TString> GetSampleModeYearHypo(TString& sample, TString& mode, TString& year, TString& hypo, TString merge, bool debug )
   {
     std::vector <TString> smyh;

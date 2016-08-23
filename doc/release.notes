@@ -4,6 +4,18 @@
 ! Purpose     : RooFit-based fitters for B -> D X
 !-----------------------------------------------------------------------------
 
+! 2016-08-22 - Agnieszka Dziurda
+ - update on toyFactory.py:
+   - applying all changes necessary for DsK/DsPi analysis
+   - solving memory issue by using one workspace for all Bs, Ds masses 
+     and PIDK shapes. 
+   - setting unique names for pdfs
+   - dealing with memory issue when creating totData
+   - some other small changes (variables names etc)
+   - the code needs cleaning up
+ - updating runMDFitter.py to read toys
+ - config files for generating and fitting toys (DsPi only)
+
 ! 2016-08-17 - Manuel Tobias Schiller
  - RooSwimmingAcceptance: rewrite updateTPs method to work on lxplus, too
    (background information: there was a difference in the outcome of
