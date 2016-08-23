@@ -662,12 +662,12 @@ def BuildPDF(workspaceIn, myconfigfile, hypo, year, comp, mode, obs, workTemplat
             #file = TFile.Open(filename,"READ")
             #w = file.Get(work)
             pdf = WS(workspaceIn, workTemplate.pdf(name))
-            pdf.SetName(comp+"_"+obs.GetName()+"_"+mode2+"_"+year)
+            pdf.SetName(comp+"_"+obs.GetName()+"_"+mode2+"_"+year+"_"+hypo+"Hypo")
             #pdf = WS(workspaceIn, pdf) #w.obj(name) )
             #file.Close()
         else:
             pdf = BuildAnalyticalPdf(workspaceIn, shapeType, myconfigfile, hypo, year, comp, mode, obs, debug)
-            pdf.SetName(comp+"_"+obs.GetName()+"_"+mode2+"_"+year)
+            pdf.SetName(comp+"_"+obs.GetName()+"_"+mode2+"_"+year+"_"+hypo+"Hypo")
             pdf = WS(workspaceIn, pdf)
 
     elif obs.GetName() in ["BacPIDK"]:
@@ -715,7 +715,7 @@ def BuildPDF(workspaceIn, myconfigfile, hypo, year, comp, mode, obs, workTemplat
                         pdfList.add(pdfTmp[pol][con])
                     pdfList.Print("v") 
                     fracList.Print("v")
-                    namePDF = comp+"_"+obs.GetName()+"_"+mode2+"_"+pol+"_"+year
+                    namePDF = comp+"_"+obs.GetName()+"_"+mode2+"_"+pol+"_"+year+"_"+hypo+"Hypo"
                     pdfTmp[pol]["Merged"] =  WS(workspaceIn, RooAddPdf(namePDF,namePDF,pdfList, fracList))
 
             print pdfTmp  
@@ -724,7 +724,7 @@ def BuildPDF(workspaceIn, myconfigfile, hypo, year, comp, mode, obs, workTemplat
             pdf = WS(workspaceIn, RooAddPdf(namePDF, namePDF, pdfTmp["Up"]["Merged"],pdfTmp["Down"]["Merged"],frac)) 
         else:
             pdf = BuildAnalyticalPdf(workspaceIn, shapeType, myconfigfile, hypo, year, comp, mode, obs, debug)
-            pdf.SetName(comp+"_"+obs.GetName()+"_"+mode2+"_"+year)
+            pdf.SetName(comp+"_"+obs.GetName()+"_"+mode2+"_"+year+"_"+hypo+"Hypo")
             pdf = WS(workspaceIn, pdf)
     else:
         print "ERROR: pdfs for observables "+obs.GetName()+" not yet implemented."
