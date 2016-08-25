@@ -4,6 +4,9 @@
 ! Purpose     : RooFit-based fitters for B -> D X
 !-----------------------------------------------------------------------------
 
+! 2016-08-24 - Agnieszka Dziurda
+ - Tsch scripts for generating/fitting toys. 
+
 ! 2016-08-22 - Agnieszka Dziurda
  - update on toyFactory.py:
    - applying all changes necessary for DsK/DsPi analysis
