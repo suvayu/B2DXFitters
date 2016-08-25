@@ -5,7 +5,8 @@
 !-----------------------------------------------------------------------------
 
 ! 2016-08-24 - Agnieszka Dziurda
- - Tsch scripts for generating/fitting toys. 
+ - Tcsh scripts for generating/fitting toys. 
+ - DsK toys config file
 
 ! 2016-08-22 - Agnieszka Dziurda
  - update on toyFactory.py:
