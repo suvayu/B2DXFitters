@@ -4,6 +4,9 @@
 ! Purpose     : RooFit-based fitters for B -> D X
 !-----------------------------------------------------------------------------
 
+! 2016-09-04 - Vincenzo Battista
+ - toyFactory: draw number of events to generate from Poisson distribution.
+
 ! 2016-08-24 - Agnieszka Dziurda
  - Tcsh scripts for generating/fitting toys. 
  - DsK toys config file

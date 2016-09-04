@@ -827,13 +827,17 @@ def BuildAnalyticalPdf(workspaceIn, shapeType, myconfigfile, hypo, year, comp, m
         exit(-1)
 
     return pdf 
-        
-            
+    
 #-----------------------------------------------------------------------------
-def BuildProtoData(workspaceIn, myconfigfile, obsDict, tagDict, resAccDict, pdfDict, debug):
+def BuildProtoData(workspaceIn, myconfigfile, obsDict, tagDict, resAccDict, pdfDict, seed, debug):
 
     if "BeautyTime" not in obsDict.keys():
         return None
+
+    #Setup poisson generator for yields
+    poissonGen = TRandom3(seed)
+    if debug:
+        print "Seed to generate yields: "+str(poissonGen.GetSeed())
     
     #Ok, we have time observable. Let's see if we need per event mistag/time error
     nevts = pdfDict["Events"]
@@ -852,28 +856,31 @@ def BuildProtoData(workspaceIn, myconfigfile, obsDict, tagDict, resAccDict, pdfD
                     protoDataDict[hypo][year][mode][comp] = []
                     atLeast = 0
 
+                    #Get random number of events to generate
+                    poissonNum = poissonGen.Poisson( int(nevts[hypo][year][mode][comp]) )
+                    
                     #Check tagging
                     tag = 0
                     if tagDict[comp]["MistagPDF"] != None:
                         for tagger in myconfigfile["Taggers"][comp].iterkeys():
                             if "Mistag"+tagger in obsDict.keys() and "TagDec"+tagger in obsDict.keys():
                                 if debug:
-                                    print "Generate "+str(nevts[hypo][year][mode][comp])+" Mistag"+tagger+" proto data from "+tagDict[comp]["MistagPDF"][tag].GetName()
+                                    print "Generate "+str(poissonNum)+" Mistag"+tagger+" proto data from "+tagDict[comp]["MistagPDF"][tag].GetName()
                                 protoDataDict[hypo][year][mode][comp].append( tagDict[comp]["MistagPDF"][tag].generate( RooArgSet(obsDict["Mistag"+tagger]),
-                                                                                                              int(nevts[hypo][year][mode][comp]) ) )
+                                                                                                                        poissonNum ) )
                                 protoDataDict[hypo][year][mode][comp][atLeast].SetName(protoDataDict[hypo][year][mode][comp][atLeast].GetName()+"both_"+year+"_"+comp+"_"+mode+"_"+hypo+"Hypo")
                                 protoDataDict[hypo][year][mode][comp][atLeast].SetTitle(protoDataDict[hypo][year][mode][comp][atLeast].GetName()+"both_"+year+"_"+comp+"_"+mode+"_"+hypo+"Hypo")
                                 protoDataDict[hypo][year][mode][comp][atLeast] = WS(workspaceIn, protoDataDict[hypo][year][mode][comp][atLeast])
-                            
+                                
                                 atLeast = atLeast+1
                                 tag = tag+1
                             
                     #Check per-event error
                     if resAccDict[comp]["TimeErrorPDF"] != None:
                         if debug:
-                            print "Generate "+str(nevts[hypo][year][mode][comp])+" per-event time error proto data from "+resAccDict[comp]["TimeErrorPDF"].GetName()
+                            print "Generate "+str(poissonNum)+" per-event time error proto data from "+resAccDict[comp]["TimeErrorPDF"].GetName()
                         protoDataDict[hypo][year][mode][comp].append( resAccDict[comp]["TimeErrorPDF"].generate( RooArgSet(obsDict["BeautyTimeErr"]),
-                                                                                                       int(nevts[hypo][year][mode][comp]) ) )
+                                                                                                                 poissonNum ) )
                         protoDataDict[hypo][year][mode][comp][atLeast].SetName(protoDataDict[hypo][year][mode][comp][atLeast].GetName()+"both_"+year+"_"+comp+"_"+mode+"_"+hypo+"Hypo")
                         protoDataDict[hypo][year][mode][comp][atLeast].SetTitle(protoDataDict[hypo][year][mode][comp][atLeast].GetName()+"both_"+year+"_"+comp+"_"+mode+"_"+hypo+"Hypo")
                         protoDataDict[hypo][year][mode][comp][atLeast] = WS(workspaceIn, protoDataDict[hypo][year][mode][comp][atLeast])
@@ -928,12 +935,17 @@ def BuildProtoData(workspaceIn, myconfigfile, obsDict, tagDict, resAccDict, pdfD
     return protoDataMerged
 
 #-----------------------------------------------------------------------------
-def GenerateToys(workspaceIn, myconfigfile, observables, pdfDict, protoData, debug):
+def GenerateToys(workspaceIn, myconfigfile, observables, pdfDict, protoData, seed, debug):
 
     pdf = pdfDict["PDF"]
     nevts = pdfDict["Events"]
 
     toyDict = {}
+
+    #Setup poisson generator for yields
+    poissonGen = TRandom3(seed)
+    if debug:
+        print "Seed to generate yields: "+str(poissonGen.GetSeed())
 
     #Loop over bachelor mass hypotheses
     for hypo in myconfigfile["Hypothesys"]:
@@ -951,6 +963,10 @@ def GenerateToys(workspaceIn, myconfigfile, observables, pdfDict, protoData, deb
                 for comp in myconfigfile["Components"].iterkeys():
                     print "Components: "+comp
                     toyDict[hypo][year][mode][comp] = {}
+
+                    #Get random number of events to generate
+                    poissonNum = poissonGen.Poisson( int(nevts[hypo][year][mode][comp]) )
+                    
                     #Loop over observables
                     for obs in myconfigfile["Observables"].iterkeys():
                         if obs == "BeautyTime":
@@ -962,15 +978,13 @@ def GenerateToys(workspaceIn, myconfigfile, observables, pdfDict, protoData, deb
                                 genset.add( observables.find("TagDecOS") )
                             if "TagDecSS" in myconfigfile["Observables"].keys():
                                 genset.add( observables.find("TagDecSS") )
-                            #If we have proto data use it, otherwise set number of events to generate
+                            #If we have proto data use it, otherwise draw number of events to generate from Poisson distribution
                             if None != protoData:
                                 toyDict[hypo][year][mode][comp][obs] = WS(workspaceIn, pdf[hypo][year][mode][comp][obs].generate(genset,
-                                                                                                                                 #RooFit.Extended(),
                                                                                                                                  RooFit.ProtoData(protoData[hypo][year][mode][comp]) ) )
                             else:
                                 toyDict[hypo][year][mode][comp][obs] = WS(workspaceIn, pdf[hypo][year][mode][comp][obs].generate(genset,
-                                                                                                                                 #RooFit.Extended(),
-                                                                                                                                 RooFit.NumEvents(int(nevts[hypo][year][mode][comp])) ) )
+                                                                                                                                 RooFit.NumEvents(poissonNum) ) )
                         elif obs in ["BeautyMass", "CharmMass", "BacPIDK", "TrueID"]:
                             print "Observable: "+obs
                             genset = RooArgSet(observables.find(obs))
@@ -983,13 +997,13 @@ def GenerateToys(workspaceIn, myconfigfile, observables, pdfDict, protoData, deb
                                 toyDict[hypo][year][mode][comp][obs] = WS(workspaceIn, pdf[hypo][year][mode][comp][obs].generate(genset,
                                                                                                                                  RooFit.AutoBinned(False),
                                                                                                                                  #RooFit.Extended(),
-                                                                                                                                 RooFit.NumEvents(int(nevts[hypo][year][mode][comp])) ) )
+                                                                                                                                 RooFit.NumEvents(poissonNum) ) )
                                 print int(nevts[hypo][year][mode][comp])
                                 print toyDict[hypo][year][mode][comp][obs].Print("v") 
                             else:
                                 toyDict[hypo][year][mode][comp][obs] = WS(workspaceIn, pdf[hypo][year][mode][comp][obs].generate(genset,
                                                                                                                                  #RooFit.Extended(), 
-                                                                                                                                 RooFit.NumEvents(int(nevts[hypo][year][mode][comp])) ) )
+                                                                                                                                 RooFit.NumEvents(poissonNum) ) )
                                 print toyDict[hypo][year][mode][comp][obs].Print("v")
 
     if debug:
@@ -1302,10 +1316,10 @@ def toyFactory(configName,
         observables.Print("v")
 
     #Generate "proto data" from time error and mistag PDFs (if needed)
-    protoData = BuildProtoData(workspaceIn, myconfigfile, obsDict, tagDict, resAccDict, pdfDict, debug) 
+    protoData = BuildProtoData(workspaceIn, myconfigfile, obsDict, tagDict, resAccDict, pdfDict, int(seed), debug) 
 
     #Generate toys
-    toyDict = GenerateToys(workspaceIn, myconfigfile, observables, pdfDict, protoData, debug)
+    toyDict = GenerateToys(workspaceIn, myconfigfile, observables, pdfDict, protoData, int(seed), debug)
 
     print toyDict
     print ""
