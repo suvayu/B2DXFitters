@@ -456,7 +456,7 @@ Double_t DecRateCoeff_Bd::evaluate(double cp_coeff,
     if(coeff_type == kCos){
       if(finalstate == 1){
         if(tag_os == 0) return cp_coeff * (1 + detection_asym) * (tageff_asym_os - 2 * production_asym * (1 - tageff_os));
-        else return cp_coeff * (1 + detection_asym) * (tag_os * tageff_os - 0.5 * tageff_asym_os
+        else return 1.0 * cp_coeff * (1 + detection_asym) * (tag_os * tageff_os - 0.5 * tageff_asym_os
                                                        - production_asym * (tageff_os - 0.5 * tag_os * tageff_asym_os
                                                                                       - tag_os * tageff_os * (eta_os_b - eta_os_bbar)
                                                                                       + 0.5 * tag_os * tageff_asym_os * (eta_os_b + eta_os_bbar))
@@ -480,7 +480,7 @@ Double_t DecRateCoeff_Bd::evaluate(double cp_coeff,
     if(coeff_type == kSin){
       if(finalstate == 1){
         if(tag_os == 0) return cp_coeff * (1 + detection_asym) * (tageff_asym_os - 2 * production_asym * (1 - tageff_os));
-        else return -1.0 * cp_coeff * (1 + detection_asym) * (tag_os * tageff_os - 0.5 * tageff_asym_os
+        else return 1.0 * cp_coeff * (1 + detection_asym) * (tag_os * tageff_os - 0.5 * tageff_asym_os
                                                              - production_asym * (tageff_os - 0.5 * tag_os * tageff_asym_os
                                                                                             - tag_os * tageff_os * (eta_os_b - eta_os_bbar)
                                                                                             + 0.5 * tag_os * tageff_asym_os * (eta_os_b + eta_os_bbar))
@@ -489,7 +489,7 @@ Double_t DecRateCoeff_Bd::evaluate(double cp_coeff,
       }
       else if(finalstate == -1){
         if(tag_os == 0) return cp_coeff_bar * (1 - detection_asym) * (tageff_asym_os - 2 * production_asym * (1 - tageff_os));
-        else return cp_coeff_bar * (1 - detection_asym) * (tag_os * tageff_os - 0.5 * tageff_asym_os
+        else return -1.0 * cp_coeff_bar * (1 - detection_asym) * (tag_os * tageff_os - 0.5 * tageff_asym_os
                                                           - production_asym * (tageff_os - 0.5 * tag_os * tageff_asym_os
                                                                                          - tag_os * tageff_os * (eta_os_b - eta_os_bbar)
                                                                                          + 0.5 * tag_os * tageff_asym_os * (eta_os_b + eta_os_bbar))
@@ -599,10 +599,10 @@ Double_t DecRateCoeff_Bd::evaluate(double cp_coeff,
   // calculate and return coefficients
   if (coeff_type == kSin){
     if(finalstate==1){
-      return -1.0 * (1 + detection_asym) * cp_coeff * ( difference - production_asym * sum );
+      return +1.0 * (1 + detection_asym) * cp_coeff * ( difference - production_asym * sum );
     }
     else if(finalstate==-1){
-      return +1.0 * (1 - detection_asym) * cp_coeff_bar * ( difference - production_asym * sum );
+      return -1.0 * (1 - detection_asym) * cp_coeff_bar * ( difference - production_asym * sum );
     }
     else{
       std::cout << "ERROR\t" << "DecRateCoeff_Bd::evaluate(...): No valid finalstate!" << std::endl;
