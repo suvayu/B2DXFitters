@@ -15,19 +15,21 @@ def getconfig() :
     # integrated luminosity in each year of data taking (necessary in case of PIDK shapes)                                                                  
     configdict["IntegratedLuminosity"] = {"2011": {"Down": 0.59, "Up": 0.44}}
     # file name with paths to MC/data samples                                                                                                       
-    configdict["dataName"]   = "../data/BDTG/Bs2DsPi/config_Bs2DsPi.txt"
+    configdict["dataName"]   = "../data/Bs2DsK_3fbCPV/BDTG/Bs2DsPi/config_Bs2DsPi.txt"
     #settings for control plots                                                                                                                                                           
     configdict["ControlPlots"] = {}
     configdict["ControlPlots"] = { "Directory": "PlotBs2DsPi", "Extension":"pdf"}
 
     # basic variables                                                                                        
     configdict["BasicVariables"] = {}
-    configdict["BasicVariables"]["BeautyMass"]    = { "Range" : [5300,    7000    ], "InputName" : "lab0_MassFitConsD_M"}
+#    configdict["BasicVariables"]["BeautyMass"]    = { "Range" : [5300,    5800    ], "InputName" : "lab0_MassFitConsD_M"}
+    configdict["BasicVariables"]["BeautyMass"]    = { "Range" : [5310,    5430    ], "InputName" : "lab0_MassFitConsD_M"}
     configdict["BasicVariables"]["CharmMass"]     = { "Range" : [1930,    2015    ], "InputName" : "lab2_MM"}
-    #configdict["BasicVariables"]["BeautyTime"]    = { "Range" : [0.4,     15.0    ], "InputName" : "lab0_LifetimeFit_ctau"}
+    configdict["BasicVariables"]["BeautyTime"]    = { "Range" : [0.0,     15.0    ], "InputName" : "lab0_LifetimeFit_ctau"}
     #configdict["BasicVariables"]["BacP"]          = { "Range" : [3000.0,  650000.0], "InputName" : "lab1_P"}
     #configdict["BasicVariables"]["BacPT"]         = { "Range" : [400.0,   45000.0 ], "InputName" : "lab1_PT"}
-    configdict["BasicVariables"]["BacPIDK"]       = { "Range" : [0.0,     150.0   ], "InputName" : "lab1_PIDK"}
+#    configdict["BasicVariables"]["BacPIDK"]       = { "Range" : [-7.0,     5.0   ], "InputName" : "lab1_PIDK"}
+    configdict["BasicVariables"]["BacPIDK"]       = { "Range" : [-100000.0,   150     ], "InputName" : "lab1_PIDK"}
     #configdict["BasicVariables"]["nTracks"]       = { "Range" : [15.0,    1000.0  ], "InputName" : "nTracks"}
     #configdict["BasicVariables"]["BeautyTimeErr"] = { "Range" : [0.01,    0.1     ], "InputName" : "lab0_LifetimeFit_ctauErr"}
     #configdict["BasicVariables"]["BacCharge"]     = { "Range" : [-1000.0, 1000.0  ], "InputName" : "lab1_ID"}
@@ -54,7 +56,36 @@ def getconfig() :
     configdict["DsChildrenPrefix"] = {"Child1":"lab5","Child2":"lab4","Child3": "lab3"}
 
     # additional variables in data sets                                                                                                             
-    #configdict["AdditionalVariables"] = {}
+    configdict["AdditionalVariables"] = {}
+    configdict["AdditionalVariables"]["lab0_DIRA_OWNPV"]                 =  { "Range" : [ -3.0, 2,0 ], "InputName" : "lab0_DIRA_OWNPV"}
+    configdict["AdditionalVariables"]["lab0_MINIPCHI2"]                  =  { "Range" : [ -3.0, 7000,0 ], "InputName" : "lab0_MINIPCHI2"}
+    configdict["AdditionalVariables"]["lab0_RFD"]                        =  { "Range" : [ -3.0, 18,0 ], "InputName" : "lab0_RFD"}
+    configdict["AdditionalVariables"]["lab0_VCHI2NDOF"]                  =  { "Range" : [ -12.0, 12,0 ], "InputName" : "lab0_VCHI2NDOF"}
+    configdict["AdditionalVariables"]["lab0_LifetimeFit_VCHI2NDOF"]      =  { "Range" : [ -10.0, 900,0 ], "InputName" : "lab0_LifetimeFit_VCHI2NDOF"}
+    configdict["AdditionalVariables"]["lab2_DIRA_OWNPV"]                 =  { "Range" : [ -3.0, 3,0 ], "InputName" : "lab2_DIRA_OWNPV"}
+    configdict["AdditionalVariables"]["lab2_DIRA_ORIVX"]                 =  { "Range" : [ -3.0, 3,0 ], "InputName" : "lab2_DIRA_ORIVX"}
+    configdict["AdditionalVariables"]["lab2_MINIPCHI2"]                  =  { "Range" : [ -3.0, 180000,0 ], "InputName" : "lab2_MINIPCHI2"}
+    configdict["AdditionalVariables"]["lab2_RFD"]                        =  { "Range" : [ -3.0, 20,0 ], "InputName" : "lab2_RFD"}
+    configdict["AdditionalVariables"]["lab2_VCHI2NDOF"]                  =  { "Range" : [ -5.0, 12,0 ], "InputName" : "lab2_VCHI2NDOF"}
+    configdict["AdditionalVariables"]["lab1_MINIPCHI2"]                  =  { "Range" : [ -3.0, 220000,0 ], "InputName" : "lab1_MINIPCHI2"}
+    configdict["AdditionalVariables"]["lab1_PT"]                         =  { "Range" : [    0, 160000,0 ], "InputName" : "lab1_PT"}
+    configdict["AdditionalVariables"]["lab1_CosTheta"]                   =  { "Range" : [    -3, 3,0 ], "InputName" : "lab1_CosTheta"}
+    configdict["AdditionalVariables"]["lab345_MIN_PT"]                   =  { "Range" : [ -3.0, 14000,0 ], "InputName" : "lab345_MIN_PT"}
+    configdict["AdditionalVariables"]["lab345_MIN_MINIPCHI2"]            =  { "Range" : [ -3.0, 28000,0 ], "InputName" : "lab345_MIN_MINIPCHI2"}
+    configdict["AdditionalVariables"]["lab1345_TRACK_GhostProb"]         =  { "Range" : [ -3.0, 1,0 ], "InputName" : "lab1345_TRACK_GhostProb"}
+
+    configdict["AdditionalVariables"]["lab0_DIRA_OWNPV_Log"]                 =  { "Range" : [ -3.0, 2,0 ], "InputName" : "lab0_DIRA_OWNPV_Log"}
+    configdict["AdditionalVariables"]["lab0_LifetimeFit_VCHI2NDOF_Log"]      =  { "Range" : [ -12.0, 900,0 ], "InputName" : "lab0_LifetimeFit_VCHI2NDOF_Log"}
+    configdict["AdditionalVariables"]["lab0_VCHI2NDOF_Log"]                  =  { "Range" : [ -12.0, 12,0 ], "InputName" : "lab0_VCHI2NDOF_Log"}
+    configdict["AdditionalVariables"]["lab0_RFD_Log"]                        =  { "Range" : [ -3.0, 18,0 ], "InputName" : "lab0_RFD_Log"}
+    configdict["AdditionalVariables"]["lab1_MINIPCHI2_Log"]                  =  { "Range" : [ -3.0, 220000,0 ], "InputName" : "lab1_MINIPCHI2_Log"}
+    configdict["AdditionalVariables"]["lab1_PT_Log"]                         =  { "Range" : [    0, 160000,0 ], "InputName" : "lab1_PT_Log"}
+    configdict["AdditionalVariables"]["lab2_MINIPCHI2_Log"]                  =  { "Range" : [ -3.0, 180000,0 ], "InputName" : "lab2_MINIPCHI2_Log"}
+    configdict["AdditionalVariables"]["lab2_RFD_Log"]                        =  { "Range" : [ -3.0, 20,0 ], "InputName" : "lab2_RFD_Log"}
+    configdict["AdditionalVariables"]["lab345_MIN_PT_Log"]                   =  { "Range" : [ -3.0, 14000,0 ], "InputName" : "lab345_MIN_PT_Log"}
+    configdict["AdditionalVariables"]["lab345_MIN_MINIPCHI2_Log"]            =  { "Range" : [ -3.0, 28000,0 ], "InputName" : "lab345_MIN_MINIPCHI2_Log"}
+
+
     #configdict["AdditionalVariables"]["tagOmegaSSKaon"]      =  { "Range" : [ -3.0, 1,0 ], "InputName" : "lab0_SS_Kaon_PROB"}
     #configdict["AdditionalVariables"]["tagDecSSKaon"]        =  { "Range" : [ -2.0, 2,0 ], "InputName" : "lab0_SS_Kaon_DEC"}
     #configdict["AdditionalVariables"]["tagOmegaOSMuon"]      =  { "Range" : [ -3.0, 1,0 ], "InputName" : "lab0_OS_Muon_PROB"}
@@ -70,27 +101,27 @@ def getconfig() :
 
 
     #weighting templates by PID eff/misID                                                                                                                                                 
-    configdict["WeightingMassTemplates"]= { "Variables":["lab4_P","lab5_P"], "PIDBach": 0, "PIDChild": 0, "PIDProton": 5, "RatioDataMC":True }
+#    configdict["WeightingMassTemplates"]= { "Variables":["lab4_P","lab5_P"], "PIDBach": 0, "PIDChild": 0, "PIDProton": 5, "RatioDataMC":True }
 
     #weighting for PID templates                                                                                                                                                          
-    configdict["ObtainPIDTemplates"] = { "Variables":["BacPT","nTracks"], "Bins":[20,20] }
-    configdict["Calibrations"] = {}
-    configdict["Calibrations"]["2011"] = {}
-    configdict["Calibrations"]["2011"]["Pion"]   = {}
-    configdict["Calibrations"]["2011"]["Pion"]["Up"]   = {"FileName":"/afs/cern.ch/work/a/adudziak/public/workspace/CalibrationSamples/CalibDst_Up_Pi_PID0_Str20r1.root"}
-    configdict["Calibrations"]["2011"]["Pion"]["Down"] = {"FileName":"/afs/cern.ch/work/a/adudziak/public/workspace/CalibrationSamples/CalibDst_Down_Pi_PID0_Str20r1.root"}
-    configdict["Calibrations"]["2011"]["Kaon"]   = {}
-    configdict["Calibrations"]["2011"]["Kaon"]["Up"]   = { "FileName":"/afs/cern.ch/work/a/adudziak/public/workspace/CalibrationSamples/CalibDst_Up_K_PID0_Str20r1.root"}
-    configdict["Calibrations"]["2011"]["Kaon"]["Down"] = { "FileName":"/afs/cern.ch/work/a/adudziak/public/workspace/CalibrationSamples/CalibDst_Down_K_PID0_Str20r1.root"}
-    configdict["Calibrations"]["2011"]["Combinatorial"]   = {}
-    configdict["Calibrations"]["2011"]["Combinatorial"]   = {}
-    configdict["Calibrations"]["2011"]["Combinatorial"]["Up"] = { "FileName":"/afs/cern.ch/work/a/adudziak/public/workspace/work_Comb_DsPi_5358.root",
-                                                                  "WorkName":"workspace", "DataName":"dataCombBkg_up", "Type":"Special",
-                                                                  "WeightName":"sWeights", "PIDVarName":"lab1_PIDK", "Variables":["lab1_PT","nTracks"]}
-    configdict["Calibrations"]["2011"]["Combinatorial"]["Down"] = { "FileName":"/afs/cern.ch/work/a/adudziak/public/workspace/work_Comb_DsPi_5358.root",
-                                                                    "WorkName":"workspace", "DataName":"dataCombBkg_down", "Type":"Special",
-                                                                    "WeightName":"sWeights", "PIDVarName":"lab1_PIDK", "Variables":["lab1_PT","nTracks"]}
-
+#    configdict["ObtainPIDTemplates"] = { "Variables":["BacPT","nTracks"], "Bins":[20,20] }
+#    configdict["Calibrations"] = {}
+#    configdict["Calibrations"]["2011"] = {}
+#    configdict["Calibrations"]["2011"]["Pion"]   = {}
+#    configdict["Calibrations"]["2011"]["Pion"]["Up"]   = {"FileName":"/afs/cern.ch/work/a/adudziak/public/workspace/CalibrationSamples/CalibDst_Up_Pi_PID0_Str20r1.root"}
+#    configdict["Calibrations"]["2011"]["Pion"]["Down"] = {"FileName":"/afs/cern.ch/work/a/adudziak/public/workspace/CalibrationSamples/CalibDst_Down_Pi_PID0_Str20r1.root"}
+#    configdict["Calibrations"]["2011"]["Kaon"]   = {}
+#    configdict["Calibrations"]["2011"]["Kaon"]["Up"]   = { "FileName":"/afs/cern.ch/work/a/adudziak/public/workspace/CalibrationSamples/CalibDst_Up_K_PID0_Str20r1.root"}
+#    configdict["Calibrations"]["2011"]["Kaon"]["Down"] = { "FileName":"/afs/cern.ch/work/a/adudziak/public/workspace/CalibrationSamples/CalibDst_Down_K_PID0_Str20r1.root"}
+#    configdict["Calibrations"]["2011"]["Combinatorial"]   = {}
+#    configdict["Calibrations"]["2011"]["Combinatorial"]   = {}
+#    configdict["Calibrations"]["2011"]["Combinatorial"]["Up"] = { "FileName":"/afs/cern.ch/work/a/adudziak/public/workspace/work_Comb_DsPi_5358.root",
+#                                                                  "WorkName":"workspace", "DataName":"dataCombBkg_up", "Type":"Special",
+#                                                                  "WeightName":"sWeights", "PIDVarName":"lab1_PIDK", "Variables":["lab1_PT","nTracks"]}
+#    configdict["Calibrations"]["2011"]["Combinatorial"]["Down"] = { "FileName":"/afs/cern.ch/work/a/adudziak/public/workspace/work_Comb_DsPi_5358.root",
+#                                                                    "WorkName":"workspace", "DataName":"dataCombBkg_down", "Type":"Special",
+#                                                                    "WeightName":"sWeights", "PIDVarName":"lab1_PIDK", "Variables":["lab1_PT","nTracks"]}
+#
 
     #----------------------------------------------------------------------------------------------------------------------------------------------------------------#
     ###                                                               MDfit fitting settings
@@ -99,16 +130,20 @@ def getconfig() :
     # Bs signal shapes                                                                                                                                   
     configdict["BsSignalShape"] = {}
     configdict["BsSignalShape"]["type"]    = "DoubleCrystalBall"
-    configdict["BsSignalShape"]["mean"]    = {"Run1": {"All":5367.51}, "Fixed":False}
-    configdict["BsSignalShape"]["sigma1"]  = {"2011": {"KKPi":1.6598e+01},  "Fixed":False}
-    configdict["BsSignalShape"]["sigma2"]  = {"2011": {"KKPi":1.1488e+01},  "Fixed":False}
+#    configdict["BsSignalShape"]["mean"]    = {"Run1": {"All":5.3656e+03}, "Fixed":False}
+#    configdict["BsSignalShape"]["sigma1"]  = {"2011": {"KKPi":1.2859e+01},  "Fixed":False}
+#    configdict["BsSignalShape"]["sigma2"]  = {"2011": {"KKPi":1.9039e+01},  "Fixed":False}
+    configdict["BsSignalShape"]["mean"]    = {"Run1": {"All":5.3657e+03}, "Fixed":True}
+    configdict["BsSignalShape"]["sigma1"]  = {"2011": {"KKPi":1.9404e+01},  "Fixed":True}
+    configdict["BsSignalShape"]["sigma2"]  = {"2011": {"KKPi":1.3594e+01},  "Fixed":True}
     configdict["BsSignalShape"]["alpha1"]  = {"2011": {"KKPi":-2.0856e+00}, "Fixed":True}
     configdict["BsSignalShape"]["alpha2"]  = {"2011": {"KKPi":1.8947e+00},  "Fixed":True}
     configdict["BsSignalShape"]["n1"]      = {"2011": {"KKPi":5.2735e+00},  "Fixed":True}
     configdict["BsSignalShape"]["n2"]      = {"2011": {"KKPi":1.1497e+00},  "Fixed":True}
     configdict["BsSignalShape"]["frac"]    = {"2011": {"KKPi":4.4171e-01},  "Fixed":True}
 
-    #Ds signal shapes                                                                                                                                       
+
+    #Ds signal shapes
     configdict["DsSignalShape"] = {}
     configdict["DsSignalShape"]["type"]    = "DoubleCrystalBall"
     configdict["DsSignalShape"]["mean"]    = {"Run1": {"All":1968.49}, "Fixed":False}
@@ -124,9 +159,11 @@ def getconfig() :
     # combinatorial background                                                                                                                              
     configdict["BsCombinatorialShape"] = {}
     configdict["BsCombinatorialShape"]["type"] = "DoubleExponential"
-    configdict["BsCombinatorialShape"]["cB1"]        = {"2011": {"KKPi":-0.01}, "Fixed": False}
     configdict["BsCombinatorialShape"]["cB2"]        = {"2011": {"KKPi":0.0},  "Fixed":True }
-    configdict["BsCombinatorialShape"]["frac"]  = {"2011": {"KKPi":4.3067e-01}, "Fixed":False}
+#    configdict["BsCombinatorialShape"]["cB1"]        = {"2011": {"KKPi":-6.4826e-03}, "Fixed": False}
+#    configdict["BsCombinatorialShape"]["frac"]  = {"2011": {"KKPi":2.7086e-01}, "Fixed":False}
+    configdict["BsCombinatorialShape"]["cB1"]        = {"2011": {"KKPi":-6.2744e-03}, "Fixed":True}
+    configdict["BsCombinatorialShape"]["frac"]  = {"2011": {"KKPi":2.7216e-01}, "Fixed":True}
 
     configdict["DsCombinatorialShape"] = {}
     configdict["DsCombinatorialShape"]["type"]  = "ExponentialPlusSignal" 

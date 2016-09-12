@@ -81,6 +81,22 @@ def getconfig() :
     configdict["constParams"].append('p1_Bbar_Both')
     configdict["constParams"].append('average_Bbar_Both')
 
+    configdict["constParams"].append('p0_OS')
+    configdict["constParams"].append('p0_SS')
+    configdict["constParams"].append('p0_Both')
+    configdict["constParams"].append('p1_OS')
+    configdict["constParams"].append('p1_SS')
+    configdict["constParams"].append('p1_Both')
+    configdict["constParams"].append('dp0_OS')
+    configdict["constParams"].append('dp0_SS')
+    configdict["constParams"].append('dp0_Both')
+    configdict["constParams"].append('dp1_OS')
+    configdict["constParams"].append('dp1_SS')
+    configdict["constParams"].append('dp1_Both')
+    configdict["constParams"].append('average_OS')
+    configdict["constParams"].append('average_SS')
+    configdict["constParams"].append('average_Both')
+
 
     #configdict["constParams"].append('DeltaMs')
 

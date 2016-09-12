@@ -7,11 +7,11 @@ DecayTree
 ###
 
 #Bs2DsPi KKPi 2011
-/afs/cern.ch/work/u/ueitschb/public/
-DsK_DAVINCI_2011_Dw_Precutted_BDTTraining_Bs2Dspi.root
-DsK_DAVINCI_2011_Up_Precutted_BDTTraining_Bs2Dspi.root
-DecayTree;5
-DecayTree;4
+/net/storage03/data/users/eitsch/Tuple/BDT_CorrConsts_Dspi/
+20112012_Up_AddedObservables_Doubles_Bs_BdtPrecuts_mod2nonzero.root
+20112012_Dw_AddedObservables_Doubles_Bs_BdtPrecuts_mod2nonzero.root
+DecayTree
+DecayTree
 ###
 
 #Bs2DsPi PhiPi 2011
