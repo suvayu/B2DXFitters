@@ -27,6 +27,9 @@ public:
     kCosh = 0
   };
 
+  /// default constructor for ROOT I/O
+  DecRateCoeff_Bd() { }
+  
   DecRateCoeff_Bd(const std::string& name,
                const std::string& title,
                CoeffType   _coeff_type_,

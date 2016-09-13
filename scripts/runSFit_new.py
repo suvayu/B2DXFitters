@@ -596,10 +596,10 @@ def runSFit(debug, wsname,
 
     print mistagPDFList[0]
 
-    cosh = DecRateCoeff_Bd('signal_cosh', 'signal_cosh', 0, id, one1, one2, *otherargs)
-    sinh = DecRateCoeff_Bd('signal_sinh', 'signal_sinh', 1, id, D, Dbar, *otherargs)
-    cos =  DecRateCoeff_Bd('signal_cos' , 'signal_cos' , 2,  id, C, C, *otherargs)
-    sin =  DecRateCoeff_Bd('signal_sin' , 'signal_sin' , 3,  id, S, Sbar, *otherargs)
+    cosh = DecRateCoeff_Bd('signal_cosh', 'signal_cosh', DecRateCoeff_Bd.kCosh, id, one1, one2, *otherargs)
+    sinh = DecRateCoeff_Bd('signal_sinh', 'signal_sinh', DecRateCoeff_Bd.kSinh, id, D, Dbar, *otherargs)
+    cos =  DecRateCoeff_Bd('signal_cos' , 'signal_cos' , DecRateCoeff_Bd.kCos,  id, C, C, *otherargs)
+    sin =  DecRateCoeff_Bd('signal_sin' , 'signal_sin' , DecRateCoeff_Bd.kSin,  id, S, Sbar, *otherargs)
 
 
     #if debug:
