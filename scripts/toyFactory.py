@@ -467,7 +467,12 @@ def BuildTotalPDF(workspaceIn, myconfigfile, obsDict, ACPDict, tagDict, resAccDi
                     #Loop over observables
                     for obs in myconfigfile["Observables"].iterkeys():
                         #Build PDF
-                        if obs == "BeautyTime" and None!=ACPDict and None!=tagDict and None!=resAccDict and None!=asymmDict:
+                        if obs in ["BeautyMass", "CharmMass", "BacPIDK"] and myconfigfile["PDFList"][obs][comp][hypo][year][mode]["Type"] == "None":
+                            pdfDict[hypo][year][mode][comp][obs] = {}
+                            pdfDict[hypo][year][mode][comp][obs] = None
+                            continue
+                        
+                        if obs == "BeautyTime" and None!=ACPDict and None!=tagDict and None!=resAccDict and None!=asymmDict:               
                             print "Observables: "+obs
                             pdfDict[hypo][year][mode][comp][obs] = {}
                             pdfDict[hypo][year][mode][comp][obs] = WS(workspaceIn, BuildTimePDF(workspaceIn,
@@ -483,6 +488,7 @@ def BuildTotalPDF(workspaceIn, myconfigfile, obsDict, ACPDict, tagDict, resAccDi
                                                                                                 asymmDict,
                                                                                                 debug))
                         elif obs in ["BeautyMass", "CharmMass", "BacPIDK", "TrueID"]:
+                            
                             print "Observables: "+obs
                             pdfDict[hypo][year][mode][comp][obs] = {}
                             pdfDict[hypo][year][mode][comp][obs] = WS(workspaceIn, BuildPDF(workspaceIn,
@@ -613,7 +619,8 @@ def BuildTimePDF(workspaceIn, myconfigfile, hypo, year, comp, mode, obsDict, ACP
         config["ParameteriseIntegral"] = myconfigfile["ACP"][comp]["ParameteriseIntegral"]
         config["UseProtoData"] = True #this is really recommended to speed-up generation
         config["NBinsAcceptance"] = myconfigfile["ACP"][comp]["NBinsAcceptance"]
-        config["NBinsProperTimeErr"] = myconfigfile["ACP"][comp]["NBinsProperTimeErr"]
+        if "NBinsProperTimeErr" in myconfigfile["ACP"][comp].keys():
+            config["NBinsProperTimeErr"] = myconfigfile["ACP"][comp]["NBinsProperTimeErr"]
 
         #Build time PDF
         pdf = timepdfutils_Bd.buildBDecayTimePdf(
@@ -674,7 +681,7 @@ def BuildPDF(workspaceIn, myconfigfile, hypo, year, comp, mode, obs, workTemplat
         mode2 = mode
         if myconfigfile["PDFList"][obs.GetName()][comp][hypo][year].has_key("All"):
             mode = "All"
-        shapeType = myconfigfile["PDFList"][obs.GetName()][comp][hypo][year][mode]["Type"]    
+        shapeType = myconfigfile["PDFList"][obs.GetName()][comp][hypo][year][mode]["Type"]
         if shapeType == "FromWorkspace":
             pdfTmp = {}
             name = {}
@@ -787,7 +794,6 @@ def BuildAnalyticalPdf(workspaceIn, shapeType, myconfigfile, hypo, year, comp, m
                                             False, #don't shift mean
                                             debug)
     elif shapeType == "DoubleCrystalBall":
-        print "I am here" 
         pdf = Bs2Dsh2011TDAnaModels.buildDoubleCrystalBallPDF(obs,
                                                               workspaceIn,
                                                               smyh,
@@ -802,6 +808,22 @@ def BuildAnalyticalPdf(workspaceIn, shapeType, myconfigfile, hypo, year, comp, m
                                                    comp,
                                                    False, #don't shift mean
                                                    debug)
+    elif shapeType == "DoubleGaussian":
+        pdf = Bs2Dsh2011TDAnaModels.buildDoubleGaussPDF(obs,
+                                                        workspaceIn,
+                                                        smyh,
+                                                        comp,
+                                                        False, #don't use "width ratio"
+                                                        False, #don't use "same mean"
+                                                        False, #don't shift mean
+                                                        debug)
+    elif shapeType == "CrystalBallPlusGaussian":
+        pdf = Bd2DhModels.buildCrystalBallPlusGaussianPDF(obs,
+                                                          workspaceIn,
+                                                          smyh,
+                                                          comp,
+                                                          False, #don't shift mean
+                                                          debug)
     elif shapeType == "Exponential":
         pdf = Bs2Dsh2011TDAnaModels.buildExponentialPDF(obs,
                                                         workspaceIn,
@@ -814,6 +836,12 @@ def BuildAnalyticalPdf(workspaceIn, shapeType, myconfigfile, hypo, year, comp, m
                                                               smyh,
                                                               comp,
                                                               debug)
+    elif shapeType == "ExponentialPlusConstant":
+        pdf = Bd2DhModels.buildExponentialPlusConstantPDF(obs,
+                                                          workspaceIn,
+                                                          smyh,
+                                                          comp,
+                                                          debug)
     elif shapeType == "ExponentialPlusDoubleCrystalBall":
         pdf = Bs2Dsh2011TDAnaModels.buildExponentialPlusDoubleCrystalBallPDF(obs,
                                                                              workspaceIn,
@@ -857,7 +885,10 @@ def BuildProtoData(workspaceIn, myconfigfile, obsDict, tagDict, resAccDict, pdfD
                     atLeast = 0
 
                     #Get random number of events to generate
-                    poissonNum = poissonGen.Poisson( int(nevts[hypo][year][mode][comp]) )
+                    if int(nevts[hypo][year][mode][comp]) > 0:
+                        poissonNum = poissonGen.Poisson( int(nevts[hypo][year][mode][comp]) )
+                    else:
+                        continue
                     
                     #Check tagging
                     tag = 0
@@ -965,10 +996,15 @@ def GenerateToys(workspaceIn, myconfigfile, observables, pdfDict, protoData, see
                     toyDict[hypo][year][mode][comp] = {}
 
                     #Get random number of events to generate
-                    poissonNum = poissonGen.Poisson( int(nevts[hypo][year][mode][comp]) )
-                    
+                    if int(nevts[hypo][year][mode][comp]) > 0:
+                        poissonNum = poissonGen.Poisson( int(nevts[hypo][year][mode][comp]) )
+                    else:
+                        toyDict[hypo][year][mode][comp][obs] = None
+                        continue
+                        
                     #Loop over observables
                     for obs in myconfigfile["Observables"].iterkeys():
+                        
                         if obs == "BeautyTime":
                             print "Observable: "+obs
                             toyDict[hypo][year][mode][comp][obs] = {}
@@ -978,10 +1014,11 @@ def GenerateToys(workspaceIn, myconfigfile, observables, pdfDict, protoData, see
                                 genset.add( observables.find("TagDecOS") )
                             if "TagDecSS" in myconfigfile["Observables"].keys():
                                 genset.add( observables.find("TagDecSS") )
-                            #If we have proto data use it, otherwise draw number of events to generate from Poisson distribution
+                            #If we have proto data use it, otherwise only draw number of events to generate from Poisson distribution
                             if None != protoData:
                                 toyDict[hypo][year][mode][comp][obs] = WS(workspaceIn, pdf[hypo][year][mode][comp][obs].generate(genset,
-                                                                                                                                 RooFit.ProtoData(protoData[hypo][year][mode][comp]) ) )
+                                                                                                                                 RooFit.ProtoData(protoData[hypo][year][mode][comp]),
+                                                                                                                                 RooFit.NumEvents(poissonNum)) )
                             else:
                                 toyDict[hypo][year][mode][comp][obs] = WS(workspaceIn, pdf[hypo][year][mode][comp][obs].generate(genset,
                                                                                                                                  RooFit.NumEvents(poissonNum) ) )
@@ -989,22 +1026,16 @@ def GenerateToys(workspaceIn, myconfigfile, observables, pdfDict, protoData, see
                             print "Observable: "+obs
                             genset = RooArgSet(observables.find(obs))
                             toyDict[hypo][year][mode][comp][obs] = {}
-                            pdf[hypo][year][mode][comp][obs].Print("v") 
                             
-                            
-                            #print nevts[hypo][year][mode][comp]
                             if obs == "BacPIDK":
                                 toyDict[hypo][year][mode][comp][obs] = WS(workspaceIn, pdf[hypo][year][mode][comp][obs].generate(genset,
                                                                                                                                  RooFit.AutoBinned(False),
                                                                                                                                  #RooFit.Extended(),
                                                                                                                                  RooFit.NumEvents(poissonNum) ) )
-                                print int(nevts[hypo][year][mode][comp])
-                                print toyDict[hypo][year][mode][comp][obs].Print("v") 
                             else:
                                 toyDict[hypo][year][mode][comp][obs] = WS(workspaceIn, pdf[hypo][year][mode][comp][obs].generate(genset,
                                                                                                                                  #RooFit.Extended(), 
                                                                                                                                  RooFit.NumEvents(poissonNum) ) )
-                                print toyDict[hypo][year][mode][comp][obs].Print("v")
 
     if debug:
         print "Toy dictionary:"
@@ -1052,6 +1083,9 @@ def BuildTotalDataset(workspaceIn, myconfigfile, toyDict, debug):
                 
                     countObs = 0
                     for obs in toyDict[hypo][year][mode][comp].iterkeys():
+
+                        if None == toyDict[hypo][year][mode][comp][obs]:
+                            continue
 
                         print "Observable: "+obs
                         print "Entries "+str(toyDict[hypo][year][mode][comp][obs].sumEntries())
@@ -1122,7 +1156,7 @@ def BuildTotalDataset(workspaceIn, myconfigfile, toyDict, debug):
 
     return totData, modesData
 
-
+#-----------------------------------------------------------------------------
 def MergeYears(myconfigfile, modesData, debug):
     
     print "[INFO] Merge years of data taking" 
@@ -1291,13 +1325,16 @@ def toyFactory(configName,
     print "=========================================================="
     print ""
 
-    
-    filePDF = TFile.Open(myconfigfile["WorkspaceToRead"]["File"],"READ")           
-    workTemplate = filePDF.Get(myconfigfile["WorkspaceToRead"]["Workspace"])
-    workTemplate.Print("v")
-    #exit(0) 
+    workTemplate = None
+    if "WorkspaceToRead" in myconfigfile.keys():
+        print "Workspace with templates detected. Opening it..."
+        filePDF = TFile.Open(myconfigfile["WorkspaceToRead"]["File"],"READ")           
+        workTemplate = filePDF.Get(myconfigfile["WorkspaceToRead"]["Workspace"])
+        if debug:
+            workTemplate.Print("v")
     pdfDict = BuildTotalPDF(workspaceIn, myconfigfile, obsDict, ACPDict, tagDict, resAccDict, asymmDict, workTemplate, debug)
-    filePDF.Close() 
+    if "WorkspaceToRead" in myconfigfile.keys():
+        filePDF.Close() 
 
     print ""
     print "=========================================================="
@@ -1343,7 +1380,7 @@ def toyFactory(configName,
         print "Output workspace "+workOut+" content:"
         workspaceOut.Print("v")
 
-    if saveTree:
+    if saveTree or myconfigfile["Components"].keys().__len__() == 1:
         print ""
         print "=========================================================="
         print "Save output tree "+treeOut+" to following file:"

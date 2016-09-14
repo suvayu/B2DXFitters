@@ -273,10 +273,11 @@ namespace GeneralUtils {
   std::vector <TString> GetSampleModeYearHypo(TString& sample, TString& mode, TString& year, TString& hypo, TString merge, bool debug = false);
   //std::vector <TString> GetSampleMode(TString& sample, TString& mode, TString merge, bool debug );
   std::vector <TString>  GetSample(TString& sample, bool debug = false);
+  std::vector <TString> GetSample(TString sample, TString merge, bool debug = false);
   std::vector <TString>  GetMode(TString& mode, bool debug = false);
   std::vector <TString>  GetHypo(TString& hypo, bool debug = false);
   std::vector <TString>  GetYear(TString& year, bool debug = false);
-  std::vector<TString> GetDataYear(TString check, TString merge, bool debug = false);
+  std::vector <TString> GetDataYear(TString check, TString merge, bool debug = false);
   //std::vector <Int_t> GetEntriesCombData(RooWorkspace* work, 
   //                                       TString &dat, TString & sample, TString& mode,
   //                                       TString merge, bool debug );

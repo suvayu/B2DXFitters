@@ -1327,9 +1327,9 @@ namespace GeneralUtils {
     std::vector <TString> y;
     std::vector <TString> h;
 
-    s = GetSample(sample,debug);
+    s = GetSample(sample, "", debug);
     m = GetMode(mode, debug );
-    y = GetYear(year, debug );
+    y = GetDataYear(year, "", debug );
     h = GetHypo(hypo, debug);
     sm = GetSampleModeYearHypo(sample, mode, year, hypo, "", debug);
     
@@ -1536,9 +1536,9 @@ namespace GeneralUtils {
     if ( (merge == "year" || merge == "both") && year != "run1") { std::cout<<"[ERROR] Option --merge year only possible for --year run1"<<std::endl; return smyh; }
 
 
-    s =  GetSample(sample,debug);
+    s =  GetSample(sample, merge, debug);
     m =  GetMode(mode, debug );
-    y =  GetYear(year, debug );
+    y =  GetDataYear(year, merge, debug );
     h =  GetHypo(hypo, debug );
 
     //    if ( y[0] == "")
@@ -1675,6 +1675,22 @@ namespace GeneralUtils {
     return s;
   }
 
+  std::vector <TString>  GetSample(TString sample, TString merge, bool debug )
+  {  
+    std::vector <TString> s; 
+    if ( merge == "pol" || merge == "both" )
+    {
+      s.push_back("up"); 
+      s.push_back("down");
+    }
+    else
+    { 
+      s.push_back(CheckPolarity(sample,debug));
+    }
+    return s;  
+  }
+    
+  
   std::vector <TString>  GetMode(TString& mode, bool debug )
   {
     std::vector <TString> m;
@@ -2391,8 +2407,7 @@ namespace GeneralUtils {
     year = Year;
     return year;
   }
-
-
+  
   //==========================================================================                                                                                                                      
   // Get X label for plotting                                                                                                                                                                       
   //==========================================================================                                                                                                                      

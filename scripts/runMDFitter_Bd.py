@@ -381,6 +381,26 @@ def BuildExponentialPDF(workOut, obs, nickname, samplemode, pdfDict, debug):
                                                         debug)
         
 	return WS(workOut, pdf)
+
+#------------------------------------------------------------
+def BuildExponentialPlusConstantPDF(workOut, obs, nickname, samplemode, pdfDict, debug):
+
+	#Build parameters
+	varName = obs.GetName()
+	typemode = nickname+"_EplusC"
+
+	parList = []
+	for par in ["cB", "fracExpo"]:
+		parList.append(BuildParForPDF(workOut, typemode, varName, par, samplemode, pdfDict))
+
+	#Build PDF
+	pdf = Bd2DhModels.buildExponentialPlusConstantPDF(obs,
+							  workOut,
+							  samplemode,
+							  typemode,
+							  debug)
+	
+	return WS(workOut, pdf)
         
 #------------------------------------------------------------
 def BuildGaussPDF(workOut, obs, nickname, samplemode, pdfDict, debug):
@@ -731,6 +751,8 @@ def BuildCompPdf(workOut, workTemplates, configfile, component, hypothesys, samp
 			pdfList.append(BuildDoubleCrystalBallPDF(workOut, obs, nickname, samplemodeyearhyp, pdfDict, debug))
 		elif "CrystalBall" in pdfType:
 			pdfList.append(BuildCrystalBallPDF(workOut, obs, nickname, samplemodeyearhyp, pdfDict, debug))
+		elif "ExponentialPlusConstant" in pdfType:
+			pdfList.append(BuildExponentialPlusConstantPDF(workOut, obs, nickname, samplemodeyearhyp, pdfDict, debug))
 		elif "Exponential" in pdfType:
 			pdfList.append(BuildExponentialPDF(workOut, obs, nickname, samplemodeyearhyp, pdfDict, debug)) 
 		elif "TakeInputPdf" in pdfType:
@@ -859,6 +881,7 @@ def runMDFitter_Bd( debug,
 		    workTemplates,
 		    workOut,
 		    initial,
+		    decay,
 		    mode,
 		    sample,
 		    year,
@@ -867,8 +890,14 @@ def runMDFitter_Bd( debug,
 		    dim,
 		    superimpose,
 		    binned,
+		    title,
+		    noFitPlot,
 		    sWeights,
 		    sWeightsName,
+		    preselection,
+		    plotsWeights,
+		    toys,
+		    pullFile,
 		    outputplotdir):
 
 	if binned and int(dim)>2:
@@ -885,25 +914,11 @@ def runMDFitter_Bd( debug,
 	RooAbsReal.defaultIntegratorConfig().getConfigSection('RooAdaptiveGaussKronrodIntegrator1D').setRealValue('maxSeg', 1000)
 	# Since we have finite ranges, the RooIntegrator1D is best suited to the job
 	RooAbsReal.defaultIntegratorConfig().method1D().setLabel('RooIntegrator1D')
-										
-	# Get the configuration file
-	myconfigfilegrabber = __import__(configName,fromlist=['getconfig']).getconfig
-	myconfigfile = myconfigfilegrabber()
-
-	print "=========================================================="
-	print "RUNMDFITTER_Bd IS RUNNING WITH THE FOLLOWING CONFIGURATION OPTIONS"
-	for option in myconfigfile :
-		if option == "constParams" :
-			for param in myconfigfile[option] :
-				print param, "is constant in the fit"
-		else :
-			print option, " = ", myconfigfile[option]
-	print "=========================================================="
 
 	RooAbsData.setDefaultStorageType(RooAbsData.Tree)
 
 	from B2DXFitters.MDFitSettingTranslator import Translator
-
+	
 	from B2DXFitters.mdfitutils import getExpectedValue as getExpectedValue
 	from B2DXFitters.mdfitutils import getExpectedYield as getExpectedYield
 	from B2DXFitters.mdfitutils import setConstantIfSoConfigured as setConstantIfSoConfigured
@@ -914,6 +929,37 @@ def runMDFitter_Bd( debug,
 	from B2DXFitters.mdfitutils import getPDFNameFromConfig as getPDFNameFromConfig
 	from B2DXFitters.mdfitutils import getPIDKComponents as getPIDKComponents
 	from B2DXFitters.mdfitutils import setBs2DsXParameters as setBs2DsXParameters
+
+	#Handle some input options
+	hypoList = hypo.split("_")
+	
+	t = TString('_')
+	decayTS = TString(decay)
+	modeTS = TString(mode)
+	sampleTS = TString(sample)
+	yearTS = TString(year)
+	hypoTS = TString(hypo)
+	datasetTS = TString("dataSet")+decayTS+t
+	
+	if merge == "pol" or merge == "both":
+		sampleTS = TString("both")
+	if merge == "year" or merge == "both":
+		yearTS = TString("run1")
+										
+	# Get the configuration file
+	samplemodeyear = sampleTS+t+modeTS+t+yearTS
+	myconfigfilegrabber = __import__(configName,fromlist=['getconfig']).getconfig
+	myconfigfile = myconfigfilegrabber( samplemodeyear.Data() )
+
+	print "=========================================================="
+	print "RUNMDFITTER_Bd IS RUNNING WITH THE FOLLOWING CONFIGURATION OPTIONS"
+	for option in myconfigfile :
+		if option == "constParams" :
+			for param in myconfigfile[option] :
+				print param, "is constant in the fit"
+		else :
+			print option, " = ", myconfigfile[option]
+	print "=========================================================="
 
 	mdt = Translator(myconfigfile,"MDSettings",False)
 
@@ -927,7 +973,7 @@ def runMDFitter_Bd( debug,
 	print "========================================="
 	print ""
 	workspace = GeneralUtils.LoadWorkspace(TString(inputFile), TString(workData), debug)
-
+	
 	workspaceTemplates = None
 	if templatesFile != "":
 		print ""
@@ -940,15 +986,14 @@ def runMDFitter_Bd( debug,
 
 	print ""
 	print "========================================="
-	print "Get output workspace "+str(workOut)+" from:"
-	print str(outputFile)
+	print "Create output workspace "+str(workOut)
 	print "========================================="
 	print ""
 	if initial != "":
 		workspaceOut = GeneralUtils.LoadWorkspace(TString(initial),TString(workOut),debug)
 	else:
 		workspaceOut = RooWorkspace(workOut,workOut)
-
+	
 	print ""
 	print "========================================="
 	print "Get input observables from:"
@@ -959,7 +1004,6 @@ def runMDFitter_Bd( debug,
 	dim = int(dim)
 	obsList = []
 	rangeList = []
-	hypoList = hypo.split("_")
 
 	bMass = observables.find(MDSettings.GetMassBVarOutName().Data())
 	bMass.setUnit("MeV/c^{2}")
@@ -989,24 +1033,23 @@ def runMDFitter_Bd( debug,
 	print "========================================="
 	print ""
 
-	t = TString('_')
-	decayTS = TString(myconfigfile["Decay"])
-	modeTS = TString(mode)
-	sampleTS = TString(sample)
-	yearTS = TString(year)
-	hypoTS = TString(hypo)
-	datasetTS = TString("dataSet")+decayTS+t
-		
-	if merge == "pol" or merge == "both":
-		sampleTS = TString("both")
-	if merge == "year" or merge == "both":
-		yearTS = TString("run1")
-
 	sam = WS(workspaceOut, RooCategory("sample","sample"))
-
-	dataSet = GeneralUtils.GetDataSet(workspace, observables, sam, datasetTS, sampleTS, modeTS, yearTS, hypoTS, merge, debug )
-
-	s = GeneralUtils.GetSampleModeYearHypo( sampleTS, modeTS, yearTS, hypoTS, merge, debug )
+	dataSet_temp = GeneralUtils.GetDataSet(workspace, observables, sam, datasetTS, sampleTS, modeTS, yearTS, hypoTS, merge, debug )
+	if preselection != "":
+		print "Applying following preselection to reduce dataset:"
+		print preselection
+		dataSet = RooDataSet(dataSet_temp.GetName(), dataSet_temp.GetTitle(), dataSet_temp, dataSet_temp.get(), preselection, "")
+		print "Entries:"
+		print "...before cut: "+str( dataSet_temp.sumEntries() )
+		print "...after cut: "+str( dataSet.sumEntries() )
+	else:
+		print "No additional preselection"
+		dataSet = dataSet_temp
+		
+	pidBins = {}
+	for h in range(0,hypoList.__len__()):
+		sam.setIndex(h)
+		pidBins[hypoList[h]] = sam.getLabel()
 
 	if binned:
 		print "Binning dataset"
@@ -1040,12 +1083,6 @@ def runMDFitter_Bd( debug,
 			print dataSet.sumEntries()
 		print "Sample categories"
 		sam.Print("v")
-
-	pidBins = {}
-	for h in range(0,hypoList.__len__()):
-		sam.setIndex(h)
-		pidBins[hypoList[h]] = sam.getLabel()
-	if debug:
 		print "Category dictionary:"
 		print pidBins
 
@@ -1074,6 +1111,8 @@ def runMDFitter_Bd( debug,
 	print hypoList
 	print "List of observables:"
 	print obsList
+
+	s = GeneralUtils.GetSampleModeYearHypo( sampleTS, modeTS, yearTS, hypoTS, merge, debug )
 
 	print "Start to build PDF for each component..."
 	pdfList = {}
@@ -1219,7 +1258,7 @@ def runMDFitter_Bd( debug,
 		namefile = outputplotdir+"MDFit_CovarianceMatrix.pdf"
 		cCov.SaveAs(namefile)
 
-		cCorr = TCanvas("cCov")
+		cCorr = TCanvas("cCorr")
 		cCorr.cd()
 		corrMat.Draw("TEXT45COLZ")
 		namefile = outputplotdir+"MDFit_CorrelationMatrix.pdf"
@@ -1228,41 +1267,55 @@ def runMDFitter_Bd( debug,
 		#Update what is contained in workspace
 		fitResult = WS(workspaceOut, fitResult)
 		pdf = WS(workspaceOut, pdf)
+
+		if toys:
+			print ""
+			print "========================================="
+			print "Create pull tree in"
+			print pullFile
+			print "for pull analysis"
+			print "========================================="
+			print ""
+
+			from B2DXFitters import FitResultGrabberUtils
+			FitResultGrabberUtils.CreatePullTree(pullFile, fitResult)
 		
 	else:
 		fitResult = None
-                
-	print ""
-	print "========================================="
-	print "Saving fit plot"
-	print "========================================="
-	print ""
 
-	logScale = [False, True]
-	for obs in obsList:
-		for pidbin in pidBins.iterkeys():
-			for log in logScale:
-				namefile = outputplotdir+"MDFit_"+str(obs.GetName())+"_"+pidbin
-				if superimpose:
-					namefile += "_noFit"
-				if log:
-					namefile += "_logScale"
-				print ""
-				print "Plotting PDF in "+str(obs.GetName())
-				print "for "+pidbin+" hypothesys"
-				print ""
-				makeFitCanvas(dataSet if not binned else dataSetBinned,
-					      pdf,
-					      pdfList,
-					      obs,
-					      sam,
-					      pidBins[pidbin],
-					      pidbin,
-					      fitResult,
-					      myconfigfile,
-					      log,
-					      "",
-					      namefile)
+
+	if not noFitPlot:
+		print ""
+		print "========================================="
+		print "Saving fit plot"
+		print "========================================="
+		print ""
+
+		logScale = [False, True]
+		for obs in obsList:
+			for pidbin in pidBins.iterkeys():
+				for log in logScale:
+					namefile = outputplotdir+"MDFit_"+str(obs.GetName())+"_"+pidbin
+					if superimpose:
+						namefile += "_noFit"
+					if log:
+						namefile += "_logScale"
+					print ""
+					print "Plotting PDF in "+str(obs.GetName())
+					print "for "+pidbin+" hypothesys"
+					print ""
+					makeFitCanvas(dataSet if not binned else dataSetBinned,
+						      pdf,
+						      pdfList,
+						      obs,
+						      sam,
+						      pidBins[pidbin],
+						      pidbin,
+						      fitResult,
+						      myconfigfile,
+						      log,
+						      title,
+						      namefile)
 
 
 	if sWeights:
@@ -1396,6 +1449,71 @@ def runMDFitter_Bd( debug,
 							False,
 							RooFit.Range("Signal") )
 			RooMsgService.instance().reset()
+
+			if plotsWeights:
+				print ""
+				print "========================================="
+				print "Plotting sWeighted data for:"
+				for o in myconfigfile["plotsWeights"].iterkeys():
+					print o
+				print "========================================="
+				print ""
+
+				fWeights = TFile.Open(sWeightsName, "READ")
+				tWeights = fWeights.Get("merged")
+				sam.setLabel(pidBins[hyp])
+				sWeights = TString("nSig_")+s[ sam.getIndex() ].Data()+TString("_Evts_sw")
+				if debug:
+					tWeights.GetListOfLeaves().Print()
+					print "sWeight leaf name: "+sWeights.Data()
+
+				for o in myconfigfile["plotsWeights"].iterkeys():
+					canv = TCanvas("canv_"+o)
+					canv.cd()
+					
+					tWeights.Draw(o+">>hist_"+o,"","goff")
+					hist = gDirectory.Get("hist_"+o)
+					hist.SetLineColor(kRed)
+					hist.SetLineWidth(2)
+					hist.GetXaxis().SetTitle(myconfigfile["plotsWeights"][o])
+					hist.SetTitle("")
+					
+					tWeights.Draw(o+">>hist_sw_"+o,sWeights.Data(),"goff")
+					hist_sw = gDirectory.Get("hist_sw_"+o)
+					hist_sw.SetLineColor(kBlue)
+					hist_sw.SetLineWidth(2)
+					hist_sw.GetXaxis().SetTitle(myconfigfile["plotsWeights"][o])
+					hist_sw.SetTitle("")
+
+					legend = TLegend(0.65,0.3,0.89,0.6) 
+					legend.SetFillColor(4000)
+					legend.SetShadowColor(0)
+					legend.SetBorderSize(0)
+					legend.SetTextFont(132)
+					legend.AddEntry(hist,"Non-weighted","L")
+					legend.AddEntry(hist_sw,"sWeighted","L")
+					
+					hist.Draw()
+					hist_sw.Draw("E1SAME")
+					legend.Draw("SAME")
+
+					lhcbtext = makeText(0.07)
+					lhcbtext.DrawTextNDC(0.89,
+							     0.8,
+							     myconfigfile["LHCbText"]["Text"])
+
+					canv.Update()
+
+					canv.SaveAs(outputplotdir+"sWeightedDistribution_"+o+".pdf")
+					del canv
+					del hist
+					del hist_sw
+
+				fWeights.Close()
+				del tWeights
+				del fWeights
+					
+			
 			if dim == 1:
 				sWeightsCalculator.printYieldsInRange( '*Evts',
 								       MDSettings.GetMassBVarOutName().Data() ,
@@ -1423,7 +1541,8 @@ def runMDFitter_Bd( debug,
 	if debug:
 		workspaceOut.Print("v")
 
-	workspaceOut.SaveAs(outputFile)
+	if outputFile != "":
+		workspaceOut.SaveAs(outputFile)
 		
 
 #------------------------------------------------------------
@@ -1436,6 +1555,12 @@ parser.add_option( '-d', '--debug',
 		   dest = 'debug',
 		   default = False,
 		   help = 'print debug information while processing'
+		   )
+parser.add_option( '--toys',
+		   action = 'store_true',
+		   dest = 'toys',
+		   default = False,
+		   help = 'create tree with generated and fitted values for pull analysis'
 		   )
 parser.add_option( '--configName',
 		   dest = 'configName',
@@ -1466,6 +1591,12 @@ parser.add_option( '--workOut',
 		   dest = 'workOut',
 		   default = 'workResults',
 		   help = 'workspace to store fit results, pdfs, observables'
+		   )
+parser.add_option( '--decay',
+		   dest = 'decay',
+		   metavar = 'DECAY',
+		   default = 'Bd2DPi',
+		   help = 'decay mode'
 		   )
 parser.add_option( '-m', '--mode',
 		   dest = 'mode',
@@ -1508,6 +1639,17 @@ parser.add_option( '--binned',
 		   default = False,
 		   help = 'perform binned maximum likelihood fit'
 		   )
+parser.add_option( '--title',
+		   dest = 'title',
+		   default = "",
+		   help = 'title of the fit plot'
+		   )
+parser.add_option( '--noFitPlot',
+		   action = 'store_true',
+		   dest = 'noFitPlot',
+		   default = False,
+		   help = 'veto production of fit plot'
+		   )
 parser.add_option( '--sWeights',
 		   action = 'store_true',
 		   dest = 'sWeights',
@@ -1519,15 +1661,30 @@ parser.add_option( '--sWeightsName',
 		   default = 'sWeights.root',
 		   help = 'file to store sWeights'
 		   )
+parser.add_option( '--preselection',
+		   dest = 'preselection',
+		   default = "",
+		   help = 'additional preselection to apply on dataset'
+		   )
+parser.add_option( '--plotsWeights',
+		   action = 'store_true',
+		   dest = 'plotsWeights',
+		   default = False,
+		   help = 'perform binned maximum likelihood fit'
+		   )
 parser.add_option( '--outputFile',
 		   dest = 'outputFile',
-		   default = 'MyOutputFile.root',
+		   default = '',
 		   help = 'output file to store fit results')
 parser.add_option( '--outputplotdir',
 		   dest = 'outputplotdir',
 		   default = 'MyOutputDir',
 		   help = 'output directory to store plots'
 		   )
+parser.add_option( '--pullFile',
+		   dest = 'pullFile',
+		   default = 'MyPullFile.root',
+		   help = 'output file to store pull tree for toys')
 parser.add_option( '--initial',
 		   dest = 'initial',
 		   default = '',
@@ -1563,6 +1720,7 @@ if __name__ == '__main__' :
 			options.workTemplates,
 			options.workOut,
 			options.initial,
+			options.decay,
 			options.mode,
 			options.pol,
 			options.year,
@@ -1571,7 +1729,13 @@ if __name__ == '__main__' :
 			options.dim,
 			options.superimpose,
 			options.binned,
+			options.title,
+			options.noFitPlot,
 			options.sWeights,
 			options.sWeightsName,
+			options.preselection,
+			options.plotsWeights,
+			options.toys,
+			options.pullFile,
 			options.outputplotdir)
 	

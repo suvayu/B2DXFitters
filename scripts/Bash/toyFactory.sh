@@ -14,13 +14,13 @@ export pyscriptpath=$7
 
 #Setup environment
 source /afs/cern.ch/lhcb/software/releases/LBSCRIPTS/prod/InstallArea/scripts/LbLogin.sh
-source `which SetupProject.sh` Urania v4r0
+source `which SetupProject.sh` Urania v5r0
 
 while (( $seed < $stop )); do
     
     cd $pyscriptpath
 
-    python ${pyscriptpath}toyFactory.py --saveTree --configName $config --seed $seed --workfileOut GenToyWorkspace_${nickname}_${seed}.root --treefileOut GenToyTree_${nickname}_${seed}.root  --debug --outputdir $output #>& ${output}log_${nickname}_${seed}.txt
+    python ${pyscriptpath}toyFactory.py --configName $config --seed $seed --workfileOut GenToyWorkspace_${nickname}_${seed}.root --treefileOut GenToyTree_${nickname}_${seed}.root  --debug --outputdir $output >& ${output}log_${nickname}_${seed}.txt
 
     xrdcp -f ${output}GenToyWorkspace_${nickname}_${seed}.root root://eoslhcb.cern.ch/${eosoutput}GenToyWorkspace_${nickname}_${seed}.root
     rm -f ${output}GenToyWorkspace_${nickname}_${seed}.root
