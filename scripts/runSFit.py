@@ -423,6 +423,7 @@ def runSFit(debug, wsname,
 
         #sf = getScaleFactor(myconfigfile, debug) 
         observables.add( terr )
+        observables.add( mistag )
         trm_mean  = RooRealVar( 'trm_mean' , 'Gaussian resolution model mean', myconfigfile["Resolution"]["meanBias"], 'ps' )
         trm_scale = RooRealVar( 'trm_scale', 'Gaussian resolution model scale factor', 1.0) #myconfigfile["Resolution"]["scaleFactor"] )
         #terr_scaled = ScaleFactor("terr_scaled", "Resolution scale factor", terr, sf[0], sf[1], sf[2])
@@ -441,8 +442,10 @@ def runSFit(debug, wsname,
     # ---------------------------
     
     tagNum = MDSettings.CheckNumUsedTag()
+    numTag = MDSettings.GetNumTagVar()
     numOfTemp = pow(2,tagNum)-1;
-    print tagNum, numOfTemp 
+    print tagNum, numOfTemp
+
 
     if pereventmistag:
         print "[INFO] Mistag model: per-event observable" 
@@ -471,6 +474,7 @@ def runSFit(debug, wsname,
         for i in range(0,numTag):
             if MDSettings.CheckUseTag(i) == True:
                 tagList.append(str(MDSettings.GetTagMatch(i)))
+        print tagList.__len__(), numTag, tagList[0]#, tagList[1]
 
         if tagList.__len__()  == 2:
             tagList.append("Both")
@@ -642,8 +646,9 @@ def runSFit(debug, wsname,
         print "[INFO] RooDataSet is binned" 
         time.setBins(250)
         terr.setBins(20)
-        dataWA_binned = RooDataHist("dataWA_binned","dataWA_binned",observables,dataWA)   
-        
+        mistag.setBins(20)
+        dataWA_binned = RooDataHist("dataWA_binned","dataWA_binned",observables,dataWA)
+        dataWA_binned.Print("v")
     if toys or unblind: #Unblind yourself 
         if binned:
             myfitresult = totPDF.fitTo(dataWA_binned, RooFit.Save(1), RooFit.Optimize(2), RooFit.Strategy(2),

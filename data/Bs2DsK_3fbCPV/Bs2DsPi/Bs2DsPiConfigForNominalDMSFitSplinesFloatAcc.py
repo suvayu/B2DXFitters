@@ -17,11 +17,14 @@ def getconfig() :
     configdict["CPlimit"]       = {"upper":4.0, "lower":-4.0} 
 
     configdict["TaggingCalibration"] = {}
-    configdict["TaggingCalibration"]["SS"] = {"p0": 0.4429, "p1": 0.977, "average": 0.4377, 
-                                              "tagEff":0.387, "aTagEff":0.0, "use":True, }
-    configdict["TaggingCalibration"]["OS"] = {"p0": 0.375,  "p1": 0.982, "average": 0.3688, 
-                                              "tagEff":0.4772, "aTagEff":0.0, "use":False}
-    configdict["TaggingCalibration"]["Both"] = {"p0": 0.3397,  "p1": 0.9719, "average": 0.3385}
+#    configdict["TaggingCalibration"]["SS"] = {"p0": 0.4429, "p1": 0.977, "average": 0.4377, 
+#                                              "tagEff":0.387, "aTagEff":0.0, "use":True, }
+#    configdict["TaggingCalibration"]["OS"] = {"p0": 0.375,  "p1": 0.982, "average": 0.3688, 
+#                                              "tagEff":0.4772, "aTagEff":0.0, "use":False}
+    configdict["TaggingCalibration"]["SS"] = {"p0": 0.4429, "dp0": 0.0, "p1": 0.977, "dp1": 0.0,
+                                              "average": 0.4377, "tagEff":0.387, "aTagEff":0.0, "use":True, }
+    configdict["TaggingCalibration"]["OS"] = {"p0": 0.375, "dp0": 0.0, "p1": 0.982, "dp1": 0.0,
+                                              "average": 0.3688, "tagEff":0.4772, "aTagEff":0.0, "use":True}
 
     configdict["Acceptance"] = { "knots": [0.50, 1.0,  1.5, 2.0, 3.0, 12.0],
                                  "values": [4.5579e-01,7.0310e-01,8.7709e-01,1.1351e+00,1.2233e+00,1.2323e+00] }
@@ -62,40 +65,35 @@ def getconfig() :
     configdict["constParams"].append('aTagEff_OS')
     configdict["constParams"].append('aTagEff_SS')
     configdict["constParams"].append('aTagEff_Both')
-    configdict["constParams"].append('p0_B_OS')
-    configdict["constParams"].append('p1_B_OS')
-    configdict["constParams"].append('average_B_OS')
-    configdict["constParams"].append('p0_B_SS')
-    configdict["constParams"].append('p1_B_SS')
-    configdict["constParams"].append('average_B_SS')
-    configdict["constParams"].append('p0_B_Both')
-    configdict["constParams"].append('p1_B_Both')
-    configdict["constParams"].append('average_B_Both')
-    configdict["constParams"].append('p0_Bbar_OS')
-    configdict["constParams"].append('p1_Bbar_OS')
-    configdict["constParams"].append('average_Bbar_OS')
-    configdict["constParams"].append('p0_Bbar_SS')
-    configdict["constParams"].append('p1_Bbar_SS')
-    configdict["constParams"].append('average_Bbar_SS')
-    configdict["constParams"].append('p0_Bbar_Both')
-    configdict["constParams"].append('p1_Bbar_Both')
-    configdict["constParams"].append('average_Bbar_Both')
-
     configdict["constParams"].append('p0_OS')
     configdict["constParams"].append('p0_SS')
-    configdict["constParams"].append('p0_Both')
     configdict["constParams"].append('p1_OS')
     configdict["constParams"].append('p1_SS')
-    configdict["constParams"].append('p1_Both')
     configdict["constParams"].append('dp0_OS')
     configdict["constParams"].append('dp0_SS')
-    configdict["constParams"].append('dp0_Both')
     configdict["constParams"].append('dp1_OS')
     configdict["constParams"].append('dp1_SS')
-    configdict["constParams"].append('dp1_Both')
     configdict["constParams"].append('average_OS')
     configdict["constParams"].append('average_SS')
-    configdict["constParams"].append('average_Both')
+
+#    configdict["constParams"].append('p0_B_OS')
+#    configdict["constParams"].append('p1_B_OS')
+#    configdict["constParams"].append('average_B_OS')
+#    configdict["constParams"].append('p0_B_SS')
+#    configdict["constParams"].append('p1_B_SS')
+#    configdict["constParams"].append('average_B_SS')
+#    configdict["constParams"].append('p0_B_Both')
+#    configdict["constParams"].append('p1_B_Both')
+#    configdict["constParams"].append('average_B_Both')
+#    configdict["constParams"].append('p0_Bbar_OS')
+#    configdict["constParams"].append('p1_Bbar_OS')
+#    configdict["constParams"].append('average_Bbar_OS')
+#    configdict["constParams"].append('p0_Bbar_SS')
+#    configdict["constParams"].append('p1_Bbar_SS')
+#    configdict["constParams"].append('average_Bbar_SS')
+#    configdict["constParams"].append('p0_Bbar_Both')
+#    configdict["constParams"].append('p1_Bbar_Both')
+#    configdict["constParams"].append('average_Bbar_Both')
 
 
     #configdict["constParams"].append('DeltaMs')

@@ -537,7 +537,7 @@ namespace SFitUtils {
       if (debug == true) { std::cout<<"[INFO] Number of taggers "<<tagNum<<std::endl;}
     }
 
-    Int_t numOfTemp = std::pow(2,tagNum)-1;
+    Int_t numOfTemp = tagNum;
     if (debug == true) { std::cout<<"Number of mistag templates: "<<numOfTemp<<std::endl; }
     
     RooDataSet* sliceData[numOfTemp];
@@ -570,6 +570,76 @@ namespace SFitUtils {
     return pdfList;
   }
 
+  
+  //===========================================================================
+  // Create Mistag templates for different taggers
+  //===========================================================================
+  RooArgList* CreateDifferentMistagTemplates(RooDataSet* data, MDFitterSettings* mdSet, Int_t bins, bool save, bool debug)
+  {
+    RooArgList* pdfList = new RooArgList();
+    const RooArgSet* obs = data->get();
+ 
+    RooArgList* obsMistagList = new RooArgList();
+    RooArgList* obsTagList = new RooArgList();
+    
+    Int_t tagNum = mdSet->CheckNumUsedTag();
+    Int_t mistagNum = mdSet->CheckNumUsedTag();
+    
+    
+    for (int i=0; i<tagNum; ++i)
+    {
+      obsTagList->add(*(RooRealVar*)obs->find(TString("TagDec")+mdSet->GetTagMatch(i)));
+      obsMistagList->add(*(RooRealVar*)obs->find(TString("Mistag")+mdSet->GetTagMatch(i)));
+      ((RooRealVar*)obs->find(TString("Mistag")+mdSet->GetTagMatch(i)))->setRange(0,0.5);
+    }
+    
+
+    
+    if (tagNum != mistagNum)
+    {
+      std::cout<<"[ERROR] number of tagging decisions  different from number of mistag distributions"<<std::endl;
+      return NULL;
+    }
+    else
+    {
+      if (debug == true) { std::cout<<"[INFO] Number of taggers "<<tagNum<<std::endl;}
+    }
+
+    Int_t numOfTemp = tagNum;
+    if (debug == true) { std::cout<<"Number of mistag templates: "<<numOfTemp<<std::endl; }
+    
+    RooDataSet* sliceData[numOfTemp];
+    RooHistPdf* mistagPDF[numOfTemp];
+    for(int i =1; i<numOfTemp+1; i++)
+    {
+      std::cout<<"Cut on tagger: "<<i<<" and "<<-i<<std::endl;  
+      TString tagName(TString("TagDec")+mdSet->GetTagMatch(i-1));
+      sliceData[i-1] = (RooDataSet*)data->reduce(*obs,Form("(("+tagName+" == %d) || ("+tagName+" == %d))",1,-1));
+      std::cout<<"[INFO] sliceData "<<i<<" with entries: "<<sliceData[i-1]->numEntries()<<std::endl;
+      TString namePDF = Form("sigMistagPdf_%d",i);
+      mistagPDF[i-1] = NULL;
+      mistagPDF[i-1] = CreateHistPDF(sliceData[i-1], ((RooRealVar*)obs->find(TString("Mistag")+mdSet->GetTagMatch(i-1))), namePDF, bins, debug);
+      if( debug == true && mistagPDF[i-1] != NULL) {std::cout<<"[INFO] Create RooHistPDF done"<<std::endl;}
+      pdfList->add(*mistagPDF[i-1]);
+      TString t ="";
+      PlotSettings* plotSet = new PlotSettings("plotSet","plotSet");
+      plotSet->SetBin(bins);
+      SaveTemplate(sliceData[i-1], mistagPDF[i-1], ((RooRealVar*)obs->find(TString("Mistag")+mdSet->GetTagMatch(i-1))), namePDF, t, plotSet, debug );
+    }
+    if( save == true)
+    {
+      RooWorkspace* workOut = new RooWorkspace("workspace","workspace");
+      for(int i =0; i<numOfTemp; i++)
+      {
+        workOut->import(*mistagPDF[i]);
+      }
+      if(debug == true ){ workOut->Print("v"); }
+      workOut->SaveAs("templates_mistag.root");
+    } 
+    return pdfList;
+  }
+  
+  
   //===========================================================================
   // Copy Data for Toys, changeRooCategory to RooRealVar
   //===========================================================================

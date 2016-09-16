@@ -209,8 +209,7 @@ def getTagEff(myconfig, ws, mdSet, par):
     elif tagList.__len__()  == 2:
         tagEff0 = myconfig["TaggingCalibration"][tagList[0]][par]
         tagEff1 = myconfig["TaggingCalibration"][tagList[1]][par]
-        tagList.append("Both")
-        tagValue = [tagEff0 - tagEff0*tagEff1,  tagEff1 - tagEff0*tagEff1, tagEff0*tagEff1] 
+        tagValue = [tagEff0 - tagEff0*tagEff1,  tagEff1 - tagEff0*tagEff1, tagEff0*tagEff1]
         i = 0 
         for tag in tagList:
             tagEffSig.append(WS(ws,RooRealVar(par+'_'+tag, 'Signal tagging efficiency', tagValue[i], 0.0, 1.0)))
@@ -239,8 +238,7 @@ def getCalibratedMistag(myconfig, ws, mdSet, mistag, par):
     mistagCalibList = RooArgList()
     mistagCalib = []
     print tagList 
-    if tagList.__len__()  == 2:
-        tagList.append("Both") 
+
 
     tagNum = mdSet.CheckNumUsedTag()
     numOfTemp = pow(2,tagNum)-1;
@@ -332,16 +330,36 @@ def runSFit(debug, wsname,
     data = GeneralUtils.GetDataSet(workspace[0],   nameData, debug)
     dataWA = GeneralUtils.GetDataSet(workspaceW[0],   nameData, debug)
     nEntries = dataWA.numEntries()
-                                                    
+    
     dataWA.Print("v")
     obs = dataWA.get()
     time = obs.find(MDSettings.GetTimeVarOutName().Data())
     terr = obs.find(MDSettings.GetTerrVarOutName().Data())
     id = obs.find(MDSettings.GetIDVarOutName().Data())
-    tag = obs.find("tagDecComb")
-    mistag = obs.find("tagOmegaComb")
-    mistag.setRange(0, 0.5)
-    observables = RooArgSet(time,tag,id)
+
+
+    # Get Tagger List
+    numTag = MDSettings.CheckNumUsedTag()
+    tagList = []
+    for i in range(0,numTag):
+        if MDSettings.CheckUseTag(i) == True:
+            tagList.append(str(MDSettings.GetTagMatch(i)))
+
+    print tagList.__len__(), numTag, tagList[0]
+
+    tag = []
+    mistag = []
+
+    for i in range(0,numTag):
+        tag.append(obs.find("TagDec"+tagList[i]))
+        mistag.append(obs.find("Mistag"+tagList[i]))
+        mistag[i].setRange(0, 0.5)
+
+
+    observables = RooArgSet(time,id)
+    for i in range(0,numTag):
+        observables.add(tag[i])
+
     if plotsWeights:
         name = TString("sfit")
         obs2 = data.get()
@@ -441,10 +459,6 @@ def runSFit(debug, wsname,
     # Per-event mistag
     # ---------------------------
     
-    tagNum = MDSettings.CheckNumUsedTag()
-    numOfTemp = pow(2,tagNum)-1;
-    print tagNum, numOfTemp 
-
     if pereventmistag:
         print "[INFO] Mistag model: per-event observable"
         #mistagCalibListB, ws = getCalibratedMistag(myconfigfile,ws,MDSettings,mistag, 'B')
@@ -453,12 +467,6 @@ def runSFit(debug, wsname,
         #print "[INFO] Mistag model: per-event observable" 
         # we need calibrated mistag
         
-        p0B = []
-        p0Bbar = []
-        p1B = []
-        p1Bbar = []
-        avB = []
-        avBbar = []
         p0 = []
         dp0 = []
         p1 = []
@@ -467,68 +475,28 @@ def runSFit(debug, wsname,
 
         mistagCalibList = RooArgList()
         constList = RooArgSet()
-        mistagCalibB = []
-        mistagCalibBbar = []
-        mistagCalibListB = RooArgList()
-        mistagCalibListBbar = RooArgList()
 
-        numTag = MDSettings.GetNumTagVar()
-        tagList = []
         for i in range(0,numTag):
-            if MDSettings.CheckUseTag(i) == True:
-                tagList.append(str(MDSettings.GetTagMatch(i)))
+            observables.add(mistag[i])
 
-        if tagList.__len__()  == 2:
-            tagList.append("Both")
 
-        i = 0
-        print numOfTemp, tagList.__len__()
-        for i in range(0,numOfTemp):
-        #for tag in tagList:
-            name = 'B_'+str(tagList[i])
-            p0B.append(WS(ws,RooRealVar('p0_'+str(name), 'p0_'+str(name),  myconfigfile["TaggingCalibration"][tagList[i]]["p0"], 0., 0.5)))
-            p1B.append(WS(ws,RooRealVar('p1_'+str(name), 'p1_'+str(name),  myconfigfile["TaggingCalibration"][tagList[i]]["p1"], 0.5, 1.5)))
-            avB.append(WS(ws,RooRealVar('average_'+str(name), 'av_'+str(name),  myconfigfile["TaggingCalibration"][tagList[i]]["average"], 0.0, 1.0)))
-            setConstantIfSoConfigured(p0B[i],myconfigfile)
-            setConstantIfSoConfigured(p1B[i],myconfigfile)
-            setConstantIfSoConfigured(avB[i],myconfigfile)
-            mistagCalibB.append(MistagCalibration("mistagCalib_"+str(name), "mistagCalib_"+str(name), mistag, p0B[i], p1B[i], avB[i]))
-            mistagCalibListB.add(mistagCalibB[i])
-            i = i + 1
-        i = 0
-        for i in range(0,numOfTemp):
-            name = 'Bbar_'+str(tagList[i])
-            p0Bbar.append(WS(ws,RooRealVar('p0_'+str(name), 'p0_'+str(name),  myconfigfile["TaggingCalibration"][tagList[i]]["p0"], 0., 0.5)))          
-            p1Bbar.append(WS(ws,RooRealVar('p1_'+str(name), 'p1_'+str(name),  myconfigfile["TaggingCalibration"][tagList[i]]["p1"], 0.5, 1.5))) 
-            avBbar.append(WS(ws,RooRealVar('average_'+str(name), 'av_'+str(name),  myconfigfile["TaggingCalibration"][tagList[i]]["average"], 0.0, 1.0)))
-            setConstantIfSoConfigured(p0Bbar[i],myconfigfile)
-            setConstantIfSoConfigured(p1Bbar[i],myconfigfile)
-            setConstantIfSoConfigured(avBbar[i],myconfigfile)
-            mistagCalibBbar.append(MistagCalibration("mistagCalib_"+str(name), "mistagCalib_"+str(name), mistag, p0Bbar[i], p1Bbar[i], avBbar[i]))
-            mistagCalibListBbar.add(mistagCalibBbar[i])
-            i = i +1
-        i = 0
-        for i in range(0,numOfTemp):
+        print numTag, tagList.__len__()
+        for i in range(0,numTag):
             name = str(tagList[i])
             #calculate mean p0 and p1 as well as delta p0 and delta p1 values
-            p0_temp = (p0B[i].getVal() + p0Bbar[i].getVal())/2.0
-            dp0_temp = p0B[i].getVal() - p0Bbar[i].getVal()
-            p1_temp = (p1B[i].getVal() + p1Bbar[i].getVal()) / 2.0
-            dp1_temp = p1B[i].getVal() - p1Bbar[i].getVal()
-            p0.append(WS(ws,RooRealVar('p0_'+str(name), 'p0_'+str(name),  p0_temp, 0., 0.5)))
-            dp0.append(WS(ws,RooRealVar('dp0_'+str(name), 'p0_'+str(name),  dp0_temp, -1., 1.)))
-            p1.append(WS(ws,RooRealVar('p1_'+str(name), 'p1_'+str(name),  p1_temp, 0.5, 1.5)))
-            dp1.append(WS(ws,RooRealVar('dp1_'+str(name), 'dp1_'+str(name),  dp1_temp, -1., 1.)))
-            avetacalib.append(WS(ws,RooRealVar('average_'+str(name), 'av_'+str(name),  myconfigfile["TaggingCalibration"][tagList[i]]["average"], 0.0, 1.0)))
+            p0.append(WS(ws,RooRealVar('p0_'+str(name), 'p0_'+str(name),  myconfigfile["TaggingCalibration"][tagList[i]]["p0"], 0., 0.5)))
+            dp0.append(WS(ws,RooRealVar('dp0_'+str(name), 'dp0_'+str(name),  myconfigfile["TaggingCalibration"][tagList[i]]["dp0"], -1.0, 1.0)))
+            p1.append(WS(ws,RooRealVar('p1_'+str(name), 'p1_'+str(name),  myconfigfile["TaggingCalibration"][tagList[i]]["p1"], 0.5, 1.5)))
+            dp1.append(WS(ws,RooRealVar('dp1_'+str(name), 'dp1_'+str(name),  myconfigfile["TaggingCalibration"][tagList[i]]["dp1"], -1.0, 1.0)))
+            avetacalib.append(WS(ws,RooRealVar('average_'+str(name), 'average_'+str(name),  myconfigfile["TaggingCalibration"][tagList[i]]["average"], 0.0, 1.0)))
             setConstantIfSoConfigured(p0[i],myconfigfile)
             setConstantIfSoConfigured(dp0[i],myconfigfile)
             setConstantIfSoConfigured(p1[i],myconfigfile)
             setConstantIfSoConfigured(dp1[i],myconfigfile)
             setConstantIfSoConfigured(avetacalib[i],myconfigfile)
-            i = i +1
 
-
-        mistagPDFList = SFitUtils.CreateMistagTemplates(dataWA, MDSettings, 50, True, debug)
+        mistagPDFList = SFitUtils.CreateDifferentMistagTemplates(dataWA, MDSettings, 50, True, debug)
+#        mistagPDFList = SFitUtils.CreateMistagTemplates(dataWA, MDSettings, 50, True, debug)
 
     else :
         print "[INFO] Mistag model: average mistag" 
@@ -579,13 +547,19 @@ def runSFit(debug, wsname,
     flag = 0
 
 
-# WE NEED SEPARATION BETWEEN 1 or 2 TAGGERS HERE: Different constructors => different *otherargs!!!!!
-#    1 tagger  otherargs = [ tag[0], mistag[0], p0[0], p1[0], dp0[0], dp1[0], avetacalib[0], tagEffSigList[0], aTagEffSigList[0] ]
-#    >1 tagger  otherargs += [ tag[1], mistag[1], p0[1], p1[1], dp0[1], dp1[1], avetacalib[1], tagEffSigList[1], aTagEffSigList[1] ]
-# what about parameter values for overlap candidates???????????
 
+    otherargs = [ ]
     if pereventmistag:
-        otherargs = [ tag, mistag, p0[0], p1[0], dp0[0], dp1[0], avetacalib[0], tagEffSigList[0], aTagEffSigList[0] ]
+        for i in range(0, numTag):
+            otherargs.append(tag[i])
+            otherargs.append(mistag[i])
+            otherargs.append(p0[i])
+            otherargs.append(p1[i])
+            otherargs.append(dp0[i])
+            otherargs.append(dp1[i])
+            otherargs.append(avetacalib[i])
+            otherargs.append(tagEffSigList[i])
+            otherargs.append(aTagEffSigList[i])
     else:
         print "No per-event mistag not supported! Will certainly crash now..."
 
@@ -594,7 +568,8 @@ def runSFit(debug, wsname,
     otherargs.append(aDet)
 
 
-    print mistagPDFList[0]
+    for i in range(0, numTag):
+        print mistagPDFList[i]
 
     cosh = DecRateCoeff_Bd('signal_cosh', 'signal_cosh', DecRateCoeff_Bd.kCosh, id, one1, one2, *otherargs)
     sinh = DecRateCoeff_Bd('signal_sinh', 'signal_sinh', DecRateCoeff_Bd.kSinh, id, D, Dbar, *otherargs)
@@ -620,16 +595,24 @@ def runSFit(debug, wsname,
                         time, tauinv, deltaGammas,
                         cosh, sinh, cos, sin,
                         deltaMs, trm, RooBDecay.SingleSided)
-            
+
     if pereventterr and pereventmistag:
-        noncondset = RooArgSet(time, id, tag)
-        #have to change to tag[0], tag[1]... to make more than one hardcoded tagger possible!??!?
+        noncondset = RooArgSet(time, id)
+        condpdfset = RooArgSet(terrpdf)
+        for i in range(0,numTag):
+            noncondset.add(tag[i])
+            condpdfset.add(mistagPDFList[i])
         name_timeterr = TString("signal_TimeTimeerrPdf")
+        # default way with conditional pdf and extra pdfs for terr and all mistags
         totPDF = RooProdPdf(name_timeterr.Data(), name_timeterr.Data(),
-                                     RooArgSet(terrpdf,mistagPDFList[0]), RooFit.Conditional(RooArgSet(timePDF), noncondset))
+                                     condpdfset, RooFit.Conditional(RooArgSet(timePDF), noncondset))
+        # new idea to use only terr as external PDF (maybe even this is not necessary) => need to use RooConditional in FitTo later
+#        totPDF = RooProdPdf(name_timeterr.Data(), name_timeterr.Data(),
+#                                     RooArgSet(terrpdf), RooFit.Conditional(RooArgSet(timePDF), RooArgSet(time, id, tag[0], tag[1], mistag[0], mistag[1])))
+
     else:
         totPDF = timePDF
-            
+
     '''
     if debug :
     print 'DATASET NOW CONTAINS', nEntries, 'ENTRIES!!!!' 
@@ -673,10 +656,16 @@ def runSFit(debug, wsname,
     # ---------------------------
     if binned: 
         print "[INFO] RooDataSet is binned" 
-        time.setBins(250)
-        terr.setBins(20)
-        dataWA_binned = RooDataHist("dataWA_binned","dataWA_binned",observables,dataWA)   
-        
+        time.setBins(150)
+        terr.setBins(10)
+        if pereventmistag:
+            for i in range(0, numTag):
+                mistag[i].setBins(10)
+        dataWA.Print("v")
+        observables.Print("v")
+        dataWA_binned = RooDataHist("dataWA_binned","dataWA_binned",observables,dataWA)
+        dataWA_binned.Print("v")
+
     if toys or unblind: #Unblind yourself 
         if binned:
             myfitresult = totPDF.fitTo(dataWA_binned, RooFit.Save(1), RooFit.Optimize(2), RooFit.Strategy(2),
@@ -688,9 +677,16 @@ def runSFit(debug, wsname,
         myfitresult.correlationMatrix().Print()
         myfitresult.covarianceMatrix().Print()
     else :    #Don't
-        if binned: 
+        if binned:
+
+            # old way
+            totPDF.printComponentTree();
             myfitresult = totPDF.fitTo(dataWA_binned, RooFit.Save(1), RooFit.Optimize(2), RooFit.Strategy(2), RooFit.Extended(False),
                                        RooFit.SumW2Error(True), RooFit.PrintLevel(-1))
+            # new way, activate also the lower totPDF above!
+#            myfitresult = totPDF.fitTo(dataWA_binned, RooFit.Save(1), RooFit.Optimize(2), RooFit.Strategy(2), RooFit.Extended(False),
+#                                       RooFit.ConditionalObservables(RooArgSet(mistag[0], mistag[1])),RooFit.SumW2Error(True), RooFit.PrintLevel(-1))
+
         else:
             myfitresult = totPDF.fitTo(dataWA, RooFit.Save(1), RooFit.Optimize(2), RooFit.Strategy(2), RooFit.Extended(False),
                                        RooFit.SumW2Error(True), RooFit.PrintLevel(-1))            
