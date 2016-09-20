@@ -21,10 +21,10 @@ def getconfig() :
 #                                              "tagEff":0.387, "aTagEff":0.0, "use":True, }
 #    configdict["TaggingCalibration"]["OS"] = {"p0": 0.375,  "p1": 0.982, "average": 0.3688, 
 #                                              "tagEff":0.4772, "aTagEff":0.0, "use":False}
-    configdict["TaggingCalibration"]["SS"] = {"p0": 0.4429, "dp0": 0.0, "p1": 0.977, "dp1": 0.0,
-                                              "average": 0.4377, "tagEff":0.387, "aTagEff":0.0, "use":True, }
-    configdict["TaggingCalibration"]["OS"] = {"p0": 0.375, "dp0": 0.0, "p1": 0.982, "dp1": 0.0,
-                                              "average": 0.3688, "tagEff":0.4772, "aTagEff":0.0, "use":True}
+    configdict["TaggingCalibration"]["SS"] = {"p0": 0.4459, "dp0": 0.0034, "p1": 0.9617, "dp1": 0.0509,
+                                              "average": 0.4377, "tagEff":0.636, "aTagEff":0.0, "use":True, }
+    configdict["TaggingCalibration"]["OS"] = {"p0": 0.3898, "dp0": 0.0040, "p1": 0.9907, "dp1": 0.043,
+                                              "average": 0.3688, "tagEff":0.374, "aTagEff":0.0, "use":True}
 
     configdict["Acceptance"] = { "knots": [0.50, 1.0,  1.5, 2.0, 3.0, 12.0],
                                  "values": [4.5579e-01,7.0310e-01,8.7709e-01,1.1351e+00,1.2233e+00,1.2323e+00] }

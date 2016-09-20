@@ -445,11 +445,11 @@ def runSFit(debug, wsname,
         trm_mean  = RooRealVar( 'trm_mean' , 'Gaussian resolution model mean', myconfigfile["Resolution"]["meanBias"], 'ps' )
         trm_scale = RooRealVar( 'trm_scale', 'Gaussian resolution model scale factor', 1.0) #myconfigfile["Resolution"]["scaleFactor"] )
         #terr_scaled = ScaleFactor("terr_scaled", "Resolution scale factor", terr, sf[0], sf[1], sf[2])
-        trm_scale_p0  = RooRealVar( 'trm_scale_p0' , 'Gaussian resolution model mean', -1.59675e-02, 'ps' )
-        trm_scale_p1  = RooRealVar( 'trm_scale_p1' , 'Gaussian resolution model mean', 2.05905, 'ps' )
-        trm_scale_p2  = RooRealVar( 'trm_scale_p2' , 'Gaussian resolution model mean', -7.67665, 'ps' )
+        trm_scale_p0  = RooRealVar( 'trm_scale_p0' , 'Gaussian resolution model mean', 0., 'ps' )
+        trm_scale_p1  = RooRealVar( 'trm_scale_p1' , 'Gaussian resolution model mean', 1.37, 'ps' )
+        trm_scale_p2  = RooRealVar( 'trm_scale_p2' , 'Gaussian resolution model mean', 0., 'ps' )
         terr_scaled = RooFormulaVar( 'trm_scaled_terr',"scale", "@0+@1*@3+@2*@3*@3",RooArgList(trm_scale_p0,trm_scale_p1,trm_scale_p2,terr))
-        #observables.add( terr_scaled ) 
+        #observables.add( terr_scaled )
         trm = RooGaussEfficiencyModel("resmodel", "resmodel", time, spl, trm_mean, terr_scaled, trm_mean, trm_scale )
 
         #terrWork = GeneralUtils.LoadWorkspace(TString(myconfigfile["Resolution"]["templates"]["fileName"]), 
@@ -461,11 +461,6 @@ def runSFit(debug, wsname,
     
     if pereventmistag:
         print "[INFO] Mistag model: per-event observable"
-        #mistagCalibListB, ws = getCalibratedMistag(myconfigfile,ws,MDSettings,mistag, 'B')
-        #mistagCalibListBbar, ws = getCalibratedMistag(myconfigfile,ws,MDSettings,mistag, 'Bbar')
-        #ws.Print() 
-        #print "[INFO] Mistag model: per-event observable" 
-        # we need calibrated mistag
         
         p0 = []
         dp0 = []
@@ -483,7 +478,7 @@ def runSFit(debug, wsname,
         print numTag, tagList.__len__()
         for i in range(0,numTag):
             name = str(tagList[i])
-            #calculate mean p0 and p1 as well as delta p0 and delta p1 values
+            #get mean p0 and p1 as well as delta p0 and delta p1 values
             p0.append(WS(ws,RooRealVar('p0_'+str(name), 'p0_'+str(name),  myconfigfile["TaggingCalibration"][tagList[i]]["p0"], 0., 0.5)))
             dp0.append(WS(ws,RooRealVar('dp0_'+str(name), 'dp0_'+str(name),  myconfigfile["TaggingCalibration"][tagList[i]]["dp0"], -1.0, 1.0)))
             p1.append(WS(ws,RooRealVar('p1_'+str(name), 'p1_'+str(name),  myconfigfile["TaggingCalibration"][tagList[i]]["p1"], 0.5, 1.5)))
@@ -496,7 +491,6 @@ def runSFit(debug, wsname,
             setConstantIfSoConfigured(avetacalib[i],myconfigfile)
 
         mistagPDFList = SFitUtils.CreateDifferentMistagTemplates(dataWA, MDSettings, 50, True, debug)
-#        mistagPDFList = SFitUtils.CreateMistagTemplates(dataWA, MDSettings, 50, True, debug)
 
     else :
         print "[INFO] Mistag model: average mistag" 
