@@ -27,7 +27,7 @@ def getconfig() :
                                               "average": 0.3688, "tagEff":0.374, "aTagEff":0.0, "use":True}
 
     configdict["Acceptance"] = { "knots": [0.50, 1.0,  1.5, 2.0, 3.0, 12.0],
-                                 "values": [4.5579e-01,7.0310e-01,8.7709e-01,1.1351e+00,1.2233e+00,1.2323e+00] }
+                                 "values": [4.080e-01,6.261e-01,8.364e-01,1.0815e+00,1.1730e+00,1.2510e+00] }
 
     configdict["Resolution"] = { "scaleFactor":{"p0":0.010262, "p1":1.280, "p2":0.0},
                                  "meanBias":0.0,
