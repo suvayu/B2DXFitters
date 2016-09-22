@@ -445,9 +445,15 @@ def runSFit(debug, wsname,
         trm_mean  = RooRealVar( 'trm_mean' , 'Gaussian resolution model mean', myconfigfile["Resolution"]["meanBias"], 'ps' )
         trm_scale = RooRealVar( 'trm_scale', 'Gaussian resolution model scale factor', 1.0) #myconfigfile["Resolution"]["scaleFactor"] )
         #terr_scaled = ScaleFactor("terr_scaled", "Resolution scale factor", terr, sf[0], sf[1], sf[2])
-        trm_scale_p0  = RooRealVar( 'trm_scale_p0' , 'Gaussian resolution model mean', 0., 'ps' )
-        trm_scale_p1  = RooRealVar( 'trm_scale_p1' , 'Gaussian resolution model mean', 1.37, 'ps' )
+
+        # nominal results
+        trm_scale_p0  = RooRealVar( 'trm_scale_p0' , 'Gaussian resolution model mean', 0.010262, 'ps' )
+        trm_scale_p1  = RooRealVar( 'trm_scale_p1' , 'Gaussian resolution model mean', 1.280, 'ps' )
         trm_scale_p2  = RooRealVar( 'trm_scale_p2' , 'Gaussian resolution model mean', 0., 'ps' )
+        # single gaussian results for systematics
+#        trm_scale_p0  = RooRealVar( 'trm_scale_p0' , 'Gaussian resolution model mean', 0.0, 'ps' )
+#        trm_scale_p1  = RooRealVar( 'trm_scale_p1' , 'Gaussian resolution model mean', 1.519, 'ps' )
+#        trm_scale_p2  = RooRealVar( 'trm_scale_p2' , 'Gaussian resolution model mean', 0., 'ps' )
         terr_scaled = RooFormulaVar( 'trm_scaled_terr',"scale", "@0+@1*@3+@2*@3*@3",RooArgList(trm_scale_p0,trm_scale_p1,trm_scale_p2,terr))
         #observables.add( terr_scaled )
         trm = RooGaussEfficiencyModel("resmodel", "resmodel", time, spl, trm_mean, terr_scaled, trm_mean, trm_scale )
