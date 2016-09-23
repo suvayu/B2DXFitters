@@ -6,9 +6,9 @@ def getconfig() :
     from math import pi
 
     # PHYSICAL PARAMETERS
-    configdict["Gammas"]        =  0.661   # in ps^{-1}
-    configdict["DeltaGammas"]   =  -0.105
-    configdict["DeltaMs"]       = 17.768   # in ps^{-1}
+    configdict["Gammas"]        =  0.6643   # in ps^{-1}
+    configdict["DeltaGammas"]   =  -0.083
+    configdict["DeltaMs"]       = 17.757   # in ps^{-1}
     configdict["TagEffSig"]     = 0.403
     configdict["TagOmegaSig"]   = 0.391
     configdict["StrongPhase"]   = 20. / 180. * pi
@@ -27,7 +27,7 @@ def getconfig() :
                                               "average": 0.3688, "tagEff":0.374, "aTagEff":0.0, "use":True}
 
     configdict["Acceptance"] = { "knots": [0.50, 1.0,  1.5, 2.0, 3.0, 12.0],
-                                 "values": [4.080e-01,6.261e-01,8.364e-01,1.0815e+00,1.1730e+00,1.2510e+00] }
+                                 "values": [3.774e-01,5.793e-01,7.752e-01,1.0043e+00,1.0937e+00,1.1872e+00] }
 
     configdict["Resolution"] = { "scaleFactor":{"p0":0.010262, "p1":1.280, "p2":0.0},
                                  "meanBias":0.0,
