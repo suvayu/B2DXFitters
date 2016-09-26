@@ -17,14 +17,21 @@ def getconfig() :
     configdict["CPlimit"]       = {"upper":4.0, "lower":-4.0} 
 
     configdict["TaggingCalibration"] = {}
-#    configdict["TaggingCalibration"]["SS"] = {"p0": 0.4429, "p1": 0.977, "average": 0.4377, 
-#                                              "tagEff":0.387, "aTagEff":0.0, "use":True, }
-#    configdict["TaggingCalibration"]["OS"] = {"p0": 0.375,  "p1": 0.982, "average": 0.3688, 
-#                                              "tagEff":0.4772, "aTagEff":0.0, "use":False}
+    # Tagging Parameter for Nominal Resolution
     configdict["TaggingCalibration"]["SS"] = {"p0": 0.44119, "dp0": 0.0, "p1": 1.0868, "dp1": 0.0,
                                               "average": 0.43744, "tagEff":0.63926, "aTagEff":0.0, "use":True, }
     configdict["TaggingCalibration"]["OS"] = {"p0": 0.37718, "dp0": 0.0, "p1": 1.1244, "dp1": 0.0,
                                               "average": 0.369798, "tagEff":0.37151, "aTagEff":0.0, "use":True}
+    # Tagging Parameter for Single Gaussian Resolution
+#    configdict["TaggingCalibration"]["SS"] = {"p0": 0.43703, "dp0": 0.0, "p1": 1.1314, "dp1": 0.0,
+#                                              "average": 0.43744, "tagEff":0.63925, "aTagEff":0.0, "use":True, }
+#    configdict["TaggingCalibration"]["OS"] = {"p0": 0.36820, "dp0": 0.0, "p1": 1.1993, "dp1": 0.0,
+#                                              "average": 0.369798, "tagEff":0.37151, "aTagEff":0.0, "use":True}
+    # Tagging Parameter for the second approach to check systematics
+#    configdict["TaggingCalibration"]["SS"] = {"p0": 0.44907, "dp0": 0.0, "p1": 0.95005, "dp1": 0.0,
+#                                              "average": 0.43744, "tagEff":0.63926, "aTagEff":0.0, "use":True, }
+#    configdict["TaggingCalibration"]["OS"] = {"p0": 0.39432, "dp0": 0.0, "p1": 0.97298, "dp1": 0.0,
+#                                              "average": 0.369798, "tagEff":0.37151, "aTagEff":0.0, "use":True}
 
     configdict["Acceptance"] = { "knots": [0.50, 1.0,  1.5, 2.0, 3.0, 12.0],
                                  "values": [3.774e-01,5.793e-01,7.752e-01,1.0043e+00,1.0937e+00,1.1872e+00] }
