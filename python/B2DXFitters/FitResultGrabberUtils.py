@@ -59,7 +59,7 @@ def grabResult(isData, isBlind, filename):
     gc.collect()
     return None
 
-def CreatePullTree(fileNamePull, rooFitResult, fitQualityBranch = 'covQual'):
+def CreatePullTree(fileNamePull, rooFitResult, fitQualityBranch = 'covQual', extGenDict = None):
     """
     create tree with fitted value, fitted error and generated (or initial) value for each
     floating variable in a fit
@@ -67,6 +67,11 @@ def CreatePullTree(fileNamePull, rooFitResult, fitQualityBranch = 'covQual'):
     fileNamePull -- output file
     rooFitResult -- RooFitResult object obtained from the fit
     fitQualityBranch -- choose the RooFitResult method you want (covQual,status...) to store the fit quality code
+
+    if extGenDict != None, the generated value for each parameter is taken from an external dictionary
+    of the form extGenDict = {parName : genValue, etc...}.
+    This is useful when the generated value is a per-toy number (e.g. poisson-distributed yield)
+    extGenDict can contain only a subset of the parameters; the others are taken from rooFitResult
     """
 
     if None == rooFitResult:
@@ -82,9 +87,12 @@ def CreatePullTree(fileNamePull, rooFitResult, fitQualityBranch = 'covQual'):
         status = rooFitResult.status()
 
     print "FitResultGrabberUtils.CreateToyPullTree(...)==> Creating TTree to store fit results."
+    if extGenDict != None:
+        print "FitResultGrabberUtils.CreateToyPullTree(...)==> Taking (some) generated values from following dictionary:"
+        print extGenDict
 
-    floatpar = rooFitResult.floatParsFinal()
     initpar = rooFitResult.floatParsInit()
+    floatpar = rooFitResult.floatParsFinal()
 
     filePull = TFile.Open(fileNamePull, "RECREATE")
     filePull.cd()
@@ -109,12 +117,20 @@ def CreatePullTree(fileNamePull, rooFitResult, fitQualityBranch = 'covQual'):
         print "Setting " + floatpar[i].GetName() + " generated value branch..."
         initlist.append(array( 'f', [0] ))
         treePull.Branch(str(floatpar[i].GetName()) + "_gen", initlist[i], str(floatpar[i].GetName()) + "_gen/F")
-        initlist[i][0] = initpar[i].getVal()
+        if extGenDict == None:
+            initlist[i][0] = initpar[i].getVal()
+        else:
+            if floatpar[i].GetName() in extGenDict.keys():
+                print "...take from dictionary"
+                initlist[i][0] = extGenDict[floatpar[i].GetName()]
+            else:
+                initlist[i][0] = initpar[i].getVal()
         print "...value ", initlist[i][0]
+            
 
     print "Setting fit quality branch"
     statusvar = array( 'f', [0] )
-    if fitQualityBranch == "covQual":
+    if fitQualityBranch == "covQual" or fitQualityBranch == "CovQual":
         treePull.Branch("CovQual", statusvar, "CovQual/F")
     else:
         treePull.Branch("MINUITStatus", statusvar, "MINUITStatus/F")

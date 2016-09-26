@@ -1082,6 +1082,8 @@ def BuildTotalDataset(workspaceIn, myconfigfile, toyDict, debug):
                     print "Component: "+comp
                 
                     countObs = 0
+                    dataObs = None
+                    
                     for obs in toyDict[hypo][year][mode][comp].iterkeys():
 
                         if None == toyDict[hypo][year][mode][comp][obs]:
@@ -1095,12 +1097,12 @@ def BuildTotalDataset(workspaceIn, myconfigfile, toyDict, debug):
                             dataObs.merge( toyDict[hypo][year][mode][comp][obs] )
 
                         countObs = countObs +1
-                        
+
+                    if None == dataObs or dataObs.numEntries() == 0:
+                        continue 
+
                     dataObs.SetName("Toy_both_"+year+"_"+comp+"_"+mode+"_"+hypo+"Hypo")
                     dataObs.SetTitle("Toy_both_"+year+"_"+comp+"_"+mode+"_"+hypo+"Hypo")
-
-                    if dataObs.numEntries() == 0:
-                        continue 
 
                     if countComp == 0:
                         print "Creating data set: ", dataObs.GetName()

@@ -126,6 +126,158 @@ from array import array
 gROOT.SetBatch()
 
 #------------------------------------------------------------
+def makeFitCanvasForSWeights(dataset,
+			     model,
+			     sgn,
+			     bkg,
+			     hypo,
+			     var,
+			     result,
+			     configfile,
+			     logScale,
+			     title,
+			     save):
+
+	#Get some options
+	min = configfile["sWeights"]["Range"][var.GetName()][0]
+	max = configfile["sWeights"]["Range"][var.GetName()][1]
+	bins = configfile["sWeights"]["Bins"]
+	Xaxis = configfile["AxisTitle"][var.GetName()][hypo]
+	var.SetTitle(Xaxis)
+
+	#Create canvas
+	canv = TCanvas("canv_"+dataset.GetName(),"Canvas of "+dataset.GetTitle(), 1200, 1000)
+	canv.Divide(1,2)
+	
+	#Setup upper pad
+	canv.cd(1)
+	pad1 = canv.GetPad(1)
+	pad1.cd()
+	pad1.SetPad(.0, .22, 1.0, 1.0)
+	pad1.SetBorderMode(0)
+	pad1.SetBorderSize(-1)
+	pad1.SetFillStyle(0)
+	pad1.SetTickx(0)
+	if logScale:
+		pad1.SetLogy()
+		
+	frame_top = makeTopFrame(var,title,min,max,bins)
+	dataset.plotOn(frame_top)
+	
+
+	#Plot total PDF
+	model.plotOn(frame_top,
+		     #RooFit.Normalization(1.0, RooAbsReal.RelativeExpected),
+		     RooFit.LineStyle(configfile["sWeightsFitPlot"]["Total"]["Style"]),
+		     RooFit.LineColor(configfile["sWeightsFitPlot"]["Total"]["Color"]))
+
+	#Build pull histogram and get chi2/ndof
+	pullHist = frame_top.pullHist()
+	if None != result:
+		#Fitted parameters: compute ndof properly
+		chi2ndof = frame_top.chiSquare(result.floatParsFinal().getSize())
+	else:
+		#No fit: ndof only given by binning
+		chi2ndof = frame_top.chiSquare(0)
+		chi2ndof = round(chi2ndof,2)
+	chi2ndof = round(chi2ndof,2)
+
+	#Plot signal and background PDFs
+	model.plotOn(frame_top,
+		     #RooFit.Normalization(1.0, RooAbsReal.RelativeExpected),
+		     RooFit.Components(sgn),
+		     RooFit.LineStyle(configfile["sWeightsFitPlot"]["Signal"]["Style"]),
+		     RooFit.LineColor(configfile["sWeightsFitPlot"]["Signal"]["Color"]))
+	model.plotOn(frame_top,
+		     #RooFit.Normalization(1.0, RooAbsReal.RelativeExpected),
+		     RooFit.Components(bkg),
+		     RooFit.LineStyle(configfile["sWeightsFitPlot"]["Background"]["Style"]),
+		     RooFit.LineColor(configfile["sWeightsFitPlot"]["Background"]["Color"]))
+
+	frame_top.Draw()
+
+	#Plot legend
+	legend = TLegend(configfile["Legend"]["Xmin"],
+			 configfile["Legend"]["Ymin"],
+			 configfile["Legend"]["Xmax"],
+			 configfile["Legend"]["Ymax"])
+	legend.SetFillColor(4000)
+	legend.SetShadowColor(0)
+	legend.SetBorderSize(0)
+	legend.SetTextFont(132)
+	
+	print ""
+	print "Adding data points to legend"
+	gr = TGraphErrors(10)
+	gr.SetName("gr")
+	gr.SetLineColor(kBlack)
+	gr.SetLineWidth(2)
+	gr.SetMarkerStyle(8)
+	gr.SetMarkerSize(1.3)
+	gr.SetMarkerColor(kBlack)
+	legend.AddEntry("gr","Data","LEP")
+	
+	print "Adding PDFs to legend"
+	lineT = TLine()
+	lineT.SetLineColor(configfile["sWeightsFitPlot"]["Total"]["Color"])
+	lineT.SetLineWidth(4)
+	lineT.SetLineStyle(configfile["sWeightsFitPlot"]["Total"]["Style"])
+	legend.AddEntry(lineT, configfile["sWeightsFitPlot"]["Total"]["Title"], "L")
+
+	lineS = TLine()
+	lineS.SetLineColor(configfile["sWeightsFitPlot"]["Signal"]["Color"])
+	lineS.SetLineWidth(4)
+	lineS.SetLineStyle(configfile["sWeightsFitPlot"]["Signal"]["Style"])
+	legend.AddEntry(lineS, configfile["sWeightsFitPlot"]["Signal"]["Title"], "L")
+
+	lineB = TLine()
+	lineB.SetLineColor(configfile["sWeightsFitPlot"]["Background"]["Color"])
+	lineB.SetLineWidth(4)
+	lineB.SetLineStyle(configfile["sWeightsFitPlot"]["Background"]["Style"])
+	legend.AddEntry(lineB, configfile["sWeightsFitPlot"]["Background"]["Title"], "L")
+
+	legend.Draw("SAME")
+
+	#Add some text
+	lhcbtext = makeText(0.07)
+	lhcbtext.DrawTextNDC(configfile["LHCbText"]["X"],
+			     configfile["LHCbText"]["Y"],
+			     configfile["LHCbText"]["Text"])
+	
+	chi2text = makeText(0.05)
+	chi2text.DrawLatexNDC(configfile["Chi2"]["X"],configfile["Chi2"]["Y"],"#chi^{2}/ndof="+str(chi2ndof))
+	
+	pad1.Update()
+	pad1.Draw()
+	
+	#Setup lower pad
+	canv.cd(2)
+	pad2 = canv.GetPad(2)
+	pad2.cd()
+	pad2.SetPad(.0, .005, 1.0, .3275)
+	pad2.cd()
+	pad2.SetBorderMode(0)
+	pad2.SetBorderSize(-1)
+	pad2.SetFillStyle(0)
+	pad2.SetBottomMargin(0.35)
+	pad2.SetTickx(0)
+	pad2.SetGridx()
+	pad2.SetGridy()
+	pad2.SetLogy(0)
+	
+	gStyle.SetOptLogy(0)
+	
+	frame_bot = makeBottomFrame(var,min,max,bins,Xaxis)
+	frame_bot.addPlotable(pullHist,"P")
+	frame_bot.Draw()
+	
+	pad2.Update()
+	pad2.Draw()
+	canv.Update()
+	
+	canv.SaveAs(save+".pdf")
+	
+#------------------------------------------------------------
 def makeFitCanvas(dataset,
 		  model,
 		  dictionary,
@@ -291,7 +443,10 @@ def makeFitCanvas(dataset,
 
 #------------------------------------------------------------
 def makeTopFrame(var,title,min,max,bins):
-	frame_top = var.frame(min,max,bins)
+	if None != bins and None != min and None != max:
+		frame_top = var.frame(min,max,bins)
+	else:
+		frame_top = var.frame()
 	frame_top.SetTitle(title)
 	frame_top.GetXaxis().SetLabelSize( 0.05 )
 	frame_top.GetYaxis().SetLabelSize( 0.038 )#0.05 )
@@ -310,7 +465,10 @@ def makeTopFrame(var,title,min,max,bins):
 
 #------------------------------------------------------------
 def makeBottomFrame(var,min,max,bins,Xaxis):
-	frame_bot = var.frame(min,max,bins)
+	if None != bins and None != min and None != max:
+		frame_bot = var.frame(min,max,bins)
+	else:
+		frame_bot = var.frame()
 	frame_bot.SetTitle("")
 	frame_bot.GetYaxis().SetTitle("")
 	frame_bot.GetXaxis().SetTitle(Xaxis)
@@ -898,6 +1056,7 @@ def runMDFitter_Bd( debug,
 		    plotsWeights,
 		    toys,
 		    pullFile,
+		    pullFilesWeights,
 		    outputplotdir):
 
 	if binned and int(dim)>2:
@@ -1116,6 +1275,8 @@ def runMDFitter_Bd( debug,
 
 	print "Start to build PDF for each component..."
 	pdfList = {}
+	corrYieldDict = {}
+	corrYieldDictsWeights = {}
 	idx = 0
 	for hyp in hypoList:
 		pdfList[hyp] = {}
@@ -1131,6 +1292,32 @@ def runMDFitter_Bd( debug,
 							  s[idx].Data(),
 							  obsList,
 							  debug)
+
+				if toys and pdfDetails != None:
+					corrYieldDict[pdfDetails["Yield"].GetName()] = {}
+					if debug:
+						print "Correcting yield for poisson fluctuation (take effective generated value)"
+						print "Uncorrect value:"
+						print str(pdfDetails["Yield"].getVal())
+					sam.setLabel(pidBins[hyp])
+					corrYieldDict[pdfDetails["Yield"].GetName()] = dataSet.sumEntries( "sample==sample::"+sam.getLabel()+" && TMath::Abs(TrueID-"+str(myconfigfile["TrueID"][comp])+")<50" )
+					if debug:
+						print "Corrected value:"
+						print str(corrYieldDict[pdfDetails["Yield"].GetName()])
+						
+					if hyp == myconfigfile["sWeights"]["Hypo"] and sWeights and compList.__len__() > 2:
+						corrYieldDictsWeights[pdfDetails["Yield"].GetName()] = {}
+						if debug:
+							print "Correcting yield for poisson fluctuation (take effective generated value) in the signal region"
+						signalWindow = ""
+						for obs in obsList:
+							obs.setRange("Signal",*myconfigfile["sWeights"]["Range"][obs.GetName()])
+							signalWindow += " && "+obs.GetName()+">="+str(myconfigfile["sWeights"]["Range"][obs.GetName()][0])
+							signalWindow += " && "+obs.GetName()+"<="+str(myconfigfile["sWeights"]["Range"][obs.GetName()][1])
+							corrYieldDictsWeights[pdfDetails["Yield"].GetName()] = dataSet.sumEntries( "sample==sample::"+sam.getLabel()+" && TMath::Abs(TrueID-"+str(myconfigfile["TrueID"][comp])+")<50 "+signalWindow )
+						if debug:
+							print "Corrected value (reduced mass range):"
+							print str(corrYieldDictsWeights[pdfDetails["Yield"].GetName()])
 				if pdfDetails != None:
 					pdfList[hyp][comp]["PDF"] = pdfDetails["PDF"]
 					pdfList[hyp][comp]["Yield"] = pdfDetails["Yield"]
@@ -1138,6 +1325,7 @@ def runMDFitter_Bd( debug,
 					pdfList[hyp][comp]["Color"] = pdfDetails["Color"]
 					pdfList[hyp][comp]["Style"] = pdfDetails["Style"]
 					pdfList[hyp][comp]["Name"]  = pdfDetails["Name"]
+					
 		idx = idx+1
 		
 	if debug:
@@ -1149,6 +1337,9 @@ def runMDFitter_Bd( debug,
 					print "Hypo: "+hyp+", component: "+comp
 					print pdfList[hyp][comp]
 					print ""
+		if toys:
+			print "Corrected yields dictionary:"
+			print corrYieldDict
 			
 	print "Create total PDF..."
 	pdf = RooSimultaneous("totEPDF", "totEPDF", sam)
@@ -1278,7 +1469,7 @@ def runMDFitter_Bd( debug,
 			print ""
 
 			from B2DXFitters import FitResultGrabberUtils
-			FitResultGrabberUtils.CreatePullTree(pullFile, fitResult)
+			FitResultGrabberUtils.CreatePullTree(pullFile, fitResult, 'covQual', corrYieldDict)
 		
 	else:
 		fitResult = None
@@ -1330,7 +1521,7 @@ def runMDFitter_Bd( debug,
 			print "========================================="
 			print ""
 
-			#Build new pdf, and select only one category (the one chosen in myconfigfile["sWeights"]["Hypo"]
+			#Build new pdf, and select only one category (the one chosen in myconfigfile["sWeights"]["Hypo"])
 			hyp = myconfigfile["sWeights"]["Hypo"]
 			signalWindow = ""
 			for obs in obsList:
@@ -1352,15 +1543,20 @@ def runMDFitter_Bd( debug,
 				print "Obtained dataset:"
 				dataSetForSWeights.Print("v")
 
-			#Build new pdf, and select only one category (the one chosen in myconfigfile["sWeights"]["Hypo"] 
+			#Build new pdf, and select only one category (the one chosen in myconfigfile["sWeights"]["Hypo"]) 
 			bkgPdfList = RooArgList()
 			bkgFracList = RooArgList()
 			countFrac = 0
 			totBkgYield = 0.0
+			totGenBkg = 0.0
 			last = ""
 			integral = {}
 			for comp in compList:
 				if comp not in ["Total","Signal"] and "PDF" in pdfList[hyp][comp].keys() and "Yield" in pdfList[hyp][comp].keys():
+
+					print ""
+					print "Component: "+comp
+					
 					#Including bkg pdf with updated parameters from previous fit
 					bkgPdfList.add( workspaceOut.obj( pdfList[hyp][comp]["PDF"].GetName() ) )
 					#Computing fraction of bkg that falls into the signal region for each component
@@ -1369,16 +1565,34 @@ def runMDFitter_Bd( debug,
 															      RooFit.NormSet(argset),
 															      RooFit.Range("Signal"))
 					integral[comp] = thisintegral.getVal()
+
+					print "PDF integral in the signal region: "+str(integral[comp])
+					
 					#Accumulate total background yield
-					totBkgYield = totBkgYield + workspaceOut.obj( pdfList[hyp][comp]["Yield"].GetName() ).getVal() * integral[comp]
+					thisyield = workspaceOut.obj( pdfList[hyp][comp]["Yield"].GetName() ).getVal()
+					totBkgYield = totBkgYield + thisyield * integral[comp]
+
+					print "Fitted yield: "+str(thisyield)
+					print "Fitted yield in the signal region: "+str(thisyield * integral[comp])
+
+					#Accumulate total generated background yield
+					if toys:
+						totGenBkg = totGenBkg + corrYieldDictsWeights[pdfList[hyp][comp]["Yield"].GetName()]
+
+						print "Generated yield in the signal region: "+str(corrYieldDictsWeights[pdfList[hyp][comp]["Yield"].GetName()])
 					
 					countFrac = countFrac + 1
 					last = comp
 			if debug:
+				print ""
 				print "Number of background components: "+str(countFrac)
-				print "Total background yield in signal region: "+str(totBkgYield)
+				print "Total fitted background yield in signal region: "+str(totBkgYield)
+				if toys:
+					print "Total generated background in the signal region: "+str(totGenBkg)
 				print "Dictionary of background integrals in the signal region:"
 				print integral
+				print ""
+				
 			for comp in compList:
 				if comp not in ["Total","Signal"] and "PDF" in pdfList[hyp][comp].keys() and "Yield" in pdfList[hyp][comp].keys():
 					if comp != last:
@@ -1404,6 +1618,9 @@ def runMDFitter_Bd( debug,
 								  totBkgYield,
 								  0.0,
 								  totBkgYield*2.0))
+
+			corrYieldDictsWeights[totbkgYield.GetName()] = totGenBkg
+			
 			totbkgE = WS(workspaceOut, RooExtendPdf(hyp+"Hypo_TotBkgEPDF",
 								hyp+"Hypo_TotBkgEPDF",
 								totbkg,
@@ -1423,7 +1640,7 @@ def runMDFitter_Bd( debug,
 							     hyp+"Hypo_SgnEPDF",
 							     pdfList[hyp]["Signal"]["PDF"],
 							     sgnYield))
-			mergedPdf = RooAddPdf(hyp+"Hypo_EPDF_merged", hyp+"Hypo_EPDF_merged", RooArgList(sgnE, totbkgE) )
+			mergedPdf = WS(workspaceOut, RooAddPdf(hyp+"Hypo_EPDF_merged", hyp+"Hypo_EPDF_merged", RooArgList(sgnE, totbkgE) ) )
 
 			#Now set ranges properly
 			for obs in obsList:
@@ -1449,6 +1666,39 @@ def runMDFitter_Bd( debug,
 							False,
 							RooFit.Range("Signal") )
 			RooMsgService.instance().reset()
+			sWeightsFitResult = sWeightsCalculator.getFitResult()
+
+			if not noFitPlot:
+
+				for obs in obsList:
+					print ""
+					print "Plotting fit result for sWeights: "+obs.GetName()
+					print ""
+
+					namefile = outputplotdir+"MDFitForSWeights_"+str(obs.GetName())+"_"+myconfigfile["sWeights"]["Hypo"] 
+					makeFitCanvasForSWeights(dataSetForSWeights,
+								 mergedPdf,
+								 sgnE.GetName(),
+								 totbkgE.GetName(),
+								 myconfigfile["sWeights"]["Hypo"],
+								 obs,
+								 sWeightsFitResult,
+								 myconfigfile,
+								 False,
+								 title,
+								 namefile)
+			
+			if toys:
+				print ""
+				print "========================================="
+				print "Create pull tree in"
+				print pullFilesWeights
+				print "for pull analysis"
+				print "========================================="
+				print ""
+				
+				from B2DXFitters import FitResultGrabberUtils
+				FitResultGrabberUtils.CreatePullTree(pullFilesWeights, sWeightsFitResult, 'covQual', corrYieldDictsWeights)
 
 			if plotsWeights:
 				print ""
@@ -1678,12 +1928,16 @@ parser.add_option( '--outputFile',
 		   help = 'output file to store fit results')
 parser.add_option( '--outputplotdir',
 		   dest = 'outputplotdir',
-		   default = 'MyOutputDir',
+		   default = '',
 		   help = 'output directory to store plots'
 		   )
 parser.add_option( '--pullFile',
 		   dest = 'pullFile',
 		   default = 'MyPullFile.root',
+		   help = 'output file to store pull tree for toys')
+parser.add_option( '--pullFilesWeights',
+		   dest = 'pullFilesWeights',
+		   default = 'MyPullFilesWeights.root',
 		   help = 'output file to store pull tree for toys')
 parser.add_option( '--initial',
 		   dest = 'initial',
@@ -1737,5 +1991,6 @@ if __name__ == '__main__' :
 			options.plotsWeights,
 			options.toys,
 			options.pullFile,
+			options.pullFilesWeights,
 			options.outputplotdir)
 	

@@ -25,7 +25,7 @@ export fullstop=$3
 #Batch queue
 export queue="1nh"
 #Memory limit (kB)
-export mlimit="50000"
+export mlimit="150000"
 #Nickname for the current generation configuration
 #Choose a meaningful name (e.g. SgnAndBkgMeanResSplineAcc2TaggersNoAsymm etc...)
 export nicknamegen="SgnAndBkgTwoTaggersProdAsymm001AccMeanResTimeFrom02ps"
@@ -64,18 +64,20 @@ echo "in steps of ${step}"
 echo "################################"
 echo ""
 
-#List of produced pull files (to be merged afterwards with hadd -f -k MyFinalergedFile.root @listfile)
-rm -f ${output}PullTreeListFile.txt
-touch ${output}PullTreeListFile.txt
-
 while (( $stop <= $fullstop )); do
     
     echo "...submitting job ${job} with starting seed ${seed}"
 
     #Submit jobs
-    bsub -q $queue -M $mlimit -e ${output}ERROR -o ${output}OUTPUT -n 1 -R "span[hosts=-1]" -J ${jobname}_${seed} source ${bashscriptpath}runMDFitterOnToys.sh $seed $stop $output $eosoutput $eosinput $nicknamegen $nicknamemd $config $pyscriptpath
+    bsub -q $queue -M $mlimit -e ${output}ERROR -o ${output}OUTPUT -n 1,4 -R "span[hosts=-1]" -J ${jobname}_${seed} source ${bashscriptpath}runMDFitterOnToys.sh $seed $stop $output $eosoutput $eosinput $nicknamegen $nicknamemd $config $pyscriptpath
 
     #source ${bashscriptpath}runMDFitterOnToys.sh $seed $stop $output $eosoutput $eosinput $nicknamegen $nicknamemd $config $pyscriptpath
+
+    #Sleep to avoid afs overload and buffer space consumption (not sure this is the best trick)
+    if [[ "$(($job % 50))" -eq 0 ]]; then
+        echo "Sleeping..."
+        sleep 30
+    fi
 
     #Increase counters
     job=$(($job + 1))

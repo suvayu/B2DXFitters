@@ -127,10 +127,16 @@ def getDataNames ( myconfig ):
     Dmodes = myconfig["CharmModes"]
     year = myconfig["YearOfDataTaking"]
 
+    if "BachelorHypo" in myconfig.keys():
+        hypo = myconfig["BachelorHypo"]
+
     dataNames = []
     for y in year:
         for dmode in Dmodes:
-            dataName = "#"+decay+" "+dmode+" "+y
+            if "BachelorHypo" in myconfig.keys():
+                dataName = "#"+decay+" "+dmode+" "+y+" "+hypo+"Hypo"
+            else:
+                dataName = "#"+decay+" "+dmode+" "+y
             dataNames.append(TString(dataName))
             
     return dataNames
@@ -169,9 +175,8 @@ def getMCNames(myconfig):
 
     decay = myconfig["Decay"]
     
-    hypo = ""
-    if "Hypothesis" in myconfig.keys():
-        hypo = " "+myconfig["Hypothesis"]+"Hypo"
+    if "BachelorHypo" in myconfig.keys():
+        hypo = myconfig["BachelorHypo"]
     
     decay2 = TString(decay)
     if decay2.Contains("Ds"):
@@ -183,10 +188,14 @@ def getMCNames(myconfig):
     magnet = ["MU","MD"]
 
     MCNames = []
-    for y in year:
-        for m in magnet:
-            name = "#MC FileName "+dsmode+" "+m+" "+y+hypo
-            MCNames.append(TString(name))
+    if "BachelorHypo" in myconfig.keys():
+        for y in year:
+            for m in magnet:
+                if "BachelorHypo" in myconfig.keys():
+                    name = "#MC FileName "+dsmode+" "+m+" "+y+" "+hypo+"Hypo"
+                else:
+                    name = "#MC FileName "+dsmode+" "+m+" "+y
+                MCNames.append(TString(name))
 
     return MCNames
             
@@ -265,14 +274,16 @@ def getSignalNames(myconfig):
     Dmodes = myconfig["CharmModes"]
     year = myconfig["YearOfDataTaking"]
 
-    hypo = ""
-    if "Hypothesis" in myconfig.keys():
-        hypo = " "+myconfig["Hypothesis"]+"Hypo"
+    if "BachelorHypo" in myconfig.keys():
+        hypo = myconfig["BachelorHypo"]
     
     signalNames = []
     for y in year:
         for dmode in Dmodes:
-            name = "#Signal "+decay+" "+dmode+" "+y+hypo
+            if "BachelorHypo" in myconfig.keys():
+                name = "#Signal "+decay+" "+dmode+" "+y+" "+hypo+"Hypo"
+            else:
+                name = "#Signal "+decay+" "+dmode+" "+y
             signalNames.append(TString(name))
         
     return signalNames
@@ -313,10 +324,16 @@ def getComboNames(myconfig):
     Dmodes = myconfig["CharmModes"]
     year = myconfig["YearOfDataTaking"]
 
+    if "BachelorHypo" in myconfig.keys():
+        hypo = myconfig["BachelorHypo"]
+
     dataNames = []
     for y in year:
         for dmode in Dmodes:
-            dataName = "#"+decay+" Combinatorial "+dmode+" "+y
+            if "BachelorHypo" in myconfig.keys():
+                dataName = "#"+decay+" Combinatorial "+dmode+" "+y+" "+hypo+"Hypo"
+            else:
+                dataName = "#"+decay+" Combinatorial "+dmode+" "+y
             dataNames.append(TString(dataName))
 
     return dataNames
@@ -457,7 +474,7 @@ def prepareWorkspace( debug,
     if MCPID or SignalPID or CombPID:
         mdt = Translator(myconfigfile,"MDSettings",True)
     else:
-        mdt = Translator(myconfigfile,"MDSettings",False)
+        mdt = Translator(myconfigfile,"MDSettings",True) #False)
     MDSettings = mdt.getConfig()
     MDSettings.Print("v")
     #exit(0)

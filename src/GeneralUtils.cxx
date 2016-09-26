@@ -1322,7 +1322,7 @@ namespace GeneralUtils {
     RooDataSet* combData = NULL;
     TString dataName = "combData";
     
-    std::vector <TString> s;
+    /*std::vector <TString> s;
     std::vector <TString> m;
     std::vector <TString> y;
     std::vector <TString> h;
@@ -1330,17 +1330,32 @@ namespace GeneralUtils {
     s = GetSample(sample, "", debug);
     m = GetMode(mode, debug );
     y = GetDataYear(year, "", debug );
-    h = GetHypo(hypo, debug);
-    sm = GetSampleModeYearHypo(sample, mode, year, hypo, "", debug);
+    h = GetHypo(hypo, debug);*/
+
+    TString newmerge;
+
+    if (!merge.Contains("already")){ //usual case
+      sm = GetSampleModeYearHypo(sample, mode, year, hypo, "", debug);
+      newmerge = merge;
+    }    
+
+    else{ // if "alreadyyear/pol/both", the samples are "already" merged in the workspace
+      sm = GetSampleModeYearHypo(sample, mode, year, hypo, merge, debug);
+      newmerge = "";
+    }
     
     for (unsigned int i=0; i<sm.size(); i++ )
     {
+      if( debug )
+      {
+        std::cout<<"[INFO] ==> GetDataSet(...): start to collect datasets from workspace"<<std::endl;
+      }
       TString name = dat+sm[i];
       data.push_back(GetDataSet(work,name,debug));
       nEntries.push_back(data[i]->numEntries());
     }
 
-    if( merge != "" )
+    if( newmerge != "" )
     {
       std::vector <RooDataSet*> dataOut;
       std::vector <RooDataSet*> dataOutTmp;
@@ -1349,7 +1364,7 @@ namespace GeneralUtils {
         TString y3 = sm[i];
         TString y1 = sm[i];
         TString y2 = ""; 
-        if ( merge == "pol" || merge == "both") 
+        if ( newmerge == "pol" || newmerge == "both") 
 	      {
           y2 = y1.ReplaceAll("up","down");
 	      }
@@ -1358,7 +1373,7 @@ namespace GeneralUtils {
           y2 = y1.ReplaceAll("2011","2012");
 	      }
         // std::cout<<"y3: "<<y3<<" y1: "<<y1<<std::endl; 
-        if ( ( (merge == "pol" || merge == "both") && y3.Contains("down") == false) || ( merge == "year" && y3.Contains("2011")))
+        if ( ( (newmerge == "pol" || newmerge == "both") && y3.Contains("down") == false) || ( newmerge == "year" && y3.Contains("2011")))
 	      {
           for (unsigned int j=0; j<sm.size(); j++ )
           {
@@ -1369,7 +1384,7 @@ namespace GeneralUtils {
               if ( debug == true ) { std::cout<<"[INFO] Adding "<<data[i]->GetName()<<" "<<data[j]->GetName()
                                               <<" "<<data[i]->numEntries()<<std::endl; }
               TString nD = data[i]->GetName();
-              if ( merge == "pol" || merge == "both")
+              if ( newmerge == "pol" || newmerge == "both")
               {
                 nD.ReplaceAll("up","both");
               }
@@ -1385,7 +1400,7 @@ namespace GeneralUtils {
 	      }
       }
       
-      if ( merge == "both" )
+      if ( newmerge == "both" )
       {
         sm = GetSampleModeYearHypo(sample, mode, year, hypo, "pol", debug);
         for (unsigned int i=0; i<sm.size(); i++ )
@@ -1425,7 +1440,7 @@ namespace GeneralUtils {
         dataOut = dataOutTmp;
       }
 
-      sm = GetSampleModeYearHypo(sample, mode, year, hypo, merge, debug);
+      sm = GetSampleModeYearHypo(sample, mode, year, hypo, newmerge, debug);
       for (unsigned int i=0; i<sm.size(); i++ )
       {
         sam.defineType(sm[i].Data());
@@ -1531,15 +1546,40 @@ namespace GeneralUtils {
     std::vector <TString> y;
     std::vector <TString> h;
 
+    if (debug) std::cout<<"[INFO] ==> GeneralUtils::GetSampleModeYearHypo(...)" << std::endl;
+
     if (debug == true ){ std::cout<<"[INFO] Sample "<<sample<<". Mode "<<mode<<". Year "<<year<<". Hypo "<<hypo<<": Merge: "<<merge<<std::endl; }
     if ( (merge == "pol" || merge == "both") && sample != "both") { std::cout<<"[ERROR] Option --merge pol only possible for --pol both"<<std::endl; return smyh; }
     if ( (merge == "year" || merge == "both") && year != "run1") { std::cout<<"[ERROR] Option --merge year only possible for --year run1"<<std::endl; return smyh; }
 
+    TString newmerge;
 
-    s =  GetSample(sample, merge, debug);
+    if (!merge.Contains("already")) //usual case
+    {  
+      s =  GetSample(sample, debug);
+      y =  GetYear(year, debug );
+      newmerge = merge;
+    }
+    else // if "alreadyyear/pol/both", the samples are "already" merged in the workspace (take names as they are)
+    {
+      newmerge = merge.ReplaceAll("already","");
+      
+      if(newmerge == "both")
+      {  
+        s =  GetSample(sample, "", debug);
+        y =  GetDataYear(year, "", debug);
+      }
+      else
+      {
+        std::cout << "[ERROR] ==> GeneralUtils::GetSampleModeYearHypo(...): sorry, " << merge << " case not handled (yet).";
+        exit(-1);
+      }
+      
+    }    
+
     m =  GetMode(mode, debug );
-    y =  GetDataYear(year, merge, debug );
     h =  GetHypo(hypo, debug );
+    
 
     //    if ( y[0] == "")
     //  {
@@ -1547,7 +1587,7 @@ namespace GeneralUtils {
     //  }
     // else
     //  {
-    if ( merge == "" )
+    if ( newmerge == "" )
 	  {
 	    for(unsigned int i=0; i<m.size(); i++ )
       {
@@ -1571,7 +1611,7 @@ namespace GeneralUtils {
         }
       }
 	  }
-    else if ( merge == "pol") 
+    else if ( newmerge == "pol") 
     {
       TString s1 = "both";
       for (unsigned int i=0; i<m.size(); i++ )
@@ -1593,7 +1633,7 @@ namespace GeneralUtils {
         }
       }
     }
-    else if ( merge == "year" )
+    else if ( newmerge == "year" )
 	  {
 	    TString y1 = "run1"; 
 	    for (unsigned int i=0; i<m.size(); i++ )
@@ -1616,7 +1656,7 @@ namespace GeneralUtils {
       }
 
 	  }
-    else if ( merge == "both" )
+    else if ( newmerge == "both" )
 	  {
 	    TString s1 = "both";
 	    TString y1 = "run1";
@@ -1653,7 +1693,7 @@ namespace GeneralUtils {
   std::vector<TString> GetDataYear(TString check, TString merge, bool debug)
   {
     std::vector<TString> year;
-    if ( merge == "year" || merge == "both" )
+    if ( merge == "year" || merge == "both")
     {
       year.push_back("2011");
       year.push_back("2012");
@@ -1678,10 +1718,14 @@ namespace GeneralUtils {
   std::vector <TString>  GetSample(TString sample, TString merge, bool debug )
   {  
     std::vector <TString> s; 
-    if ( merge == "pol" || merge == "both" )
+    if ( merge == "pol" || merge == "both")
     {
       s.push_back("up"); 
       s.push_back("down");
+      if (debug)
+      {
+        std::cout << "[INFO] ==> GeneralUtils::GetSample(...): sample up, down " << std::endl;
+      } 
     }
     else
     { 
@@ -1858,7 +1902,7 @@ namespace GeneralUtils {
     {
       polarity = "both";
     }
-    if ( debug == true) std::cout<<"[INFO] Sample: "<<polarity<<std::endl;
+    if ( debug == true) std::cout<<"[INFO] ==> GeneralUtils::CheckPolarity(...): "<<polarity<<std::endl;
     return polarity;
   }
 
