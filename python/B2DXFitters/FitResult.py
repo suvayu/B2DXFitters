@@ -636,7 +636,7 @@ def getDsHBlindFitResult(isData, isBlind, fitResult):
     # common setup: rename list, blinding specification
     renames = { 'C': 'Bs2DsK_C', 'D': 'Bs2DsK_D',
             'Dbar': 'Bs2DsK_Dbar', 'S': 'Bs2DsK_S',
-            'Sbar': 'Bs2DsK_Sbar', 'DeltaMs': 'deltaMs',
+            'Sbar': 'Bs2DsK_Sbar', 'DeltaMs_Bs2DsPi': 'deltaMs',
             'p0_0': 'Bs2DsK_Mistag0CalibB_p0',
             'p0_1': 'Bs2DsK_Mistag1CalibB_p0',
             'p0_2': 'Bs2DsK_Mistag2CalibB_p0',
@@ -646,15 +646,14 @@ def getDsHBlindFitResult(isData, isBlind, fitResult):
             }
     blinds = {
             # CP parameters blinded with random offset from 13 ... 17
+            '^deltaMs': [10.0, 20.0], 
             '^Bs2DsK_(C|D|Dbar|S|Sbar)$': [ 13.0, 17.0 ],
-        # blind direct fits to gamma, strong and weak phase with offset 23
-        # ... 27
+        # blind direct fits to gamma, strong and weak phase with offset 23 ... 27
         '^Bs2DsK_(lambda|delta|phi_w)$': [ 23., 27. ],
-            # everything else connected with DsK is blinded with random
-            # offset
+            # everything else connected with DsK is blinded with random offset
             # from +3 ... +7 (efficiencies, calibrations, ...)
             '^Bs2DsK': [ 3.0, 7.0 ],
-            } 
+            }
     return FitResult(fitResult, renames, blinds if doBlind else { })
 
 # vim: ft=python:sw=4:tw=76
