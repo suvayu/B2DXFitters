@@ -4,14 +4,17 @@
 ! Purpose     : RooFit-based fitters for B -> D X
 !-----------------------------------------------------------------------------
 
+! 2016-09-27 - Manuel Tobias Schiller
+ - FitResult.py: hack the code to make it work with the latest ROOT/pyROOT
+
 ! 2016-09-14 - Vincenzo Battista
  - GeneralUtils.{cxx,h}: create new GetSample function that allows to have dataset containing
-   "merged" names (e.g. both, run1...)	
+   "merged" names (e.g. both, run1...) 
  - toyFactory.py: bugfix (number of events for B time was different from other observables)
  - Including runMDFitterOnToys.sh and Batch_runMDFitterOnToys.sh to run MD fits on toys 
    in parallel
  - Including a first "robust" config file for generating Bd->DPi toys
- 	 (data/Bd2DPi_3fbCPV/Bd2DPi/Bd2DPiConfigForToysGeneration.py)
+    (data/Bd2DPi_3fbCPV/Bd2DPi/Bd2DPiConfigForToysGeneration.py)
 
 ! 2016-09-04 - Vincenzo Battista
  - toyFactory: draw number of events to generate from Poisson distribution.

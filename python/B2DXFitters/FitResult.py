@@ -534,18 +534,27 @@ class FitResult:
         # mu = (C1^-1 + C2^-1)^-1 * (C1^-1 * mu1 + C2^-1 * mu2)
         # C =  (C1^-1 + C2^-1)^-1
         n = len(retVal._finalparam)
-        v1, v2 = TVectorD(n), TVectorD(n)
+        v1, v2, vtmp = TVectorD(n), TVectorD(n), TVectorD(n)
         c1, c2 = TMatrixDSym(n), TMatrixDSym(n)
         for i in xrange(0, n):
             v1[i], v2[i] = retVal._finalparam[i][0], retVal._finalparam[i][1]
             for j in xrange(0, n):
                 c1[i][j], c2[i][j] = retVal._cov[i][j][0], retVal._cov[i][j][1]
         c = TMatrixDSym(n)
-        c = c1 + c2
+        for i in xrange(0, n):
+            for j in xrange(0, n):
+                c[i][j] = c1[i][j] + c2[i][j]
         d = TDecompChol(c)
         if not d.Decompose():
             raise ValueError('Cannot invert covariance matrix')
-        v1 = c1 * v1 + c2 * v2
+        for i in xrange(0, n):
+            tmp = 0.
+            for j in xrange(0, n):
+                tmp += c1[i][j] * v1[j] + c2[i][j] * v2[j]
+            vtmp[i] = tmp
+        del tmp
+        for i in xrange(0, n):
+            v1[i] = vtmp[i]
         d.Solve(v1)
         d.Invert(c)
         # write back results (and reapply blinding)
