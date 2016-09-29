@@ -7,6 +7,7 @@
 ! 2016-09-29 - Agnieszka Dziurda
  - add calculateAcceptance.py which calculates decay-time acceptance for DsK
  - update on DsK/DsPi/misID config files with new BDTG 
+ - update FitMeTool for plotting S/B, S/sqrt(S+B) and total yields
 
 ! 2016-09-27 - Manuel Tobias Schiller
  - FitResult.py: hack the code to make it work with the latest ROOT/pyROOT

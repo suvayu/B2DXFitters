@@ -151,7 +151,8 @@ public:
   
   // Produce a graphical representation of the model PDF with the dot tool
   void produceGraphicalModelStructure( const char* fileName = "model.gif" );
-  
+
+  void printTotalYields(const char* wildcard);
   // Calculate yields in a defined observable range given an input wildcard
   // for matching "yield variables"
   void printYieldsInRange( const char* wildcard,
@@ -210,7 +211,7 @@ protected:
                                        RooArgSet* epdfs = NULL );
   
   // Get all model PDF variables matching a wildcard
-  RooArgSet* getMatchingVariableNames( const char* wildcard = "*Evts" );  
+  RooArgSet* getMatchingVariableNames( const char* wildcard = "*Evts" , bool debug = false);  
   
  
 
