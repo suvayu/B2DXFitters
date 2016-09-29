@@ -9,7 +9,7 @@ def getconfig() :
     from math import log
 
     # considered decay mode                                                       
-    configdict["Decay"] = "Lb2LcPi"
+    configdict["Decay"] = "Bd2DPi"
     configdict["CharmModes"] = {"KstK","NonRes","PhiPi"}
     #configdict["CharmModes"] = {"KPiPi"}
     # year of data taking                                                                                                                          

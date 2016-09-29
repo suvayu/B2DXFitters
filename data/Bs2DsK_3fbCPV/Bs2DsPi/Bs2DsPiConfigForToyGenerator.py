@@ -17,7 +17,12 @@ def getconfig() :
                                                    "Range" : [1930, 2015]},
                                  "BacPIDK":       {"Type"  : "RooRealVar",
                                                    "Title": "log(fabs(PIDK))",
-                                                   "Range": [ -7.0, 5.0]}, 
+                                                   "Range": [ -7.0, 5.0]},
+                                 "TrueID":        {"Type" : "RooRealVar",
+                                                   "Title" : "True component ID",
+                                                   "Range" : [0.0,1000.0]}}
+
+    '''
                                  "BeautyTime":    {"Type" : "RooRealVar",
                                                    "Title" : "B decay time (ps)",
                                                    "Range" : [0.4, 15.0]},
@@ -34,10 +39,7 @@ def getconfig() :
                                  "MistagSS":      {"Type" : "RooRealVar",
                                                    "Title" : "#eta_{SS}",
                                                    "Range" : [0.0,0.5]},
-                                 "TrueID":        {"Type" : "RooRealVar",
-                                                   "Title" : "True component ID",
-                                                   "Range" : [0.0,1000.0]},
-                                 "TagDecOS":      {"Type"  : "RooCategory",
+                                                   "TagDecOS":      {"Type"  : "RooCategory",
                                                    "Title" : "q_{t}^{OS}",
                                                    "Categories": { "B+"       : +1,
                                                                    "Untagged" : 0,
@@ -48,7 +50,8 @@ def getconfig() :
                                                                    "Untagged" : 0,
                                                                    "B-"       : -1}}
                                  }
-
+    '''
+    
     ############################################################ 
     #List of mass hypotheses for bachelor
     #The content of this dictionary determines how many
@@ -79,9 +82,10 @@ def getconfig() :
     lum2011 =  configdict["IntegratedLuminosity"]["2011"]["Up"] + configdict["IntegratedLuminosity"]["2011"]["Down"] 
     lum2012 =  configdict["IntegratedLuminosity"]["2012"]["Up"] + configdict["IntegratedLuminosity"]["2012"]["Down"]
     fracRun1 = lum2011/(lum2011 + lum2012) 
+    print fracRun1
     
     
-    configdict["WorkspaceToRead"] = {"File":"/afs/cern.ch/work/a/adudziak/public/workspace/DsK3fbPAPER/splits/work_dspi_2nd_mcpid_signalpid_comb.root",
+    configdict["WorkspaceToRead"] = {"File":"/afs/cern.ch/work/a/adudziak/public/workspace/DsK3fbPAPER/splits/2nd/work_dspi_2nd_mcpid_signalpid_comb.root",
                                      "Workspace" : "workspace"}
     ############################################################ 
     #List of components with yields to generate.
@@ -98,28 +102,28 @@ def getconfig() :
                                                                        "KstK"  : [25500*fracRun1], "KPiPi":[5600*fracRun1],  "PiPiPi":[15026*fracRun1] },
                                                               "2012": {"NonRes": [15900*(1.0-fracRun1)], "PhiPi":[34100*(1.0-fracRun1)], 
                                                                        "KstK"  : [25500*(1.0-fracRun1)], "KPiPi":[5600*(1.0-fracRun1)],  "PiPiPi":[15026*(1.0-fracRun1)] }}},
-                                "Combinatorial": {"Bs2DsPi": {"2011": {"NonRes": [5200*fracRun1],  "PhiPi":[3400*fracRun1],  
-                                                                       "KstK"  : [2100*fracRun1],  "KPiPi":[2500*fracRun1],  "PiPiPi":[6800*fracRun1] },
-                                                              "2012": {"NonRes": [5200*(1.0-fracRun1)],  "PhiPi":[3400*(1.0-fracRun1)],  
-                                                                       "KstK"  : [2100*(1.0-fracRun1)],  "KPiPi":[2500*(1.0-fracRun1)],  "PiPiPi":[6800*(1.0-fracRun1)] }}},
-                                "Bd2DPi":        {"Bs2DsPi": {"2011": {"NonRes": [1618*fracRun1],  "PhiPi":[86.5*fracRun1],  
-                                                                       "KstK"  : [1269*fracRun1],  "KPiPi":[0.0*fracRun1],   "PiPiPi":[0.0*fracRun1] },
-                                                              "2012": {"NonRes": [1618*(1.0-fracRun1)],  "PhiPi":[86.5*(1.0-fracRun1)],  
-                                                                       "KstK"  : [1269*(1.0-fracRun1)],  "KPiPi":[0.0*(1.0-fracRun1)],   "PiPiPi":[0.0*(1.0-fracRun1)] }}},
-                                "Lb2LcPi":       {"Bs2DsPi": {"2011": {"NonRes": [879.6*fracRun1], "PhiPi":[142*fracRun1],   
-                                                                       "KstK"  : [265*fracRun1],   "KPiPi":[6.9*fracRun1],   "PiPiPi":[0.0*fracRun1] },
-                                                              "2012": {"NonRes": [879.6*(1.0-fracRun1)], "PhiPi":[142*(1.0-fracRun1)],   "KstK": [265*(1.0 - 0.67)],   
-                                                                       "KPiPi" : [6.9*(1.0-fracRun1)],   "PiPiPi":[0.0*(1.0-fracRun1)] }}}, 
-                                "Bs2DsK":        {"Bs2DsPi": {"2011": {"NonRes": [164.9*fracRun1], "PhiPi":[240.9*fracRun1], 
-                                                                       "KstK"  : [234.6*fracRun1], "KPiPi":[121.1*fracRun1], "PiPiPi":[217.6*fracRun1] },
-                                                              "2012": {"NonRes": [164.9*(1.0-fracRun1)], "PhiPi":[240.9*(1.0-fracRun1)], 
-                                                                       "KstK"  : [234.6*(1.0-fracRun1)], "KPiPi":[121.1*(1.0-fracRun1)], "PiPiPi":[217.6*(1.0-fracRun1)] }}},
-                                "Bd2DsPi":       {"Bs2DsPi": {"2011": {"NonRes": [60*fracRun1],    "PhiPi":[77*fracRun1],    
-                                                                       "KstK"  : [128*fracRun1],   "KPiPi":[16*fracRun1],    "PiPiPi":[43*fracRun1] },
-                                                              "2012": {"NonRes": [60*(1.0-fracRun1)],    "PhiPi":[77*(1.0-fracRun1)],    
-                                                                       "KstK"  : [128*(1.0-fracRun1)],   "KPiPi":[16*(1.0-fracRun1)],    "PiPiPi":[43*(1.0-fracRun1)] }}}}
-                                
-
+                                "Combinatorial": {"Bs2DsPi": {"2011": {"NonRes": [8400*fracRun1],  "PhiPi":[2800*fracRun1],  
+                                                                       "KstK"  : [3400*fracRun1],  "KPiPi":[2300*fracRun1],  "PiPiPi":[5800*fracRun1] },
+                                                              "2012": {"NonRes": [8400*(1.0-fracRun1)],  "PhiPi":[2800*(1.0-fracRun1)],  
+                                                                       "KstK"  : [3400*(1.0-fracRun1)],  "KPiPi":[2300*(1.0-fracRun1)],  "PiPiPi":[5800*(1.0-fracRun1)] }}},
+                                "Bd2DPi":        {"Bs2DsPi": {"2011": {"NonRes": [150*fracRun1],  "PhiPi":[10*fracRun1],  
+                                                                       "KstK"  : [30*fracRun1],   "KPiPi":[30.0*fracRun1],   "PiPiPi":[0.0*fracRun1] },
+                                                              "2012": {"NonRes": [150*(1.0-fracRun1)],  "PhiPi":[10.0*(1.0-fracRun1)],  
+                                                                       "KstK"  : [30*(1.0-fracRun1)],   "KPiPi":[30.0*(1.0-fracRun1)],   "PiPiPi":[0.0*(1.0-fracRun1)] }}},
+                                "Lb2LcPi":       {"Bs2DsPi": {"2011": {"NonRes": [480.0*fracRun1], "PhiPi":[95*fracRun1],   
+                                                                       "KstK"  : [150*fracRun1],   "KPiPi":[5*fracRun1],   "PiPiPi":[0.0*fracRun1] },
+                                                              "2012": {"NonRes": [480.0*(1.0-fracRun1)], "PhiPi":[95*(1.0-fracRun1)],   
+                                                                       "KstK"  : [150*(1.0 - fracRun1)],  "KPiPi" : [5*(1.0-fracRun1)],   "PiPiPi":[0.0*(1.0-fracRun1)] }}}, 
+                                "Bs2DsK":        {"Bs2DsPi": {"2011": {"NonRes": [116.0*fracRun1], "PhiPi":[261.*fracRun1], 
+                                                                       "KstK"  : [163*fracRun1], "KPiPi":[66*fracRun1], "PiPiPi":[158*fracRun1] },
+                                                              "2012": {"NonRes": [116.0*(1.0-fracRun1)], "PhiPi":[261.*(1.0-fracRun1)], 
+                                                                       "KstK"  : [163*(1.0-fracRun1)], "KPiPi":[66*(1.0-fracRun1)], "PiPiPi":[158*(1.0-fracRun1)] }}},
+                                "Bd2DsPi":       {"Bs2DsPi": {"2011": {"NonRes": [100*fracRun1],    "PhiPi":[220*fracRun1],    
+                                                                       "KstK"  : [170*fracRun1],   "KPiPi":[40*fracRun1],    "PiPiPi":[100*fracRun1] },
+                                                              "2012": {"NonRes": [100*(1.0-fracRun1)],    "PhiPi":[220*(1.0-fracRun1)],    
+                                                                       "KstK"  : [170*(1.0-fracRun1)],    "KPiPi":[40*(1.0-fracRun1)],    "PiPiPi":[100*(1.0-fracRun1)] }}}}
+    
+                                                                       
     ############################################################
     #"Code" to identify the True ID for each component
     ############################################################
@@ -131,6 +135,11 @@ def getconfig() :
                             "Lb2LcPi"       : 400,
                             "Bs2DsK"        : 500,
                             "Bd2DsPi"       : 600}
+
+    configdict["CombinedYields"] = { "Signal":["Signal"],
+                                     "Combinatorial":["Combinatorial"],
+                                     "Bs2DsDsstPiRho":["Bd2DsPi"]}
+ 
 
     ############################################################
     #List of PDFs for "time-independent" observables
@@ -261,16 +270,16 @@ def getconfig() :
     configdict["PDFList"]["BeautyMass"]["Combinatorial"] = {}
     configdict["PDFList"]["BeautyMass"]["Combinatorial"]["Bs2DsPi"] = {}
     configdict["PDFList"]["BeautyMass"]["Combinatorial"]["Bs2DsPi"]["2011"] = {}
-    configdict["PDFList"]["BeautyMass"]["Combinatorial"]["Bs2DsPi"]["2011"]["NonRes"] = {"Type":"DoubleExponential", "cB1":[-4.8467e-03], "cB2":[0.0], "frac":[9.9999e-01]}
+    configdict["PDFList"]["BeautyMass"]["Combinatorial"]["Bs2DsPi"]["2011"]["NonRes"] = {"Type":"DoubleExponential", "cB1":[-4.8467e-03], "cB2":[0.0], "frac":[7.9999e-01]}
     configdict["PDFList"]["BeautyMass"]["Combinatorial"]["Bs2DsPi"]["2011"]["PhiPi"]  = {"Type":"DoubleExponential", "cB1":[-1.2569e-02], "cB2":[0.0], "frac":[7.5491e-01]}
-    configdict["PDFList"]["BeautyMass"]["Combinatorial"]["Bs2DsPi"]["2011"]["KstK"]   = {"Type":"DoubleExponential", "cB1":[-4.2236e-03], "cB2":[0.0], "frac":[9.7769e-01]}
+    configdict["PDFList"]["BeautyMass"]["Combinatorial"]["Bs2DsPi"]["2011"]["KstK"]   = {"Type":"DoubleExponential", "cB1":[-4.2236e-03], "cB2":[0.0], "frac":[8.7769e-01]}
     configdict["PDFList"]["BeautyMass"]["Combinatorial"]["Bs2DsPi"]["2011"]["KPiPi"]  = {"Type":"DoubleExponential", "cB1":[-8.3869e-03], "cB2":[0.0], "frac":[4.9568e-01]}
     configdict["PDFList"]["BeautyMass"]["Combinatorial"]["Bs2DsPi"]["2011"]["PiPiPi"] = {"Type":"DoubleExponential", "cB1":[-6.2744e-03], "cB2":[0.0], "frac":[5.9887e-01]}
 
     configdict["PDFList"]["BeautyMass"]["Combinatorial"]["Bs2DsPi"]["2012"] = {}
-    configdict["PDFList"]["BeautyMass"]["Combinatorial"]["Bs2DsPi"]["2012"]["NonRes"] = {"Type":"DoubleExponential", "cB1":[-4.8467e-03], "cB2":[0.0], "frac":[9.9999e-01]}
+    configdict["PDFList"]["BeautyMass"]["Combinatorial"]["Bs2DsPi"]["2012"]["NonRes"] = {"Type":"DoubleExponential", "cB1":[-4.8467e-03], "cB2":[0.0], "frac":[7.9999e-01]}
     configdict["PDFList"]["BeautyMass"]["Combinatorial"]["Bs2DsPi"]["2012"]["PhiPi"]  = {"Type":"DoubleExponential", "cB1":[-1.2569e-02], "cB2":[0.0], "frac":[7.5491e-01]}
-    configdict["PDFList"]["BeautyMass"]["Combinatorial"]["Bs2DsPi"]["2012"]["KstK"]   = {"Type":"DoubleExponential", "cB1":[-4.2236e-03], "cB2":[0.0], "frac":[9.7769e-01]}
+    configdict["PDFList"]["BeautyMass"]["Combinatorial"]["Bs2DsPi"]["2012"]["KstK"]   = {"Type":"DoubleExponential", "cB1":[-4.2236e-03], "cB2":[0.0], "frac":[8.7769e-01]}
     configdict["PDFList"]["BeautyMass"]["Combinatorial"]["Bs2DsPi"]["2012"]["KPiPi"]  = {"Type":"DoubleExponential", "cB1":[-8.3869e-03], "cB2":[0.0], "frac":[4.9568e-01]}
     configdict["PDFList"]["BeautyMass"]["Combinatorial"]["Bs2DsPi"]["2012"]["PiPiPi"] = {"Type":"DoubleExponential", "cB1":[-6.2744e-03], "cB2":[0.0], "frac":[5.9887e-01]}
 
@@ -387,46 +396,46 @@ def getconfig() :
     configdict["PDFList"]["BacPIDK"]["Combinatorial"]["Bs2DsPi"] = {}
     configdict["PDFList"]["BacPIDK"]["Combinatorial"]["Bs2DsPi"]["2011"] = {}
     configdict["PDFList"]["BacPIDK"]["Combinatorial"]["Bs2DsPi"]["2011"]["NonRes"] = {"File": "/afs/cern.ch/work/a/adudziak/public/workspace/DsK3fbPAPER/splits/work_dspi_2nd_mcpid_signalpid_comb.root",
-                                                                                      "Type": "FromWorkspace", "Workspace" : "workspace", "Contributions":{"Kaon","Pion"},
+                                                                                      "Type": "FromWorkspace", "Workspace" : "workspace", "Contributions":["Pion","Kaon"],
                                                                                       "Name": {"Up":   {"Pion":"PIDKShape_CombPi_up_2011", "Kaon":"PIDKShape_CombK_up_2011", "fracPIDK":[7.0243e-01]}, 
                                                                                                "Down": {"Pion":"PIDKShape_CombPi_down_2011", "Kaon":"PIDKShape_CombK_down_2011", "fracPIDK":[7.0243e-01]}}}
     configdict["PDFList"]["BacPIDK"]["Combinatorial"]["Bs2DsPi"]["2011"]["PhiPi"] = {"File": "/afs/cern.ch/work/a/adudziak/public/workspace/DsK3fbPAPER/splits/work_dspi_2nd_mcpid_signalpid_comb.root",
-                                                                                      "Type": "FromWorkspace", "Workspace" : "workspace", "Contributions":{"Kaon","Pion"},
+                                                                                      "Type": "FromWorkspace", "Workspace" : "workspace", "Contributions":["Pion","Kaon"],
                                                                                       "Name": {"Up":   {"Pion":"PIDKShape_CombPi_up_2011", "Kaon":"PIDKShape_CombK_up_2011", "fracPIDK":[6.6355e-01]},
                                                                                                "Down": {"Pion":"PIDKShape_CombPi_down_2011", "Kaon":"PIDKShape_CombK_down_2011", "fracPIDK":[6.6355e-01]}}}
     configdict["PDFList"]["BacPIDK"]["Combinatorial"]["Bs2DsPi"]["2011"]["KstK"] = {"File": "/afs/cern.ch/work/a/adudziak/public/workspace/DsK3fbPAPER/splits/work_dspi_2nd_mcpid_signalpid_comb.root",
-                                                                                    "Type": "FromWorkspace", "Workspace" : "workspace", "Contributions":{"Kaon","Pion"},
+                                                                                    "Type": "FromWorkspace", "Workspace" : "workspace", "Contributions":["Pion","Kaon"],
                                                                                     "Name": {"Up":   {"Pion":"PIDKShape_CombPi_up_2011", "Kaon":"PIDKShape_CombK_up_2011", "fracPIDK":[6.4798e-01]},
                                                                                              "Down": {"Pion":"PIDKShape_CombPi_down_2011", "Kaon":"PIDKShape_CombK_down_2011", "fracPIDK":[6.4798e-01]}}}
     configdict["PDFList"]["BacPIDK"]["Combinatorial"]["Bs2DsPi"]["2011"]["KPiPi"] = {"File": "/afs/cern.ch/work/a/adudziak/public/workspace/DsK3fbPAPER/splits/work_dspi_2nd_mcpid_signalpid_comb.root",
-                                                                                     "Type": "FromWorkspace", "Workspace" : "workspace", "Contributions":{"Kaon","Pion"},
+                                                                                     "Type": "FromWorkspace", "Workspace" : "workspace", "Contributions":["Pion","Kaon"],
                                                                                      "Name": {"Up":   {"Pion":"PIDKShape_CombPi_up_2011", "Kaon":"PIDKShape_CombK_up_2011", "fracPIDK":[8.6494e-01]},
                                                                                               "Down": {"Pion":"PIDKShape_CombPi_down_2011", "Kaon":"PIDKShape_CombK_down_2011", "fracPIDK":[8.6494e-01]}}}
     configdict["PDFList"]["BacPIDK"]["Combinatorial"]["Bs2DsPi"]["2011"]["PiPiPi"] = {"File": "/afs/cern.ch/work/a/adudziak/public/workspace/DsK3fbPAPER/splits/work_dspi_2nd_mcpid_signalpid_comb.root",
-                                                                                      "Type": "FromWorkspace", "Workspace" : "workspace", "Contributions":{"Kaon","Pion"},
+                                                                                      "Type": "FromWorkspace", "Workspace" : "workspace", "Contributions":["Pion","Kaon"],
                                                                                       "Name": {"Up":   {"Pion":"PIDKShape_CombPi_up_2011", "Kaon":"PIDKShape_CombK_up_2011", "fracPIDK":[8.8353e-01]},
                                                                                                "Down": {"Pion":"PIDKShape_CombPi_down_2011", "Kaon":"PIDKShape_CombK_down_2011", "fracPIDK":[8.8353e-01]}}}
 
 
     configdict["PDFList"]["BacPIDK"]["Combinatorial"]["Bs2DsPi"]["2012"] = {}
     configdict["PDFList"]["BacPIDK"]["Combinatorial"]["Bs2DsPi"]["2012"]["NonRes"] = {"File": "/afs/cern.ch/work/a/adudziak/public/workspace/DsK3fbPAPER/splits/work_dspi_2nd_mcpid_signalpid_comb.root",
-                                                                                      "Type": "FromWorkspace", "Workspace" : "workspace", "Contributions":{"Kaon","Pion"},
+                                                                                      "Type": "FromWorkspace", "Workspace" : "workspace", "Contributions":["Pion","Kaon"],
                                                                                       "Name":  {"Up":   {"Pion":"PIDKShape_CombPi_up_2012", "Kaon":"PIDKShape_CombK_up_2012", "fracPIDK":[7.0243e-01]},
                                                                                                 "Down": {"Pion":"PIDKShape_CombPi_down_2012", "Kaon":"PIDKShape_CombK_down_2012", "fracPIDK":[7.0243e-01]}}}
     configdict["PDFList"]["BacPIDK"]["Combinatorial"]["Bs2DsPi"]["2012"]["PhiPi"] = {"File": "/afs/cern.ch/work/a/adudziak/public/workspace/DsK3fbPAPER/splits/work_dspi_2nd_mcpid_signalpid_comb.root",
-                                                                                      "Type": "FromWorkspace", "Workspace" : "workspace", "Contributions":{"Kaon","Pion"},
+                                                                                      "Type": "FromWorkspace", "Workspace" : "workspace", "Contributions":["Pion","Kaon"],
                                                                                       "Name": {"Up":   {"Pion":"PIDKShape_CombPi_up_2012", "Kaon":"PIDKShape_CombK_up_2012", "fracPIDK":[6.6355e-01]},
                                                                                                "Down": {"Pion":"PIDKShape_CombPi_down_2012", "Kaon":"PIDKShape_CombK_down_2012", "fracPIDK":[6.6355e-01]}}}
     configdict["PDFList"]["BacPIDK"]["Combinatorial"]["Bs2DsPi"]["2012"]["KstK"] = {"File": "/afs/cern.ch/work/a/adudziak/public/workspace/DsK3fbPAPER/splits/work_dspi_2nd_mcpid_signalpid_comb.root",
-                                                                                    "Type": "FromWorkspace", "Workspace" : "workspace", "Contributions":{"Kaon","Pion"},
+                                                                                    "Type": "FromWorkspace", "Workspace" : "workspace", "Contributions":["Pion","Kaon"],
                                                                                     "Name": {"Up":   {"Pion":"PIDKShape_CombPi_up_2012", "Kaon":"PIDKShape_CombK_up_2012", "fracPIDK":[6.4798e-01]},
                                                                                              "Down": {"Pion":"PIDKShape_CombPi_down_2012", "Kaon":"PIDKShape_CombK_down_2012", "fracPIDK":[6.4798e-01]}}}
     configdict["PDFList"]["BacPIDK"]["Combinatorial"]["Bs2DsPi"]["2012"]["KPiPi"] = {"File": "/afs/cern.ch/work/a/adudziak/public/workspace/DsK3fbPAPER/splits/work_dspi_2nd_mcpid_signalpid_comb.root",
-                                                                                     "Type": "FromWorkspace", "Workspace" : "workspace", "Contributions":{"Kaon","Pion"},
+                                                                                     "Type": "FromWorkspace", "Workspace" : "workspace", "Contributions":["Pion","Kaon"],
                                                                                      "Name": {"Up":   {"Pion":"PIDKShape_CombPi_up_2012", "Kaon":"PIDKShape_CombK_up_2012", "fracPIDK":[8.6494e-01]},
                                                                                               "Down": {"Pion":"PIDKShape_CombPi_down_2012", "Kaon":"PIDKShape_CombK_down_2012", "fracPIDK":[8.6494e-01]}}}
     configdict["PDFList"]["BacPIDK"]["Combinatorial"]["Bs2DsPi"]["2012"]["PiPiPi"] = {"File": "/afs/cern.ch/work/a/adudziak/public/workspace/DsK3fbPAPER/splits/work_dspi_2nd_mcpid_signalpid_comb.root",
-                                                                                      "Type": "FromWorkspace", "Workspace" : "workspace", "Contributions":{"Kaon","Pion"},
+                                                                                      "Type": "FromWorkspace", "Workspace" : "workspace", "Contributions":["Pion","Kaon"],
                                                                                       "Name": {"Up":   {"Pion":"PIDKShape_CombPi_up_2012", "Kaon":"PIDKShape_CombK_up_2012", "fracPIDK":[8.8353e-01]},
                                                                                                "Down": {"Pion":"PIDKShape_CombPi_down_2012", "Kaon":"PIDKShape_CombK_down_2012", "fracPIDK":[8.8353e-01]}}}
 

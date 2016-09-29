@@ -19,19 +19,9 @@ def getconfig() :
                                               "average": 0.43744, "tagEff":0.63926, "aTagEff":0.0, "use":True, }
     configdict["TaggingCalibration"]["OS"] = {"p0": 0.37718, "dp0": 0.0, "p1": 1.1244, "dp1": 0.0,
                                               "average": 0.369798, "tagEff":0.37151, "aTagEff":0.0, "use":True}
-    # Tagging for Single Gaussian
-    #configdict["TaggingCalibration"]["SS"] = {"p0": 0.43703, "dp0": 0.0, "p1": 1.1314, "dp1": 0.0,
-    #                                          "average": 0.43744, "tagEff":0.63925, "aTagEff":0.0, "use":True, }
-    #configdict["TaggingCalibration"]["OS"] = {"p0": 0.36820, "dp0": 0.0, "p1": 1.1993, "dp1": 0.0,
-    #                                          "average": 0.369798, "tagEff":0.37151, "aTagEff":0.0, "use":True}
-    # Tagging Parameter for the second approach to check systematics                                                                                                                          
-    #configdict["TaggingCalibration"]["SS"] = {"p0": 0.44907, "dp0": 0.0, "p1": 0.95005, "dp1": 0.0,
-    #                                          "average": 0.43744, "tagEff":0.63926, "aTagEff":0.0, "use":True, }
-    #configdict["TaggingCalibration"]["OS"] = {"p0": 0.39432, "dp0": 0.0, "p1": 0.97298, "dp1": 0.0,
-    #                                          "average": 0.369798, "tagEff":0.37151, "aTagEff":0.0, "use":True}
     
     configdict["Acceptance"] = { "knots": [0.50, 1.0,  1.5, 2.0, 3.0, 12.0],
-                                 "values": [0.390584697499, 0.607485250832, 0.835861005948, 1.05312639959, 1.16345973924, 1.26970499451] }
+                                 "values": [0.364502754135, 0.561533096166, 0.797215677911, 0.97602040509, 1.10591561386, 1.19866946011] }
 
     configdict["Resolution"] = { "scaleFactor":{"p0":0.010262, "p1":1.280, "p2":0.0},
                                  "meanBias":0.0,

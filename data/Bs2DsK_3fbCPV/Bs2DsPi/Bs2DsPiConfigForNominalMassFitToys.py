@@ -1,4 +1,4 @@
-def getconfig() :
+-def getconfig() :
 
     configdict = {}
     
@@ -169,7 +169,7 @@ def getconfig() :
     configdict["BsCombinatorialShape"]["frac"]  = {"Run1": {"NonRes":4.3067e-01,   "PhiPi":6.5400e-01,   "KstK":3.7409e-01,  "KPiPi":0.5,         "PiPiPi":0.5}, "Fixed":False}
     
     configdict["DsCombinatorialShape"] = {}
-    configdict["DsCombinatorialShape"]["type"]  = "ExponentialPlusDoubleCrystalBallWithWidthRatioSharedMean"
+    configdict["DsCombinatorialShape"]["type"]  = "ExponentialPlusSignal" #"ExponentialPlusDoubleCrystalBallWithWidthRatioSharedMean"
     configdict["DsCombinatorialShape"]["sigma1"]  = {"Run1": {"NonRes":5.2639e+00,  "PhiPi":5.7789e+00,  "KstK":5.5277e+00,  "KPiPi":7.8831e+00,  "PiPiPi":7.8627e+00}, "Fixed":True}
     configdict["DsCombinatorialShape"]["sigma2"]  = {"Run1": {"NonRes":5.7588e+00,  "PhiPi":5.3142e+00,  "KstK":5.9173e+00,  "KPiPi":6.5553e+00,  "PiPiPi":9.0180e+00}, "Fixed":True}
     configdict["DsCombinatorialShape"]["alpha1"]  = {"Run1": {"NonRes":-1.1429e+00, "PhiPi":-1.0496e+00, "KstK":-1.1662e+00, "KPiPi":-1.2500e+00, "PiPiPi":-1.1731e+00}, "Fixed":True}
@@ -178,7 +178,7 @@ def getconfig() :
     configdict["DsCombinatorialShape"]["n2"]      = {"Run1": {"NonRes":7.6655e+00,  "PhiPi":4.9162e+00,  "KstK":9.4543e+00,  "KPiPi":3.0195e+00,  "PiPiPi":2.7506e+01}, "Fixed":True}
     configdict["DsCombinatorialShape"]["frac"]    = {"Run1": {"NonRes":0.50,        "PhiPi":0.50,        "KstK":0.50,        "KPiPi":0.50,        "PiPiPi":0.50}, "Fixed":True}
     configdict["DsCombinatorialShape"]["R"]       = {"Run1": {"NonRes":1.00,         "PhiPi":1.5,         "Kstk":1.5,         "KPiPi":1.5,         "PiPiPi":1.5}, "Fixed":False}
-    configdict["DsCombinatorialShape"]["cB"]      = {"Run1": {"NonRes":-5.0833e-03,  "PhiPi":-1.1455e-02, "KstK":-1.2313e-02, "KPiPi":-4.1421e-03, "PiPiPi":-7.5455e-03},"Fixed":False}
+    configdict["DsCombinatorialShape"]["cD"]      = {"Run1": {"NonRes":-5.0833e-03,  "PhiPi":-1.1455e-02, "KstK":-1.2313e-02, "KPiPi":-4.1421e-03, "PiPiPi":-7.5455e-03},"Fixed":False}
     configdict["DsCombinatorialShape"]["fracD"]   = {"Run1": {"NonRes":0.88620,      "PhiPi":0.37379,     "KstK":0.59093,     "KPiPi":0.5,         "PiPiPi":0.5},"Fixed":False}
 
     configdict["PIDKCombinatorialShape"] = {}
@@ -201,22 +201,16 @@ def getconfig() :
     configdict["AdditionalParameters"] = {}
     configdict["AdditionalParameters"]["g1_f1_frac"] = {"Run1":{"All":{"Both":{"CentralValue":0.5, "Range":[0.0,1.0]}}}, "Fixed":False}
     configdict["AdditionalParameters"]["g1_f2_frac"] = {"Run1":{"All":{"Both":{"CentralValue":0.5, "Range":[0.0,1.0]}}}, "Fixed":False}
-    configdict["AdditionalParameters"]["lumRatio_Signal_2011"] = {"Run1":{"All":{"Both":{"CentralValue":0.43, "Range":[0.2,0.7]}}}, "Fixed":True}
-    configdict["AdditionalParameters"]["lumRatio_Signal_2012"] = {"Run1":{"All":{"Both":{"CentralValue":0.51, "Range":[0.2,0.7]}}}, "Fixed":True}
-    configdict["AdditionalParameters"]["lumRatio_Signal_run1"] = {"Run1":{"All":{"Both":{"CentralValue":0.31, "Range":[0.0,1.0]}}}, "Fixed":True}
-    configdict["AdditionalParameters"]["lumRatio_Comb_2011"] = {"Run1":{"All":{"Both":{"CentralValue":0.43, "Range":[0.2,0.7]}}}, "Fixed":True}
-    configdict["AdditionalParameters"]["lumRatio_Comb_2012"] = {"Run1":{"All":{"Both":{"CentralValue":0.51, "Range":[0.2,0.7]}}}, "Fixed":True}
-    configdict["AdditionalParameters"]["lumRatio_Comb_run1"] = {"Run1":{"All":{"Both":{"CentralValue":0.31, "Range":[0.0,1.0]}}}, "Fixed":True}
 
 
     #expected yields                                                                                                                                                       
     configdict["Yields"] = {}
-    configdict["Yields"]["Bd2DPi"]          = {"2011": { "NonRes":502.0,   "PhiPi":25.5,    "KstK":366.0,   "KPiPi":0.0,     "PiPiPi":0.0},
-                                               "2012": { "NonRes":1116.0,  "PhiPi":61.0,    "KstK":903.0,   "KPiPi":0.0,     "PiPiPi":0.0},  "Fixed":True}
-    configdict["Yields"]["Lb2LcPi"]         = {"2011": { "NonRes":260.6,   "PhiPi":41.0,    "KstK":79.8,    "KPiPi":1.7,     "PiPiPi":0.0},
-                                               "2012": { "NonRes":619.0,   "PhiPi":101.0,   "KstK":185.3,   "KPiPi":5.2,     "PiPiPi":0.0},  "Fixed":True}
-    configdict["Yields"]["Bs2DsK"]          = {"2011": { "NonRes":46.2,    "PhiPi":69.8,    "KstK":67.6,    "KPiPi":33.3,    "PiPiPi":61.6},
-                                               "2012": { "NonRes":118.7,   "PhiPi":171.1,   "KstK":167.0,   "KPiPi":87.8,    "PiPiPi":156.0}, "Fixed":True}
+    configdict["Yields"]["Bd2DPi"]          = {"2011": { "NonRes":50.4,    "PhiPi":3.5,     "KstK":10.3,    "KPiPi":9.8,     "PiPiPi":0.0},
+                                               "2012": { "NonRes":100.5,   "PhiPi":7.8,     "KstK":21.4,    "KPiPi":20.4,    "PiPiPi":0.0},  "Fixed":True}
+    configdict["Yields"]["Lb2LcPi"]         = {"2011": { "NonRes":140.4,   "PhiPi":30.7,    "KstK":46.2,    "KPiPi":0.8,     "PiPiPi":0.0},
+                                               "2012": { "NonRes":342.0,   "PhiPi":64.7,    "KstK":108.0,   "KPiPi":3.6,     "PiPiPi":0.0},  "Fixed":True}
+    configdict["Yields"]["Bs2DsK"]          = {"2011": { "NonRes":30.5,    "PhiPi":77.8,    "KstK":41.6,    "KPiPi":21.5,    "PiPiPi":44.6},
+                                               "2012": { "NonRes":85.7,    "PhiPi":184.1,   "KstK":121.0,   "KPiPi":44.8,    "PiPiPi":113.8}, "Fixed":True}
     configdict["Yields"]["Bs2DsDsstPiRho"]  = {"2011": { "NonRes":100.0,   "PhiPi":100.0,   "KstK":100.0,   "KPiPi":100.0,   "PiPiPi":100.0},
                                                "2012": { "NonRes":200.0,   "PhiPi":200.0,   "KstK":200.0,   "KPiPi":200.0,   "PiPiPi":200.0}, "Fixed":False}
     configdict["Yields"]["CombBkg"]         = {"2011": { "NonRes":10000.0, "PhiPi":10000.0, "KstK":10000.0, "KPiPi":10000.0, "PiPiPi":10000.0},
@@ -230,7 +224,7 @@ def getconfig() :
     #----------------------------------------------------------------------------------------------------------------------------------------------------------------#               
     from ROOT import *
     configdict["PlotSettings"] = {}
-    configdict["PlotSettings"]["components"] = ["Sig", "CombBkg", "Bd2DPi", "Lb2LcPi", "Bs2DsDsstPiRho", "Bs2DsK"] 
+    configdict["PlotSettings"]["components"] = ["Sig","CombBkg", "Bd2DPi", "Lb2LcPi", "Bs2DsDsstPiRho", "Bs2DsK"] 
     configdict["PlotSettings"]["colors"] = [kRed-7, kBlue-6, kOrange, kRed, kBlue-10, kGreen+3]
 
     configdict["LegendSettings"] = {}

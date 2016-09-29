@@ -7,8 +7,8 @@ def getconfig() :
 
     # considered decay mode                                                       
     configdict["Decay"] = "Lb2LcPi"
-    configdict["CharmModes"] = {"KstK","NonRes","PhiPi"}
-    #configdict["CharmModes"] = {"KPiPi"}
+    #configdict["CharmModes"] = {"KstK","NonRes","PhiPi"}
+    configdict["CharmModes"] = {"KPiPi"}
     # year of data taking                                                                                                                          
     configdict["YearOfDataTaking"] = {"2011", "2012"}
     # stripping (necessary in case of PIDK shapes)                                                                                              
@@ -23,8 +23,8 @@ def getconfig() :
 
     # basic variables                                                                                        
     configdict["BasicVariables"] = {}
-    configdict["BasicVariables"]["BeautyMass"]    = { "Range" : [5500,    6000    ], "InputName" : "lab0_MassHypo_LcPi_LambdaFav"} # for KKPi
-    #configdict["BasicVariables"]["BeautyMass"]    = { "Range" : [5500,    6000    ], "InputName" : "lab0_MassHypo_LcPi_LambdaSup"} # for KPiPi - double misID
+    #configdict["BasicVariables"]["BeautyMass"]    = { "Range" : [5500,    6000    ], "InputName" : "lab0_MassHypo_LcPi_LambdaFav"} # for KKPi
+    configdict["BasicVariables"]["BeautyMass"]    = { "Range" : [5500,    6000    ], "InputName" : "lab0_MassHypo_LcPi_LambdaSup"} # for KPiPi - double misID
     configdict["BasicVariables"]["CharmMass"]     = { "Range" : [1930,    2015    ], "InputName" : "lab2_MM"}
     configdict["BasicVariables"]["BeautyTime"]    = { "Range" : [0.4,     15.0    ], "InputName" : "lab0_LifetimeFit_ctau"}
     configdict["BasicVariables"]["BacP"]          = { "Range" : [3000.0,  650000.0], "InputName" : "lab1_P"}
@@ -33,11 +33,16 @@ def getconfig() :
     configdict["BasicVariables"]["nTracks"]       = { "Range" : [15.0,    1000.0  ], "InputName" : "nTracks"}
     configdict["BasicVariables"]["BeautyTimeErr"] = { "Range" : [0.01,    0.1     ], "InputName" : "lab0_LifetimeFit_ctauErr"}
     configdict["BasicVariables"]["BacCharge"]     = { "Range" : [-1000.0, 1000.0  ], "InputName" : "lab1_ID"}
-    configdict["BasicVariables"]["BDTG"]          = { "Range" : [0.0,     1.0     ], "InputName" : "BDTGResponse_2"}
+    configdict["BasicVariables"]["BDTG"]          = { "Range" : [0.1,     1.0     ], "InputName" : "BDTGResponse_3"}
 
-    # additional cuts applied to data sets                                                                                    
+    # additional cuts applied to data sets             
+    HLTcut = "(lab0_Hlt1TrackAllL0Decision_TOS == 1 && (lab0_Hlt2IncPhiDecision_TOS ==1 || lab0_Hlt2Topo2BodyBBDTDecision_TOS == 1 || lab0_Hlt2Topo3BodyBBDTDecision_TOS == 1))";
+    Bsmass = "&&lab0_MassFitConsD_M >5300 && lab0_MassFitConsD_M <5800"
+    correction = "&&!(fabs(lab2_MassHypo_KKPi_Lambda-2285) > 30 || lab3_PIDp-lab3_PIDK < 5)"
+
     configdict["AdditionalCuts"] = {}
-    configdict["AdditionalCuts"]["All"]    = { "Data": "lab2_TAU>0",            "MC" : "lab2_TAU>0&&lab1_M<200", "MCID":True, "MCTRUEID":True, "BKGCAT":True, "DsHypo":True}
+    configdict["AdditionalCuts"]["All"]    = { "Data": "lab2_TAU>0&&lab1_PIDmu<2&&"+HLTcut+Bsmass+correction, 
+                                               "MC" :  "lab2_TAU>0&&lab1_M<200&&"+HLTcut+Bsmass+correction, "MCID":True, "MCTRUEID":True, "BKGCAT":True, "DsHypo":True}
     configdict["AdditionalCuts"]["KKPi"]   = { "Data": "lab2_FDCHI2_ORIVX > 2", "MC" : "lab2_FDCHI2_ORIVX > 2"}
     configdict["AdditionalCuts"]["KPiPi"]  = { "Data": "lab2_FDCHI2_ORIVX > 9", "MC" : "lab2_FDCHI2_ORIVX > 9"}
     configdict["AdditionalCuts"]["PiPiPi"] = { "Data": "lab2_FDCHI2_ORIVX > 9", "MC" : "lab2_FDCHI2_ORIVX > 9"}
@@ -50,14 +55,15 @@ def getconfig() :
     # Bs signal shapes                                                                                                                                   
     configdict["BsSignalShape"] = {}
     configdict["BsSignalShape"]["type"]    = "DoubleCrystalBallWithWidthRatio"
-    configdict["BsSignalShape"]["mean"]    = {"Run1": {"All":5650.0}, "Fixed":False}
-    configdict["BsSignalShape"]["sigma1"]  = {"Run1": {"All":16.60},  "Fixed":True}
-    configdict["BsSignalShape"]["sigma2"]  = {"Run1": {"All":11.49},  "Fixed":True}
-    configdict["BsSignalShape"]["alpha1"]  = {"Run1": {"All":-2.09},  "Fixed":True}
-    configdict["BsSignalShape"]["alpha2"]  = {"Run1": {"All":1.89}, "Fixed":True}
-    configdict["BsSignalShape"]["n1"]      = {"Run1": {"All":5.25},  "Fixed":True}
-    configdict["BsSignalShape"]["n2"]      = {"Run1": {"All":1.15},  "Fixed":True}
-    configdict["BsSignalShape"]["frac"]    = {"Run1": {"All":0.44},  "Fixed":True}
+    configdict["BsSignalShape"]["mean"]    = {"Run1": {"All":5670.51}, "Fixed":False}
+    configdict["BsSignalShape"]["sigma1"]  = {"Run1": {"NonRes":1.6878e+01,  "PhiPi":1.5228e+01,  "KstK":1.7260e+01,  "KPiPi":1.7791e+01,  "PiPiPi":1.7955e+01},  "Fixed":True}
+    configdict["BsSignalShape"]["sigma2"]  = {"Run1": {"NonRes":1.1200e+01,  "PhiPi":1.2361e+01,  "KstK":1.1436e+01,  "KPiPi":1.1036e+01,  "PiPiPi":1.1608e+01},  "Fixed":True}
+    configdict["BsSignalShape"]["alpha1"]  = {"Run1": {"NonRes":-2.0314e+00, "PhiPi":-1.7275e+00, "KstK":-2.2307e+00, "KPiPi":-2.5874e+00, "PiPiPi":-2.2449e+00},  "Fixed":True}
+    configdict["BsSignalShape"]["alpha2"]  = {"Run1": {"NonRes":1.6351e+00,  "PhiPi":1.5425e+00,  "KstK":2.1032e+00,  "KPiPi":2.3644e+00,  "PiPiPi":2.0136e+00}, "Fixed":True}
+    configdict["BsSignalShape"]["n1"]      = {"Run1": {"NonRes":3.6820e+00,  "PhiPi":4.4322e+00,  "KstK":2.8836e+00,  "KPiPi":1.7676e+00,  "PiPiPi":2.7271e+00},  "Fixed":True}
+    configdict["BsSignalShape"]["n2"]      = {"Run1": {"NonRes":1.5081e+00,  "PhiPi":1.5073e+00,  "KstK":6.1945e-01,  "KPiPi":3.2020e-01,  "PiPiPi":6.7857e-01},  "Fixed":True}
+    configdict["BsSignalShape"]["frac"]    = {"Run1": {"NonRes":0.5,         "PhiPi":0.5,         "KstK":0.5,         "KPiPi":0.5,         "PiPiPi":0.5},  "Fixed":True}
+    configdict["BsSignalShape"]["R"]       = {"Run1": {"NonRes":1.00,        "PhiPi":1.0,          "Kstk":1.0,        "KPiPi":1.0,         "PiPiPi":1.0}, "Fixed":False}
 
     #configdict["BsSignalShape"]["scaleSigma"] = { "2011": {"frac1": 1.22, "frac2":1.28}} 
     # combinatorial background                                                                                                                              
@@ -83,9 +89,9 @@ def getconfig() :
     configdict["PlotSettings"]["colors"] = [kRed-7, kOrange]
 
     configdict["LegendSettings"] = {}
-    configdict["LegendSettings"]["BeautyMass"] = {"Position":[0.53, 0.45, 0.90, 0.91], "TextSize": 0.05, "LHCbText":[0.35,0.9], "ScaleYSize":2.5}
+    configdict["LegendSettings"]["BeautyMass"] = {"Position":[0.53, 0.60, 0.90, 0.91], "TextSize": 0.05, "LHCbText":[0.375,0.875], "ScaleYSize":1.0}
     configdict["LegendSettings"]["CharmMass"]  = {"Position":[0.20, 0.69, 0.93, 0.93], "TextSize": 0.05, "LHCbText":[0.8,0.66],
-                                                  "ScaleYSize":1.7, "SetLegendColumns":2, "LHCbTextSize":0.075 }
+                                                  "ScaleYSize":1.0, "SetLegendColumns":2, "LHCbTextSize":0.075 }
     configdict["LegendSettings"]["BacPIDK"]    = {"Position":[0.53, 0.45, 0.90, 0.91], "TextSize": 0.05, "LHCbText":[0.20,0.9], "ScaleYSize":1.2}
 
     return configdict

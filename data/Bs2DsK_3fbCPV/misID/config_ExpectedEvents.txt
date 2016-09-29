@@ -1,41 +1,41 @@
-#BdDPi BsHypo NonRes
-root://eoslhcb.cern.ch//eos/lhcb/wg/b2oc/TD_DsK_3fb/TD_DsK3fb_MC/FINAL/
-B2DX_MC_Bd_D-pi+_Kpipi_CPV_Dn_BDTG_Bs.root
-B2DX_MC_Bd_D-pi+_Kpipi_CPV_Up_BDTG_Bs.root
+#Bd2DPi BsHypo NonRes
+root://eoslhcb.cern.ch//eos/lhcb/wg/b2oc/TD_DsK_3fb/TD_DsK3fb_MC/FINAL_WITH_BDTG3/
+B2DX_MC_Bd_D-pi+_Kpipi_CPV_Dn_BDTG3_Bs.root
+B2DX_MC_Bd_D-pi+_Kpipi_CPV_Up_BDTG3_Bs.root
 DecayTree
 DecayTree
 ###
 
 
-#BdDPi BsHypo KstK
-root://eoslhcb.cern.ch//eos/lhcb/wg/b2oc/TD_DsK_3fb/TD_DsK3fb_MC/FINAL/
-B2DX_MC_Bd_D-pi+_Kpipi_CPV_Dn_BDTG_Bs.root
-B2DX_MC_Bd_D-pi+_Kpipi_CPV_Up_BDTG_Bs.root
+#Bd2DPi BsHypo KstK
+root://eoslhcb.cern.ch//eos/lhcb/wg/b2oc/TD_DsK_3fb/TD_DsK3fb_MC/FINAL_WITH_BDTG3/
+B2DX_MC_Bd_D-pi+_Kpipi_CPV_Dn_BDTG3_Bs.root
+B2DX_MC_Bd_D-pi+_Kpipi_CPV_Up_BDTG3_Bs.root
 DecayTree
 DecayTree
 ###
 
 
-#BdDPi BsHypo PhiPi
-root://eoslhcb.cern.ch//eos/lhcb/wg/b2oc/TD_DsK_3fb/TD_DsK3fb_MC/FINAL/
-B2DX_MC_Bd_D-pi+_Kpipi_CPV_Dn_BDTG_Bs.root
-B2DX_MC_Bd_D-pi+_Kpipi_CPV_Up_BDTG_Bs.root
+#Bd2DPi BsHypo PhiPi
+root://eoslhcb.cern.ch//eos/lhcb/wg/b2oc/TD_DsK_3fb/TD_DsK3fb_MC/FINAL_WITH_BDTG3/
+B2DX_MC_Bd_D-pi+_Kpipi_CPV_Dn_BDTG3_Bs.root
+B2DX_MC_Bd_D-pi+_Kpipi_CPV_Up_BDTG3_Bs.root
 DecayTree
 DecayTree
 ###
 
-#BdDPi BsHypo KPiPi
-root://eoslhcb.cern.ch//eos/lhcb/wg/b2oc/TD_DsK_3fb/TD_DsK3fb_MC/FINAL/
-B2DX_MC_Bd_D-pi+_Kpipi_CPV_Dn_BDTG_Bs.root
-B2DX_MC_Bd_D-pi+_Kpipi_CPV_Up_BDTG_Bs.root
+#Bd2DPi BsHypo KPiPi
+root://eoslhcb.cern.ch//eos/lhcb/wg/b2oc/TD_DsK_3fb/TD_DsK3fb_MC/FINAL_WITH_BDTG3/
+B2DX_MC_Bd_D-pi+_Kpipi_CPV_Dn_BDTG3_Bs.root
+B2DX_MC_Bd_D-pi+_Kpipi_CPV_Up_BDTG3_Bs.root
 DecayTree
 DecayTree
 ###
 
-#BdDPi BdHypo
-root://eoslhcb.cern.ch//eos/lhcb/wg/b2oc/TD_DsK_3fb/TD_DsK3fb_MC/FINAL/
-B2DX_MC_Bd_D-pi+_Kpipi_CPV_Dn_BDTG_Bd.root
-B2DX_MC_Bd_D-pi+_Kpipi_CPV_Up_BDTG_Bd.root
+#Bd2DPi BdHypo
+root://eoslhcb.cern.ch//eos/lhcb/wg/b2oc/TD_DsK_3fb/TD_DsK3fb_MC/FINAL_WITH_BDTG3/
+B2DX_MC_Bd_D-pi+_Kpipi_CPV_Dn_BDTG3_Bd.root
+B2DX_MC_Bd_D-pi+_Kpipi_CPV_Up_BDTG3_Bd.root
 DecayTree
 DecayTree
 ###
@@ -50,39 +50,39 @@ DecayTree;1
 
 
 #LbLcPi PhiPi
-root://eoslhcb.cern.ch//eos/lhcb/wg/b2oc/TD_DsK_3fb/TD_DsK3fb_MC/FINAL/
-B2DX_MC_Lb_Lambdacpi_Dn_BDTG_Bs.root
-B2DX_MC_Lb_Lambdacpi_Up_BDTG_Bs.root
+root://eoslhcb.cern.ch//eos/lhcb/wg/b2oc/TD_DsK_3fb/TD_DsK3fb_MC/FINAL_WITH_BDTG3/
+B2DX_MC_Lb_Lambdacpi_Dn_BDTG3_Bs.root
+B2DX_MC_Lb_Lambdacpi_Up_BDTG3_Bs.root
 DecayTree
 DecayTree
 ###
 
 #LbLcPi KstK
-root://eoslhcb.cern.ch//eos/lhcb/wg/b2oc/TD_DsK_3fb/TD_DsK3fb_MC/FINAL/
-B2DX_MC_Lb_Lambdacpi_Dn_BDTG_Bs.root
-B2DX_MC_Lb_Lambdacpi_Up_BDTG_Bs.root
+root://eoslhcb.cern.ch//eos/lhcb/wg/b2oc/TD_DsK_3fb/TD_DsK3fb_MC/FINAL_WITH_BDTG3/
+B2DX_MC_Lb_Lambdacpi_Dn_BDTG3_Bs.root
+B2DX_MC_Lb_Lambdacpi_Up_BDTG3_Bs.root
 DecayTree
 DecayTree
 ###
 
 #LbLcPi NonRes
-root://eoslhcb.cern.ch//eos/lhcb/wg/b2oc/TD_DsK_3fb/TD_DsK3fb_MC/FINAL/
-B2DX_MC_Lb_Lambdacpi_Dn_BDTG_Bs.root
-B2DX_MC_Lb_Lambdacpi_Up_BDTG_Bs.root
+root://eoslhcb.cern.ch//eos/lhcb/wg/b2oc/TD_DsK_3fb/TD_DsK3fb_MC/FINAL_WITH_BDTG3/
+B2DX_MC_Lb_Lambdacpi_Dn_BDTG3_Bs.root
+B2DX_MC_Lb_Lambdacpi_Up_BDTG3_Bs.root
 DecayTree
 DecayTree
 ###
 
 #LbLcPi KPiPi
-root://eoslhcb.cern.ch//eos/lhcb/wg/b2oc/TD_DsK_3fb/TD_DsK3fb_MC/FINAL/
-B2DX_MC_Lb_Lambdacpi_Dn_BDTG_Bs.root
-B2DX_MC_Lb_Lambdacpi_Up_BDTG_Bs.root
+root://eoslhcb.cern.ch//eos/lhcb/wg/b2oc/TD_DsK_3fb/TD_DsK3fb_MC/FINAL_WITH_BDTG3/
+B2DX_MC_Lb_Lambdacpi_Dn_BDTG3_Bs.root
+B2DX_MC_Lb_Lambdacpi_Up_BDTG3_Bs.root
 DecayTree
 DecayTree
 ###
 
 #LbLcPi PiPiPi
-root://eoslhcb.cern.ch//eos/lhcb/wg/b2oc/TD_DsK_3fb/TD_DsK3fb_MC/FINAL/
+root://eoslhcb.cern.ch//eos/lhcb/wg/b2oc/TD_DsK_3fb/TD_DsK3fb_MC/FINAL_WITH_BDTG3/
 B2DX_MC_Lb_Lambdacpi_Dn_BDTG_Bs.root
 B2DX_MC_Lb_Lambdacpi_Up_BDTG_Bs.root
 DecayTree
@@ -106,30 +106,53 @@ DecayTree;1
 ###
 
 
+#PID Pion 2011
+/afs/cern.ch/work/s/sgallori/public/forAgnieszka/PIDCalib_histos/
+Pi_Strip21r1_2011_MagDown_P.root
+Pi_Strip21r1_2011_MagUp_P.root
+###
+
 #PID Pion 2012
-/afs/cern.ch/user/s/sgallori/public/forAgnieszka/PIDCalib_histos/
-Pi_Strip21_MagDown_P.root
-Pi_Strip21_MagUp_P.root
+/afs/cern.ch/work/s/sgallori/public/forAgnieszka/PIDCalib_histos/
+Pi_Strip21_2012_MagDown_P.root
+Pi_Strip21_2012_MagUp_P.root
+###
+
+#PID Kaon 2011
+/afs/cern.ch/work/s/sgallori/public/forAgnieszka/PIDCalib_histos/
+K_Strip21r1_2011_MagDown_P.root
+K_Strip21r1_2011_MagUp_P.root
 ###
 
 #PID Kaon 2012
-/afs/cern.ch/user/s/sgallori/public/forAgnieszka/PIDCalib_histos/
-K_Strip21_MagDown_P.root
-K_Strip21_MagUp_P.root
+/afs/cern.ch/work/s/sgallori/public/forAgnieszka/PIDCalib_histos/
+K_Strip21_2012_MagDown_P.root
+K_Strip21_2012_MagUp_P.root
 ###
 
-#PID ProtonXXX 2012
-/afs/cern.ch/user/s/sgallori/public/forAgnieszka/PIDCalib_histos/
-P_TotLc_Strip21_MagDown_P.root
-P_TotLc_Strip21_MagUp_P.root
+#PID Proton 2011
+/afs/cern.ch/work/s/sgallori/public/forAgnieszka/PIDCalib_histos/
+P_Strip21r1_2011_MagDown_P.root
+P_Strip21r1_2011_MagUp_P.root
 ###
 
 #PID Proton 2012
-/afs/cern.ch/user/s/sgallori/public/forAgnieszka/PIDCalib_histos/
-P_Strip20_MagDown_P.root
-P_Strip20_MagUp_P.root
+/afs/cern.ch/work/s/sgallori/public/forAgnieszka/PIDCalib_histos/
+P_Strip21_2012_MagDown_P.root
+P_Strip21_2012_MagUp_P.root
 ###
 
+#PID Proton 2011 TotLc
+/afs/cern.ch/work/s/sgallori/public/forAgnieszka/PIDCalib_histos/
+P_TotLc_Strip21r1_2011_MagDown_P.root
+P_TotLc_Strip21r1_2011_MagUp_P.root
+###
+
+#PID Proton 2012 TotLc
+/afs/cern.ch/work/s/sgallori/public/forAgnieszka/PIDCalib_histos/
+P_TotLc_Strip21_2012_MagDown_P.root
+P_TotLc_Strip21_2012_MagUp_P.root
+###
 
 
 
@@ -189,11 +212,25 @@ EffHistos_Reco12_39Mom_MagDown_Proton_DLLKDLLpK.root
 EffHistos_Reco12_39Mom_MagUp_Proton_DLLKDLLpK.root
 ###
 
-#RatioDataMC2D
+#RatioDataMC2DDDDDDD
 /afs/cern.ch/work/a/adudziak/public/workspace/
 MomVsnTr_Comp_DPi_Down_hist.root
 MomVsnTr_Comp_DPi_Up_hist.root
 ###
+
+
+#RatioDataMC2D
+/afs/cern.ch/work/s/sgallori/public/forAgnieszka/dataMC_weights/pT_nTracks/
+weights_DPi_2012_dw.root
+weights_DPi_2012_up.root
+###
+
+#RatioDataMC 2012 PTnTr
+/afs/cern.ch/work/s/sgallori/public/forAgnieszka/dataMC_weights/pT_nTracks/
+weights_DPi_2012_dw.root
+weights_DPi_2012_up.root
+###
+
 
 #RatioDataMC3D
 /afs/cern.ch/work/a/adudziak/public/workspace/

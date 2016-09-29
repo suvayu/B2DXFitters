@@ -15,7 +15,7 @@ def getconfig() :
     # integrated luminosity in each year of data taking (necessary in case of PIDK shapes) 
     configdict["IntegratedLuminosity"] = {"2011": {"Down":  0.56, "Up": 0.42}, "2012":{"Down": 0.9912, "Up": 0.9988}}
     # file name with paths to MC/data samples
-    configdict["dataName"]   = "../data/Bs2DsK_3fbCPV/Bs2DsK/config_Bs2DsK.txt"
+    configdict["dataName"]   = "../data/Bs2DsK_3fbCPV/Bs2DsK/config_Bs2DsK_newBDTG_filtered.txt"
     #settings for control plots 
     configdict["ControlPlots"] = {} 
     configdict["ControlPlots"] = { "Directory": "PlotBs2DsK_BDTG2", "Extension":"pdf"} 
@@ -31,7 +31,7 @@ def getconfig() :
     configdict["BasicVariables"]["nTracks"]       = { "Range" : [15.0,    1000.0  ], "InputName" : "nTracks"}
     configdict["BasicVariables"]["BeautyTimeErr"] = { "Range" : [0.01,    0.1     ], "InputName" : "lab0_LifetimeFit_ctauErr"}
     configdict["BasicVariables"]["BacCharge"]     = { "Range" : [-1000.0, 1000.0  ], "InputName" : "lab1_ID"}
-    configdict["BasicVariables"]["BDTG"]          = { "Range" : [0.95,     1.0    ], "InputName" : "BDTGResponse_2"}
+    configdict["BasicVariables"]["BDTG"]          = { "Range" : [0.95,     1.0    ], "InputName" : "BDTGResponse_3"}
     configdict["BasicVariables"]["TagDecOS"]      = { "Range" : [-1.0,    1.0     ], "InputName" : "lab0_TAGDECISION_OS"}
     configdict["BasicVariables"]["TagDecSS"]      = { "Range" : [-1.0,    1.0     ], "InputName" : "lab0_SS_nnetKaon_DEC"}
     configdict["BasicVariables"]["MistagOS"]      = { "Range" : [ 0.0,    0.5     ], "InputName" : "lab0_TAGOMEGA_OS"}
@@ -60,19 +60,19 @@ def getconfig() :
                                                                        "Var":["nTracks","lab1_P"], "HistName":"MyKaonEff_5_mu2"},
                                             "PIDBachMisID":          { "FileLabel": { "2011":"#PIDK Pion 2011", "2012":"#PIDK Pion 2012"},
                                                                        "Var":["nTracks","lab1_P"], "HistName":"MyPionMisID_5_mu2"},
-                                            "PIDBachProtonMisID":    { "FileLabel": { "2011":"#PIDK Pion 2011", "2012":"#PIDK Pion 2012"},
-                                                                       "Var":["nTracks","lab1_P"], "HistName":"MyPionMisID_5_mu2"},
+                                            "PIDBachProtonMisID":    { "FileLabel": { "2011":"#PIDK Proton 2011", "2012":"#PIDK Proton 2012"},
+                                                                       "Var":["nTracks","lab1_P"], "HistName":"MyProtonEff_K5_mu2"},
                                             "PIDChildKaonPionMisID": { "FileLabel": { "2011":"#PIDK Pion 2011", "2012":"#PIDK Pion 2012"},
                                                                        "Var":["nTracks","lab3_P"], "HistName":"MyPionMisID_0"},
                                             "PIDChildProtonMisID":   { "FileLabel": { "2011":"#PIDK Proton 2011", "2012":"#PIDK Proton 2012"},
                                                                        "Var":["nTracks","lab4_P"], "HistName":"MyProtonMisID_pKm5_KPi5"},
-                                            "RatioDataMC":{ "FileLabel": {"2011":"#RatioDataMC 2011 PNTr", "2012": "#RatioDataMC 2012 PNTr"},
-                                                            "Var":["lab1_P","nTracks"], "HistName":"histRatio"},
+                                            "RatioDataMC":{ "FileLabel": {"2011":"#RatioDataMC 2011 PTnTr Filtered", "2012": "#RatioDataMC 2012 PTnTr Filtered"},
+                                                            "Var":["lab1_PT","nTracks"], "HistName":"histRatio"},
                                             "Shift":{ "BeautyMass": -2.0, "CharmMass": 0.0} }
 
     
     #weighting for PID templates
-    configdict["ObtainPIDTemplates"] = { "Variables":["BacPT","nTracks"], "Bins":[20,20] }
+    configdict["ObtainPIDTemplates"] = { "Variables":["BacPT","nTracks"], "Bins":[30,30] }
 
     configdict["Calibrations"] = {}
     configdict["Calibrations"]["2011"] = {}
@@ -148,15 +148,10 @@ def getconfig() :
 
 
     configdict["DsCombinatorialShape"] = {}
-    configdict["DsCombinatorialShape"]["type"]  = "DoubleCrystalBallWithWidthRatioSharedMean"
-    configdict["DsCombinatorialShape"]["sigma1"]  = {"Run1": {"NonRes":5.0759e+00,  "PhiPi":4.2908e+00,   "KstK":4.4886e+00,  "KPiPi":6.7238e+00,  "PiPiPi":9.7531e+00},  "Fixed":True}
-    configdict["DsCombinatorialShape"]["sigma2"]  = {"Run1": {"NonRes":5.3082e+00,  "PhiPi":6.3796e+00,   "KstK":6.1201e+00,  "KPiPi":6.3040e+00,  "PiPiPi":6.2100e+00},  "Fixed":True}
-    configdict["DsCombinatorialShape"]["alpha1"]  = {"Run1": {"NonRes":-1.4670e+00, "PhiPi":-1.4720e+00,  "KstK":-1.5317e+00, "KPiPi":-1.7847e+00, "PiPiPi":-2.2306e+00}, "Fixed":True}
-    configdict["DsCombinatorialShape"]["alpha2"]  = {"Run1": {"NonRes":1.4847e+00,  "PhiPi":1.9222e+00,   "KstK":2.1267e+00,  "KPiPi":1.6113e+00,  "PiPiPi":1.6210e+00},  "Fixed":True}
-    configdict["DsCombinatorialShape"]["n1"]      = {"Run1": {"NonRes":9.9998e+01,  "PhiPi":4.0000e+01,   "KstK":4.0000e+01,  "KPiPi":5.4214e+01,  "PiPiPi":7.5384e+01},  "Fixed":True}
-    configdict["DsCombinatorialShape"]["n2"]      = {"Run1": {"NonRes":9.9937e+01,  "PhiPi":9.9993e+01,   "KstK":9.9998e+01,  "KPiPi":9.9997e+01,  "PiPiPi":4.0000e+01},  "Fixed":True}
-    configdict["DsCombinatorialShape"]["frac"]    = {"Run1": {"NonRes":0.50,        "PhiPi":0.50,         "KstK":0.5,         "KPiPi":0.5,         "PiPiPi":0.5},    "Fixed":True}
-    configdict["DsCombinatorialShape"]["R"]       = {"Run1": {"NonRes":1.7294e+00,  "PhiPi":1.4199e+00,   "Kstk":1.3580e+00,   "KPiPi":1.6602e+00,  "PiPiPi":2.000e+00},  "Fixed":True}
+    configdict["DsCombinatorialShape"]["type"]  = "ExponentialPlusSignal" #"ExponentialPlusDoubleCrystalBallWithWidthRatioSharedMean"                                                   
+    configdict["DsCombinatorialShape"]["cD"]      = {"Run1": {"NonRes":-4.4329e-03,  "PhiPi":-8.8642e-03,  "KstK":-5.2652e-03, "KPiPi":-5.0743e-03, "PiPiPi":-5.1877e-03},"Fixed":False}
+    configdict["DsCombinatorialShape"]["fracD"]   = {"Run1": {"NonRes":0.88620,      "PhiPi":0.37379,     "KstK":0.59093,      "KPiPi":0.5,         "PiPiPi":0.5},"Fixed":False}
+
     
     configdict["PIDKCombinatorialShape"] = {}
     configdict["PIDKCombinatorialShape"]["type"] = "Fixed"
@@ -191,14 +186,14 @@ def getconfig() :
 
     #expected yields                                                                                                                                                              
     configdict["Yields"] = {}
-    configdict["Yields"]["Bd2DPi"]            = {"2011": {"NonRes":4.4,     "PhiPi":0.2,    "KstK":3.0,    "KPiPi":0.0,    "PiPiPi":0.0},
-                                                 "2012": {"NonRes":8.2,     "PhiPi":0.5,    "KstK":6.6,    "KPiPi":0.0,    "PiPiPi":0.0}, "Fixed":True}
-    configdict["Yields"]["Bd2DK"]             = {"2011": {"NonRes":6.2,     "PhiPi":0.3,    "KstK":4.6,    "KPiPi":0.0,    "PiPiPi":0.0},
-                                                 "2012": {"NonRes":13.6,    "PhiPi":0.8,    "KstK":11.1,   "KPiPi":0.0,    "PiPiPi":0.0}, "Fixed":True}
-    configdict["Yields"]["Lb2LcPi"]           = {"2011": {"NonRes":2.0,     "PhiPi":0.3,    "KstK":0.6,    "KPiPi":0.0,    "PiPiPi":0.0},
-                                                 "2012": {"NonRes":4.1,     "PhiPi":0.7,    "KstK":1.3,    "KPiPi":0.0,    "PiPiPi":0.0}, "Fixed":True}
-    configdict["Yields"]["Lb2LcK"]            = {"2011": {"NonRes":3.3,     "PhiPi":0.5,    "KstK":1.0,    "KPiPi":0.0,    "PiPiPi":0.0},
-                                                 "2012": {"NonRes":7.7,     "PhiPi":1.3,    "KstK":2.3,    "KPiPi":0.0,    "PiPiPi":0.0}, "Fixed":True}
+    configdict["Yields"]["Bd2DPi"]            = {"2011": {"NonRes":0.9,     "PhiPi":0.1,    "KstK":0.1,    "KPiPi":0.0,    "PiPiPi":0.0},
+                                                 "2012": {"NonRes":1.6,     "PhiPi":0.1,    "KstK":0.3,    "KPiPi":0.0,    "PiPiPi":0.0}, "Fixed":True}
+    configdict["Yields"]["Bd2DK"]             = {"2011": {"NonRes":2.0,     "PhiPi":0.2,    "KstK":0.4,    "KPiPi":0.0,    "PiPiPi":0.0},
+                                                 "2012": {"NonRes":3.9,     "PhiPi":0.3,    "KstK":0.9,    "KPiPi":0.0,    "PiPiPi":0.0}, "Fixed":True}
+    configdict["Yields"]["Lb2LcPi"]           = {"2011": {"NonRes":2.4,     "PhiPi":0.5,    "KstK":0.8,    "KPiPi":0.0,    "PiPiPi":0.0},
+                                                 "2012": {"NonRes":5.2,     "PhiPi":1.0,    "KstK":1.6,    "KPiPi":0.0,    "PiPiPi":0.0}, "Fixed":True}
+    configdict["Yields"]["Lb2LcK"]            = {"2011": {"NonRes":5.2,     "PhiPi":1.1,    "KstK":1.7,    "KPiPi":0.0,    "PiPiPi":0.0},
+                                                 "2012": {"NonRes":12.8,     "PhiPi":2.4,    "KstK":4.0,    "KPiPi":0.0,    "PiPiPi":0.0}, "Fixed":True}
     configdict["Yields"]["Bs2DsDsstKKst"]      = {"2011": {"NonRes":50.0,    "PhiPi":50.0,   "KstK":50.0,   "KPiPi":50.0,   "PiPiPi":50.0},
                                                   "2012": {"NonRes":100.0,   "PhiPi":100.0,  "KstK":100.0,  "KPiPi":100.0,  "PiPiPi":100.0}, "Fixed":False}
     configdict["Yields"]["BsLb2DsDsstPPiRho"]  = {"2011": {"NonRes":225.0,   "PhiPi":500.0,  "KstK":330.0,  "KPiPi":90.0,   "PiPiPi":260.0},
