@@ -868,6 +868,10 @@ namespace WeightingUtils {
     calib.ObtainVar1Name(nameVar1, debug);
     calib.ObtainVar2Name(nameVar2, debug);
 
+    TString namePID = md->GetPIDKVarOutName();
+    Double_t PID_up = md->GetPIDKRangeUp();
+    Double_t PID_down = md->GetPIDKRangeDown();
+
     Double_t Var1_down = md->GetRangeDown(md->GetVar(0));
     Double_t Var1_up = md->GetRangeUp(md->GetVar(0));
     Double_t Var2_down = md->GetRangeDown(md->GetVar(1));
@@ -882,6 +886,7 @@ namespace WeightingUtils {
     }
     RooRealVar* Var1 = new RooRealVar(nameVar1.Data(), nameVar1.Data(), Var1_down, Var1_up);
     RooRealVar* Var2 = new RooRealVar(nameVar2.Data(), nameVar2.Data(), Var2_down, Var2_up);
+    RooRealVar* lab1_PIDK = new RooRealVar(namePID.Data(), namePID.Data(), PID_down, PID_up);
 
     
     TString label1, label2;
@@ -909,7 +914,7 @@ namespace WeightingUtils {
     std::vector <TH2F*> hist2Data;
     std::vector <TH2F*> hist2Ratio;
     RooDataSet* dataCalib = NULL;
-    dataCalib = calib.PrepareDataSet( Var1, Var2, NULL, plotSet, debug); // GetDataCalibSample( calib, Var1, Var2, plotSet, debug );
+    dataCalib = calib.PrepareDataSet( Var1, Var2, lab1_PIDK, plotSet, debug); // GetDataCalibSample( calib, Var1, Var2, plotSet, debug );
     TString histNameCalib = "hist2D_Calib";
     TH2F* histCalib = Get2DHist(dataCalib,Var1, Var2, md->GetBin(0), md->GetBin(1), histNameCalib, debug);
     Save2DHist(histCalib, plotSet);
@@ -1117,7 +1122,7 @@ namespace WeightingUtils {
     TString l3 = "Calib weighted";
 
     RooDataSet* dataCalib = NULL;
-    dataCalib = calib.PrepareDataSet( Var1, Var2, NULL, plotSet, debug); 
+    dataCalib = calib.PrepareDataSet( Var1, Var2, lab1_PIDK, plotSet, debug); 
     
     TString histNameCalib = "hist2D_Calib";
     TH2F* histCalib = Get2DHist(dataCalib,Var1, Var2, bin1, bin2, histNameCalib, debug);
