@@ -1,12 +1,4 @@
 
-#Bs2DsstPi KKPi 2012
-/afs/cern.ch/work/a/abertoli/public/DsstrPi/bdt-s21/
-Filter12-s21_Bs2DsstPi_Data_dw.root
-Filter12-s21_Bs2DsstPi_Data_up.root
-tuple
-tuple
-###
-
 #Bs2DsstPi NonRes 2011
 /afs/cern.ch/work/a/abertoli/public/DsstrPi/bdt-s21/
 Filter11-s21_Bs2DsstPi_Data_dw.root
@@ -87,13 +79,6 @@ tuple
 tuple
 ###
 
-#RatioDataMC2D
-/afs/cern.ch/work/a/adudziak/public/workspace/
-MomVsnTr_Comp_DPi_Down_hist.root
-MomVsnTr_Comp_DPi_Up_hist.root
-###
-
-
 #MC FileName KKPi MD 2012
 {"Mode":"Bs2DsRho",
  "FileName":"/afs/cern.ch/work/a/abertoli/public/DsstrPi/bdt-s21/Filter-s21_Bs2DsstPi_Bs2Dsrho_dw.root",
@@ -146,14 +131,6 @@ MomVsnTr_Comp_DPi_Up_hist.root
  "TreeName":"tuple;1"}
 ###
 
-#Signal Bs2DsstPi KKPi 2012
-/afs/cern.ch/work/a/abertoli/public/DsstrPi/bdt-s21/
-Filter-s21_Bs2DsstPi_Signal_dw.root
-Filter-s21_Bs2DsstPi_Signal_up.root
-tuple
-tuple
-###
-
 #Signal Bs2DsstPi NonRes 2012
 /afs/cern.ch/work/a/abertoli/public/DsstrPi/bdt-s21/
 Filter-s21_Bs2DsstPi_Signal_dw.root
@@ -190,13 +167,6 @@ tuple
 /afs/cern.ch/work/a/abertoli/public/DsstrPi/bdt-s21/
 Filter-s21_Bs2DsstPi-3Pi_Signal_dw.root
 Filter-s21_Bs2DsstPi-3Pi_Signal_up.root
-tuple
-tuple
-###
-
-#Signal Bs2DsstPi KKPi 2011
-/afs/cern.ch/work/a/abertoli/public/DsstrPi/bdt-s21/
-fffff
 tuple
 tuple
 ###
@@ -241,98 +211,130 @@ tuple
 tuple
 ###
 
-#Bs2DsstPi Combinatorial KKPi 2011
-/afs/cern.ch/work/a/abertoli/public/DsstrPi/bdt-s21/
-FilterRun1-s21_Bs2DsstPi_Data_dw.root
-FilterRun1-s21_Bs2DsstPi_Data_up.root
-tuple
-tuple
-###
-
-#Bs2DsstPi Combinatorial KKPi 2012
-/afs/cern.ch/work/a/abertoli/public/DsstrPi/bdt-s21/
-FilterRun1-s21_Bs2DsstPi_Data_dw.root
-FilterRun1-s21_Bs2DsstPi_Data_up.root
-tuple
-tuple
-###
-
 #Bs2DsstPi Combinatorial NonRes 2011
 /afs/cern.ch/work/a/abertoli/public/DsstrPi/bdt-s21/
-Filter11-s21_Bs2DsstPi_Data_dw.root
-Filter11-s21_Bs2DsstPi_Data_up.root
+FilterRun1-s21_Bs2DsstPi_Data_dw.root
+FilterRun1-s21_Bs2DsstPi_Data_up.root
 tuple
 tuple
 ###
 
 #Bs2DsstPi Combinatorial NonRes 2012
 /afs/cern.ch/work/a/abertoli/public/DsstrPi/bdt-s21/
-Filter12-s21_Bs2DsstPi_Data_dw.root
-Filter12-s21_Bs2DsstPi_Data_up.root
+FilterRun1-s21_Bs2DsstPi_Data_dw.root
+FilterRun1-s21_Bs2DsstPi_Data_up.root
 tuple
 tuple
 ###
 
 #Bs2DsstPi Combinatorial PhiPi 2011
 /afs/cern.ch/work/a/abertoli/public/DsstrPi/bdt-s21/
-Filter11-s21_Bs2DsstPi_Data_dw.root
-Filter11-s21_Bs2DsstPi_Data_up.root
+FilterRun1-s21_Bs2DsstPi_Data_dw.root
+FilterRun1-s21_Bs2DsstPi_Data_up.root
 tuple
 tuple
 ###
 
 #Bs2DsstPi Combinatorial PhiPi 2012
 /afs/cern.ch/work/a/abertoli/public/DsstrPi/bdt-s21/
-Filter12-s21_Bs2DsstPi_Data_dw.root
-Filter12-s21_Bs2DsstPi_Data_up.root
+FilterRun1-s21_Bs2DsstPi_Data_dw.root
+FilterRun1-s21_Bs2DsstPi_Data_up.root
 tuple
 tuple
 ###
 
 #Bs2DsstPi Combinatorial KstK 2011
 /afs/cern.ch/work/a/abertoli/public/DsstrPi/bdt-s21/
-Filter11-s21_Bs2DsstPi_Data_dw.root
-Filter11-s21_Bs2DsstPi_Data_up.root
+FilterRun1-s21_Bs2DsstPi_Data_dw.root
+FilterRun1-s21_Bs2DsstPi_Data_up.root
 tuple
 tuple
 ###
 
 #Bs2DsstPi Combinatorial KstK 2012
 /afs/cern.ch/work/a/abertoli/public/DsstrPi/bdt-s21/
-Filter12-s21_Bs2DsstPi_Data_dw.root
-Filter12-s21_Bs2DsstPi_Data_up.root
+FilterRun1-s21_Bs2DsstPi_Data_dw.root
+FilterRun1-s21_Bs2DsstPi_Data_up.root
 tuple
 tuple
 ###
 
 #Bs2DsstPi Combinatorial KPiPi 2011
 /afs/cern.ch/work/a/abertoli/public/DsstrPi/bdt-s21/
-Filter11-s21_Bs2DsstPi-K2Pi_Data_dw.root
-Filter11-s21_Bs2DsstPi-K2Pi_Data_up.root
+FilterRun1-s21_Bs2DsstPi-K2Pi_Data_dw.root
+FilterRun1-s21_Bs2DsstPi-K2Pi_Data_up.root
 tuple
 tuple
 ###
 
 #Bs2DsstPi Combinatorial KPiPi 2012
 /afs/cern.ch/work/a/abertoli/public/DsstrPi/bdt-s21/
-Filter12-s21_Bs2DsstPi-K2Pi_Data_dw.root
-Filter12-s21_Bs2DsstPi-K2Pi_Data_up.root
+FilterRun1-s21_Bs2DsstPi-K2Pi_Data_dw.root
+FilterRun1-s21_Bs2DsstPi-K2Pi_Data_up.root
 tuple
 tuple
 ###
 
 #Bs2DsstPi Combinatorial PiPiPi 2011
 /afs/cern.ch/work/a/abertoli/public/DsstrPi/bdt-s21/
-Filter11-s21_Bs2DsstPi-3Pi_Data_dw.root
-Filter11-s21_Bs2DsstPi-3Pi_Data_up.root
+FilterRun1-s21_Bs2DsstPi-3Pi_Data_dw.root
+FilterRun1-s21_Bs2DsstPi-3Pi_Data_up.root
 tuple
 tuple
 ###
 
 #Bs2DsstPi Combinatorial PiPiPi 2012
 /afs/cern.ch/work/a/abertoli/public/DsstrPi/bdt-s21/
-Filter12-s21_Bs2DsstPi-3Pi_Data_dw.root
-Filter12-s21_Bs2DsstPi-3Pi_Data_up.root
+FilterRun1-s21_Bs2DsstPi-3Pi_Data_dw.root
+FilterRun1-s21_Bs2DsstPi-3Pi_Data_up.root
 tuple
 tuple
+###
+
+#RatioDataMC 2011 PNTr
+/afs/cern.ch/work/s/sgallori/public/forAgnieszka/dataMC_weights/p_nTracks/
+weights_DPi_2011_dw.root
+weights_DPi_2011_up.root
+###
+
+#RatioDataMC 2012 PNTr
+/afs/cern.ch/work/s/sgallori/public/forAgnieszka/dataMC_weights/p_nTracks/
+weights_DPi_2012_dw.root
+weights_DPi_2012_up.root
+###
+
+#PIDK Pion 2011
+/afs/cern.ch/work/s/sgallori/public/forAgnieszka/PIDCalib_histos/
+Pi_Strip21r1_2011_MagDown_nTracks_P.root
+Pi_Strip21r1_2011_MagUp_nTracks_P.root
+###
+
+#PIDK Pion 2012
+/afs/cern.ch/work/s/sgallori/public/forAgnieszka/PIDCalib_histos/
+Pi_Strip21_2012_MagDown_nTracks_P.root
+Pi_Strip21_2012_MagUp_nTracks_P.root
+###
+
+#PIDK Kaon 2011
+/afs/cern.ch/work/s/sgallori/public/forAgnieszka/PIDCalib_histos/
+K_Strip21r1_2011_MagDown_nTracks_P.root
+K_Strip21r1_2011_MagUp_nTracks_P.root
+###
+
+#PIDK Kaon 2012
+/afs/cern.ch/work/s/sgallori/public/forAgnieszka/PIDCalib_histos/
+K_Strip21_2012_MagDown_nTracks_P.root
+K_Strip21_2012_MagUp_nTracks_P.root
+###
+
+#PIDK Proton 2011
+/afs/cern.ch/work/s/sgallori/public/forAgnieszka/PIDCalib_histos/
+P_Strip21r1_2011_MagDown_nTracks_P.root
+P_Strip21r1_2011_MagUp_nTracks_P.root
+###
+
+#PIDK Proton 2012
+/afs/cern.ch/work/s/sgallori/public/forAgnieszka/PIDCalib_histos/
+P_Strip21_2012_MagDown_nTracks_P.root
+P_Strip21_2012_MagUp_nTracks_P.root
 ###

@@ -312,14 +312,18 @@ std::ostream & operator<< (std::ostream &out, const MDFitterSettings &s)
 	}
     }
 
-  if ( s._weightMassTemp == true )
-    {
       out<<"-------------------------------------------------------------------"<<std::endl;
       out<<"\t Mass templates will be weighted using following settings: "<<std::endl;
       out<<"-------------------------------------------------------------------"<<std::endl;
 
       out<<" Shift for "<<s._mVarOut<<" is: "<<s._massShift.first<<std::endl;
       out<<" Shift for "<<s._mDVarOut<<" is: "<<s._massShift.second<<std::endl;
+      out<<"-------------------------------------------------------------------"<<std::endl;
+   if ( s._weightMassTemp == true )
+     {
+     
+      out<<" Mass weighting "<<s._weightMassTemp<<std::endl; 
+      out<<"-------------------------------------------------------------------"<<std::endl;
       out<<" Bachelor Efficinecy: "<<std::endl;
       out<<" \t file for 2011: "<<s._filePIDBacEff.first<<std::endl;
       out<<" \t file for 2012: "<<s._filePIDBacEff.second<<std::endl;
@@ -355,13 +359,6 @@ std::ostream & operator<< (std::ostream &out, const MDFitterSettings &s)
       out<<" \t name of histogram: "<<s._PIDChildProtonMisID<<std::endl;
       out<<" \t variable weighted: ("<<s._PIDChildProtonMisIDVarName.first<<","<<s._PIDChildProtonMisIDVarName.second<<")"<<std::endl;
       out<<"-------------------------------------------------------------------"<<std::endl;
-      out<<"-------------------------------------------------------------------"<<std::endl;
-      out<<" Ratio data MC: "<<s._weightRatioDataMC<<std::endl;
-      out<<" \t label for 2011: "<<s._ratioDMC.first<<std::endl;
-      out<<" \t label for 2012: "<<s._ratioDMC.second<<std::endl;
-      out<<" \t histogram: "<<s._ratioDMCHistName<<std::endl;
-      out<<" \t variables: ("<<s._ratioDMCVarName.first<<","<<s._ratioDMCVarName.second<<")"<<std::endl;
-      out<<"-------------------------------------------------------------------"<<std::endl;
       //      out<<"PIDK bachelor: "<<s._PIDBach<<std::endl;
       //out<<"PIDK child: "<<s._PIDChild<<std::endl;
       //out<<"PIDK proton: "<<s._PIDProton<<std::endl;
@@ -376,6 +373,17 @@ std::ostream & operator<< (std::ostream &out, const MDFitterSettings &s)
       //	}
       out<<"Prefix for Ds children: "<<s._prefixDsChild[0]<<" "<<s._prefixDsChild[1]<<" "<<s._prefixDsChild[2]<<std::endl;
     }
+
+   if ( s._weightRatioDataMC == true )
+     {
+       out<<"-------------------------------------------------------------------"<<std::endl;
+       out<<" Ratio data MC: "<<s._weightRatioDataMC<<std::endl;
+       out<<" \t label for 2011: "<<s._ratioDMC.first<<std::endl;
+       out<<" \t label for 2012: "<<s._ratioDMC.second<<std::endl;
+       out<<" \t histogram: "<<s._ratioDMCHistName<<std::endl;
+       out<<" \t variables: ("<<s._ratioDMCVarName.first<<","<<s._ratioDMCVarName.second<<")"<<std::endl;
+       out<<"-------------------------------------------------------------------"<<std::endl;
+     }
 
   if ( s._weightDim != 0 )
     {

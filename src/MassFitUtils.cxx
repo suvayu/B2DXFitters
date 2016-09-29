@@ -1635,9 +1635,9 @@ Double_t SetValCatObs(MDFitterSettings* mdSet, RooArgSet* obs,
             {
               if ( md.Contains("Bd")  == true ) { wMC = wChKPiMisID*wBE; }
               else if ( md.Contains("Lc") == true ) { wMC = wChPMisID*wBE; }
-	      else if ( md.Contains("Dsp") == true || md.Contains("Dsstp") ) { wMC = wBPMisID; }
               else{ wMC = wBE; }
             }
+	    else if ( md.Contains("Dsp") == true || md.Contains("Dsstp") ) { wMC = wBPMisID; }
             else   // mode with {Pi,Rho,p}, bachelor has to be reweighted //  
             {
               if ( md.Contains("Bd") == true ) { wMC = wChKPiMisID*wBMisID; }
@@ -1666,7 +1666,7 @@ Double_t SetValCatObs(MDFitterSettings* mdSet, RooArgSet* obs,
         if (  mdSet->CheckDataMCWeighting() == true ||  mdSet->CheckMassWeighting() == true )
         {
 	  //std::cout<<wMC<<" "<<wRW<<std::endl; 
-          weight->setVal(wMC*wRW*globalWeight);
+          weight->setVal(wMC*wRW*globalWeight*nentriesMC[i]);
         }
         
         if (5320 < mMC and mMC < 5420) sa_counter++;
@@ -2668,8 +2668,8 @@ Double_t SetValCatObs(MDFitterSettings* mdSet, RooArgSet* obs,
     RooDataSet* dataSetMC[2];
     RooDataSet* dataSetMCtmp[2];
     
-    Double_t wRW=0;
-    Double_t wE = 0;
+    Double_t wRW=1.0;
+    Double_t wE =1.0;
     
     for(int i = 0; i<2; i++)
     { 
@@ -3488,28 +3488,36 @@ Double_t SetValCatObs(MDFitterSettings* mdSet, RooArgSet* obs,
           Double_t w5 = 1.0;  
           if ( nameHypo.second.Contains("kkpi") || nameHypo.second.Contains("nonres") || nameHypo.second.Contains("kstk") || nameHypo.second.Contains("phipi"))
           {
-            if( fabs(hypo-masshypo) < tol){ w5 = h[2]->GetWeight(lab5_P2*wRW,smpHypo[i]); }
-            else { w5 = h[1]->GetWeight(lab5_P2*wRW,smpHypo[i]);}
+            if( fabs(hypo-masshypo) < tol){ w5 = h[2]->GetWeight(lab3_P2*wRW,smpHypo[i]); }
+            else { w5 = h[1]->GetWeight(lab3_P2*wRW,smpHypo[i]);}
           }
           else if( nameHypo.second.Contains("kpipi") )
           {
-            w5 = h[1]->GetWeight(lab5_P2*wRW,smpHypo[i]);
+            w5 = h[1]->GetWeight(lab3_P2*wRW,smpHypo[i]);
           }
           
+	  if ( w5 < 0.0 ) { w5 = 0.0; }
+          if ( w4 < 0.0 ) { w4 = 0.0; }
+
           Double_t w51 = 1.0; 
-          if ( nameOwn.first.Contains("LcPi") ) { w51 = hpeff1->GetWeight(lab5_P2*wRW,smpHypo[i]); }
+          if ( nameOwn.first.Contains("LcPi") ) { w51 = hpeff1->GetWeight(lab3_P2*wRW,smpHypo[i]); }
           
           Double_t y = 0.0;
-          if ( w51 > 0.001 ) { 
-            y = w4*w5/w51;
-            nE_RDM[i] = nE_RDM[i]+wRW;
-          } 
-          else { 
-            y = 0.0;  
-          }
+	  if ( w51 > 0.01 ) {
 
-          //std::cout<<"w4: "<<w4<<" w5: "<<w5<<" w51 "<<w51<<" all: "<<y<<" nE_lab45[i]: "<<nE_lab45[i]<<" for pt: "<<lab5_P2*wRW<<std::endl; 
-          nE_lab45[i] = nE_lab45[i]+y;
+            y = w4*w5/w51;
+            if ( y < 1.0 )
+              {
+                nE_RDM[i] = nE_RDM[i]+wRW;
+                nE_lab45[i] = nE_lab45[i]+y;
+              }
+          }
+          else {
+            y = 0.0;
+          }
+	  
+	  
+          //std::cout<<"w4: "<<w4<<" w5: "<<w5<<" w51 "<<w51<<" all: "<<y<<" nE_lab45[i]: "<<nE_lab45[i]<<" for pt: "<<lab5_P2*wRW<<std::endl;
 	      }
       }
       else if ( nameOwn.first.Contains("DK") || nameOwn.first.Contains("DsK") 
@@ -3594,7 +3602,7 @@ Double_t SetValCatObs(MDFitterSettings* mdSet, RooArgSet* obs,
           std::cout<<"[INFO]     under hypothesis"<<nameHypo.first<<" "<<nameHypo.second<<std::endl;
           std::cout<<"[INFO] eff1: "<<nE_lab1[i]<<" procent: "<<nE_lab1[i]/n_events_Hypo[i]*100<<"%"<<std::endl;
           std::cout<<"[INFO] misID1: "<<nE_lab1MisID[i]<<" procent: "<<nE_lab1MisID[i]/n_events_Hypo[i]*100<<"%"<<std::endl;
-          std::cout<<"[INFO] All_misID: "<<all_misID*nE_lab1[i]/n_events_Hypo[i]*100<<"%"<<std::endl;
+          std::cout<<"[INFO] All_misID: "<<all_misID/n_events_Hypo[i]*100<<"%"<<std::endl;
           std::cout<<"[INFO] All_misID2: "<<all_misID*nE_lab1MisID[i]/n_events_Hypo[i]*100<<"%"<<std::endl;
           std::cout<<"----------------------------------------------------------------"<<std::endl;
 

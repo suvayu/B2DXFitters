@@ -10,6 +10,10 @@
  - update FitMeTool for plotting S/B, S/sqrt(S+B) and total yields
  - bug fix in WeightingUtils.cxx
  - small updates (better plotting) in GeneralUtils.cxx
+ - bug fix in MDFitterSettings
+ - bug fix in MassFitUtils 
+ - update config files for DsstPi
+
 
 ! 2016-09-27 - Manuel Tobias Schiller
  - FitResult.py: hack the code to make it work with the latest ROOT/pyROOT

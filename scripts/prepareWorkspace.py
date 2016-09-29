@@ -188,14 +188,13 @@ def getMCNames(myconfig):
     magnet = ["MU","MD"]
 
     MCNames = []
-    if "BachelorHypo" in myconfig.keys():
-        for y in year:
-            for m in magnet:
-                if "BachelorHypo" in myconfig.keys():
-                    name = "#MC FileName "+dsmode+" "+m+" "+y+" "+hypo+"Hypo"
-                else:
-                    name = "#MC FileName "+dsmode+" "+m+" "+y
-                MCNames.append(TString(name))
+    for y in year:
+        for m in magnet:
+            if "BachelorHypo" in myconfig.keys():
+                name = "#MC FileName "+dsmode+" "+m+" "+y+" "+hypo+"Hypo"
+            else:
+                name = "#MC FileName "+dsmode+" "+m+" "+y
+            MCNames.append(TString(name))
 
     return MCNames
             
@@ -466,7 +465,7 @@ def prepareWorkspace( debug,
         if myconfigfile["ControlPlots"].has_key("Extension"):
             extPlot = myconfigfile["ControlPlots"]["Extension"]
 
-    plotSettings = PlotSettings("plotSettings","plotSettings", TString(dirPlot), extPlot , 100, True, False, True)
+    plotSettings = PlotSettings("plotSettings","plotSettings", TString(dirPlot), extPlot , 100, True, False, False)
     plotSettings.Print("v")
     #exit(0) 
 
@@ -474,7 +473,7 @@ def prepareWorkspace( debug,
     if MCPID or SignalPID or CombPID:
         mdt = Translator(myconfigfile,"MDSettings",True)
     else:
-        mdt = Translator(myconfigfile,"MDSettings",True) #False)
+        mdt = Translator(myconfigfile,"MDSettings",False)
     MDSettings = mdt.getConfig()
     MDSettings.Print("v")
     #exit(0)
@@ -538,7 +537,7 @@ def prepareWorkspace( debug,
             pol = GeneralUtils.CheckPolarity(MCNames[i],debug)
             workspace = MassFitUtils.ObtainSpecBack(TString(myconfigfile["dataName"]), TString(MCNames[i]),
                                                     MDSettings, decay, workspace, True, MDSettings.GetLum(year,pol), plotSettings, debug)
-
+ 
         GeneralUtils.SaveWorkspace(workspace,saveNameTS, debug)
         workspace.Print()
 

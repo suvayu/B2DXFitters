@@ -168,7 +168,7 @@ class Translator:
                         md.SetDsHypoCut(Dmode, myconfigfile['AdditionalCuts'][Dmode]['DsHypo'])
 
         if myconfigfile.has_key('WeightingMassTemplates'):
-            
+            md.SetMassWeighting(False)
             if myconfigfile["WeightingMassTemplates"].has_key("Shift"):
                 shift = myconfigfile["WeightingMassTemplates"]["Shift"] 
                 for s in shift:
@@ -178,7 +178,8 @@ class Translator:
             hists = myconfigfile["WeightingMassTemplates"]
             for hist in hists:
                 if hist != "Shift":
-                    md.SetMassWeighting(True)
+                    if hist != "RatioDataMC":
+                        md.SetMassWeighting(True)
                     file2011 = ""
                     file2012 = ""
                     if myconfigfile["WeightingMassTemplates"][hist].has_key("FileLabel"):
