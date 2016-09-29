@@ -661,6 +661,12 @@ namespace GeneralUtils {
     name="canvas_"+samplemode;
     can = new TCanvas(name.Data(),name.Data());
     can->cd();
+    can->SetLeftMargin(0.15);
+    can->SetBottomMargin(0.15);
+    can->SetTopMargin(0.05);
+    can->SetRightMargin(0.05);
+
+
     frame = (RooPlot*)obs->frame();
     TString Title = ""; 
     TString varName = obs->GetName();
@@ -670,7 +676,13 @@ namespace GeneralUtils {
     frame->SetTitleFont(132);
     frame->GetXaxis()->SetLabelFont( 132 );
     frame->GetYaxis()->SetLabelFont( 132 );
-    
+    frame->GetXaxis()->SetLabelSize( 0.06 );
+    frame->GetYaxis()->SetLabelSize( 0.06 );
+    frame->GetXaxis()->SetTitleSize( 0.06 );
+    frame->GetYaxis()->SetTitleSize( 0.06 );
+    frame->GetYaxis()->SetTitleOffset( 1.10 );
+    if ( dataSet == NULL ) { frame->GetYaxis()->SetTitle(""); }
+
     TString label = CheckObservable(varName,debug);
     frame->GetXaxis()->SetTitle(label.Data());
     
@@ -687,6 +699,7 @@ namespace GeneralUtils {
     if ( plotSet->GetLogStatus() == true ) { gStyle->SetOptLogy(1); }
     if (dataSet != NULL && obs != NULL) {  dataSet->plotOn(frame, RooFit::MarkerColor(plotSet->GetColorData(0)), RooFit::Binning(bin));}
     if (pdf != NULL ) { pdf->plotOn(frame, RooFit::LineColor(plotSet->GetColorPdf(0)), RooFit::LineStyle(plotSet->GetStylePdf(0)));}
+    if ( dataSet == NULL ) { frame->GetYaxis()->SetTitle(""); frame->GetYaxis()->SetTitleColor(kWhite);}
     frame->Draw();
 
     TString dir = plotSet->GetDir(); 
@@ -2255,28 +2268,32 @@ namespace GeneralUtils {
   {
     TString label = "";
     if( check.Contains("lab0_MassFitConsD_M") == true || check.Contains("lab0_MM") == true  ||
-        (check.Contains("Bs") == true && check.Contains("Mass") == true) ) { label = "mass B_{(s)} [MeV/c^{2}]"; }
-    else if ( check.Contains("Ds_MM") == true || check.Contains("lab2_MM") == true ) { label = "mass D_{(s)} [MeV/c^{2}]";}
-    else if ( check.Contains("TAGDECISION") == true || check.Contains("DEC") == true ) 
+        (check.Contains("Bs") == true && check.Contains("Mass") == true) ||
+	check.Contains("BeautyMass") == true ) { label = "Beauty Meson invariant mass [MeV/c^{2}]"; }
+    else if ( check.Contains("Ds_MM") == true || check.Contains("lab2_MM") == true || check.Contains("CharmMass") == true ) { label = "Charm meson invariant mass [MeV/c^{2}]";}
+    else if ( check.Contains("TAGDECISION") == true || check.Contains("DEC") == true || check.Contains("TagDec") == true ) 
     { 
-      if ( check.Contains("SS_nnetKaon") == true )  { label = "tagging decision SS [1]"; }
-      else if ( check.Contains("TAGDECISION_OS") == true )  { label = "tagging decision OS [1]"; }
-      else { label = "tagging decision [1]"; }
+      if ( check.Contains("SS_nnetKaon") == true || check.Contains("TagDecSS") == true )  { label = "tagging decision SS"; }
+      else if ( check.Contains("TAGDECISION_OS") == true || check.Contains("TagDecSS") )  { label = "tagging decision OS"; }
+      else { label = "tagging decision"; }
     }
-    else if ( check.Contains("TAGOMEGA") == true || check.Contains("PROB") == true) 
+    else if ( check.Contains("TAGOMEGA") == true || check.Contains("PROB") == true || check.Contains("Mistag") == true ) 
     {
-      if ( check.Contains("SS_nnetKaon") == true )  { label = "#omega SS [1]"; }
-      else if( check.Contains("TAGOMEGA_OS") == true )  { label = "#omega OS [1]"; }
-      else { label = "#omega [1]"; }
+      if ( check.Contains("SS_nnetKaon") == true || check.Contains("MistagSS") == true )  { label = "#omega SS"; }
+      else if( check.Contains("TAGOMEGA_OS") == true || check.Contains("MistagOS") == true )  { label = "#omega OS"; }
+      else { label = "#omega"; }
     }
-    else if ( check.Contains("LifetimeFit_ctau") == true || check.Contains("TAU") == true ||  check.Contains("TRUETAU") == true ) 
+    else if ( check.Contains("BeautyTimeErr") == true ) {label = "#sigma_{t} [ps]"; }
+    else if ( check.Contains("LifetimeFit_ctau") == true || check.Contains("TAU") == true ||  
+	      check.Contains("TRUETAU") == true  || check.Contains("BeautyTime") == true ) 
     {label ="t [ps]"; }
-    else if ( check.Contains("ID") == true && check.Contains("PIDK") == false && 
+    else if ( check.Contains("BacCharge") == true || check.Contains("ID") == true && check.Contains("PIDK") == false && 
               ( check.Contains("lab1") == true || check.Contains("Bac") ==true) ) {label ="bachelor ID [1]"; }
-    else if ( check.Contains("PIDK") == true && ( check.Contains("lab1") == true || check.Contains("Bac") ==true) ) {label ="bachelor PIDK [1]"; }
-    else if ( check.Contains("_PT") == true ) {label ="log(p_{t}) [MeV/c]"; }
-    else if ( check.Contains("_P") == true && check.Contains("_PT") == false ) {label ="log(p) [MeV/c]"; }
-    else if ( check.Contains("nTracks") == true ) {label ="log(nTracks) [1]"; }
+    else if ( check.Contains("PIDK") == true && ( check.Contains("lab1") == true || check.Contains("Bac") ==true) ) {label ="bachelor log(|PIDK|)"; }
+    else if ( check.Contains("_PT") == true || check.Contains("BacPT") == true) {label ="log(p_{t}) [MeV/c]"; }
+    else if ( check.Contains("_P") == true && check.Contains("_PT") == false || check.Contains("BacP") == true) {label ="log(p) [MeV/c]"; }
+    else if ( check.Contains("nTracks") == true ) {label ="log(nTracks)"; }
+    else if ( check.Contains("BDTG") == true ) { label = "BDTG classifier"; }
     else { label = check; } 
     
     if ( debug == true) std::cout<<"[INFO] Observable label: "<<label<<std::endl;
