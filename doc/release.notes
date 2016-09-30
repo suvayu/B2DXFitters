@@ -4,6 +4,9 @@
 ! Purpose     : RooFit-based fitters for B -> D X
 !-----------------------------------------------------------------------------
 
+! 2016-09-30
+ - add scripts for analysing the propertime resolution, for DsK
+
 ! 2016-09-30 - Agnieszka Dziurda
  - update runSFit_new.py for loading MC samples 
  - on behalf of Vava: update calculateAcceptance.py for covariance matrices
