@@ -6,7 +6,8 @@
 #      python comparePDF.py                                                   #
 #                                                                             #
 #   Author: Agnieszka Dziurda                                                 #
-#   Date  : 28 / 06 / 2012                                                    #
+#           Vava Gligorov                                                     #
+#   Date  : 28 / 09 / 2016                                                    #
 #                                                                             #
 # --------------------------------------------------------------------------- #
 
@@ -212,9 +213,89 @@ def calculateAcceptance( debug,
 
     workMCDsK  = GeneralUtils.LoadWorkspace(TString(fileMCDsK), TString(workNameMCDsK),debug)
     workMCDsPi = GeneralUtils.LoadWorkspace(TString(fileMCDsPi),TString(workNameMCDsPi),debug)
-    
+
+    rfr_dsk_mc  = workMCDsK.obj("fitresult_time_signal_data_fit_binned")
+    rfr_dspi_mc = workMCDsPi.obj("fitresult_time_signal_data_fit_binned")
+ 
+    cov_dsk_mc       = rfr_dsk_mc.covarianceMatrix()
+    cov_dspi_mc      = rfr_dspi_mc.covarianceMatrix()
+    pars_fin_dsk_mc  = rfr_dsk_mc.floatParsFinal()
+    pars_fin_dspi_mc = rfr_dspi_mc.floatParsFinal()
+    # Now prepare for the ratio
+    resvect_dsk      = ROOT.TVectorT('double')(6)
+    resvect_dspi     = ROOT.TVectorT('double')(6)
+    resvect_ratio    = ROOT.TVectorT('double')(6)
+    for i in range(0,6) : 
+        resvect_dsk[i]    = pow(pars_fin_dsk_mc[i].getVal(),2)
+        resvect_dspi[i]   = pow(pars_fin_dspi_mc[i].getVal(),2)
+        resvect_ratio[i]  = pow(pars_fin_dsk_mc[i].getVal()/pars_fin_dspi_mc[i].getVal(),2)
+    cov_dsk_mc.NormByDiag(resvect_dsk)
+    cov_dspi_mc.NormByDiag(resvect_dspi)
+    ratiocov_mc   = cov_dsk_mc
+    ratiocov_mc  += cov_dspi_mc
+    ratiocov_mc.NormByDiag(resvect_ratio,"M")
+
+    print "//////////////////////////////////"
+    print "/Correlation of DsK/DsPi MC ratio/"
+    print "//////////////////////////////////"
+    print "\hline"
+    print "        & $v_{1}$ & $v_{2}$ & $v_{3}$ & $v_{4}$ & $v_{5}$ & $v_{6}$ \\\\" 
+    print "\hline"
+    for i in range(0,6) :
+        toprint = "$v_{"+str(i+1)+"}$ &"
+        for j in range(0,6) :
+            if i == j : 
+                toprint += "  1.00   "
+            else :
+                toprint += "  "+format(ratiocov_mc[i][j]/sqrt(ratiocov_mc[i][i]*ratiocov_mc[j][j]),'.2f')+"   "
+            if j < 5 :
+                toprint += "&"
+            else :
+                toprint += "\\\\"
+        print toprint
+    print "\hline"
+    print "//////////////////////////////////" 
+
     if fileData != "":
         workData = GeneralUtils.LoadWorkspace(TString(fileData),TString(workNameData),debug)
+        rfr_data = workData.obj("fitresult_signal_TimeTimeerrPdf_dataWA_binned")
+
+        pars_fit_data = rfr_data.floatParsFinal()
+        totcov_mc = rfr_data.covarianceMatrix()
+        totcov_mc_red = ROOT.TMatrixTSym('double')(6,6)
+        totcov_mc.GetSub(1,6,1,6,totcov_mc_red)
+
+        resvect_data = ROOT.TVectorT('double')(6) 
+        resvect_final = ROOT.TVectorT('double')(6)
+        for i in range(0,6) :
+            resvect_data[i] = pow(pars_fit_data[i+1].getVal(),2)
+            resvect_final[i] = resvect_data[i]*resvect_ratio[i]
+        ratiocov_mc.NormByDiag(resvect_ratio)
+        totcov_mc_red.NormByDiag(resvect_data)
+
+        totcov_mc_red += ratiocov_mc
+        totcov_mc_red.NormByDiag(resvect_final,"M") 
+    
+        print "///////////////////////////////////////////////"
+        print "/Correlation of DsPi data times DsK/DsPi ratio/"
+        print "///////////////////////////////////////////////"
+        print "\hline"
+        print "        & $v_{1}$ & $v_{2}$ & $v_{3}$ & $v_{4}$ & $v_{5}$ & $v_{6}$ \\\\" 
+        print "\hline"
+        for i in range(0,6) :
+            toprint = "$v_{"+str(i+1)+"}$ &"
+            for j in range(0,6) :
+              if i == j : 
+                  toprint += "  1.00   "
+              else :
+                  toprint += "  "+format(totcov_mc_red[i][j]/sqrt(totcov_mc_red[i][i]*totcov_mc_red[j][j]),'.2f')+"   "
+              if j < 5 :
+                  toprint += "&"
+              else :
+                  toprint += "\\\\"
+            print toprint
+        print "\hline"
+        print "///////////////////////////////////////////////"  
 
     varDsK = []
     varDsPi = [] 

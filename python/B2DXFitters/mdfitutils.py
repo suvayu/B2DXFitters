@@ -8,6 +8,41 @@ from math     import pi, log
 from  os.path import exists
 import os, sys, gc
 
+
+def getCombinedData(workspace, decay, mc, mode, sample, year, merge, debug):
+    if debug:
+        print "[INFO] getCombinedData(...)"
+        print "[INFO] workspace: %s"%(workspace.GetName())
+        print "[INFO] decay: %s, mode: %s, sample: %s, year: %s, merge %s"%(decay,mode,sample,year,str(merge))
+        if mc:
+            print "[INFO] You are combining MC data sets"
+
+    t = TString("_")
+    decayTS = TString(decay) 
+    if mc:
+        datasetTS = TString("dataSetMC_")+decayTS+t
+    else:
+        datasetTS = TString("dataSet_")+decayTS+t
+    modeTS = TString(mode)
+    sampleTS = TString(sample)
+    yearTS = TString(year)
+    if merge == "pol" or merge == "both":
+        sampleTS = TString("both")
+    if merge == "year" or merge == "both":
+        yearTS = TString("run1")
+    smyhs = GeneralUtils.GetSampleModeYearHypo(sampleTS, modeTS, yearTS, TString(""), merge, debug )
+    data = []
+    i = 0
+    for smyh in smyhs:
+        name = datasetTS +smyh
+        data.append(GeneralUtils.GetDataSet(workspace,name,debug))
+        if i != 0:
+            data[0].append(data[i])
+        i = i+1
+
+    return data[0]
+
+
 def getExpectedValue(var,par,year,dsmode,pol,myconfigfile):
     #print var, par, year, dsmode                                                                                                                                                         
     if type(myconfigfile[var][par][year.Data()][dsmode.Data()]) == float:

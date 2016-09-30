@@ -425,88 +425,89 @@ weights_DPi_2012_up.root
  "TreeName":"DecayTree"}
 ###
 
-
 #Signal Bs2DsK KstK 2011
-root://eoslhcb.cern.ch//eos/lhcb/wg/b2oc/TD_DsK_3fb/TD_DsK3fb_MC_Filtered/FINAL/
-B2DX_MC_Bs_DsK_KKpi_CPV_2011_Dn_OFFLINE_Bs_DsK_KstK.root
-B2DX_MC_Bs_DsK_KKpi_CPV_2011_Up_OFFLINE_Bs_DsK_KstK.root
+root://eoslhcb.cern.ch//eos/lhcb/wg/b2oc/TD_DsK_3fb/TD_DsK3fb_MC/FINAL_WITH_BDTG3/
+B2DX_MC_Bs_DsK_KKpi_Dn_OFFLINE_Bs_DsK_KstK.root
+B2DX_MC_Bs_DsK_KKpi_Up_OFFLINE_Bs_DsK_KstK.root
 DecayTree
 DecayTree
 ###
 
 #Signal Bs2DsK PhiPi 2011
-root://eoslhcb.cern.ch//eos/lhcb/wg/b2oc/TD_DsK_3fb/TD_DsK3fb_MC_Filtered/FINAL/
-B2DX_MC_Bs_DsK_KKpi_CPV_2011_Dn_OFFLINE_Bs_DsK_phipi.root
-B2DX_MC_Bs_DsK_KKpi_CPV_2011_Up_OFFLINE_Bs_DsK_phipi.root
+root://eoslhcb.cern.ch//eos/lhcb/wg/b2oc/TD_DsK_3fb/TD_DsK3fb_MC/FINAL_WITH_BDTG3/
+B2DX_MC_Bs_DsK_KKpi_Dn_OFFLINE_Bs_DsK_phipi.root
+B2DX_MC_Bs_DsK_KKpi_Up_OFFLINE_Bs_DsK_phipi.root
 DecayTree
 DecayTree
 ###
 
 #Signal Bs2DsK NonRes 2011
-root://eoslhcb.cern.ch//eos/lhcb/wg/b2oc/TD_DsK_3fb/TD_DsK3fb_MC_Filtered/FINAL/
-B2DX_MC_Bs_DsK_KKpi_CPV_2011_Dn_OFFLINE_Bs_DsK_nonres.root
-B2DX_MC_Bs_DsK_KKpi_CPV_2011_Up_OFFLINE_Bs_DsK_nonres.root
+root://eoslhcb.cern.ch//eos/lhcb/wg/b2oc/TD_DsK_3fb/TD_DsK3fb_MC/FINAL_WITH_BDTG3/
+B2DX_MC_Bs_DsK_KKpi_Dn_OFFLINE_Bs_DsK_nonres.root
+B2DX_MC_Bs_DsK_KKpi_Up_OFFLINE_Bs_DsK_nonres.root
 DecayTree
 DecayTree
 ###
 
 
 #Signal Bs2DsK KPiPi 2011
-root://eoslhcb.cern.ch//eos/lhcb/wg/b2oc/TD_DsK_3fb/TD_DsK3fb_MC_Filtered/FINAL/
-B2DX_MC_Bs_DsK_Kpipi_CPV_2011_Dn_OFFLINE_Bs_DsK_Kpipi.root
-B2DX_MC_Bs_DsK_Kpipi_CPV_2011_Up_OFFLINE_Bs_DsK_Kpipi.root
+root://eoslhcb.cern.ch//eos/lhcb/wg/b2oc/TD_DsK_3fb/TD_DsK3fb_MC/FINAL_WITH_BDTG3/
+B2DX_MC_Bs_DsK_Kpipi_Dn_OFFLINE_Bs_DsK_Kpipi.root
+B2DX_MC_Bs_DsK_Kpipi_Up_OFFLINE_Bs_DsK_Kpipi.root
 DecayTree
 DecayTree
 ###
 
+
 #Signal Bs2DsK PiPiPi 2011
-root://eoslhcb.cern.ch//eos/lhcb/wg/b2oc/TD_DsK_3fb/TD_DsK3fb_MC_Filtered/FINAL/
-B2DX_MC_Bs_DsK_pipipi_CPV_2011_Dn_OFFLINE_Bs_DsK_pipipi.root
-B2DX_MC_Bs_DsK_pipipi_CPV_2011_Up_OFFLINE_Bs_DsK_pipipi.root
+root://eoslhcb.cern.ch//eos/lhcb/wg/b2oc/TD_DsK_3fb/TD_DsK3fb_MC/FINAL_WITH_BDTG3/
+B2DX_MC_Bs_DsK_pipipi_Dn_OFFLINE_Bs_DsK_pipipi.root
+B2DX_MC_Bs_DsK_pipipi_Up_OFFLINE_Bs_DsK_pipipi.root
 DecayTree
 DecayTree
 ###
 
 #Signal Bs2DsK KstK 2012
-root://eoslhcb.cern.ch//eos/lhcb/wg/b2oc/TD_DsK_3fb/TD_DsK3fb_MC_Filtered/FINAL/
-B2DX_MC_Bs_DsK_KKpi_CPV_2012_Dn_OFFLINE_Bs_DsK_KstK.root
-B2DX_MC_Bs_DsK_KKpi_CPV_2012_Up_OFFLINE_Bs_DsK_KstK.root
+root://eoslhcb.cern.ch//eos/lhcb/wg/b2oc/TD_DsK_3fb/TD_DsK3fb_MC/FINAL_WITH_BDTG3/
+B2DX_MC_Bs_DsK_KKpi_Dn_OFFLINE_Bs_DsK_KstK.root
+B2DX_MC_Bs_DsK_KKpi_Up_OFFLINE_Bs_DsK_KstK.root
 DecayTree
 DecayTree
 ###
 
 #Signal Bs2DsK PhiPi 2012
-root://eoslhcb.cern.ch//eos/lhcb/wg/b2oc/TD_DsK_3fb/TD_DsK3fb_MC_Filtered/FINAL/
-B2DX_MC_Bs_DsK_KKpi_CPV_2012_Dn_OFFLINE_Bs_DsK_phipi.root
-B2DX_MC_Bs_DsK_KKpi_CPV_2012_Up_OFFLINE_Bs_DsK_phipi.root
+root://eoslhcb.cern.ch//eos/lhcb/wg/b2oc/TD_DsK_3fb/TD_DsK3fb_MC/FINAL_WITH_BDTG3/
+B2DX_MC_Bs_DsK_KKpi_Dn_OFFLINE_Bs_DsK_phipi.root
+B2DX_MC_Bs_DsK_KKpi_Up_OFFLINE_Bs_DsK_phipi.root
 DecayTree
 DecayTree
 ###
 
 #Signal Bs2DsK NonRes 2012
-root://eoslhcb.cern.ch//eos/lhcb/wg/b2oc/TD_DsK_3fb/TD_DsK3fb_MC_Filtered/FINAL/
-B2DX_MC_Bs_DsK_KKpi_CPV_2012_Dn_OFFLINE_Bs_DsK_nonres.root
-B2DX_MC_Bs_DsK_KKpi_CPV_2012_Up_OFFLINE_Bs_DsK_nonres.root
+root://eoslhcb.cern.ch//eos/lhcb/wg/b2oc/TD_DsK_3fb/TD_DsK3fb_MC/FINAL_WITH_BDTG3/
+B2DX_MC_Bs_DsK_KKpi_Dn_OFFLINE_Bs_DsK_nonres.root
+B2DX_MC_Bs_DsK_KKpi_Up_OFFLINE_Bs_DsK_nonres.root
 DecayTree
 DecayTree
 ###
 
 
 #Signal Bs2DsK KPiPi 2012
-root://eoslhcb.cern.ch//eos/lhcb/wg/b2oc/TD_DsK_3fb/TD_DsK3fb_MC_Filtered/FINAL/
-B2DX_MC_Bs_DsK_Kpipi_CPV_2012_Dn_OFFLINE_Bs_DsK_Kpipi.root
-B2DX_MC_Bs_DsK_Kpipi_CPV_2012_Up_OFFLINE_Bs_DsK_Kpipi.root
+root://eoslhcb.cern.ch//eos/lhcb/wg/b2oc/TD_DsK_3fb/TD_DsK3fb_MC/FINAL_WITH_BDTG3/
+B2DX_MC_Bs_DsK_Kpipi_Dn_OFFLINE_Bs_DsK_Kpipi.root
+B2DX_MC_Bs_DsK_Kpipi_Up_OFFLINE_Bs_DsK_Kpipi.root
 DecayTree
 DecayTree
 ###
 
 #Signal Bs2DsK PiPiPi 2012
-root://eoslhcb.cern.ch//eos/lhcb/wg/b2oc/TD_DsK_3fb/TD_DsK3fb_MC_Filtered/FINAL/
-B2DX_MC_Bs_DsK_pipipi_CPV_2012_Dn_OFFLINE_Bs_DsK_pipipi.root
-B2DX_MC_Bs_DsK_pipipi_CPV_2012_Up_OFFLINE_Bs_DsK_pipipi.root
+root://eoslhcb.cern.ch//eos/lhcb/wg/b2oc/TD_DsK_3fb/TD_DsK3fb_MC/FINAL_WITH_BDTG3/
+B2DX_MC_Bs_DsK_pipipi_Dn_OFFLINE_Bs_DsK_pipipi.root
+B2DX_MC_Bs_DsK_pipipi_Up_OFFLINE_Bs_DsK_pipipi.root
 DecayTree
 DecayTree
 ###
+
 
 
 

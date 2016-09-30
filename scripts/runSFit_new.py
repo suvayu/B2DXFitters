@@ -13,6 +13,7 @@
 #   Author: Manuel Schiller                                                   #
 #   Author: Agnieszka Dziurda                                                 #
 #   Author: Vladimir Vava Gligorov                                            #
+#   Author: Ulrich Eitschberger
 # --------------------------------------------------------------------------- #
 
 # This part is run by the shell. It does some setup which is convenient to save
@@ -261,12 +262,14 @@ def getCalibratedMistag(myconfig, ws, mdSet, mistag, par):
 #------------------------------------------------------------------------------
 def runSFit(debug, wsname,
             pereventmistag, pereventterr, 
-            toys, pathName, treeName,
+            toys, pathName, treeName, workName, 
             configName, scan, 
             binned, plotsWeights, 
-            sample, mode, year, merge, unblind  ) :
+            sample, mode, year, merge, unblind, mc) :
 
     from B2DXFitters import taggingutils, cpobservables
+    from B2DXFitters.mdfitutils import getCombinedData as getCombinedData
+
     # Get the configuration file
     myconfigfilegrabber = __import__(configName,fromlist=['getconfig']).getconfig
     myconfigfile = myconfigfilegrabber()
@@ -308,27 +311,45 @@ def runSFit(debug, wsname,
     decay = TString(myconfigfile["Decay"]) 
     hypo = ""
 
-    workspace.append(SFitUtils.ReadDataFromSWeights(TString(pathName), TString(treeName), MDSettings, 
-                                                    TString(sample), TString(mode), TString(year), TString(hypo), merge, 
-                                                    False, toys, False, False, False, debug))
-    workspaceW.append(SFitUtils.ReadDataFromSWeights(TString(pathName), TString(treeName), MDSettings, 
-                                                     TString(sample), TString(mode), TString(year), TString(hypo), merge,
-                                                     True, toys, False, False, False, debug))
-        
-    workspace[0].Print()
-    
+    #    Constant
+    #---------------------
+    zero = RooConstVar('zero', '0', 0.)
+    one = RooConstVar('one', '1', 1.)
+    minusone = RooConstVar('minusone', '-1', -1.)
+    two = RooConstVar('two', '2', 2.)
+
+    #    Workspace
+    #------------------------
+
+    if not mc:
+        workspace.append(SFitUtils.ReadDataFromSWeights(TString(pathName), TString(treeName), MDSettings, 
+                                                        TString(sample), TString(mode), TString(year), TString(hypo), merge, 
+                                                        False, toys, False, False, False, debug))
+        workspaceW.append(SFitUtils.ReadDataFromSWeights(TString(pathName), TString(treeName), MDSettings, 
+                                                         TString(sample), TString(mode), TString(year), TString(hypo), merge,
+                                                         True, toys, False, False, False, debug))
+        workspace[0].Print()
+    else:
+        workspace.append(GeneralUtils.LoadWorkspace(TString(pathName), TString(workName),debug))
+        workspaceW.append(workspace[0]) 
+
+    # Data
+    #------------------------
+
+    if not mc:
+        nameData = TString("dataSet_time")
+        data = GeneralUtils.GetDataSet(workspace[0],   nameData, debug)
+        dataWA = GeneralUtils.GetDataSet(workspaceW[0],   nameData, debug)
+    else:
+        data = getCombinedData(workspace[0], myconfigfile["Decay"], mc, mode, sample, year, merge, debug)
+        dataWA = data 
+
     #exit(0) 
     zero = RooConstVar('zero', '0', 0.)
     one = RooConstVar('one', '1', 1.)
     minusone = RooConstVar('minusone', '-1', -1.)
     two = RooConstVar('two', '2', 2.)
                      
-    # Data set
-    #-----------------------
-    nameData = TString("dataSet_time")
-    
-    data = GeneralUtils.GetDataSet(workspace[0],   nameData, debug)
-    dataWA = GeneralUtils.GetDataSet(workspaceW[0],   nameData, debug)
     nEntries = dataWA.numEntries()
     
     dataWA.Print("v")
@@ -337,6 +358,7 @@ def runSFit(debug, wsname,
     terr = obs.find(MDSettings.GetTerrVarOutName().Data())
     id = obs.find(MDSettings.GetIDVarOutName().Data())
 
+    
 
     # Get Tagger List
     numTag = MDSettings.CheckNumUsedTag()
@@ -360,7 +382,7 @@ def runSFit(debug, wsname,
     for i in range(0,numTag):
         observables.add(tag[i])
 
-    if plotsWeights:
+    if plotsWeights and not mc:
         name = TString("sfit")
         obs2 = data.get()
         weight2 = obs2.find("sWeights")
@@ -771,6 +793,11 @@ parser.add_option( '--treeName',
                    default = 'merged',
                    help = 'name of the workspace'
                    )
+parser.add_option( '--workName',
+                   dest = 'workName',
+                   default = 'workspace',
+                   help = 'name of the workspace'
+                   )
 parser.add_option( '--scan',
                    dest = 'scan',
                    default = False,
@@ -825,6 +852,12 @@ parser.add_option( '--unblind',
                    action = 'store_true',
                    help = 'unblind results'
                    )
+parser.add_option( '--MC',
+                   dest = 'mc',
+                   default = False,
+                   action = 'store_true',
+                   help = 'fit MC samples'
+                   )
 parser.add_option( '--year',
                    dest = 'year',
                    default = "run1",
@@ -868,6 +901,7 @@ if __name__ == '__main__' :
              options.toys,
              options.fileName,
              options.treeName,
+             options.workName,
              configName,
              #configNameMD,
              options.scan,
@@ -877,6 +911,7 @@ if __name__ == '__main__' :
              options.mode,
              options.year,
              options.merge,
-             options.unblind)
+             options.unblind,
+             options.mc)
     
 # -----------------------------------------------------------------------------

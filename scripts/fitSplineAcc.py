@@ -302,7 +302,7 @@ def runFitSplineAcc( debug, configName, read, fileNameIn, wsname, workName,
     spl = RooCubicSplineFun("splinePdf", "splinePdf", time, "splineBinning", tacc_list)
 
     trm_mean  = RooRealVar( 'trm_mean' , 'Gaussian resolution model mean', 0.0, 'ps' )
-    trm_scale = RooRealVar( 'trm_scale', 'Gaussian resolution model scale factor', 1.195)
+    trm_scale = RooRealVar( 'trm_scale', 'Gaussian resolution model scale factor', 1.201)
     trm = RooGaussEfficiencyModel("resmodel", "resmodel", time, spl, trm_mean, terr, trm_mean, trm_scale )
     
     #terrWork = GeneralUtils.LoadWorkspace(TString(myconfigfile["Resolution"]["templates"]["fileName"]),
