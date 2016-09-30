@@ -230,7 +230,8 @@ def runMDFitter( debug, sample, mode, sweight,
         yearTS = TString("run1") 
 
     sam = RooCategory("sample","sample")
-
+    #print yearTS
+    #exit(0) 
     sm = []
     data = []
     nEntries = []
@@ -259,6 +260,7 @@ def runMDFitter( debug, sample, mode, sweight,
                 combData.append(combDatatmp)
                 if debug:
                     print "[INFO] Appending data set: ",data[i].GetName() 
+        combData.Print("v") 
     else:
         
         combData =  GeneralUtils.GetDataSet(workData, observables, sam, datasetTS, sampleTS, modeTS, yearTS, TString(""), merge, debug )
@@ -298,7 +300,6 @@ def runMDFitter( debug, sample, mode, sweight,
 
     workInt.Print("v")
 
-    #exit(0) 
     ###------------------------------------------------------------------------------------------------------------------------------------###         
         ###-------------------------------   Create yields of backgrounds     --------------------------------------###       
     ###------------------------------------------------------------------------------------------------------------------------------------### 
@@ -447,12 +448,18 @@ def runMDFitter( debug, sample, mode, sweight,
    
     import sys
     import random
-    
+
     fitter.fit(True, RooFit.Extended(), RooFit.NumCPU(4)) #,  RooFit.Verbose(True)) #,  RooFit.ExternalConstraints(constList)) #, RooFit.InitialHesse(True))
     #fitter.setData(combData)
     result = fitter.getFitResult()
     result.Print("v")
     floatpar = result.floatParsFinal()
+    fitter.printTotalYields("*Evts")
+    
+    if plot_fitted :
+        fitter.saveModelPDF( options.wsname )
+        fitter.saveData ( options.wsname )
+        
     
     name = TString(sweightName)
     if (sweight):
@@ -471,9 +478,6 @@ def runMDFitter( debug, sample, mode, sweight,
         fitter.printYieldsInRange( '*Evts', MDSettings.GetMassBVarOutName().Data() , 5320, 5420, "SignalRegion",
                                    charmMass.GetName(), charmMass.getMin(), charmMass.getMax(),
                                    bacPIDK.GetName(), bacPIDK.getMin(), bacPIDK.getMax())
-    if plot_fitted :
-        fitter.saveModelPDF( options.wsname )
-        fitter.saveData ( options.wsname )
 
     del fitter
 

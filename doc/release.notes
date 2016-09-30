@@ -13,6 +13,9 @@
  - bug fix in MDFitterSettings
  - bug fix in MassFitUtils 
  - update config files for DsstPi
+ - update fitSplineAcc.py - the latest parameters
+ - update exptectedEvents.py - the latest parameters
+ - update MDFitter.py - additional informations from FitMeTool
 
 
 ! 2016-09-27 - Manuel Tobias Schiller

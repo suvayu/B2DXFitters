@@ -1496,8 +1496,8 @@ std::vector <Double_t> MDFitterSettings::GetLumRatio(TString check)
     {
       Double_t r2011 = _lumRatio[0][0]+_lumRatio[0][1];
       Double_t r2012 = _lumRatio[1][0]+_lumRatio[1][1];
-      Double_t r1 = r2011 / ( r2011 + r2012 );
-      Double_t r2 = r2012 / ( r2011 + r2012 ); 
+      Double_t r1 = r2012 / ( r2011 + r2012 );
+      Double_t r2 = r2011 / ( r2011 + r2012 ); 
       lumRat.push_back(r1);
       lumRat.push_back(r2);
     }

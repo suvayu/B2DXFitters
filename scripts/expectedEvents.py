@@ -167,77 +167,72 @@ def runExpectedYields(config, debug, mode ) :
     decay = TString(myconfigfile["Decay"])
 
     if modeTS == "Bd2DPi":
-        
-        number = MassFitUtils.ExpectedYield(dataTS, TString("#BdDPi BsHypo PhiPi"), TString("#BdDPi BdHypo"),
-                                            TString("#PID2m2"), TString("MyKaonEff_m2"),
-                                            TString("#PID"), TString("MyPionMisID_10"),
-                                            TString("#PID2m2"), TString("MyPionMisID_10_pKm5"),
-                                            Pcut_down, Pcut_up,
-                                            BDTG_down, BDTG_up,
-                                            Dmass_down, Dmass_up,
-                                            mVarTS, mProbVarTS,
-                                            TString("BdDPi"),TString("kkpi"))
+
+        print "Bd2DPi Mode"
+        number = MassFitUtils.ExpectedYield(dataTS, TString("#Bd2DPi BsHypo PhiPi"), TString("#Bd2DPi BsHypo PhiPi"), #TString("#Bd2DPi BdHypo"),
+                                            TString("#PID Kaon 2012"), TString("MyKaonEff_m2"),
+                                            TString("#PID Pion 2012"), TString("MyPionMisID_10"),
+                                            TString("#PID Pion 2012"), TString("MyPionMisID_10"),
+                                            MDSettings,
+                                            plotSettings,
+                                            TString("Bd2DPi, KPiPi"),TString("Bs2DsPi, PhiPi"), debug)
         #exit(0)
-        number = MassFitUtils.ExpectedYield(dataTS, TString("#BdDPi BsHypo KstK"), TString("#BdDPi BdHypo"),
-                                            TString("#PID2m2"), TString("MyKaonEff_m2"),
-                                            TString("#PID"), TString("MyPionMisID_10"),
-                                            TString("#PID2m2"), TString("MyPionMisID_10_pKm5"),
-                                            Pcut_down, Pcut_up,
-                                            BDTG_down, BDTG_up,
-                                            Dmass_down, Dmass_up,
-                                            mVarTS, mProbVarTS,
-                                            TString("BdDPi"),TString("kkpi"))
+        number = MassFitUtils.ExpectedYield(dataTS, TString("#Bd2DPi BsHypo KstK"), TString("#Bd2DPi BsHypo KstK"), #TString("#Bd2DPi BdHypo"),
+                                            TString("#PID Kaon 2012"), TString("MyKaonEff_m2"),
+                                            TString("#PID Pion 2012"), TString("MyPionMisID_10"),
+                                            TString("#PID Pion 2012"), TString("MyPionMisID_10"),
+                                            MDSettings,
+                                            plotSettings,
+                                            TString("Bd2DPi, KPiPi"),TString("Bs2DsPi, KstK"), debug)
         
-        number = MassFitUtils.ExpectedYield(dataTS, TString("#BdDPi BsHypo NonRes"), TString("#BdDPi BdHypo"),
-                                            TString("#PID"), TString("MyKaonEff_5"),
-                                            TString("#PID"), TString("MyPionMisID_10"),
-                                            TString("#PID2m2"), TString("MyPionMisID_10_pKm5"),
-                                            Pcut_down, Pcut_up,
-                                            BDTG_down, BDTG_up,
-                                            Dmass_down, Dmass_up,
-                                            mVarTS, mProbVarTS,
-                                            TString("BdDPi"),TString("kkpi"))
+        number = MassFitUtils.ExpectedYield(dataTS, TString("#Bd2DPi BsHypo NonRes"), TString("#Bd2DPi BsHypo NonRes"), #TString("#Bd2DPi BdHypo"),
+                                            TString("#PID Kaon 2012"), TString("MyKaonEff_5"),
+                                            TString("#PID Pion 2012"), TString("MyPionMisID_10"),
+                                            TString("#PID Pion 2012"), TString("MyPionMisID_10"),
+                                            MDSettings,
+                                            plotSettings,
+                                            TString("Bd2DPi, KPiPi"),TString("Bs2DsPi, NonRes"), debug)
         
-        number = MassFitUtils.ExpectedYield(dataTS, TString("#BdDPi BsHypo KPiPi"), TString("#BdDPi BdHypo"),
-                                            TString("#PID"), TString("MyKaonMisID_5"),
-                                            TString("#PID"), TString("MyPionMisID_10"),
-                                            TString("#PID"), TString("MyPionMisID_10"),
-                                            Pcut_down, Pcut_up,
-                                            BDTG_down, BDTG_up,
-                                            Dmass_down, Dmass_up,
-                                            mVarTS, mProbVarTS,
-                                            TString("BdDPi"),TString("kpipi"))
+        #number = MassFitUtils.ExpectedYield(dataTS, TString("#BdDPi BsHypo KPiPi"), TString("#BdDPi BdHypo"),
+        #                                    TString("#PID"), TString("MyKaonMisID_5"),
+        #                                    TString("#PID"), TString("MyPionMisID_10"),
+        #                                    TString("#PID"), TString("MyPionMisID_10"),
+        #                                    Pcut_down, Pcut_up,
+        #                                    BDTG_down, BDTG_up,
+         #                                   Dmass_down, Dmass_up,
+          #                                  mVarTS, mProbVarTS,
+          #                                  TString("BdDPi"),TString("kpipi"))
         
 
     elif modeTS == "Lb2LcPi":
         number = MassFitUtils.ExpectedYield(dataTS, TString("#LbLcPi PhiPi"), TString("#LbLcPi PhiPi"),
                                             TString("#PID Kaon 2012"), TString("MyKaonEff_m2"),
-                                            TString("#PID Proton 2012"), TString("MyProtonMisID_pKm5"), # _KPim2"),
-                                            TString("#PID Proton 2012"), TString("MyProtonMisID_pKm5"), #_KPi10"),
+                                            TString("#PID Proton 2012 TotLc"), TString("MyProtonMisID_pKm5"), # _KPim2"),
+                                            TString("#PID Proton 2012 TotLc"), TString("MyProtonMisID_pKm5"), #_KPi10"),
                                             MDSettings,
                                             plotSettings,
                                             TString("Lb2LcPi, pKPi"),TString("Bs2DsPi, PhiPi"), debug)
 
         number = MassFitUtils.ExpectedYield(dataTS, TString("#LbLcPi KstK"), TString("#LbLcPi KstK"),
                                             TString("#PID Kaon 2012"), TString("MyKaonEff_m2"),
-                                            TString("#PID Proton 2012"), TString("MyProtonMisID_pKm5"), #_KPi5"),
-                                            TString("#PID Proton 2012"), TString("MyProtonMisID_pKm5"), #_KPi10"),
+                                            TString("#PID Proton 2012 TotLc"), TString("MyProtonMisID_pKm5"), #_KPi5"),
+                                            TString("#PID Proton 2012 TotLc"), TString("MyProtonMisID_pKm5"), #_KPi10"),
                                             MDSettings,
                                             plotSettings,
                                             TString("LbLcPi, pKPi"),TString("Bs2DsPi, KstK"), debug)
 
         number = MassFitUtils.ExpectedYield(dataTS, TString("#LbLcPi NonRes"), TString("#LbLcPi NonRes"),
                                             TString("#PID Kaon 2012"), TString("MyKaonEff_5"),
-                                            TString("#PID Proton 2012"), TString("MyProtonMisID_pKm5"), #_KPi5"),
-                                            TString("#PID Proton 2012"), TString("MyProtonMisID_pKm5"), #_KPi10"),
+                                            TString("#PID Proton 2012 TotLc"), TString("MyProtonMisID_pKm5"), #_KPi5"),
+                                            TString("#PID Proton 2012 TotLc"), TString("MyProtonMisID_pKm5"), #_KPi10"),
                                             MDSettings,
                                             plotSettings,
                                             TString("LbLcPi, pKPi"),TString("Bs2DsPi, NonRes"), debug)
         
         number = MassFitUtils.ExpectedYield(dataTS, TString("#LbLcPi KPiPi"), TString("#LbLcPi KPiPi"),
                                             TString("#PID Kaon 2012"), TString("MyKaonMisID_5_p10"),
-                                            TString("#PID Proton 2012"), TString("MyProtonMisID_pKm5"), #_KPi10"),
-                                            TString("#PID Proton 2012"), TString("MyProtonMisID_pKm5"), #_KPi10"),
+                                            TString("#PID Proton 2012 TotLc"), TString("MyProtonMisID_pKm5"), #_KPi10"),
+                                            TString("#PID Proton 2012 TotLc"), TString("MyProtonMisID_pKm5"), #_KPi10"),
                                             MDSettings,
                                             plotSettings,
                                             TString("LbLcPi, pKPi"),TString("Bs2DsPi, KPiPi"), debug)
