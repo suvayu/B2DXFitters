@@ -28,6 +28,8 @@ parser.add_option("-n", "--nBins", dest="nBins", type="int", default=20, help="n
 parser.add_option("-d", "--desc", dest="desc", type="choice", choices=desc_list, default="ALL", help="description of data to use")
 parser.add_option("-f", "--fitModel", dest="fitModel", type="choice", choices=["gauss", "2gauss"], default="2gauss", help="how to fit the lifetime distributions")
 parser.add_option("-c", "--combVar", dest="combVar", type="choice", choices=["sigma", "weighted_sum", "eff_sigma"], default="eff_sigma", help="what variable to use for combining the results")
+parser.add_option("--centerBin", "--centreBin", dest="centerBin", action="store_true", default=False, help="whether to use the mean of the data as the bin center rather than the middle of the bin")
+
 (options, args) = parser.parse_args()
 nBins = options.nBins
 desc = options.desc
@@ -73,6 +75,10 @@ if options.tBin is not None:
 
 if options.fitModel == "gauss":
     fit_desc += "_SingleGauss"
+
+comb_desc = fit_desc + "_" + options.combVar
+if options.centerBin:
+    comb_desc += "_CenterBin"
 
 ws_dir = "Workspaces/{}".format(desc)
 fit_dir_no_bins = "FitResults/{}".format(fit_desc)

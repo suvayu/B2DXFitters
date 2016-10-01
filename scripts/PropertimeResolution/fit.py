@@ -80,7 +80,11 @@ for (bIndex, b) in enumerate(bins):
     if result:
         result.Print()
 
+    bin_mean = redData.mean(w.var("lab0_LifetimeFit_TAUERR"))
+
     with open("{}/{:03d}.txt".format(fit_dir, bIndex), "w") as output:
+        output.write(str(bin_mean) + "\n")
+        output.write(str(mean.getVal()) + " \\pm " + str(mean.getError()) + "\n")
         output.write(str(sigma.getVal()) + " \\pm " + str(sigma.getError()) + "\n")
         output.write(str(sigma2.getVal()) + " \\pm " + str(sigma2.getError()) + "\n")
         output.write(str(frac.getVal()) + " \\pm " + str(frac.getError()) + "\n")

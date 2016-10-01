@@ -5,12 +5,14 @@ def read_value_error(f):
     return tuple(map(float, f.readline().strip().split(" \\pm ")))
 
 myBins = []
+bin_means = []
 resolution = []
 for (bIndex, b) in enumerate(bins):
     if bIndex == len(myBins) - 1: continue
-    #if desc == desc_DsPi_MC and (bIndex < 5 or bIndex > 15): continue
     myBins.append(b)
     f = open("{}/{:03d}.txt".format(fit_dir, bIndex))
+    bin_means.append(float(f.readline().strip()))
+    mean = read_value_error(f)
     sigma = read_value_error(f)
     sigma2 = read_value_error(f)
     frac = read_value_error(f)
@@ -31,8 +33,16 @@ c = ROOT.TCanvas("c", "c", 800, 600)
 c.cd()
 
 graph = ROOT.RooHist(myBins[0][1] - myBins[0][0])
-for (b, v) in zip(myBins, resolution):
-    graph.addBinWithError((b[1] + b[0]) / 2., v[0], v[1], v[1], b[1] - b[0], 1., ROOT.kFALSE)
+for (b, m, v) in zip(myBins, bin_means, resolution):
+    if options.centerBin:
+        bin_mean = m
+        lower_error = bin_mean - b[0]
+        upper_error = b[1] - bin_mean
+    else:
+        bin_mean = sum(b) / 2.
+        lower_error = upper_error = b[1] - b[0]
+
+    graph.addBinWithXYError(bin_mean, v[0], lower_error, upper_error, v[1], v[1])
 
 bounds = (myBins[0][0], myBins[-1][1])
 
@@ -89,9 +99,9 @@ old.Draw("SAME")
 ROOT.gPad.Modified()
 ROOT.gPad.Update()
 
-c.SaveAs("{}/CombinationLinear_{}.pdf".format(fit_dir, options.combVar))
+c.SaveAs("{}/CombinationLinear_{}.pdf".format(fit_dir, comb_desc))
 
-with open("{}/CombinationLinear_{}.txt".format(fit_dir, options.combVar), "w") as f:
+with open("{}/CombinationLinear_{}.txt".format(fit_dir, comb_desc), "w") as f:
     f.write("Quadratic: ({:.3f} \\pm {:.3f}) \\delta_{{\\tau}}^2 + ({:.3f} \\pm {:.3f}) \\delta_{{\\tau}} + ({:.3f} \\pm {:.3f})\n".format(fitResult_quad.Value(0), fitResult_quad.Error(0), fitResult_quad.Value(1), fitResult_quad.Error(1), fitResult_quad.Value(2), fitResult_quad.Error(2)))
     f.write("Linear: ({:.3f} \\pm {:.3f}) \\delta_{{\\tau}} + ({:.3f} \\pm {:.3f})\n".format(fitResult_lin.Value(0), fitResult_lin.Error(0), fitResult_lin.Value(1), fitResult_lin.Error(1)))
     f.write("Linear (decorrelated): ({:.3f} \\pm {:.3f}) (\\delta_{{\\tau}} - 40 fs) + ({:.3f} \\pm {:.3f})\n".format(fitResult_lin_decor.Value(0), fitResult_lin_decor.Error(0), fitResult_lin_decor.Value(1), fitResult_lin_decor.Error(1)))

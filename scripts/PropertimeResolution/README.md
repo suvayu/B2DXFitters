@@ -92,6 +92,8 @@ done
 ## Directories
  * `DataPlots` Contains plots taken from the `RooDataSet`s produced with `get_data.py`.
  * `FitResults` Contains results and plots produced by `fit.py`, `plot.py`, and `combine.py`. The root and text files contain the fit results, where the contents of the text files are, in order,
+   * The per-event error bin mean from data
+   * The (shared) mean of the Gausses
    * The sigma of the first Gauss
    * The sigma of the second Gauss
    * The size of the first Gauss (the second Gauss has 1 – this number)
