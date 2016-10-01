@@ -120,6 +120,8 @@ from optparse import OptionParser
 from math     import pi, log
 from  os.path import exists
 import os, sys, gc
+from array import array
+
 
 gROOT.SetBatch()
 
@@ -490,6 +492,11 @@ def runSFit(debug, wsname,
         #                                      TString(myconfigfile["Resolution"]["templates"]["workName"]), debug)
         terrpdf = GeneralUtils.CreateHistPDF(dataWA, terr, TString(myconfigfile["Resolution"]["templates"]["templateName"]), 20, debug)
 
+    # read out if constraints for the tagging calibration parameters should be used
+    constraints_for_tagging_calib = myconfigfile["ConstrainsForTaggingCalib"]
+
+
+
     # Per-event mistag
     # ---------------------------
     
@@ -500,10 +507,19 @@ def runSFit(debug, wsname,
         dp0 = []
         p1 = []
         dp1 = []
-        avetacalib = []
+        
+        p0_mean = []
+        dp0_mean = []
+        p1_mean = []
+        dp1_mean = []
 
+        taggingMultiVarGaussSet = RooArgSet()
+
+        avetacalib = []
+        
         mistagCalibList = RooArgList()
         constList = RooArgSet()
+
 
         for i in range(0,numTag):
             observables.add(mistag[i])
@@ -517,12 +533,42 @@ def runSFit(debug, wsname,
             dp0.append(WS(ws,RooRealVar('dp0_'+str(name), 'dp0_'+str(name),  myconfigfile["TaggingCalibration"][tagList[i]]["dp0"], -1.0, 1.0)))
             p1.append(WS(ws,RooRealVar('p1_'+str(name), 'p1_'+str(name),  myconfigfile["TaggingCalibration"][tagList[i]]["p1"], 0.5, 1.5)))
             dp1.append(WS(ws,RooRealVar('dp1_'+str(name), 'dp1_'+str(name),  myconfigfile["TaggingCalibration"][tagList[i]]["dp1"], -1.0, 1.0)))
+
+            p0_mean.append(WS(ws,RooRealVar('p0_mean_'+str(name), 'p0_mean_'+str(name),  myconfigfile["TaggingCalibration"][tagList[i]]["p0"], 0., 0.5)))
+            dp0_mean.append(WS(ws,RooRealVar('dp0_mean_'+str(name), 'dp0_mean_'+str(name),  myconfigfile["TaggingCalibration"][tagList[i]]["dp0"], -1.0, 1.0)))
+            p1_mean.append(WS(ws,RooRealVar('p1_mean_'+str(name), 'p1_mean_'+str(name),  myconfigfile["TaggingCalibration"][tagList[i]]["p1"], 0.5, 1.5)))
+            dp1_mean.append(WS(ws,RooRealVar('dp1_mean_'+str(name), 'dp1_mean_'+str(name),  myconfigfile["TaggingCalibration"][tagList[i]]["dp1"], -1.0, 1.0)))
+
             avetacalib.append(WS(ws,RooRealVar('average_'+str(name), 'average_'+str(name),  myconfigfile["TaggingCalibration"][tagList[i]]["average"], 0.0, 1.0)))
             setConstantIfSoConfigured(p0[i],myconfigfile)
             setConstantIfSoConfigured(dp0[i],myconfigfile)
             setConstantIfSoConfigured(p1[i],myconfigfile)
             setConstantIfSoConfigured(dp1[i],myconfigfile)
+
+            setConstantIfSoConfigured(p0_mean[i],myconfigfile)
+            setConstantIfSoConfigured(dp0_mean[i],myconfigfile)
+            setConstantIfSoConfigured(p1_mean[i],myconfigfile)
+            setConstantIfSoConfigured(dp1_mean[i],myconfigfile)
+
             setConstantIfSoConfigured(avetacalib[i],myconfigfile)
+
+            if constraints_for_tagging_calib:
+                if not myconfigfile["TaggingCalibration"][tagList[i]].has_key("cov"):
+                    print "[ERROR] Covariance matrix of at least one tagger not set. Please check the config file."
+                    exit(0)
+
+                elem = 4*4*[0.]
+
+                for j in range(0,4):
+                    for k in range(0,4):
+                        elem[j*4+k] = myconfigfile["TaggingCalibration"][tagList[i]]["cov"][j][k]
+
+                getattr(ws,'import')(TMatrixDSym(4),'cov_matrix_'+str(name))
+
+                ws.obj('cov_matrix_'+str(name)).SetMatrixArray(array( 'd', elem))
+
+                taggingMultiVarGaussSet.add(WS(ws,RooMultiVarGaussian('tag_cons_multivg_'+str(name), 'tag_cons_multivg_'+str(name),RooArgList(p0[i],dp0[i],p1[i],dp1[i]),RooArgList(p0_mean[i],dp0_mean[i],p1_mean[i],dp1_mean[i]),ws.obj('cov_matrix_'+str(name)))))
+
 
         mistagPDFList = SFitUtils.CreateDifferentMistagTemplates(dataWA, MDSettings, 50, True, debug)
 
@@ -573,8 +619,6 @@ def runSFit(debug, wsname,
     # --------------------------------------------
 
     flag = 0
-
-
 
     otherargs = [ ]
     if pereventmistag:
@@ -706,14 +750,24 @@ def runSFit(debug, wsname,
         myfitresult.covarianceMatrix().Print()
     else :    #Don't
         if binned:
-
-            # old way
             totPDF.printComponentTree();
-            myfitresult = totPDF.fitTo(dataWA_binned, RooFit.Save(1), RooFit.Optimize(2), RooFit.Strategy(2), RooFit.Extended(False),
+            
+            if constraints_for_tagging_calib:
+                # old way
+                taggingMultiVarGaussSet.Print("v")
+                myfitresult = totPDF.fitTo(dataWA_binned, RooFit.Save(1), RooFit.Optimize(2), RooFit.Strategy(2), RooFit.Extended(False),
+                                           RooFit.ExternalConstraints(taggingMultiVarGaussSet),RooFit.SumW2Error(True), RooFit.PrintLevel(-1))
+                # new way, activate also the lower totPDF above!
+    #            myfitresult = totPDF.fitTo(dataWA_binned, RooFit.Save(1), RooFit.Optimize(2), RooFit.Strategy(2), RooFit.Extended(False),
+    #                                       RooFit.ExternalConstraints(taggingMultiVarGaussSet),RooFit.ConditionalObservables(RooArgSet(mistag[0], mistag[1])),RooFit.SumW2Error(True), RooFit.PrintLevel(-1))
+            else:
+                # old way
+                myfitresult = totPDF.fitTo(dataWA_binned, RooFit.Save(1), RooFit.Optimize(2), RooFit.Strategy(2), RooFit.Extended(False),
                                        RooFit.SumW2Error(True), RooFit.PrintLevel(-1))
-            # new way, activate also the lower totPDF above!
-#            myfitresult = totPDF.fitTo(dataWA_binned, RooFit.Save(1), RooFit.Optimize(2), RooFit.Strategy(2), RooFit.Extended(False),
-#                                       RooFit.ConditionalObservables(RooArgSet(mistag[0], mistag[1])),RooFit.SumW2Error(True), RooFit.PrintLevel(-1))
+                # new way, activate also the lower totPDF above!
+    #            myfitresult = totPDF.fitTo(dataWA_binned, RooFit.Save(1), RooFit.Optimize(2), RooFit.Strategy(2), RooFit.Extended(False),
+    #                                       RooFit.ConditionalObservables(RooArgSet(mistag[0], mistag[1])),RooFit.SumW2Error(True), RooFit.PrintLevel(-1))
+
 
         else:
             myfitresult = totPDF.fitTo(dataWA, RooFit.Save(1), RooFit.Optimize(2), RooFit.Strategy(2), RooFit.Extended(False),

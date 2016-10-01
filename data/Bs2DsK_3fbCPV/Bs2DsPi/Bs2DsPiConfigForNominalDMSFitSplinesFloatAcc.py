@@ -17,20 +17,47 @@ def getconfig() :
     configdict["CPlimit"]       = {"upper":4.0, "lower":-4.0} 
 
     configdict["TaggingCalibration"] = {}
+
+    configdict["ConstrainsForTaggingCalib"] = True
+
     # Tagging Parameter for Nominal Resolution
     configdict["TaggingCalibration"]["SS"] = {"p0": 0.44119, "dp0": 0.0, "p1": 1.0868, "dp1": 0.0,
-                                              "average": 0.43744, "tagEff":0.63926, "aTagEff":0.0, "use":True, }
+                                              "cov": [ [2.903e-05, 0.0, 0.0001613, 0.0],
+                                                       [0.0, 1.0, 0.0, 0.0],
+                                                       [0.0001613, 0.0, 0.006101, 0.0],
+                                                       [0.0, 0.0, 0.0, 1.0]],
+                                              "average": 0.43744, "tagEff":0.63926, "aTagEff":0.0, "use":True}
     configdict["TaggingCalibration"]["OS"] = {"p0": 0.37718, "dp0": 0.0, "p1": 1.1244, "dp1": 0.0,
+                                              "cov": [ [5.212e-05, 0.0, 0.0002286, 0.0],
+                                                       [0.0, 1.0, 0.0, 0.0],
+                                                       [0.0002286, 0.0, 0.006685, 0.0],
+                                                       [0.0, 0.0, 0.0, 1.0]],
                                               "average": 0.369798, "tagEff":0.37151, "aTagEff":0.0, "use":True}
     # Tagging Parameter for Single Gaussian Resolution
 #    configdict["TaggingCalibration"]["SS"] = {"p0": 0.43703, "dp0": 0.0, "p1": 1.1314, "dp1": 0.0,
-#                                              "average": 0.43744, "tagEff":0.63925, "aTagEff":0.0, "use":True, }
+#                                              "cov": [ [3.217e-05, 0.0, 0.0001613, 0.0],
+#                                                       [0.0, 1.0, 0.0, 0.0],
+#                                                       [0.0001613, 0.0, 0.006253, 0.0],
+#                                                       [0.0, 0.0, 0.0, 1.0]],
+#                                              "average": 0.43744, "tagEff":0.63925, "aTagEff":0.0, "use":True}
 #    configdict["TaggingCalibration"]["OS"] = {"p0": 0.36820, "dp0": 0.0, "p1": 1.1993, "dp1": 0.0,
+#                                              "cov": [ [5.878e-05, 0.0, 0.0002331, 0.0],
+#                                                       [0.0, 1.0, 0.0, 0.0],
+#                                                       [0.0002331, 0.0, 0.0074, 0.0],
+#                                                       [0.0, 0.0, 0.0, 1.0]],
 #                                              "average": 0.369798, "tagEff":0.37151, "aTagEff":0.0, "use":True}
     # Tagging Parameter for the second approach to check systematics
 #    configdict["TaggingCalibration"]["SS"] = {"p0": 0.44907, "dp0": 0.0, "p1": 0.95005, "dp1": 0.0,
-#                                              "average": 0.43744, "tagEff":0.63926, "aTagEff":0.0, "use":True, }
+#                                              "cov": [ [2.263e-05, 0.0, 0.0001461, 0.0],
+#                                                       [0.0, 1.0, 0.0, 0.0],
+#                                                       [0.0001461, 0.0, 0.005204, 0.0],
+#                                                       [0.0, 0.0, 0.0, 1.0]],
+#                                              "average": 0.43744, "tagEff":0.63926, "aTagEff":0.0, "use":True}
 #    configdict["TaggingCalibration"]["OS"] = {"p0": 0.39432, "dp0": 0.0, "p1": 0.97298, "dp1": 0.0,
+#                                              "cov": [ [4.122e-05, 0.0, 0.0002132, 0.0],
+#                                                       [0.0, 1.0, 0.0, 0.0],
+#                                                       [0.0002132, 0.0, 0.005549, 0.0],
+#                                                       [0.0, 0.0, 0.0, 1.0]],
 #                                              "average": 0.369798, "tagEff":0.37151, "aTagEff":0.0, "use":True}
 
     configdict["Acceptance"] = { "knots": [0.50, 1.0,  1.5, 2.0, 3.0, 12.0],
@@ -44,17 +71,6 @@ def getconfig() :
                                                 "workName":"workspace",
                                                 "templateName":"TimeErrorPdf_Bs2DsPi"} }
 
-    #configdict["constr_p0_B"] = [0.365517, 0.424801, 0.338781]
-    #configdict["constr_p1_B"] = [0.950216, 1.004340, 0.971845]
-    #configdict["constr_av_B"] = [0.371147, 0.414892, 0.338493]
-
-    #configdict["constr_p0_Bbar"] = [0.376730, 0.404896, 0.338363]
-    #configdict["constr_p1_Bbar"] = [1.048155, 0.995879, 1.027861]
-    #configdict["constr_av_Bbar"] = [0.371147, 0.414892, 0.338493]
-
-    #configdict["MistagFile"]     = "../data/workspace/MDFitter/template_Data_Mistag_BsDsPi.root"
-    #configdict["MistagWork"]     = "workspace"
-    #configdict["MistagTempName"] = ["sigMistagPdf_1", "sigMistagPdf_2", "sigMistagPdf_3"]
 
 
     configdict["constParams"] = []
@@ -72,35 +88,26 @@ def getconfig() :
     configdict["constParams"].append('aTagEff_OS')
     configdict["constParams"].append('aTagEff_SS')
     configdict["constParams"].append('aTagEff_Both')
-    configdict["constParams"].append('p0_OS')
-    configdict["constParams"].append('p0_SS')
-    configdict["constParams"].append('p1_OS')
-    configdict["constParams"].append('p1_SS')
+#    configdict["constParams"].append('p0_OS')
+#    configdict["constParams"].append('p0_SS')
+#    configdict["constParams"].append('p1_OS')
+#    configdict["constParams"].append('p1_SS')
     configdict["constParams"].append('dp0_OS')
     configdict["constParams"].append('dp0_SS')
     configdict["constParams"].append('dp1_OS')
     configdict["constParams"].append('dp1_SS')
+    configdict["constParams"].append('p0_mean_OS')
+    configdict["constParams"].append('p0_mean_SS')
+    configdict["constParams"].append('p1_mean_OS')
+    configdict["constParams"].append('p1_mean_SS')
+    configdict["constParams"].append('dp0_mean_OS')
+    configdict["constParams"].append('dp0_mean_SS')
+    configdict["constParams"].append('dp1_mean_OS')
+    configdict["constParams"].append('dp1_mean_SS')
     configdict["constParams"].append('average_OS')
     configdict["constParams"].append('average_SS')
 
-#    configdict["constParams"].append('p0_B_OS')
-#    configdict["constParams"].append('p1_B_OS')
-#    configdict["constParams"].append('average_B_OS')
-#    configdict["constParams"].append('p0_B_SS')
-#    configdict["constParams"].append('p1_B_SS')
-#    configdict["constParams"].append('average_B_SS')
-#    configdict["constParams"].append('p0_B_Both')
-#    configdict["constParams"].append('p1_B_Both')
-#    configdict["constParams"].append('average_B_Both')
-#    configdict["constParams"].append('p0_Bbar_OS')
-#    configdict["constParams"].append('p1_Bbar_OS')
-#    configdict["constParams"].append('average_Bbar_OS')
-#    configdict["constParams"].append('p0_Bbar_SS')
-#    configdict["constParams"].append('p1_Bbar_SS')
-#    configdict["constParams"].append('average_Bbar_SS')
-#    configdict["constParams"].append('p0_Bbar_Both')
-#    configdict["constParams"].append('p1_Bbar_Both')
-#    configdict["constParams"].append('average_Bbar_Both')
+
 
 
     #configdict["constParams"].append('DeltaMs')
