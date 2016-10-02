@@ -6,8 +6,8 @@ def getconfig() :
     from math import pi
 
     # PHYSICAL PARAMETERS
-    configdict["Gammas"]        =  0.6643   # in ps^{-1}
-    configdict["DeltaGammas"]   =  -0.083
+    configdict["Gammas"]        =  0.661376   # in ps^{-1}
+    configdict["DeltaGammas"]   =  -0.10970
     configdict["DeltaMs"]       = 17.757   # in ps^{-1}
     configdict["TagEffSig"]     = 0.403
     configdict["TagOmegaSig"]   = 0.391
