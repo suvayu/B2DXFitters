@@ -14,11 +14,28 @@ def getconfig() :
     configdict["ModLf"]         = 0.372
     configdict["CPlimit"]       = {"upper":4.0, "lower":-4.0}
 
-    configdict["TaggingCalibration"] = {}
+    configdict["Resolution"] = { "scaleFactor":{"p0":0.010262, "p1":1.280, "p2":0.0},
+                                 "meanBias":0.0,
+                                 "shape": { "sigma1":2.14946e-02, "sigma2":3.67643e-02, "sigma3":6.32869e-02,
+                                            "frac1":3.72147e-01, "frac2":5.65150e-01},
+                                 "templates": { "fileName":"../data/workspace/MDFitter/template_Data_Terr_Bs2DsPi_BDTGA.root",
+                                                "workName":"workspace",
+                                                "templateName":"TimeErrorPdf_Bs2DsK"} }
+    
+    configdict["ConstrainsForTaggingCalib"] = True
     configdict["TaggingCalibration"]["SS"] = {"p0": 0.44119, "dp0": 0.0, "p1": 1.0868, "dp1": 0.0,
-                                              "average": 0.43744, "tagEff":0.63926, "aTagEff":0.0, "use":True, }
+                                              "cov": [ [2.903e-05, 0.0, 0.0001613, 0.0],
+                                                       [0.0, 1.0, 0.0, 0.0],
+                                                       [0.0001613, 0.0, 0.006101, 0.0],
+                                                       [0.0, 0.0, 0.0, 1.0]],
+                                              "average": 0.43744, "tagEff":0.63926, "aTagEff":0.0, "use":True}
     configdict["TaggingCalibration"]["OS"] = {"p0": 0.37718, "dp0": 0.0, "p1": 1.1244, "dp1": 0.0,
+                                              "cov": [ [5.212e-05, 0.0, 0.0002286, 0.0],
+                                                       [0.0, 1.0, 0.0, 0.0],
+                                                       [0.0002286, 0.0, 0.006685, 0.0],
+                                                       [0.0, 0.0, 0.0, 1.0]],
                                               "average": 0.369798, "tagEff":0.37151, "aTagEff":0.0, "use":True}
+
     # Tagging for Single Gaussian
     #configdict["TaggingCalibration"]["SS"] = {"p0": 0.43703, "dp0": 0.0, "p1": 1.1314, "dp1": 0.0,
     #                                          "average": 0.43744, "tagEff":0.63925, "aTagEff":0.0, "use":True, }
@@ -32,14 +49,6 @@ def getconfig() :
     
     configdict["Acceptance"] = { "knots": [0.50, 1.0,  1.5, 2.0, 3.0, 12.0],
                                  "values": [0.390584697499, 0.607485250832, 0.835861005948, 1.05312639959, 1.16345973924, 1.26970499451] }
-
-    configdict["Resolution"] = { "scaleFactor":{"p0":0.010262, "p1":1.280, "p2":0.0},
-                                 "meanBias":0.0,
-                                 "shape": { "sigma1":2.14946e-02, "sigma2":3.67643e-02, "sigma3":6.32869e-02,
-                                            "frac1":3.72147e-01, "frac2":5.65150e-01},
-                                 "templates": { "fileName":"../data/workspace/MDFitter/template_Data_Terr_Bs2DsPi_BDTGA.root",
-                                                "workName":"workspace",
-                                                "templateName":"TimeErrorPdf_Bs2DsK"} }
 
 
     configdict["constParams"] = []
@@ -65,14 +74,22 @@ def getconfig() :
     configdict["constParams"].append('aTagEff_OS')
     configdict["constParams"].append('aTagEff_SS')
     configdict["constParams"].append('aTagEff_Both')
-    configdict["constParams"].append('p0_OS')
-    configdict["constParams"].append('p0_SS')
-    configdict["constParams"].append('p1_OS')
-    configdict["constParams"].append('p1_SS')
+    #configdict["constParams"].append('p0_OS')
+    #configdict["constParams"].append('p0_SS')
+    #configdict["constParams"].append('p1_OS')
+    #configdict["constParams"].append('p1_SS')
     configdict["constParams"].append('dp0_OS')
     configdict["constParams"].append('dp0_SS')
     configdict["constParams"].append('dp1_OS')
     configdict["constParams"].append('dp1_SS')
+    configdict["constParams"].append('p0_mean_OS')
+    configdict["constParams"].append('p0_mean_SS')
+    configdict["constParams"].append('p1_mean_OS')
+    configdict["constParams"].append('p1_mean_SS')
+    configdict["constParams"].append('dp0_mean_OS')
+    configdict["constParams"].append('dp0_mean_SS')
+    configdict["constParams"].append('dp1_mean_OS')
+    configdict["constParams"].append('dp1_mean_SS')
     configdict["constParams"].append('average_OS')
     configdict["constParams"].append('average_SS')
 

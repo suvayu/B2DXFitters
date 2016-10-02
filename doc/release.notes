@@ -4,6 +4,10 @@
 ! Purpose     : RooFit-based fitters for B -> D X
 !-----------------------------------------------------------------------------
 
+! 2016-10-02 - Agnieszka Dziurda
+ - update sFit code for unbinned fit
+ - update config files for DsK 
+
 ! 2016-10-01 - Ulrich Eitschberger
  - update sFit code for contraints 
  - update config files for fitting MC 

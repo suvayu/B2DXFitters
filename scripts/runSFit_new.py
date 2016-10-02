@@ -432,6 +432,7 @@ def runSFit(debug, wsname,
     for i in range(0,numKnots):
         tacc_var.append(RooRealVar("var"+str(i+1), "var"+str(i+1), myconfigfile["Acceptance"]["values"][i], 0.0, 10.0))
         print "[INFO]  ",tacc_var[i].GetName()
+        setConstantIfSoConfigured(tacc_var[i],myconfigfile)
         tacc_list.add(tacc_var[i])
     tacc_var.append(RooRealVar("var"+str(numKnots+1), "var"+str(numKnots+1), 1.0))
     len = tacc_var.__len__()
@@ -545,6 +546,7 @@ def runSFit(debug, wsname,
             setConstantIfSoConfigured(avetacalib[i],myconfigfile)
 
             if constraints_for_tagging_calib:
+                print "[INFO] Tagging parameters are constrained in the fit"
                 if not myconfigfile["TaggingCalibration"][tagList[i]].has_key("cov"):
                     print "[ERROR] Covariance matrix of at least one tagger not set. Please check the config file."
                     exit(0)
@@ -559,7 +561,10 @@ def runSFit(debug, wsname,
 
                 ws.obj('cov_matrix_'+str(name)).SetMatrixArray(array( 'd', elem))
 
-                taggingMultiVarGaussSet.add(WS(ws,RooMultiVarGaussian('tag_cons_multivg_'+str(name), 'tag_cons_multivg_'+str(name),RooArgList(p0[i],dp0[i],p1[i],dp1[i]),RooArgList(p0_mean[i],dp0_mean[i],p1_mean[i],dp1_mean[i]),ws.obj('cov_matrix_'+str(name)))))
+                taggingMultiVarGaussSet.add(WS(ws,RooMultiVarGaussian('tag_cons_multivg_'+str(name), 
+                                                                      'tag_cons_multivg_'+str(name),
+                                                                      RooArgList(p0[i],dp0[i],p1[i],dp1[i]),RooArgList(p0_mean[i],dp0_mean[i],p1_mean[i],dp1_mean[i]),
+                                                                      ws.obj('cov_matrix_'+str(name)))))
 
 
         mistagPDFList = SFitUtils.CreateDifferentMistagTemplates(dataWA, MDSettings, 50, True, debug)
@@ -762,9 +767,14 @@ def runSFit(debug, wsname,
 
 
         else:
-            myfitresult = totPDF.fitTo(dataWA, RooFit.Save(1), RooFit.Optimize(2), RooFit.Strategy(2), RooFit.Extended(False),
-                                       RooFit.SumW2Error(True), RooFit.PrintLevel(-1))            
-        
+            if not constraints_for_tagging_calib:
+                myfitresult = totPDF.fitTo(dataWA, RooFit.Save(1), RooFit.Optimize(2), RooFit.Strategy(2), RooFit.Extended(False),
+                                           RooFit.SumW2Error(True), RooFit.PrintLevel(-1))            
+            else:
+                taggingMultiVarGaussSet.Print("v")
+                myfitresult = totPDF.fitTo(dataWA, RooFit.Save(1), RooFit.Optimize(2), RooFit.Strategy(2), RooFit.Extended(False),
+                                           RooFit.ExternalConstraints(taggingMultiVarGaussSet),RooFit.SumW2Error(True), RooFit.PrintLevel(-1))
+
         print '[INFO Result] Matrix quality is',myfitresult.covQual()
         par = myfitresult.floatParsFinal() 
         const = myfitresult.constPars() 
