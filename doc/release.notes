@@ -4,7 +4,11 @@
 ! Purpose     : RooFit-based fitters for B -> D X
 !-----------------------------------------------------------------------------
 
-! 2016-09-30
+! 2016-10-01 - Ulrich Eitschberger
+ - update sFit code for contraints 
+ - update config files for fitting MC 
+
+! 2016-09-30 - Lennaert Bel 
  - add scripts for analysing the propertime resolution, for DsK
 
 ! 2016-09-30 - Agnieszka Dziurda
