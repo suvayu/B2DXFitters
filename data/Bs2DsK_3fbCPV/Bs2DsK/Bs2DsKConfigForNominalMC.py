@@ -79,7 +79,12 @@ def getconfig() :
     configdict["constParams"].append('dp1_mean_SS')
     configdict["constParams"].append('average_OS')
     configdict["constParams"].append('average_SS')
-
+    configdict["constParams"].append('var1')
+    configdict["constParams"].append('var2')
+    configdict["constParams"].append('var3')
+    configdict["constParams"].append('var4')
+    configdict["constParams"].append('var5')
+    configdict["constParams"].append('var6')
 
 
 
