@@ -1,8 +1,8 @@
 def getconfig() :
 
-    from Bs2DsPiConfigForNominalMassFit import getconfig as getconfig_nominal
+    from Bs2DsKConfigForNominalMassFit import getconfig as getconfig_nominal
     configdict = getconfig_nominal()
-
+    
     from math import pi
 
     # PHYSICAL PARAMETERS
@@ -20,7 +20,7 @@ def getconfig() :
 
     configdict["ConstrainsForTaggingCalib"] = True
 
-    # Nominal MC Resolution and corresponding tagging parameters (Dspi)
+    # Nominal MC Resolution and corresponding tagging parameters (DsK)
     configdict["Resolution"] = { "scaleFactor":{"p0":0.0, "p1":1.201, "p2":0.0},
                                  "meanBias":0.0,
                                  "shape": { "sigma1":2.14946e-02, "sigma2":3.67643e-02, "sigma3":6.32869e-02,
@@ -28,13 +28,13 @@ def getconfig() :
                                  "templates": { "fileName":"../data/workspace/MDFitter/template_Data_Terr_Bs2DsPi_BDTGA.root",
                                                 "workName":"workspace",
                                                 "templateName":"TimeErrorPdf_Bs2DsPi"} }
-    configdict["TaggingCalibration"]["SS"] = {"p0": 0.4267, "dp0": 0.0, "p1": 1.186, "dp1": 0.0,
+    configdict["TaggingCalibration"]["SS"] = {"p0": 0.4276, "dp0": 0.0, "p1": 1.184, "dp1": 0.0,
                                               "cov": [ [1.0, 0.0, 0.0, 0.0],
                                                        [0.0, 1.0, 0.0, 0.0],
                                                        [0.0, 0.0, 1.0, 0.0],
                                                        [0.0, 0.0, 0.0, 1.0]],
-                                              "average": 0.4314, "tagEff":0.63926, "aTagEff":0.0, "use":True}
-    configdict["TaggingCalibration"]["OS"] = {"p0": 0.3607, "dp0": 0.0, "p1": 0.936, "dp1": 0.0,
+                                              "average": 0.4311, "tagEff":0.63926, "aTagEff":0.0, "use":True}
+    configdict["TaggingCalibration"]["OS"] = {"p0": 0.3604, "dp0": 0.0, "p1": 0.914, "dp1": 0.0,
                                               "cov": [ [1.0, 0.0, 0.0, 0.0],
                                                        [0.0, 1.0, 0.0, 0.0],
                                                        [0.0, 0.0, 1.0, 0.0],
