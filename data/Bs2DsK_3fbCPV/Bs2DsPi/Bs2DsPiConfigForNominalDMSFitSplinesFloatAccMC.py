@@ -43,7 +43,7 @@ def getconfig() :
 
 
     configdict["Acceptance"] = { "knots": [0.50, 1.0,  1.5, 2.0, 3.0, 12.0],
-                                 "values": [3.774e-01,5.793e-01,7.752e-01,1.0043e+00,1.0937e+00,1.1872e+00] }
+                                 "values": [4.2879e-01,6.2430e-01,8.2689e-01,9.7579e-01,1.0634e+00,1.1268e+00] }
 
 
     configdict["constParams"] = []
