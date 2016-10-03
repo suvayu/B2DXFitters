@@ -344,6 +344,7 @@ def runSFit(debug, wsname,
         dataWA = GeneralUtils.GetDataSet(workspaceW[0],   nameData, debug)
     else:
         data = getCombinedData(workspace[0], myconfigfile["Decay"], mc, mode, sample, year, merge, debug)
+        data.SetName("dataSet_time")
         dataWA = data 
 
     #exit(0) 
