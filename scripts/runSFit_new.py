@@ -735,21 +735,31 @@ def runSFit(debug, wsname,
         observables.Print("v")
         dataWA_binned = RooDataHist("dataWA_binned","dataWA_binned",observables,dataWA)
         dataWA_binned.Print("v")
+        totPDF.printComponentTree();
 
-    if toys or unblind: #Unblind yourself 
+    if toys or unblind: #Unblind yourself
         if binned:
-            myfitresult = totPDF.fitTo(dataWA_binned, RooFit.Save(1), RooFit.Optimize(2), RooFit.Strategy(2),
-                                       RooFit.Verbose(True), RooFit.SumW2Error(True), RooFit.Extended(False)) #,  RooFit.ExternalConstraints(constList))
+            if constraints_for_tagging_calib:
+                taggingMultiVarGaussSet.Print("v")
+                myfitresult = totPDF.fitTo(dataWA_binned, RooFit.Save(1), RooFit.Optimize(2), RooFit.Strategy(2), RooFit.Extended(False),
+                                           RooFit.ExternalConstraints(taggingMultiVarGaussSet),RooFit.SumW2Error(True))
+            else:
+                myfitresult = totPDF.fitTo(dataWA_binned, RooFit.Save(1), RooFit.Optimize(2), RooFit.Strategy(2), RooFit.Extended(False),
+                                       RooFit.SumW2Error(True), PrintLevel(-1))
+
         else:
-            myfitresult = totPDF.fitTo(dataWA, RooFit.Save(1), RooFit.Optimize(2), RooFit.Strategy(2),
-                                       RooFit.Verbose(True), RooFit.SumW2Error(True), RooFit.Extended(False))
+            if not constraints_for_tagging_calib:
+                myfitresult = totPDF.fitTo(dataWA, RooFit.Save(1), RooFit.Optimize(2), RooFit.Strategy(2), RooFit.Extended(False),
+                                           RooFit.SumW2Error(True))
+            else:
+                taggingMultiVarGaussSet.Print("v")
+                myfitresult = totPDF.fitTo(dataWA, RooFit.Save(1), RooFit.Optimize(2), RooFit.Strategy(2), RooFit.Extended(False),
+                                           RooFit.ExternalConstraints(taggingMultiVarGaussSet),RooFit.SumW2Error(True))
         myfitresult.Print("v")
         myfitresult.correlationMatrix().Print()
         myfitresult.covarianceMatrix().Print()
     else :    #Don't
         if binned:
-            totPDF.printComponentTree();
-            
             if constraints_for_tagging_calib:
                 # old way
                 taggingMultiVarGaussSet.Print("v")
