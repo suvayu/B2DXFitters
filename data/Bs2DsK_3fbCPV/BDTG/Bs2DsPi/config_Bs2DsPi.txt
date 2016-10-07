@@ -7,9 +7,9 @@ DecayTree
 ###
 
 #Bs2DsPi KKPi 2011
-/net/storage03/data/users/eitsch/Tuple/BDT_CorrConsts_Dspi/
-20112012_Up_AddedObservables_Doubles_Bs_BdtPrecuts_mod2nonzero.root
-20112012_Dw_AddedObservables_Doubles_Bs_BdtPrecuts_mod2nonzero.root
+/fhgfs/users/eitsch/storage/Tuple/BDT_CorrConsts_Dspi/
+20112012_Up_AddedObservables_Doubles_Bs_BdtPrecuts_mod2nonzero__BDTG2016_MySplit_BDTG.root
+20112012_Dw_AddedObservables_Doubles_Bs_BdtPrecuts_mod2nonzero__BDTG2016_MySplit_BDTG.root
 DecayTree
 DecayTree
 ###

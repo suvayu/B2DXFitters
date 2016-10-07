@@ -745,7 +745,7 @@ def runSFit(debug, wsname,
                                            RooFit.ExternalConstraints(taggingMultiVarGaussSet),RooFit.SumW2Error(True))
             else:
                 myfitresult = totPDF.fitTo(dataWA_binned, RooFit.Save(1), RooFit.Optimize(2), RooFit.Strategy(2), RooFit.Extended(False),
-                                       RooFit.SumW2Error(True), PrintLevel(-1))
+                                       RooFit.SumW2Error(True))
 
         else:
             if not constraints_for_tagging_calib:

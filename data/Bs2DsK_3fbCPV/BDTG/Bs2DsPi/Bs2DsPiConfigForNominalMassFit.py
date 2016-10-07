@@ -22,10 +22,10 @@ def getconfig() :
 
     # basic variables                                                                                        
     configdict["BasicVariables"] = {}
-#    configdict["BasicVariables"]["BeautyMass"]    = { "Range" : [5300,    5800    ], "InputName" : "lab0_MassFitConsD_M"}
-    configdict["BasicVariables"]["BeautyMass"]    = { "Range" : [5310,    5430    ], "InputName" : "lab0_MassFitConsD_M"}
+    configdict["BasicVariables"]["BeautyMass"]    = { "Range" : [5300,    5800    ], "InputName" : "lab0_MassFitConsD_M"}
+#    configdict["BasicVariables"]["BeautyMass"]    = { "Range" : [5310,    5430    ], "InputName" : "lab0_MassFitConsD_M"}
     configdict["BasicVariables"]["CharmMass"]     = { "Range" : [1930,    2015    ], "InputName" : "lab2_MM"}
-    configdict["BasicVariables"]["BeautyTime"]    = { "Range" : [0.0,     15.0    ], "InputName" : "lab0_LifetimeFit_ctau"}
+    configdict["BasicVariables"]["BeautyTime"]    = { "Range" : [-1000.0,     1000.0    ], "InputName" : "lab0_LifetimeFit_ctau"}
     #configdict["BasicVariables"]["BacP"]          = { "Range" : [3000.0,  650000.0], "InputName" : "lab1_P"}
     #configdict["BasicVariables"]["BacPT"]         = { "Range" : [400.0,   45000.0 ], "InputName" : "lab1_PT"}
 #    configdict["BasicVariables"]["BacPIDK"]       = { "Range" : [-7.0,     5.0   ], "InputName" : "lab1_PIDK"}
@@ -84,6 +84,7 @@ def getconfig() :
     configdict["AdditionalVariables"]["lab2_RFD_Log"]                        =  { "Range" : [ -3.0, 20,0 ], "InputName" : "lab2_RFD_Log"}
     configdict["AdditionalVariables"]["lab345_MIN_PT_Log"]                   =  { "Range" : [ -3.0, 14000,0 ], "InputName" : "lab345_MIN_PT_Log"}
     configdict["AdditionalVariables"]["lab345_MIN_MINIPCHI2_Log"]            =  { "Range" : [ -3.0, 28000,0 ], "InputName" : "lab345_MIN_MINIPCHI2_Log"}
+    configdict["AdditionalVariables"]["NewBDTG_classifier"]                  =  { "Range" : [ -3.0, 28000,0 ], "InputName" : "NewBDTG_classifier"}
 
 
     #configdict["AdditionalVariables"]["tagOmegaSSKaon"]      =  { "Range" : [ -3.0, 1,0 ], "InputName" : "lab0_SS_Kaon_PROB"}
@@ -130,12 +131,12 @@ def getconfig() :
     # Bs signal shapes                                                                                                                                   
     configdict["BsSignalShape"] = {}
     configdict["BsSignalShape"]["type"]    = "DoubleCrystalBall"
-#    configdict["BsSignalShape"]["mean"]    = {"Run1": {"All":5.3656e+03}, "Fixed":False}
-#    configdict["BsSignalShape"]["sigma1"]  = {"2011": {"KKPi":1.2859e+01},  "Fixed":False}
-#    configdict["BsSignalShape"]["sigma2"]  = {"2011": {"KKPi":1.9039e+01},  "Fixed":False}
-    configdict["BsSignalShape"]["mean"]    = {"Run1": {"All":5.3657e+03}, "Fixed":True}
-    configdict["BsSignalShape"]["sigma1"]  = {"2011": {"KKPi":1.9404e+01},  "Fixed":True}
-    configdict["BsSignalShape"]["sigma2"]  = {"2011": {"KKPi":1.3594e+01},  "Fixed":True}
+    configdict["BsSignalShape"]["mean"]    = {"Run1": {"All":5.3656e+03}, "Fixed":False}
+    configdict["BsSignalShape"]["sigma1"]  = {"2011": {"KKPi":1.2859e+01},  "Fixed":False}
+    configdict["BsSignalShape"]["sigma2"]  = {"2011": {"KKPi":1.9039e+01},  "Fixed":False}
+#    configdict["BsSignalShape"]["mean"]    = {"Run1": {"All":5.3657e+03}, "Fixed":True}
+#    configdict["BsSignalShape"]["sigma1"]  = {"2011": {"KKPi":1.9404e+01},  "Fixed":True}
+#    configdict["BsSignalShape"]["sigma2"]  = {"2011": {"KKPi":1.3594e+01},  "Fixed":True}
     configdict["BsSignalShape"]["alpha1"]  = {"2011": {"KKPi":-2.0856e+00}, "Fixed":True}
     configdict["BsSignalShape"]["alpha2"]  = {"2011": {"KKPi":1.8947e+00},  "Fixed":True}
     configdict["BsSignalShape"]["n1"]      = {"2011": {"KKPi":5.2735e+00},  "Fixed":True}
@@ -160,10 +161,10 @@ def getconfig() :
     configdict["BsCombinatorialShape"] = {}
     configdict["BsCombinatorialShape"]["type"] = "DoubleExponential"
     configdict["BsCombinatorialShape"]["cB2"]        = {"2011": {"KKPi":0.0},  "Fixed":True }
-#    configdict["BsCombinatorialShape"]["cB1"]        = {"2011": {"KKPi":-6.4826e-03}, "Fixed": False}
-#    configdict["BsCombinatorialShape"]["frac"]  = {"2011": {"KKPi":2.7086e-01}, "Fixed":False}
-    configdict["BsCombinatorialShape"]["cB1"]        = {"2011": {"KKPi":-6.2744e-03}, "Fixed":True}
-    configdict["BsCombinatorialShape"]["frac"]  = {"2011": {"KKPi":2.7216e-01}, "Fixed":True}
+    configdict["BsCombinatorialShape"]["cB1"]        = {"2011": {"KKPi":-6.4826e-03}, "Fixed": False}
+    configdict["BsCombinatorialShape"]["frac"]  = {"2011": {"KKPi":2.7086e-01}, "Fixed":False}
+#    configdict["BsCombinatorialShape"]["cB1"]        = {"2011": {"KKPi":-6.2744e-03}, "Fixed":True}
+#    configdict["BsCombinatorialShape"]["frac"]  = {"2011": {"KKPi":2.7216e-01}, "Fixed":True}
 
     configdict["DsCombinatorialShape"] = {}
     configdict["DsCombinatorialShape"]["type"]  = "ExponentialPlusSignal" 

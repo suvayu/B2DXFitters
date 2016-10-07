@@ -18,7 +18,7 @@ def getconfig() :
 
     configdict["TaggingCalibration"] = {}
 
-    configdict["ConstrainsForTaggingCalib"] = True
+    configdict["ConstrainsForTaggingCalib"] = False
 
     # Nominal MC Resolution and corresponding tagging parameters (Dspi)
     configdict["Resolution"] = { "scaleFactor":{"p0":0.0, "p1":1.201, "p2":0.0},
