@@ -19,6 +19,7 @@
 #include "RooAddPdf.h"
 #include "RooExtendPdf.h"
 #include "RooExponential.h"
+#include "RooPolynomial.h"
 #include "RooGaussian.h"
 #include "RooCBShape.h"
 #include "RooFFTConvPdf.h"
@@ -51,6 +52,9 @@ namespace Bd2DhModels {
 					Int_t dim,
 					bool debug
 					){
+
+    /*This is quite obsolete and will be fixed at some point (hopefully...)*/
+
     if (debug == true)
       {
         cout<<"[INFO] =====> Build background model Bd->DPi --------------"<<endl;
@@ -96,7 +100,49 @@ namespace Bd2DhModels {
     return pdf_totBkg;
 
   }
+
+  //===============================================================================
+  // Build Exponential + constant
+  //===============================================================================
   
+  RooAbsPdf* buildExponentialPlusConstantPDF( RooAbsReal& obs,
+                                              RooWorkspace* workInt,
+                                              TString samplemode,
+                                              TString typemode,
+                                              bool debug)
+  {
+    if ( debug == true )
+    {
+      std::cout<<"Bd2DhModels::buildExponentialPlusConstantPDF(..)==> building exponential plus constant pdf... "<<std::endl; 
+    }
+    
+    RooRealVar* cBVar = NULL;
+    RooRealVar* fracExpoVar = NULL;
+    
+    TString varName = obs.GetName();
+    
+    TString cBName = typemode+"_"+varName+"_cB_"+samplemode;
+    cBVar = tryVar(cBName, workInt, debug);
+    TString fracExpoName = typemode+"_"+varName+"_fracExpo_"+samplemode;
+    fracExpoVar = tryVar(fracExpoName, workInt, debug);
+    
+    RooAbsPdf* pdf = NULL;
+    
+    RooExponential *pdf1 = NULL;
+    TString pdf1Name = typemode+"_"+varName+"_exponential_"+samplemode;
+    RooPolynomial *pdf2 = NULL;
+    TString pdf2Name = typemode+"_"+varName+"_constant_"+samplemode;
+    
+    pdf1 = new RooExponential( pdf1Name.Data(), pdf1Name.Data(), obs, *cBVar);
+    pdf2 = new RooPolynomial( pdf2Name.Data(), pdf2Name.Data(), obs);
+
+    TString pdfName = typemode+"_"+varName+"_ExponentialPlusConstant_"+samplemode;
+    pdf = new RooAddPdf( pdfName.Data(), pdfName.Data(), RooArgList(*pdf1, *pdf2), *fracExpoVar);
+    CheckPDF( pdf, debug );
+
+    return pdf;
+  }  
+
   //===============================================================================
   // Build JohnsonSU pdf
   //===============================================================================

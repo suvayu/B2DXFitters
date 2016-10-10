@@ -49,7 +49,7 @@ def getconfig() :
     #bachelor PID bins the final dataset is splitted into
     ############################################################
     
-    configdict["Hypothesys"] = ["Bd2DPi", "Bd2DK"]
+    configdict["Hypothesys"] = ["Bd2DPi"]#, "Bd2DK"]
 
     ############################################################
     #Signal decay and Charm decay mode
@@ -83,30 +83,30 @@ def getconfig() :
     
     configdict["Components"] = {}
     configdict["Components"] = {"Signal"        : {"Bd2DPi": {"2011" : {"KPiPi": [5.49162e+05*fracRun1] },
-                                                              "2012" : {"KPiPi": [5.49162e+05*(1-fracRun1)] }},
-                                                   "Bd2DK" : {"2011" : {"KPiPi": [((1-eff_Bd2DPi_DPi)/eff_Bd2DPi_DPi)*5.49162e+05*fracRun1] },
-                                                              "2012" : {"KPiPi": [((1-eff_Bd2DPi_DPi)/eff_Bd2DPi_DPi)*5.49162e+05*(1-fracRun1)] }}},
-                                "Bd2DK"         : {"Bd2DPi": {"2011" : {"KPiPi": [((1-eff_Bd2DK_DK)/eff_Bd2DK_DK)*3.23144e+04*fracRun1] },
-                                                              "2012" : {"KPiPi": [((1-eff_Bd2DK_DK)/eff_Bd2DK_DK)*3.23144e+04*(1-fracRun1)] }},
-                                                   "Bd2DK" : {"2011" : {"KPiPi": [3.23144e+04*fracRun1] },
-                                                              "2012" : {"KPiPi": [3.23144e+04*(1-fracRun1)] }}},
-                                "Bd2DRho"       : {"Bd2DPi": {"2011" : {"KPiPi": [7.40343e+04*fracRun1] },
-                                                              "2012" : {"KPiPi": [7.40343e+04*(1-fracRun1)] }},
-                                                   "Bd2DK" : {"2011" : {"KPiPi": [DRho_to_DKst_KHypo*6.06144e+03*fracRun1] },
-                                                              "2012" : {"KPiPi": [DRho_to_DKst_KHypo*6.06144e+03*(1-fracRun1)] }}},
-                                "Bd2DstPi"      : {"Bd2DPi": {"2011" : {"KPiPi": [6.80954e+04*fracRun1] },
-                                                              "2012" : {"KPiPi": [6.80954e+04*(1-fracRun1)] }},
-                                                   "Bd2DK" : {"2011" : {"KPiPi": [0] },
-                                                              "2012" : {"KPiPi": [0] }}},
-                                "Bd2DKst"       : {"Bd2DPi": {"2011" : {"KPiPi": [0] },
-                                                              "2012" : {"KPiPi": [0] }},
-                                                   "Bd2DK" : {"2011" : {"KPiPi": [6.06144e+03*fracRun1] },
-                                                              "2012" : {"KPiPi": [6.06144e+03*(1-fracRun1)] }}},
-                                "Combinatorial" :  {"Bd2DPi": {"2011" : {"KPiPi": [8.23965e+04*fracRun1] },
-                                                               "2012" : {"KPiPi": [8.23965e+04*(1-fracRun1)] }},
-                                                    "Bd2DK" : {"2011" : {"KPiPi": [2.40497e+04*fracRun1] },
-                                                               "2012" : {"KPiPi": [2.40497e+04*(1-fracRun1)] }}}
-                                }
+                                                              "2012" : {"KPiPi": [5.49162e+05*(1-fracRun1)] }}      }}  #,
+                               #                    "Bd2DK" : {"2011" : {"KPiPi": [((1-eff_Bd2DPi_DPi)/eff_Bd2DPi_DPi)*5.49162e+05*fracRun1] },
+                               #                               "2012" : {"KPiPi": [((1-eff_Bd2DPi_DPi)/eff_Bd2DPi_DPi)*5.49162e+05*(1-fracRun1)] }}},
+                               # "Bd2DK"         : {"Bd2DPi": {"2011" : {"KPiPi": [((1-eff_Bd2DK_DK)/eff_Bd2DK_DK)*3.23144e+04*fracRun1] },
+                               #                               "2012" : {"KPiPi": [((1-eff_Bd2DK_DK)/eff_Bd2DK_DK)*3.23144e+04*(1-fracRun1)] }},
+                               #                    "Bd2DK" : {"2011" : {"KPiPi": [3.23144e+04*fracRun1] },
+                               #                               "2012" : {"KPiPi": [3.23144e+04*(1-fracRun1)] }}},
+                               # "Bd2DRho"       : {"Bd2DPi": {"2011" : {"KPiPi": [7.40343e+04*fracRun1] },
+                               #                               "2012" : {"KPiPi": [7.40343e+04*(1-fracRun1)] }},
+                               #                    "Bd2DK" : {"2011" : {"KPiPi": [DRho_to_DKst_KHypo*6.06144e+03*fracRun1] },
+                               #                               "2012" : {"KPiPi": [DRho_to_DKst_KHypo*6.06144e+03*(1-fracRun1)] }}},
+                               # "Bd2DstPi"      : {"Bd2DPi": {"2011" : {"KPiPi": [6.80954e+04*fracRun1] },
+                               #                               "2012" : {"KPiPi": [6.80954e+04*(1-fracRun1)] }},
+                               #                    "Bd2DK" : {"2011" : {"KPiPi": [0] },
+                               #                               "2012" : {"KPiPi": [0] }}},
+                               # "Bd2DKst"       : {"Bd2DPi": {"2011" : {"KPiPi": [0] },
+                               #                               "2012" : {"KPiPi": [0] }},
+                               #                    "Bd2DK" : {"2011" : {"KPiPi": [6.06144e+03*fracRun1] },
+                               #                               "2012" : {"KPiPi": [6.06144e+03*(1-fracRun1)] }}},
+                               # "Combinatorial" :  {"Bd2DPi": {"2011" : {"KPiPi": [8.23965e+04*fracRun1] },
+                               #                                "2012" : {"KPiPi": [8.23965e+04*(1-fracRun1)] }},
+                               #                     "Bd2DK" : {"2011" : {"KPiPi": [2.40497e+04*fracRun1] },
+                               #                                "2012" : {"KPiPi": [2.40497e+04*(1-fracRun1)] }}}
+                               # }
 
     ############################################################
     #"Code" to identify the True ID for each component

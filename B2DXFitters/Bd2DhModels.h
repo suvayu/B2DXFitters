@@ -35,6 +35,12 @@ namespace Bd2DhModels {
 					bool debug = true
 					);
 
+  RooAbsPdf* buildExponentialPlusConstantPDF( RooAbsReal& obs,
+                                              RooWorkspace* workInt,
+                                              TString samplemode,
+                                              TString typemode,
+                                              bool debug = true);
+
   RooAbsPdf* buildJohnsonSUPDF( RooAbsReal& obs,
                                 RooWorkspace* workInt,
                                 TString samplemode,

@@ -541,6 +541,26 @@ def BuildExponentialPDF(workOut, obs, nickname, samplemode, pdfDict, debug):
 	return WS(workOut, pdf)
 
 #------------------------------------------------------------
+def BuildDoubleExponentialPDF(workOut, obs, nickname, samplemode, pdfDict, debug):
+
+	#Build parameters
+	varName = obs.GetName()
+	typemode = nickname+"_2E"
+
+	parList = []
+	for par in ["cB1", "cB2", "frac"]:
+		parList.append(BuildParForPDF(workOut, typemode, varName, par, samplemode, pdfDict))
+
+        #Build PDF
+	pdf = Bs2Dsh2011TDAnaModels.buildDoubleExponentialPDF(obs,
+							      workOut,
+							      samplemode,
+							      typemode,
+							      debug)
+        
+	return WS(workOut, pdf)
+
+#------------------------------------------------------------
 def BuildExponentialPlusConstantPDF(workOut, obs, nickname, samplemode, pdfDict, debug):
 
 	#Build parameters
@@ -562,7 +582,7 @@ def BuildExponentialPlusConstantPDF(workOut, obs, nickname, samplemode, pdfDict,
         
 #------------------------------------------------------------
 def BuildGaussPDF(workOut, obs, nickname, samplemode, pdfDict, debug):
-
+	
         #Build parameters
 	varName = obs.GetName()
 	typemode = nickname+"_G"
@@ -778,6 +798,7 @@ def BuildIpatiaPDF(workOut, obs, nickname, samplemode, pdfDict, debug):
 	varName = obs.GetName()
 	typemode = nickname+"_Ipatia"
 	shiftMean = pdfDict["shiftMean"]
+	scaleTails = pdfDict["scaleTails"]
 	
 	parList = []
 	for par in ["l", "zeta", "fb", "mean", "sigma", "a1", "n1", "a2", "n2"]:
@@ -791,6 +812,7 @@ def BuildIpatiaPDF(workOut, obs, nickname, samplemode, pdfDict, debug):
 						   samplemode,
 						   typemode,
 						   shiftMean,
+						   scaleTails,
 						   debug)
 	
 	return WS(workOut, pdf)
@@ -911,6 +933,8 @@ def BuildCompPdf(workOut, workTemplates, configfile, component, hypothesys, samp
 			pdfList.append(BuildCrystalBallPDF(workOut, obs, nickname, samplemodeyearhyp, pdfDict, debug))
 		elif "ExponentialPlusConstant" in pdfType:
 			pdfList.append(BuildExponentialPlusConstantPDF(workOut, obs, nickname, samplemodeyearhyp, pdfDict, debug))
+		elif "DoubleExponential" in pdfType:
+			pdfList.append(BuildDoubleExponentialPDF(workOut, obs, nickname, samplemodeyearhyp, pdfDict, debug))
 		elif "Exponential" in pdfType:
 			pdfList.append(BuildExponentialPDF(workOut, obs, nickname, samplemodeyearhyp, pdfDict, debug)) 
 		elif "TakeInputPdf" in pdfType:
@@ -994,7 +1018,7 @@ def BuildGlobalVariables(workOut, configfile, debug):
 		workOut.Print("v")
 
 #------------------------------------------------------------
-def BuildExternalConstraints(workOut, configfile, debug):
+def BuildExternalConstraints(workOut, configfile, toys, seed, debug):
 
 	if "GaussianConstraints" in configfile.keys():
 		constrPDFs = RooArgSet()
@@ -1005,9 +1029,24 @@ def BuildExternalConstraints(workOut, configfile, debug):
 				par = workOut.obj(configfile["GaussianConstraints"][constr]["Parameters"][0])
 				if debug:
 					print "Building Gaussian constraint for "+par.GetName()
-				mean = WS(workOut, RooConstVar("mean_"+par.GetName(),
-							       "mean_"+par.GetName(),
-							       configfile["GaussianConstraints"][constr]["Mean"][0]))
+				if toys:
+					#Sample mean of gaussian constraint
+					gaussGen = TRandom3(seed)
+					mean = WS(workOut, RooConstVar("mean_"+par.GetName(),
+								       "mean_"+par.GetName(),
+								       gaussGen.Gaus(configfile["GaussianConstraints"][constr]["Mean"][0],
+										     configfile["GaussianConstraints"][constr]["Covariance"][0])))
+					if debug:
+						print "Toys: draw random mean for gaussian constraint"
+						print "Seed: "+str(seed)
+						print "Constraint mean: "+str(configfile["GaussianConstraints"][constr]["Mean"][0])
+						print "New, random mean: "+str(mean.getVal())
+				else:
+					#Build normal gaussian constraint
+					mean = WS(workOut, RooConstVar("mean_"+par.GetName(),
+								       "mean_"+par.GetName(),
+								       configfile["GaussianConstraints"][constr]["Mean"][0]))
+
 				sigma = WS(workOut, RooConstVar("sigma_"+par.GetName(),
 								"sigma_"+par.GetName(),
 								configfile["GaussianConstraints"][constr]["Covariance"][0]))
@@ -1021,7 +1060,8 @@ def BuildExternalConstraints(workOut, configfile, debug):
 			else:
 				print "ERROR: multivariate constraints not currently handled"
 				exit(-1)
-		return constrPDFs
+			return constrPDFs
+		
 	else:
 		print "No Gaussian constraints to apply"
 		return None
@@ -1055,6 +1095,7 @@ def runMDFitter_Bd( debug,
 		    preselection,
 		    plotsWeights,
 		    toys,
+		    seed,
 		    pullFile,
 		    pullFilesWeights,
 		    outputplotdir):
@@ -1275,7 +1316,6 @@ def runMDFitter_Bd( debug,
 
 	print "Start to build PDF for each component..."
 	pdfList = {}
-	corrYieldDict = {}
 	corrYieldDictsWeights = {}
 	idx = 0
 	for hyp in hypoList:
@@ -1293,31 +1333,30 @@ def runMDFitter_Bd( debug,
 							  obsList,
 							  debug)
 
-				if toys and pdfDetails != None:
-					corrYieldDict[pdfDetails["Yield"].GetName()] = {}
+				if toys and pdfDetails != None and hyp == myconfigfile["sWeights"]["Hypo"] and sWeights and compList.__len__() > 2:
+					corrYieldDictsWeights[pdfDetails["Yield"].GetName()] = {}
 					if debug:
-						print "Correcting yield for poisson fluctuation (take effective generated value)"
-						print "Uncorrect value:"
-						print str(pdfDetails["Yield"].getVal())
-					sam.setLabel(pidBins[hyp])
-					corrYieldDict[pdfDetails["Yield"].GetName()] = dataSet.sumEntries( "sample==sample::"+sam.getLabel()+" && TMath::Abs(TrueID-"+str(myconfigfile["TrueID"][comp])+")<50" )
+						print "Compute generated yield in the signal region (to get pulls)"
+					argset = RooArgSet()
+					for obs in obsList:
+						argset.add(obs)
+					#Define signal range and get integral
+					for obs in obsList:
+						obs.setRange("Signal",*myconfigfile["sWeights"]["Range"][obs.GetName()])
+					sgnInt = pdfDetails["PDF"].createIntegral(argset, RooFit.NormSet(argset), RooFit.Range("Signal"))
+					#Define total range and get integral
+					for obs in obsList:
+						obs.setRange("Total",*myconfigfile["BasicVariables"][obs.GetName()]["Range"])
+					totInt = pdfDetails["PDF"].createIntegral(argset, RooFit.NormSet(argset), RooFit.Range("Total"))
+					#Get generated yield rescaled into signal range
+					corrYieldDictsWeights[pdfDetails["Yield"].GetName()] = pdfDetails["Yield"].getVal() * (sgnInt.getVal()/totInt.getVal()) 
 					if debug:
-						print "Corrected value:"
-						print str(corrYieldDict[pdfDetails["Yield"].GetName()])
-						
-					if hyp == myconfigfile["sWeights"]["Hypo"] and sWeights and compList.__len__() > 2:
-						corrYieldDictsWeights[pdfDetails["Yield"].GetName()] = {}
-						if debug:
-							print "Correcting yield for poisson fluctuation (take effective generated value) in the signal region"
-						signalWindow = ""
-						for obs in obsList:
-							obs.setRange("Signal",*myconfigfile["sWeights"]["Range"][obs.GetName()])
-							signalWindow += " && "+obs.GetName()+">="+str(myconfigfile["sWeights"]["Range"][obs.GetName()][0])
-							signalWindow += " && "+obs.GetName()+"<="+str(myconfigfile["sWeights"]["Range"][obs.GetName()][1])
-							corrYieldDictsWeights[pdfDetails["Yield"].GetName()] = dataSet.sumEntries( "sample==sample::"+sam.getLabel()+" && TMath::Abs(TrueID-"+str(myconfigfile["TrueID"][comp])+")<50 "+signalWindow )
-						if debug:
-							print "Corrected value (reduced mass range):"
-							print str(corrYieldDictsWeights[pdfDetails["Yield"].GetName()])
+						print "Integral and yield in the total region:"
+						print totInt.getVal()
+						print pdfDetails["Yield"].getVal()
+						print "Integral and yield in the signal region:"
+						print sgnInt.getVal()
+						print corrYieldDictsWeights[pdfDetails["Yield"].GetName()]
 				if pdfDetails != None:
 					pdfList[hyp][comp]["PDF"] = pdfDetails["PDF"]
 					pdfList[hyp][comp]["Yield"] = pdfDetails["Yield"]
@@ -1339,7 +1378,7 @@ def runMDFitter_Bd( debug,
 					print ""
 		if toys:
 			print "Corrected yields dictionary:"
-			print corrYieldDict
+			print corrYieldDictsWeights
 			
 	print "Create total PDF..."
 	pdf = RooSimultaneous("totEPDF", "totEPDF", sam)
@@ -1386,7 +1425,7 @@ def runMDFitter_Bd( debug,
 		print "========================================="
 		print ""
 
-		constrPDFs = BuildExternalConstraints(workspaceOut, myconfigfile, debug)
+		constrPDFs = BuildExternalConstraints(workspaceOut, myconfigfile, toys, int(seed), debug)
 		
 		print ""
 		print "========================================="
@@ -1460,16 +1499,20 @@ def runMDFitter_Bd( debug,
 		pdf = WS(workspaceOut, pdf)
 
 		if toys:
-			print ""
-			print "========================================="
-			print "Create pull tree in"
-			print pullFile
-			print "for pull analysis"
-			print "========================================="
-			print ""
+			if fitResult.status() != 0 or fitResult.covQual() != 3:
+				print "ERROR: fit quality is bad. Not saving pull tree."
 
-			from B2DXFitters import FitResultGrabberUtils
-			FitResultGrabberUtils.CreatePullTree(pullFile, fitResult, 'covQual', corrYieldDict)
+			else:
+				print ""
+				print "========================================="
+				print "Create pull tree in"
+				print pullFile
+				print "for pull analysis"
+				print "========================================="
+				print ""
+				
+				from B2DXFitters import FitResultGrabberUtils
+				FitResultGrabberUtils.CreatePullTree(pullFile, fitResult)
 		
 	else:
 		fitResult = None
@@ -1510,6 +1553,11 @@ def runMDFitter_Bd( debug,
 
 
 	if sWeights:
+
+		if fitResult.status() != 0 or fitResult.covQual() != 3:
+			print "ERROR: fit quality is bad. Not computing sWeights."
+			exit(-1)
+		
 		if compList.__len__() == 2:
 			print "WARNING: only one component included. Not computing sWeights."
 		else:
@@ -1523,8 +1571,11 @@ def runMDFitter_Bd( debug,
 
 			#Build new pdf, and select only one category (the one chosen in myconfigfile["sWeights"]["Hypo"])
 			hyp = myconfigfile["sWeights"]["Hypo"]
+
+			#Build ranges
 			signalWindow = ""
 			for obs in obsList:
+				obs.setRange("Total",*myconfigfile["BasicVariables"][obs.GetName()]["Range"])
 				obs.setRange("Signal",*myconfigfile["sWeights"]["Range"][obs.GetName()])
 				signalWindow += " && "+obs.GetName()+">="+str(myconfigfile["sWeights"]["Range"][obs.GetName()][0])
 				signalWindow += " && "+obs.GetName()+"<="+str(myconfigfile["sWeights"]["Range"][obs.GetName()][1])
@@ -1550,7 +1601,7 @@ def runMDFitter_Bd( debug,
 			totBkgYield = 0.0
 			totGenBkg = 0.0
 			last = ""
-			integral = {}
+			integralratio = {}
 			for comp in compList:
 				if comp not in ["Total","Signal"] and "PDF" in pdfList[hyp][comp].keys() and "Yield" in pdfList[hyp][comp].keys():
 
@@ -1560,26 +1611,33 @@ def runMDFitter_Bd( debug,
 					#Including bkg pdf with updated parameters from previous fit
 					bkgPdfList.add( workspaceOut.obj( pdfList[hyp][comp]["PDF"].GetName() ) )
 					#Computing fraction of bkg that falls into the signal region for each component
-					argset = RooArgSet(obs)
-					thisintegral = workspaceOut.obj( pdfList[hyp][comp]["PDF"].GetName() ).createIntegral(argset,
-															      RooFit.NormSet(argset),
-															      RooFit.Range("Signal"))
-					integral[comp] = thisintegral.getVal()
+					argset = RooArgSet()
+					for obs in obsList:
+						argset.add(obs)
+					thisintegralSgn = workspaceOut.obj( pdfList[hyp][comp]["PDF"].GetName() ).createIntegral(argset,
+																 RooFit.NormSet(argset),
+																 RooFit.Range("Signal"))
+					thisintegralTot = workspaceOut.obj( pdfList[hyp][comp]["PDF"].GetName() ).createIntegral(argset,
+																 RooFit.NormSet(argset),
+																 RooFit.Range("Total"))
+					integralratio[comp] = thisintegralSgn.getVal() / thisintegralTot.getVal()
 
-					print "PDF integral in the signal region: "+str(integral[comp])
+					print "PDF integral in the signal region: "+str(thisintegralSgn.getVal())
+					print "PDF integral in the total region: "+str(thisintegralTot.getVal())
+					print "PDF integral ratio: "+str(integralratio[comp])
 					
 					#Accumulate total background yield
 					thisyield = workspaceOut.obj( pdfList[hyp][comp]["Yield"].GetName() ).getVal()
-					totBkgYield = totBkgYield + thisyield * integral[comp]
+					totBkgYield = totBkgYield + thisyield * integralratio[comp]
 
 					print "Fitted yield: "+str(thisyield)
-					print "Fitted yield in the signal region: "+str(thisyield * integral[comp])
+					print "Fitted yield in the signal region: "+str(thisyield * integralratio[comp])
 
 					#Accumulate total generated background yield
 					if toys:
 						totGenBkg = totGenBkg + corrYieldDictsWeights[pdfList[hyp][comp]["Yield"].GetName()]
 
-						print "Generated yield in the signal region: "+str(corrYieldDictsWeights[pdfList[hyp][comp]["Yield"].GetName()])
+						print "Generated background yield in the signal region: "+str(corrYieldDictsWeights[pdfList[hyp][comp]["Yield"].GetName()])
 					
 					countFrac = countFrac + 1
 					last = comp
@@ -1589,8 +1647,8 @@ def runMDFitter_Bd( debug,
 				print "Total fitted background yield in signal region: "+str(totBkgYield)
 				if toys:
 					print "Total generated background in the signal region: "+str(totGenBkg)
-				print "Dictionary of background integrals in the signal region:"
-				print integral
+				print "Dictionary of background integral ratios in the signal region:"
+				print integralratio
 				print ""
 				
 			for comp in compList:
@@ -1600,7 +1658,7 @@ def runMDFitter_Bd( debug,
 						bkgFracList.add( WS(workspaceOut,
 								    RooRealVar("frac_"+comp+"_"+hyp+"Hypo",
 									       "frac_"+comp+"_"+hyp+"Hypo",
-									       (workspaceOut.obj( pdfList[hyp][comp]["Yield"].GetName() ).getVal() * integral[comp])/totBkgYield)))
+									       (workspaceOut.obj( pdfList[hyp][comp]["Yield"].GetName() ).getVal() * integralratio[comp])/totBkgYield)))
 			if debug:
 				print "Background pdf list:"
 				bkgPdfList.Print("v")
@@ -1664,7 +1722,13 @@ def runMDFitter_Bd( debug,
 							dataSetForSWeights,
 							TString(sWeightsName),
 							False,
-							RooFit.Range("Signal") )
+							RooFit.Range("Signal"),
+							RooFit.Save(1),
+							RooFit.Optimize(2),
+							RooFit.Strategy(2),
+							RooFit.Verbose(False),
+							RooFit.Timer(True),
+							RooFit.Offset(True))
 			RooMsgService.instance().reset()
 			sWeightsFitResult = sWeightsCalculator.getFitResult()
 
@@ -1689,16 +1753,22 @@ def runMDFitter_Bd( debug,
 								 namefile)
 			
 			if toys:
-				print ""
-				print "========================================="
-				print "Create pull tree in"
-				print pullFilesWeights
-				print "for pull analysis"
-				print "========================================="
-				print ""
+
+				if sWeightsFitResult.status() != 0 or sWeightsFitResult.covQual() != 3:
+					print "ERROR: fit quality is bad. Not creating pull tree."
+
+				else:
 				
-				from B2DXFitters import FitResultGrabberUtils
-				FitResultGrabberUtils.CreatePullTree(pullFilesWeights, sWeightsFitResult, 'covQual', corrYieldDictsWeights)
+					print ""
+					print "========================================="
+					print "Create pull tree in"
+					print pullFilesWeights
+					print "for pull analysis"
+					print "========================================="
+					print ""
+					
+					from B2DXFitters import FitResultGrabberUtils
+					FitResultGrabberUtils.CreatePullTree(pullFilesWeights, sWeightsFitResult, corrYieldDictsWeights)
 
 			if plotsWeights:
 				print ""
@@ -1811,6 +1881,11 @@ parser.add_option( '--toys',
 		   dest = 'toys',
 		   default = False,
 		   help = 'create tree with generated and fitted values for pull analysis'
+		   )
+parser.add_option( '--seed',
+		   dest = 'seed',
+		   default = 193627,
+		   help = 'seed for generation of gaussian constrained parameter (for toys only)'
 		   )
 parser.add_option( '--configName',
 		   dest = 'configName',
@@ -1948,9 +2023,9 @@ parser.add_option( '--initial',
 if __name__ == '__main__' :
 	( options, args ) = parser.parse_args()
 	
-	if len( args ) > 0 :
-		parser.print_help()
-		exit( -1 )
+	#if len( args ) > 0 :
+	#	parser.print_help()
+	#	exit( -1 )
 		
 	config = options.configName
 	last = config.rfind("/")
@@ -1990,6 +2065,7 @@ if __name__ == '__main__' :
 			options.preselection,
 			options.plotsWeights,
 			options.toys,
+			options.seed,
 			options.pullFile,
 			options.pullFilesWeights,
 			options.outputplotdir)
