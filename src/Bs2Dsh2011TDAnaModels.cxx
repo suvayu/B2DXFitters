@@ -504,6 +504,7 @@ namespace Bs2Dsh2011TDAnaModels {
                             TString samplemode, 
                             TString typemode,
                             bool shiftMean,
+                            bool scaleTails,
                             bool debug)
   {
     if ( debug == true ) { std::cout<<"[INFO] --------- build Ipatia -------- "<<std::endl; }
@@ -515,10 +516,19 @@ namespace Bs2Dsh2011TDAnaModels {
     RooRealVar* shiftVar = NULL;
     RooFormulaVar *meanShiftVar = NULL;
     RooRealVar* sigmaVar = NULL; 
+    
     RooRealVar* a1Var = NULL; 
     RooRealVar* n1Var = NULL;
     RooRealVar* a2Var = NULL; 
     RooRealVar* n2Var = NULL; 
+
+    RooRealVar* scaleaVar = NULL;
+    RooRealVar* scalenVar = NULL;
+
+    RooFormulaVar* a1VarScaled = NULL;
+    RooFormulaVar* n1VarScaled = NULL;
+    RooFormulaVar* a2VarScaled = NULL;
+    RooFormulaVar* n2VarScaled = NULL;
 
     TString varName = mass.GetName();
 
@@ -528,6 +538,7 @@ namespace Bs2Dsh2011TDAnaModels {
     zetaVar = tryVar(zetaVarName, workInt, debug);
     TString fbVarName = typemode+"_"+varName+"_fb_"+samplemode;
     fbVar = tryVar(fbVarName, workInt, debug);
+    
     TString meanVarName = typemode+"_"+varName+"_mean_"+samplemode;
     meanVar = tryVar(meanVarName, workInt, debug);
     if (meanVar == NULL) meanVar = tryVar("Signal_"+varName+"_mean_"+samplemode, workInt, debug);
@@ -538,25 +549,66 @@ namespace Bs2Dsh2011TDAnaModels {
       TString meanShiftVarName = typemode+"_"+varName+"_meanShift_"+samplemode;
       meanShiftVar = new RooFormulaVar(meanShiftVarName.Data(), meanShiftVarName.Data(), "@0+@1", RooArgList(*meanVar,*shiftVar));
     }
+    
     TString sigmaVarName = typemode+"_"+varName+"_sigma_"+samplemode;
     sigmaVar = tryVar(sigmaVarName, workInt, debug);
     if (sigmaVar == NULL) sigmaVar = tryVar("Signal_"+varName+"_sigma_"+samplemode, workInt, debug);
+    
+    
     TString a1VarName = typemode+"_"+varName+"_a1_"+samplemode;
     a1Var = tryVar(a1VarName, workInt, debug);
+    if (a1Var == NULL) a1Var = tryVar("Signal_"+varName+"_a1_"+samplemode, workInt, debug);
     TString n1VarName = typemode+"_"+varName+"_n1_"+samplemode;
     n1Var = tryVar(n1VarName, workInt, debug);
+    if (n1Var == NULL) a1Var = tryVar("Signal_"+varName+"_n1_"+samplemode, workInt, debug);
     TString a2VarName = typemode+"_"+varName+"_a2_"+samplemode;
     a2Var = tryVar(a2VarName, workInt, debug);
+    if (a2Var == NULL) a1Var = tryVar("Signal_"+varName+"_a2_"+samplemode, workInt, debug);
     TString n2VarName = typemode+"_"+varName+"_n2_"+samplemode;
     n2Var = tryVar(n2VarName, workInt, debug);
+    if (n2Var == NULL) n2Var = tryVar("Signal_"+varName+"_n2_"+samplemode, workInt, debug);
 
+    if(scaleTails)
+    {
+      TString scaleaVarName = typemode+"_"+varName+"_ascale_"+samplemode;
+      scaleaVar = tryVar(scaleaVarName, workInt, debug);
+      if(scaleaVar == NULL) scaleaVar = tryVar("Signal_"+varName+"_ascale_"+samplemode, workInt, debug);
+
+      TString scalenVarName = typemode+"_"+varName+"_nscale_"+samplemode;
+      scalenVar = tryVar(scalenVarName, workInt, debug);
+      if(scalenVar == NULL) scalenVar = tryVar("Signal_"+varName+"_nscale_"+samplemode, workInt, debug);
+
+      TString a1VarScaledName = typemode+"_"+varName+"_a1scaled_"+samplemode;
+      a1VarScaled = new RooFormulaVar(a1VarScaledName.Data(), a1VarScaledName.Data(), "@0*@1", RooArgList(*a1Var,*scaleaVar));
+
+      TString a2VarScaledName = typemode+"_"+varName+"_a2scaled_"+samplemode;
+      a2VarScaled = new RooFormulaVar(a2VarScaledName.Data(), a2VarScaledName.Data(), "@0*@1", RooArgList(*a2Var,*scaleaVar));
+
+      TString n1VarScaledName = typemode+"_"+varName+"_n1scaled_"+samplemode;
+      n1VarScaled = new RooFormulaVar(n1VarScaledName.Data(), n1VarScaledName.Data(), "@0*@1", RooArgList(*n1Var,*scalenVar));
+
+      TString n2VarScaledName = typemode+"_"+varName+"_n2scaled_"+samplemode;
+      n2VarScaled = new RooFormulaVar(n2VarScaledName.Data(), n2VarScaledName.Data(), "@0*@1", RooArgList(*n2Var,*scalenVar));
+
+    }
+    
 
     RooAbsPdf* pdf = NULL;
     TString pdfName = typemode+"_"+varName+"_ipatia_"+samplemode;
     if(shiftMean)
-      pdf = new RooIpatia2( pdfName.Data(), pdfName.Data(), mass, *lVar, *zetaVar, *fbVar, *sigmaVar, *meanShiftVar, *a1Var, *n1Var, *a2Var, *n2Var);
+    {
+      if(scaleTails)
+        pdf = new RooIpatia2( pdfName.Data(), pdfName.Data(), mass, *lVar, *zetaVar, *fbVar, *sigmaVar, *meanShiftVar, *a1VarScaled, *n1VarScaled, *a2VarScaled, *n2VarScaled);
+      else
+        pdf = new RooIpatia2( pdfName.Data(), pdfName.Data(), mass, *lVar, *zetaVar, *fbVar, *sigmaVar, *meanShiftVar, *a1Var, *n1Var, *a2Var, *n2Var);
+    }
     else
-      pdf = new RooIpatia2( pdfName.Data(), pdfName.Data(), mass, *lVar, *zetaVar, *fbVar, *sigmaVar, *meanVar, *a1Var, *n1Var, *a2Var, *n2Var);
+    {
+      if(scaleTails)
+        pdf = new RooIpatia2( pdfName.Data(), pdfName.Data(), mass, *lVar, *zetaVar, *fbVar, *sigmaVar, *meanVar, *a1VarScaled, *n1VarScaled, *a2VarScaled, *n2VarScaled);
+      else
+        pdf = new RooIpatia2( pdfName.Data(), pdfName.Data(), mass, *lVar, *zetaVar, *fbVar, *sigmaVar, *meanVar, *a1Var, *n1Var, *a2Var, *n2Var);
+    }
     
     CheckPDF( pdf, debug );
 
@@ -1834,7 +1886,7 @@ namespace Bs2Dsh2011TDAnaModels {
     }
     else if ( type.Contains("Ipatia") or type.Contains("Hypatia") )
     {
-      pdf =  buildIpatiaPDF( mass, workInt, samplemode, typemode, debug);
+      pdf =  buildIpatiaPDF( mass, workInt, samplemode, typemode, false, debug); //don't consider rescaled tails, for now
     }
     else if ( type.Contains("Apollonios") == true )
     {
