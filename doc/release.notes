@@ -4,6 +4,16 @@
 ! Purpose     : RooFit-based fitters for B -> D X
 !-----------------------------------------------------------------------------
 
+! 2016-10-10 - Vincenzo Battista
+ - Source code modified to "accept" Bu2D0Pi mode (and its physical background)
+ - Added utility in utils.py to randomise starting value for floating parameters
+   when doing a fit
+ - Allow an arbitrary number of taggers (OSCharm, OSComb, SSPionBDT etc...)
+   inside MDFitSettingTranslator.py
+ - ChangeMassHypo.py updated in order to have flexibility on mass leaves
+   pedix (_M or _MM etc...)
+ - Few updates to Bd2DPi-related config dictionaries 
+
 ! 2016-10-02 - Agnieszka Dziurda
  - update sFit code for unbinned fit
  - update config files for DsK 
@@ -35,6 +45,18 @@
 
 ! 2016-09-27 - Manuel Tobias Schiller
  - FitResult.py: hack the code to make it work with the latest ROOT/pyROOT
+
+! 2016-09-22 - Vincenzo Battista
+ - GeneralUtils.cxx: small bugfix applied for the "merge" option.
+   It can be used normally as before, but now if it is set to "alreadyboth", then
+   the dataset are taken from a workspace with their name, if already merged.
+   Example: dataSetBd2DPi_both_kpipi_run1_Bd2DPiHypo
+   (before, only datasets with up/down or 2011/2012 could be taken directly from the
+   workspace).
+   runMDFitterOnToys.sh script update accordingly.
+ - toyFactory.py: small bugfix when merging datasets (it was only affecting the case when
+   more than one bachelor hypo is used, so no worries for Bd2DsK ;-)
+ - FitResultGrabberUtils.py: small improvements in CreatePullTree.
 
 ! 2016-09-14 - Vincenzo Battista
  - GeneralUtils.{cxx,h}: create new GetSample function that allows to have dataset containing

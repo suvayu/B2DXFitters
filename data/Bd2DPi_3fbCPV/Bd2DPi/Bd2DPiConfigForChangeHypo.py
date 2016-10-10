@@ -33,5 +33,8 @@ def getconfig() :
 
     #Additional "_pedix" in the branch name. Leave "" if not pedix is required
     configdict["Pedix"] = "_flat"
+
+    #Mass name pedix (_M, _MM etc...)
+    configdict["MassPedix"] = "_M"
     
     return configdict

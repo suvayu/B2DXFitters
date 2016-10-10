@@ -91,38 +91,69 @@ from ROOT import *
 
 from ROOT import RooFit
 from optparse import OptionParser
-from math     import pi, log
+
+import math 
+from math     import pi, log, sqrt
+
 import os, sys, gc
+
+import uncertainties
+from uncertainties import ufloat
 
 gROOT.SetBatch()
 gStyle.SetOptStat(0)
 gStyle.SetOptFit(1011)
 
+# -----------------------------------------------------------------------------
+# Common input stuff and options
+massfitdescr=''
+timefitdescr=''
+nickname='SgnAndBkgTwoTaggersProdAsymm001AccMeanResTimeFrom02ps'
+debugplots = False
+
+#Uncomment this for mass fit
+#massfitdescr='FitB_FullMDFit'
+#inputfile = '/afs/cern.ch/work/v/vibattis/public/B2DX/Bd2DPi/Toys/'+nickname+'/'+'MDFit/PullTree'+massfitdescr+'_'+nickname+'.root'
+#outputdir = '/afs/cern.ch/work/v/vibattis/public/B2DX/Bd2DPi/Toys/'+nickname+'/MassPullsB/'
+#selection = 'CovQual == 3 && MINUITStatus == 0 && edm!=0 && edm<0.1'
+
+#Uncomment this for time fit
+massfitdescr="FullMDFit"
+timefitdescr='SSbarFloating'
+inputfile = '/afs/cern.ch/work/v/vibattis/public/B2DX/Bd2DPi/Toys/'+nickname+'/TimeFit/PullTreeTimeFit_'+nickname+'_'+timefitdescr+'_'+massfitdescr+'.root'
+outputdir = '/afs/cern.ch/work/v/vibattis/public/B2DX/Bd2DPi/Toys/'+nickname+'/TimePulls/'
+selection = 'MINUITStatus == 0 && edm!=0 && Sf_err < 0.03 && Sfbar_err < 0.03'
+
+#Leave as it is
+inputFile = TFile.Open(inputfile,"READ")
+PullTree = inputFile.Get("PullTree")
+LeafList = PullTree.GetListOfLeaves()
+
+# -----------------------------------------------------------------------------
+plotlabel=''
+if massfitdescr == "" and timefitdescr == "":
+    print "ERROR: choose nicknames for mass or time fit!"
+    exit(-1)
+elif massfitdescr != "" and timefitdescr == "":
+    plotlabel=massfitdescr
+elif massfitdescr == "" and timefitdescr != "":
+    plotlabel=timefitdescr
+else:
+    plotlabel=massfitdescr+"_"+timefitdescr
+
+print "Plot label: "+plotlabel
+
+os.system( "rm -r "+outputdir ) #be careful...
+os.system( "mkdir -p "+outputdir )
+
+# -----------------------------------------------------------------------------
 def makeprintout(canvas,name) :
     # Set all the different types of plots to make
-    plottypestomake = [".eps",".png"]
+    plottypestomake = [".pdf"]
     for plottype in plottypestomake :
         canvas.Print(name+plottype)
 
-# Input stuff and options
-#input = '/afs/cern.ch/work/v/vibattis/public/B2DX/Bd2DPi/Toys/WithPerEventTerrAccAsymmMoreTaggers2CalibsZeroDG/MassFit/DPi_Toys_Work_ForPullPlot_AllBkgSeparated.root'
-#outputdir = '/afs/cern.ch/work/v/vibattis/public/B2DX/Bd2DPi/Toys/WithPerEventTerrAccAsymmMoreTaggers2CalibsZeroDG/MassPulls/'
-#selection = 'CovQual == 3'
-timefitdescr='DGSSbarDDbarFloating'
-input = '/afs/cern.ch/work/v/vibattis/public/B2DX/Bd2DPi/Toys/OldTemplatesSimpleNonZeroDGAllCPterms/TimeFit/DPi_Toys_Work_ForPullPlot_'+timefitdescr+'.root'
-outputdir = '/afs/cern.ch/work/v/vibattis/public/B2DX/Bd2DPi/Toys/OldTemplatesSimpleNonZeroDGAllCPterms/TimePulls/'+timefitdescr+'/'
-selection = 'MINUITStatus == 0'
-
-debugplots = True
-
-inputFile = TFile(input,"READ")
-inputFile.Print()
-PullTree = inputFile.Get("PullTree")
-PullTree.Print()
-
-LeafList = PullTree.GetListOfLeaves()
-print "Leaf list:"
-LeafList.Print("v")
+# -----------------------------------------------------------------------------
 
 GenList = []
 FitList = []
@@ -141,8 +172,8 @@ for leaf in range(0, nLeaves):
     if name.EndsWith("_err"):
         ErrList.append(name.Data()) 
 
-# 3 leaves per observables, excluding the CovQual/MINUITStatus etc... leaf
-nObs = (nLeaves - 1)/3.0
+# 3 leaves per observables, excluding the CovQual/MINUITStatus/edm leaves
+nObs = (nLeaves - 3)/3.0
 
 NameList = []
 for name in GenList:
@@ -152,32 +183,44 @@ for name in GenList:
 
 # Fill the histograms
 for obs in range(0, int(nObs)):
-    PullTree.Draw(FitList[obs]+">>fitted"+str(obs),selection,"goff")
+    selection_string=selection+"&&"+"TMath::Abs(("+FitList[obs]+"-"+GenList[obs]+")"+"/"+ErrList[obs]+")<10"
+    if "Sf" in ErrList[obs]:
+        selection_string = selection_string + "&&"+ErrList[obs]+"<0.1"
+    print "Selection:"
+    print selection_string
+
+    print "Plotting:"
+    print FitList[obs]
+    PullTree.Draw(FitList[obs]+">>fitted"+str(obs),selection_string,"goff")
     fitted = gDirectory.Get("fitted"+str(obs))
     fitted.SetTitle("")
     fitted.GetXaxis().SetTitle("Fitted Value")
 
-    PullTree.Draw(ErrList[obs]+">>errf"+str(obs),selection,"goff")
+    print "Plotting:"
+    print ErrList[obs]
+    PullTree.Draw(ErrList[obs]+">>errf"+str(obs),selection_string,"goff")
     errf = gDirectory.Get("errf"+str(obs))
-    errf.SetTitle("")
+    errf.SetTitle("Fitted Error")
+    plottitle = str(GenList[obs]).replace("_gen","")
+    errf.SetTitle(plottitle)
     errf.GetXaxis().SetTitle("Fitted Error")
 
-    #PullTree.Draw("("+GenList[obs]+"-"+FitList[obs]+")"+"/"+ErrList[obs]+">>pull"+str(obs)+"(100,-5,5)",selection,"goff")
-    PullTree.Draw("("+GenList[obs]+"-"+FitList[obs]+")"+"/"+ErrList[obs]+">>pull"+str(obs),selection,"goff")
+    print "Plotting:"
+    print "("+FitList[obs]+"-"+GenList[obs]+")"+"/"+ErrList[obs]
+    PullTree.Draw("("+FitList[obs]+"-"+GenList[obs]+")"+"/"+ErrList[obs]+">>pull"+str(obs),selection_string,"goff")
     pull = gDirectory.Get("pull"+str(obs))
     pull.SetTitle("")
-    #pull.GetXaxis().SetRangeUser(-5.0,5.0)
     pull.GetXaxis().SetTitle("Fitted Pull")
 
     if debugplots:
 
-        PullTree.Draw(FitList[obs]+":"+ErrList[obs]+">>fitVSerr"+str(obs),selection,"goff")
+        PullTree.Draw(FitList[obs]+":"+ErrList[obs]+">>fitVSerr"+str(obs),selection_string,"goff")
         fitVSerr = gDirectory.Get("fitVSerr"+str(obs))
         fitVSerr.SetTitle("")
         fitVSerr.GetXaxis().SetTitle("Fitted Error")
         fitVSerr.GetYaxis().SetTitle("Fitted Value")
         
-        PullTree.Draw("("+GenList[obs]+"-"+FitList[obs]+")"+"/"+ErrList[obs]+":"+ErrList[obs]+">>pullVSerr"+str(obs),selection,"goff")
+        PullTree.Draw("("+FitList[obs]+"-"+GenList[obs]+")"+"/"+ErrList[obs]+":"+ErrList[obs]+">>pullVSerr"+str(obs),selection_string,"goff")
         pullVSerr = gDirectory.Get("pullVSerr"+str(obs))
         pullVSerr.SetTitle("")
         pullVSerr.GetXaxis().SetTitle("Fitted Error")
@@ -199,7 +242,7 @@ for obs in range(0, int(nObs)):
     pullcanvas.cd(3)
     pull.Fit("gaus")
     pull.Draw("PE")
-    makeprintout(pullcanvas,outputdir+"1DPullPlot_DPi_Time_"+NameList[obs]+"_"+timefitdescr)
+    makeprintout(pullcanvas,outputdir+"1DPullPlot_"+NameList[obs]+"_"+plotlabel)
 
     if debugplots:
     
@@ -209,10 +252,18 @@ for obs in range(0, int(nObs)):
         fitVSerr.Draw("CONTZ")
         pullcanvas2.cd(2)
         pullVSerr.Draw("CONTZ")
-        makeprintout(pullcanvas2,outputdir+"2DPullPlot_DPi_Time_"+NameList[obs]+"_"+timefitdescr)
+        makeprintout(pullcanvas2,outputdir+"2DPullPlot_"+NameList[obs]+"_"+plotlabel)
         
 
-print "Number of toys %f" % (PullTree.GetEntries())
-print "Number of failed toys %f" % (PullTree.GetEntries("!("+selection+")"))
+ntoys = ufloat(PullTree.GetEntries(), sqrt(PullTree.GetEntries()))
+nfailed = ufloat(PullTree.GetEntries("!("+selection+")"), sqrt(PullTree.GetEntries("!("+selection+")")))
+print "Selection for failed toys:"
+print "!("+selection+")"
+print "Number of toys:"
+print ntoys
+print "Number of failed toys:"
+print nfailed
+print "Fraction of failed toys:"
+print nfailed/ntoys
 
 inputFile.Close()

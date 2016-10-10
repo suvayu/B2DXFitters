@@ -1242,6 +1242,9 @@ Bool_t MDFitterSettings::CheckDsHypoCut(TString& mode)
 
 RooArgSet* MDFitterSettings::GetObsSet(bool inName, bool regular, bool id, bool add, bool tag, bool tagomega)
 {
+
+  std::cout << "MDFitterSettings::GetObsSet(...) => Get set of observables" << std::endl;
+
   RooArgSet* obs = new RooArgSet();
   std::vector <RooRealVar*> obsReg;
   std::vector <TString> tN;

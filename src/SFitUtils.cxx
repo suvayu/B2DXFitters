@@ -85,7 +85,6 @@ namespace SFitUtils {
                                      bool toys,
                                      bool applykfactor,
                                      bool sWeightsCorr,
-                                     bool singletagger,
                                      bool debug
                                      )
   {
@@ -95,7 +94,7 @@ namespace SFitUtils {
       std::cout<<"[INFO] path of file: "<<pathFile<<std::endl;
       std::cout<<"[INFO] name of tree: "<<treeName<<std::endl;
       std::cout<<"[INFO] apply kfactor: "<<applykfactor<<std::endl;
-      std::cout<<"[INFO] pol: "<<pol<<", Ds mode: "<<mode<<", year: "<<year<<", merge: "<<merge<<std::endl;
+      std::cout<<"[INFO] pol: "<<pol<<", D mode: "<<mode<<", year: "<<year<<", hypo: "<<hypo<<", merge: "<<merge<<std::endl;
     }
     
     RooWorkspace* work = NULL;
@@ -104,14 +103,25 @@ namespace SFitUtils {
 
     RooRealVar* lab0_TAU      = new RooRealVar(mdSet->GetTimeVarOutName(),                mdSet->GetTimeVarOutName(),
                                                mdSet->GetTimeRangeDown(),                 mdSet->GetTimeRangeUp());
-    RooRealVar* lab0_TAUERR   = new RooRealVar(mdSet->GetTerrVarOutName(),                mdSet->GetTerrVarOutName(),
-                                               mdSet->GetTerrRangeDown(),                 mdSet->GetTerrRangeUp());
-    RooRealVar* lab0_TAUERR_calib   = new RooRealVar("terr_scaled", "terr_scaled", 0.01, 0.15);
-
+    RooRealVar* lab0_TAUERR;
+    RooRealVar* lab0_TAUERR_calib;
+    if(treeSW->GetBranch(mdSet->GetTerrVarOutName().Data()) != NULL)
+    {
+      lab0_TAUERR   = new RooRealVar(mdSet->GetTerrVarOutName(),                mdSet->GetTerrVarOutName(),
+                                     mdSet->GetTerrRangeDown(),                 mdSet->GetTerrRangeUp());
+      lab0_TAUERR_calib   = new RooRealVar("terr_scaled", "terr_scaled", 0.01, 0.15);
+    }
+   
+    RooRealVar* TrueID;
+    if(treeSW->GetBranch("TrueID") != NULL && toys)
+    {
+      TrueID = new RooRealVar("TrueID", "TrueID", -10000, 10000);
+    }
+    
     std::vector <RooCategory*> lab0_TAG;
 
-    if (toys == false )
-    {
+    //if (toys == false )
+    //{
       if (debug) {std::cout<<"[INFO] Number of all taggers: "<<mdSet->GetNumTagVar()<<", number of used taggers: "<<mdSet->CheckNumUsedTag()<<std::endl;  }
 
       if( mdSet->CheckTagVar() == true )
@@ -120,56 +130,56 @@ namespace SFitUtils {
         {
           for(int i = 0; i<mdSet->GetNumTagVar(); i++)
           {
-	    std::cout<<" i: "<<i<<" name: "<<mdSet->GetTagVarOutName(i)<<std::endl; 
-	    if ( mdSet->CheckUseTag(i) == true ) 
-	      {
-		std::cout<<"[INFO] Use tagger "<<i<<": "<<mdSet->CheckUseTag(i)<<std::endl; 
+            std::cout<<" i: "<<i<<" name: "<<mdSet->GetTagVarOutName(i)<<std::endl; 
+            if ( mdSet->CheckUseTag(i) == true ) 
+            {
+              std::cout<<"[INFO] Use tagger "<<i<<": "<<mdSet->CheckUseTag(i)<<std::endl; 
 		
-		lab0_TAG.push_back(new RooCategory(mdSet->GetTagVarOutName(i), "flavour tagging result"));
-		Int_t sizeTag = lab0_TAG.size();
-		TString BName = Form("B_%d",sizeTag-1);
-		TString BbarName = Form("Bbar_%d",sizeTag-1);
-		TString UnName = Form("Utagged_%d",sizeTag-1);  
-		lab0_TAG[sizeTag-1]->defineType(BName.Data(),     1);
-		lab0_TAG[sizeTag-1]->defineType(BbarName.Data(), -1);
-		lab0_TAG[sizeTag-1]->defineType(UnName.Data(),    0);
-	      }
+              lab0_TAG.push_back(new RooCategory(mdSet->GetTagVarOutName(i), "flavour tagging result"));
+              Int_t sizeTag = lab0_TAG.size();
+              TString BName = Form("B_%d",sizeTag-1);
+              TString BbarName = Form("Bbar_%d",sizeTag-1);
+              TString UnName = Form("Utagged_%d",sizeTag-1);  
+              lab0_TAG[sizeTag-1]->defineType(BName.Data(),     1);
+              lab0_TAG[sizeTag-1]->defineType(BbarName.Data(), -1);
+              lab0_TAG[sizeTag-1]->defineType(UnName.Data(),    0);
+            }
           }
         }
       }
-    }
-    else
-    {
+      //}
+    /*else
+      {
       lab0_TAG.push_back(new RooCategory("tagDecComb", "flavour tagging result"));
       lab0_TAG[0]->defineType("B_1",     1);
       lab0_TAG[0]->defineType("Bbar_1", -1);
       lab0_TAG[0]->defineType("Untagged",0);
       if(!singletagger){
-        lab0_TAG[0]->defineType("B_3",     3);
-        lab0_TAG[0]->defineType("Bbar_3", -3);
-        lab0_TAG[0]->defineType("B_2",     2);
-        lab0_TAG[0]->defineType("Bbar_2", -2);
+      lab0_TAG[0]->defineType("B_3",     3);
+      lab0_TAG[0]->defineType("Bbar_3", -3);
+      lab0_TAG[0]->defineType("B_2",     2);
+      lab0_TAG[0]->defineType("Bbar_2", -2);
       }
-    }
+      }*/
     
     std::vector <RooRealVar*> lab0_TAGOMEGA;
-    if ( toys == false )
-    {
+    //if ( toys == false )
+    //{
       if( mdSet->CheckTagOmegaVar() == true )
       {
         for(int i = 0; i<mdSet->GetNumTagOmegaVar(); i++)
 	      {
-		if ( mdSet->CheckUseTag(i) == true )
-		  {
-		    lab0_TAGOMEGA.push_back(mdSet->GetObs(mdSet->GetTagOmegaVarOutName(i)));
-		  }
+          if ( mdSet->CheckUseTag(i) == true )
+          {
+            lab0_TAGOMEGA.push_back(mdSet->GetObs(mdSet->GetTagOmegaVarOutName(i)));
+          }
 	      }
       }
-    }
+      /*}
     else
     {
       lab0_TAGOMEGA.push_back(new RooRealVar("tagOmegaComb","tagOmegaComb",0.0, 0.5));
-    }
+      }*/
     
     RooCategory* qf = new RooCategory(mdSet->GetIDVarOutName(), "bachelor charge");
     qf->defineType("h+",  1);
@@ -186,44 +196,55 @@ namespace SFitUtils {
     RooRealVar*  weights;
 
     RooArgSet* obs = new RooArgSet(*lab0_TAU,
-                                   *lab0_TAUERR,
-				   *lab0_TAUERR_calib,
                                    *qf);
+    if(treeSW->GetBranch(mdSet->GetTerrVarOutName().Data()) != NULL)
+    {
+      obs->add(*lab0_TAUERR);
+      obs->add(*lab0_TAUERR_calib);
+    }
+
     if ( debug )
     {
       std::cout<<"[INFO] Variable "<<lab0_TAU->GetName()<<" in data set."<<std::endl;
-      std::cout<<"[INFO] Variable "<<lab0_TAUERR->GetName()<<" in data set."<<std::endl;
+      if(treeSW->GetBranch(mdSet->GetTerrVarOutName().Data()) != NULL)
+      { 
+        std::cout<<"[INFO] Variable "<<lab0_TAUERR->GetName()<<" in data set."<<std::endl;
+      }
       std::cout<<"[INFO] Variable "<<qf->GetName()<<" in data set."<<std::endl;
     }
-    if ( toys == false )
-    {
+    //if ( toys == false )
+    //{
       if( mdSet->CheckTagVar() == true )
       {
         for(int i = 0; i<mdSet->CheckNumUsedTag(); i++)
-	  {
-	    obs->add(*lab0_TAG[i]);
-	    std::cout<<"[INFO] Variable "<<lab0_TAG[i]->GetName()<<" in data set."<<std::endl; 
-	  }
+        {
+          obs->add(*lab0_TAG[i]);
+          std::cout<<"[INFO] Variable "<<lab0_TAG[i]->GetName()<<" in data set."<<std::endl; 
+        }
       }
       if( mdSet->CheckTagOmegaVar() == true )
       {
         for(int i = 0; i<mdSet->CheckNumUsedTag(); i++)
-	  {
-	    obs->add(*lab0_TAGOMEGA[i]);
-	    std::cout<<"[INFO] Variable "<<lab0_TAGOMEGA[i]->GetName()<<" in data set."<<std::endl;
-	  }
+        {
+          obs->add(*lab0_TAGOMEGA[i]);
+          std::cout<<"[INFO] Variable "<<lab0_TAGOMEGA[i]->GetName()<<" in data set."<<std::endl;
+        }
       }
-    }
-    else
+      if(treeSW->GetBranch("TrueID") != NULL)
+      {
+        obs->add(*TrueID);
+      }
+      //}
+      /*else
     {
       obs->add(*lab0_TAG[0]);
       obs->add(*lab0_TAGOMEGA[0]); 
-    }
+      }*/
     TString setOfObsName = "SetOfObservables";
     obs->setName(setOfObsName.Data());
     
     TString namew = "sWeights";
-    weights = new RooRealVar(namew.Data(), namew.Data(), -1.0, 1.5 );  // create weights //
+    weights = new RooRealVar(namew.Data(), namew.Data(), -10.0, 10.0 );  // create weights //
     obs->add(*weights);
 
     //obs->add(*lab1_P);
@@ -250,42 +271,48 @@ namespace SFitUtils {
     Double_t mass;
             
     treeSW->SetBranchAddress(mdSet->GetTimeVarOutName().Data(), &tau);
-    treeSW->SetBranchAddress(mdSet->GetTerrVarOutName().Data(), &tauerr);
-    TString nameID = mdSet->GetIDVarOutName()+"_idx"; 
+    if(treeSW->GetBranch(mdSet->GetTerrVarOutName().Data()) != NULL)
+    {
+      treeSW->SetBranchAddress(mdSet->GetTerrVarOutName().Data(), &tauerr);
+    }
+    TString nameID = mdSet->GetIDVarOutName()+"_idx";
     treeSW->SetBranchAddress(nameID.Data(), &ID);
-    treeSW->SetBranchAddress(mdSet->GetMassBVarOutName().Data(), &mass);
+    if(treeSW->GetBranch(mdSet->GetMassBVarOutName().Data()) != NULL)
+    {  
+      treeSW->SetBranchAddress(mdSet->GetMassBVarOutName().Data(), &mass);
+    }
     Int_t tag[mdSet->GetNumTagVar()];
     Double_t omega[mdSet->GetNumTagOmegaVar()];
     
-    if (toys == false)
-    {
+    //if (toys == false)
+    //{
       if( mdSet->CheckTagVar() == true )
       {
         for(int k = 0; k<mdSet->CheckNumUsedTag(); k++)
-	  {
-	    TString pre = lab0_TAG[k]->GetName();
-	    TString nameTag = pre +"_idx";
-	    treeSW->SetBranchAddress(nameTag, &tag[k]);
-	  }
+        {
+          TString pre = lab0_TAG[k]->GetName();
+          TString nameTag = pre +"_idx";
+          treeSW->SetBranchAddress(nameTag, &tag[k]);
+        }
       }
       if( mdSet->CheckTagOmegaVar() == true )
       {
         for(int k = 0; k<mdSet->CheckNumUsedTag(); k++)
-	  {
-	    treeSW->SetBranchAddress(lab0_TAGOMEGA[k]->GetName(), &omega[k]);
-	  }
+        {
+          treeSW->SetBranchAddress(lab0_TAGOMEGA[k]->GetName(), &omega[k]);
+        }
       }
-    }
+      //}
     
-    else
+      /*else
     {
       treeSW->SetBranchAddress("tagDecComb_idx", &tag[0]);
       treeSW->SetBranchAddress("tagOmegaComb", &omega[0]);
-    }
+      }*/
     
     if(toys)
     {
-      treeSW->SetBranchAddress("lab0_TRUEID", &trueid);
+      treeSW->SetBranchAddress("TrueID", &trueid);
     }
     
     for (int i = 0; i<bound; i++)
@@ -364,8 +391,14 @@ namespace SFitUtils {
       //if ( m < 0.2 ) continue; 
 
       lab0_TAU->setVal(m);
-      lab0_TAUERR->setVal(merr);
-      lab0_TAUERR_calib->setVal(1.37*merr); 
+      if(treeSW->GetBranch(mdSet->GetTerrVarOutName().Data()) != NULL)
+      {  
+        lab0_TAUERR->setVal(merr);
+        lab0_TAUERR_calib->setVal(1.37*merr);
+      }
+
+      TrueID->setVal(trueid);
+      
       //if (tagweight > 0.5) tagweight = 0.5;
       //lab0_TAGOMEGA->setVal(tagweight);
       
@@ -383,8 +416,8 @@ namespace SFitUtils {
 
       
       if (ID > 0) { qf->setIndex(1); } else { qf->setIndex(-1); }
-      if( toys == false)
-      {
+      //if( toys == false)
+      //{
         if(  mdSet->CheckTagVar() == true )
         {
           for(int k = 0; k<mdSet->CheckNumUsedTag(); k++)
@@ -404,30 +437,48 @@ namespace SFitUtils {
             lab0_TAGOMEGA[k]->setVal(omega[k]);
           }
         }
-      }
-      else
+        //}
+      /*else
       {
         lab0_TAG[0]->setIndex(tag[0]);
         lab0_TAGOMEGA[0]->setVal(omega[0]);
-      }
+        }*/
 
       //sum_sw = 1.0;
       weights->setVal(sum_sw * swCorr);
       sqSumsW += sum_sw*sum_sw *swCorr*swCorr;
       //if ( m > mdSet->GetTimeRangeDown() && m < mdSet->GetTimeRangeUp())
       //	{
-      if ( m > mdSet->GetTimeRangeDown() && m < mdSet->GetTimeRangeUp() &&
-           merr > mdSet->GetTerrRangeDown() && merr <mdSet->GetTerrRangeUp() ) 
-      {
-        if (weighted == true )
+      if(treeSW->GetBranch(mdSet->GetTerrVarOutName().Data()) != NULL)
+      {  
+        if ( m > mdSet->GetTimeRangeDown() && m < mdSet->GetTimeRangeUp() &&
+             merr > mdSet->GetTerrRangeDown() && merr <mdSet->GetTerrRangeUp() ) 
         {
-          dataSet->add(*obs,sum_sw,0);
-        }
-        else
-        {
-          dataSet->add(*obs);
+          if (weighted == true )
+          {
+            dataSet->add(*obs,sum_sw,0);
+          }
+          else
+          {
+            dataSet->add(*obs);
+          }
         }
       }
+      else
+      {
+        if ( m > mdSet->GetTimeRangeDown() && m < mdSet->GetTimeRangeUp() )  
+        {   
+          if (weighted == true )
+          {   
+            dataSet->add(*obs,sum_sw,0); 
+          }
+          else
+          { 
+            dataSet->add(*obs); 
+          }
+        }
+      }      
+
       //	}
       //std::cout << "this event has time = " << m << " and error = " << merr << " with weight = " << sum_sw << std::endl;  
       
@@ -443,7 +494,7 @@ namespace SFitUtils {
     
     std::cout<<"tagEff1: "<<tagEff[0]/dataSet->sumEntries()<<" = "<<tagEff[0]<<" / "<<dataSet->sumEntries()<<std::endl;
     std::cout<<"tagEff2: "<<tagEff[1]/dataSet->sumEntries()<<" = "<<tagEff[0]<<" / "<<dataSet->sumEntries()<<std::endl;
-    if ( toys == false)
+    /*if ( toys == false)
     {
       RooArgList* tagList= new RooArgList();
       RooArgList* tagOmegaList = new RooArgList();
@@ -476,21 +527,21 @@ namespace SFitUtils {
       if(  mdSet->CheckTagOmegaVar() == true )
       {
         for(int k = 0; k<mdSet->CheckNumUsedTag(); k++)
-	  {
+        {
 	    
-	    TString match = mdSet->CheckTagger(lab0_TAG[k]->GetName());
-	    std::cout<<"[INF0] Calibration for "<<match<<": p0="<<mdSet->GetCalibp0(match)<<" p1: "<<mdSet->GetCalibp1(match)<<" av: "<<mdSet->GetCalibAv(match)<<std::endl;
-	    p0[k] = new RooRealVar(Form("p0_%d",k),Form("p0_%d",k),mdSet->GetCalibp0(match));
-	    p1[k] = new RooRealVar(Form("p1_%d",k),Form("p1_%d",k),mdSet->GetCalibp1(match));
-	    av[k] = new RooRealVar(Form("av_%d",k),Form("av_%d",k),mdSet->GetCalibAv(match));
-	    TString namepre = lab0_TAGOMEGA[k]->GetName();
-	    TString nameCalib = namepre+"_calib";
-	    calibMistag[k] = new MistagCalibration(nameCalib.Data(), nameCalib.Data(),
-						   *lab0_TAGOMEGA[k], *p0[k], *p1[k], *av[k]);
-	    dataSet->addColumn(*calibMistag[k]);
-	    tagOmegaList->add(*calibMistag[k]);
-	    if ( debug ) { std::cout<<"[INFO] Variable "<<nameCalib<<" in data set."<<std::endl; }
-	  }
+          TString match = mdSet->CheckTagger(lab0_TAG[k]->GetName());
+          std::cout<<"[INF0] Calibration for "<<match<<": p0="<<mdSet->GetCalibp0(match)<<" p1: "<<mdSet->GetCalibp1(match)<<" av: "<<mdSet->GetCalibAv(match)<<std::endl;
+          p0[k] = new RooRealVar(Form("p0_%d",k),Form("p0_%d",k),mdSet->GetCalibp0(match));
+          p1[k] = new RooRealVar(Form("p1_%d",k),Form("p1_%d",k),mdSet->GetCalibp1(match));
+          av[k] = new RooRealVar(Form("av_%d",k),Form("av_%d",k),mdSet->GetCalibAv(match));
+          TString namepre = lab0_TAGOMEGA[k]->GetName();
+          TString nameCalib = namepre+"_calib";
+          calibMistag[k] = new MistagCalibration(nameCalib.Data(), nameCalib.Data(),
+                                                 *lab0_TAGOMEGA[k], *p0[k], *p1[k], *av[k]);
+          dataSet->addColumn(*calibMistag[k]);
+          tagOmegaList->add(*calibMistag[k]);
+          if ( debug ) { std::cout<<"[INFO] Variable "<<nameCalib<<" in data set."<<std::endl; }
+        }
       }
       
       DLLTagCombiner* combiner = new DLLTagCombiner("tagCombiner","tagCombiner",*tagList,*tagOmegaList);
@@ -506,7 +557,7 @@ namespace SFitUtils {
         
       }
       
-    }
+      }*/
     
     work->import(*dataSet);
     return work;

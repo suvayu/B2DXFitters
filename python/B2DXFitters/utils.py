@@ -64,6 +64,76 @@ def setConstantIfSoConfigured(config, obj, recache = None):
         # ignore everything else
         pass
 
+def randomiseParameters(config, obj, seed, debug, dict = {}):
+    """
+    re-assign values to parameters taking them
+    from a uniform distribution having boundaries equal to
+    the parameters boundaries.
+    It returns a dictionary containing of the form:
+    @code
+    {parameter name : value before randomisation}
+    @endcode
+    This is useful for pulls distributions on toys if the generation
+    value is the initial value in the fit (one doesn't want to loose it...)
+    This dictionary can then be given as input to the
+    FitResultGrabberUtils.CreatePullTree function.
+    
+    Typical use-case: randomize initial guess on floating
+    parameter in a fit to check stability on toys.
+
+    config -- configuration file having the following structure:
+    @code
+    config['randomiseParams'] = {'parName' : {'min': min, 'max': max}}
+    @endcode
+    where min and max are the boundaries of the uniform distribution
+    used for the generation.
+    Regular expressions for parName are allowed.
+    obj -- the parent structure (e.g. a RooAbsPdf)
+    seed -- the seed used for the random generation
+    debug -- if true, print out some information
+    dict -- the returned dictionary with parameter name and initial value
+    """
+
+    from ROOT import RooAbsArg, RooRealVar, RooConstVar, RooArgSet, TRandom3
+
+    if obj.InheritsFrom(RooRealVar.Class()):
+        if obj.isConstant():
+            pass
+        r = TRandom3()
+        r.SetSeed(seed)
+        for var in config['randomiseParams'].iterkeys():
+            if var == obj.GetName() and var not in dict.keys():
+                dict[obj.GetName()] = {}
+                dict[obj.GetName()] = obj.getVal()
+                val = r.Uniform(config['randomiseParams'][var]['min'], config['randomiseParams'][var]['max'])
+                if debug:
+                    print "B2DXFitters.utils.randomiseParameters(..) => Parameter "+obj.GetName()
+                    print "...Initial guess "+str(obj.getVal())
+                    print "...New guess "+str(val)
+                    obj.setVal( val )
+                break
+    elif obj.InheritsFrom(RooConstVar.Class()):
+        # ignore RooConstVar instances - these are constant anyway
+        pass
+    elif obj.InheritsFrom(RooAbsArg.Class()):
+        # for everything else, descend hierarchy of RooFit objects to find
+        # RooRealVars which might need to be set to constant
+        v = RooArgSet()
+        obj.treeNodeServerList(v)
+        v.remove(obj)
+        it = v.fwdIterator()
+        while True:
+            o = it.next()
+            if None == o:
+                break
+            else:
+                # randomise desired RooRealVar-derived objects
+                randomiseParameters(config, o, seed, debug, dict)
+    else:
+        # ignore everything else
+        pass
+
+
 def printPDFTermsOnDataSet(dataset, terms = []):
     """
     print the values of various terms in a pdf for each entry in a data set
@@ -213,7 +283,7 @@ def PytoTreeLeaves(type):
 
 def TreeLeavesToPy(type):
         """
-        convert python datatype to TTree ROOT datatype
+        convert TTree ROOT datatype to python datatype
         """
         
         typecode = None

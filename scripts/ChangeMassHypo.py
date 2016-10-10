@@ -113,6 +113,8 @@ import ROOT
 from B2DXFitters import *
 from ROOT import *
 
+from B2DXFitters.utils import TreeLeavesToPy as TreeLeavesToPy
+
 from ROOT import RooFit
 from optparse import OptionParser
 from math     import pi, log
@@ -187,9 +189,11 @@ def CreateMassDictionary(configfile, debug):
 def ChangeBranchStatus(tree,configfile,status,debug):
     debugDict = []
 
+    pedix = configfile["MassPedix"]+configfile["Pedix"]
+
     #Change (at least) Beauty mass
-    tree.SetBranchStatus(configfile["BeautyPrefix"]["Name"]+'_M'+configfile["Pedix"],status)
-    debugDict.append(configfile["BeautyPrefix"]["Name"]+'_M'+configfile["Pedix"])
+    tree.SetBranchStatus(configfile["BeautyPrefix"]["Name"]+pedix,status)
+    debugDict.append(configfile["BeautyPrefix"]["Name"]+pedix)
 
     #Loop over Beauty children
     for bchild in configfile["BeautyChildrenPrefix"].iterkeys():
@@ -197,8 +201,8 @@ def ChangeBranchStatus(tree,configfile,status,debug):
         if 'Charm' in bchild:
             for cchild in configfile[bchild+'ChildrenPrefix'].iterkeys():
                 if 'newID' in configfile[bchild+'ChildrenPrefix'][cchild].keys():
-                    tree.SetBranchStatus(configfile["BeautyChildrenPrefix"][bchild]["Name"]+'_M'+configfile["Pedix"],status)
-                    debugDict.append(configfile["BeautyChildrenPrefix"][bchild]["Name"]+'_M'+configfile["Pedix"])
+                    tree.SetBranchStatus(configfile["BeautyChildrenPrefix"][bchild]["Name"]+pedix,status)
+                    debugDict.append(configfile["BeautyChildrenPrefix"][bchild]["Name"]+pedix)
                     break
 
     if debug:
@@ -210,50 +214,57 @@ def ChangeBranchStatus(tree,configfile,status,debug):
 
 #------------------------------------------------------------------------------ 
 def CreateBranchDictionary(configfile,maxBcand,debug):
+
+    pedix = configfile["MassPedix"]+configfile["Pedix"]
+    
     #Take Beauty mass first
     branchDict={}
     branchDict[configfile["BeautyPrefix"]["Name"]]={}
+    btype = TreeLeavesToPy(configfile["BeautyPrefix"]["Type"])
     if 'Index' in configfile.keys():
         branchDict[configfile["BeautyPrefix"]["Name"]][configfile["BeautyPrefix"]["Index"]] = array('i',[0])
-        branchDict[configfile["BeautyPrefix"]["Name"]][configfile["BeautyPrefix"]["Name"]+'_M'+configfile["Pedix"]] = array('f',maxBcand*[0])
+        branchDict[configfile["BeautyPrefix"]["Name"]][configfile["BeautyPrefix"]["Name"]+pedix] = array(btype,maxBcand*[0])
     else:
-        branchDict[configfile["BeautyPrefix"]["Name"]][configfile["BeautyPrefix"]["Name"]+'_M'+configfile["Pedix"]] = array('f',[0])
+        branchDict[configfile["BeautyPrefix"]["Name"]][configfile["BeautyPrefix"]["Name"]+pedix] = array(btype,[0])
         
     #Then, Bachelor(s) momenta
     for bchild in configfile["BeautyChildrenPrefix"].iterkeys():
         if 'Bachelor' in bchild:
+            bactype = TreeLeavesToPy(configfile["BeautyChildrenPrefix"][bchild]["Type"])
             branchDict[configfile["BeautyChildrenPrefix"][bchild]["Name"]]={}
             if 'Index' in configfile.keys():
-                branchDict[configfile["BeautyChildrenPrefix"][bchild]["Name"]][configfile["BeautyChildrenPrefix"][bchild]["Name"]+'_PX'+configfile["Pedix"]] = array('f',maxBcand*[0])
-                branchDict[configfile["BeautyChildrenPrefix"][bchild]["Name"]][configfile["BeautyChildrenPrefix"][bchild]["Name"]+'_PY'+configfile["Pedix"]] = array('f',maxBcand*[0])
-                branchDict[configfile["BeautyChildrenPrefix"][bchild]["Name"]][configfile["BeautyChildrenPrefix"][bchild]["Name"]+'_PZ'+configfile["Pedix"]] = array('f',maxBcand*[0])
+                branchDict[configfile["BeautyChildrenPrefix"][bchild]["Name"]][configfile["BeautyChildrenPrefix"][bchild]["Name"]+'_PX'+configfile["Pedix"]] = array(bactype,maxBcand*[0])
+                branchDict[configfile["BeautyChildrenPrefix"][bchild]["Name"]][configfile["BeautyChildrenPrefix"][bchild]["Name"]+'_PY'+configfile["Pedix"]] = array(bactype,maxBcand*[0])
+                branchDict[configfile["BeautyChildrenPrefix"][bchild]["Name"]][configfile["BeautyChildrenPrefix"][bchild]["Name"]+'_PZ'+configfile["Pedix"]] = array(bactype,maxBcand*[0])
             else:
-                branchDict[configfile["BeautyChildrenPrefix"][bchild]["Name"]][configfile["BeautyChildrenPrefix"][bchild]["Name"]+'_PX'+configfile["Pedix"]] = array('f',[0])
-                branchDict[configfile["BeautyChildrenPrefix"][bchild]["Name"]][configfile["BeautyChildrenPrefix"][bchild]["Name"]+'_PY'+configfile["Pedix"]] = array('f',[0])
-                branchDict[configfile["BeautyChildrenPrefix"][bchild]["Name"]][configfile["BeautyChildrenPrefix"][bchild]["Name"]+'_PZ'+configfile["Pedix"]] = array('f',[0])
+                branchDict[configfile["BeautyChildrenPrefix"][bchild]["Name"]][configfile["BeautyChildrenPrefix"][bchild]["Name"]+'_PX'+configfile["Pedix"]] = array(bactype,[0])
+                branchDict[configfile["BeautyChildrenPrefix"][bchild]["Name"]][configfile["BeautyChildrenPrefix"][bchild]["Name"]+'_PY'+configfile["Pedix"]] = array(bactype,[0])
+                branchDict[configfile["BeautyChildrenPrefix"][bchild]["Name"]][configfile["BeautyChildrenPrefix"][bchild]["Name"]+'_PZ'+configfile["Pedix"]] = array(bactype,[0])
 
         #Then, Charm(s) children (if any)
         if 'Charm' in bchild:
             for cchild in configfile[bchild+'ChildrenPrefix'].iterkeys():
                 if 'newID' in configfile[bchild+'ChildrenPrefix'][cchild].keys():
                     #Charm children detected; need to update Charm invariant mass as well
+                    ctype = TreeLeavesToPy(configfile["BeautyChildrenPrefix"][bchild]["Type"])
                     branchDict[configfile["BeautyChildrenPrefix"][bchild]["Name"]]={}
                     if 'Index' in configfile.keys():
-                        branchDict[configfile["BeautyChildrenPrefix"][bchild]["Name"]][configfile["BeautyChildrenPrefix"][bchild]["Name"]+'_M'+configfile["Pedix"]] = array('f',maxBcand*[0])
+                        branchDict[configfile["BeautyChildrenPrefix"][bchild]["Name"]][configfile["BeautyChildrenPrefix"][bchild]["Name"]+pedix] = array(ctype,maxBcand*[0])
                     else:
-                        branchDict[configfile["BeautyChildrenPrefix"][bchild]["Name"]][configfile["BeautyChildrenPrefix"][bchild]["Name"]+'_M'+configfile["Pedix"]] = array('f',[0])
+                        branchDict[configfile["BeautyChildrenPrefix"][bchild]["Name"]][configfile["BeautyChildrenPrefix"][bchild]["Name"]+pedix] = array(ctype,[0])
                     break
             #Now take Charm children momenta
             for cchild in configfile[bchild+"ChildrenPrefix"].iterkeys():
+                cchildtype = TreeLeavesToPy(configfile[bchild+"ChildrenPrefix"][cchild]["Type"])
                 branchDict[configfile[bchild+"ChildrenPrefix"][cchild]["Name"]]={}
                 if 'Index' in configfile.keys():
-                    branchDict[configfile[bchild+"ChildrenPrefix"][cchild]["Name"]][configfile[bchild+"ChildrenPrefix"][cchild]["Name"]+'_PX'+configfile["Pedix"]] = array('f',maxBcand*[0])
-                    branchDict[configfile[bchild+"ChildrenPrefix"][cchild]["Name"]][configfile[bchild+"ChildrenPrefix"][cchild]["Name"]+'_PY'+configfile["Pedix"]] = array('f',maxBcand*[0])
-                    branchDict[configfile[bchild+"ChildrenPrefix"][cchild]["Name"]][configfile[bchild+"ChildrenPrefix"][cchild]["Name"]+'_PZ'+configfile["Pedix"]] = array('f',maxBcand*[0])
+                    branchDict[configfile[bchild+"ChildrenPrefix"][cchild]["Name"]][configfile[bchild+"ChildrenPrefix"][cchild]["Name"]+'_PX'+configfile["Pedix"]] = array(cchildtype,maxBcand*[0])
+                    branchDict[configfile[bchild+"ChildrenPrefix"][cchild]["Name"]][configfile[bchild+"ChildrenPrefix"][cchild]["Name"]+'_PY'+configfile["Pedix"]] = array(cchildtype,maxBcand*[0])
+                    branchDict[configfile[bchild+"ChildrenPrefix"][cchild]["Name"]][configfile[bchild+"ChildrenPrefix"][cchild]["Name"]+'_PZ'+configfile["Pedix"]] = array(cchildtype,maxBcand*[0])
                 else:
-                    branchDict[configfile[bchild+"ChildrenPrefix"][cchild]["Name"]][configfile[bchild+"ChildrenPrefix"][cchild]["Name"]+'_PX'+configfile["Pedix"]] = array('f',[0])
-                    branchDict[configfile[bchild+"ChildrenPrefix"][cchild]["Name"]][configfile[bchild+"ChildrenPrefix"][cchild]["Name"]+'_PY'+configfile["Pedix"]] = array('f',[0])
-                    branchDict[configfile[bchild+"ChildrenPrefix"][cchild]["Name"]][configfile[bchild+"ChildrenPrefix"][cchild]["Name"]+'_PZ'+configfile["Pedix"]] = array('f',[0])
+                    branchDict[configfile[bchild+"ChildrenPrefix"][cchild]["Name"]][configfile[bchild+"ChildrenPrefix"][cchild]["Name"]+'_PX'+configfile["Pedix"]] = array(cchildtype,[0])
+                    branchDict[configfile[bchild+"ChildrenPrefix"][cchild]["Name"]][configfile[bchild+"ChildrenPrefix"][cchild]["Name"]+'_PY'+configfile["Pedix"]] = array(cchildtype,[0])
+                    branchDict[configfile[bchild+"ChildrenPrefix"][cchild]["Name"]][configfile[bchild+"ChildrenPrefix"][cchild]["Name"]+'_PZ'+configfile["Pedix"]] = array(cchildtype,[0])
                 
 
     if debug:
@@ -275,16 +286,19 @@ def SetAddress(tree, branchDict, configfile, debug):
 
 #------------------------------------------------------------------------------
 def CreateBranches(tree,branchDict,configfile,debug):
+
     debugDict = []
+    pedix = configfile["MassPedix"]+configfile["Pedix"]
     
     #Beauty mass
+    btype = configfile["BeautyPrefix"]["Type"]
     if 'Index' in configfile["BeautyPrefix"].keys():
-        brString = configfile["BeautyPrefix"]["Name"]+'_M'+configfile["Pedix"]+'['+configfile["BeautyPrefix"]["Index"]+']/F'
+        brString = configfile["BeautyPrefix"]["Name"]+pedix+'['+configfile["BeautyPrefix"]["Index"]+']/'+btype
     else:
-        brString = configfile["BeautyPrefix"]["Name"]+'_M'+configfile["Pedix"]+'/F'
+        brString = configfile["BeautyPrefix"]["Name"]+pedix+'/'+btype
         
-    tree.Branch(configfile["BeautyPrefix"]["Name"]+'_M'+configfile["Pedix"],
-                branchDict[configfile["BeautyPrefix"]["Name"]][configfile["BeautyPrefix"]["Name"]+'_M'+configfile["Pedix"]],
+    tree.Branch(configfile["BeautyPrefix"]["Name"]+pedix,
+                branchDict[configfile["BeautyPrefix"]["Name"]][configfile["BeautyPrefix"]["Name"]+pedix],
                 brString)
     debugDict += [brString]
     
@@ -294,13 +308,14 @@ def CreateBranches(tree,branchDict,configfile,debug):
         if 'Charm' in bchild:
             for cchild in configfile[bchild+'ChildrenPrefix'].iterkeys():
                 if 'newID' in configfile[bchild+'ChildrenPrefix'][cchild].keys():
+                    cchildtype = configfile[bchild+"ChildrenPrefix"][bchild]["Type"]
                     if 'Index' in configfile["BeautyChildrenPrefix"][bchild].keys():
-                        brString = configfile["BeautyChildrenPrefix"][bchild]["Name"]+'_M'+configfile["Pedix"]+'['+configfile["BeautyPrefix"]["Index"]+']/F'
+                        brString = configfile["BeautyChildrenPrefix"][bchild]["Name"]+pedix+'['+configfile["BeautyPrefix"]["Index"]+']/'+cchildtype
                     else:
-                        brString = configfile["BeautyChildrenPrefix"][bchild]["Name"]+'_M'+configfile["Pedix"]+'/F'
+                        brString = configfile["BeautyChildrenPrefix"][bchild]["Name"]+pedix+'/'+cchildtype
             
-                    tree.Branch(configfile["BeautyChildrenPrefix"][bchild]["Name"]+'_M'+configfile["Pedix"],
-                                branchDict[configfile["BeautyChildrenPrefix"][bchild]["Name"]][configfile["BeautyChildrenPrefix"][bchild]["Name"]+'_M'+configfile["Pedix"]],
+                    tree.Branch(configfile["BeautyChildrenPrefix"][bchild]["Name"]+pedix,
+                                branchDict[configfile["BeautyChildrenPrefix"][bchild]["Name"]][configfile["BeautyChildrenPrefix"][bchild]["Name"]+pedix],
                                 brString)
                     debugDict += [brString]
                     break
@@ -322,6 +337,7 @@ def ComputeNewBMass(branchDict, massDict, nBCand, configfile):
     PZ=0.0
     mass=0.0
     name=''
+    pedix = configfile["MassPedix"]+configfile["Pedix"]
 
     #Loop over B candidates
     for bcand in range(0, nBCand):
@@ -361,10 +377,10 @@ def ComputeNewBMass(branchDict, massDict, nBCand, configfile):
                     totE = totE + TMath.Sqrt(PX*PX + PY*PY + PZ*PZ + mass*mass)
 
         #Compute new mass for this Beauty candidate
-        branchDict[configfile["BeautyPrefix"]["Name"]][configfile["BeautyPrefix"]["Name"]+"_M"+configfile["Pedix"]][bcand] = TMath.Sqrt(totE*totE
-                                                                                                                                        - totPX*totPX
-                                                                                                                                        - totPY*totPY
-                                                                                                                                        - totPZ*totPZ)
+        branchDict[configfile["BeautyPrefix"]["Name"]][configfile["BeautyPrefix"]["Name"]+pedix][bcand] = TMath.Sqrt(totE*totE
+                                                                                                                     - totPX*totPX
+                                                                                                                     - totPY*totPY
+                                                                                                                     - totPZ*totPZ)
         
 #------------------------------------------------------------------------------
 def ComputeNewBMassDconstr(branchDict, massDict, nBCand, configfile):
@@ -376,6 +392,7 @@ def ComputeNewBMassDconstr(branchDict, massDict, nBCand, configfile):
      PZ=0.0
      mass=0.0
      name=''
+     pedix = configfile["MassPedix"]+configfile["Pedix"]
 
      #Loop over B candidates
      for bcand in range(0, nBCand):
@@ -427,13 +444,15 @@ def ComputeNewBMassDconstr(branchDict, massDict, nBCand, configfile):
 
 
          #Compute new mass for this Beauty candidate
-         branchDict[configfile["BeautyPrefix"]["Name"]][configfile["BeautyPrefix"]["Name"]+"_M"+configfile["Pedix"]][bcand] = TMath.Sqrt(totE*totE
-                                                                                                                                         - totPX*totPX
-                                                                                                                                         - totPY*totPY
-                                                                                                                                         - totPZ*totPZ)
+         branchDict[configfile["BeautyPrefix"]["Name"]][configfile["BeautyPrefix"]["Name"]+pedix][bcand] = TMath.Sqrt(totE*totE
+                                                                                                                      - totPX*totPX
+                                                                                                                      - totPY*totPY
+                                                                                                                      - totPZ*totPZ)
          
 #------------------------------------------------------------------------------
 def ComputeNewDMass(branchDict, massDict, CharmChildrenUpdates, nBCand, configfile):
+
+    pedix = configfile["MassPedix"]+configfile["Pedix"]
 
     #Updating Charm mass
 
@@ -467,10 +486,10 @@ def ComputeNewDMass(branchDict, massDict, CharmChildrenUpdates, nBCand, configfi
                 totE = totE + TMath.Sqrt(PX*PX + PY*PY + PZ*PZ + mass*mass)
                 
             #Compute new Charm mass for this Charm
-            branchDict[configfile["BeautyChildrenPrefix"][bchild]["Name"]][configfile["BeautyChildrenPrefix"][bchild]["Name"]+"_M"+configfile["Pedix"]][bcand] = TMath.Sqrt(totE*totE
-                                                                                                                                                                            - totPX*totPX
-                                                                                                                                                                            - totPY*totPY
-                                                                                                                                                                            - totPZ*totPZ)
+            branchDict[configfile["BeautyChildrenPrefix"][bchild]["Name"]][configfile["BeautyChildrenPrefix"][bchild]["Name"]+pedix][bcand] = TMath.Sqrt(totE*totE
+                                                                                                                                                         - totPX*totPX
+                                                                                                                                                         - totPY*totPY
+                                                                                                                                                         - totPZ*totPZ)
             
 #------------------------------------------------------------------------------
 #------------------------------------------------------------------------------
@@ -567,6 +586,12 @@ def ChangeMassHypo(debug,
     print "========================================="
     print ""
 
+    #Number of entries
+    if int(maxTreeEntries) < 0:
+        entries = inputTree.GetEntries()
+    else:
+        entries = int(maxTreeEntries)
+
     #Clone tree, but deactivate branches that need to be updated (will copy later with updated values)
     print "Deactivate branches to be updated in old tree"
     inputTree = ChangeBranchStatus(inputTree,myconfigfile,0,debug)
@@ -574,9 +599,15 @@ def ChangeMassHypo(debug,
     if outputdir!='':
         outputFile.mkdir(outputdir)
         outputFile.cd(outputdir)
-    outputTree = inputTree.CloneTree(int(maxTreeEntries))
+    outputTree = inputTree.CloneTree(entries)
     outputTree.SetName(outputtree)
     outputTree.SetTitle(outputtree)
+    outputTree.SetEntries(entries)
+
+    if debug:
+        print "Entries in initial tree: "+str(inputTree.GetEntries())
+        print "Expected entries in new tree: "+str(entries)
+        print "Effective entries in new tree: "+str(outputTree.GetEntries())
     
     if int(maxTreeEntries)>0:
         if int(maxTreeEntries) != outputTree.GetEntries():
@@ -619,12 +650,6 @@ def ChangeMassHypo(debug,
     print "Filling new tree"
     print "========================================="
     print ""
-
-    #Number of entries
-    if int(maxTreeEntries) < 0:
-        entries = inputTree.GetEntries()
-    else:
-        entries = int(maxTreeEntries)
         
     #Start loop over tree entries. The different cases are splitted. This is ugly, but it avoids
     #too many "if...else..." inside the loop itself which can slow down the process
@@ -635,8 +660,9 @@ def ChangeMassHypo(debug,
         print "Looping over "+str(entries)+" entries"
         nBCand=1
         for entry in range(0,entries):
-            if entry%10000 == 0 and debug:
-                print "Processing entry "+str(entry)+"..."
+            if entry%100000 == 0 and debug:
+                print "Processing entry "+str(entry)+" and autosaving tree..."
+                #outputTree.AutoSave()
             inputTree.GetEntry(entry)
             if 'Index' in myconfigfile["BeautyPrefix"].keys():
                 nBCand = branchDict[myconfigfile["BeautyPrefix"]["Name"]][myconfigfile["BeautyPrefix"]["Index"]][0] 
@@ -650,8 +676,9 @@ def ChangeMassHypo(debug,
         print "Looping over "+str(entries)+" entries"
         nBCand=1
         for entry in range(0,entries):
-            if entry%10000 == 0 and debug:
-                print "Processing entry "+str(entry)+"..."
+            if entry%100000 == 0 and debug:
+                print "Processing entry "+str(entry)+" and autosaving tree..."
+                #outputTree.AutoSave()
             inputTree.GetEntry(entry)
             if 'Index' in myconfigfile["BeautyPrefix"].keys():
                 nBCand = branchDict[myconfigfile["BeautyPrefix"]["Name"]][myconfigfile["BeautyPrefix"]["Index"]][0]
@@ -666,8 +693,9 @@ def ChangeMassHypo(debug,
         print "Looping over "+str(entries)+" entries"
         nBCand=1
         for entry in range(0,entries):
-            if entry%10000 == 0 and debug:
-                print "Processing entry "+str(entry)+"..."
+            if entry%100000 == 0 and debug:
+                print "Processing entry "+str(entry)+" and autosaving tree..."
+                #outputTree.AutoSave()
             inputTree.GetEntry(entry)
             if 'Index' in myconfigfile["BeautyPrefix"].keys():
                 nBCand = branchDict[myconfigfile["BeautyPrefix"]["Name"]][myconfigfile["BeautyPrefix"]["Index"]][0]
@@ -681,8 +709,9 @@ def ChangeMassHypo(debug,
         print "Looping over "+str(entries)+" entries"
         nBCand=1
         for entry in range(0,entries):
-            if entry%10000 == 0 and debug:
-                print "Processing entry "+str(entry)+"..."
+            if entry%100000 == 0 and debug:
+                print "Processing entry "+str(entry)+" and autosaving tree..."
+                #outputTree.AutoSave()
             inputTree.GetEntry(entry)
             if 'Index' in myconfigfile["BeautyPrefix"].keys():
                 nBCand = branchDict[myconfigfile["BeautyPrefix"]["Name"]][myconfigfile["BeautyPrefix"]["Index"]][0]
@@ -709,11 +738,28 @@ def ChangeMassHypo(debug,
     print ""
 
     outputFile.cd()
+    gDirectory.Delete(inputTree.GetName())
+    inputTree.Delete()
+    del inputTree
     if outputdir != '':
         outputFile.cd(outputdir)
     outputTree.Write("",TObject.kWriteDelete)
     outputFile.ls()
+    #outputFile.Flush()
+    #outputFile.Recover()
     outputFile.Close()
+
+    #Do some test
+    #print "Test output file"
+    #newOutputFile = TFile.Open(outputfile,"READ")
+    #newOutputFile.Recover()
+    #if newOutputFile.IsZombie():
+    #    print "File in zombie state!"
+    #    exit(-1)
+    #if newOutputFile.TestBit(TFile.kRecovered):
+    #    print "File it's ok!"
+    #newOutputFile.ls()
+    #newOutputFile.Close()
     
 #------------------------------------------------------------------------------
 _usage = '%prog [options]'

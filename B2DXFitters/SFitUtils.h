@@ -56,7 +56,6 @@ namespace SFitUtils {
                                      bool toys = false,
                                      bool applykfactor = false,
                                      bool sWeightsCorr = false,
-                                     bool singletagger = false,
                                      bool        debug = false
                                      );
   

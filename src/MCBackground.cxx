@@ -201,6 +201,7 @@ TString MCBackground::CheckMode()
   else if( _mode.Contains("Bs")  == true  || _mode.Contains("bs") == true) { Bs = "Bs"; }
   else if (( _mode.Contains("Bd") == true || _mode.Contains("bd") == true ) && _mode.Contains("ambda") == false )
     { Bs="Bd"; }
+  else if( _mode.Contains("Bu")  == true  || _mode.Contains("bu") == true) {Bs = "Bu";}  
   else { Bs="Comb";}
 
   if (_mode.Contains("Lc") == true ||
@@ -208,18 +209,28 @@ TString MCBackground::CheckMode()
       _mode.Contains("Lambdac") == true) { Ds = "Lc";}
   else if (_mode.Contains("Dsst") == true || _mode.Contains("dsst") == true)
     { Ds ="Dsst";}
-  else if (_mode.Contains("Dst") == true || _mode.Contains("dst") == true)
+  else if (_mode.Contains("Dst0") == true || _mode.Contains("dst0") == true)
+  {Ds = "Dst0";}
+  else if ( (_mode.Contains("Dst") == true || _mode.Contains("dst") == true) && 
+            (_mode.Contains("Dst0") == false || _mode.Contains("dst0") == false) )
     { Ds = "Dst"; }
   else if ( (_mode.Contains("Ds") == true  || _mode.Contains("ds")== true) &&
             (_mode.Contains("Dsst") == false || _mode.Contains("dsst") == false ) &&
-            (_mode.Contains("Dst") == false || _mode.Contains("dst") == false ))
+            (_mode.Contains("Dst") == false || _mode.Contains("dst") == false ) &&
+            (_mode.Contains("Dst0") == false || _mode.Contains("dst0") == false) )
     { Ds = "Ds";}
+  else if ( _mode.Contains("D0") == true  || _mode.Contains("d0") == true ) {Ds = "D0";}
   else if (( _mode.Contains("D") == true  || _mode.Contains("d") == true )  &&
-	   (_mode.Contains("Ds") == false  || _mode.Contains("ds") == false) && _mode.Contains("ambda") == false)
+           (_mode.Contains("Ds") == false  || _mode.Contains("ds") == false) && 
+           (_mode.Contains("D0") == false  || _mode.Contains("d0") == false) && _mode.Contains("ambda") == false)
     {Ds = "D";}
   else { Ds ="bkg";}
 
   if ( _mode.Contains("KPi0") == true || _mode.Contains("Kpi0") == true || _mode.Contains("kpi0") == true || _mode.Contains("kPi0") == true ) { Bach = "KPi0"; } 
+  else if ( _mode.Contains("KPi") == true || _mode.Contains("Kpi") == true || _mode.Contains("kpi") == true || _mode.Contains("kPi") == true )
+  { Bach = "KPi";}
+  else if ( _mode.Contains("PiPi") == true || _mode.Contains("pipi") == true)
+  { Bach = "PiPi";}
   else if ( _mode.Contains("Pi") == true || _mode.Contains("pi") == true) { Bach = "Pi"; }
   else if( ( _mode.Contains("P") == true || _mode.Contains("p") == true ) &&
 	   ( _mode.Contains("Pi") == false || _mode.Contains("pi") == false))

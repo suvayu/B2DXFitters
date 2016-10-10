@@ -255,8 +255,12 @@ Double_t SetValCatObs(MDFitterSettings* mdSet, RooArgSet* obs,
     //Set other cuts//
     TCut P_cut      = mdSet->GetCut(mdSet->GetMomVar()); 
     TCut PT_cut     = mdSet->GetCut(mdSet->GetTrMomVar()); 
-    TCut nTr_cut    = mdSet->GetCut(mdSet->GetTracksVar()); 
-    TCut BDTG_cut   = mdSet->GetCut(mdSet->GetBDTGVar());
+    TCut nTr_cut    = mdSet->GetCut(mdSet->GetTracksVar());
+    TCut BDTG_cut   = "";
+    if (mdSet->GetBDTGVar() != "")
+    {
+      BDTG_cut   = mdSet->GetCut(mdSet->GetBDTGVar());
+    }
     TCut mass_cut   = mdSet->GetCut(mdSet->GetMassBVar()); 
     TCut massD_cut  = mdSet->GetCut(mdSet->GetMassDVar()); 
     TCut Time_cut = mdSet->GetCut(mdSet->GetTimeVar());
@@ -1146,7 +1150,11 @@ Double_t SetValCatObs(MDFitterSettings* mdSet, RooArgSet* obs,
     TCut P_cut      = mdSet->GetCut(mdSet->GetMomVar());
     TCut PT_cut     = mdSet->GetCut(mdSet->GetTrMomVar());
     TCut nTr_cut    = mdSet->GetCut(mdSet->GetTracksVar());
-    TCut BDTG_cut   = mdSet->GetCut(mdSet->GetBDTGVar());
+    TCut BDTG_cut   = "";
+    if(mdSet->GetBDTGVar() != "")
+    {
+      BDTG_cut   = mdSet->GetCut(mdSet->GetBDTGVar());
+    }
     TCut Time_cut   = mdSet->GetCut(mdSet->GetTimeVar());
     TCut Terr_cut   = mdSet->GetCut(mdSet->GetTerrVar());
 
@@ -1292,15 +1300,23 @@ Double_t SetValCatObs(MDFitterSettings* mdSet, RooArgSet* obs,
     histCorr->SetStats(false); 
     histCorr->GetXaxis()->SetLabelSize(0.05);
     histCorr->GetYaxis()->SetLabelSize(0.05);
-    
+
     for(int i = 0; i < size; i++ )
     {
+      if(debug == true)
+      {
+        std::cout<<"[INFO] ==> GeneralUtils::GetCorrHist(...): getting obs1 " <<obsName[i].Data()<<std::endl;
+      }
       RooRealVar* obs1 = (RooRealVar*)obs->find(obsName[i].Data());
       TString obs1Name = obs1->GetName();
       histCorr->GetXaxis()->SetBinLabel(i+1, obs1Name.Data());
       histCorr->GetYaxis()->SetBinLabel(i+1, obs1Name.Data());
       for (int j = 0; j <size; j++ )
       {
+        if(debug == true)
+        {
+          std::cout<<"[INFO] ==> GeneralUtils::GetCorrHist(...): getting obs2 " <<obsName[j].Data()<<std::endl; 
+        }
         RooRealVar* obs2 = (RooRealVar*)obs->find(obsName[j].Data()); 
         Double_t corr = 0;
         TString obs2Name = obs2->GetName();
@@ -2508,14 +2524,19 @@ Double_t SetValCatObs(MDFitterSettings* mdSet, RooArgSet* obs,
     TCut P_cut      = mdSet->GetCut(mdSet->GetMomVar());
     TCut PT_cut     = mdSet->GetCut(mdSet->GetTrMomVar());
     TCut nTr_cut    = mdSet->GetCut(mdSet->GetTracksVar());
-    TCut BDTG_cut   = mdSet->GetCut(mdSet->GetBDTGVar());
+    TCut BDTG_cut   = "";
+    if(mdSet->GetBDTGVar() != "")
+    { 
+      BDTG_cut   = mdSet->GetCut(mdSet->GetBDTGVar());
+    }
     TCut MCB        = mdSet->GetCut(mdSet->GetMassBVar());
     TCut MCD        = mdSet->GetCut(mdSet->GetMassDVar());
     Float_t c = 299792458.0;
     Float_t corr = c/1e9;
-    TCut Time_cut = Form("%s[0] > %f && %s[0] < %f", mdSet->GetTimeVar().Data(), mdSet->GetTimeRangeDown()*corr,
-                         mdSet->GetTimeVar().Data(), mdSet->GetTimeRangeUp()*corr);
-    
+    //TCut Time_cut = Form("%s[0] > %f && %s[0] < %f", mdSet->GetTimeVar().Data(), mdSet->GetTimeRangeDown()*corr,
+    //                     mdSet->GetTimeVar().Data(), mdSet->GetTimeRangeUp()*corr);
+    TCut Time_cut   = mdSet->GetCut(mdSet->GetTimeVar());
+
     TCut BKGCATCut = "";
     if ( mdSet->CheckBKGCATCut(modeD) == true )
     {
@@ -2860,7 +2881,10 @@ Double_t SetValCatObs(MDFitterSettings* mdSet, RooArgSet* obs,
       obsName.push_back(mdSet->GetPIDKVarOutName());
       obsName.push_back(mdSet->GetTimeVarOutName());
       obsName.push_back(mdSet->GetTerrVarOutName());
-      obsName.push_back(mdSet->GetBDTGVarOutName());
+      if(mdSet->GetBDTGVarOutName() != "")
+      {
+        obsName.push_back(mdSet->GetBDTGVarOutName());
+      }
       if(  mdSet->CheckTagOmegaVar() == true )
       {
         for(int k = 0; k<mdSet->GetNumTagOmegaVar(); k++)

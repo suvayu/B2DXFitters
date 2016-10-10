@@ -1962,6 +1962,11 @@ namespace GeneralUtils {
     {
       dmode = "kkpi";
     }
+    else if ( (check.Contains("Kpi") == true || check.Contains("KPi") == true || check.Contains("kpi") == true) &&
+              ( check.Contains("Kpipi") == false && check.Contains("KPiPi") == false && check.Contains("kpipi") == false) )
+    {
+      dmode = "kpi";
+    }
     else if ( check.Contains("Kpipi") == true || check.Contains("KPiPi") == true || check.Contains("kpipi") == true)
     {
       dmode = "kpipi";
@@ -2045,6 +2050,8 @@ namespace GeneralUtils {
     else if( check.find("Bs") != std::string::npos || check.find("bs") != std::string::npos) { Bs = "Bs"; }
     else if (( check.find("Bd") != std::string::npos || check.find("bd") != std::string::npos ) && check.find("ambda") == std::string::npos )
     { Bs="Bd"; }
+    else if ( check.find("Bu") != std::string::npos || check.find("bu") != std::string::npos)
+    { Bs="Bu"; } 
     else { Bs="Comb";}
 
     if (check.find("Lc") != std::string::npos ||
@@ -2052,23 +2059,38 @@ namespace GeneralUtils {
         check.find("Lambdac") != std::string::npos) { Ds = "Lc";}
     else if (check.find("Dsst") != std::string::npos || check.find("dsst") != std::string::npos)
     { Ds ="Dsst";}
-    else if (check.find("Dst") != std::string::npos || check.find("dst") != std::string::npos)
+    else if (check.find("Dst0") != std::string::npos || check.find("dst0") != std::string::npos)
+    {Ds = "Dst0";}
+    else if ( (check.find("Dst") != std::string::npos || check.find("dst") != std::string::npos) &&
+              (check.find("Dst0") == std::string::npos || check.find("dst0") == std::string::npos))
     {Ds = "Dst";}
     else if ( (check.find("Ds") != std::string::npos  || check.find("ds") != std::string::npos) && 
               (check.find("Dsst") == std::string::npos || check.find("dsst") == std::string::npos ) &&
-              (check.find("Dst") == std::string::npos || check.find("dst") == std::string::npos))
+              (check.find("Dst") == std::string::npos || check.find("dst") == std::string::npos) &&
+              (check.find("Dst0") == std::string::npos || check.find("dst0") == std::string::npos))
     { Ds = "Ds";}
+    else if ( check.find("D0") != std::string::npos  || check.find("d0") != std::string::npos )
+    { Ds = "D0";}
     else if (( check.find("D") != std::string::npos  || check.find("d") != std::string::npos )  &&
+             ( check.find("D0") == std::string::npos  || check.find("d0") == std::string::npos ) &&
              (check.find("Ds") == std::string::npos  || check.find("ds") == std::string::npos) && check.find("ambda") == std::string::npos) 
     {Ds = "D";}
     else { Ds ="bkg";}
 
-    if ( check.find("Pi") != std::string::npos || check.find("pi") != std::string::npos) { Bach = "Pi"; }
+    if ( check.find("PiPi") != std::string::npos || check.find("pipi") != std::string::npos) { Bach = "PiPi"; }
+    else if ( check.find("KPi") != std::string::npos || check.find("kpi") != std::string::npos) { Bach = "KPi"; }
+    else if ( ( check.find("Pi") != std::string::npos || check.find("pi") != std::string::npos) &&
+              ( check.find("PiPi") == std::string::npos || check.find("pipi") == std::string::npos) &&
+              ( check.find("KPi") == std::string::npos || check.find("kpi") == std::string::npos) )
+    { Bach = "Pi"; }
     else if( ( check.find("P") != std::string::npos || check.find("p") != std::string::npos ) && 
-             ( check.find("Pi") == std::string::npos || check.find("pi") == std::string::npos))
+             ( check.find("Pi") == std::string::npos || check.find("pi") == std::string::npos) &&
+             ( check.find("PiPi") == std::string::npos || check.find("pipi") == std::string::npos) &&
+             ( check.find("KPi") == std::string::npos || check.find("kpi") == std::string::npos))
     {Bach = "p";}
     else if( (check.find("K") != std::string::npos || check.find("k") != std::string::npos )&& 
-             (check.find("Kst") == std::string::npos || check.find("kst") == std::string::npos) )
+             (check.find("Kst") == std::string::npos || check.find("kst") == std::string::npos) &&
+             ( check.find("KPi") == std::string::npos || check.find("kpi") == std::string::npos))
     {Bach = "K";}
     else if( check.find("Kst") != std::string::npos || check.find("kst") != std::string::npos ) {Bach ="Kst";}
     else if( check.find("Rho") != std::string::npos || check.find("rho") != std::string::npos ) {Bach = "Rho";}
@@ -2104,7 +2126,9 @@ namespace GeneralUtils {
     else if(check.Contains("DKHypo") || check.Contains("DkHypo")) { hypo = "Bd2DKHypo"; }
     else if(check.Contains("DsPiHypo") || check.Contains("DspiHypo")) { hypo = "Bs2DsPiHypo"; }
     else if(check.Contains("DsKHypo") || check.Contains("DskHypo")) { hypo = "Bs2DsKHypo"; }
-    
+    else if(check.Contains("D0PiHypo") || check.Contains("D0piHypo")){ hypo = "Bu2D0PiHypo";}    
+    else if(check.Contains("D0KHypo") || check.Contains("D0kHypo")) {hypo = "Bu2D0KHypo";}    
+
     if ( debug == true) std::cout<<"[INFO] Hypo: "<<hypo<<std::endl;
     return hypo;
   }

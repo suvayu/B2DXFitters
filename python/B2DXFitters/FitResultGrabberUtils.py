@@ -59,32 +59,27 @@ def grabResult(isData, isBlind, filename):
     gc.collect()
     return None
 
-def CreatePullTree(fileNamePull, rooFitResult, fitQualityBranch = 'covQual', extGenDict = None):
+def CreatePullTree(fileNamePull, rooFitResult, extGenDict = None):
     """
     create tree with fitted value, fitted error and generated (or initial) value for each
     floating variable in a fit
     
     fileNamePull -- output file
     rooFitResult -- RooFitResult object obtained from the fit
-    fitQualityBranch -- choose the RooFitResult method you want (covQual,status...) to store the fit quality code
 
     if extGenDict != None, the generated value for each parameter is taken from an external dictionary
     of the form extGenDict = {parName : genValue, etc...}.
-    This is useful when the generated value is a per-toy number (e.g. poisson-distributed yield)
-    extGenDict can contain only a subset of the parameters; the others are taken from rooFitResult
+    This is useful when the generated value is somehow external to the code this function is used
+    extGenDict can also contain only a subset of the parameters; the others are taken from rooFitResult
     """
 
     if None == rooFitResult:
         print "FitResultGrabberUtils.CreateToyPullTree(...)==> ERROR: RooFitResult is null."
         exit(-1)
-    if fitQualityBranch not in ['covQual', 'status']:
-        print "FitResultGrabberUtils.CreateToyPullTree(...)==> ERROR: RooFitResult doesn't have any "+str(fitQualityBranch)+" method"
-        exit(-1)
 
-    if fitQualityBranch == 'covQual':
-        status = rooFitResult.covQual()
-    else:
-        status = rooFitResult.status()
+    covqual = rooFitResult.covQual()
+    status = rooFitResult.status()
+    edm = rooFitResult.edm()
 
     print "FitResultGrabberUtils.CreateToyPullTree(...)==> Creating TTree to store fit results."
     if extGenDict != None:
@@ -128,13 +123,18 @@ def CreatePullTree(fileNamePull, rooFitResult, fitQualityBranch = 'covQual', ext
         print "...value ", initlist[i][0]
             
 
-    print "Setting fit quality branch"
+    print "Setting fit quality branches"
+    covqualvar = array( 'f', [0] )
     statusvar = array( 'f', [0] )
-    if fitQualityBranch == "covQual" or fitQualityBranch == "CovQual":
-        treePull.Branch("CovQual", statusvar, "CovQual/F")
-    else:
-        treePull.Branch("MINUITStatus", statusvar, "MINUITStatus/F")
+    edmvar = array( 'f', [0] )
+
+    treePull.Branch("CovQual", covqualvar, "CovQual/F")
+    treePull.Branch("MINUITStatus", statusvar, "MINUITStatus/F")
+    treePull.Branch("edm", edmvar, "edm/F")
+
+    covqualvar[0] = covqual
     statusvar[0] = status
+    edmvar[0] = edm
 
     treePull.Fill()
 
