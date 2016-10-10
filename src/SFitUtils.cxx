@@ -113,7 +113,7 @@ namespace SFitUtils {
     }
    
     RooRealVar* TrueID;
-    if(treeSW->GetBranch("TrueID") != NULL && toys)
+    if(mdSet->CheckVarOutName("TrueID")==true && toys)
     {
       TrueID = new RooRealVar("TrueID", "TrueID", -10000, 10000);
     }
@@ -230,7 +230,7 @@ namespace SFitUtils {
           std::cout<<"[INFO] Variable "<<lab0_TAGOMEGA[i]->GetName()<<" in data set."<<std::endl;
         }
       }
-      if(treeSW->GetBranch("TrueID") != NULL)
+      if(mdSet->CheckVarOutName("TrueID")==true)
       {
         obs->add(*TrueID);
       }
@@ -309,8 +309,8 @@ namespace SFitUtils {
       treeSW->SetBranchAddress("tagDecComb_idx", &tag[0]);
       treeSW->SetBranchAddress("tagOmegaComb", &omega[0]);
       }*/
-    
-    if(toys)
+
+    if(mdSet->CheckVarOutName("TrueID")==true && toys)
     {
       treeSW->SetBranchAddress("TrueID", &trueid);
     }
@@ -397,7 +397,10 @@ namespace SFitUtils {
         lab0_TAUERR_calib->setVal(1.37*merr);
       }
 
-      TrueID->setVal(trueid);
+      if(mdSet->CheckVarOutName("TrueID")==true && toys)
+      {
+        TrueID->setVal(trueid);
+      }
       
       //if (tagweight > 0.5) tagweight = 0.5;
       //lab0_TAGOMEGA->setVal(tagweight);

@@ -13,6 +13,8 @@
  - ChangeMassHypo.py updated in order to have flexibility on mass leaves
    pedix (_M or _MM etc...)
  - Few updates to Bd2DPi-related config dictionaries 
+ - Added tails scaling to Ipatia PDF
+ - Small bugfix in SFitUtils when TrueID is included
 
 ! 2016-10-02 - Agnieszka Dziurda
  - update sFit code for unbinned fit
