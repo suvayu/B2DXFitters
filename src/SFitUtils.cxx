@@ -191,6 +191,7 @@ namespace SFitUtils {
     if ( debug == true ) { std::cout<<"[INFO] sWeights bound: "<<bound<<std::endl;}
     TString cat;
     cat = "dataSet_time";
+    if(weighted==true) cat.Append("_weighted");
 
     RooDataSet*  dataSet;
     RooRealVar*  weights;
@@ -230,7 +231,7 @@ namespace SFitUtils {
           std::cout<<"[INFO] Variable "<<lab0_TAGOMEGA[i]->GetName()<<" in data set."<<std::endl;
         }
       }
-      if(mdSet->CheckVarOutName("TrueID")==true)
+      if(mdSet->CheckVarOutName("TrueID")==true && toys)
       {
         obs->add(*TrueID);
       }
@@ -320,6 +321,21 @@ namespace SFitUtils {
       TString swname = "nSig_"+s[i]+"_Evts_sw";
       treeSW->SetBranchAddress(swname.Data(), &sw[i]);
       if (debug == true ) { std::cout<<"[INFO] sWeights names: "<<swname<<std::endl; }
+
+      /*TCanvas canvasw("canvasw");
+      canvasw.cd();
+      treeSW->Draw("BeautyTime>>hw",swname.Data(),"goff");
+      TH1F* hw = (TH1F*)gDirectory->Get("hw");
+      hw->Draw("HIST");
+      canvasw.SaveAs("TESTWDATA_src.pdf");
+      
+      TCanvas canvas("canvas");
+      canvas.cd();
+      treeSW->Draw("BeautyTime>>h","","goff");
+      TH1F* h = (TH1F*)gDirectory->Get("h");
+      h->Draw("HIST");
+      canvas.SaveAs("TESTDATA_src.pdf");*/
+        
     }
     
     
@@ -483,7 +499,7 @@ namespace SFitUtils {
       }      
 
       //	}
-      //std::cout << "this event has time = " << m << " and error = " << merr << " with weight = " << sum_sw << std::endl;  
+      // std::cout << "this event has time = " << m << " and error = " << merr << " with weight = " << sum_sw << std::endl;  
       
     }
     

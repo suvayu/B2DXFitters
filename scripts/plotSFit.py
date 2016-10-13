@@ -108,6 +108,7 @@ __doc__ = """ real docstring """
 # -----------------------------------------------------------------------------
 # Load necessary libraries
 # -----------------------------------------------------------------------------
+#"
 from B2DXFitters import *
 from ROOT import *
 
@@ -117,10 +118,10 @@ from math     import pi, log
 from  os.path import exists
 import os, sys, gc
 gROOT.SetBatch()
-gROOT.ProcessLine(".x ../root/.rootlogon.C")
+#gROOT.ProcessLine(".x ../root/.rootlogon.C")
 
 # MODELS
-signalModelOnly = False
+signalModelOnly = True
 
 # PLOTTING CONFIGURATION
 plotData  =  True
@@ -133,8 +134,12 @@ bName = 'B_{s}'
 #timeDown = 0.2
 #timeUp = 15.0
 
-dataSetToPlot  = 'dataSet_time'
+dataSetToPlot  = 'dataSet_time_weighted'
 pdfToPlot = 'time_signal'
+
+#dataSetToPlot = 'dataSet_time_weighted'
+#pdfToPlot = 'time_signal_TimePdf'
+
 #fileToWriteOut = 'time_DsPi_BDTG123.pdf' 
 #------------------------------------------------------------------------------
 def plotDataSet(dataset, frame, bin) :
@@ -153,33 +158,35 @@ def plotFitModel(model, frame, wksp, myconfigfile, log) :
     fr = model.plotOn(frame,
                       RooFit.LineColor(kBlue+3),RooFit.Name("FullPdf"))
 
-    var = []
-    tacc_list = RooArgList()
-    numKnots = myconfigfile["Acceptance"]["knots"].__len__()
-    for i in range(0,numKnots+1):
-        varName = "var%d"%(int(i+1))
-        var.append(wksp.var(varName))
-        print "[INFO] Load %s with value %0.3lf"%(var[i].GetName(),var[i].getValV())
-        tacc_list.add(var[i])
+    if "Acceptance" in myconfigfile.keys():
+        var = []
+        tacc_list = RooArgList()
+        numKnots = myconfigfile["Acceptance"]["knots"].__len__()
+        for i in range(0,numKnots+1):
+            varName = "var%d"%(int(i+1))
+            var.append(wksp.var(varName))
+            print "[INFO] Load %s with value %0.3lf"%(var[i].GetName(),var[i].getValV())
+            tacc_list.add(var[i])
+            
+        varAdd = RooAddition(wksp.obj("var%d"%(numKnots+2)))
+        print "[INFO] Load %s with value %0.3lf"%(varAdd.GetName(),varAdd.getValV())
+        tacc_list.add(varAdd)
 
-    varAdd = RooAddition(wksp.obj("var%d"%(numKnots+2)))
-    print "[INFO] Load %s with value %0.3lf"%(varAdd.GetName(),varAdd.getValV())
-    tacc_list.add(varAdd)
-
-    #len = var.__len__()
-    #tacc_list.add(var[len])
-    spl = RooCubicSplineFun("splinePdf", "splinePdf", time, "splineBinning", tacc_list)
-    if log:
-        rel = 200
-    else:
-        rel = 1000
-    rel = 30                                                                                                                                                                                  
-    fr = spl.plotOn(frame, RooFit.LineColor(kRed),  RooFit.Normalization(rel, RooAbsReal.Relative),RooFit.Name("sPline"))
-    fr = model.plotOn(frame,
-                      RooFit.LineColor(kBlue+3), RooFit.Name("FullPdf"))
-
+        #len = var.__len__()
+        #tacc_list.add(var[len])
+        spl = RooCubicSplineFun("splinePdf", "splinePdf", time, "splineBinning", tacc_list)
+        if log:
+            rel = 200
+        else:
+            rel = 1000
+        rel = 30                                                                                                                                                                                  
+        fr = spl.plotOn(frame, RooFit.LineColor(kRed),  RooFit.Normalization(rel, RooAbsReal.Relative),RooFit.Name("sPline"))
+        fr = model.plotOn(frame,
+                          RooFit.LineColor(kBlue+3), RooFit.Name("FullPdf"))
+            
 #------------------------------------------------------------------------------
-#------------------------------------------------------------------------------                                                                                                                    
+#------------------------------------------------------------------------------
+
 def getDescription(decay):
 
     happystar = "#lower[-0.95]{#scale[0.5]{(}}#lower[-0.8]{#scale[0.5]{*}}#lower[-0.95]{#scale[0.5]{)}}"
@@ -200,6 +207,8 @@ def getDescription(decay):
         desc = "B_{s}#kern[-0.7]{"+happy0+"}#rightarrow D_{s}#kern[-0.3]{"+happystar+happymin+"}#kern[0.1]{#pi"+happyplus+"}"
     elif decay == "Bs2DsstK":
         desc = "B_{s}#kern[-0.7]{"+happy0+"} #rightarrow D_{s}#kern[-0.3]{"+happystar+happymp+"}#kern[0.1]{K"+happypm+"}"
+    elif decay == "Bd2DPi":
+        desc = "B_{d}#kern[-0.7]{"+happy0+"} #rightarrow D#kern[-0.3]{"+happymp+"}#kern[0.1]{#pi"+happypm+"}"
     else:
         desc = "Signal" 
 
@@ -300,6 +309,12 @@ parser.add_option( '-v', '--variable', '--var',
                    help = 'set observable '
                    )
 
+parser.add_option( '--outdir',
+                   dest = 'outdir',
+                   default = '',
+                   help = 'directory to save plots'
+                   )
+
 #------------------------------------------------------------------------------
 
 if __name__ == '__main__' :
@@ -336,7 +351,8 @@ if __name__ == '__main__' :
     bin = int(options.bin)
     log = options.log
     leg = options.legend
-    varTS = TString(options.var)
+    v = options.var
+    varTS = TString(v)
 
     config = options.configName
     last = config.rfind("/")
@@ -361,12 +377,21 @@ if __name__ == '__main__' :
             print option, " = ", myconfigfile[option]
     print "=========================================================="
 
+    sfx = options.sufix
+    out = options.outdir
+
+    sufixTS = TString(sfx)
+    outTS = TString(out)
+
     f = TFile(FILENAME)
 
     w = f.Get(options.wsname)
     if not w :
         parser.error('Workspace "%s" not found in file "%s"! Nothing plotted.' %\
                       (options.wsname, FILENAME))
+    else:
+        print "Workspace content:"
+        w.Print("v")
 
     f.Close()
     time = w.var(varTS.Data())
@@ -376,7 +401,7 @@ if __name__ == '__main__' :
     timeUp = time.getMax()
     #time.setRange(timeDown,timeUp)   
  
-    modelPDF = w.pdf(pdfToPlot) 
+    modelPDF = w.obj(pdfToPlot) 
     if modelPDF:
         print modelPDF.GetName()
     dataset  = w.data(dataSetToPlot) 
@@ -390,9 +415,11 @@ if __name__ == '__main__' :
     
     canvas = TCanvas("canvas", "canvas", 1200, 1000)
     canvas.cd()
-       
+
+    time = w.var(varTS.Data())
     frame_t = time.frame()
     frame_t.SetTitle('')
+    frame_p = time.frame(RooFit.Title("pull_frame"))
  
     frame_t.GetXaxis().SetLabelSize( 0.06 )
     frame_t.GetYaxis().SetLabelSize( 0.06 )
@@ -419,12 +446,15 @@ if __name__ == '__main__' :
         frame_t.GetYaxis().SetTitleOffset( 1.20 )
         frame_t.GetYaxis().SetRangeUser(1.5,frame_t.GetMaximum()*1.1)
 
-    plotDataSet(dataset, frame_t, bin)
+    if plotData:
+        plotDataSet(dataset, frame_t, bin)
     
     print '##### modelPDF is'
     print modelPDF
     if plotModel :
         plotFitModel(modelPDF, frame_t, w, myconfigfile, log)
+
+    doPulls = plotData and plotModel
 
     if log:
         gStyle.SetOptLogy(1)
@@ -450,13 +480,12 @@ if __name__ == '__main__' :
     #gr.Draw("P");
     legend.AddEntry(gr,"Data","lep");
 
+    decay = TString(myconfigfile["Decay"])
+    descTS = TString(getDescription(myconfigfile["Decay"]))
     l1 = TLine()
     l1.SetLineColor(kBlue+3)
     l1.SetLineWidth(4)
-    decay = TString(myconfigfile["Decay"])
-    desc = getDescription(myconfigfile["Decay"])
-    legend.AddEntry(l1, desc, "L")
-    
+    legend.AddEntry(l1, descTS.Data(), "L")
     
     #pad1 = TPad("upperPad", "upperPad", .050, .22, 1.0, 1.0)
     pad1 = TPad("upperPad", "upperPad", .005, .05, 1.0, 1.0)
@@ -495,8 +524,10 @@ if __name__ == '__main__' :
     pad2.cd()
     
     gStyle.SetOptLogy(0)
+
     
-    frame_p = time.frame(RooFit.Title("pull_frame"))
+
+    #frame_p = time.frame(RooFit.Title("pull_frame"))
     frame_p.Print("v")
     frame_p.SetTitle("")
     frame_p.GetYaxis().SetTitle("")
@@ -514,89 +545,95 @@ if __name__ == '__main__' :
     frame_p.GetXaxis().SetLabelSize(0.20)
     frame_p.GetXaxis().SetLabelFont( 132 )
     frame_p.GetYaxis().SetLabelFont( 132 )
-    frame_p.GetXaxis().SetTitle('#font[132]{#tau('+desc+') [ps]}')
-    
-    pullHist = frame_t.pullHist()
-    pullHist.SetName("pullHist")
-    pullHist.SetMaximum(3.5)
-    pullHist.SetMinimum(-3.5)
+    frame_p.GetXaxis().SetTitle('#font[132]{#tau('+descTS.Data()+') [ps]}')
 
-    frame_p.addPlotable(pullHist,"P")
+    if doPulls:
+    
+        pullHist = frame_t.pullHist()
+        pullHist.SetName("pullHist")
+        pullHist.SetMaximum(3.5)
+        pullHist.SetMinimum(-3.5)
+
+        frame_p.addPlotable(pullHist,"P")
+
+        axisX = pullHist.GetXaxis()
+        axisY = pullHist.GetYaxis()
+        
+        axisX.Set(100, timeDown, timeUp )
+        axisX.SetTitle('#font[132]{#tau('+descTS.Data()+') [ps]}')   
+        axisX.SetTitleSize(0.150)
+        axisX.SetTitleFont(132)
+        axisX.SetLabelSize(0.150)
+        axisX.SetLabelFont(132)
+        maxX = axisX.GetXmax()
+        minX = axisX.GetXmin()  
+        
+        max = axisY.GetXmax()
+        min = axisY.GetXmin()
+        axisY.SetLabelSize(0.150)
+        axisY.SetLabelFont(132)
+        axisY.SetNdivisions(5)        
+        
+        range = max-min
+        zero = max/range
+        print "max: %s, min: %s, range: %s, zero:%s"%(max,min,range,zero)
+        print "maxX: %s, minX: %s"%(maxX,minX)
+        
+        graph = TGraph(2)
+        graph.SetMaximum(max)
+        graph.SetMinimum(min)
+        graph.SetName("graph1")
+        graph.SetTitle("")
+        graph.SetPoint(1,timeDown,0)
+        graph.SetPoint(2,timeUp,0)
+        
+        graph2 = TGraph(2)
+        graph2.SetMaximum(max)
+        graph2.SetMinimum(min)
+        graph2.SetName("graph2")
+        graph2.SetTitle("")
+        graph2.SetPoint(1,timeDown,-3)
+        graph2.SetPoint(2,timeUp,-3)
+        graph2.SetLineColor(kRed)
+        
+        graph3 = TGraph(2)
+        graph3.SetMaximum(max)
+        graph3.SetMinimum(min)
+        graph3.SetName("graph3")
+        graph3.SetTitle("")
+        graph3.SetPoint(1,timeDown,3)
+        graph3.SetPoint(2,timeUp,3)
+        graph3.SetLineColor(kRed)
+        
+        pullHist.SetTitle("");
+        pullHist.Draw("AP")
+        graph.Draw("L SAME")
+        graph2.Draw("L SAME")
+        graph3.Draw("L SAME")
+
     frame_p.Draw()
-
-    axisX = pullHist.GetXaxis()
-    axisX.Set(100, timeDown, timeUp )
-    axisX.SetTitle('#font[132]{#tau('+desc+') [ps]}')   
-    axisX.SetTitleSize(0.150)
-    axisX.SetTitleFont(132)
-    axisX.SetLabelSize(0.150)
-    axisX.SetLabelFont(132)
-    maxX = axisX.GetXmax()
-    minX = axisX.GetXmin()  
- 
-    axisY = pullHist.GetYaxis()
-    max = axisY.GetXmax()
-    min = axisY.GetXmin()
-    axisY.SetLabelSize(0.150)
-    axisY.SetLabelFont(132)
-    axisY.SetNdivisions(5)        
-    
-    range = max-min
-    zero = max/range
-    print "max: %s, min: %s, range: %s, zero:%s"%(max,min,range,zero)
-    print "maxX: %s, minX: %s"%(maxX,minX)
-    
-    graph = TGraph(2)
-    graph.SetMaximum(max)
-    graph.SetMinimum(min)
-    graph.SetName("graph1")
-    graph.SetTitle("")
-    graph.SetPoint(1,timeDown,0)
-    graph.SetPoint(2,timeUp,0)
-
-    graph2 = TGraph(2)
-    graph2.SetMaximum(max)
-    graph2.SetMinimum(min)
-    graph2.SetName("graph2")
-    graph2.SetTitle("")
-    graph2.SetPoint(1,timeDown,-3)
-    graph2.SetPoint(2,timeUp,-3)
-    graph2.SetLineColor(kRed)
-
-    graph3 = TGraph(2)
-    graph3.SetMaximum(max)
-    graph3.SetMinimum(min)
-    graph3.SetName("graph3")
-    graph3.SetTitle("")
-    graph3.SetPoint(1,timeDown,3)
-    graph3.SetPoint(2,timeUp,3)
-    graph3.SetLineColor(kRed)
-    
-    pullHist.SetTitle("");
-    
-    pullHist.Draw("AP")
-    graph.Draw("L SAME")
-    graph2.Draw("L SAME")
-    graph3.Draw("L SAME")
 
     pad2.Update()
     canvas.Update()
+
+
+    if doPulls:
+        chi2 = frame_t.chiSquare() 
+        chi22 = frame_t.chiSquare(1)
+        
+        print "chi2: %f"%(chi2)
+        print "chi22: %f"%(chi22)
     
-    chi2 = frame_t.chiSquare() 
-    chi22 = frame_t.chiSquare(1)
-      
-    print "chi2: %f"%(chi2)
-    print "chi22: %f"%(chi22)
-    
-    sufixTS = TString(options.sufix)
+    #sufixTS = TString(sfx)
     if sufixTS != "":
         sufixTS = TString("_")+sufixTS
 
-    nameCanPdf = TString("time_")+decay+sufixTS+TString(".pdf")
-    nameCanPng = TString("time_")+decay+sufixTS+TString(".png")
-    nameCanRoot = TString("time_")+decay+sufixTS+TString(".root")
-    nameCanC = TString("time_")+decay+sufixTS+TString(".C")
-    nameCanEps = TString("time_")+decay+sufixTS+TString(".eps")
+    #outTS = TString(out)
+    nameCanPdf = outTS+TString("time_")+decay+sufixTS+TString(".pdf")
+    nameCanPng = outTS+TString("time_")+decay+sufixTS+TString(".png")
+    nameCanRoot = outTS+TString("time_")+decay+sufixTS+TString(".root")
+    nameCanC = outTS+TString("time_")+decay+sufixTS+TString(".C")
+    nameCanEps = outTS+TString("time_")+decay+sufixTS+TString(".eps")
 
 
     canvas.Print(nameCanPdf.Data())

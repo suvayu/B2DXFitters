@@ -526,7 +526,10 @@ def ChangeMassHypo(debug,
     print ""
 
     inputFile = TFile.Open(inputfile,"READ")
+    print "File content:"
+    inputFile.ls()
     inputTree = inputFile.Get(inputtree)
+    print "Entries: "+str( inputTree.GetEntries() )
 
     print ""
     print "========================================="

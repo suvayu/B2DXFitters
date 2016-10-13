@@ -21,17 +21,17 @@ def getconfig() :
     #configdict["LumRatio"] = {"2012" :
                               #configdict["IntegratedLuminosity"]["2012"]["Up"] / ( configdict["IntegratedLuminosity"]["2012"]["Up"] + configdict["IntegratedLuminosity"]["2012"]["Down"] ) }
     # file name with paths to MC/data samples
-    configdict["dataName"]   = "../data/Bd2DPi_3fbCPV/Bd2DPi/config_Bd2DPi.txt"
+    configdict["dataName"]   = "/afs/cern.ch/user/v/vibattis/cmtuser/Urania_v5r0/PhysFit/B2DXFitters/data/Bd2DPi_3fbCPV/Bd2DPi/config_Bd2DPi.txt"
         
     # basic variables
     configdict["BasicVariables"] = {}
-    configdict["BasicVariables"]["BeautyMass"]    = { "Range"                  : [5000,    6000    ],
+    configdict["BasicVariables"]["BeautyMass"]    = { "Range"                  : [5090,    6000    ],
                                                       "Name"                   : "BeautyMass",
                                                       "InputName"              : "lab0_FitDaughtersConst_M_flat"}
 
-    configdict["BasicVariables"]["CharmMass"]     = { "Range"                  : [1830,    1910    ],
+    configdict["BasicVariables"]["CharmMass"]     = { "Range"                  : [1830,    1904    ],
                                                       "Name"                   : "CharmMass",
-                                                      "InputName"              : "obsMassDminus"}
+                                                      "InputName"              : "lab0_FitwithoutConst_Dplus_M_flat"}
 
     configdict["BasicVariables"]["BeautyTime"]    = { "Range"                  : [0.2,     15.0    ],
                                                       "Bins"                   : 40,
@@ -64,20 +64,47 @@ def getconfig() :
 
     configdict["BasicVariables"]["TagDecOS"]      = { "Range"                  : [-1.0,    1.0     ],
                                                       "Name"                   : "TagDecOS",
-                                                      "InputName"              : "obsTagOS"}
+                                                      "InputName"              : "lab0_TAGDECISION_OS"}
 
     configdict["BasicVariables"]["TagDecSS"]      = { "Range"                  : [-1.0,    1.0     ],
                                                       "Name"                   : "TagDecSS",
-                                                      "InputName"              : "obsTagSSPionBDT"} 
+                                                      "InputName"              : "lab0_SS_PionBDT_DEC"} 
 
     configdict["BasicVariables"]["MistagOS"]      = { "Range"                  : [ 0.0,    0.5     ],
                                                       "Name"                   : "MistagOS",
-                                                      "InputName"              : "obsEtaOS"}
+                                                      "InputName"              : "lab0_TAGOMEGA_OS"}
 
     configdict["BasicVariables"]["MistagSS"]      = { "Range"                  : [ 0.0,    0.5     ],
                                                       "Name"                   : "MistagSS",
-                                                      "InputName"              : "obsEtaSSPionBDT"}
+                                                      "InputName"              : "lab0_SS_PionBDT_PROB"}
 
+    configdict["BasicVariables"]["BDTG"]           = { "Range"                  : [-1, 1],
+                                                       "Name"                   : "BDTG",
+                                                       "InputName"              : "BDT_classifier"}
+
+    #Additional variables not foreseen before
+    configdict["AdditionalVariables"] = {}
+    
+    configdict["AdditionalVariables"]["BeautyPhi"]      = { "Range"                  : [ -10.,    10.     ],
+                                                            "Name"                   : "BeautyPhi",
+                                                            "InputName"              : "lab0_LOKI_PHI"}
+    
+    configdict["AdditionalVariables"]["BeautyEta"]      = { "Range"                  : [ 1.5,    10.0     ],
+                                                            "Name"                   : "BeautyEta",
+                                                            "InputName"              : "lab0_LOKI_ETA"}
+    
+    configdict["AdditionalVariables"]["BeautyPT"]      = { "Range"                  : [ 0.0,    100000     ],
+                                                           "Name"                   : "BeautyPT",
+                                                           "InputName"              : "lab0_PT"}
+
+    configdict["AdditionalVariables"]["BeautyP"]      = { "Range"                  : [ 0.0,    3000000     ],
+                                                          "Name"                   : "BeautyP",
+                                                          "InputName"              : "lab0_P"}
+    
+    configdict["AdditionalVariables"]["nPV"]      = { "Range"                  : [ 0.0,    10     ],
+                                                      "Name"                   : "nPV",
+                                                      "InputName"              : "nPV"}
+    
     # Combinatorial
     configdict["CreateCombinatorial"] = {}
     configdict["CreateCombinatorial"]["BeautyMass"] = { "All"   : { "Cut": "lab0_FitDaughtersConst_M_flat>5500.0" },
@@ -92,13 +119,13 @@ def getconfig() :
     configdict["AdditionalCuts"]["All"] = {"Data": "lab1_PIDK>5.0", "MC": "lab1_PIDKcorr>5.0&&lab0_BKGCAT<60"}
 
     # tagging calibration
-    configdict["TaggingCalibration"] = {}
-    configdict["TaggingCalibration"]["OS"]    = {"p0"   : 0.365517, "p1"   : 0.950216, "average"   : 0.371147,
-                                                 "p0Bar": 0.376730, "p1Bar": 1.048155, "averageBar": 0.371147}
-    configdict["TaggingCalibration"]["SS"]    = {"p0"   : 0.424801, "p1"   : 1.004340, "average"   : 0.414892,
-                                                 "p0Bar": 0.404896, "p1Bar": 0.995879, "averageBar": 0.414892}
-    configdict["TaggingCalibration"]["OS+SS"] = {"p0"   : 0.338781, "p1"   : 0.971845, "average"   : 0.338493,
-                                                 "p0Bar": 0.338363, "p1Bar": 1.027861, "averageBar": 0.338493}
+    #configdict["TaggingCalibration"] = {}
+    #configdict["TaggingCalibration"]["OS"]    = {"p0"   : 0.365517, "p1"   : 0.950216, "average"   : 0.371147,
+    #                                             "p0Bar": 0.376730, "p1Bar": 1.048155, "averageBar": 0.371147}
+    #configdict["TaggingCalibration"]["SS"]    = {"p0"   : 0.424801, "p1"   : 1.004340, "average"   : 0.414892,
+    #                                             "p0Bar": 0.404896, "p1Bar": 0.995879, "averageBar": 0.414892}
+    #configdict["TaggingCalibration"]["OS+SS"] = {"p0"   : 0.338781, "p1"   : 0.971845, "average"   : 0.338493,
+    #                                             "p0Bar": 0.338363, "p1Bar": 1.027861, "averageBar": 0.338493}
     
 
     # PrefixID

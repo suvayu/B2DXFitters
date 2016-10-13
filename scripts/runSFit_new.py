@@ -340,8 +340,9 @@ def runSFit(debug, wsname,
 
     if not mc:
         nameData = TString("dataSet_time")
+        nameDataWA = TString("dataSet_time_weighted")
         data = GeneralUtils.GetDataSet(workspace[0],   nameData, debug)
-        dataWA = GeneralUtils.GetDataSet(workspaceW[0],   nameData, debug)
+        dataWA = GeneralUtils.GetDataSet(workspaceW[0],   nameDataWA, debug)
     else:
         data = getCombinedData(workspace[0], myconfigfile["Decay"], mc, mode, sample, year, merge, debug)
         data.SetName("dataSet_time")
