@@ -1,0 +1,257 @@
+#Bu2D0Pi KPi 2011 Bu2D0PiHypo
+root://eoslhcb.cern.ch//eos/lhcb/wg/b2oc/TD_DPi_3fb/flavourtaggingData/
+Data2011_Bu2D0Pi_Bu2D0PiHypo_magDown_S21_afterSelection.root
+Data2011_Bu2D0Pi_Bu2D0PiHypo_magUp_S21_afterSelection.root
+Bu2Dpi
+Bu2Dpi
+
+#Bu2D0Pi KPi 2011 Bu2D0KHypo
+root://eoslhcb.cern.ch//eos/lhcb/wg/b2oc/TD_DPi_3fb/flavourtaggingData/
+Data2011_Bu2D0Pi_Bu2D0KHypo_magDown_S21_afterSelection.root
+Data2011_Bu2D0Pi_Bu2D0KHypo_magUp_S21_afterSelection.root
+Bu2DK
+Bu2DK
+
+#Bu2D0Pi KPi 2012 Bu2D0PiHypo
+root://eoslhcb.cern.ch//eos/lhcb/wg/b2oc/TD_DPi_3fb/flavourtaggingData/
+Data2012_Bu2D0Pi_Bu2D0PiHypo_magDown_S21_afterSelection.root
+Data2012_Bu2D0Pi_Bu2D0PiHypo_magUp_S21_afterSelection.root
+Bu2Dpi
+Bu2Dpi
+
+#Bu2D0Pi KPi 2012 Bu2D0KHypo
+root://eoslhcb.cern.ch//eos/lhcb/wg/b2oc/TD_DPi_3fb/flavourtaggingData/
+Data2012_Bu2D0Pi_Bu2D0KHypo_magDown_S21_afterSelection.root
+Data2012_Bu2D0Pi_Bu2D0KHypo_magUp_S21_afterSelection.root
+Bu2DK
+Bu2DK
+
+#Bu2D0Pi Combinatorial KPi 2011 Bu2D0PiHypo
+root://eoslhcb.cern.ch//eos/lhcb/wg/b2oc/TD_DPi_3fb/flavourtaggingData/
+Data2011_Bu2D0Pi_Bu2D0PiHypo_magDown_S21_afterSelection.root
+Data2011_Bu2D0Pi_Bu2D0PiHypo_magUp_S21_afterSelection.root
+Bu2Dpi
+Bu2Dpi
+
+#Bu2D0Pi Combinatorial KPi 2011 Bu2D0KHypo
+root://eoslhcb.cern.ch//eos/lhcb/wg/b2oc/TD_DPi_3fb/flavourtaggingData/
+Data2011_Bu2D0Pi_Bu2D0KHypo_magDown_S21_afterSelection.root
+Data2011_Bu2D0Pi_Bu2D0KHypo_magUp_S21_afterSelection.root
+Bu2DK
+Bu2DK
+
+#Bu2D0Pi Combinatorial KPi 2012 Bu2D0PiHypo
+root://eoslhcb.cern.ch//eos/lhcb/wg/b2oc/TD_DPi_3fb/flavourtaggingData/
+Data2012_Bu2D0Pi_Bu2D0PiHypo_magDown_S21_afterSelection.root
+Data2012_Bu2D0Pi_Bu2D0PiHypo_magUp_S21_afterSelection.root
+Bu2Dpi
+Bu2Dpi
+
+#Bu2D0Pi Combinatorial KPi 2012 Bu2D0KHypo
+root://eoslhcb.cern.ch//eos/lhcb/wg/b2oc/TD_DPi_3fb/flavourtaggingData/
+Data2012_Bu2D0Pi_Bu2D0KHypo_magDown_S21_afterSelection.root
+Data2012_Bu2D0Pi_Bu2D0KHypo_magUp_S21_afterSelection.root
+Bu2DK
+Bu2DK
+
+#Signal Bu2D0Pi KPi 2011 Bu2D0PiHypo
+root://eoslhcb.cern.ch//eos/lhcb/wg/b2oc/TD_DPi_3fb/flavourtaggingMC/
+MC_Bu2D0Pi_Bu2D0PiHypo_magDown_S21_afterSelection_PID-corrected_new.root
+MC_Bu2D0Pi_Bu2D0PiHypo_magUp_S21_afterSelection_PID-corrected_new.root
+Bu2Dpi
+Bu2Dpi
+###
+
+#Signal Bu2D0Pi KPi 2012 Bu2D0PiHypo
+root://eoslhcb.cern.ch//eos/lhcb/wg/b2oc/TD_DPi_3fb/flavourtaggingMC/
+MC_Bu2D0Pi_Bu2D0PiHypo_magDown_S21_afterSelection_PID-corrected_new.root
+MC_Bu2D0Pi_Bu2D0PiHypo_magUp_S21_afterSelection_PID-corrected_new.root
+Bu2Dpi
+Bu2Dpi
+###
+
+#Signal Bu2D0Pi KPi 2011 Bu2D0KHypo
+root://eoslhcb.cern.ch//eos/lhcb/wg/b2oc/TD_DPi_3fb/flavourtaggingMC/
+MC_Bu2D0Pi_Bu2D0KHypo_magDown_S21_afterSelection_PID-corrected_new.root
+MC_Bu2D0Pi_Bu2D0KHypo_magUp_S21_afterSelection_PID-corrected_new.root
+Bu2DK
+Bu2DK
+###
+
+#Signal Bu2D0Pi KPi 2012 Bu2D0KHypo
+root://eoslhcb.cern.ch//eos/lhcb/wg/b2oc/TD_DPi_3fb/flavourtaggingMC/
+MC_Bu2D0Pi_Bu2D0KHypo_magDown_S21_afterSelection_PID-corrected_new.root
+MC_Bu2D0Pi_Bu2D0KHypo_magUp_S21_afterSelection_PID-corrected_new.root
+Bu2DK
+Bu2DK
+###
+
+#MC FileName KPi MD 2011 Bu2D0PiHypo
+{"Mode":"Bu2D0K",
+ "FileName":"root://eoslhcb.cern.ch//eos/lhcb/wg/b2oc/TD_DPi_3fb/flavourtaggingMC/MC_Bu2D0K_Bu2D0PiHypo_magDown_S21_afterSelection_PID-corrected_new.root",
+ "TreeName":"Bu2Dpi"}
+{"Mode":"Bd2DstPi",
+ "FileName":"root://eoslhcb.cern.ch//eos/lhcb/wg/b2oc/TD_DPi_3fb/flavourtaggingMC/MC_Bd2DstPi_Bu2D0PiHypo_magDown_S21_afterSelection_PID-corrected_new.root",
+ "TreeName":"Bu2Dpi"}
+{"Mode":"Bd2D0PiPi",
+ "FileName":"root://eoslhcb.cern.ch//eos/lhcb/wg/b2oc/TD_DPi_3fb/flavourtaggingMC/MC_Bd2D0PiPi_Bu2D0PiHypo_magDown_S21_afterSelection_PID-corrected_new.root",
+ "TreeName":"Bu2Dpi"}
+{"Mode":"Bu2Dst0Pi",
+ "FileName":"root://eoslhcb.cern.ch//eos/lhcb/wg/b2oc/TD_DPi_3fb/flavourtaggingMC/MC_Bu2Dst0Pi_Bu2D0PiHypo_magDown_S21_afterSelection_PID-corrected_new.root",
+ "TreeName":"Bu2Dpi"}
+{"Mode":"Bs2D0KPi",
+ "FileName":"root://eoslhcb.cern.ch//eos/lhcb/wg/b2oc/TD_DPi_3fb/flavourtaggingMC/MC_Bs2D0KPi_Bu2D0PiHypo_magDown_S21_afterSelection_PID-corrected_new.root",
+ "TreeName":"Bu2Dpi"}
+{"Mode":"Lb2LcPi",
+ "FileName":"root://eoslhcb.cern.ch//eos/lhcb/wg/b2oc/TD_DPi_3fb/flavourtaggingMC/MC_Lb2LcPi_Bu2D0PiHypo_magDown_S21_afterSelection_PID-corrected_new.root",
+ "TreeName":"Bu2Dpi"}
+###
+
+#MC FileName KPi MU 2011 Bu2D0PiHypo
+{"Mode":"Bu2D0K",
+ "FileName":"root://eoslhcb.cern.ch//eos/lhcb/wg/b2oc/TD_DPi_3fb/flavourtaggingMC/MC_Bu2D0K_Bu2D0PiHypo_magUp_S21_afterSelection_PID-corrected_new.root",
+ "TreeName":"Bu2Dpi"}
+{"Mode":"Bd2DstPi",
+ "FileName":"root://eoslhcb.cern.ch//eos/lhcb/wg/b2oc/TD_DPi_3fb/flavourtaggingMC/MC_Bd2DstPi_Bu2D0PiHypo_magUp_S21_afterSelection_PID-corrected_new.root",
+ "TreeName":"Bu2Dpi"}
+{"Mode":"Bd2D0PiPi",
+ "FileName":"root://eoslhcb.cern.ch//eos/lhcb/wg/b2oc/TD_DPi_3fb/flavourtaggingMC/MC_Bd2D0PiPi_Bu2D0PiHypo_magUp_S21_afterSelection_PID-corrected_new.root",
+ "TreeName":"Bu2Dpi"}
+{"Mode":"Bu2Dst0Pi",
+ "FileName":"root://eoslhcb.cern.ch//eos/lhcb/wg/b2oc/TD_DPi_3fb/flavourtaggingMC/MC_Bu2Dst0Pi_Bu2D0PiHypo_magUp_S21_afterSelection_PID-corrected_new.root",
+ "TreeName":"Bu2Dpi"}
+{"Mode":"Bs2D0KPi",
+ "FileName":"root://eoslhcb.cern.ch//eos/lhcb/wg/b2oc/TD_DPi_3fb/flavourtaggingMC/MC_Bs2D0KPi_Bu2D0PiHypo_magUp_S21_afterSelection_PID-corrected_new.root",
+ "TreeName":"Bu2Dpi"}
+{"Mode":"Lb2LcPi",
+ "FileName":"root://eoslhcb.cern.ch//eos/lhcb/wg/b2oc/TD_DPi_3fb/flavourtaggingMC/MC_Lb2LcPi_Bu2D0PiHypo_magUp_S21_afterSelection_PID-corrected_new.root",
+ "TreeName":"Bu2Dpi"}
+###
+
+#MC FileName KPi MD 2012 Bu2D0PiHypo
+{"Mode":"Bu2D0K",
+ "FileName":"root://eoslhcb.cern.ch//eos/lhcb/wg/b2oc/TD_DPi_3fb/flavourtaggingMC/MC_Bu2D0K_Bu2D0PiHypo_magDown_S21_afterSelection_PID-corrected_new.root",
+ "TreeName":"Bu2Dpi"}
+{"Mode":"Bd2DstPi",
+ "FileName":"root://eoslhcb.cern.ch//eos/lhcb/wg/b2oc/TD_DPi_3fb/flavourtaggingMC/MC_Bd2DstPi_Bu2D0PiHypo_magDown_S21_afterSelection_PID-corrected_new.root",
+ "TreeName":"Bu2Dpi"}
+{"Mode":"Bd2D0PiPi",
+ "FileName":"root://eoslhcb.cern.ch//eos/lhcb/wg/b2oc/TD_DPi_3fb/flavourtaggingMC/MC_Bd2D0PiPi_Bu2D0PiHypo_magDown_S21_afterSelection_PID-corrected_new.root",
+ "TreeName":"Bu2Dpi"}
+{"Mode":"Bu2Dst0Pi",
+ "FileName":"root://eoslhcb.cern.ch//eos/lhcb/wg/b2oc/TD_DPi_3fb/flavourtaggingMC/MC_Bu2Dst0Pi_Bu2D0PiHypo_magDown_S21_afterSelection_PID-corrected_new.root",
+ "TreeName":"Bu2Dpi"}
+{"Mode":"Bs2D0KPi",
+ "FileName":"root://eoslhcb.cern.ch//eos/lhcb/wg/b2oc/TD_DPi_3fb/flavourtaggingMC/MC_Bs2D0KPi_Bu2D0PiHypo_magDown_S21_afterSelection_PID-corrected_new.root",
+ "TreeName":"Bu2Dpi"}
+{"Mode":"Lb2LcPi",
+ "FileName":"root://eoslhcb.cern.ch//eos/lhcb/wg/b2oc/TD_DPi_3fb/flavourtaggingMC/MC_Lb2LcPi_Bu2D0PiHypo_magDown_S21_afterSelection_PID-corrected_new.root",
+ "TreeName":"Bu2Dpi"}
+###
+
+#MC FileName KPi MU 2012 Bu2D0PiHypo
+{"Mode":"Bu2D0K",
+ "FileName":"root://eoslhcb.cern.ch//eos/lhcb/wg/b2oc/TD_DPi_3fb/flavourtaggingMC/MC_Bu2D0K_Bu2D0PiHypo_magUp_S21_afterSelection_PID-corrected_new.root",
+ "TreeName":"Bu2Dpi"}
+{"Mode":"Bd2DstPi",
+ "FileName":"root://eoslhcb.cern.ch//eos/lhcb/wg/b2oc/TD_DPi_3fb/flavourtaggingMC/MC_Bd2DstPi_Bu2D0PiHypo_magUp_S21_afterSelection_PID-corrected_new.root",
+ "TreeName":"Bu2Dpi"}
+{"Mode":"Bd2D0PiPi",
+ "FileName":"root://eoslhcb.cern.ch//eos/lhcb/wg/b2oc/TD_DPi_3fb/flavourtaggingMC/MC_Bd2D0PiPi_Bu2D0PiHypo_magUp_S21_afterSelection_PID-corrected_new.root",
+ "TreeName":"Bu2Dpi"}
+{"Mode":"Bu2Dst0Pi",
+ "FileName":"root://eoslhcb.cern.ch//eos/lhcb/wg/b2oc/TD_DPi_3fb/flavourtaggingMC/MC_Bu2Dst0Pi_Bu2D0PiHypo_magUp_S21_afterSelection_PID-corrected_new.root",
+ "TreeName":"Bu2Dpi"}
+{"Mode":"Bs2D0KPi",
+ "FileName":"root://eoslhcb.cern.ch//eos/lhcb/wg/b2oc/TD_DPi_3fb/flavourtaggingMC/MC_Bs2D0KPi_Bu2D0PiHypo_magUp_S21_afterSelection_PID-corrected_new.root",
+ "TreeName":"Bu2Dpi"}
+{"Mode":"Lb2LcPi",
+ "FileName":"root://eoslhcb.cern.ch//eos/lhcb/wg/b2oc/TD_DPi_3fb/flavourtaggingMC/MC_Lb2LcPi_Bu2D0PiHypo_magUp_S21_afterSelection_PID-corrected_new.root",
+ "TreeName":"Bu2Dpi"}
+###
+
+#MC FileName KPi MD 2011 Bu2D0KHypo
+{"Mode":"Bu2D0K",
+ "FileName":"root://eoslhcb.cern.ch//eos/lhcb/wg/b2oc/TD_DPi_3fb/flavourtaggingMC/MC_Bu2D0K_Bu2D0KHypo_magDown_S21_afterSelection_PID-corrected_new.root",
+ "TreeName":"Bu2DK"}
+{"Mode":"Bd2DstPi",
+ "FileName":"root://eoslhcb.cern.ch//eos/lhcb/wg/b2oc/TD_DPi_3fb/flavourtaggingMC/MC_Bd2DstPi_Bu2D0KHypo_magDown_S21_afterSelection_PID-corrected_new.root",
+ "TreeName":"Bu2DK"}
+{"Mode":"Bd2D0PiPi",
+ "FileName":"root://eoslhcb.cern.ch//eos/lhcb/wg/b2oc/TD_DPi_3fb/flavourtaggingMC/MC_Bd2D0PiPi_Bu2D0KHypo_magDown_S21_afterSelection_PID-corrected_new.root",
+ "TreeName":"Bu2DK"}
+{"Mode":"Bu2Dst0Pi",
+ "FileName":"root://eoslhcb.cern.ch//eos/lhcb/wg/b2oc/TD_DPi_3fb/flavourtaggingMC/MC_Bu2Dst0Pi_Bu2D0KHypo_magDown_S21_afterSelection_PID-corrected_new.root",
+ "TreeName":"Bu2DK"}
+{"Mode":"Bs2D0KPi",
+ "FileName":"root://eoslhcb.cern.ch//eos/lhcb/wg/b2oc/TD_DPi_3fb/flavourtaggingMC/MC_Bs2D0KPi_Bu2D0KHypo_magDown_S21_afterSelection_PID-corrected_new.root",
+ "TreeName":"Bu2DK"}
+{"Mode":"Lb2LcPi",
+ "FileName":"root://eoslhcb.cern.ch//eos/lhcb/wg/b2oc/TD_DPi_3fb/flavourtaggingMC/MC_Lb2LcPi_Bu2D0KHypo_magDown_S21_afterSelection_PID-corrected_new.root",
+ "TreeName":"Bu2DK"}
+###
+
+#MC FileName KPi MU 2011 Bu2D0KHypo
+{"Mode":"Bu2D0K",
+ "FileName":"root://eoslhcb.cern.ch//eos/lhcb/wg/b2oc/TD_DPi_3fb/flavourtaggingMC/MC_Bu2D0K_Bu2D0KHypo_magUp_S21_afterSelection_PID-corrected_new.root",
+ "TreeName":"Bu2DK"}
+{"Mode":"Bd2DstPi",
+ "FileName":"root://eoslhcb.cern.ch//eos/lhcb/wg/b2oc/TD_DPi_3fb/flavourtaggingMC/MC_Bd2DstPi_Bu2D0KHypo_magUp_S21_afterSelection_PID-corrected_new.root",
+ "TreeName":"Bu2DK"}
+{"Mode":"Bd2D0PiPi",
+ "FileName":"root://eoslhcb.cern.ch//eos/lhcb/wg/b2oc/TD_DPi_3fb/flavourtaggingMC/MC_Bd2D0PiPi_Bu2D0KHypo_magUp_S21_afterSelection_PID-corrected_new.root",
+ "TreeName":"Bu2DK"}
+{"Mode":"Bu2Dst0Pi",
+ "FileName":"root://eoslhcb.cern.ch//eos/lhcb/wg/b2oc/TD_DPi_3fb/flavourtaggingMC/MC_Bu2Dst0Pi_Bu2D0KHypo_magUp_S21_afterSelection_PID-corrected_new.root",
+ "TreeName":"Bu2DK"}
+{"Mode":"Bs2D0KPi",
+ "FileName":"root://eoslhcb.cern.ch//eos/lhcb/wg/b2oc/TD_DPi_3fb/flavourtaggingMC/MC_Bs2D0KPi_Bu2D0KHypo_magUp_S21_afterSelection_PID-corrected_new.root",
+ "TreeName":"Bu2DK"}
+{"Mode":"Lb2LcPi",
+ "FileName":"root://eoslhcb.cern.ch//eos/lhcb/wg/b2oc/TD_DPi_3fb/flavourtaggingMC/MC_Lb2LcPi_Bu2D0KHypo_magUp_S21_afterSelection_PID-corrected_new.root",
+ "TreeName":"Bu2DK"}
+###
+
+#MC FileName KPi MD 2012 Bu2D0KHypo
+{"Mode":"Bu2D0K",
+ "FileName":"root://eoslhcb.cern.ch//eos/lhcb/wg/b2oc/TD_DPi_3fb/flavourtaggingMC/MC_Bu2D0K_Bu2D0KHypo_magDown_S21_afterSelection_PID-corrected_new.root",
+ "TreeName":"Bu2DK"}
+{"Mode":"Bd2DstPi",
+ "FileName":"root://eoslhcb.cern.ch//eos/lhcb/wg/b2oc/TD_DPi_3fb/flavourtaggingMC/MC_Bd2DstPi_Bu2D0KHypo_magDown_S21_afterSelection_PID-corrected_new.root",
+ "TreeName":"Bu2DK"}
+{"Mode":"Bd2D0PiPi",
+ "FileName":"root://eoslhcb.cern.ch//eos/lhcb/wg/b2oc/TD_DPi_3fb/flavourtaggingMC/MC_Bd2D0PiPi_Bu2D0KHypo_magDown_S21_afterSelection_PID-corrected_new.root",
+ "TreeName":"Bu2DK"}
+{"Mode":"Bu2Dst0Pi",
+ "FileName":"root://eoslhcb.cern.ch//eos/lhcb/wg/b2oc/TD_DPi_3fb/flavourtaggingMC/MC_Bu2Dst0Pi_Bu2D0KHypo_magDown_S21_afterSelection_PID-corrected_new.root",
+ "TreeName":"Bu2DK"}
+{"Mode":"Bs2D0KPi",
+ "FileName":"root://eoslhcb.cern.ch//eos/lhcb/wg/b2oc/TD_DPi_3fb/flavourtaggingMC/MC_Bs2D0KPi_Bu2D0KHypo_magDown_S21_afterSelection_PID-corrected_new.root",
+ "TreeName":"Bu2DK"}
+{"Mode":"Lb2LcPi",
+ "FileName":"root://eoslhcb.cern.ch//eos/lhcb/wg/b2oc/TD_DPi_3fb/flavourtaggingMC/MC_Lb2LcPi_Bu2D0KHypo_magDown_S21_afterSelection_PID-corrected_new.root",
+ "TreeName":"Bu2DK"}
+###
+
+#MC FileName KPi MU 2012 Bu2D0KHypo
+{"Mode":"Bu2D0K",
+ "FileName":"root://eoslhcb.cern.ch//eos/lhcb/wg/b2oc/TD_DPi_3fb/flavourtaggingMC/MC_Bu2D0K_Bu2D0KHypo_magUp_S21_afterSelection_PID-corrected_new.root",
+ "TreeName":"Bu2DK"}
+{"Mode":"Bd2DstPi",
+ "FileName":"root://eoslhcb.cern.ch//eos/lhcb/wg/b2oc/TD_DPi_3fb/flavourtaggingMC/MC_Bd2DstPi_Bu2D0KHypo_magUp_S21_afterSelection_PID-corrected_new.root",
+ "TreeName":"Bu2DK"}
+{"Mode":"Bd2D0PiPi",
+ "FileName":"root://eoslhcb.cern.ch//eos/lhcb/wg/b2oc/TD_DPi_3fb/flavourtaggingMC/MC_Bd2D0PiPi_Bu2D0KHypo_magUp_S21_afterSelection_PID-corrected_new.root",
+ "TreeName":"Bu2DK"}
+{"Mode":"Bu2Dst0Pi",
+ "FileName":"root://eoslhcb.cern.ch//eos/lhcb/wg/b2oc/TD_DPi_3fb/flavourtaggingMC/MC_Bu2Dst0Pi_Bu2D0KHypo_magUp_S21_afterSelection_PID-corrected_new.root",
+ "TreeName":"Bu2DK"}
+{"Mode":"Bs2D0KPi",
+ "FileName":"root://eoslhcb.cern.ch//eos/lhcb/wg/b2oc/TD_DPi_3fb/flavourtaggingMC/MC_Bs2D0KPi_Bu2D0KHypo_magUp_S21_afterSelection_PID-corrected_new.root",
+ "TreeName":"Bu2DK"}
+{"Mode":"Lb2LcPi",
+ "FileName":"root://eoslhcb.cern.ch//eos/lhcb/wg/b2oc/TD_DPi_3fb/flavourtaggingMC/MC_Lb2LcPi_Bu2D0KHypo_magUp_S21_afterSelection_PID-corrected_new.root",
+ "TreeName":"Bu2DK"}
+###
+
+
