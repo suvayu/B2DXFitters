@@ -1,7 +1,7 @@
 #!/bin/sh
 # -*- mode: python; coding: utf-8 -*-
 # vim: ft=python:sw=4:tw=78:expandtab
-# --------------------------------------------------------------------------- 
+# ---------------------------------------------------------------------------
 # @file toyFactory.py
 #
 # @brief toy generator for B2OC TD analyses
@@ -15,7 +15,7 @@
 # The CP coefficients for the time pdf are built using the
 # DecRateCoeff_Bd class from Dortmund.
 #
-# --------------------------------------------------------------------------- 
+# ---------------------------------------------------------------------------
 # This file is used as both a shell script and as a Python script.
 """:"
 # This part is run by the shell. It does some setup which is convenient to save
@@ -25,7 +25,7 @@
 if test -n "$CMTCONFIG" \
          -a -f $B2DXFITTERSROOT/$CMTCONFIG/libB2DXFittersDict.so \
      -a -f $B2DXFITTERSROOT/$CMTCONFIG/libB2DXFittersLib.so; then
-    # all ok, software environment set up correctly, so don't need to do 
+    # all ok, software environment set up correctly, so don't need to do
     # anything
     true
 else
@@ -142,7 +142,7 @@ def BuildObservables(workspaceIn, myconfigfile, debug):
 
     obsDict = {}
     for obs in myconfigfile["Observables"].iterkeys():
-        print obs 
+        print obs
         #Take "real" variables (masses, time...)
         if myconfigfile["Observables"][obs]["Type"] == "RooRealVar":
             if debug:
@@ -192,7 +192,7 @@ def BuildTagging(workspaceIn, myconfigfile, obsDict, debug):
         for tagger in myconfigfile["Taggers"][comp].iterkeys():
 
             if "Mistag"+tagger in obsDict.keys() and "TagDec"+tagger in obsDict.keys():
-                
+
                 #Create calibration parameters (p0, p1, dp0, dp1, <eta>, tageff, atageff)
                 caliblist = []
                 for p in ["p0", "p1", "deltap0", "deltap1", "avgeta", "tageff", "tagasymm"]:
@@ -205,14 +205,14 @@ def BuildTagging(workspaceIn, myconfigfile, obsDict, debug):
 
                 #Create mistag pdf (can be "None" for average mistag)
                 if debug:
-                    "Create mistag pdf for "+tagger+" tagger, "+comp+" component"
+                    print "Create mistag pdf for "+tagger+" tagger, "+comp+" component"
                 if myconfigfile["Taggers"][comp][tagger]["MistagPDF"] == None:
                     if debug:
                         print "No mistag pdf (average mistag)"
                     tagDict[comp]["MistagPDF"] = None
                 else:
-                    tagDict[comp]["MistagPDF"].append( BuildMistagPDF(workspaceIn, myconfigfile, tagger, comp, obsDict, debug) ) 
-            
+                    tagDict[comp]["MistagPDF"].append( BuildMistagPDF(workspaceIn, myconfigfile, tagger, comp, obsDict, debug) )
+
     if debug:
         print "Tagging dictionary:"
         print tagDict
@@ -244,7 +244,7 @@ def BuildMistagPDF(workspaceIn, myconfigfile, tagger, comp, obsDict, debug):
     if debug:
         print "Mistag pdf:"
         pdf.Print("v")
-        
+
     return pdf
 
 #------------------------------------------------------------
@@ -268,7 +268,7 @@ def BuildMockMistagPDF(workspaceIn, myconfigfile, tagger, comp, obsDict, debug):
 
     return pdf
 
-#------------------------------------------------------------ 
+#------------------------------------------------------------
 def BuildResolutionAcceptance(workspaceIn, myconfigfile, obsDict, debug):
 
     resAccDict = {}
@@ -359,7 +359,7 @@ def BuildResolutionAcceptance(workspaceIn, myconfigfile, obsDict, debug):
             print resAccDict
 
     return resAccDict
-            
+
 #------------------------------------------------------------
 def BuildTimeErrorPDF(workspaceIn, myconfigfile, comp, obsDict, debug):
 
@@ -409,7 +409,7 @@ def BuildMockTimeErrorPDF(workspaceIn, myconfigfile, comp, obsDict, debug):
     poly = WS(workspaceIn, RooPolynomial("terrpoly_"+comp,
                                           "terrpoly_"+comp,
                                           terr, RooArgList(zero, zero, zero, zero, zero, zero, one), 0))
-    
+
     pdf = WS(workspaceIn, RooProdPdf("TimeErrorPDF_"+comp,
                                       "TimeErrorPDF_"+comp,
                                       exp, poly))
@@ -471,8 +471,8 @@ def BuildTotalPDF(workspaceIn, myconfigfile, obsDict, ACPDict, tagDict, resAccDi
                             pdfDict[hypo][year][mode][comp][obs] = {}
                             pdfDict[hypo][year][mode][comp][obs] = None
                             continue
-                        
-                        if obs == "BeautyTime" and None!=ACPDict and None!=tagDict and None!=resAccDict and None!=asymmDict:               
+
+                        if obs == "BeautyTime" and None!=ACPDict and None!=tagDict and None!=resAccDict and None!=asymmDict:
                             print "Observables: "+obs
                             pdfDict[hypo][year][mode][comp][obs] = {}
                             pdfDict[hypo][year][mode][comp][obs] = WS(workspaceIn, BuildTimePDF(workspaceIn,
@@ -488,7 +488,7 @@ def BuildTotalPDF(workspaceIn, myconfigfile, obsDict, ACPDict, tagDict, resAccDi
                                                                                                 asymmDict,
                                                                                                 debug))
                         elif obs in ["BeautyMass", "CharmMass", "BacPIDK", "TrueID"]:
-                            
+
                             print "Observables: "+obs
                             pdfDict[hypo][year][mode][comp][obs] = {}
                             pdfDict[hypo][year][mode][comp][obs] = WS(workspaceIn, BuildPDF(workspaceIn,
@@ -498,14 +498,14 @@ def BuildTotalPDF(workspaceIn, myconfigfile, obsDict, ACPDict, tagDict, resAccDi
                                                                                             comp,
                                                                                             mode,
                                                                                             obsDict[obs],
-                                                                                            workTemplate, 
+                                                                                            workTemplate,
                                                                                             debug))
-                        
+
                     pdfDict[hypo][year][mode][comp]["Yield"] = WS(workspaceIn, RooRealVar("nEvts_both"+year+"_"+comp+"_"+mode+"_"+hypo+"Hypo",
                                                                                           "nEvts_both"+year+"_"+comp+"_"+mode+"_"+hypo+"Hypo",
                                                                                           *myconfigfile["Components"][comp][hypo][year][mode]))
                     yieldCount[hypo][year][mode][comp] = myconfigfile["Components"][comp][hypo][year][mode][0]
-                
+
     if debug:
         print "PDF dictionary:"
         print pdfDict
@@ -514,7 +514,7 @@ def BuildTotalPDF(workspaceIn, myconfigfile, obsDict, ACPDict, tagDict, resAccDi
 
     return {"PDF"      : pdfDict,
             "Events"   : yieldCount}
-                    
+
 #-----------------------------------------------------------------------------
 def BuildACPDict(workspaceIn, myconfigfile, debug):
 
@@ -528,7 +528,7 @@ def BuildACPDict(workspaceIn, myconfigfile, debug):
 
             if debug:
                 print "Building CP coefficients using amplitude values"
-            
+
             ACPobs = cpobservables.AsymmetryObservables(myconfigfile["ACP"][comp]["ArgLf"][0],
                                                         myconfigfile["ACP"][comp]["ArgLbarfbar"][0],
                                                         myconfigfile["ACP"][comp]["ModLf"][0])
@@ -539,7 +539,7 @@ def BuildACPDict(workspaceIn, myconfigfile, debug):
             ACPDict[comp]["D"] = WS(workspaceIn, RooRealVar("D_"+comp, "D_"+comp, ACPobs.Df()))
             ACPDict[comp]["Sbar"] = WS(workspaceIn, RooRealVar("Sbar_"+comp, "Sbar_"+comp, ACPobs.Sfbar()))
             ACPDict[comp]["Dbar"] = WS(workspaceIn, RooRealVar("Dbar_"+comp, "Dbar_"+comp, ACPobs.Dfbar()))
-            
+
         else:
 
             if debug:
@@ -567,18 +567,18 @@ def BuildACPDict(workspaceIn, myconfigfile, debug):
         print ACPDict
 
     return ACPDict
-            
+
 #-----------------------------------------------------------------------------
 def BuildTimePDF(workspaceIn, myconfigfile, hypo, year, comp, mode, obsDict, ACPDict, tagDict, resAccDict, asymmDict, debug):
 
     pdf = workspaceIn.pdf("TimePDF_"+comp)
 
     if not pdf:
-        
+
         #Retrieve time and final state observables
         time = obsDict["BeautyTime"]
         qf = obsDict["BacCharge"]
-        
+
         #Retrieve CP coefficients and decay rate parameters
         C = ACPDict[comp]["C"]
         S = ACPDict[comp]["S"]
@@ -588,11 +588,11 @@ def BuildTimePDF(workspaceIn, myconfigfile, hypo, year, comp, mode, obsDict, ACP
         Gamma = ACPDict[comp]["Gamma"]
         DeltaGamma = ACPDict[comp]["DeltaGamma"]
         DeltaM = ACPDict[comp]["DeltaM"]
-        
+
         #Retrieve tagging
         mistagcalib = tagDict[comp]["Calibration"]
         mistagpdf = tagDict[comp]["MistagPDF"]
-        
+
         qt = []
         mistagobs = []
         for tagger in myconfigfile["Taggers"][comp].iterkeys():
@@ -607,7 +607,7 @@ def BuildTimePDF(workspaceIn, myconfigfile, hypo, year, comp, mode, obsDict, ACP
         timeerr = None
         if "BeautyTimeErr" in obsDict.keys():
             timeerr = obsDict["BeautyTimeErr"]
-        
+
         #Retrieve asymmetries
         aprod = asymmDict[comp]["Production"]
         adet = asymmDict[comp]["Detection"]
@@ -653,8 +653,8 @@ def BuildPDF(workspaceIn, myconfigfile, hypo, year, comp, mode, obs, workTemplat
                                           "TrueID_both"+year+"_"+comp+"_"+mode+"_"+hypo+"Hypo",
                                           obs, mean, sigma))
     elif obs.GetName() in ["BeautyMass", "CharmMass"]:
-        
-        print obs.GetName(), comp, hypo, year, mode 
+
+        print obs.GetName(), comp, hypo, year, mode
         print  myconfigfile["PDFList"][obs.GetName()][comp][hypo][year]
         mode2 = mode
         if myconfigfile["PDFList"][obs.GetName()][comp][hypo][year].has_key("All"):
@@ -702,7 +702,7 @@ def BuildPDF(workspaceIn, myconfigfile, hypo, year, comp, mode, obs, workTemplat
                 #workTemplate = filePDF.Get(work)
                 pdfTmp[pol] = {}
                 for n in name:
-                    print n 
+                    print n
                     if comp != "Combinatorial":
                         pdfTmp[pol]["Merged"] = WS(workspaceIn, workTemplate.obj(name[pol]["Merged"]) )
                     else:
@@ -710,25 +710,25 @@ def BuildPDF(workspaceIn, myconfigfile, hypo, year, comp, mode, obs, workTemplat
                             pdfTmp[pol][con] = WS(workspaceIn, workTemplate.obj(name[pol][con]))
                 #filePDF.Close()
             if comp == "Combinatorial":
-                sizeContr = len(contributions) 
+                sizeContr = len(contributions)
                 for pol in ["Up","Down"]:
-                    fracList = RooArgList() 
+                    fracList = RooArgList()
                     for i in range(0,sizeContr-1):
                         print myconfigfile["PDFList"][obs.GetName()][comp][hypo][year][mode]["Name"][pol]["fracPIDK"][i]
-                        fracName = "fracPIDK"+str(i+1) + "_" + pol + "_" + mode + "_" + year 
+                        fracName = "fracPIDK"+str(i+1) + "_" + pol + "_" + mode + "_" + year
                         fracList.add(WS(workspaceIn, RooRealVar(fracName, fracName, myconfigfile["PDFList"][obs.GetName()][comp][hypo][year][mode]["Name"][pol]["fracPIDK"][i])))
                     pdfList = RooArgList()
                     for con in contributions:
                         pdfList.add(pdfTmp[pol][con])
-                    pdfList.Print("v") 
+                    pdfList.Print("v")
                     fracList.Print("v")
                     namePDF = comp+"_"+obs.GetName()+"_"+mode2+"_"+pol+"_"+year+"_"+hypo+"Hypo"
                     pdfTmp[pol]["Merged"] =  WS(workspaceIn, RooAddPdf(namePDF,namePDF,pdfList, fracList))
 
-            print pdfTmp  
+            print pdfTmp
             namePDF = comp+"_"+obs.GetName()+"_"+mode2+"_"+year
             frac = WS(workspaceIn, RooRealVar("frac_"+year,"frac_"+year, myconfigfile["FractionsLuminosity"][year]))
-            pdf = WS(workspaceIn, RooAddPdf(namePDF, namePDF, pdfTmp["Up"]["Merged"],pdfTmp["Down"]["Merged"],frac)) 
+            pdf = WS(workspaceIn, RooAddPdf(namePDF, namePDF, pdfTmp["Up"]["Merged"],pdfTmp["Down"]["Merged"],frac))
         else:
             pdf = BuildAnalyticalPdf(workspaceIn, shapeType, myconfigfile, hypo, year, comp, mode, obs, debug)
             pdf.SetName(comp+"_"+obs.GetName()+"_"+mode2+"_"+year+"_"+hypo+"Hypo")
@@ -737,7 +737,7 @@ def BuildPDF(workspaceIn, myconfigfile, hypo, year, comp, mode, obs, workTemplat
         print "ERROR: pdfs for observables "+obs.GetName()+" not yet implemented."
         exit(-1)
 
-    pdf.Print("v") 
+    pdf.Print("v")
     return pdf
 
 #-----------------------------------------------------------------------------
@@ -747,7 +747,7 @@ def BuildAnalyticalPdf(workspaceIn, shapeType, myconfigfile, hypo, year, comp, m
     # Users are encouraged to add other PDFs #
     # here and commit them if required!      #
     ##########################################
-    
+
     pdf = None
 
     #Label
@@ -761,8 +761,8 @@ def BuildAnalyticalPdf(workspaceIn, shapeType, myconfigfile, hypo, year, comp, m
     #In fact, BuildAnalyticalPdf is called for each of these at time
     smyh = smyh_vec[0]
 
-    widthRatio = False 
-    sameMean = False 
+    widthRatio = False
+    sameMean = False
     #Build parameters for this PDF into internal workspace
     for param in myconfigfile["PDFList"][obs.GetName()][comp][hypo][year][mode].iterkeys():
         if param != "Type" and param != "widthRatio":
@@ -774,7 +774,7 @@ def BuildAnalyticalPdf(workspaceIn, shapeType, myconfigfile, hypo, year, comp, m
             if not par:
                 print "ERROR: parameter "+param+" not created. Please check!"
                 exit(-1)
-            
+
         elif  param == "widthRatio":
             widthRatio = param
 
@@ -785,6 +785,7 @@ def BuildAnalyticalPdf(workspaceIn, shapeType, myconfigfile, hypo, year, comp, m
                                                    smyh,
                                                    comp,
                                                    False, #don't shift mean
+                                                   False,
                                                    debug)
     elif shapeType == "JohnsonSU":
         pdf = Bd2DhModels.buildJohnsonSUPDF(obs,
@@ -854,8 +855,8 @@ def BuildAnalyticalPdf(workspaceIn, shapeType, myconfigfile, hypo, year, comp, m
         print "ERROR: pdf type "+shapeType+" not yet implemented."
         exit(-1)
 
-    return pdf 
-    
+    return pdf
+
 #-----------------------------------------------------------------------------
 def BuildProtoData(workspaceIn, myconfigfile, obsDict, tagDict, resAccDict, pdfDict, seed, debug):
 
@@ -866,7 +867,7 @@ def BuildProtoData(workspaceIn, myconfigfile, obsDict, tagDict, resAccDict, pdfD
     poissonGen = TRandom3(seed)
     if debug:
         print "Seed to generate yields: "+str(poissonGen.GetSeed())
-    
+
     #Ok, we have time observable. Let's see if we need per event mistag/time error
     nevts = pdfDict["Events"]
     protoDataDict = {}
@@ -889,7 +890,7 @@ def BuildProtoData(workspaceIn, myconfigfile, obsDict, tagDict, resAccDict, pdfD
                         poissonNum = poissonGen.Poisson( int(nevts[hypo][year][mode][comp]) )
                     else:
                         continue
-                    
+
                     #Check tagging
                     tag = 0
                     if tagDict[comp]["MistagPDF"] != None:
@@ -902,10 +903,10 @@ def BuildProtoData(workspaceIn, myconfigfile, obsDict, tagDict, resAccDict, pdfD
                                 protoDataDict[hypo][year][mode][comp][atLeast].SetName(protoDataDict[hypo][year][mode][comp][atLeast].GetName()+"both_"+year+"_"+comp+"_"+mode+"_"+hypo+"Hypo")
                                 protoDataDict[hypo][year][mode][comp][atLeast].SetTitle(protoDataDict[hypo][year][mode][comp][atLeast].GetName()+"both_"+year+"_"+comp+"_"+mode+"_"+hypo+"Hypo")
                                 protoDataDict[hypo][year][mode][comp][atLeast] = WS(workspaceIn, protoDataDict[hypo][year][mode][comp][atLeast])
-                                
+
                                 atLeast = atLeast+1
                                 tag = tag+1
-                            
+
                     #Check per-event error
                     if resAccDict[comp]["TimeErrorPDF"] != None:
                         if debug:
@@ -915,7 +916,7 @@ def BuildProtoData(workspaceIn, myconfigfile, obsDict, tagDict, resAccDict, pdfD
                         protoDataDict[hypo][year][mode][comp][atLeast].SetName(protoDataDict[hypo][year][mode][comp][atLeast].GetName()+"both_"+year+"_"+comp+"_"+mode+"_"+hypo+"Hypo")
                         protoDataDict[hypo][year][mode][comp][atLeast].SetTitle(protoDataDict[hypo][year][mode][comp][atLeast].GetName()+"both_"+year+"_"+comp+"_"+mode+"_"+hypo+"Hypo")
                         protoDataDict[hypo][year][mode][comp][atLeast] = WS(workspaceIn, protoDataDict[hypo][year][mode][comp][atLeast])
-                    
+
                         atLeast = atLeast+1
 
     if atLeast == 0:
@@ -929,7 +930,7 @@ def BuildProtoData(workspaceIn, myconfigfile, obsDict, tagDict, resAccDict, pdfD
 
     #Merge datasets for a given hypo, component
     protoDataMerged = {}
-    
+
     for hypo in myconfigfile["Hypothesys"]:
         protoDataMerged[hypo] = {}
 
@@ -940,25 +941,25 @@ def BuildProtoData(workspaceIn, myconfigfile, obsDict, tagDict, resAccDict, pdfD
                 protoDataMerged[hypo][year][mode] = {}
 
                 for comp in myconfigfile["Components"].iterkeys():
-            
+
                     if protoDataDict[hypo][year][mode][comp].__len__() > 0:
-                    
+
                         protoDataMerged[hypo][year][mode][comp] = {}
                         countGenObs = 0
-                
+
                         for data in protoDataDict[hypo][year][mode][comp]:
                             if countGenObs == 0:
                                 protoDataMerged[hypo][year][mode][comp] = copy.deepcopy( protoDataDict[hypo][year][mode][comp][countGenObs] )
                             else:
                                 protoDataMerged[hypo][year][mode][comp].merge( protoDataDict[hypo][year][mode][comp][countGenObs] )
                             countGenObs = countGenObs+1
-                            
+
                         protoDataMerged[hypo][year][mode][comp].SetName("ProtoData_both_"+year+"_"+comp+"_"+mode+"_"+hypo+"Hypo")
                         protoDataMerged[hypo][year][mode][comp].SetTitle("ProtoData_both_"+year+"_"+comp+"_"+mode+"_"+hypo+"Hypo")
 
                     else:
                         protoDataMerged[hypo][mode] = None
-                        
+
     if debug:
         print "Merged proto data dictionary:"
         print protoDataMerged
@@ -1001,10 +1002,10 @@ def GenerateToys(workspaceIn, myconfigfile, observables, pdfDict, protoData, see
                     else:
                         toyDict[hypo][year][mode][comp][obs] = None
                         continue
-                        
+
                     #Loop over observables
                     for obs in myconfigfile["Observables"].iterkeys():
-                        
+
                         if obs == "BeautyTime":
                             print "Observable: "+obs
                             toyDict[hypo][year][mode][comp][obs] = {}
@@ -1016,25 +1017,34 @@ def GenerateToys(workspaceIn, myconfigfile, observables, pdfDict, protoData, see
                                 genset.add( observables.find("TagDecSS") )
                             #If we have proto data use it, otherwise only draw number of events to generate from Poisson distribution
                             if None != protoData:
+                                if debug:
+                                    print "Generate "+str(poissonNum)+" decay time data from "+pdf[hypo][year][mode][comp][obs].GetName()
                                 toyDict[hypo][year][mode][comp][obs] = WS(workspaceIn, pdf[hypo][year][mode][comp][obs].generate(genset,
                                                                                                                                  RooFit.ProtoData(protoData[hypo][year][mode][comp]),
                                                                                                                                  RooFit.NumEvents(poissonNum)) )
                             else:
+                                if debug:
+                                    print "Generate "+str(poissonNum)+" decay time data from "+pdf[hypo][year][mode][comp][obs].GetName()
+                                    print "No proto data used - the generation takes ages, do it at your own 'risk'"
                                 toyDict[hypo][year][mode][comp][obs] = WS(workspaceIn, pdf[hypo][year][mode][comp][obs].generate(genset,
                                                                                                                                  RooFit.NumEvents(poissonNum) ) )
                         elif obs in ["BeautyMass", "CharmMass", "BacPIDK", "TrueID"]:
                             print "Observable: "+obs
                             genset = RooArgSet(observables.find(obs))
                             toyDict[hypo][year][mode][comp][obs] = {}
-                            
+
                             if obs == "BacPIDK":
+                                if debug:
+                                    print "Generate "+str(poissonNum)+" BacPIDK data from "+pdf[hypo][year][mode][comp][obs].GetName()
                                 toyDict[hypo][year][mode][comp][obs] = WS(workspaceIn, pdf[hypo][year][mode][comp][obs].generate(genset,
                                                                                                                                  RooFit.AutoBinned(False),
                                                                                                                                  #RooFit.Extended(),
                                                                                                                                  RooFit.NumEvents(poissonNum) ) )
                             else:
+                                if debug:
+                                    print "Generate "+str(poissonNum) + " " + obs + " data from "+pdf[hypo][year][mode][comp][obs].GetName()
                                 toyDict[hypo][year][mode][comp][obs] = WS(workspaceIn, pdf[hypo][year][mode][comp][obs].generate(genset,
-                                                                                                                                 #RooFit.Extended(), 
+                                                                                                                                 #RooFit.Extended(),
                                                                                                                                  RooFit.NumEvents(poissonNum) ) )
 
     if debug:
@@ -1066,12 +1076,12 @@ def BuildTotalDataset(workspaceIn, myconfigfile, toyDict, debug):
 
             for mode in toyDict[hypo][year].iterkeys():
 
-                modeSmall = GeneralUtils.GetModeLower(TString(mode),debug) 
+                modeSmall = GeneralUtils.GetModeLower(TString(mode),debug)
                 print "D decay mode: "+mode
-                typeName = TString("both_")+modeSmall+TString("_")+TString(year)+TString("_")+TString(hypo)+TString("Hypo") 
+                typeName = TString("both_")+modeSmall+TString("_")+TString(year)+TString("_")+TString(hypo)+TString("Hypo")
                 sam.defineType(typeName.Data(), idx)
-                sm.append(typeName) 
-                print typeName 
+                sm.append(typeName)
+                print typeName
 
                 if debug:
                     print "Defined category both_"+mode+"_"+year+"_"+hypo+"Hypo with index "+str(idx)
@@ -1080,10 +1090,10 @@ def BuildTotalDataset(workspaceIn, myconfigfile, toyDict, debug):
                 for comp in toyDict[hypo][year][mode].iterkeys():
 
                     print "Component: "+comp
-                
+
                     countObs = 0
                     dataObs = None
-                    
+
                     for obs in toyDict[hypo][year][mode][comp].iterkeys():
 
                         if None == toyDict[hypo][year][mode][comp][obs]:
@@ -1099,7 +1109,7 @@ def BuildTotalDataset(workspaceIn, myconfigfile, toyDict, debug):
                         countObs = countObs +1
 
                     if None == dataObs or dataObs.numEntries() == 0:
-                        continue 
+                        continue
 
                     dataObs.SetName("Toy_both_"+year+"_"+comp+"_"+mode+"_"+hypo+"Hypo")
                     dataObs.SetTitle("Toy_both_"+year+"_"+comp+"_"+mode+"_"+hypo+"Hypo")
@@ -1108,17 +1118,17 @@ def BuildTotalDataset(workspaceIn, myconfigfile, toyDict, debug):
                         print "Creating data set: ", dataObs.GetName()
                         dataComp = copy.deepcopy( dataObs )
                     else:
-                        print "Appending data set: ",dataObs.GetName() 
+                        print "Appending data set: ",dataObs.GetName()
                         dataComp.append( dataObs )
 
                     countComp = countComp + 1
 
-                dataName = TString("dataSet")+TString(myconfigfile["Decay"]) + TString("_") + typeName    
+                dataName = TString("dataSet")+TString(myconfigfile["Decay"]) + TString("_") + typeName
                 dataComp.SetName(dataName.Data())
                 dataComp.SetTitle(dataName.Data())
                 dataComp = WS(workspaceIn, dataComp)
 
-                modesData.append(dataComp) 
+                modesData.append(dataComp)
 
                 if not foundObs:
                     #Use this dataset to retrieve list of observables
@@ -1126,20 +1136,20 @@ def BuildTotalDataset(workspaceIn, myconfigfile, toyDict, debug):
                     foundObs = True
 
                 #print mode, year, hypo
-                #print dataComp.GetName() 
+                #print dataComp.GetName()
                 #importList.append( RooFit.Import("both_"+mode+"_"+year+"_"+hypo+"Hypo", dataComp) )
-                #print "append list" 
-                #print sam 
-                
+                #print "append list"
+                #print sam
+
                 #modesData.append( WS(workspaceIn, RooDataSet("dataSet"+myconfigfile["Decay"]+"_both_"+mode+"_"+year+"_"+hypo+"Hypo",
                 #                                             "dataSet"+myconfigfile["Decay"]+"_both_"+mode+"_"+year+"_"+hypo+"Hypo",
-                #                                             observables 
+                #                                             observables
                                                              #RooFit.Index(sam),
                 #                                             RooFit.Import("both_"+mode+"_"+year+"_"+hypo+"Hypo", dataComp)))) #*importList))
-                                
+
                 idx = idx + 1
 
-    
+
     totData = RooDataSet("totData","totData", observables, RooFit.Index(sam),RooFit.Import(sm[0].Data(),modesData[0]))
     print "[INFO] Adding data set: ",modesData[0].GetName()
     for i in range(0,len(modesData)):
@@ -1147,9 +1157,9 @@ def BuildTotalDataset(workspaceIn, myconfigfile, toyDict, debug):
             totDatatmp = RooDataSet("totData","totData", observables, RooFit.Index(sam),RooFit.Import(sm[i].Data(),modesData[i]))
             if debug:
                 print "[INFO] Adding data set: ",modesData[i].GetName()
-            totData.append(totDatatmp) 
-    
-            
+            totData.append(totDatatmp)
+
+
     if debug:
         print "Total dataset:"
         totData.Print("v")
@@ -1160,13 +1170,13 @@ def BuildTotalDataset(workspaceIn, myconfigfile, toyDict, debug):
 
 #-----------------------------------------------------------------------------
 def MergeYears(myconfigfile, modesData, debug):
-    
-    print "[INFO] Merge years of data taking" 
+
+    print "[INFO] Merge years of data taking"
 
     sam = RooCategory("sample","sample")
-    idx = 0 
-    modesDataOut = [] 
-    sm = [] 
+    idx = 0
+    modesDataOut = []
+    sm = []
 
     for hypo in myconfigfile["Hypothesys"]:
         for mode in myconfigfile["CharmModes"]:
@@ -1176,27 +1186,27 @@ def MergeYears(myconfigfile, modesData, debug):
             type2011 = TString("both_")+modeSmall+TString("_2011_")+TString(hypo)+TString("Hypo")
             type2012 = TString("both_")+modeSmall+TString("_2012_")+TString(hypo)+TString("Hypo")
             dataName = TString("dataSet")+TString(myconfigfile["Decay"]) + TString("_") + typeName
-            
-            print typeName, dataName 
+
+            print typeName, dataName
             sam.defineType(typeName.Data(), idx)
             sm.append(typeName)
-            
+
             for data in modesData:
                 if TString(data.GetName()).Contains(type2011) == True:
                     data2011 = data
                 if TString(data.GetName()).Contains(type2012) == True:
                     data2012 = data
 
-            print "Adding: ", data2011.GetName(), data2011.numEntries(), 
-            print "  to : ", data2012.GetName(), data2012.numEntries(),
-            
+            print "Adding: ", data2011.GetName(), data2011.numEntries(),
+            print "  to : ", data2012.GetName(), data2012.numEntries()
+
             data2011.append(data2012)
             data2011.SetName(dataName.Data())
-            modesDataOut.append(data2011) 
-            
+            modesDataOut.append(data2011)
+
             idx  = idx + 1
 
-    
+
     totData = RooDataSet("totData","totData", modesDataOut[0].get(), RooFit.Index(sam),RooFit.Import(sm[0].Data(),modesDataOut[0]))
     print "[INFO] Adding data set: ",modesDataOut[0].GetName()
     for i in range(0,len(modesDataOut)):
@@ -1217,7 +1227,7 @@ def MergeYears(myconfigfile, modesData, debug):
 
 
 
-    
+
 #-----------------------------------------------------------------------------
 #-----------------------------------------------------------------------------
 #-----------------------------------------------------------------------------
@@ -1242,7 +1252,7 @@ def toyFactory(configName,
         'RooAdaptiveGaussKronrodIntegrator1D')
     RooAbsReal.defaultIntegratorConfig().method1DOpen().setLabel(
         'RooAdaptiveGaussKronrodIntegrator1D')
-    
+
     # Get the configuration file
     myconfigfilegrabber = __import__(configName,fromlist=['getconfig']).getconfig
     myconfigfile = myconfigfilegrabber()
@@ -1251,12 +1261,12 @@ def toyFactory(configName,
     print "GENERATETOYS IS RUNNING WITH THE FOLLOWING CONFIGURATION OPTIONS"
     for option in myconfigfile :
         if option == "constParams" :
-            for ddssssparam in myconfigfile[option] :
+            for param in myconfigfile[option] :
                 print param, "is constant in the fit"
         else :
             print option, " = ", myconfigfile[option]
     print "=========================================================="
-                                                                                            
+
     RooAbsData.setDefaultStorageType(RooAbsData.Tree)
 
     workspaceIn = RooWorkspace("workIn", "workIn")
@@ -1271,7 +1281,7 @@ def toyFactory(configName,
 
     gInterpreter.ProcessLine('gRandom->SetSeed('+str(int(seed))+')')
     RooRandom.randomGenerator().SetSeed(int(seed))
-    
+
     print ""
     print "=========================================================="
     print "Build observables"
@@ -1284,7 +1294,7 @@ def toyFactory(configName,
     resAccDict = None
     asymmDict = None
     ACPDict = None
-    
+
     if "BeautyTime" in obsDict.keys():
 
         #Time is one of the observables; take care of tagging, acceptance, resolution, asymmetries, CP parameters
@@ -1294,7 +1304,7 @@ def toyFactory(configName,
         print "Setup tagging"
         print "=========================================================="
         print ""
-        
+
         tagDict = BuildTagging(workspaceIn, myconfigfile, obsDict, debug)
 
         print ""
@@ -1302,7 +1312,7 @@ def toyFactory(configName,
         print "Setup time resolution and acceptance"
         print "=========================================================="
         print ""
-        
+
         resAccDict = BuildResolutionAcceptance(workspaceIn, myconfigfile, obsDict, debug)
 
         print ""
@@ -1318,7 +1328,7 @@ def toyFactory(configName,
         print "Setup CP coefficients and parameters"
         print "=========================================================="
         print ""
-        
+
         ACPDict = BuildACPDict(workspaceIn, myconfigfile, debug)
 
     print ""
@@ -1330,13 +1340,13 @@ def toyFactory(configName,
     workTemplate = None
     if "WorkspaceToRead" in myconfigfile.keys():
         print "Workspace with templates detected. Opening it..."
-        filePDF = TFile.Open(myconfigfile["WorkspaceToRead"]["File"],"READ")           
+        filePDF = TFile.Open(myconfigfile["WorkspaceToRead"]["File"],"READ")
         workTemplate = filePDF.Get(myconfigfile["WorkspaceToRead"]["Workspace"])
         if debug:
             workTemplate.Print("v")
     pdfDict = BuildTotalPDF(workspaceIn, myconfigfile, obsDict, ACPDict, tagDict, resAccDict, asymmDict, workTemplate, debug)
     if "WorkspaceToRead" in myconfigfile.keys():
-        filePDF.Close() 
+        filePDF.Close()
 
     print ""
     print "=========================================================="
@@ -1355,7 +1365,7 @@ def toyFactory(configName,
         observables.Print("v")
 
     #Generate "proto data" from time error and mistag PDFs (if needed)
-    protoData = BuildProtoData(workspaceIn, myconfigfile, obsDict, tagDict, resAccDict, pdfDict, int(seed), debug) 
+    protoData = BuildProtoData(workspaceIn, myconfigfile, obsDict, tagDict, resAccDict, pdfDict, int(seed), debug)
 
     #Generate toys
     toyDict = GenerateToys(workspaceIn, myconfigfile, observables, pdfDict, protoData, int(seed), debug)
@@ -1367,13 +1377,13 @@ def toyFactory(configName,
     print "save them to file."
     print "=========================================================="
     print ""
-    
+
     totData, modesData = BuildTotalDataset(workspaceIn, myconfigfile, toyDict, debug)
-    
+
     if myconfigfile.has_key("MergedYears"):
-        if myconfigfile["MergedYears"] == True: 
+        if myconfigfile["MergedYears"] == True:
             totData, modesData = MergeYears(myconfigfile, modesData, debug)
-            
+
     observables = totData.get()
     observables.Print("v")
     workspaceOut = RooWorkspace(workOut, workOut)
@@ -1425,9 +1435,9 @@ def toyFactory(configName,
     print outputdir+workfileOut
     print "=========================================================="
     print ""
-    workspaceOut.Print("v") 
+    workspaceOut.Print("v")
     workspaceOut.writeToFile( outputdir+workfileOut )
-    
+
 #-----------------------------------------------------------------------------
 _usage = '%prog [options]'
 
@@ -1501,10 +1511,10 @@ if __name__ == '__main__' :
     configName = config[last+1:]
     p = configName.rfind(".")
     configName = configName[:p]
-    
+
     import sys
     sys.path.append(directory)
-    
+
     print "Config file name: "+configName
     print "Directory: "+directory
 
