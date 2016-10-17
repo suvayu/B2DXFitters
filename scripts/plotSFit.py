@@ -129,16 +129,16 @@ plotModel =  True
 
 # MISCELLANEOUS
 debug = True
-bName = 'B_{s}'
+bName = 'B_{d}'
 
 #timeDown = 0.2
 #timeUp = 15.0
 
-dataSetToPlot  = 'dataSet_time_weighted'
-pdfToPlot = 'time_signal'
+#dataSetToPlot  = 'dataSet_time_weighted'
+#pdfToPlot = 'time_signal'
 
-#dataSetToPlot = 'dataSet_time_weighted'
-#pdfToPlot = 'time_signal_TimePdf'
+dataSetToPlot = 'dataSet_time_weighted'
+pdfToPlot = 'time_signal_RawTimePdf'
 
 #fileToWriteOut = 'time_DsPi_BDTG123.pdf' 
 #------------------------------------------------------------------------------
@@ -154,7 +154,6 @@ def plotFitModel(model, frame, wksp, myconfigfile, log) :
 
     dataset                             = w.data(dataSetToPlot)
 
-    # plot model itself
     fr = model.plotOn(frame,
                       RooFit.LineColor(kBlue+3),RooFit.Name("FullPdf"))
 
@@ -167,21 +166,55 @@ def plotFitModel(model, frame, wksp, myconfigfile, log) :
             var.append(wksp.var(varName))
             print "[INFO] Load %s with value %0.3lf"%(var[i].GetName(),var[i].getValV())
             tacc_list.add(var[i])
-            
+
         varAdd = RooAddition(wksp.obj("var%d"%(numKnots+2)))
         print "[INFO] Load %s with value %0.3lf"%(varAdd.GetName(),varAdd.getValV())
         tacc_list.add(varAdd)
 
-        #len = var.__len__()
-        #tacc_list.add(var[len])
-        spl = RooCubicSplineFun("splinePdf", "splinePdf", time, "splineBinning", tacc_list)
-        if log:
-            rel = 200
-        else:
-            rel = 1000
-        rel = 30                                                                                                                                                                                  
-        fr = spl.plotOn(frame, RooFit.LineColor(kRed),  RooFit.Normalization(rel, RooAbsReal.Relative),RooFit.Name("sPline"))
-        fr = model.plotOn(frame,
+    elif "ResolutionAcceptance" in myconfigfile.keys():
+        #Create acceptance
+        var = []
+        tacc_list = RooArgList()
+        numKnots = myconfigfile["ResolutionAcceptance"]["Signal"]["Acceptance"]["KnotPositions"].__len__()
+        print "[INFO] Number of knots: "+str(numKnots)
+        for i in range(0,numKnots+1):
+            if i!=6:
+                varName = "Acceptance_SplineAccCoeff%d"%(int(i))
+                var.append(wksp.obj(varName))
+                print "[INFO] Load %s with value %0.3lf"%(var[i].GetName(),var[i].getValV())
+            else:
+                var.append( RooConstVar("one","one",1.0) )
+                print "[INFO] Load one as coefficient no. 6"
+                            
+            tacc_list.add(var[i])
+
+        varName = "Acceptance_SplineAccCoeff%d"%(int(numKnots+1))
+        var.append(wksp.obj(varName))
+        print "[INFO] Load %s with value %0.3lf"%(var[numKnots+1].GetName(),var[numKnots+1].getValV())
+        tacc_list.add(var[numKnots+1])
+
+        #Create binning
+        binning = RooBinning(time.getMin(), time.getMax(), 'splineBinning')
+        for kn in myconfigfile["ResolutionAcceptance"]["Signal"]["Acceptance"]["KnotPositions"]:
+            binning.addBoundary(kn)
+        binning.removeBoundary(time.getMin())
+        binning.removeBoundary(time.getMax())
+        binning.removeBoundary(time.getMin())
+        binning.removeBoundary(time.getMax())
+        oldBinning, lo, hi = time.getBinning(), time.getMin(), time.getMax()
+        time.setBinning(binning, 'splineBinning')
+        time.setBinning(oldBinning)
+        time.setRange(lo, hi)
+
+    spl = RooCubicSplineFun("splinePdf", "splinePdf", time, "splineBinning", tacc_list)
+    if log:
+        rel = 200
+    else:
+        #rel = 1000
+        rel = 2000
+        
+    fr = spl.plotOn(frame, RooFit.LineColor(kRed),  RooFit.Normalization(rel, RooAbsReal.Relative),RooFit.Name("sPline"))
+    fr = model.plotOn(frame,
                           RooFit.LineColor(kBlue+3), RooFit.Name("FullPdf"))
             
 #------------------------------------------------------------------------------
@@ -468,7 +501,7 @@ if __name__ == '__main__' :
     legend.SetShadowColor(0)
     legend.SetBorderSize(0)
     legend.SetTextFont(132)
-    legend.SetHeader("LHCb") # L_{int}=1.0 fb^{-1}")
+    legend.SetHeader("LHCb Preliminary") # L_{int}=1.0 fb^{-1}")
 
     gr = TGraphErrors(1);
     gr.SetName("gr");
@@ -480,12 +513,19 @@ if __name__ == '__main__' :
     #gr.Draw("P");
     legend.AddEntry(gr,"Data","lep");
 
+    myconfigfilegrabber = __import__(configName,fromlist=['getconfig']).getconfig
+    myconfigfile = myconfigfilegrabber()
+
     decay = TString(myconfigfile["Decay"])
     descTS = TString(getDescription(myconfigfile["Decay"]))
     l1 = TLine()
     l1.SetLineColor(kBlue+3)
     l1.SetLineWidth(4)
     legend.AddEntry(l1, descTS.Data(), "L")
+    l2 = TLine()
+    l2.SetLineColor(kRed)
+    l2.SetLineWidth(4)
+    legend.AddEntry(l2, "Acceptance", "L")
     
     #pad1 = TPad("upperPad", "upperPad", .050, .22, 1.0, 1.0)
     pad1 = TPad("upperPad", "upperPad", .005, .05, 1.0, 1.0)

@@ -196,7 +196,7 @@ def getCPparameters(ws,myconfigfile):
 #------------------------------------------------------------------------------ 
 #------------------------------------------------------------------------------
 def runSFit(debug, wsname,
-            pereventmistag, pereventterr, 
+            pereventmistag, tagfromdata, noftcalib, pereventterr, 
             toys, pathName, fileNamePull, treeName, outputdir,
             MC, workMC,
             configName, scan, 
@@ -398,7 +398,7 @@ def runSFit(debug, wsname,
     for t in range(0,MDSettings.GetNumTagVar()):
         tag.append( WS(ws, obs.find(MDSettings.GetTagVarOutName(t).Data())) )
         mistag.append( WS(ws, obs.find(MDSettings.GetTagOmegaVarOutName(t).Data())) )
-        mistag[t].setRange(0.0,0.5)
+        #mistag[t].setRange(0.0,0.5)
     
     if plotsWeights:
         name = TString("sfit")
@@ -533,25 +533,70 @@ def runSFit(debug, wsname,
         if "SS" in MDSettings.GetTagVarOutName(t).Data():
             nametag = "SS"
         print "[INFO] Creating calibration parameters for "+nametag+" tagger"
+
+        if tagfromdata:
+            print "[INFO] Computing <eta> and tagging efficiency directly from dataset. Overwriting values in configfile"
+            if noweight:
+                etamean = [ data.mean(obs.find(MDSettings.GetTagOmegaVarOutName(t).Data()), MDSettings.GetTagVarOutName(t).Data()+"!=0") ]
+                etasigma = data.sigma(obs.find(MDSettings.GetTagOmegaVarOutName(t).Data()), MDSettings.GetTagVarOutName(t).Data()+"!=0")
+                numdata = RooDataSet("numdata"+str(t), "numdata", data, data.get(), MDSettings.GetTagVarOutName(t).Data()+"!=0")
+                num = numdata.numEntries()
+                den = data.numEntries()
+                import uncertainties, math
+                from uncertainties import ufloat
+                tagefferr = ufloat(num, math.sqrt(num)) / ufloat(den, math.sqrt(den))
+                tagefferr = tagefferr.std_dev
+            else:
+                etamean = [ dataWA.mean(obs.find(MDSettings.GetTagOmegaVarOutName(t).Data()), MDSettings.GetTagVarOutName(t).Data()+"!=0") ]
+                etasigma = dataWA.sigma(obs.find(MDSettings.GetTagOmegaVarOutName(t).Data()), MDSettings.GetTagVarOutName(t).Data()+"!=0")
+                numdata = RooDataSet("numdata"+str(t), "numdata", data, data.get(), MDSettings.GetTagVarOutName(t).Data()+"!=0", "sWeights")
+                num = numdata.sumEntries()
+                den = dataWA.sumEntries()
+                import uncertainties, math
+                from uncertainties import ufloat
+                tagefferr = ufloat(num, math.sqrt(num)) / ufloat(den, math.sqrt(den))
+                tagefferr = tagefferr.std_dev
+            del numdata
+            tageff = [ float( num / den ) ]
+            print "[INFO] New <eta>: "+str( etamean[0] )+" +- "+str( etasigma )
+            print "[INFO] Config file <eta>: "+str( myconfigfile["Taggers"]["Signal"][nametag]["Calibration"]["avgeta"][0] )
+            print "[INFO] New tagging efficiency: "+str( tageff[0] )+" +- "+str( tagefferr )
+            print "[INFO] Config file tagging efficiency: "+str( myconfigfile["Taggers"]["Signal"][nametag]["Calibration"]["tageff"][0] )
+        else:
+            etamean = myconfigfile["Taggers"]["Signal"][nametag]["Calibration"]["avgeta"]
+            tageff = myconfigfile["Taggers"]["Signal"][nametag]["Calibration"]["tageff"]
+
+        p0 = myconfigfile["Taggers"]["Signal"][nametag]["Calibration"]["p0"]
+        p1 = myconfigfile["Taggers"]["Signal"][nametag]["Calibration"]["p1"]
+        deltap0 = myconfigfile["Taggers"]["Signal"][nametag]["Calibration"]["deltap0"]
+        deltap1 = myconfigfile["Taggers"]["Signal"][nametag]["Calibration"]["deltap1"]
+        
+        if noftcalib:
+            print "[INFO] Using uncalibrated tagger: p0=<eta>, p1=1, deltap0=deltap1=0"
+            p0[0] = etamean[0]
+            p1[0] = 1.0
+            deltap0[0] = 0.0
+            deltap1[0] = 0.0
+            
         thiscalib = []
         thiscalib.append( WS(ws, RooRealVar('p0_'+nametag,
                                             'p0_'+nametag,
-                                            *myconfigfile["Taggers"]["Signal"][nametag]["Calibration"]["p0"])) )
+                                            *p0)) )
         thiscalib.append( WS(ws, RooRealVar('p1_'+nametag,
                                             'p1_'+nametag,
-                                            *myconfigfile["Taggers"]["Signal"][nametag]["Calibration"]["p1"])) )
+                                            *p1)) )
         thiscalib.append( WS(ws, RooRealVar('deltap0_'+nametag,
                                             'deltap0_'+nametag,
-                                            *myconfigfile["Taggers"]["Signal"][nametag]["Calibration"]["deltap0"])) )
+                                            *deltap0)) )
         thiscalib.append( WS(ws, RooRealVar('deltap1_'+nametag,
                                             'deltap1_'+nametag,
-                                            *myconfigfile["Taggers"]["Signal"][nametag]["Calibration"]["deltap1"])) )
+                                            *deltap1)) )
         thiscalib.append( WS(ws, RooRealVar('avgeta_'+nametag,
                                             'avgeta_'+nametag,
-                                            *myconfigfile["Taggers"]["Signal"][nametag]["Calibration"]["avgeta"])) )
+                                            *etamean )) )
         thiscalib.append( WS(ws, RooRealVar('tageff_'+nametag,
                                             'tageff_'+nametag,
-                                            *myconfigfile["Taggers"]["Signal"][nametag]["Calibration"]["tageff"])) )
+                                            *tageff)) )
         thiscalib.append( WS(ws, RooRealVar('tagasymm_'+nametag,
                                             'tagasymm_'+nametag,
                                             *myconfigfile["Taggers"]["Signal"][nametag]["Calibration"]["tagasymm"])) )
@@ -868,6 +913,18 @@ parser.add_option( '--pereventmistag',
                    action = 'store_true',
                    help = 'Use the per-event mistag?'
                    )
+parser.add_option( '--tagfromdata',
+                   dest = 'tagfromdata',
+                   default = False,
+                   action = 'store_true',
+                   help = 'Compute <eta> and tagging efficiency on the fly from dataset'
+                   )
+parser.add_option( '--noftcalib',
+                   dest = 'noftcalib',
+                   default = False,
+                   action = 'store_true',
+                   help = 'Use uncalibrated taggers'
+                   )
 parser.add_option( '--pereventterr',
                    dest = 'pereventterr',
                    default = False,
@@ -1027,6 +1084,8 @@ if __name__ == '__main__' :
     runSFit( options.debug,
              options.wsname,
              options.pereventmistag,
+             options.tagfromdata,
+             options.noftcalib,
              options.pereventterr,
              options.toys,
              options.fileName,

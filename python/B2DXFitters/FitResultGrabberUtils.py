@@ -142,3 +142,59 @@ def CreatePullTree(fileNamePull, rooFitResult, extGenDict = None):
     filePull.ls()
     treePull.Print()
     filePull.Close()
+
+def PrintLatexTable(rooFitResult):
+    """
+    Print result in a LaTeX style table (useful for copy-pasting in any document).
+    By default, yields (matched by *Evts* in their par.GetName()) are printed without decimal figures, whereas
+    all the other parameters are printed with two significant figures.
+    The parameter name is taken from par.GetTitle()
+
+    WARNING: when setting the parameter title, to get what you write without escape compilation put an r in front
+             of the string. Example: name = r'\B_{d}\to D^{*}\pi'
+    
+    WARNING: it requires the python uncertainties library!
+
+    rooFitResult -- RooFitResult object containing fit result
+    """
+    import uncertainties
+    from uncertainties import ufloat
+    
+    print "FitResultGrabberUtils.PrintLatexTable(...)==> Creating LaTeX style table with fitted parameters"
+
+    initpar = rooFitResult.floatParsInit()
+    floatpar = rooFitResult.floatParsFinal()
+
+    print ""
+    print ""
+    print r"Parameter number & Parameter name & Fitted value & Initial value \\"
+    print r"\hline"
+    for i in range(0, floatpar.getSize()):
+        #Parameter number
+        line = r"$"+str(i)+r"$ & "
+        
+        #Parameter name
+        name = floatpar[i].GetTitle()
+        line+=r"$"+name+r"$ & "
+        
+        #Fitted value
+        val = ufloat( floatpar[i].getVal(), floatpar[i].getError() )
+        if "Evts" in floatpar[i].GetName():
+            latexval=r'{0:.0f}'.format(val).replace("+/-","\pm")
+        else:
+            latexval=r'{0:.2u}'.format(val).replace("+/-","\pm")
+        line+="$"+latexval+r"$ & "
+
+        #Initial value
+        val = ufloat( initpar[i].getVal(), initpar[i].getError() )
+        if "Evts" in initpar[i].GetName():
+            latexval=r'{0:.0f}'.format(val).replace("+/-","\pm")
+        else:
+            latexval=r'{0:.2u}'.format(val).replace("+/-","\pm")
+        line+=r"$"+latexval+r"$ "
+        
+        print line+r"\\"
+        
+    print r"\hline"
+    print ""
+    print ""

@@ -697,7 +697,10 @@ namespace GeneralUtils {
     if ( varName.Contains("ID") == true && varName.Contains("PIDK") == false) { bin = 2; }
 
     if ( plotSet->GetLogStatus() == true ) { gStyle->SetOptLogy(1); }
-    if (dataSet != NULL && obs != NULL) {  dataSet->plotOn(frame, RooFit::MarkerColor(plotSet->GetColorData(0)), RooFit::Binning(bin));}
+    if (dataSet != NULL && obs != NULL) 
+    {  
+      dataSet->plotOn(frame, RooFit::MarkerColor(plotSet->GetColorData(0)), RooFit::Binning(bin));
+    }
     if (pdf != NULL ) { pdf->plotOn(frame, RooFit::LineColor(plotSet->GetColorPdf(0)), RooFit::LineStyle(plotSet->GetStylePdf(0)));}
     if ( dataSet == NULL ) { frame->GetYaxis()->SetTitle(""); frame->GetYaxis()->SetTitleColor(kWhite);}
     frame->Draw();
@@ -815,10 +818,13 @@ namespace GeneralUtils {
     name3 ="_"+sample;
     name2 =mode+name3;
     name="Cut_tree_"+name2;
+    if(debug == true) std::cout<<"[INFO] ==> GeneralUtils.TreeCut(...): creating temp tree "<<name.Data()<<std::endl;
     treetmp = new TTree(name.Data(),name.Data());
     name = "Trash/Cut_file_"+name2+".root";
+    if(debug == true) std::cout<<"[INFO] ==> GeneralUtils.TreeCut(...): creating temp file "<<name.Data()<<std::endl;
     tfiletmp = new TFile(name.Data(),"recreate");
     treetmp->SetDirectory(tfiletmp);
+    if(debug == true) std::cout<<"[INFO] ==> GeneralUtils.TreeCut(...): start to copy tree with selection "<<std::endl;
     treetmp = tree->CopyTree(cut);
     if( treetmp != NULL ){ 
       Double_t eff = (Double_t)treetmp->GetEntries()/tree->GetEntries()*100;
@@ -951,7 +957,8 @@ namespace GeneralUtils {
 
     TH1* hist = NULL;
     n = "hist_"+name;
-    hist = dataSet->createHistogram(n.Data(), *obs, RooFit::Binning(bin));
+    if(debug == true) std::cout<<"[INFO] ==> GeneralUtils::CreateHistPDFMC(...). Bins: "<<bin<<", Min: "<<obs->getMin()<<", Max: "<<obs->getMax()<<std::endl;
+    hist = dataSet->createHistogram(n.Data(), *obs, RooFit::Binning(bin)); 
     pdfH = CreateHistPDF(hist, obs, name, bin, debug);
 
     return pdfH;
@@ -1459,13 +1466,13 @@ namespace GeneralUtils {
         sam.defineType(sm[i].Data());
         if ( debug == true ) { std::cout<<"In dataOut name: "<<dataOut[i]->GetName()<<" with entries " << dataOut[i]->numEntries()<<std::endl;}
       }
-      //const RooArgSet* obs2 = dataOut[0]->get(); 
+      //const RooArgSet* obs2 = dataOut[0]->get();
       combData = new RooDataSet(dataName.Data(),dataName.Data(),*obs, RooFit::Index(sam), RooFit::Import(sm[0].Data(),*dataOut[0]));
       if ( debug == true )
       {
         std::cout<<"[INFO] Adding: "<<dataOut[0]->GetName()<<" to combData"<<std::endl;
       }
-      
+
       std::vector <RooDataSet*> combDataTmp;
       for( unsigned int i=1; i<sm.size(); i++ )
       {
@@ -1479,7 +1486,6 @@ namespace GeneralUtils {
         obs->Print(); 
         combDataTmp.push_back(new RooDataSet(dataNameComb2.Data(),dataNameComb2.Data(),*obs, RooFit::Index(sam), RooFit::Import(sm[i].Data(),*dataOut[i])));
         combData->append(*combDataTmp[i-1]);
-        
       }
     }
     else

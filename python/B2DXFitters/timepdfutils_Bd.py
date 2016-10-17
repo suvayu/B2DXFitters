@@ -344,6 +344,8 @@ def buildBDecayTimePdf(
     # asymmetries
     if config['Debug']:
         print "timepdfutils_Bd.buildBDecayTimePdf(..)=> Including asymmetries"
+        print "Production: "+str(aprod.getVal())
+        print "Detection: "+str(adet.getVal())
     otherargs += [ aprod, adet ]
 
     if config['Debug']:
@@ -356,13 +358,13 @@ def buildBDecayTimePdf(
     if config['Debug']:
         print "timepdfutils_Bd.buildBDecayTimePdf(..)=> Defining CP coefficients"
     cosh = WS(ws, DecRateCoeff_Bd('%s_cosh' % name, '%s_cosh' % name,
-                                  0, qf, one, one, *otherargs))
+                                  DecRateCoeff_Bd.kCosh, qf, one, one, *otherargs))
     sinh = WS(ws, DecRateCoeff_Bd('%s_sinh' % name, '%s_sinh' % name,
-                                  1, qf, D, Dbar, *otherargs))
+                                  DecRateCoeff_Bd.kSinh, qf, D, Dbar, *otherargs))
     cos = WS(ws, DecRateCoeff_Bd('%s_cos' % name, '%s_cos' % name,
-                                 2, qf, C, C, *otherargs))
+                                 DecRateCoeff_Bd.kCos, qf, C, C, *otherargs))
     sin = WS(ws, DecRateCoeff_Bd('%s_sin' % name, '%s_sin' % name,
-                                 3, qf, S, Sbar, *otherargs))
+                                 DecRateCoeff_Bd.kSin, qf, S, Sbar, *otherargs))
     # build (raw) time pdf
     if config['Debug']:
         print "timepdfutils_Bd.buildBDecayTimePdf(..)=> Building time pdf"
