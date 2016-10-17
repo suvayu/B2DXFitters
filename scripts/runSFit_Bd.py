@@ -16,7 +16,7 @@
 if test -n "$CMTCONFIG" \
          -a -f $B2DXFITTERSROOT/$CMTCONFIG/libB2DXFittersDict.so \
 	 -a -f $B2DXFITTERSROOT/$CMTCONFIG/libB2DXFittersLib.so; then
-    # all ok, software environment set up correctly, so don't need to do 
+    # all ok, software environment set up correctly, so don't need to do
     # anything
     true
 else
@@ -124,12 +124,12 @@ gROOT.SetBatch()
 
 #------------------------------------------------------------------------------
 def setConstantIfSoConfigured(var,myconfigfile) :
-    if var.GetName() in myconfigfile["constParams"] : 
+    if var.GetName() in myconfigfile["constParams"] :
         var.setConstant()
         print "[INFO] Parameter: %s set to be constant with value %lf"%(var.GetName(),var.getValV())
     else:
         print "[INFO] Parameter: %s floats in the fit"%(var.GetName())
-        print "[INFO]   ",var.Print() 
+        print "[INFO]   ",var.Print()
 
 #------------------------------------------------------------------------------
 def getCPparameters(ws,myconfigfile):
@@ -139,15 +139,15 @@ def getCPparameters(ws,myconfigfile):
         print "[INFO] Building CP parameters using amplitude values"
 
         if "ArgLf" and "ArgLbarfbar" in myconfigfile["ACP"]["Signal"].keys():
-        
+
             ACPobs = cpobservables.AsymmetryObservables(myconfigfile["ACP"]["Signal"]["ArgLf"][0],
                                                         myconfigfile["ACP"]["Signal"]["ArgLbarfbar"][0],
                                                         myconfigfile["ACP"]["Signal"]["ModLf"][0])
-            
+
         elif "StrongPhase" and "WeakPhase" in myconfigfile["ACP"]["Signal"].keys():
 
-            ArgLf = myconfigfile["ACP"]["Signal"]["StrongPhase"][0]-myconfigfile["ACP"]["Signal"]["WeakPhase"][0] 
-            ArgLbarfbar = myconfigfile["ACP"]["Signal"]["StrongPhase"][0]+myconfigfile["ACP"]["Signal"]["WeakPhase"][0] 
+            ArgLf = myconfigfile["ACP"]["Signal"]["StrongPhase"][0]-myconfigfile["ACP"]["Signal"]["WeakPhase"][0]
+            ArgLbarfbar = myconfigfile["ACP"]["Signal"]["StrongPhase"][0]+myconfigfile["ACP"]["Signal"]["WeakPhase"][0]
             ACPobs = cpobservables.AsymmetryObservables(ArgLf,
                                                         ArgLbarfbar,
                                                         myconfigfile["ACP"]["Signal"]["ModLf"][0])
@@ -192,14 +192,14 @@ def getCPparameters(ws,myconfigfile):
 
     return sigC, sigS, sigD, sigSbar, sigDbar
 
-#------------------------------------------------------------------------------ 
-#------------------------------------------------------------------------------ 
+#------------------------------------------------------------------------------
+#------------------------------------------------------------------------------
 #------------------------------------------------------------------------------
 def runSFit(debug, wsname,
-            pereventmistag, tagfromdata, noftcalib, pereventterr, 
+            pereventmistag, tagfromdata, noftcalib, pereventterr,
             toys, pathName, fileNamePull, treeName, outputdir,
             MC, workMC,
-            configName, scan, 
+            configName, scan,
             binned, plotsWeights, noweight,
             sample, mode, year, hypo, merge, unblind, randomise, superimpose,
             seed, preselection  ) :
@@ -207,7 +207,7 @@ def runSFit(debug, wsname,
     if MC and not noweight:
         print "ERROR: cannot use sWeighted MC sample (for now)"
         exit(-1)
-    
+
     # Get the configuration file
     myconfigfilegrabber = __import__(configName,fromlist=['getconfig']).getconfig
     myconfigfile = myconfigfilegrabber()
@@ -220,7 +220,7 @@ def runSFit(debug, wsname,
     myconfigfile["NBinsAcceptance"] = myconfigfile["ACP"]["Signal"]["NBinsAcceptance"]
     if "NBinsProperTimeErr" in myconfigfile["ACP"]["Signal"].keys():
         myconfigfile["NBinsProperTimeErr"] = myconfigfile["ACP"]["Signal"]["NBinsProperTimeErr"]
-    
+
     print "=========================================================="
     print "FITTER IS RUNNING WITH THE FOLLOWING CONFIGURATION OPTIONS"
     for option in myconfigfile :
@@ -228,11 +228,11 @@ def runSFit(debug, wsname,
             for param in myconfigfile[option] :
                 print param, "is constant in the fit"
         else :
-            print option, " = ", myconfigfile[option] 
+            print option, " = ", myconfigfile[option]
     print "=========================================================="
 
     RooAbsData.setDefaultStorageType(RooAbsData.Tree)
-    
+
     RooAbsReal.defaultIntegratorConfig().setEpsAbs(1e-7)
     RooAbsReal.defaultIntegratorConfig().setEpsRel(1e-7)
     RooAbsReal.defaultIntegratorConfig().getConfigSection('RooIntegrator1D').setCatLabel('extrapolation','WynnEpsilon')
@@ -253,7 +253,7 @@ def runSFit(debug, wsname,
     one = RooConstVar('one', '1', 1.)
     minusone = RooConstVar('minusone', '-1', -1.)
     two = RooConstVar('two', '2', 2.)
-    
+
     if not MC:
 
         print ""
@@ -265,19 +265,19 @@ def runSFit(debug, wsname,
         workspace =[]
         workspaceW = []
 
-        workspace.append(SFitUtils.ReadDataFromSWeights(TString(pathName), TString(treeName), MDSettings, 
-                                                        TString(sample), TString(mode), TString(year), TString(hypo), merge, 
+        workspace.append(SFitUtils.ReadDataFromSWeights(TString(pathName), TString(treeName), MDSettings,
+                                                        TString(sample), TString(mode), TString(year), TString(hypo), merge,
                                                         False, toys, False, False, debug))
-        workspaceW.append(SFitUtils.ReadDataFromSWeights(TString(pathName), TString(treeName), MDSettings, 
+        workspaceW.append(SFitUtils.ReadDataFromSWeights(TString(pathName), TString(treeName), MDSettings,
                                                          TString(sample), TString(mode), TString(year), TString(hypo), merge,
                                                          True, toys, False, False, debug))
-                     
+
         print ""
         print "=========================================================="
         print "Create dataset and observables"
         print "=========================================================="
         print ""
-    
+
         nameData = TString("dataSet_time")
         nameDataWA = TString("dataSet_time_weighted")
 
@@ -308,7 +308,7 @@ def runSFit(debug, wsname,
             print "No additional preselection"
             data = WS(ws, GeneralUtils.GetDataSet(workspace[0],   nameData, debug))
             dataWA = WS(ws, GeneralUtils.GetDataSet(workspaceW[0],   nameDataWA, debug))
-            
+
         data.Print("v")
         dataWA.Print("v")
 
@@ -363,7 +363,7 @@ def runSFit(debug, wsname,
         dataWA = data
         print "Dataset entries:"
         print data.sumEntries()
-    
+
     obs = dataWA.get()
     time = WS(ws, obs.find(MDSettings.GetTimeVarOutName().Data()))
     if pereventterr:
@@ -390,16 +390,16 @@ def runSFit(debug, wsname,
     #testtree.Write()
     #testfile.ls()
     #testfile.Close()
-    
+
     #exit(0)
-    
+
     tag = []
     mistag = []
     for t in range(0,MDSettings.GetNumTagVar()):
         tag.append( WS(ws, obs.find(MDSettings.GetTagVarOutName(t).Data())) )
         mistag.append( WS(ws, obs.find(MDSettings.GetTagOmegaVarOutName(t).Data())) )
         #mistag[t].setRange(0.0,0.5)
-    
+
     if plotsWeights:
         name = TString("sfit")
         obs2 = data.get()
@@ -413,14 +413,14 @@ def runSFit(debug, wsname,
     print "Define some physical parameters"
     print "=========================================================="
     print ""
-        
+
     gamma = WS(ws, RooRealVar('Gamma', 'average lifetime', *(myconfigfile["ACP"]["Signal"]["Gamma"] + ['ps^{-1}']) ))
     #setConstantIfSoConfigured(ws.obj(gamma.GetName()),myconfigfile)
     deltaGamma = WS(ws, RooRealVar('deltaGamma', 'Lifetime difference', *(myconfigfile["ACP"]["Signal"]["DeltaGamma"] + ['ps^{-1}']) ))
     #setConstantIfSoConfigured(ws.obj(deltaGamma.GetName()),myconfigfile)
     deltaM = WS(ws, RooRealVar('deltaM', '#Delta m', *(myconfigfile["ACP"]["Signal"]["DeltaM"] + ['ps^{-1}']) ))
     #setConstantIfSoConfigured(ws.obj(deltaM.GetName()),myconfigfile)
-    
+
     print ""
     print "=========================================================="
     print "Build decay time resolution/error and acceptance"
@@ -437,7 +437,7 @@ def runSFit(debug, wsname,
         if debug:
             print "Acceptance function:"
             acc.Print("v")
-        
+
     else:
         print "[INFO] Using flat acceptance (no acceptance)"
         myconfigfile["AcceptanceFunction"] = None
@@ -498,7 +498,7 @@ def runSFit(debug, wsname,
             print "ERROR: resolution type "+myconfigfile["ResolutionAcceptance"]["Signal"]["Resolution"]["Type"]+" not supported."
             exit(-1)
 
-    resmodel, acc = getResolutionModel(ws, myconfigfile, time, terr, acc) 
+    resmodel, acc = getResolutionModel(ws, myconfigfile, time, terr, acc)
     if debug:
         print "Resolution model:"
         resmodel.Print("v")
@@ -570,14 +570,14 @@ def runSFit(debug, wsname,
         p1 = myconfigfile["Taggers"]["Signal"][nametag]["Calibration"]["p1"]
         deltap0 = myconfigfile["Taggers"]["Signal"][nametag]["Calibration"]["deltap0"]
         deltap1 = myconfigfile["Taggers"]["Signal"][nametag]["Calibration"]["deltap1"]
-        
+
         if noftcalib:
             print "[INFO] Using uncalibrated tagger: p0=<eta>, p1=1, deltap0=deltap1=0"
             p0[0] = etamean[0]
             p1[0] = 1.0
             deltap0[0] = 0.0
             deltap1[0] = 0.0
-            
+
         thiscalib = []
         thiscalib.append( WS(ws, RooRealVar('p0_'+nametag,
                                             'p0_'+nametag,
@@ -603,7 +603,7 @@ def runSFit(debug, wsname,
 
         #for par in thiscalib:
         #    setConstantIfSoConfigured(ws.obj(par.GetName()),myconfigfile)
-        
+
         mistagcalib.append( thiscalib )
 
         if pereventmistag:
@@ -647,7 +647,7 @@ def runSFit(debug, wsname,
                                                          mistag[t],
                                                          mistagpdfparams[nametag]["mean"],
                                                          mistagpdfparams[nametag]["sigma"])))
-                    
+
                 elif myconfigfile["Taggers"]["Signal"][nametag]["MistagPDF"]["Type"] == "FromWorkspace":
                     print "[INFO] Taking mistag PDF for "+nametag+" tagger from workspace"
                     mistagWork = GeneralUtils.LoadWorkspace(TString(myconfigfile["Taggers"]["Signal"][nametag]["MistagPDF"]["File"]),
@@ -658,7 +658,7 @@ def runSFit(debug, wsname,
                 elif myconfigfile["Taggers"]["Signal"][nametag]["MistagPDF"]["Type"] == "BuildTemplate":
                     print "[INFO] Build mistag template on the fly as histogram PDF"
                     mistagpdf.append( mistagpdflist[t] )
-                    
+
 
                 else:
                     print "ERROR: mistag pdf type "+myconfigfile["Taggers"]["Signal"][nametag]["MistagPDF"]["Type"]+" not supported."
@@ -670,13 +670,13 @@ def runSFit(debug, wsname,
 
         else:
             mistagpdf = None
-    
+
     print ""
     print "=========================================================="
     print "Build CP parameters"
     print "=========================================================="
     print ""
-    
+
     C,S,D,Sbar,Dbar = getCPparameters(ws,myconfigfile)
 
 
@@ -687,11 +687,11 @@ def runSFit(debug, wsname,
         print "Build Gaussian constraints"
         print "=========================================================="
         print ""
-        
+
         ws.Print("v")
         from B2DXFitters.GaussianConstraintBuilder import GaussianConstraintBuilder
         #constraintbuilder = GaussianConstraintBuilder(ws,  myconfigfile['Constrains'])
-            # remove constraints for modes which are not included                                                                                                                               
+            # remove constraints for modes which are not included
         #constList = constraintbuilder.getSetOfConstraints()
         #constList.Print("v")
 
@@ -703,7 +703,7 @@ def runSFit(debug, wsname,
 
     aProd = zero
     aDet = zero
-    
+
     if myconfigfile.has_key("ProductionAsymmetry"):
         aProd = WS(ws, RooRealVar('ProdAsymm','ProdAsymm',*myconfigfile["ProductionAsymmetry"]["Signal"]))
     if myconfigfile.has_key("DetectionAsymmetry") :
@@ -737,12 +737,12 @@ def runSFit(debug, wsname,
         print "Randomise initial parameters"
         print "=========================================================="
         print ""
-            
+
         #Randomise initial guess of the parameters according to a uniform distributions
         from B2DXFitters.utils import randomiseParameters as ranPar
         genValDict = {}
         ranPar(myconfigfile, totPDF, int(seed), debug, genValDict)
-      
+
     if scan:
 
         print ""
@@ -750,12 +750,12 @@ def runSFit(debug, wsname,
         print "Perfom likelihood scan"
         print "=========================================================="
         print ""
-        
+
         RooMsgService.instance().Print('v')
         RooMsgService.instance().deleteStream(1002)
 
         nll = RooNLLVar("nll","-log(sig)", totPDF, dataWA, RooFit.NumCPU(4), RooFit.Silence(True))
-        
+
         for par in myconfigfile["LikelihoodScan"]:
 
             if debug:
@@ -775,7 +775,7 @@ def runSFit(debug, wsname,
             like.SaveAs(n.Data())
 
         exit(0)
-        
+
 
     print ""
     print "=========================================================="
@@ -783,64 +783,80 @@ def runSFit(debug, wsname,
     print "=========================================================="
     print ""
 
-    if binned: 
-        print "[INFO] RooDataSet is binned" 
+    if binned:
+        print "[INFO] RooDataSet is binned"
         time.setBins(250)
         terr.setBins(20)
-        dataWA_binned = RooDataHist("dataWA_binned","dataWA_binned",observables,dataWA)   
+        dataWA_binned = RooDataHist("dataWA_binned","dataWA_binned",observables,dataWA)
         data_binned = RooDataHist("data_binned","data_binned",observables,data)
 
     if not superimpose:
-        
-        if toys or MC or unblind: #Unblind yourself 
+
+        if toys or MC or unblind: #Unblind yourself
             if binned:
+                fitOpts_temp = [#RooFit.Range(rangeName),
+                                RooFit.Save(1),
+                                RooFit.Optimize(2),
+                                RooFit.Strategy(2),
+                                RooFit.Verbose(True),
+                                RooFit.SumW2Error(True),
+                                RooFit.NumCPU(10),
+                                RooFit.Extended(False)]
+                fitOpts = RooLinkedList()
+                for cmd in fitOpts_temp:
+                    fitOpts.Add(cmd)
                 print "[INFO] Fitting binned dataset"
                 if not noweight:
                     print "[INFO] Fitting weighted dataset"
-                    myfitresult = totPDF.fitTo(dataWA_binned, RooFit.Save(1), RooFit.Optimize(2), RooFit.Strategy(2),
-                                               RooFit.Verbose(True), RooFit.SumW2Error(True), RooFit.Extended(False))
+                    myfitresult = totPDF.fitTo(dataWA_binned, fitOpts)
                 else:
                     print "[INFO] Fitting unweighted dataset"
-                    myfitresult = totPDF.fitTo(data_binned, RooFit.Save(1), RooFit.Optimize(2), RooFit.Strategy(2),
-                                               RooFit.Verbose(True), RooFit.SumW2Error(True), RooFit.Extended(False))
+                    myfitresult = totPDF.fitTo(data_binned, fitOpts)
             else:
                 print "[INFO] Fitting unbinned dataset"
                 if not noweight:
                     print "[INFO] Fitting weighted dataset"
-                    myfitresult = totPDF.fitTo(dataWA, RooFit.Save(1), RooFit.Optimize(2), RooFit.Strategy(2),
-                                               RooFit.Verbose(True), RooFit.SumW2Error(True), RooFit.Extended(False))
+                    myfitresult = totPDF.fitTo(dataWA, fitOpts)
                 else:
                     print "[INFO] Fitting unweighted dataset"
-                    myfitresult = totPDF.fitTo(data, RooFit.Save(1), RooFit.Optimize(2), RooFit.Strategy(2),
-                                               RooFit.Verbose(True), RooFit.SumW2Error(True), RooFit.Extended(False))
+                    myfitresult = totPDF.fitTo(data, fitOpts)
             myfitresult.Print("v")
             myfitresult.correlationMatrix().Print()
             myfitresult.covarianceMatrix().Print()
-        else :    #Don't
+        else: #  Don't
+            fitOpts_temp = [RooFit.Save(1),
+                            RooFit.NumCPU(10),
+                            RooFit.Strategy(2),
+                            RooFit.Minimizer("Minuit2","minimize"),
+                            RooFit.SumW2Error(True),
+                            RooFit.Minos(False),
+                            RooFit.Extended(False),
+                            RooFit.PrintLevel(1),
+                            RooFit.Warnings(False),
+                            RooFit.PrintEvalErrors(-1)]
+            fitOpts = RooLinkedList()
+            for cmd in fitOpts_temp:
+                fitOpts.Add(cmd)
             if binned:
                 print "[INFO] Fitting binned dataset"
                 if not noweight:
                     print "[INFO] Fitting weighted dataset"
-                    myfitresult = totPDF.fitTo(dataWA_binned, RooFit.Save(1), RooFit.Optimize(2), RooFit.Strategy(2), RooFit.Extended(False),
-                                               RooFit.SumW2Error(True), RooFit.PrintLevel(-1))
+                    myfitresult = totPDF.fitTo(dataWA_binned, fitOpts)
                 else:
                     print "[INFO] Fitting unweighted dataset"
-                    myfitresult = totPDF.fitTo(data_binned, RooFit.Save(1), RooFit.Optimize(2), RooFit.Strategy(2), RooFit.Extended(False),
-                                               RooFit.SumW2Error(True), RooFit.PrintLevel(-1))
+                    myfitresult = totPDF.fitTo(data_binned, fitOpts)
             else:
                 print "[INFO] Fitting unbinned dataset"
                 if not noweight:
                     print "[INFO] Fitting weighted dataset"
-                    myfitresult = totPDF.fitTo(dataWA, RooFit.Save(1), RooFit.Optimize(2), RooFit.Strategy(2), RooFit.Extended(False),
-                                               RooFit.SumW2Error(True), RooFit.PrintLevel(-1))
+                    myfitresult = totPDF.fitTo(dataWA, fitOpts)
                 else:
                     print "[INFO] Fitting unweighted dataset"
-                    myfitresult = totPDF.fitTo(data, RooFit.Save(1), RooFit.Optimize(2), RooFit.Strategy(2), RooFit.Extended(False),
-                                               RooFit.SumW2Error(True), RooFit.PrintLevel(-1))            
-        
+                    myfitresult = totPDF.fitTo(data, fitOpts)
+
             print '[INFO Result] Matrix quality is',myfitresult.covQual()
-            par = myfitresult.floatParsFinal() 
-            const = myfitresult.constPars() 
+            par = myfitresult.floatParsFinal()
+            const = myfitresult.constPars()
             print "[INFO Result] Status: ",myfitresult.status()
             print "[INFO Result] -------------- Constant parameters ------------- "
             for i in range(0,const.getSize()):
@@ -848,7 +864,7 @@ def runSFit(debug, wsname,
 
             print "[INFO Result] -------------- Floated parameters ------------- "
 
-            for i in range(0,par.getSize()): 
+            for i in range(0,par.getSize()):
                 name = par[i].GetName()
                 bdone = False
                 for bp in myconfigfile["blindParams"]:
@@ -858,7 +874,7 @@ def runSFit(debug, wsname,
                         break
                 if not bdone:
                     print "[INFO Result] parameter %s = (%0.4lf +/- %0.4lf)"%(name, par[i].getVal(), par[i].getError())
-                
+
             print "[INFO Result] -------------- Correlation matrix --------------"
             myfitresult.correlationMatrix().Print()
             print "[INFO Result] -------------- Covariance matrix --------------"
@@ -867,20 +883,20 @@ def runSFit(debug, wsname,
             if toys:
 
                 if myfitresult.status() != 0:
-                    print "ERROR: fit quality is bad. Not saving pull tree." 
+                    print "ERROR: fit quality is bad. Not saving pull tree."
                 else:
                     print ""
                     print "=========================================================="
                     print "Save tree with fit result for pull plots"
                     print "=========================================================="
                     print ""
-            
+
                     from B2DXFitters.FitResultGrabberUtils import CreatePullTree
                     CreatePullTree(fileNamePull, myfitresult, genValDict)
 
     dataWA.Print("v")
     totPDF.Print("v")
- 
+
     workout = RooWorkspace("workspace","workspace")
     getattr(workout,'import')(data)
     getattr(workout,'import')(dataWA)
@@ -889,7 +905,7 @@ def runSFit(debug, wsname,
         getattr(workout,'import')(myfitresult)
     workout.writeToFile(wsname)
 
-       
+
 #------------------------------------------------------------------------------
 _usage = '%prog [options]'
 
@@ -904,7 +920,7 @@ parser.add_option('-d', '--debug',
 parser.add_option('-s', '--save',
                   dest    = 'wsname',
                   metavar = 'WSNAME',
-                  default = 'WS_Time_DsPi.root',  
+                  default = 'WS_Time_DsPi.root',
                   help    = 'save the model PDF and generated dataset to file "WS_WSNAME.root"'
                   )
 parser.add_option( '--pereventmistag',
@@ -933,7 +949,7 @@ parser.add_option( '--pereventterr',
                    )
 parser.add_option( '-t','--toys',
                    dest = 'toys',
-                   action = 'store_true', 
+                   action = 'store_true',
                    default = False,
                    help = 'are we working with toys?'
                    )
@@ -1080,7 +1096,7 @@ if __name__ == '__main__' :
     import sys
     sys.path.append(directory)
 
- 
+
     runSFit( options.debug,
              options.wsname,
              options.pereventmistag,
@@ -1100,7 +1116,7 @@ if __name__ == '__main__' :
              options.binned,
              options.plotsWeights,
              options.noweight,
-             options.pol, 
+             options.pol,
              options.mode,
              options.year,
              options.hypo,
@@ -1110,5 +1126,5 @@ if __name__ == '__main__' :
              options.superimpose,
              options.seed,
              options.preselection)
-    
+
 # -----------------------------------------------------------------------------
