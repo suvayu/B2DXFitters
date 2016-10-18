@@ -1,6 +1,6 @@
 def getconfig() :
 
-    from Bs2DsPiConfigForNominalMassFit import getconfig as getconfig_nominal
+    from Bs2DsKConfigForNominalMassFit import getconfig as getconfig_nominal
     configdict = getconfig_nominal()
 
     from math import pi
