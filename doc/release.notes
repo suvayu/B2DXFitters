@@ -4,9 +4,23 @@
 ! Purpose     : RooFit-based fitters for B -> D X
 !-----------------------------------------------------------------------------
 
+
 ! 2016-10-18 - Alex Birnkraut
  - modified Source code of SFitUtils.cxx: Handling of the sweight correction was incosistent.
    Added the correction factor in l.479 & l.493.
+
+! 2016-10-17 - Vincenzo Battista
+ - Update of runSFit_Bd.py to compute automatically <eta> and
+   tagging efficiency (with error) during the fit, and to
+   choose if apply calibration
+ - Remove hardcoded [0,0.5] interval for eta in CreateDifferentTemplates (SFitUtils)
+ - Add PrintLatexTable utility in FitResultGrabberUtils
+ - Update plotSFit.py to plot acceptance if produced by timepdfutils_Bd.py 
+
+! 2016-10-13 - Vincenzo Battista
+ - Added config files for Bu2D0Pi, updated config files for Bd2DPi
+ - Fixed runSFit*.py scripts and SFitUtils.py 
+  (give different names to weighted and unweighted datasets when retrieved)
 
 ! 2016-10-10 - Vincenzo Battista
  - Source code modified to "accept" Bu2D0Pi mode (and its physical background)
