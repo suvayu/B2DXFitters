@@ -686,28 +686,12 @@ def runSFit(debug, wsname,
 
     C, S, D, Sbar, Dbar = getCPparameters(ws, myconfigfile, UniformBlinding)
 
-
-    if not toys:
-
-        print ""
-        print "=========================================================="
-        print "Build Gaussian constraints"
-        print "=========================================================="
-        print ""
-
-        ws.Print("v")
-        from B2DXFitters.GaussianConstraintBuilder import GaussianConstraintBuilder
-        #constraintbuilder = GaussianConstraintBuilder(ws,  myconfigfile['Constrains'])
-            # remove constraints for modes which are not included
-        #constList = constraintbuilder.getSetOfConstraints()
-        #constList.Print("v")
-
     print ""
     print "=========================================================="
     print "Build production/detection asymmetries"
     print "=========================================================="
     print ""
-
+    
     aProd = zero
     aDet = zero
 
@@ -715,6 +699,20 @@ def runSFit(debug, wsname,
         aProd = WS(ws, RooRealVar('ProdAsymm','ProdAsymm',*myconfigfile["ProductionAsymmetry"]["Signal"]))
     if myconfigfile.has_key("DetectionAsymmetry") :
         aDet = WS(ws, RooRealVar('DetAsymm','DetAsymm', *myconfigfile["DetectionAsymmetry"]["Signal"]))
+
+    if "gaussCons" in myconfigfile.keys():
+
+        print ""
+        print "=========================================================="
+        print "Build Gaussian constraints"
+        print "=========================================================="
+        print ""
+        
+        ws.Print("v")
+        from B2DXFitters.GaussianConstraintBuilder import GaussianConstraintBuilder
+        constraintbuilder = GaussianConstraintBuilder(ws,  myconfigfile["gaussCons"])
+        constList = constraintbuilder.getSetOfConstraints()
+        constList.Print("v")
 
     print ""
     print "=========================================================="
@@ -818,6 +816,8 @@ def runSFit(debug, wsname,
                                 RooFit.SumW2Error(True),
                                 RooFit.NumCPU(10),
                                 RooFit.Extended(False)]
+                if "gaussCons" in myconfigfile.keys():
+                    fitOpts_temp.append( RooFit.ExternalConstraints(constList) )
                 fitOpts = RooLinkedList()
                 for cmd in fitOpts_temp:
                     fitOpts.Add(cmd)
@@ -851,6 +851,8 @@ def runSFit(debug, wsname,
                             RooFit.PrintLevel(1),
                             RooFit.Warnings(False),
                             RooFit.PrintEvalErrors(-1)]
+            if "gaussCons" in myconfigfile.keys():
+                fitOpts_temp.append( RooFit.ExternalConstraints(constList) )
             fitOpts = RooLinkedList()
             for cmd in fitOpts_temp:
                 fitOpts.Add(cmd)
@@ -893,9 +895,25 @@ def runSFit(debug, wsname,
                     print "[INFO Result] parameter %s = (%0.4lf +/- %0.4lf)"%(name, par[i].getVal(), par[i].getError())
 
             print "[INFO Result] -------------- Correlation matrix --------------"
-            myfitresult.correlationMatrix().Print()
+            cor = myfitresult.correlationMatrix()
+            cor.Print("v")
             print "[INFO Result] -------------- Covariance matrix --------------"
-            myfitresult.covarianceMatrix().Print()
+            cov = myfitresult.covarianceMatrix()
+            cov.Print("v")
+
+            #Plot matrices
+            gStyle.SetOptStat(0)
+            gStyle.SetPaintTextFormat("4.3f")
+
+            cCov = TCanvas("cCov")
+            cCov.cd()
+            cov.Draw("TEXT45COLZ")
+            cCov.SaveAs(outputdir+"sFit_CovarianceMatrix.pdf")
+            
+            cCorr = TCanvas("cCorr")
+            cCorr.cd()
+            cor.Draw("TEXT45COLZ")
+            cCorr.SaveAs(outputdir+"sFit_CorrelationMatrix.pdf")
 
             if toys:
 
