@@ -75,10 +75,10 @@ def buildSplineAcceptance(
     for v in mycoeffs:
         if floatParams:
             coefflist.add(WS(ws, RooRealVar('%s_SplineAccCoeff%u' % (pfx, i),
-                '%s_SplineAccCoeff%u' % (pfx, i), v, 0., 3.)))
+                'v_{%u}' % (i+1), v, 0., 3.)))
         else:
             coefflist.add(WS(ws, RooConstVar('%s_SplineAccCoeff%u' % (pfx, i),
-                '%s_SplineAccCoeff%u' % (pfx, i), v)))
+                'v_{%u}' % (i+1), v)))
         i = i + 1
     del mycoeffs
     coefflist.add(one)
@@ -93,7 +93,7 @@ def buildSplineAcceptance(
                 '%s_SplineAccCoeff%u_coeff1' % (pfx, i), fudge)))
     del myknots
     coefflist.add(WS(ws, RooPolyVar(
-        '%s_SplineAccCoeff%u' % (pfx, i), '%s_SplineAccCoeff%u' % (pfx, i),
+        '%s_SplineAccCoeff%u' % (pfx, i), 'v_{%u}' % (i+1),
         coefflist.at(coefflist.getSize() - 2), lastmycoeffs)))
     del i
     if debug:
