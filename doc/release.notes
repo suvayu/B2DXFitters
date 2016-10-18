@@ -4,6 +4,10 @@
 ! Purpose     : RooFit-based fitters for B -> D X
 !-----------------------------------------------------------------------------
 
+! 2016-10-18 - Alex Birnkraut
+ - modified Source code of SFitUtils.cxx: Handling of the sweight correction was incosistent.
+   Added the correction factor in l.479 & l.493.
+
 ! 2016-10-10 - Vincenzo Battista
  - Source code modified to "accept" Bu2D0Pi mode (and its physical background)
  - Added utility in utils.py to randomise starting value for floating parameters
@@ -12,33 +16,33 @@
    inside MDFitSettingTranslator.py
  - ChangeMassHypo.py updated in order to have flexibility on mass leaves
    pedix (_M or _MM etc...)
- - Few updates to Bd2DPi-related config dictionaries 
+ - Few updates to Bd2DPi-related config dictionaries
  - Added tails scaling to Ipatia PDF
  - Small bugfix in SFitUtils when TrueID is included
 
 ! 2016-10-02 - Agnieszka Dziurda
  - update sFit code for unbinned fit
- - update config files for DsK 
+ - update config files for DsK
 
 ! 2016-10-01 - Ulrich Eitschberger
- - update sFit code for contraints 
- - update config files for fitting MC 
+ - update sFit code for contraints
+ - update config files for fitting MC
 
-! 2016-09-30 - Lennaert Bel 
+! 2016-09-30 - Lennaert Bel
  - add scripts for analysing the propertime resolution, for DsK
 
 ! 2016-09-30 - Agnieszka Dziurda
- - update runSFit_new.py for loading MC samples 
+ - update runSFit_new.py for loading MC samples
  - on behalf of Vava: update calculateAcceptance.py for covariance matrices
 
 ! 2016-09-29 - Agnieszka Dziurda
  - add calculateAcceptance.py which calculates decay-time acceptance for DsK
- - update on DsK/DsPi/misID config files with new BDTG 
+ - update on DsK/DsPi/misID config files with new BDTG
  - update FitMeTool for plotting S/B, S/sqrt(S+B) and total yields
  - bug fix in WeightingUtils.cxx
  - small updates (better plotting) in GeneralUtils.cxx
  - bug fix in MDFitterSettings
- - bug fix in MassFitUtils 
+ - bug fix in MassFitUtils
  - update config files for DsstPi
  - update fitSplineAcc.py - the latest parameters
  - update exptectedEvents.py - the latest parameters
@@ -62,9 +66,9 @@
 
 ! 2016-09-14 - Vincenzo Battista
  - GeneralUtils.{cxx,h}: create new GetSample function that allows to have dataset containing
-   "merged" names (e.g. both, run1...) 
+   "merged" names (e.g. both, run1...)
  - toyFactory.py: bugfix (number of events for B time was different from other observables)
- - Including runMDFitterOnToys.sh and Batch_runMDFitterOnToys.sh to run MD fits on toys 
+ - Including runMDFitterOnToys.sh and Batch_runMDFitterOnToys.sh to run MD fits on toys
    in parallel
  - Including a first "robust" config file for generating Bd->DPi toys
     (data/Bd2DPi_3fbCPV/Bd2DPi/Bd2DPiConfigForToysGeneration.py)
@@ -73,14 +77,14 @@
  - toyFactory: draw number of events to generate from Poisson distribution.
 
 ! 2016-08-24 - Agnieszka Dziurda
- - Tcsh scripts for generating/fitting toys. 
+ - Tcsh scripts for generating/fitting toys.
  - DsK toys config file
 
 ! 2016-08-22 - Agnieszka Dziurda
  - update on toyFactory.py:
    - applying all changes necessary for DsK/DsPi analysis
-   - solving memory issue by using one workspace for all Bs, Ds masses 
-     and PIDK shapes. 
+   - solving memory issue by using one workspace for all Bs, Ds masses
+     and PIDK shapes.
    - setting unique names for pdfs
    - dealing with memory issue when creating totData
    - some other small changes (variables names etc)
@@ -96,7 +100,7 @@
    used internally in the x87 FPU registers); this new code seems to be more
    robust and works both on lxplus and my laptop
 
-! 2016-08-17 - Agnieszka Dziurda 
+! 2016-08-17 - Agnieszka Dziurda
  - updates for DsK analysis:
    - 2D weighting by misID/eff histograms
    - more flexible weighting (setting variables for each variable)
@@ -105,9 +109,9 @@
    - posibility of pseudo 3D weighting for PIDK shapes
    - more flexible HistPID2D
    - some bug fixes in combo PIDK shapes
-   - bug fix for setting shifts without weighting 
+   - bug fix for setting shifts without weighting
    - other small changes
- - adding the most recent config files for nominal fit and splits 
+ - adding the most recent config files for nominal fit and splits
 
 
 ! 2016-08-03 - Manuel Tobias Schiller
@@ -142,8 +146,8 @@
    other than time, time error and mistag cannot be generated.
    Anyway, adding support for other observables (mass, PID...) is
    very straightforward (the BuildPDF function needs to be
-   implemented).  
- - Few updates to runMDFitter_Bd.py and its config file.   
+   implemented).
+ - Few updates to runMDFitter_Bd.py and its config file.
 
 ! 2016-07-08 - Vincenzo Battista
  - Included (temporary?) fitter for Bd->DPi, called
@@ -163,7 +167,7 @@
  - "timepdfutils_Bd.py" included in "python/B2DXFitters" directory.
    This utility, based on "timepdfutils.py" from Manuel Schiller, help
    to build a total time pdf with "everything" included (resolution,
-   acceptance, asymmetries, two taggers...) with a one-line command, and it uses the 
+   acceptance, asymmetries, two taggers...) with a one-line command, and it uses the
    "DecRateCoeff_Bd" class from Dortmund.
  - Two tutorials included in "tutorials" folder. These scripts illustrate
    the usage of "timepdfutils_Bd.py".
@@ -173,8 +177,8 @@
 
 ! 2016-05-14 - Agnieszka Dziurda
  - sFit update: use one tagger
- - new config files for fitting splines 
- - update other config files 
+ - new config files for fitting splines
+ - update other config files
 
 ! 2016-05-02 - Vincenzo Battista
  - Including DecRateCoeff_Bd in B2DXFittersDict and
@@ -2742,4 +2746,4 @@
    . python -i plotBs2DsPiMassModels.py WS_DsPi.root
 
 ! 2012-04-13 - Agnieszka Dziurda, Eduardo Rodrigues
- - 
+ -
