@@ -4,6 +4,8 @@
 ! Purpose     : RooFit-based fitters for B -> D X
 !-----------------------------------------------------------------------------
 
+! 2016-10-18 - Vincenzo Battista
+ - Include PlotResultMatrix utility in FitResultGrabberUtils
 
 ! 2016-10-18 - Alex Birnkraut
  - modified Source code of SFitUtils.cxx: Handling of the sweight correction was incosistent.

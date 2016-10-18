@@ -174,13 +174,13 @@ def getCPparameters(ws, myconfigfile, UniformBlinding):
         limit[0] = myconfigfile["ACP"]["Signal"]["CPlimit"]["lower"]
         limit[1] = myconfigfile["ACP"]["Signal"]["CPlimit"]["upper"]
 
-    sigC = RooRealVar('Cf', 'C coeff.', Cf, limit[0], limit[1])
-    sigS = RooRealVar('Sf', 'S coeff.', Sf, limit[0], limit[1])
-    sigS_blind = RooUnblindUniform('Sf_blind', 'S coeff (blind)', 'CPV_3invfb_Bd2DPi_S', 1.0, sigS)
-    sigD = RooRealVar('Df', 'D coeff.', Df, limit[0], limit[1])
-    sigSbar = RooRealVar('Sfbar', 'Sbar coeff.', Sfbar, limit[0], limit[1])
-    sigSbar_blind = RooUnblindUniform('Sfbar_blind', 'Sbar coeff (blind)', 'CPV_3invfb_Bd2DPi_Sbar', 1.0, sigSbar)
-    sigDbar = RooRealVar('Dfbar', 'Dbar coeff.', Dfbar, limit[0], limit[1])
+    sigC = RooRealVar('Cf', 'C_{f}', Cf, limit[0], limit[1])
+    sigS = RooRealVar('Sf', 'S_{f}', Sf, limit[0], limit[1])
+    sigS_blind = RooUnblindUniform('Sf_blind', 'S_{f} (blind)', 'CPV_3invfb_Bd2DPi_S', 1.0, sigS)
+    sigD = RooRealVar('Df', 'D_{f}', Df, limit[0], limit[1])
+    sigSbar = RooRealVar('Sfbar', 'S_{#bar f}', Sfbar, limit[0], limit[1])
+    sigSbar_blind = RooUnblindUniform('Sfbar_blind', 'S_{#bar f} (blind)', 'CPV_3invfb_Bd2DPi_Sbar', 1.0, sigSbar)
+    sigDbar = RooRealVar('Dfbar', 'D_{#bar f}', Dfbar, limit[0], limit[1])
     setConstantIfSoConfigured(sigC, myconfigfile)
     setConstantIfSoConfigured(sigS, myconfigfile)
     setConstantIfSoConfigured(sigD, myconfigfile)
@@ -424,9 +424,9 @@ def runSFit(debug, wsname,
     print "=========================================================="
     print ""
 
-    gamma = WS(ws, RooRealVar('Gamma', 'average lifetime', *(myconfigfile["ACP"]["Signal"]["Gamma"] + ['ps^{-1}']) ))
+    gamma = WS(ws, RooRealVar('Gamma', '#Gamma', *(myconfigfile["ACP"]["Signal"]["Gamma"] + ['ps^{-1}']) ))
     #setConstantIfSoConfigured(ws.obj(gamma.GetName()),myconfigfile)
-    deltaGamma = WS(ws, RooRealVar('deltaGamma', 'Lifetime difference', *(myconfigfile["ACP"]["Signal"]["DeltaGamma"] + ['ps^{-1}'])))
+    deltaGamma = WS(ws, RooRealVar('deltaGamma', '#Delta#Gamma', *(myconfigfile["ACP"]["Signal"]["DeltaGamma"] + ['ps^{-1}'])))
     #setConstantIfSoConfigured(ws.obj(deltaGamma.GetName()),myconfigfile)
     deltaM = WS(ws, RooRealVar('deltaM', '#Delta m', *(myconfigfile["ACP"]["Signal"]["DeltaM"] + ['ps^{-1}']) ))
     #setConstantIfSoConfigured(ws.obj(deltaM.GetName()),myconfigfile)
@@ -590,25 +590,25 @@ def runSFit(debug, wsname,
 
         thiscalib = []
         thiscalib.append( WS(ws, RooRealVar('p0_'+nametag,
-                                            'p0_'+nametag,
+                                            'p_{0}'+nametag,
                                             *p0)) )
         thiscalib.append( WS(ws, RooRealVar('p1_'+nametag,
-                                            'p1_'+nametag,
+                                            'p_{1}'+nametag,
                                             *p1)) )
         thiscalib.append( WS(ws, RooRealVar('deltap0_'+nametag,
-                                            'deltap0_'+nametag,
+                                            '#Delta p_{0}'+nametag,
                                             *deltap0)) )
         thiscalib.append( WS(ws, RooRealVar('deltap1_'+nametag,
-                                            'deltap1_'+nametag,
+                                            '#Delta p_{1}'+nametag,
                                             *deltap1)) )
         thiscalib.append( WS(ws, RooRealVar('avgeta_'+nametag,
-                                            'avgeta_'+nametag,
+                                            '<#eta>'+nametag,
                                             *etamean )) )
         thiscalib.append( WS(ws, RooRealVar('tageff_'+nametag,
-                                            'tageff_'+nametag,
+                                            '#epsilon_{eff}'+nametag,
                                             *tageff)) )
         thiscalib.append( WS(ws, RooRealVar('tagasymm_'+nametag,
-                                            'tagasymm_'+nametag,
+                                            'a_{tag}'+nametag,
                                             *myconfigfile["Taggers"]["Signal"][nametag]["Calibration"]["tagasymm"])) )
 
         #for par in thiscalib:
@@ -699,9 +699,9 @@ def runSFit(debug, wsname,
     aDet = zero
 
     if myconfigfile.has_key("ProductionAsymmetry"):
-        aProd = WS(ws, RooRealVar('ProdAsymm','ProdAsymm',*myconfigfile["ProductionAsymmetry"]["Signal"]))
+        aProd = WS(ws, RooRealVar('ProdAsymm','a_{prod}',*myconfigfile["ProductionAsymmetry"]["Signal"]))
     if myconfigfile.has_key("DetectionAsymmetry") :
-        aDet = WS(ws, RooRealVar('DetAsymm','DetAsymm', *myconfigfile["DetectionAsymmetry"]["Signal"]))
+        aDet = WS(ws, RooRealVar('DetAsymm','a_{det}', *myconfigfile["DetectionAsymmetry"]["Signal"]))
 
     if "gaussCons" in myconfigfile.keys():
 
@@ -904,18 +904,9 @@ def runSFit(debug, wsname,
             cov.Print("v")
 
             #Plot matrices
-            gStyle.SetOptStat(0)
-            gStyle.SetPaintTextFormat("4.3f")
-
-            cCov = TCanvas("cCov")
-            cCov.cd()
-            cov.Draw("TEXT45COLZ")
-            cCov.SaveAs(outputdir+"sFit_CovarianceMatrix.pdf")
-            
-            cCorr = TCanvas("cCorr")
-            cCorr.cd()
-            cor.Draw("TEXT45COLZ")
-            cCorr.SaveAs(outputdir+"sFit_CorrelationMatrix.pdf")
+            from B2DXFitters.FitResultGrabberUtils import PlotResultMatrix
+            PlotResultMatrix(myfitresult, "covariance", outputdir+"sFit_CovarianceMatrix.pdf")
+            PlotResultMatrix(myfitresult, "correlation", outputdir+"sFit_CorrelationMatrix.pdf")
 
             if toys:
 

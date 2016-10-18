@@ -143,6 +143,57 @@ def CreatePullTree(fileNamePull, rooFitResult, extGenDict = None):
     treePull.Print()
     filePull.Close()
 
+def PlotResultMatrix(rooFitResult, type = "correlation", outputfile = "matrix.pdf"):
+    """
+    Draw covariance or correlation matrix resulting from a fit and
+    save it to file
+
+    rooFitResult -- RooFitResult object containing fit result
+    type -- choose correlation or covariance
+    outputfile -- output file to store produced plot
+    """
+    if type not in ["covariance", "correlation"]:
+        print "FitResultGrabberUtils.PrintLatexTable(...)==> ERROR: please choose type == covariance or correlation"
+        exit(-1)
+
+    print "FitResultGrabberUtils.PrintLatexTable(...)==> Plotting "+type+" matrix"
+
+    #Set style
+    gStyle.SetOptStat(0)
+    gStyle.SetPaintTextFormat("4.3f")
+
+    #Take fitted parameters
+    par = rooFitResult.floatParsFinal()
+
+    #Define titles for X, Y axes
+    titles = []
+    for p in range(0, par.getSize()):
+        titles.append( par[p].GetTitle() )
+
+    #Take matrix
+    if type == "covariance":
+        matrix = rooFitResult.covarianceMatrix()
+    else:
+        matrix = rooFitResult.correlationMatrix()
+
+    #Create and fill 2X2 histogram
+    canv = TCanvas("canv")
+    canv.cd()
+    hist = TH2D("hist","",par.getSize(),0.0,par.getSize(),par.getSize(),0.0,par.getSize())
+    for binX in range(1, hist.GetXaxis().GetNbins()+1):
+        for binY in range(1, hist.GetYaxis().GetNbins()+1):
+            hist.SetBinContent(binX, binY, matrix[binX-1][binY-1])
+
+    #Set axes labels
+    for bin in range(1, hist.GetXaxis().GetNbins()+1):
+        hist.GetXaxis().SetBinLabel(bin, titles[bin-1])
+    for bin in range(1, hist.GetYaxis().GetNbins()+1):
+        hist.GetYaxis().SetBinLabel(bin, titles[bin-1])
+    hist.Draw("TEXT45COLZ")
+
+    #Save plot
+    canv.SaveAs(outputfile)
+
 def PrintLatexTable(rooFitResult):
     """
     Print result in a LaTeX style table (useful for copy-pasting in any document).
