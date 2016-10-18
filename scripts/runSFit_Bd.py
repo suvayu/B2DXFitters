@@ -124,15 +124,15 @@ gROOT.SetBatch()
 
 #------------------------------------------------------------------------------
 def setConstantIfSoConfigured(var,myconfigfile) :
-    if var.GetName() in myconfigfile["constParams"] :
+    if var.GetName() in myconfigfile["constParams"]:
         var.setConstant()
-        print "[INFO] Parameter: %s set to be constant with value %lf"%(var.GetName(),var.getValV())
+        print "[INFO] Parameter: %s set to be constant with value %lf" %(var.GetName(),var.getValV())
     else:
-        print "[INFO] Parameter: %s floats in the fit"%(var.GetName())
+        print "[INFO] Parameter: %s floats in the fit" %(var.GetName())
         print "[INFO]   ",var.Print()
 
-#------------------------------------------------------------------------------
-def getCPparameters(ws,myconfigfile):
+# ------------------------------------------------------------------------------
+def getCPparameters(ws, myconfigfile, UniformBlinding):
 
     if "ModLf" in myconfigfile["ACP"]["Signal"].keys():
 
@@ -169,28 +169,35 @@ def getCPparameters(ws,myconfigfile):
         Sfbar = myconfigfile["ACP"]["Signal"]["Sbar"][0]
         Dfbar = myconfigfile["ACP"]["Signal"]["Dbar"][0]
 
-    limit = [-3.0,3.0]
+    limit = [-3.0, 3.0]
     if myconfigfile["ACP"]["Signal"].has_key("CPlimit"):
         limit[0] = myconfigfile["ACP"]["Signal"]["CPlimit"]["lower"]
         limit[1] = myconfigfile["ACP"]["Signal"]["CPlimit"]["upper"]
 
     sigC = RooRealVar('Cf', 'C coeff.', Cf, limit[0], limit[1])
     sigS = RooRealVar('Sf', 'S coeff.', Sf, limit[0], limit[1])
+    sigS_blind = RooUnblindUniform('Sf_blind', 'S coeff (blind)', 'CPV_3invfb_Bd2DPi_S', 1.0, sigS)
     sigD = RooRealVar('Df', 'D coeff.', Df, limit[0], limit[1])
     sigSbar = RooRealVar('Sfbar', 'Sbar coeff.', Sfbar, limit[0], limit[1])
+    sigSbar_blind = RooUnblindUniform('Sfbar_blind', 'Sbar coeff (blind)', 'CPV_3invfb_Bd2DPi_Sbar', 1.0, sigSbar)
     sigDbar = RooRealVar('Dfbar', 'Dbar coeff.', Dfbar, limit[0], limit[1])
-    setConstantIfSoConfigured(sigC,myconfigfile)
-    setConstantIfSoConfigured(sigS,myconfigfile)
-    setConstantIfSoConfigured(sigD,myconfigfile)
-    setConstantIfSoConfigured(sigSbar,myconfigfile)
-    setConstantIfSoConfigured(sigDbar,myconfigfile)
+    setConstantIfSoConfigured(sigC, myconfigfile)
+    setConstantIfSoConfigured(sigS, myconfigfile)
+    setConstantIfSoConfigured(sigD, myconfigfile)
+    setConstantIfSoConfigured(sigSbar, myconfigfile)
+    setConstantIfSoConfigured(sigDbar, myconfigfile)
     sigC = WS(ws, sigC)
-    sigS = WS(ws, sigS)
     sigD = WS(ws, sigD)
-    sigSbar = WS(ws, sigSbar)
     sigDbar = WS(ws, sigDbar)
 
-    return sigC, sigS, sigD, sigSbar, sigDbar
+    if not UniformBlinding:
+        sigS = WS(ws, sigS)
+        sigSbar = WS(ws, sigSbar)
+        return sigC, sigS, sigD, sigSbar, sigDbar
+    else:
+        sigS_blind = WS(ws, sigS_blind)
+        sigSbar_blind = WS(ws, sigSbar_blind)
+        return sigC, sigS_blind, sigD, sigSbar_blind, sigDbar
 
 #------------------------------------------------------------------------------
 #------------------------------------------------------------------------------
@@ -202,7 +209,7 @@ def runSFit(debug, wsname,
             configName, scan,
             binned, plotsWeights, noweight,
             sample, mode, year, hypo, merge, unblind, randomise, superimpose,
-            seed, preselection  ) :
+            seed, preselection, UniformBlinding):
 
     if MC and not noweight:
         print "ERROR: cannot use sWeighted MC sample (for now)"
@@ -262,7 +269,7 @@ def runSFit(debug, wsname,
         print "=========================================================="
         print ""
 
-        workspace =[]
+        workspace = []
         workspaceW = []
 
         workspace.append(SFitUtils.ReadDataFromSWeights(TString(pathName), TString(treeName), MDSettings,
@@ -353,8 +360,8 @@ def runSFit(debug, wsname,
             print preselection
             data = RooDataSet(data_temp.GetName(), data_temp.GetTitle(), data_temp, data_temp.get(), preselection)
             print "Entries:"
-            print "...before cut: "+str( data_temp.sumEntries() )
-            print "...after cut: "+str( data.sumEntries() )
+            print "...before cut: " + str(data_temp.sumEntries())
+            print "...after cut: " + str(data.sumEntries())
         else:
             print "No additional preselection"
             data = data_temp
@@ -416,7 +423,7 @@ def runSFit(debug, wsname,
 
     gamma = WS(ws, RooRealVar('Gamma', 'average lifetime', *(myconfigfile["ACP"]["Signal"]["Gamma"] + ['ps^{-1}']) ))
     #setConstantIfSoConfigured(ws.obj(gamma.GetName()),myconfigfile)
-    deltaGamma = WS(ws, RooRealVar('deltaGamma', 'Lifetime difference', *(myconfigfile["ACP"]["Signal"]["DeltaGamma"] + ['ps^{-1}']) ))
+    deltaGamma = WS(ws, RooRealVar('deltaGamma', 'Lifetime difference', *(myconfigfile["ACP"]["Signal"]["DeltaGamma"] + ['ps^{-1}'])))
     #setConstantIfSoConfigured(ws.obj(deltaGamma.GetName()),myconfigfile)
     deltaM = WS(ws, RooRealVar('deltaM', '#Delta m', *(myconfigfile["ACP"]["Signal"]["DeltaM"] + ['ps^{-1}']) ))
     #setConstantIfSoConfigured(ws.obj(deltaM.GetName()),myconfigfile)
@@ -513,9 +520,9 @@ def runSFit(debug, wsname,
     mistagpdfparams = {}
     mistagpdf = []
 
-    #Build mistag pdfs on the fly if required (at least one tagger wants it)
+    # Build mistag pdfs on the fly if required (at least one tagger wants it)
     if pereventmistag:
-        for t in range(0,MDSettings.GetNumTagVar()):
+        for t in range(0, MDSettings.GetNumTagVar()):
             nametag = "OS"
             if "SS" in MDSettings.GetTagVarOutName(t).Data():
                 nametag = "SS"
@@ -677,7 +684,7 @@ def runSFit(debug, wsname,
     print "=========================================================="
     print ""
 
-    C,S,D,Sbar,Dbar = getCPparameters(ws,myconfigfile)
+    C, S, D, Sbar, Dbar = getCPparameters(ws, myconfigfile, UniformBlinding)
 
 
     if not toys:
@@ -723,6 +730,15 @@ def runSFit(debug, wsname,
         resmodel, acc,
         terrpdf, mistagpdf,
         aProd, aDet)
+
+    # totPDF = buildBDecayTimePdf(
+    #     myconfigfile, 'time_signal', ws,
+    #     time, terr, tag, id, mistag, mistagcalib,
+    #     gamma, deltaGamma, deltaM,
+    #     C, D, Dbar, S_blind, Sbar_blind,
+    #     resmodel, acc,
+    #     terrpdf, mistagpdf,
+    #     aProd, aDet)
 
     #Fix "internal" time pdf parameters (if required)
     from B2DXFitters.utils import setConstantIfSoConfigured as fixParams
@@ -831,6 +847,7 @@ def runSFit(debug, wsname,
                             RooFit.SumW2Error(True),
                             RooFit.Minos(False),
                             RooFit.Extended(False),
+                            # RooFit.Offset(True),
                             RooFit.PrintLevel(1),
                             RooFit.Warnings(False),
                             RooFit.PrintEvalErrors(-1)]
@@ -1065,6 +1082,12 @@ parser.add_option( '--preselection',
                    default = "",
                    help = 'additional preselection to apply on dataset'
                    )
+parser.add_option( '--UniformBlinding',
+                   dest = 'UniformBlinding',
+                   default = False,
+                   action='store_true',
+                   help = 'the RooUnblindUniform is used for S and Sbar'
+                   )
 
 # -----------------------------------------------------------------------------
 
@@ -1125,6 +1148,7 @@ if __name__ == '__main__' :
              options.randomise,
              options.superimpose,
              options.seed,
-             options.preselection)
+             options.preselection,
+             options.UniformBlinding)
 
 # -----------------------------------------------------------------------------
