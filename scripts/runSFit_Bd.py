@@ -694,7 +694,7 @@ def runSFit(debug, wsname,
     print "Build production/detection asymmetries"
     print "=========================================================="
     print ""
-    
+
     aProd = zero
     aDet = zero
 
@@ -710,7 +710,7 @@ def runSFit(debug, wsname,
         print "Build Gaussian constraints"
         print "=========================================================="
         print ""
-        
+
         ws.Print("v")
         from B2DXFitters.GaussianConstraintBuilder import GaussianConstraintBuilder
         constraintbuilder = GaussianConstraintBuilder(ws,  myconfigfile["gaussCons"])
@@ -847,7 +847,7 @@ def runSFit(debug, wsname,
                             RooFit.Strategy(2),
                             RooFit.Minimizer("Minuit2", "migrad"),
                             RooFit.SumW2Error(False),
-                            RooFit.Minos(True),
+                            RooFit.Minos(False),
                             RooFit.Extended(False),
                             # RooFit.Offset(True),
                             RooFit.PrintLevel(1),
@@ -903,7 +903,7 @@ def runSFit(debug, wsname,
             cov = myfitresult.covarianceMatrix()
             cov.Print("v")
 
-            #Plot matrices
+            # Plot matrices
             from B2DXFitters.FitResultGrabberUtils import PlotResultMatrix
             PlotResultMatrix(myfitresult, "covariance", outputdir+"sFit_CovarianceMatrix.pdf")
             PlotResultMatrix(myfitresult, "correlation", outputdir+"sFit_CorrelationMatrix.pdf")
