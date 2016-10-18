@@ -48,17 +48,17 @@ def getconfig() :
                                                       "Name"                   : "BacCharge",
                                                       "InputName"              : "lab1_ID"}
 
-    # configdict["BasicVariables"]["TagDecOS"]      = { "Range"                  : [-1.0,    1.0     ],
-    #                                                   "Name"                   : "TagDecOS",
-    #                                                   "InputName"              : "lab0_TAGDECISION_OS"}
+    configdict["BasicVariables"]["TagDecOS"]      = { "Range"                  : [-1.0,    1.0     ],
+                                                      "Name"                   : "TagDecOS",
+                                                      "InputName"              : "lab0_TAGDECISION_OS"}
 
     configdict["BasicVariables"]["TagDecSS"]      = { "Range"                  : [-1.0,    1.0     ],
                                                       "Name"                   : "TagDecSS",
                                                       "InputName"              : "lab0_SS_PionBDT_DEC"}
 
-    # configdict["BasicVariables"]["MistagOS"]      = { "Range"                  : [ 0.0,    0.5     ],
-    #                                                   "Name"                   : "MistagOS",
-    #                                                   "InputName"              : "lab0_TAGOMEGA_OS"}
+    configdict["BasicVariables"]["MistagOS"]      = { "Range"                  : [ 0.0,    0.5     ],
+                                                      "Name"                   : "MistagOS",
+                                                      "InputName"              : "lab0_TAGOMEGA_OS"}
 
     configdict["BasicVariables"]["MistagSS"]      = { "Range"                  : [ 0.0,    0.5     ],
                                                       "Name"                   : "MistagSS",

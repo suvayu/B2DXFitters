@@ -277,7 +277,7 @@ def runSFit(debug, wsname,
                                                         False, toys, False, False, debug))
         workspaceW.append(SFitUtils.ReadDataFromSWeights(TString(pathName), TString(treeName), MDSettings,
                                                          TString(sample), TString(mode), TString(year), TString(hypo), merge,
-                                                         True, toys, False, False, debug))
+                                                         True, toys, False, True, debug))
 
         print ""
         print "=========================================================="
@@ -289,35 +289,38 @@ def runSFit(debug, wsname,
         nameDataWA = TString("dataSet_time_weighted")
 
         if preselection != "":
-            data_temp = GeneralUtils.GetDataSet(workspace[0],   nameData, debug)
-            dataWA_temp = GeneralUtils.GetDataSet(workspaceW[0],   nameDataWA, debug)
+            data_temp = GeneralUtils.GetDataSet(workspace[0], nameData, debug)
+            dataWA_temp = GeneralUtils.GetDataSet(workspaceW[0], nameDataWA, debug)
 
-            data_temp.SetName(nameDataWA.Data()+"_temp")
+            data_temp.SetName(nameDataWA.Data() + "_temp")
             dataWA_temp.SetName(nameData.Data())
             data_temp.SetName(nameDataWA.Data())
 
             print "Applying following preselection to reduce dataset:"
             print preselection
 
-            #The unweighted set can be weighted after the cut because sWeights appears in the obs list. The weighted
-            #set is unweighted after the cut instead. That's why dataWA is obtained from data and vice-versa (and that's
-            #why the names given above are swapped ;-)
+            # The unweighted set can be weighted after the cut because sWeights appears in the obs list. The weighted
+            # set is unweighted after the cut instead. That's why dataWA is obtained from data and vice-versa (and that's
+            # why the names given above are swapped ;-)
             dataWA = WS(ws, RooDataSet(data_temp.GetName(), data_temp.GetTitle(), data_temp, data_temp.get(), preselection, "sWeights"))
             data = WS(ws, RooDataSet(dataWA_temp.GetName(), dataWA_temp.GetTitle(), dataWA_temp, dataWA_temp.get(), preselection))
 
             print "Entries (unweighted set):"
-            print "...before cut: "+str( data_temp.numEntries() )+", sum of weights "+str( data_temp.sumEntries() )
-            print "...after cut: "+str( data.numEntries() )+", sum of weights "+str( data.sumEntries() )
+            print "...before cut: " + str(data_temp.numEntries()) + ", sum of weights " + str(data_temp.sumEntries())
+            print "...after cut: " + str(data.numEntries()) + ", sum of weights " + str(data.sumEntries())
             print "Entries (weighted set):"
-            print "...before cut: "+str( dataWA_temp.numEntries() )+", sum of weights "+str( dataWA_temp.sumEntries() )
-            print "...after cut: "+str( dataWA.numEntries() )+", sum of weights "+str( dataWA.sumEntries() )
+            print "...before cut: " + str(dataWA_temp.numEntries()) + ", sum of weights " + str(dataWA_temp.sumEntries())
+            print "...after cut: " + str(dataWA.numEntries()) + ", sum of weights " + str(dataWA.sumEntries())
         else:
             print "No additional preselection"
-            data = WS(ws, GeneralUtils.GetDataSet(workspace[0],   nameData, debug))
-            dataWA = WS(ws, GeneralUtils.GetDataSet(workspaceW[0],   nameDataWA, debug))
+            data = WS(ws, GeneralUtils.GetDataSet(workspace[0], nameData, debug))
+            dataWA = WS(ws, GeneralUtils.GetDataSet(workspaceW[0], nameDataWA, debug))
 
+        print "hello here we are"
         data.Print("v")
         dataWA.Print("v")
+        data.Print()
+        dataWA.Print()
 
     else:
 
@@ -773,23 +776,22 @@ def runSFit(debug, wsname,
         for par in myconfigfile["LikelihoodScan"]:
 
             if debug:
-                print "[INFO] Producing profile likelihood plot for "+par
+                print "[INFO] Producing profile likelihood plot for " + par
 
             param = ws.obj(par)
-            pll  = RooProfileLL("pll_"+par, "pll_"+par, nll, RooArgSet(param))
-            h = pll.createHistogram("h_"+par,param,RooFit.Binning(200))
+            pll  = RooProfileLL("pll_" + par, "pll_" + par, nll, RooArgSet(param))
+            h = pll.createHistogram("h_" + par, param, RooFit.Binning(200))
             h.SetLineColor(kRed)
             h.SetLineWidth(2)
-            h.SetTitle("Likelihood Function - "+par)
+            h.SetTitle("Likelihood Function - " + par)
             like = TCanvas("like", "like", 1200, 800)
             like.cd()
             h.Draw()
             like.Update()
-            n = TString(outputdir+"likelihood_"+par+"_scan.pdf")
+            n = TString(outputdir + "likelihood_" + par + "_scan.pdf")
             like.SaveAs(n.Data())
 
         exit(0)
-
 
     print ""
     print "=========================================================="
@@ -801,20 +803,20 @@ def runSFit(debug, wsname,
         print "[INFO] RooDataSet is binned"
         time.setBins(250)
         terr.setBins(20)
-        dataWA_binned = RooDataHist("dataWA_binned","dataWA_binned",observables,dataWA)
-        data_binned = RooDataHist("data_binned","data_binned",observables,data)
+        dataWA_binned = RooDataHist("dataWA_binned", "dataWA_binned", observables, dataWA)
+        data_binned = RooDataHist("data_binned", "data_binned", observables, data)
 
     if not superimpose:
 
-        if toys or MC or unblind: #Unblind yourself
+        if toys or MC or unblind:  # Unblind yourself
             if binned:
-                fitOpts_temp = [#RooFit.Range(rangeName),
-                                RooFit.Save(1),
+                fitOpts_temp = [RooFit.Save(1),
                                 RooFit.Optimize(2),
                                 RooFit.Strategy(2),
                                 RooFit.Verbose(True),
-                                RooFit.SumW2Error(True),
+                                RooFit.SumW2Error(False),
                                 RooFit.NumCPU(10),
+                                # RooFit.Range(rangeName),
                                 RooFit.Extended(False)]
                 if "gaussCons" in myconfigfile.keys():
                     fitOpts_temp.append( RooFit.ExternalConstraints(constList) )
@@ -839,13 +841,13 @@ def runSFit(debug, wsname,
             myfitresult.Print("v")
             myfitresult.correlationMatrix().Print()
             myfitresult.covarianceMatrix().Print()
-        else: #  Don't
+        else:  # Don't
             fitOpts_temp = [RooFit.Save(1),
                             RooFit.NumCPU(10),
                             RooFit.Strategy(2),
-                            RooFit.Minimizer("Minuit2","minimize"),
-                            RooFit.SumW2Error(True),
-                            RooFit.Minos(False),
+                            RooFit.Minimizer("Minuit2", "migrad"),
+                            RooFit.SumW2Error(False),
+                            RooFit.Minos(True),
                             RooFit.Extended(False),
                             # RooFit.Offset(True),
                             RooFit.PrintLevel(1),
@@ -873,26 +875,26 @@ def runSFit(debug, wsname,
                     print "[INFO] Fitting unweighted dataset"
                     myfitresult = totPDF.fitTo(data, fitOpts)
 
-            print '[INFO Result] Matrix quality is',myfitresult.covQual()
+            print '[INFO Result] Matrix quality is', myfitresult.covQual()
             par = myfitresult.floatParsFinal()
             const = myfitresult.constPars()
-            print "[INFO Result] Status: ",myfitresult.status()
+            print "[INFO Result] Status: ", myfitresult.status()
             print "[INFO Result] -------------- Constant parameters ------------- "
-            for i in range(0,const.getSize()):
-                print "[INFO Result] parameter %s  set to be  %0.4lf"%(const[i].GetName(), const[i].getValV())
+            for i in range(0, const.getSize()):
+                print "[INFO Result] parameter %s  set to be  %0.4lf" % (const[i].GetName(), const[i].getValV())
 
             print "[INFO Result] -------------- Floated parameters ------------- "
 
-            for i in range(0,par.getSize()):
+            for i in range(0, par.getSize()):
                 name = par[i].GetName()
                 bdone = False
                 for bp in myconfigfile["blindParams"]:
                     if bp == name:
-                        print "[INFO Result] parameter %s = (XXX +/- %0.4lf)"%(name, par[i].getError())
+                        print "[INFO Result] parameter %s = (XXX +/- %0.4lf)" % (name, par[i].getError())
                         bdone = True
                         break
                 if not bdone:
-                    print "[INFO Result] parameter %s = (%0.4lf +/- %0.4lf)"%(name, par[i].getVal(), par[i].getError())
+                    print "[INFO Result] parameter %s = (%0.4lf +/- %0.4lf)" % (name, par[i].getVal(), par[i].getError())
 
             print "[INFO Result] -------------- Correlation matrix --------------"
             cor = myfitresult.correlationMatrix()
@@ -932,12 +934,12 @@ def runSFit(debug, wsname,
     dataWA.Print("v")
     totPDF.Print("v")
 
-    workout = RooWorkspace("workspace","workspace")
-    getattr(workout,'import')(data)
-    getattr(workout,'import')(dataWA)
-    getattr(workout,'import')(totPDF)
+    workout = RooWorkspace("workspace", "workspace")
+    getattr(workout, 'import')(data)
+    getattr(workout, 'import')(dataWA)
+    getattr(workout, 'import')(totPDF)
     if not superimpose:
-        getattr(workout,'import')(myfitresult)
+        getattr(workout, 'import')(myfitresult)
     workout.writeToFile(wsname)
 
 
