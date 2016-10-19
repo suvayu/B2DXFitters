@@ -351,7 +351,7 @@ def runSFit(debug, wsname,
         dataWA = GeneralUtils.GetDataSet(workspaceW[0],   nameDataWA, debug)
     else:
         data = getCombinedData(workspace[0], myconfigfile["Decay"], mc, mode, sample, year, merge, debug)
-        data.SetName("dataSet_time")
+        data.SetName("dataSet_time_weighted")
         dataWA = data
 
     #exit(0) 
@@ -372,7 +372,7 @@ def runSFit(debug, wsname,
     # Get Tagger List
     numTag = MDSettings.CheckNumUsedTag()
     tagList = []
-    for i in range(0,numTag):
+    for i in range(0,2):
         if MDSettings.CheckUseTag(i) == True:
             tagList.append(str(MDSettings.GetTagMatch(i)))
             
