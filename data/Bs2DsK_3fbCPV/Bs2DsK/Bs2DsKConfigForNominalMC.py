@@ -8,7 +8,7 @@ def getconfig() :
     # PHYSICAL PARAMETERS
     configdict["Gammas"]        =  0.661376   # in ps^{-1}
     configdict["DeltaGammas"]   =  -0.10970
-    configdict["DeltaMs"]       = 17.757   # in ps^{-1}
+    configdict["DeltaMs"]       = 17.8   # in ps^{-1}
     configdict["TagEffSig"]     = 0.403
     configdict["TagOmegaSig"]   = 0.391
     configdict["StrongPhase"]   = 20. / 180. * pi
