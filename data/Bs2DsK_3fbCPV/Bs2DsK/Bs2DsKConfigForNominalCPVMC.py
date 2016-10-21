@@ -7,7 +7,7 @@ def getconfig() :
 
     # PHYSICAL PARAMETERS
     configdict["Gammas"]        =  0.661376   # in ps^{-1}
-    configdict["DeltaGammas"]   =  -0.10970
+    configdict["DeltaGammas"]   =  -0.081
     configdict["DeltaMs"]       = 17.757   # in ps^{-1}
     configdict["TagEffSig"]     = 0.403
     configdict["TagOmegaSig"]   = 0.391
@@ -44,7 +44,7 @@ def getconfig() :
 
 
     configdict["Acceptance"] = { "knots": [0.50, 1.0,  1.5, 2.0, 3.0, 12.0],
-                                 "values": [4.4380e-01,6.5460e-01,8.9162e-01,1.0231e+00,1.1312e+00,1.2051e+00] }
+                                 "values": [4.2538e-01,5.9870e-01,8.4376e-01,1.0002e+00,1.0977e+00,1.1980e+00] }
 
 
     configdict["constParams"] = []
