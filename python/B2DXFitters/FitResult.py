@@ -643,9 +643,9 @@ def getDsHBlindFitResult(isData, isBlind, fitResult):
     """
     doBlind = isData and isBlind
     # common setup: rename list, blinding specification
-    renames = { 'C': 'Bs2DsK_C', 'D': 'Bs2DsK_D',
-            'Dbar': 'Bs2DsK_Dbar', 'S': 'Bs2DsK_S',
-            'Sbar': 'Bs2DsK_Sbar', 'DeltaMs_Bs2DsPi': 'deltaMs',
+    renames = { 'C_Bs2DsK': 'Bs2DsK_C', 'D_Bs2DsK': 'Bs2DsK_D',
+            'Dbar_Bs2DsK': 'Bs2DsK_Dbar', 'S_Bs2DsK': 'Bs2DsK_S',
+            'Sbar_Bs2DsK': 'Bs2DsK_Sbar', 'DeltaMs_Bs2DsPi': 'deltaMs',
             'p0_0': 'Bs2DsK_Mistag0CalibB_p0',
             'p0_1': 'Bs2DsK_Mistag1CalibB_p0',
             'p0_2': 'Bs2DsK_Mistag2CalibB_p0',
