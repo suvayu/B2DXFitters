@@ -3,7 +3,7 @@ from ROOT import *
 def getconfig() :
 
     configdict = {}
-    
+
     from math import pi
     from math import log
 
@@ -21,16 +21,16 @@ def getconfig() :
                                                          "ID": "Pi",
                                                          "Type": "F"}
                                            }
-    
+
     configdict["BeautyChildrenPrefix"] = { "Bachelor1" : {"Name": "lab0_FitDaughtersConst_P0",
                                                           "newID": "K",
                                                           "Type": "F"},
-                                           
+
                                            "Charm1"    : {"Name": "lab0_FitDaughtersConst_Dplus",
-                                                          "ID": "F",
+                                                          "ID": "D",
                                                           "Type": "F"}
                                            }
-    
+
     configdict["BeautyPrefix"] = { "Name": "lab0_FitDaughtersConst",
                                    "Type": "F"}
 
@@ -42,5 +42,5 @@ def getconfig() :
 
     #Mass name pedix (_M, _MM etc...)
     configdict["MassPedix"] = "_M"
-    
+
     return configdict
