@@ -9,9 +9,9 @@ def getconfig() :
     ############################################################
 
     configdict["Observables"] = {}
-    configdict["Observables"] = {"BeautyMass":    {"Type"  : "RooRealVar",
-                                                   "Title" : "B mass (MeV/c^2)",
-                                                   "Range" : [5090, 6000]},
+    configdict["Observables"] = {#"BeautyMass":    {"Type"  : "RooRealVar",
+                                 #                  "Title" : "B mass (MeV/c^2)",
+                                 #                  "Range" : [5090, 6000]},
                                  "BeautyTime":    {"Type" : "RooRealVar",
                                                    "Title" : "B decay time (ps)",
                                                    "Range" : [0.2, 15.0]},
@@ -49,7 +49,7 @@ def getconfig() :
     #bachelor PID bins the final dataset is splitted into
     ############################################################
 
-    configdict["Hypothesys"] = ["Bd2DPi", "Bd2DK"]
+    configdict["Hypothesys"] = ["Bd2DPi"]#, "Bd2DK"]
 
     ############################################################
     #Signal decay and Charm decay mode
@@ -83,29 +83,29 @@ def getconfig() :
 
     configdict["Components"] = {}
     configdict["Components"] = {"Signal"        : {"Bd2DPi": {"2011" : {"KPiPi": [5.49162e+05*fracRun1] },
-                                                              "2012" : {"KPiPi": [5.49162e+05*(1-fracRun1)] }}  ,#    }}  #,
-                                                  "Bd2DK" : {"2011" : {"KPiPi": [((1-eff_Bd2DPi_DPi)/eff_Bd2DPi_DPi)*5.49162e+05*fracRun1] },
-                                                             "2012" : {"KPiPi": [((1-eff_Bd2DPi_DPi)/eff_Bd2DPi_DPi)*5.49162e+05*(1-fracRun1)] }}},
-                               "Bd2DK"         : {"Bd2DPi": {"2011" : {"KPiPi": [((1-eff_Bd2DK_DK)/eff_Bd2DK_DK)*3.23144e+04*fracRun1] },
-                                                             "2012" : {"KPiPi": [((1-eff_Bd2DK_DK)/eff_Bd2DK_DK)*3.23144e+04*(1-fracRun1)] }},
-                                                  "Bd2DK" : {"2011" : {"KPiPi": [3.23144e+04*fracRun1] },
-                                                             "2012" : {"KPiPi": [3.23144e+04*(1-fracRun1)] }}},
-                               "Bd2DRho"       : {"Bd2DPi": {"2011" : {"KPiPi": [7.40343e+04*fracRun1] },
-                                                             "2012" : {"KPiPi": [7.40343e+04*(1-fracRun1)] }},
-                                                  "Bd2DK" : {"2011" : {"KPiPi": [DRho_to_DKst_KHypo*6.06144e+03*fracRun1] },
-                                                             "2012" : {"KPiPi": [DRho_to_DKst_KHypo*6.06144e+03*(1-fracRun1)] }}},
-                               "Bd2DstPi"      : {"Bd2DPi": {"2011" : {"KPiPi": [6.80954e+04*fracRun1] },
-                                                             "2012" : {"KPiPi": [6.80954e+04*(1-fracRun1)] }},
-                                                  "Bd2DK" : {"2011" : {"KPiPi": [0] },
-                                                             "2012" : {"KPiPi": [0] }}},
-                               "Bd2DKst"       : {"Bd2DPi": {"2011" : {"KPiPi": [0] },
-                                                             "2012" : {"KPiPi": [0] }},
-                                                  "Bd2DK" : {"2011" : {"KPiPi": [6.06144e+03*fracRun1] },
-                                                             "2012" : {"KPiPi": [6.06144e+03*(1-fracRun1)] }}},
-                               "Combinatorial" :  {"Bd2DPi": {"2011" : {"KPiPi": [8.23965e+04*fracRun1] },
-                                                              "2012" : {"KPiPi": [8.23965e+04*(1-fracRun1)] }},
-                                                   "Bd2DK" : {"2011" : {"KPiPi": [2.40497e+04*fracRun1] },
-                                                              "2012" : {"KPiPi": [2.40497e+04*(1-fracRun1)] }}}
+                                                              "2012" : {"KPiPi": [5.49162e+05*(1-fracRun1)] }}}#  ,#    }}  #,
+                                                  # "Bd2DK" : {"2011" : {"KPiPi": [((1-eff_Bd2DPi_DPi)/eff_Bd2DPi_DPi)*5.49162e+05*fracRun1] },
+                                                  #            "2012" : {"KPiPi": [((1-eff_Bd2DPi_DPi)/eff_Bd2DPi_DPi)*5.49162e+05*(1-fracRun1)] }}}# ,
+                               # "Bd2DK"         : {"Bd2DPi": {"2011" : {"KPiPi": [((1-eff_Bd2DK_DK)/eff_Bd2DK_DK)*3.23144e+04*fracRun1] },
+                               #                               "2012" : {"KPiPi": [((1-eff_Bd2DK_DK)/eff_Bd2DK_DK)*3.23144e+04*(1-fracRun1)] }},
+                               #                    "Bd2DK" : {"2011" : {"KPiPi": [3.23144e+04*fracRun1] },
+                               #                               "2012" : {"KPiPi": [3.23144e+04*(1-fracRun1)] }}},
+                               # "Bd2DRho"       : {"Bd2DPi": {"2011" : {"KPiPi": [7.40343e+04*fracRun1] },
+                               #                               "2012" : {"KPiPi": [7.40343e+04*(1-fracRun1)] }},
+                               #                    "Bd2DK" : {"2011" : {"KPiPi": [DRho_to_DKst_KHypo*6.06144e+03*fracRun1] },
+                               #                               "2012" : {"KPiPi": [DRho_to_DKst_KHypo*6.06144e+03*(1-fracRun1)] }}},
+                               # "Bd2DstPi"      : {"Bd2DPi": {"2011" : {"KPiPi": [6.80954e+04*fracRun1] },
+                               #                               "2012" : {"KPiPi": [6.80954e+04*(1-fracRun1)] }},
+                               #                    "Bd2DK" : {"2011" : {"KPiPi": [0] },
+                               #                               "2012" : {"KPiPi": [0] }}},
+                               # "Bd2DKst"       : {"Bd2DPi": {"2011" : {"KPiPi": [0] },
+                               #                               "2012" : {"KPiPi": [0] }},
+                               #                    "Bd2DK" : {"2011" : {"KPiPi": [6.06144e+03*fracRun1] },
+                               #                               "2012" : {"KPiPi": [6.06144e+03*(1-fracRun1)] }}},
+                               # "Combinatorial" :  {"Bd2DPi": {"2011" : {"KPiPi": [8.23965e+04*fracRun1] },
+                               #                                "2012" : {"KPiPi": [8.23965e+04*(1-fracRun1)] }},
+                               #                     "Bd2DK" : {"2011" : {"KPiPi": [2.40497e+04*fracRun1] },
+                               #                                "2012" : {"KPiPi": [2.40497e+04*(1-fracRun1)] }}}
                                }
 
     ############################################################
@@ -145,113 +145,113 @@ def getconfig() :
                                                                                 "a2"         : [1.77887e+00], #right
                                                                                 "n1"         : [4.04491e+00], #left
                                                                                 "n2"         : [6.62043e+00]} #right
-    configdict["PDFList"]["BeautyMass"]["Signal"]["Bd2DK"] = {}
-    configdict["PDFList"]["BeautyMass"]["Signal"]["Bd2DK"]["2011"] = {}
-    configdict["PDFList"]["BeautyMass"]["Signal"]["Bd2DK"]["2011"]["KPiPi"] = {"Type"       : "Ipatia",
-                                                                               "mean"       : [5.32740e+03],
-                                                                               "sigma"      : [2.42675e+01],
-                                                                               "zeta"       : [0.0],
-                                                                               "fb"         : [0.0],
-                                                                               "l"          : [-5.46421e+00],
-                                                                               "a1"         : [3.04325e+00],
-                                                                               "a2"         : [6.62837e-01],
-                                                                               "n1"         : [6.79609e-02],
-                                                                               "n2"         : [2.09572e+00]}
+    # configdict["PDFList"]["BeautyMass"]["Signal"]["Bd2DK"] = {}
+    # configdict["PDFList"]["BeautyMass"]["Signal"]["Bd2DK"]["2011"] = {}
+    # configdict["PDFList"]["BeautyMass"]["Signal"]["Bd2DK"]["2011"]["KPiPi"] = {"Type"       : "Ipatia",
+    #                                                                            "mean"       : [5.32740e+03],
+    #                                                                            "sigma"      : [2.42675e+01],
+    #                                                                            "zeta"       : [0.0],
+    #                                                                            "fb"         : [0.0],
+    #                                                                            "l"          : [-5.46421e+00],
+    #                                                                            "a1"         : [3.04325e+00],
+    #                                                                            "a2"         : [6.62837e-01],
+    #                                                                            "n1"         : [6.79609e-02],
+    #                                                                            "n2"         : [2.09572e+00]}
     configdict["PDFList"]["BeautyMass"]["Signal"]["Bd2DPi"]["2012"] = configdict["PDFList"]["BeautyMass"]["Signal"]["Bd2DPi"]["2011"]
-    configdict["PDFList"]["BeautyMass"]["Signal"]["Bd2DK"]["2012"] = configdict["PDFList"]["BeautyMass"]["Signal"]["Bd2DK"]["2011"]
+    # configdict["PDFList"]["BeautyMass"]["Signal"]["Bd2DK"]["2012"] = configdict["PDFList"]["BeautyMass"]["Signal"]["Bd2DK"]["2011"]
 
     #Bd2DK
-    configdict["PDFList"]["BeautyMass"]["Bd2DK"] = {}
-    configdict["PDFList"]["BeautyMass"]["Bd2DK"]["Bd2DPi"] = {}
-    configdict["PDFList"]["BeautyMass"]["Bd2DK"]["Bd2DPi"]["2011"] = {}
-    configdict["PDFList"]["BeautyMass"]["Bd2DK"]["Bd2DPi"]["2011"]["KPiPi"] = {"Type"       : "Ipatia",
-                                                                               "mean"       : [5.23938e+03],
-                                                                               "sigma"      : [2.59213e+01],
-                                                                               "zeta"       : [0.0],
-                                                                               "fb"         : [0.0],
-                                                                               "l"          : [-3.98519e+01],
-                                                                               "a1"         : [9.68988e-01],
-                                                                               "a2"         : [1.23156e+00],
-                                                                               "n1"         : [3.49691e+00],
-                                                                               "n2"         : [1.00524e+01]}
-    configdict["PDFList"]["BeautyMass"]["Bd2DK"]["Bd2DK"] = {}
-    configdict["PDFList"]["BeautyMass"]["Bd2DK"]["Bd2DK"]["2011"] = {}
-    configdict["PDFList"]["BeautyMass"]["Bd2DK"]["Bd2DK"]["2011"]["KPiPi"] = {"Type"       : "Ipatia",
-                                                                              "mean"       : [Kpeak],
-                                                                              "sigma"      : [1.74271e+01],
-                                                                              "zeta"       : [0.0],
-                                                                              "fb"         : [0.0],
-                                                                              "l"          : [-3.22645e+00],
-                                                                              "a1"         : [2.60724e+00],
-                                                                              "a2"         : [1.0e+09],
-                                                                              "n1"         : [1.00877e+00],
-                                                                              "n2"         : [0.0]}
-    configdict["PDFList"]["BeautyMass"]["Bd2DK"]["Bd2DPi"]["2012"] = configdict["PDFList"]["BeautyMass"]["Bd2DK"]["Bd2DPi"]["2011"]
-    configdict["PDFList"]["BeautyMass"]["Bd2DK"]["Bd2DK"]["2012"] = configdict["PDFList"]["BeautyMass"]["Bd2DK"]["Bd2DK"]["2011"]
+    # configdict["PDFList"]["BeautyMass"]["Bd2DK"] = {}
+    # configdict["PDFList"]["BeautyMass"]["Bd2DK"]["Bd2DPi"] = {}
+    # configdict["PDFList"]["BeautyMass"]["Bd2DK"]["Bd2DPi"]["2011"] = {}
+    # configdict["PDFList"]["BeautyMass"]["Bd2DK"]["Bd2DPi"]["2011"]["KPiPi"] = {"Type"       : "Ipatia",
+    #                                                                            "mean"       : [5.23938e+03],
+    #                                                                            "sigma"      : [2.59213e+01],
+    #                                                                            "zeta"       : [0.0],
+    #                                                                            "fb"         : [0.0],
+    #                                                                            "l"          : [-3.98519e+01],
+    #                                                                            "a1"         : [9.68988e-01],
+    #                                                                            "a2"         : [1.23156e+00],
+    #                                                                            "n1"         : [3.49691e+00],
+    #                                                                            "n2"         : [1.00524e+01]}
+    # configdict["PDFList"]["BeautyMass"]["Bd2DK"]["Bd2DK"] = {}
+    # configdict["PDFList"]["BeautyMass"]["Bd2DK"]["Bd2DK"]["2011"] = {}
+    # configdict["PDFList"]["BeautyMass"]["Bd2DK"]["Bd2DK"]["2011"]["KPiPi"] = {"Type"       : "Ipatia",
+    #                                                                           "mean"       : [Kpeak],
+    #                                                                           "sigma"      : [1.74271e+01],
+    #                                                                           "zeta"       : [0.0],
+    #                                                                           "fb"         : [0.0],
+    #                                                                           "l"          : [-3.22645e+00],
+    #                                                                           "a1"         : [2.60724e+00],
+    #                                                                           "a2"         : [1.0e+09],
+    #                                                                           "n1"         : [1.00877e+00],
+    #                                                                           "n2"         : [0.0]}
+    # configdict["PDFList"]["BeautyMass"]["Bd2DK"]["Bd2DPi"]["2012"] = configdict["PDFList"]["BeautyMass"]["Bd2DK"]["Bd2DPi"]["2011"]
+    # configdict["PDFList"]["BeautyMass"]["Bd2DK"]["Bd2DK"]["2012"] = configdict["PDFList"]["BeautyMass"]["Bd2DK"]["Bd2DK"]["2011"]
 
     #Bd2DRho
-    configdict["PDFList"]["BeautyMass"]["Bd2DRho"] = {}
-    configdict["PDFList"]["BeautyMass"]["Bd2DRho"]["Bd2DPi"] = {}
-    configdict["PDFList"]["BeautyMass"]["Bd2DRho"]["Bd2DPi"]["2011"] = {}
-    configdict["PDFList"]["BeautyMass"]["Bd2DRho"]["Bd2DPi"]["2011"]["KPiPi"] = {"Type"      : "JohnsonSU",
-                                                                                 "mean"      : [4.71618e+03],
-                                                                                 "sigma"     : [9.01304e+02],
-                                                                                 "nu"        : [-2.01671e+00],
-                                                                                 "tau"       : [1.29155e+00]}
-    configdict["PDFList"]["BeautyMass"]["Bd2DRho"]["Bd2DK"] = {}
-    configdict["PDFList"]["BeautyMass"]["Bd2DRho"]["Bd2DK"]["2011"] = {}
-    configdict["PDFList"]["BeautyMass"]["Bd2DRho"]["Bd2DK"]["2011"]["KPiPi"] = {"Type"       : "DoubleGaussian",
-                                                                                "mean"       : [5.14019e+03],
-                                                                                "sigma1"     : [9.00002e+01],
-                                                                                "sigma2"     : [1.55484e+02],
-                                                                                "frac"       : [8.30742e-01]}
-    configdict["PDFList"]["BeautyMass"]["Bd2DRho"]["Bd2DPi"]["2012"] =  configdict["PDFList"]["BeautyMass"]["Bd2DRho"]["Bd2DPi"]["2011"]
-    configdict["PDFList"]["BeautyMass"]["Bd2DRho"]["Bd2DK"]["2012"] = configdict["PDFList"]["BeautyMass"]["Bd2DRho"]["Bd2DK"]["2011"]
+    # configdict["PDFList"]["BeautyMass"]["Bd2DRho"] = {}
+    # configdict["PDFList"]["BeautyMass"]["Bd2DRho"]["Bd2DPi"] = {}
+    # configdict["PDFList"]["BeautyMass"]["Bd2DRho"]["Bd2DPi"]["2011"] = {}
+    # configdict["PDFList"]["BeautyMass"]["Bd2DRho"]["Bd2DPi"]["2011"]["KPiPi"] = {"Type"      : "JohnsonSU",
+    #                                                                              "mean"      : [4.71618e+03],
+    #                                                                              "sigma"     : [9.01304e+02],
+    #                                                                              "nu"        : [-2.01671e+00],
+    #                                                                              "tau"       : [1.29155e+00]}
+    # configdict["PDFList"]["BeautyMass"]["Bd2DRho"]["Bd2DK"] = {}
+    # configdict["PDFList"]["BeautyMass"]["Bd2DRho"]["Bd2DK"]["2011"] = {}
+    # configdict["PDFList"]["BeautyMass"]["Bd2DRho"]["Bd2DK"]["2011"]["KPiPi"] = {"Type"       : "DoubleGaussian",
+    #                                                                             "mean"       : [5.14019e+03],
+    #                                                                             "sigma1"     : [9.00002e+01],
+    #                                                                             "sigma2"     : [1.55484e+02],
+    #                                                                             "frac"       : [8.30742e-01]}
+    # configdict["PDFList"]["BeautyMass"]["Bd2DRho"]["Bd2DPi"]["2012"] =  configdict["PDFList"]["BeautyMass"]["Bd2DRho"]["Bd2DPi"]["2011"]
+    # configdict["PDFList"]["BeautyMass"]["Bd2DRho"]["Bd2DK"]["2012"] = configdict["PDFList"]["BeautyMass"]["Bd2DRho"]["Bd2DK"]["2011"]
 
     #Bd2DstPi
-    configdict["PDFList"]["BeautyMass"]["Bd2DstPi"] = {}
-    configdict["PDFList"]["BeautyMass"]["Bd2DstPi"]["Bd2DPi"] = {}
-    configdict["PDFList"]["BeautyMass"]["Bd2DstPi"]["Bd2DPi"]["2011"] = {}
-    configdict["PDFList"]["BeautyMass"]["Bd2DstPi"]["Bd2DPi"]["2011"]["KPiPi"] = {"Type"        : "CrystalBallPlusGaussian",
-                                                                                  "mean"        : [5.10033e+03],
-                                                                                  "alpha"       : [-1.63404e+00],
-                                                                                  "n"           : [4.65946e+00],
-                                                                                  "sigmaCB"     : [4.15131e+01],
-                                                                                  "sigmaG"      : [1.79617e+01],
-                                                                                  "fracG"       : [1.32304e-01]}
-    configdict["PDFList"]["BeautyMass"]["Bd2DstPi"]["Bd2DK"] = {}
-    configdict["PDFList"]["BeautyMass"]["Bd2DstPi"]["Bd2DK"]["2011"] = {}
-    configdict["PDFList"]["BeautyMass"]["Bd2DstPi"]["Bd2DK"]["2011"]["KPiPi"] = {"Type"        : "None"}
-    configdict["PDFList"]["BeautyMass"]["Bd2DstPi"]["Bd2DPi"]["2012"] = configdict["PDFList"]["BeautyMass"]["Bd2DstPi"]["Bd2DPi"]["2011"]
-    configdict["PDFList"]["BeautyMass"]["Bd2DstPi"]["Bd2DK"]["2012"] = configdict["PDFList"]["BeautyMass"]["Bd2DstPi"]["Bd2DK"]["2011"]
+    # configdict["PDFList"]["BeautyMass"]["Bd2DstPi"] = {}
+    # configdict["PDFList"]["BeautyMass"]["Bd2DstPi"]["Bd2DPi"] = {}
+    # configdict["PDFList"]["BeautyMass"]["Bd2DstPi"]["Bd2DPi"]["2011"] = {}
+    # configdict["PDFList"]["BeautyMass"]["Bd2DstPi"]["Bd2DPi"]["2011"]["KPiPi"] = {"Type"        : "CrystalBallPlusGaussian",
+    #                                                                               "mean"        : [5.10033e+03],
+    #                                                                               "alpha"       : [-1.63404e+00],
+    #                                                                               "n"           : [4.65946e+00],
+    #                                                                               "sigmaCB"     : [4.15131e+01],
+    #                                                                               "sigmaG"      : [1.79617e+01],
+    #                                                                               "fracG"       : [1.32304e-01]}
+    # configdict["PDFList"]["BeautyMass"]["Bd2DstPi"]["Bd2DK"] = {}
+    # configdict["PDFList"]["BeautyMass"]["Bd2DstPi"]["Bd2DK"]["2011"] = {}
+    # configdict["PDFList"]["BeautyMass"]["Bd2DstPi"]["Bd2DK"]["2011"]["KPiPi"] = {"Type"        : "None"}
+    # configdict["PDFList"]["BeautyMass"]["Bd2DstPi"]["Bd2DPi"]["2012"] = configdict["PDFList"]["BeautyMass"]["Bd2DstPi"]["Bd2DPi"]["2011"]
+    # configdict["PDFList"]["BeautyMass"]["Bd2DstPi"]["Bd2DK"]["2012"] = configdict["PDFList"]["BeautyMass"]["Bd2DstPi"]["Bd2DK"]["2011"]
 
     #Bd2DKst
-    configdict["PDFList"]["BeautyMass"]["Bd2DKst"] = {}
-    configdict["PDFList"]["BeautyMass"]["Bd2DKst"]["Bd2DPi"] = {}
-    configdict["PDFList"]["BeautyMass"]["Bd2DKst"]["Bd2DPi"]["2011"] = {}
-    configdict["PDFList"]["BeautyMass"]["Bd2DKst"]["Bd2DPi"]["2011"]["KPiPi"] = {"Type"        : "None"}
-    configdict["PDFList"]["BeautyMass"]["Bd2DKst"]["Bd2DK"] = {}
-    configdict["PDFList"]["BeautyMass"]["Bd2DKst"]["Bd2DK"]["2011"] = {}
-    configdict["PDFList"]["BeautyMass"]["Bd2DKst"]["Bd2DK"]["2011"]["KPiPi"] = {"Type"       : "Gaussian",
-                                                                                "mean"       : [5.08528e+03],
-                                                                                "sigma"      : [3.76140e+01]}
-    configdict["PDFList"]["BeautyMass"]["Bd2DKst"]["Bd2DPi"]["2012"] = configdict["PDFList"]["BeautyMass"]["Bd2DKst"]["Bd2DPi"]["2011"]
-    configdict["PDFList"]["BeautyMass"]["Bd2DKst"]["Bd2DK"]["2012"] = configdict["PDFList"]["BeautyMass"]["Bd2DKst"]["Bd2DK"]["2011"]
+    # configdict["PDFList"]["BeautyMass"]["Bd2DKst"] = {}
+    # configdict["PDFList"]["BeautyMass"]["Bd2DKst"]["Bd2DPi"] = {}
+    # configdict["PDFList"]["BeautyMass"]["Bd2DKst"]["Bd2DPi"]["2011"] = {}
+    # configdict["PDFList"]["BeautyMass"]["Bd2DKst"]["Bd2DPi"]["2011"]["KPiPi"] = {"Type"        : "None"}
+    # configdict["PDFList"]["BeautyMass"]["Bd2DKst"]["Bd2DK"] = {}
+    # configdict["PDFList"]["BeautyMass"]["Bd2DKst"]["Bd2DK"]["2011"] = {}
+    # configdict["PDFList"]["BeautyMass"]["Bd2DKst"]["Bd2DK"]["2011"]["KPiPi"] = {"Type"       : "Gaussian",
+    #                                                                             "mean"       : [5.08528e+03],
+    #                                                                             "sigma"      : [3.76140e+01]}
+    # configdict["PDFList"]["BeautyMass"]["Bd2DKst"]["Bd2DPi"]["2012"] = configdict["PDFList"]["BeautyMass"]["Bd2DKst"]["Bd2DPi"]["2011"]
+    # configdict["PDFList"]["BeautyMass"]["Bd2DKst"]["Bd2DK"]["2012"] = configdict["PDFList"]["BeautyMass"]["Bd2DKst"]["Bd2DK"]["2011"]
 
     #Combinatorial
-    configdict["PDFList"]["BeautyMass"]["Combinatorial"] = {}
-    configdict["PDFList"]["BeautyMass"]["Combinatorial"]["Bd2DPi"] = {}
-    configdict["PDFList"]["BeautyMass"]["Combinatorial"]["Bd2DPi"]["2011"] = {}
-    configdict["PDFList"]["BeautyMass"]["Combinatorial"]["Bd2DPi"]["2011"]["KPiPi"] = {"Type"       : "ExponentialPlusConstant",
-                                                                                       "cB"           : [-5.59102e-03],
-                                                                                       "fracExpo"     : [8.77658e-01]}
-    configdict["PDFList"]["BeautyMass"]["Combinatorial"]["Bd2DK"] = {}
-    configdict["PDFList"]["BeautyMass"]["Combinatorial"]["Bd2DK"]["2011"] = {}
-    configdict["PDFList"]["BeautyMass"]["Combinatorial"]["Bd2DK"]["2011"]["KPiPi"] = {"Type"       : "ExponentialPlusConstant",
-                                                                                      "cB"           : [-4.15525e-03],
-                                                                                      "fracExpo"     : [9.38575e-01]}
-    configdict["PDFList"]["BeautyMass"]["Combinatorial"]["Bd2DPi"]["2012"] = configdict["PDFList"]["BeautyMass"]["Combinatorial"]["Bd2DPi"]["2011"]
-    configdict["PDFList"]["BeautyMass"]["Combinatorial"]["Bd2DK"]["2012"] = configdict["PDFList"]["BeautyMass"]["Combinatorial"]["Bd2DK"]["2011"]
+    # configdict["PDFList"]["BeautyMass"]["Combinatorial"] = {}
+    # configdict["PDFList"]["BeautyMass"]["Combinatorial"]["Bd2DPi"] = {}
+    # configdict["PDFList"]["BeautyMass"]["Combinatorial"]["Bd2DPi"]["2011"] = {}
+    # configdict["PDFList"]["BeautyMass"]["Combinatorial"]["Bd2DPi"]["2011"]["KPiPi"] = {"Type"       : "ExponentialPlusConstant",
+    #                                                                                    "cB"           : [-5.59102e-03],
+    #                                                                                    "fracExpo"     : [8.77658e-01]}
+    # configdict["PDFList"]["BeautyMass"]["Combinatorial"]["Bd2DK"] = {}
+    # configdict["PDFList"]["BeautyMass"]["Combinatorial"]["Bd2DK"]["2011"] = {}
+    # configdict["PDFList"]["BeautyMass"]["Combinatorial"]["Bd2DK"]["2011"]["KPiPi"] = {"Type"       : "ExponentialPlusConstant",
+    #                                                                                   "cB"           : [-4.15525e-03],
+    #                                                                                   "fracExpo"     : [9.38575e-01]}
+    # configdict["PDFList"]["BeautyMass"]["Combinatorial"]["Bd2DPi"]["2012"] = configdict["PDFList"]["BeautyMass"]["Combinatorial"]["Bd2DPi"]["2011"]
+    # configdict["PDFList"]["BeautyMass"]["Combinatorial"]["Bd2DK"]["2012"] = configdict["PDFList"]["BeautyMass"]["Combinatorial"]["Bd2DK"]["2011"]
 
     ############################################################
     #Tagging calibration and mistag PDF. If "MistagPDF" : None,
@@ -263,10 +263,10 @@ def getconfig() :
         configdict["Taggers"][comp] = {}
         configdict["Taggers"][comp] = {"OS" :
                                        {"Calibration":
-                                        {"p0"       : [0.37795],
-                                         "p1"       : [0.97541],
-                                         "deltap0"  : [0.018825],
-                                         "deltap1"  : [0.042438],
+                                        {"p0"       : [0.0],
+                                         "p1"       : [0.0],
+                                         "deltap0"  : [0.0],
+                                         "deltap1"  : [0.0],
                                          "avgeta"   : [0.37079],
                                          "tageff"   : [0.38],
                                          "tagasymm" : [0.0]
@@ -275,24 +275,24 @@ def getconfig() :
                                         {"Type"     : "Mock",
                                          "eta0"     : [0.0],
                                          "etaavg"   : [0.37079],
-                                         "f"        : [0.25]
+                                         "f"        : [0.05]
                                          }
                                         },
                                        "SS":
                                        {"Calibration":
-                                        {"p0"       : [0.37110],
-                                         "p1"       : [1.0409],
-                                         "deltap0"  : [0.0056312],
-                                         "deltap1"  : [-0.0869332],
+                                        {"p0"       : [0.0],
+                                         "p1"       : [0.0],
+                                         "deltap0"  : [0.0],
+                                         "deltap1"  : [0.0],
                                          "avgeta"   : [0.38693],
-                                         "tageff"   : [0.80],
+                                         "tageff"   : [0.70],
                                          "tagasymm" : [0.0]
                                          },
                                         "MistagPDF" :
                                         {"Type"     : "Mock",
                                          "eta0"     : [0.0],
-                                         "etaavg"   : [0.38693],
-                                         "f"        : [0.25]
+                                         "etaavg"   : [0.46693],
+                                         "f"        : [0.03]
                                          }
                                         }
                                        }
