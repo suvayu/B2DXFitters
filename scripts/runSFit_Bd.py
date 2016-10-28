@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+fit#!/usr/bin/env python
 # ---------------------------------------------------------------------------
 # @file runSFit_Bd.py
 #
@@ -242,7 +242,7 @@ def runSFit(debug, wsname,
 
     RooAbsReal.defaultIntegratorConfig().setEpsAbs(1e-7)
     RooAbsReal.defaultIntegratorConfig().setEpsRel(1e-7)
-    RooAbsReal.defaultIntegratorConfig().getConfigSection('RooIntegrator1D').setCatLabel('extrapolation','WynnEpsilon')
+    RooAbsReal.defaultIntegratorConfig().getConfigSection('RooIntegrator1D').setCatLabel('extrapolation','Wynn-Epsilon')
     RooAbsReal.defaultIntegratorConfig().getConfigSection('RooIntegrator1D').setCatLabel('maxSteps','1000')
     RooAbsReal.defaultIntegratorConfig().getConfigSection('RooIntegrator1D').setCatLabel('minSteps','0')
     RooAbsReal.defaultIntegratorConfig().getConfigSection('RooAdaptiveGaussKronrodIntegrator1D').setCatLabel('method','21Points')
@@ -315,12 +315,6 @@ def runSFit(debug, wsname,
             print "No additional preselection"
             data = WS(ws, GeneralUtils.GetDataSet(workspace[0], nameData, debug))
             dataWA = WS(ws, GeneralUtils.GetDataSet(workspaceW[0], nameDataWA, debug))
-
-        print "hello here we are"
-        data.Print("v")
-        dataWA.Print("v")
-        data.Print()
-        dataWA.Print()
 
     else:
 
@@ -713,7 +707,7 @@ def runSFit(debug, wsname,
 
         ws.Print("v")
         from B2DXFitters.GaussianConstraintBuilder import GaussianConstraintBuilder
-        constraintbuilder = GaussianConstraintBuilder(ws,  myconfigfile["gaussCons"])
+        constraintbuilder = GaussianConstraintBuilder(ws, myconfigfile["gaussCons"])
         constList = constraintbuilder.getSetOfConstraints()
         constList.Print("v")
 
@@ -799,6 +793,10 @@ def runSFit(debug, wsname,
     print "=========================================================="
     print ""
 
+    # lines for debugging
+    # sigyeld = RooRealVar("sigyield", "sigyield", 500000, 1000, 10000000)
+    # pdfextend = RooExtendPdf("pdfExtend", "pdfExtend", totPDF, sigyeld)
+
     if binned:
         print "[INFO] RooDataSet is binned"
         time.setBins(250)
@@ -842,17 +840,26 @@ def runSFit(debug, wsname,
             myfitresult.correlationMatrix().Print()
             myfitresult.covarianceMatrix().Print()
         else:  # Don't
-            fitOpts_temp = [RooFit.Save(1),
-                            RooFit.NumCPU(10),
-                            RooFit.Strategy(2),
-                            RooFit.Minimizer("Minuit2", "migrad"),
-                            RooFit.SumW2Error(False),
-                            RooFit.Minos(False),
+            fitOpts_temp = [RooFit.NumCPU(10),
+                            RooFit.Offset(False),
                             RooFit.Extended(False),
-                            # RooFit.Offset(True),
+                            RooFit.Minimizer("Minuit2", "migrad"),
+                            RooFit.Optimize(True),
+                            RooFit.Hesse(True),
+                            RooFit.Minos(True),
+                            RooFit.Save(1),
+                            RooFit.Strategy(2),
+                            RooFit.SumW2Error(False),
                             RooFit.PrintLevel(1),
                             RooFit.Warnings(False),
                             RooFit.PrintEvalErrors(-1)]
+            # at this stage we have to take car that either mistag pdf's are set or the
+            # mistag observables are give as conditional observables. The following
+            # commented lines were a workaround for a specific scenario - however, this
+            # should be attacked in a more clever way later
+            # if mistagpdf == None:
+            #     cond_argset = RooArgSet(mistag[0],mistag[1])
+            #     fitOpts_temp += [RooFit.ConditionalObservables(cond_argset)]
             if "gaussCons" in myconfigfile.keys():
                 fitOpts_temp.append( RooFit.ExternalConstraints(constList) )
             fitOpts = RooLinkedList()

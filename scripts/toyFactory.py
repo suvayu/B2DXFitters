@@ -263,8 +263,13 @@ def BuildMockMistagPDF(workspaceIn, myconfigfile, tagger, comp, obsDict, debug):
                                     *myconfigfile["Taggers"][comp][tagger]["MistagPDF"]["f"]))
 
     pdf = WS(workspaceIn, MistagDistribution("MistagPDF_"+tagger+"_"+comp,
-                                              "MistagPDF_"+tagger+"_"+comp,
-                                              mistag, eta0, etaavg, f))
+                                             "MistagPDF_"+tagger+"_"+comp,
+                                             mistag, eta0, etaavg, f))
+
+    # the following lines were only for debugging
+    # pdf = WS(workspaceIn, RooGaussian("MistagPDF_"+tagger+"_"+comp,
+    #                                   "MistagPDF_"+tagger+"_"+comp,
+    #                                   mistag, etaavg, f))
 
     return pdf
 
