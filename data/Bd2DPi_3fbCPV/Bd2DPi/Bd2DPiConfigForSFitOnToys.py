@@ -1,5 +1,6 @@
 def getconfig() :
 
+    import math
     from math import pi
 
     configdict = {}
@@ -19,7 +20,7 @@ def getconfig() :
     #                                                 "Name"                   : "CharmMass",
     #                                                 "InputName"              : "obsMassDminus"}
 
-    configdict["BasicVariables"]["BeautyTime"]    = { "Range"                  : [0.2,     15.0    ],
+    configdict["BasicVariables"]["BeautyTime"]    = { "Range"                  : [0.4,     15.0    ],
                                                       "Bins"                   : 40,
                                                       "Name"                   : "BeautyTime",
                                                       "InputName"              : "lab0_FitDaughtersPVConst_ctau_flat"}
@@ -88,14 +89,19 @@ def getconfig() :
     ArgAbarfbar_d   =  0.002278
 
     configdict["ACP"] = {}
-    configdict["ACP"]["Signal"] = { "Gamma"                : [0.656],
-                                    "DeltaGamma"           : [-0.00267],
-                                    "DeltaM"               : [0.510],
-                                    "ArgLf"                : [ArgqOverp_d + ArgAbarf_d - ArgAf_d],
-                                    "ArgLbarfbar"          : [ArgpOverq_d + ArgAfbar_d - ArgAbarfbar_d],
-                                    "ModLf"                : [ModAbarf_d/ModAf_d],
+    configdict["ACP"]["Signal"] = { "Gamma"                : [1.0 / 1.520, 0.01, 3.0], #Inverse lifetime from HFAG (http://www.slac.stanford.edu/xorg/hfag/osc/summer_2016/)
+                                    "DeltaGamma"           : [0.0],
+                                    "DeltaM"               : [0.5064, 0.01, 3.0], #Global average from HFAG (http://www.slac.stanford.edu/xorg/hfag/osc/summer_2016/)
+                                    #"ArgLf"                : [ArgqOverp_d + ArgAbarf_d - ArgAf_d],
+                                    #"ArgLbarfbar"          : [ArgpOverq_d + ArgAfbar_d - ArgAbarfbar_d],
+                                    #"ModLf"                : [ModAbarf_d/ModAf_d],
+                                    "C"                    : [1.0], #we neglect r^2 terms
+                                    "S"                    : [-0.031], #from decfile
+                                    "Sbar"                 : [0.029], #from decfile
+                                    "D"                    : [0], #from DeltaGamma=0
+                                    "Dbar"                 : [0], #from DeltaGamma=0
                                     "ParameteriseIntegral" : True,
-                                    "CPlimit"              : {"upper":1.0, "lower":-1.0},
+                                    "CPlimit"              : {"upper":4.0, "lower":-4.0},
                                     "NBinsAcceptance"      : 0} #keep at zero if using spline acceptance!
 
     ############################################
@@ -105,15 +111,14 @@ def getconfig() :
     configdict["ResolutionAcceptance"] = {}
     configdict["ResolutionAcceptance"]["Signal"] = {}
     configdict["ResolutionAcceptance"]["Signal"] = {"TimeErrorPDF": None,
-                                                    "Acceptance":
+                                                    "Acceptance": #From ANA note v2
                                                     {"Type": "Spline",
-                                                     "Float": False,
+                                                     "Float": True,
                                                      "KnotPositions" : [ 0.5, 1.0, 1.5, 2.0, 3.0, 12.0 ],
-                                                     "KnotCoefficients" : [ 4.5853e-01, 6.8963e-01, 8.8528e-01,
-                                                                            1.1296e+00, 1.2232e+00, 1.2277e+00 ]},
-                                                    "Resolution":
+                                                     "KnotCoefficients" : [0.3889, 0.5754, 0.8515, 1.0649, 1.2373, 1.4149] },
+                                                    "Resolution": #From ANA note v2
                                                     {"Type": "AverageModel",
-                                                     "Parameters": { 'sigmas': [ 0.050 ], 'fractions': [] },
+                                                     "Parameters": { 'sigmas': [ 0.05491 ], 'fractions': [] },
                                                      "Bias": [0.0],
                                                      "ScaleFactor": [1.0]}
                                                     }
@@ -126,8 +131,8 @@ def getconfig() :
     configdict["DetectionAsymmetry"] = {}
     configdict["ProductionAsymmetry"]["Signal"] = {}
     configdict["DetectionAsymmetry"]["Signal"] = {}
-    configdict["ProductionAsymmetry"]["Signal"] = [-0.0058] #from arXiv:1408.0275
-    configdict["DetectionAsymmetry"]["Signal"] = [0.005] #a random value, for now 
+    configdict["ProductionAsymmetry"]["Signal"] = [-0.0124] #from ANA note v2
+    configdict["DetectionAsymmetry"]["Signal"] = [0.0086] #from arXiv:1408.0275v2 (OPPOSITE SIGN!!!) 
 
     ############################################
     # Define taggers and their calibration
@@ -135,39 +140,31 @@ def getconfig() :
 
     configdict["Taggers"] = {}
     configdict["Taggers"]["Signal"] = {}
-    configdict["Taggers"]["Signal"] = {"OS" :
+    configdict["Taggers"]["Signal"] = {"OS" : #From Bu, stat and syst combined 
                                        {"Calibration":
-                                        {"p0"       : [0.37795],
-                                         "p1"       : [0.97541],
-                                         "deltap0"  : [0.018825],
-                                         "deltap1"  : [0.042438],
-                                         "avgeta"   : [0.37079],
-                                         "tageff"   : [0.38],
+                                        {"p0"       : [0.3737056],
+                                         "p1"       : [1.028621],
+                                         "deltap0"  : [0.011819],
+                                         "deltap1"  : [0.043134],
+                                         "avgeta"   : [0.37030718978], #this is the mean of the RooHistPDF used in generation
+                                         "tageff"   : [0.371, 0.01, 0.99], #float in the fit
                                          "tagasymm" : [0.0]
                                          },
                                         "MistagPDF" :
-                                        {"Type"     : "Mock",
-                                         "eta0"     : [0.0],
-                                         "etaavg"   : [0.37079],
-                                         "f"        : [0.25]
-                                         }
+                                        {"Type"     : "BuildTemplate"}
                                         },
-                                       "SS":
+                                       "SS": #TO BE UPDATED!!!
                                        {"Calibration":
-                                        {"p0"       : [0.37110],
-                                         "p1"       : [1.0409],
-                                         "deltap0"  : [0.0056312],
-                                         "deltap1"  : [-0.0869332],
-                                         "avgeta"   : [0.38693],
-                                         "tageff"   : [0.80],
+                                        {"p0"       : [0.441492575813],
+                                         "p1"       : [1.0],
+                                         "deltap0"  : [0.0],
+                                         "deltap1"  : [0.0],
+                                         "avgeta"   : [0.441492575813], #this is the mean of the RooHistPDF used in generation
+                                         "tageff"   : [0.7128, 0.01, 0.99], #float in the fit
                                          "tagasymm" : [0.0]
                                          },
                                         "MistagPDF" :
-                                        {"Type"     : "Mock",
-                                         "eta0"     : [0.0],
-                                         "etaavg"   : [0.38693],
-                                         "f"        : [0.25]
-                                         }
+                                        {"Type"     : "BuildTemplate"}
                                         }
                                        }
 
@@ -181,7 +178,36 @@ def getconfig() :
     configdict["constParams"].append('Df')
     configdict["constParams"].append('Dfbar')
     configdict["constParams"].append('.*scalefactor')
+    #configdict["constParams"].append('resmodel*_sigma')
 
+    ############################################
+    # Build gaussian constraints
+    # See B2DXFitters/GaussianConstraintBuilder.py for documentation
+    ############################################
+
+    configdict["gaussCons"] = {}
+    # Constraint on DeltaM
+    configdict["gaussCons"]["deltaM"] = 0.0019
+    # Constraint on Gamma (error on gamma = rel. error on lifetime * gamma)
+    configdict["gaussCons"]["Gamma"] = (0.004/1.520) * (1.0/1.520)
+    # Constraint on resolution sigma
+    configdict["gaussCons"]["resmodel00_sigma"] = 0.00038
+    # Multivariate constraint for production and detection asymmetries
+    configdict["gaussCons"]["multivarAsymm"] = [ ['ProdAsymm', 'DetAsymm'], #parname
+                                                 [math.sqrt(0.0081*0.0081 + 0.0014*0.0014), 0.0046], #errors
+                                                 [ [1, -0.65], #correlation matrix
+                                                   [-0.65, 1] ]
+                                                 ]
+    # Multivariate constraint for OS combination
+    configdict["gaussCons"]["multivarOSCalib"] = [ ['p0_OS', 'p1_OS', 'deltap0_OS', 'deltap1_OS'], #parname
+                                                   [0.00276866695767, 0.0532951796942, 0.00269475453428, 0.037310097266], #errors
+                                                   [ [1,         0.14218,       -0.017668,       0.0092814],  #correlation matrix from EPM
+                                                     [0.14218,         1,       0.0092814,       -0.048821],
+                                                     [-0.017668, 0.0092814,             1,         0.14218],
+                                                     [0.0092814,  -0.048821,      0.14218,                1] ]
+                                                   ]
+    #Add constraint for SS combination !!!
+    
     ############################################
     # Choose parameters to perform the
     # likelihood scan for

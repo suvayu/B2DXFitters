@@ -4,6 +4,11 @@
 ! Purpose     : RooFit-based fitters for B -> D X
 !-----------------------------------------------------------------------------
 
+! 2016-11-05 - Vincenzo Battista
+ - Update configfiles for B2DPi toys
+ - Make resolution width floating (if required) in getResolutionModel (resmodelutils.py)
+ - Add BuildMultivarGaussFromCorrMat in utils.py
+
 ! 2016-10-18 - Vincenzo Battista
  - Include PlotResultMatrix utility in FitResultGrabberUtils
 

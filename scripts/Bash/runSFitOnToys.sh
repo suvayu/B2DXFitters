@@ -31,9 +31,10 @@ while (( $seed < $stop )); do
     
     #sWeights_${massfitdescr}_${nickname}_${seed}.root
     #GenToyTree_${nickname}_${seed}.root
-    preselection="TMath::Abs(TrueID-100)<50"
 
-    python ${pyscriptpath}runSFit_Bd.py --pereventmistag --toys --debug --fileName ${input}sWeights_${massfitdescr}_${nickname}_${seed}.root --save ${output}TimeFitToysResult_${nickname}_${timefitdescr}_${massfitdescr}_${seed}.root --fileNamePull root://eoslhcb.cern.ch/${eosoutput}PullTreeTimeFit_${nickname}_${timefitdescr}_${massfitdescr}_${seed}.root --outputdir $output --configName $config --pol $pol --mode $mode --year $year --hypo $hypo --merge both --randomise --seed $seed --preselection $preselection --noweight >& ${output}log_${nickname}_${timefitdescr}_${massfitdescr}_${seed}.txt
+    #preselection="TMath::Abs(TrueID-100)<50"
+
+    python ${pyscriptpath}runSFit_Bd.py --pereventmistag --tagfromdata --toys --debug --fileName ${input}sWeights_${massfitdescr}_${nickname}_${seed}.root --save ${output}TimeFitToysResult_${nickname}_${timefitdescr}_${massfitdescr}_${seed}.root --fileNamePull root://eoslhcb.cern.ch/${eosoutput}PullTreeTimeFit_${nickname}_${timefitdescr}_${massfitdescr}_${seed}.root --outputdir $output --configName $config --pol $pol --mode $mode --year $year --hypo $hypo --merge both --randomise --seed $seed >& ${output}log_${nickname}_${timefitdescr}_${massfitdescr}_${seed}.txt
 
     xrdcp -f ${output}TimeFitToysResult_${nickname}_${timefitdescr}_${massfitdescr}_${seed}.root root://eoslhcb.cern.ch/${eosoutput}TimeFitToysResult_${nickname}_${timefitdescr}_${massfitdescr}_${seed}.root
     rm -f ${output}TimeFitToysResult_${nickname}_${timefitdescr}_${massfitdescr}_${seed}.root

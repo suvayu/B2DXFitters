@@ -23,18 +23,19 @@ export stop=$2
 #Final toy seed
 export fullstop=$3
 #Batch candidate queues
-export queue="1nh"
+export queue="1nd"
 #Memory limit (kB)
 export mlimit="100000"
 #Nickname for the current configuration
 #Choose a meaningful name (e.g. SgnAndBkgMeanResSplineAcc2TaggersNoAsymm etc...)
-export nickname="SgnAndBkgTwoTaggersProdDetAsymmAccMeanResTimeFrom02ps"
+export nickname="SimpleSgnAndBkgTwoTaggersProdDetAsymmAccMeanResTimeFrom04ps"
 #Tag to describe mass fit configuration
 #Choose a meaningful name (e.g. SignalPlusBackground etc...)
 export massfitdescr="FullMDFit"
 #Tag to describe time fit configuration
 #Choose a meaningful name (e.g. SSbarFloating etc...) 
-export timefitdescr="SSbarFloatingNosWeights"
+#export timefitdescr="SSbarFloatAccProdDetAsymmGausConstHesse"
+export timefitdescr="TEST"
 #Name of tree with weights
 export treename="merged"
 #Bachelor mass hypothesys
@@ -49,11 +50,10 @@ export pol="both"
 #Configuration file
 export config="/afs/cern.ch/user/v/vibattis/cmtuser/Urania_v5r0/PhysFit/B2DXFitters/data/Bd2DPi_3fbCPV/Bd2DPi/Bd2DPiConfigForSFitOnToys.py"
 #Pathname of fitted toys
-#export input="root://eoslhcb.cern.ch//eos/lhcb/user/v/vibattis/B2DX/Bd2DPi/Toys/${nickname}/Generator/"
-export input="root://eoslhcb.cern.ch//eos/lhcb/user/v/vibattis/B2DX/Bd2DPi/Toys/${nickname}/MDFit/" 
+export input="root://eoslhcb.cern.ch//eos/lhcb/wg/b2oc/TD_DPi_3fb/Toys/${nickname}/MDFit/" 
 #Pathname to dump results
-export output="/afs/cern.ch/work/v/vibattis/public/B2DX/Bd2DPi/Toys/${nickname}/TimeFit/"
-export eosoutput="/eos/lhcb/user/v/vibattis/B2DX/Bd2DPi/Toys/${nickname}/TimeFit/"
+export output="/afs/cern.ch/work/v/vibattis/public/B2DX/Bd2DPi/Toys/${nickname}/TimeFit/${timefitdescr}/"
+export eosoutput="/eos/lhcb/wg/b2oc/TD_DPi_3fb/Toys/${nickname}/TimeFit/${timefitdescr}/"
 #Path where scripts are located
 export bashscriptpath="/afs/cern.ch/user/v/vibattis/cmtuser/Urania_v5r0/PhysFit/B2DXFitters/scripts/Bash/"
 export pyscriptpath="/afs/cern.ch/user/v/vibattis/cmtuser/Urania_v5r0/PhysFit/B2DXFitters/scripts/"
@@ -83,12 +83,12 @@ while (( $stop <= $fullstop )); do
     echo "...submitting job ${job} with starting seed ${seed}"
 
     #Submit job
-    bsub -q $queue -M $mlimit -e ${output}ERROR -o ${output}OUTPUT -n 1 -R "span[hosts=-1]" -J ${jobname}_${job} source ${bashscriptpath}runSFitOnToys.sh $seed $stop $input $output $eosoutput $nickname $massfitdescr $timefitdescr $config $pol $mode $year $hypo $pyscriptpath
+    #bsub -q $queue -M $mlimit -e ${output}ERROR -o ${output}OUTPUT -n 1,16 -R "span[hosts=-1]" -J ${jobname}_${job} source ${bashscriptpath}runSFitOnToys.sh $seed $stop $input $output $eosoutput $nickname $massfitdescr $timefitdescr $config $pol $mode $year $hypo $pyscriptpath
 
-    #source ${bashscriptpath}runSFitOnToys.sh $seed $stop $input $output $eosoutput $nickname $massfitdescr $timefitdescr $config $pol $mode $year $hypo $pyscriptpath
+    source ${bashscriptpath}runSFitOnToys.sh $seed $stop $input $output $eosoutput $nickname $massfitdescr $timefitdescr $config $pol $mode $year $hypo $pyscriptpath
 
     #Sleep to avoid afs overload (not sure this is the best trick)
-    if [[ "$(($job % 200))" -eq 0 ]]; then
+    if [[ "$(($job % 50))" -eq 0 ]]; then
         echo "Sleeping..."
         sleep 30
     fi

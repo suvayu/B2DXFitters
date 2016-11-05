@@ -98,7 +98,7 @@ def getResolutionModel(
         i = 0
         for s in sigmas:
             sigma = WS(ws, RooRealVar('resmodel%02d_sigma' % i,
-                'resmodel%02d_sigma' % i, s, 'ps'))
+                'resmodel%02d_sigma' % i, s, 0.001, 0.5, 'ps'))
             bias = WS(ws, RooRealVar('timeerr_bias',
                 'timeerr_bias', config['DecayTimeResolutionBias']))
             sf = WS(ws, RooRealVar('timeerr_scalefactor',

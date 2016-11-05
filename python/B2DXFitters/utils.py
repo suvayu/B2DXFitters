@@ -300,3 +300,94 @@ def TreeLeavesToPy(type):
             exit(0)
             
         return typecode
+
+def BuildMultivarGaussFromCorrMat(ws, name, paramnamelist, errors, correlation, regularise = True):
+    """
+    Build multivariate gaussian starting from errors and correlation matrix.
+    If regularize=True, a correction is applied if the matrix is nearly singular.
+    Returns both Gaussian and RooArgSet with parameters
+    """
+
+    print "utils.BuildMultivarGaussFromCorrMat(...) ==> Start building multivariate gaussian"
+    
+    from math import sqrt
+    from WS import WS as WS
+    from ROOT import ( RooConstVar, RooArgList, RooArgSet, TMatrixDSym,
+                       RooMultiVarGaussian, TDecompChol )
+    params = RooArgList()
+    mus = RooArgList()
+    for arg in paramnamelist:
+        print arg
+        param = ws.obj(arg)
+        params.add(param)
+        mus.add(WS(ws, RooConstVar('%s_mean' % arg, '%s_mean' % arg,
+                                   param.getVal())))
+    n = len(paramnamelist)
+    cov = TMatrixDSym(n)
+    if len(errors) != n:
+        raise ValueError('utils.BuildMultivarGaussFromCorrMat(...) ==> Error list length does not match that of parameter name list')
+    for i in xrange(0, n):
+        if errors[i] <= 0.:
+            raise ValueError('utils.BuildMultivarGaussFromCorrMat(...) ==> Errors must be positive')
+        cov[i][i] = errors[i] * errors[i]
+    correl = correlation
+    for i in xrange(0, n):
+        if abs(correl[i][i] - 1.) > 1e-15:
+            raise ValueError('utils.BuildMultivarGaussFromCorrMat(...) ==> Correlation matrix has invalid element on diagonal')
+        for j in xrange(0, i):
+            # symmetrise by force
+            el = 0.5 * (correl[i][j] + correl[j][i])
+            # check if we're too far off
+            if ((abs(el) < 1e-15 and abs(correl[i][j]-correl[j][i]) > 1e-15) or
+                (abs(el) >= 1e-15 and abs(correl[i][j]-correl[j][i]) / el > 1e-15)):
+                raise ValueError('utils.BuildMultivarGaussFromCorrMat(...) ==> Correlation matrix not even approximately symmetric')
+            if abs(el) > 1.:
+                raise ValueError('utils.BuildMultivarGaussFromCorrMat(...) ==> Off-diagonal elements too large to form valid correlation')
+            # convert to covariance
+            el = el * sqrt(cov[i][i] * cov[j][j])
+            cov[i][j] = el
+            cov[j][i] = el # ROOT's insanity requires this
+    # verify we can invert covariance matrix with Cholesky decomposition
+    # (this will catch negative and zero Eigenvalues)
+    isposdef = False
+    while not isposdef:
+        decomp = TDecompChol(cov)
+        isposdef = decomp.Decompose()
+        if not isposdef:
+            print 'utils.BuildMultivarGaussFromCorrMat(...) ==> ERROR: Covariance matrix not positive definite!'
+        from ROOT import TVectorD
+        vv = TVectorD()
+        cov.EigenVectors(vv)
+        v = [ vv[i] for i in xrange(0, n) ]
+        if regularise:
+            if min(v) < 1e-16 or isposdef:
+                if min(v) <= 0.:
+                    print 'utils.BuildMultivarGaussFromCorrMat(...) ==> WARNING: Attempting to fix non-positive-definiteness...'
+                else:
+                    print 'utils.BuildMultivarGaussFromCorrMat(...) ==> WARNING: Covariance matrix very close to singular, trying to regularise...'
+                print 'utils.BuildMultivarGaussFromCorrMat(...) ==> DEBUG: Covariance matrix before fix:'
+                cov.Print()
+                print 'utils.BuildMultivarGaussFromCorrMat(...) ==> DEBUG: Eigenvalue spectrum:'
+                vv.Print()
+                eps = 1.1 * abs(min(v))
+                if eps < 1e-9: eps = 1e-9
+                print 'utils.BuildMultivarGaussFromCorrMat(...) ==> DEBUG: adding %e to diagonal' % eps
+                for i in xrange(0, n):
+                    cov[i][i] = cov[i][i] + eps
+                print 'utils.BuildMultivarGaussFromCorrMat(...) ==> DEBUG: Covariance matrix after fix:'
+                cov.Print()
+    # all set up, construct final multivariate Gaussian
+    mvg = WS(ws, RooMultiVarGaussian(name, name, params, mus, cov))
+    # make sure we float all parameters given
+    i = 0
+    for arg in paramnamelist:
+        param = ws.obj(arg)
+        param.setConstant(False)
+        param.setError(sqrt(cov[i][i]))
+        i = i + 1
+    # cast RooArgList into RooArgSet
+    parset = RooArgSet()
+    for p in range(0, params.getSize()):
+        parset.add( params[p] )
+    # all done
+    return mvg, parset

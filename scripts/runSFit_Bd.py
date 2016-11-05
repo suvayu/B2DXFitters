@@ -1,4 +1,4 @@
-fit#!/usr/bin/env python
+#!/usr/bin/env python
 # ---------------------------------------------------------------------------
 # @file runSFit_Bd.py
 #
@@ -113,6 +113,7 @@ from optparse import OptionParser
 from math     import pi, log
 from  os.path import exists
 import os, sys, gc
+import copy
 
 from B2DXFitters import taggingutils, cpobservables
 from B2DXFitters.timepdfutils_Bd import buildBDecayTimePdf
@@ -209,7 +210,7 @@ def runSFit(debug, wsname,
             configName, scan,
             binned, plotsWeights, noweight,
             sample, mode, year, hypo, merge, unblind, randomise, superimpose,
-            seed, preselection, UniformBlinding):
+            seed, preselection, UniformBlinding, extended):
 
     if MC and not noweight:
         print "ERROR: cannot use sWeighted MC sample (for now)"
@@ -302,8 +303,8 @@ def runSFit(debug, wsname,
             # The unweighted set can be weighted after the cut because sWeights appears in the obs list. The weighted
             # set is unweighted after the cut instead. That's why dataWA is obtained from data and vice-versa (and that's
             # why the names given above are swapped ;-)
-            dataWA = WS(ws, RooDataSet(data_temp.GetName(), data_temp.GetTitle(), data_temp, data_temp.get(), preselection, "sWeights"))
-            data = WS(ws, RooDataSet(dataWA_temp.GetName(), dataWA_temp.GetTitle(), dataWA_temp, dataWA_temp.get(), preselection))
+            dataWA = WS(ws, RooDataSet(data_temp.GetName(), dataWA_temp.GetTitle(), data_temp, data_temp.get(), preselection, "sWeights"))
+            data = WS(ws, RooDataSet(dataWA_temp.GetName(), data_temp.GetTitle(), dataWA_temp, dataWA_temp.get(), preselection))
 
             print "Entries (unweighted set):"
             print "...before cut: " + str(data_temp.numEntries()) + ", sum of weights " + str(data_temp.sumEntries())
@@ -316,6 +317,11 @@ def runSFit(debug, wsname,
             data = WS(ws, GeneralUtils.GetDataSet(workspace[0], nameData, debug))
             dataWA = WS(ws, GeneralUtils.GetDataSet(workspaceW[0], nameDataWA, debug))
 
+        data.Print("v")
+        dataWA.Print("v")
+        data.Print()
+        dataWA.Print()
+        
     else:
 
         print ""
@@ -526,7 +532,7 @@ def runSFit(debug, wsname,
             if "Type" in myconfigfile["Taggers"]["Signal"][nametag]["MistagPDF"].keys():
                 if myconfigfile["Taggers"]["Signal"][nametag]["MistagPDF"]["Type"] == "BuildTemplate":
                     print "[INFO] Building mistag templates directly from data"
-                    mistagpdflist = WS(ws, SFitUtils.CreateDifferentMistagTemplates(dataWA, MDSettings, 50, False, debug) )
+                    mistagpdflist = WS(ws, SFitUtils.CreateDifferentMistagTemplates(dataWA, MDSettings, 50, True, debug) )
                     break
     else:
         mistagpdf = None
@@ -538,20 +544,23 @@ def runSFit(debug, wsname,
             nametag = "SS"
         print "[INFO] Creating calibration parameters for "+nametag+" tagger"
 
+        etamean = copy.deepcopy(myconfigfile["Taggers"]["Signal"][nametag]["Calibration"]["avgeta"])
+        tageff = copy.deepcopy(myconfigfile["Taggers"]["Signal"][nametag]["Calibration"]["tageff"])
+
         if tagfromdata:
             print "[INFO] Computing <eta> and tagging efficiency directly from dataset. Overwriting values in configfile"
             if noweight:
-                etamean = [ data.mean(obs.find(MDSettings.GetTagOmegaVarOutName(t).Data()), MDSettings.GetTagVarOutName(t).Data()+"!=0") ]
+                etamean[0] = data.mean(obs.find(MDSettings.GetTagOmegaVarOutName(t).Data()), MDSettings.GetTagVarOutName(t).Data()+"!=0")
                 etasigma = data.sigma(obs.find(MDSettings.GetTagOmegaVarOutName(t).Data()), MDSettings.GetTagVarOutName(t).Data()+"!=0")
                 numdata = RooDataSet("numdata"+str(t), "numdata", data, data.get(), MDSettings.GetTagVarOutName(t).Data()+"!=0")
-                num = numdata.numEntries()
-                den = data.numEntries()
+                num = float( numdata.numEntries() )
+                den = float( data.numEntries() )
                 import uncertainties, math
                 from uncertainties import ufloat
                 tagefferr = ufloat(num, math.sqrt(num)) / ufloat(den, math.sqrt(den))
                 tagefferr = tagefferr.std_dev
             else:
-                etamean = [ dataWA.mean(obs.find(MDSettings.GetTagOmegaVarOutName(t).Data()), MDSettings.GetTagVarOutName(t).Data()+"!=0") ]
+                etamean[0] = dataWA.mean(obs.find(MDSettings.GetTagOmegaVarOutName(t).Data()), MDSettings.GetTagVarOutName(t).Data()+"!=0")
                 etasigma = dataWA.sigma(obs.find(MDSettings.GetTagOmegaVarOutName(t).Data()), MDSettings.GetTagVarOutName(t).Data()+"!=0")
                 numdata = RooDataSet("numdata"+str(t), "numdata", data, data.get(), MDSettings.GetTagVarOutName(t).Data()+"!=0", "sWeights")
                 num = numdata.sumEntries()
@@ -561,19 +570,16 @@ def runSFit(debug, wsname,
                 tagefferr = ufloat(num, math.sqrt(num)) / ufloat(den, math.sqrt(den))
                 tagefferr = tagefferr.std_dev
             del numdata
-            tageff = [ float( num / den ) ]
+            tageff[0] = float( num / den )
             print "[INFO] New <eta>: "+str( etamean[0] )+" +- "+str( etasigma )
             print "[INFO] Config file <eta>: "+str( myconfigfile["Taggers"]["Signal"][nametag]["Calibration"]["avgeta"][0] )
             print "[INFO] New tagging efficiency: "+str( tageff[0] )+" +- "+str( tagefferr )
             print "[INFO] Config file tagging efficiency: "+str( myconfigfile["Taggers"]["Signal"][nametag]["Calibration"]["tageff"][0] )
-        else:
-            etamean = myconfigfile["Taggers"]["Signal"][nametag]["Calibration"]["avgeta"]
-            tageff = myconfigfile["Taggers"]["Signal"][nametag]["Calibration"]["tageff"]
-
-        p0 = myconfigfile["Taggers"]["Signal"][nametag]["Calibration"]["p0"]
-        p1 = myconfigfile["Taggers"]["Signal"][nametag]["Calibration"]["p1"]
-        deltap0 = myconfigfile["Taggers"]["Signal"][nametag]["Calibration"]["deltap0"]
-        deltap1 = myconfigfile["Taggers"]["Signal"][nametag]["Calibration"]["deltap1"]
+            
+        p0 = copy.deepcopy(myconfigfile["Taggers"]["Signal"][nametag]["Calibration"]["p0"])
+        p1 = copy.deepcopy(myconfigfile["Taggers"]["Signal"][nametag]["Calibration"]["p1"])
+        deltap0 = copy.deepcopy(myconfigfile["Taggers"]["Signal"][nametag]["Calibration"]["deltap0"])
+        deltap1 = copy.deepcopy(myconfigfile["Taggers"]["Signal"][nametag]["Calibration"]["deltap1"])
 
         if noftcalib:
             print "[INFO] Using uncalibrated tagger: p0=<eta>, p1=1, deltap0=deltap1=0"
@@ -697,6 +703,8 @@ def runSFit(debug, wsname,
     if myconfigfile.has_key("DetectionAsymmetry") :
         aDet = WS(ws, RooRealVar('DetAsymm','a_{det}', *myconfigfile["DetectionAsymmetry"]["Signal"]))
 
+    genValDict = {}
+
     if "gaussCons" in myconfigfile.keys():
 
         print ""
@@ -705,7 +713,52 @@ def runSFit(debug, wsname,
         print "=========================================================="
         print ""
 
-        ws.Print("v")
+        if toys:
+            #Sample mean of gaussian constraint
+            for parname in myconfigfile["gaussCons"].iterkeys():
+                if type(myconfigfile["gaussCons"][parname]) != list:
+                    #Build single gaussian for univariate constraints
+                    par = ws.var(parname)
+                    gaussGen = TRandom3(int(seed))
+                    mean = par.getVal()
+                    par.setVal( gaussGen.Gaus( mean, myconfigfile["gaussCons"][parname] ) )
+                    if debug:
+                        print "Sampling mean of "+parname+" constraint (from univariate gaussian)"
+                        print "Config file value: "+str(mean)
+                        print "New sampled value: "+str(par.getVal())
+                        print "Seed: "+str(seed)
+                    par = WS(ws, par)
+                    genValDict[parname] = {}
+                    genValDict[parname] = mean
+                else:
+                    #Build multivariate gaussian for multivariate constraints
+                    from B2DXFitters.utils import BuildMultivarGaussFromCorrMat
+                    mvg, params = BuildMultivarGaussFromCorrMat(ws,
+                                                                parname+"_forResampling",
+                                                                myconfigfile["gaussCons"][parname][0],
+                                                                myconfigfile["gaussCons"][parname][1],
+                                                                myconfigfile["gaussCons"][parname][2],
+                                                                True)
+                    #Generate new set of correlated parameters
+                    gInterpreter.ProcessLine('gRandom->SetSeed('+str(int(seed))+')')
+                    RooRandom.randomGenerator().SetSeed(int(seed))
+                    randVals = mvg.generate(params,
+                                            RooFit.NumEvents(1))
+                    #Update values in the workspace
+                    for parname in myconfigfile["gaussCons"][parname][0]:
+                        par = ws.var(parname)
+                        oldval = par.getVal()
+                        par.setVal( randVals.get().find(parname).getVal() )
+                        if debug:
+                            print "Sampling mean of "+parname+" constraint (from multivariate gaussian)"
+                            print "Config file value: "+str(oldval)
+                            print "New sampled value: "+str(par.getVal())
+                            print "Seed: "+str(seed)
+                        par = WS(ws, par)
+                        genValDict[parname] = {}
+                        genValDict[parname] = oldval
+                        
+        #Build actual constraints
         from B2DXFitters.GaussianConstraintBuilder import GaussianConstraintBuilder
         constraintbuilder = GaussianConstraintBuilder(ws, myconfigfile["gaussCons"])
         constList = constraintbuilder.getSetOfConstraints()
@@ -717,7 +770,7 @@ def runSFit(debug, wsname,
     print "=========================================================="
     print ""
 
-    totPDF = buildBDecayTimePdf(
+    totPDF_temp = buildBDecayTimePdf(
         myconfigfile, 'time_signal', ws,
         time, terr, tag, id, mistag, mistagcalib,
         gamma, deltaGamma, deltaM,
@@ -725,21 +778,17 @@ def runSFit(debug, wsname,
         resmodel, acc,
         terrpdf, mistagpdf,
         aProd, aDet)
-
-    # totPDF = buildBDecayTimePdf(
-    #     myconfigfile, 'time_signal', ws,
-    #     time, terr, tag, id, mistag, mistagcalib,
-    #     gamma, deltaGamma, deltaM,
-    #     C, D, Dbar, S_blind, Sbar_blind,
-    #     resmodel, acc,
-    #     terrpdf, mistagpdf,
-    #     aProd, aDet)
+    
+    if extended:
+        print "[INFO] Performing extended maximum likelihood fit"
+        Nsgn = WS(ws, RooRealVar("Nsgn", "N_{sgn}", 500000, 0, 1e+09))
+        totPDF = WS(ws, RooExtendPdf(totPDF_temp.GetName()+"_ext", totPDF_temp.GetTitle()+" extended", totPDF_temp, Nsgn))
+    else:
+        totPDF = totPDF_temp
 
     #Fix "internal" time pdf parameters (if required)
     from B2DXFitters.utils import setConstantIfSoConfigured as fixParams
     fixParams(myconfigfile, totPDF)
-
-    genValDict = None
 
     if randomise:
 
@@ -751,7 +800,6 @@ def runSFit(debug, wsname,
 
         #Randomise initial guess of the parameters according to a uniform distributions
         from B2DXFitters.utils import randomiseParameters as ranPar
-        genValDict = {}
         ranPar(myconfigfile, totPDF, int(seed), debug, genValDict)
 
     if scan:
@@ -807,20 +855,21 @@ def runSFit(debug, wsname,
     if not superimpose:
 
         if toys or MC or unblind:  # Unblind yourself
+            fitOpts_temp = [RooFit.Save(1),
+                            RooFit.NumCPU(10),
+                            RooFit.Strategy(2),
+                            RooFit.Minimizer("Minuit2", "migrad"),
+                            RooFit.SumW2Error(False),
+                            RooFit.Minos(True),
+                            #RooFit.Extended(False),
+                            # RooFit.Offset(True),
+                            RooFit.Verbose(False)]
+            if "gaussCons" in myconfigfile.keys():
+                fitOpts_temp.append( RooFit.ExternalConstraints(constList) )
+            fitOpts = RooLinkedList()
+            for cmd in fitOpts_temp:
+                fitOpts.Add(cmd)
             if binned:
-                fitOpts_temp = [RooFit.Save(1),
-                                RooFit.Optimize(2),
-                                RooFit.Strategy(2),
-                                RooFit.Verbose(True),
-                                RooFit.SumW2Error(False),
-                                RooFit.NumCPU(10),
-                                # RooFit.Range(rangeName),
-                                RooFit.Extended(False)]
-                if "gaussCons" in myconfigfile.keys():
-                    fitOpts_temp.append( RooFit.ExternalConstraints(constList) )
-                fitOpts = RooLinkedList()
-                for cmd in fitOpts_temp:
-                    fitOpts.Add(cmd)
                 print "[INFO] Fitting binned dataset"
                 if not noweight:
                     print "[INFO] Fitting weighted dataset"
@@ -850,6 +899,9 @@ def runSFit(debug, wsname,
                             RooFit.Save(1),
                             RooFit.Strategy(2),
                             RooFit.SumW2Error(False),
+                            RooFit.Minos(False),
+                            #RooFit.Extended(False),
+                            # RooFit.Offset(True),
                             RooFit.PrintLevel(1),
                             RooFit.Warnings(False),
                             RooFit.PrintEvalErrors(-1)]
@@ -915,19 +967,21 @@ def runSFit(debug, wsname,
             PlotResultMatrix(myfitresult, "covariance", outputdir+"sFit_CovarianceMatrix.pdf")
             PlotResultMatrix(myfitresult, "correlation", outputdir+"sFit_CorrelationMatrix.pdf")
 
-            if toys:
+        if toys:
 
-                if myfitresult.status() != 0:
-                    print "ERROR: fit quality is bad. Not saving pull tree."
-                else:
-                    print ""
-                    print "=========================================================="
-                    print "Save tree with fit result for pull plots"
-                    print "=========================================================="
-                    print ""
-
-                    from B2DXFitters.FitResultGrabberUtils import CreatePullTree
-                    CreatePullTree(fileNamePull, myfitresult, genValDict)
+            if myfitresult.status() != 0:
+                print "ERROR: fit quality is bad. Not saving pull tree."
+            else:
+                print ""
+                print "=========================================================="
+                print "Save tree with fit result for pull plots"
+                print "=========================================================="
+                print ""
+                
+                from B2DXFitters.FitResultGrabberUtils import CreatePullTree
+                if genValDict == {}:
+                    genValDict = None
+                CreatePullTree(fileNamePull, myfitresult, genValDict)
 
     dataWA.Print("v")
     totPDF.Print("v")
@@ -951,6 +1005,12 @@ parser.add_option('-d', '--debug',
                   default = False,
                   action  = 'store_true',
                   help    = 'print debug information while processing'
+                  )
+parser.add_option('--extended',
+                  dest    = 'extended',
+                  default = False,
+                  action  = 'store_true',
+                  help    = 'add extended term to likelihood'
                   )
 parser.add_option('-s', '--save',
                   dest    = 'wsname',
@@ -1167,6 +1227,7 @@ if __name__ == '__main__' :
              options.superimpose,
              options.seed,
              options.preselection,
-             options.UniformBlinding)
+             options.UniformBlinding,
+             options.extended)
 
 # -----------------------------------------------------------------------------
