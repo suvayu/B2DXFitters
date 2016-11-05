@@ -196,21 +196,21 @@ namespace Bd2DhModels {
     return pdf;  
   }
 
-  //===============================================================================  
-  // Build Crystal Ball + gaussian pdf
+  //===============================================================================
+  // Build Crystal Ball + Exponential
   //===============================================================================
 
-  RooAbsPdf* buildCrystalBallPlusGaussianPDF( RooAbsReal& obs,
-                                              RooWorkspace* workInt,
-                                              TString samplemode,
-                                              TString typemode,
-                                              bool shiftMean,
-                                              bool debug)
+  RooAbsPdf* buildCrystalBallPlusExponentialPDF( RooAbsReal& obs,
+                                                 RooWorkspace* workInt,
+                                                 TString samplemode,
+                                                 TString typemode,
+                                                 bool shiftMean,
+                                                 bool debug)
   {
     if ( debug == true )
-    {  
-      std::cout<<"Bd2DhModels::buildCrystalBallPlusGaussianPDF(..)==> building crystal ball + gaussian pdf..."<<std::endl; 
-    }
+    {
+      std::cout<<"Bd2DhModels::buildCrystalBallPlusExponentialPDF(..)==> building crystal ball + exponential pdf..."<<std::endl; 
+    } 
 
     RooRealVar* mean = NULL;
     RooRealVar* alphaVar = NULL;
@@ -218,8 +218,8 @@ namespace Bd2DhModels {
     RooRealVar* sigmaCBVar =NULL;
     RooRealVar* shiftVar = NULL;
     RooFormulaVar* meanShiftVar = NULL;
-    RooRealVar* sigmaGVar = NULL;
-    RooRealVar* fracGVar = NULL;
+    RooRealVar* cBVar = NULL;
+    RooRealVar* fracExpoVar = NULL;
 
     TString varName = obs.GetName();
     TString alphaName = typemode+"_"+varName+"_alpha_"+samplemode;
@@ -236,10 +236,106 @@ namespace Bd2DhModels {
       TString shiftVarName = typemode+"_"+varName+"_shift_"+samplemode;
       shiftVar = tryVar(shiftVarName, workInt, debug);
       TString meanShiftVarName = typemode+"_"+varName+"_meanShift_"+samplemode;
-      meanShiftVar = new RooFormulaVar(meanShiftVarName.Data(), meanShiftVarName.Data(), "@0+@1", RooArgList(*mean,*shiftVar));
+      meanShiftVar = new RooFormulaVar(meanShiftVarName.Data(), meanShiftVarName.Data(), "@0+@1", RooArgList(*mean,*shiftVar)); 
+    } 
+    TString cBName = typemode+"_"+varName+"_cB_"+samplemode;
+    cBVar = tryVar(cBName, workInt, debug);
+    TString fracExpoName = typemode+"_"+varName+"_fracExpo_"+samplemode;
+    fracExpoVar = tryVar(fracExpoName, workInt, debug);
+    
+    RooAbsPdf* pdf = NULL;
+
+    RooCBShape *pdf1 = NULL;
+    TString pdf1Name = typemode+"_"+varName+"_crystalball_"+samplemode;
+    RooExponential *pdf2 = NULL;
+    TString pdf2Name = typemode+"_"+varName+"_exponential_"+samplemode;
+
+    if(shiftMean)
+    {
+      pdf1 = new RooCBShape( pdf1Name.Data(), pdf1Name.Data(), obs, *meanShiftVar, *sigmaCBVar, *alphaVar, *nVar);
+    }    
+    else
+    {
+      pdf1 = new RooCBShape( pdf1Name.Data(), pdf1Name.Data(), obs, *mean, *sigmaCBVar, *alphaVar, *nVar);
     }
+
+    pdf2 = new RooExponential(pdf2Name.Data(), pdf2Name.Data(), obs, *cBVar);
+
+    TString pdfName = typemode+"_"+varName+"_CrystalBallPlusExponential_"+samplemode;
+    pdf = new RooAddPdf( pdfName.Data(), pdfName.Data(), *pdf2, *pdf1, *fracExpoVar);
+    CheckPDF( pdf, debug );
+
+    return pdf;
+
+  }
+  
+
+  //===============================================================================  
+  // Build Crystal Ball + gaussian pdf
+  //===============================================================================
+
+  RooAbsPdf* buildCrystalBallPlusGaussianPDF( RooAbsReal& obs,
+                                              RooWorkspace* workInt,
+                                              TString samplemode,
+                                              TString typemode,
+                                              bool shiftMean,
+                                              bool scaleWidths,
+                                              bool debug)
+  {
+    if ( debug == true )
+    {  
+      std::cout<<"Bd2DhModels::buildCrystalBallPlusGaussianPDF(..)==> building crystal ball + gaussian pdf..."<<std::endl; 
+    }
+
+    RooRealVar* mean = NULL;
+    RooRealVar* alphaVar = NULL;
+    RooRealVar* nVar = NULL;
+    RooRealVar* sigmaCBVar = NULL;
+    RooRealVar* shiftVar = NULL;
+    RooFormulaVar* meanShiftVar = NULL;
+    RooRealVar* sigmaGVar = NULL;
+    RooRealVar* scaleSigmaVar = NULL;
+    RooFormulaVar* scaledSigmaCBVar = NULL;
+    RooFormulaVar* scaledSigmaGVar = NULL;
+    RooRealVar* fracGVar = NULL;
+
+    TString varName = obs.GetName();
+    TString alphaName = typemode+"_"+varName+"_alpha_"+samplemode;
+    alphaVar = tryVar(alphaName, workInt, debug);
+    TString nName = typemode+"_"+varName+"_n_"+samplemode;
+    nVar = tryVar(nName, workInt, debug);
+
+    TString sigmaCBName = typemode+"_"+varName+"_sigmaCB_"+samplemode;
+    sigmaCBVar = tryVar(sigmaCBName, workInt, debug);
+    if (sigmaCBVar == NULL) sigmaCBVar = tryVar("Signal_"+varName+"_sigmaCB_"+samplemode, workInt, debug);
     TString sigmaGName = typemode+"_"+varName+"_sigmaG_"+samplemode;
     sigmaGVar = tryVar(sigmaGName, workInt, debug);
+    if (sigmaGVar == NULL) sigmaGVar = tryVar("Signal_"+varName+"_sigmaG_"+samplemode, workInt, debug);
+    if(scaleWidths)
+    {
+      TString scaleSigmaVarName = typemode+"_"+varName+"_scaleSigma_"+samplemode;
+      scaleSigmaVar = tryVar(scaleSigmaVarName, workInt, debug);
+      if(scaleSigmaVar == NULL) scaleSigmaVar = tryVar("Signal_"+varName+"_scaleSigma_"+samplemode, workInt, debug);
+      
+      TString scaledSigmaCBVarName = typemode+"_"+varName+"_scaledSigmaCB_"+samplemode;
+      scaledSigmaCBVar = new RooFormulaVar(scaledSigmaCBVarName.Data(), scaledSigmaCBVarName.Data(), "@0*@1", RooArgList(*scaleSigmaVar,*sigmaCBVar));
+      
+      TString scaledSigmaGVarName = typemode+"_"+varName+"_scaledSigmaG_"+samplemode;
+      scaledSigmaGVar = new RooFormulaVar(scaledSigmaGVarName.Data(), scaledSigmaGVarName.Data(), "@0*@1", RooArgList(*scaleSigmaVar,*sigmaGVar));
+
+    }    
+
+    TString meanName = typemode+"_"+varName+"_mean_"+samplemode;
+    mean = tryVar(meanName, workInt, debug);
+    if(mean == NULL) mean = tryVar("Signal_"+varName+"_mean_"+samplemode, workInt, debug);
+    if(shiftMean)
+    {
+      TString shiftVarName = typemode+"_"+varName+"_shift_"+samplemode;
+      shiftVar = tryVar(shiftVarName, workInt, debug);
+      TString meanShiftVarName = typemode+"_"+varName+"_meanShift_"+samplemode;
+      meanShiftVar = new RooFormulaVar(meanShiftVarName.Data(), meanShiftVarName.Data(), "@0+@1", RooArgList(*mean,*shiftVar));
+    }
+    
     TString fracGName = typemode+"_"+varName+"_fracG_"+samplemode;
     fracGVar = tryVar(fracGName, workInt, debug);
     
@@ -250,17 +346,34 @@ namespace Bd2DhModels {
     RooGaussian *pdf2 = NULL;
     TString pdf2Name = typemode+"_"+varName+"_gaussian_"+samplemode;
 
-    if(shiftMean)
+    if(scaleWidths)
     {
-      pdf1 = new RooCBShape( pdf1Name.Data(), pdf1Name.Data(), obs, *meanShiftVar, *sigmaCBVar, *alphaVar, *nVar);
-      pdf2 = new RooGaussian( pdf2Name.Data(), pdf2Name.Data(), obs, *meanShiftVar, *sigmaGVar);
+      if(shiftMean)
+      {
+        pdf1 = new RooCBShape( pdf1Name.Data(), pdf1Name.Data(), obs, *meanShiftVar, *scaledSigmaCBVar, *alphaVar, *nVar);
+        pdf2 = new RooGaussian( pdf2Name.Data(), pdf2Name.Data(), obs, *meanShiftVar, *scaledSigmaGVar); 
+      }
+      else
+      {
+        pdf1 = new RooCBShape( pdf1Name.Data(), pdf1Name.Data(), obs, *mean, *scaledSigmaCBVar, *alphaVar, *nVar);
+        pdf2 = new RooGaussian( pdf2Name.Data(), pdf2Name.Data(), obs, *mean, *scaledSigmaGVar); 
+      }
     }
     else
     {
-      pdf1 = new RooCBShape( pdf1Name.Data(), pdf1Name.Data(), obs, *mean, *sigmaCBVar, *alphaVar, *nVar);
-      pdf2 = new RooGaussian( pdf2Name.Data(), pdf2Name.Data(), obs, *mean, *sigmaGVar);
+      if(shiftMean)
+      {
+        pdf1 = new RooCBShape( pdf1Name.Data(), pdf1Name.Data(), obs, *meanShiftVar, *sigmaCBVar, *alphaVar, *nVar);
+        pdf2 = new RooGaussian( pdf2Name.Data(), pdf2Name.Data(), obs, *meanShiftVar, *sigmaGVar);
+      }
+      else
+      {
+        pdf1 = new RooCBShape( pdf1Name.Data(), pdf1Name.Data(), obs, *mean, *sigmaCBVar, *alphaVar, *nVar);
+        pdf2 = new RooGaussian( pdf2Name.Data(), pdf2Name.Data(), obs, *mean, *sigmaGVar);
+      }
     }
-   
+    
+
     TString pdfName = typemode+"_"+varName+"_CrystalBallPlusGaussian_"+samplemode;
     pdf = new RooAddPdf( pdfName.Data(), pdfName.Data(), *pdf1, *pdf2, *fracGVar);
     CheckPDF( pdf, debug );
@@ -279,6 +392,7 @@ namespace Bd2DhModels {
                                             TString samplemode,
                                             TString typemode,
                                             bool sameMean,
+                                            bool shiftMean,
                                             bool debug)
   {
     if ( debug == true )
@@ -287,6 +401,8 @@ namespace Bd2DhModels {
     }
 
     RooRealVar* meanJ = NULL;
+    RooRealVar* shiftVar = NULL;
+    RooFormulaVar* meanShiftVar = NULL;
     RooRealVar* sigmaJVar =NULL;
     RooRealVar* nuJVar =NULL;
     RooRealVar* tauJVar =NULL;
@@ -299,6 +415,15 @@ namespace Bd2DhModels {
     
     TString meanJName = typemode+"_"+varName+"_meanJ_"+samplemode;
     meanJ = tryVar(meanJName, workInt, debug);
+    if (meanJ == NULL) meanJ = tryVar("Signal_"+varName+"_mean_"+samplemode, workInt, debug);
+    if(shiftMean)
+    {  
+      TString shiftVarName = typemode+"_"+varName+"_shift_"+samplemode; 
+      shiftVar = tryVar(shiftVarName, workInt, debug);
+      TString meanShiftVarName = typemode+"_"+varName+"_meanShift_"+samplemode;
+      meanShiftVar = new RooFormulaVar(meanShiftVarName.Data(), meanShiftVarName.Data(), "@0+@1", RooArgList(*meanJ,*shiftVar));
+    }
+    
     TString sigmaJName = typemode+"_"+varName+"_sigmaJ_"+samplemode;
     sigmaJVar = tryVar(sigmaJName, workInt, debug);
     TString nuJName = typemode+"_"+varName+"_nuJ_"+samplemode;
@@ -310,7 +435,10 @@ namespace Bd2DhModels {
       TString meanGshiftName = typemode+"_"+varName+"_meanGshift_"+samplemode;
       meanGshift = tryVar(meanGshiftName, workInt, debug);
       TString meanGName = typemode+"_"+varName+"_meanG_"+samplemode;
-      meanG = new RooFormulaVar(meanGName.Data(), meanGName.Data(),"@0+@1",RooArgList(*meanJ,*meanGshift));
+      if(shiftMean)
+        meanG = new RooFormulaVar(meanGName.Data(), meanGName.Data(),"@0+@1+@2",RooArgList(*meanJ,*shiftVar,*meanGshift));
+      else
+        meanG = new RooFormulaVar(meanGName.Data(), meanGName.Data(),"@0+@1",RooArgList(*meanJ,*meanGshift));
     }
     TString sigmaGName = typemode+"_"+varName+"_sigmaG_"+samplemode;
     sigmaGVar = tryVar(sigmaGName, workInt, debug);
@@ -325,14 +453,22 @@ namespace Bd2DhModels {
     TString pdf2Name = typemode+"_"+varName+"_johnsonSU_"+samplemode;
     if(sameMean)
     {
-      pdf1 = new RooGaussian( pdf1Name.Data(), pdf1Name.Data(), obs, *meanJ, *sigmaGVar);
+      if(shiftMean)
+        pdf1 = new RooGaussian( pdf1Name.Data(), pdf1Name.Data(), obs, *meanShiftVar, *sigmaGVar);
+      else
+        pdf1 = new RooGaussian( pdf1Name.Data(), pdf1Name.Data(), obs, *meanJ, *sigmaGVar);
     }
     else
     {
-      pdf1 = new RooGaussian( pdf1Name.Data(), pdf1Name.Data(), obs, *meanG, *sigmaGVar);
+      pdf1 = new RooGaussian( pdf1Name.Data(), pdf1Name.Data(), obs, *meanG, *sigmaGVar);     
     }
-    pdf2 = new RooJohnsonSU( pdf2Name.Data(), pdf2Name.Data(), obs, *meanJ, *sigmaJVar, *nuJVar, *tauJVar);
+
+    if(shiftMean)
+      pdf2 = new RooJohnsonSU( pdf2Name.Data(), pdf2Name.Data(), obs, *meanShiftVar, *sigmaJVar, *nuJVar, *tauJVar);
+    else
+      pdf2 = new RooJohnsonSU( pdf2Name.Data(), pdf2Name.Data(), obs, *meanJ, *sigmaJVar, *nuJVar, *tauJVar);
     
+
     TString pdfName = typemode+"_"+varName+"_JohnsonSUPlusGaussian_"+samplemode;
     pdf = new RooAddPdf( pdfName.Data(), pdfName.Data(), *pdf1, *pdf2, *fracVar);
     CheckPDF( pdf, debug );
