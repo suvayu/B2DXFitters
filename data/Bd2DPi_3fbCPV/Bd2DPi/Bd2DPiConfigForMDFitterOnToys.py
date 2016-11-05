@@ -19,7 +19,7 @@ def getconfig( samplemodeyear ) :
     #                                                  "Name"                   : "CharmMass",
     #                                                  "InputName"              : "lab0_FitwithoutConst_Dplus_M_flat"}
 
-    configdict["BasicVariables"]["BeautyTime"]    = { "Range"                  : [0.2,     15.0    ],
+    configdict["BasicVariables"]["BeautyTime"]    = { "Range"                  : [0.4,     15.0    ],
                                                       "Bins"                   : 40,
                                                       "Name"                   : "BeautyTime",
                                                       "InputName"              : "lab0_FitDaughtersPVConst_ctau_flat"}
@@ -101,7 +101,7 @@ def getconfig( samplemodeyear ) :
                                                                                             }
     configdict["GlobalVariables"]["nSig_"+samplemodeyear+"_Bd2DPiHypo_Evts"] = {"Type": "RooRealVar",
                                                                                 "Title": "nSig_"+samplemodeyear+"_Bd2DPiHypo_Evts",
-                                                                                "Range": [5.49162e+05,300000,600000]
+                                                                                "Range": [5.2848e+05,300000,600000]
                                                                                 }
     configdict["GlobalVariables"]["nSig_"+samplemodeyear+"_Bd2DKHypo_Evts"] = {"Type": "RooFormulaVar",
                                                                                "Title": "nSig_"+samplemodeyear+"_Bd2DKHypo_Evts",
@@ -110,7 +110,7 @@ def getconfig( samplemodeyear ) :
                                                                                }
     configdict["GlobalVariables"]["nBd2DK_"+samplemodeyear+"_Bd2DKHypo_Evts"] = {"Type": "RooRealVar",
                                                                                  "Title": "nBd2DK_"+samplemodeyear+"_Bd2DKHypo_Evts",
-                                                                                 "Range": [3.23144e+04,20000,50000]
+                                                                                 "Range": [3.0795e+04,20000,50000]
                                                                                  }
     configdict["GlobalVariables"]["nBd2DK_"+samplemodeyear+"_Bd2DPiHypo_Evts"] = {"Type": "RooFormulaVar",
                                                                                   "Title": "nBd2DK_"+samplemodeyear+"_Evts",
@@ -119,11 +119,11 @@ def getconfig( samplemodeyear ) :
                                                                                   }
     configdict["GlobalVariables"]["nBd2DKst_"+samplemodeyear+"_Bd2DKHypo_Evts"] = {"Type": "RooRealVar",
                                                                                    "Title": "nBd2DKst_"+samplemodeyear+"_Bd2DKHypo_Evts",
-                                                                                   "Range": [6.06144e+03, 100, 10000],
+                                                                                   "Range": [3.7873e+03, 100, 10000],
                                                                                    }
     configdict["GlobalVariables"]["DRho_to_DKst_KHypo"] = {"Type": "RooRealVar",
                                                            "Title": "DRho_to_DKst_KHypo",
-                                                           "Range": [1.15744e-01],#0.05,0.4],
+                                                           "Range": [8.5000e-01],#0.05,0.4],
                                                            "Error": 0.04
                                                            }
     configdict["GlobalVariables"]["nBd2DRho_"+samplemodeyear+"_Bd2DKHypo_Evts"] = {"Type": "RooFormulaVar",
@@ -175,10 +175,14 @@ def getconfig( samplemodeyear ) :
                                                                 "shiftMean"  : False,
                                                                 "scaleTails" : True,
                                                                 "mean"       : "Signal_BeautyMass_mean_"+samplemodeyear+"_Bd2DPiHypo",
-                                                                "sigma"      : [1.96756e+01, 1.5e+01, 3.5e+01],
-                                                                "zeta"       : [0.0],
-                                                                "fb"         : [0.0],
-                                                                "l"          : [-3.14504e+00],
+                                                                "sigma"      : {"par": [1.96756e+01, 1.5e+01, 3.5e+01],
+                                                                                "title": ""},
+                                                                "zeta"       : {"par": [0.0],
+                                                                                "title": ""},
+                                                                "fb"         : {"par": [0.0],
+                                                                                "title": ""},
+                                                                "l"          : {"par": [-3.14504e+00],
+                                                                                "title": ""},
                                                                 "a1"         : "Signal_Ipatia_BeautyMass_a1_"+samplemodeyear+"_Bd2DPiHypo", #left
                                                                 "a2"         : "Signal_Ipatia_BeautyMass_a2_"+samplemodeyear+"_Bd2DPiHypo", #right
                                                                 "n1"         : "Signal_Ipatia_BeautyMass_n1_"+samplemodeyear+"_Bd2DPiHypo", #left
@@ -188,16 +192,25 @@ def getconfig( samplemodeyear ) :
     configdict["pdfList"]["Signal"]["Bd2DK"]["BeautyMass"] = { "PDF"        : "Ipatia",
                                                                "shiftMean"  : False,#True,
                                                                "scaleTails" : False,
-                                                               "mean"       : [5.32740e+03,5.25e+03,5.45e+03],#"Signal_BeautyMass_mean_"+samplemodeyear+"_Bd2DKHypo",
+                                                               "mean"       : {"par": [5.32740e+03,5.25e+03,5.45e+03],#"Signal_BeautyMass_mean_"+samplemodeyear+"_Bd2DKHypo",
+                                                                               "title": ""},
                                                                #"shift"      : [5.32740e+03-Kpeak],
-                                                               "sigma"      : [2.42675e+01],
-                                                               "zeta"       : [0.0],
-                                                               "fb"         : [0.0],
-                                                               "l"          : [-5.46421e+00],
-                                                               "a1"         : [3.04325e+00],
-                                                               "a2"         : [6.62837e-01],
-                                                               "n1"         : [6.79609e-02],
-                                                               "n2"         : [2.09572e+00]}
+                                                               "sigma"      : {"par": [2.42675e+01],
+                                                                               "title": ""},
+                                                               "zeta"       : {"par": [0.0],
+                                                                               "title": ""},
+                                                               "fb"         : {"par": [0.0],
+                                                                               "title": ""},
+                                                               "l"          : {"par": [-5.46421e+00],
+                                                                               "title": ""},
+                                                               "a1"         : {"par": [3.04325e+00],
+                                                                               "title": ""},
+                                                               "a2"         : {"par": [6.62837e-01],
+                                                                               "title": ""},
+                                                               "n1"         : {"par": [6.79609e-02],
+                                                                               "title": ""},
+                                                               "n2"         : {"par": [2.09572e+00],
+                                                                               "title": ""}}
     #
     configdict["pdfList"]["Bd2DK"] = {}
     configdict["pdfList"]["Bd2DK"]["Title"] = "B_{d}#rightarrowDK"
@@ -207,29 +220,46 @@ def getconfig( samplemodeyear ) :
     configdict["pdfList"]["Bd2DK"]["Bd2DPi"]["BeautyMass"] = { "PDF"        : "Ipatia",
                                                                "shiftMean"  : False,#True,
                                                                "scaleTails" : False,
-                                                               "mean"       : [5.23938e+03,5.15e+03,5.35e+03],#"Signal_BeautyMass_mean_"+samplemodeyear+"_Bd2DPiHypo",
+                                                               "mean"       : {"par": [5.23938e+03,5.15e+03,5.35e+03],#"Signal_BeautyMass_mean_"+samplemodeyear+"_Bd2DPiHypo",
+                                                                               "title": ""},
                                                                #"shift"      : [5.23938e+03-Pipeak],
-                                                               "sigma"      : [2.59213e+01],
-                                                               "zeta"       : [0.0],
-                                                               "fb"         : [0.0],
-                                                               "l"          : [-3.98519e+01],
-                                                               "a1"         : [9.68988e-01],
-                                                               "a2"         : [1.23156e+00],
-                                                               "n1"         : [3.49691e+00],
-                                                               "n2"         : [1.00524e+01]}
+                                                               "sigma"      : {"par": [2.59213e+01],
+                                                                               "title": ""},
+                                                               "zeta"       : {"par": [0.0],
+                                                                               "title": ""},
+                                                               "fb"         : {"par": [0.0],
+                                                                               "title": ""},
+                                                               "l"          : {"par": [-3.98519e+01],
+                                                                               "title": ""},
+                                                               "a1"         : {"par": [9.68988e-01],
+                                                                               "title": ""},
+                                                               "a2"         : {"par": [1.23156e+00],
+                                                                               "title": ""},
+                                                               "n1"         : {"par": [3.49691e+00],
+                                                                               "title": ""},
+                                                               "n2"         : {"par": [1.00524e+01],
+                                                                               "title": ""}}
     configdict["pdfList"]["Bd2DK"]["Bd2DK"] = {}
     configdict["pdfList"]["Bd2DK"]["Bd2DK"]["BeautyMass"] = {"PDF"        : "Ipatia",
                                                              "shiftMean"  : False,
                                                              "scaleTails" : False,
                                                              "mean"       : "Signal_BeautyMass_mean_"+samplemodeyear+"_Bd2DKHypo",
-                                                             "sigma"      : [1.74271e+01, 1.5e+01, 1.9e+01],
-                                                             "zeta"       : [0.0],
-                                                             "fb"         : [0.0],
-                                                             "l"          : [-3.22645e+00],
-                                                             "a1"         : [2.60724e+00],
-                                                             "a2"         : [1.0e+09],
-                                                             "n1"         : [1.00877e+00],
-                                                             "n2"         : [0.0]}
+                                                             "sigma"      : {"par": [1.74271e+01, 1.5e+01, 1.9e+01],
+                                                                             "title": ""},
+                                                             "zeta"       : {"par": [0.0],
+                                                                             "title": ""},
+                                                             "fb"         : {"par": [0.0],
+                                                                             "title": ""},
+                                                             "l"          : {"par": [-3.22645e+00],
+                                                                             "title": ""},
+                                                             "a1"         : {"par": [2.60724e+00],
+                                                                             "title": ""},
+                                                             "a2"         : {"par": [1.0e+09],
+                                                                             "title": ""},
+                                                             "n1"         : {"par": [1.00877e+00],
+                                                                             "title": ""},
+                                                             "n2"         : {"par": [0.0],
+                                                                             "title": ""}}
     #
     configdict["pdfList"]["Bd2DRho"] = {}
     configdict["pdfList"]["Bd2DRho"]["Title"] = "B_{d}#rightarrowD#rho"
@@ -239,19 +269,27 @@ def getconfig( samplemodeyear ) :
     configdict["pdfList"]["Bd2DRho"]["Bd2DPi"]["BeautyMass"] = {"PDF"        : "JohnsonSU",
                                                                 "shiftMean" : True,
                                                                 "mean"      : "Signal_BeautyMass_mean_"+samplemodeyear+"_Bd2DPiHypo",
-                                                                "shift"     : [4.71618e+03-Pipeak],
-                                                                "sigma"     : [9.01304e+02],
-                                                                "nu"        : [-2.01671e+00],
-                                                                "tau"       : [1.29155e+00]}
+                                                                "shift"     : {"par": [4.71618e+03-Pipeak],
+                                                                               "title": ""},
+                                                                "sigma"     : {"par": [9.01304e+02],
+                                                                               "title": ""},
+                                                                "nu"        : {"par": [-2.01671e+00],
+                                                                               "title": ""},
+                                                                "tau"       : {"par": [1.29155e+00],
+                                                                               "title": ""}}
     configdict["pdfList"]["Bd2DRho"]["Bd2DK"] = {}
     configdict["pdfList"]["Bd2DRho"]["Bd2DK"]["BeautyMass"] = {"PDF"        : "DoubleGaussian",
                                                                "shiftMean"  : True,
                                                                "sameMean"   : True,
                                                                "mean"       : "Signal_BeautyMass_mean_"+samplemodeyear+"_Bd2DKHypo",
-                                                               "shift"      : [5.14019e+03-Kpeak],
-                                                               "sigma1"     : [9.00002e+01],
-                                                               "sigma2"     : [1.55484e+02],
-                                                               "frac"       : [8.30742e-01]}
+                                                               "shift"      : {"par": [5.14019e+03-Kpeak],
+                                                                               "title": ""},
+                                                               "sigma1"     : {"par": [9.00002e+01],
+                                                                               "title": ""},
+                                                               "sigma2"     : {"par": [1.55484e+02],
+                                                                               "title": ""},
+                                                               "frac"       : {"par": [8.30742e-01],
+                                                                               "title": ""}}
     #
     configdict["pdfList"]["Bd2DstPi"] = {}
     configdict["pdfList"]["Bd2DstPi"]["Title"] = "B_{d}#rightarrowD^{*}#pi"
@@ -260,24 +298,22 @@ def getconfig( samplemodeyear ) :
     configdict["pdfList"]["Bd2DstPi"]["Bd2DPi"] = {}
     configdict["pdfList"]["Bd2DstPi"]["Bd2DPi"]["BeautyMass"] = {"PDF"         : "CrystalBallPlusGaussian",
                                                                  "shiftMean"   : True,
+                                                                 "scaleWidths" : False,
                                                                  "mean"        : "Signal_BeautyMass_mean_"+samplemodeyear+"_Bd2DPiHypo",
-                                                                 "shift"       : [5.10033e+03-Pipeak],
-                                                                 "alpha"       : [-1.63404e+00],
-                                                                 "n"           : [4.65946e+00],
-                                                                 "sigmaCB"     : [4.15131e+01],
-                                                                 "sigmaG"      : [1.79617e+01],
-                                                                 "fracG"       : [1.32304e-01]}
+                                                                 "shift"       : {"par": [5.10033e+03-Pipeak],
+                                                                                  "title": ""},
+                                                                 "alpha"       : {"par": [-1.63404e+00],
+                                                                                  "title": ""},
+                                                                 "n"           : {"par": [4.65946e+00],
+                                                                                  "title": ""},
+                                                                 "sigmaCB"     : {"par": [4.15131e+01],
+                                                                                  "title": ""},
+                                                                 "sigmaG"      : {"par": [1.79617e+01],
+                                                                                  "title": ""},
+                                                                 "fracG"       : {"par": [1.32304e-01],
+                                                                                  "title": ""}}
     configdict["pdfList"]["Bd2DstPi"]["Bd2DK"] = {}
     configdict["pdfList"]["Bd2DstPi"]["Bd2DK"]["BeautyMass"] = {"PDF"        : "None"}
-    #
-    configdict["pdfList"]["Bs2DsPi"] = {}
-    configdict["pdfList"]["Bs2DsPi"]["Title"] = "B_{s}#rightarrowD_{s}#pi"
-    configdict["pdfList"]["Bs2DsPi"]["Color"] = kCyan
-    configdict["pdfList"]["Bs2DsPi"]["Style"] = kDotted
-    configdict["pdfList"]["Bs2DsPi"]["Bd2DPi"] = {}
-    configdict["pdfList"]["Bs2DsPi"]["Bd2DPi"]["BeautyMass"] = {"PDF"        : "None"}
-    configdict["pdfList"]["Bs2DsPi"]["Bd2DK"] = {}
-    configdict["pdfList"]["Bs2DsPi"]["Bd2DK"]["BeautyMass"] = {"PDF"        : "None"}
     #
     configdict["pdfList"]["Bd2DKst"] = {}
     configdict["pdfList"]["Bd2DKst"]["Title"] = "B_{d}#rightarrowDK^{*}"
@@ -288,8 +324,10 @@ def getconfig( samplemodeyear ) :
     configdict["pdfList"]["Bd2DKst"]["Bd2DK"] = {}
     configdict["pdfList"]["Bd2DKst"]["Bd2DK"]["BeautyMass"] = {"PDF"        : "Gaussian",
                                                                "shiftMean"  : False,
-                                                               "mean"       : [5.08528e+03, 4.9e+03, 5.2e+03],
-                                                               "sigma"      : [3.76140e+01, 1e+01, 6e+01]}
+                                                               "mean"       : {"par": [5.08528e+03, 4.9e+03, 5.2e+03],
+                                                                               "title": ""},
+                                                               "sigma"      : {"par": [3.76140e+01, 1e+01, 6e+01],
+                                                                               "title": ""}}
     #
     configdict["pdfList"]["Comb"] = {}
     configdict["pdfList"]["Comb"]["Title"] = "Combinatorial"
@@ -301,13 +339,17 @@ def getconfig( samplemodeyear ) :
     #                                                          "cB"           : [-2.27055e-03, -5.0e-03, -1.0e-03]}
     configdict["pdfList"]["Comb"]["Bd2DPi"]["BeautyMass"] = { "PDF"          : "ExponentialPlusConstant",
                                                               "Title"        : "Combinatorial",
-                                                              "cB"           : [-5.59102e-03, -15.0e-03, -1.0e-03],
-                                                              "fracExpo"     : [8.77658e-01,0.3,0.99]}
+                                                              "cB"           : {"par": [-5.59102e-03, -15.0e-03, -1.0e-03],
+                                                                                "title": ""},
+                                                              "fracExpo"     : {"par": [8.77658e-01,0.3,0.99],
+                                                                                "title": ""}}
     configdict["pdfList"]["Comb"]["Bd2DK"] = {}
     configdict["pdfList"]["Comb"]["Bd2DK"]["BeautyMass"] = { "PDF"          : "ExponentialPlusConstant",
                                                              "Title"        : "Combinatorial",
-                                                             "cB"           : [-4.15525e-03, -8.0e-03, -2.0e-03],
-                                                             "fracExpo"     : [9.38575e-01,0.3,0.99]}
+                                                             "cB"           : {"par": [-4.15525e-03, -8.0e-03, -2.0e-03],
+                                                                               "title": ""},
+                                                             "fracExpo"     : {"par": [9.38575e-01,0.3,0.99],
+                                                                               "title": ""}}
 
     #Axes titles
     configdict["AxisTitle"] = {"BeautyMass": {"Bd2DPi":"D#pi mass (MeV/c^{2})",
@@ -339,13 +381,24 @@ def getconfig( samplemodeyear ) :
                           "Y"    : 0.7}
 
     #Yields
-    configdict["Yields"] = {"Signal"   : {"Bd2DPi"  : "nSig_"+samplemodeyear+"_Bd2DPiHypo_Evts", "Bd2DK": "nSig_"+samplemodeyear+"_Bd2DKHypo_Evts"},
-                            "Bd2DK"    : {"Bd2DPi"  : "nBd2DK_"+samplemodeyear+"_Bd2DPiHypo_Evts", "Bd2DK": "nBd2DK_"+samplemodeyear+"_Bd2DKHypo_Evts"},
-                            "Bd2DRho"  : {"Bd2DPi"  : [7.40343e+04,0,500000], "Bd2DK": "nBd2DRho_"+samplemodeyear+"_Bd2DKHypo_Evts"},
-                            "Bd2DstPi" : {"Bd2DPi"  : [6.80954e+04,0,500000], "Bd2DK": [0]},
-                            "Bs2DsPi"  : {"Bd2DPi"  : [0], "Bd2DK": [0]},
-                            "Bd2DKst"  : {"Bd2DPi"  : [0], "Bd2DK": "nBd2DKst_"+samplemodeyear+"_Bd2DKHypo_Evts"},
-                            "Comb"     : {"Bd2DPi"  : [8.23965e+04,5000,500000], "Bd2DK": [2.40497e+04,500,100000]}}
+    configdict["Yields"] = {"Signal"   : {"Bd2DPi"  : "nSig_"+samplemodeyear+"_Bd2DPiHypo_Evts",
+                                          "Bd2DK": "nSig_"+samplemodeyear+"_Bd2DKHypo_Evts"},
+                            "Bd2DK"    : {"Bd2DPi"  : "nBd2DK_"+samplemodeyear+"_Bd2DPiHypo_Evts",
+                                          "Bd2DK": "nBd2DK_"+samplemodeyear+"_Bd2DKHypo_Evts"},
+                            "Bd2DRho"  : {"Bd2DPi"  : {"par": [7.5224e+04,0,500000],
+                                                       "title": ""},
+                                          "Bd2DK": "nBd2DRho_"+samplemodeyear+"_Bd2DKHypo_Evts"},
+                            "Bd2DstPi" : {"Bd2DPi"  : {"par": [6.1404e+04,0,500000],
+                                                       "title": ""},
+                                          "Bd2DK": {"par":  [0],
+                                                    "title": ""}},
+                            "Bd2DKst"  : {"Bd2DPi"  : {"par": [0],
+                                                       "title": ""},
+                                          "Bd2DK": "nBd2DKst_"+samplemodeyear+"_Bd2DKHypo_Evts"},
+                            "Comb"     : {"Bd2DPi"  : {"par": [4.8362e+04,5000,500000],
+                                                       "title": ""},
+                                          "Bd2DK": {"par": [2.1674e+04,500,100000],
+                                                    "title": ""}}}
 
     #Gaussian constraints
     configdict["GaussianConstraints"] = {}

@@ -14,7 +14,7 @@ def getconfig() :
                                                    "Range" : [5090, 6000]},
                                  "BeautyTime":    {"Type" : "RooRealVar",
                                                    "Title" : "B decay time (ps)",
-                                                   "Range" : [0.2, 15.0]},
+                                                   "Range" : [0.4, 15.0]},
                                  #"BeautyTimeErr": {"Type" : "RooRealVar",
                                  #                  "Title" : "B decay time error (ps)",
                                  #                  "Range" : [0.01, 0.1]},
@@ -49,7 +49,7 @@ def getconfig() :
     #bachelor PID bins the final dataset is splitted into
     ############################################################
 
-    configdict["Hypothesys"] = ["Bd2DPi"]#, "Bd2DK"]
+    configdict["Hypothesys"] = ["Bd2DPi", "Bd2DK"]
 
     ############################################################
     #Signal decay and Charm decay mode
@@ -68,7 +68,7 @@ def getconfig() :
     lum2011 =  configdict["IntegratedLuminosity"]["2011"]["Up"] + configdict["IntegratedLuminosity"]["2011"]["Down"]
     lum2012 =  configdict["IntegratedLuminosity"]["2012"]["Up"] + configdict["IntegratedLuminosity"]["2012"]["Down"]
     fracRun1 = lum2011/(lum2011 + lum2012)
-    DRho_to_DKst_KHypo = 1.15744e-01
+    DRho_to_DKst_KHypo = 8.5000e-01
     eff_Bd2DK_DK = 6.29009e-01
     eff_Bd2DPi_DPi = 9.78927e-01
 
@@ -82,31 +82,31 @@ def getconfig() :
     ############################################################
 
     configdict["Components"] = {}
-    configdict["Components"] = {"Signal"        : {"Bd2DPi": {"2011" : {"KPiPi": [5.49162e+05*fracRun1] },
-                                                              "2012" : {"KPiPi": [5.49162e+05*(1-fracRun1)] }}      }}  #,
-                               #                    "Bd2DK" : {"2011" : {"KPiPi": [((1-eff_Bd2DPi_DPi)/eff_Bd2DPi_DPi)*5.49162e+05*fracRun1] },
-                               #                               "2012" : {"KPiPi": [((1-eff_Bd2DPi_DPi)/eff_Bd2DPi_DPi)*5.49162e+05*(1-fracRun1)] }}},
-                               # "Bd2DK"         : {"Bd2DPi": {"2011" : {"KPiPi": [((1-eff_Bd2DK_DK)/eff_Bd2DK_DK)*3.23144e+04*fracRun1] },
-                               #                               "2012" : {"KPiPi": [((1-eff_Bd2DK_DK)/eff_Bd2DK_DK)*3.23144e+04*(1-fracRun1)] }},
-                               #                    "Bd2DK" : {"2011" : {"KPiPi": [3.23144e+04*fracRun1] },
-                               #                               "2012" : {"KPiPi": [3.23144e+04*(1-fracRun1)] }}},
-                               # "Bd2DRho"       : {"Bd2DPi": {"2011" : {"KPiPi": [7.40343e+04*fracRun1] },
-                               #                               "2012" : {"KPiPi": [7.40343e+04*(1-fracRun1)] }},
-                               #                    "Bd2DK" : {"2011" : {"KPiPi": [DRho_to_DKst_KHypo*6.06144e+03*fracRun1] },
-                               #                               "2012" : {"KPiPi": [DRho_to_DKst_KHypo*6.06144e+03*(1-fracRun1)] }}},
-                               # "Bd2DstPi"      : {"Bd2DPi": {"2011" : {"KPiPi": [6.80954e+04*fracRun1] },
-                               #                               "2012" : {"KPiPi": [6.80954e+04*(1-fracRun1)] }},
-                               #                    "Bd2DK" : {"2011" : {"KPiPi": [0] },
-                               #                               "2012" : {"KPiPi": [0] }}},
-                               # "Bd2DKst"       : {"Bd2DPi": {"2011" : {"KPiPi": [0] },
-                               #                               "2012" : {"KPiPi": [0] }},
-                               #                    "Bd2DK" : {"2011" : {"KPiPi": [6.06144e+03*fracRun1] },
-                               #                               "2012" : {"KPiPi": [6.06144e+03*(1-fracRun1)] }}},
-                               # "Combinatorial" :  {"Bd2DPi": {"2011" : {"KPiPi": [8.23965e+04*fracRun1] },
-                               #                                "2012" : {"KPiPi": [8.23965e+04*(1-fracRun1)] }},
-                               #                     "Bd2DK" : {"2011" : {"KPiPi": [2.40497e+04*fracRun1] },
-                               #                                "2012" : {"KPiPi": [2.40497e+04*(1-fracRun1)] }}}
-                               # }
+    configdict["Components"] = {"Signal"        : {"Bd2DPi": {"2011" : {"KPiPi": [5.2848e+05*fracRun1] },
+                                                              "2012" : {"KPiPi": [5.2848e+05*(1-fracRun1)] }},
+                                                   "Bd2DK" : {"2011" : {"KPiPi": [((1-eff_Bd2DPi_DPi)/eff_Bd2DPi_DPi)*5.2848e+05*fracRun1] },
+                                                              "2012" : {"KPiPi": [((1-eff_Bd2DPi_DPi)/eff_Bd2DPi_DPi)*5.2848e+05*(1-fracRun1)] }}},
+                                "Bd2DK"         : {"Bd2DPi": {"2011" : {"KPiPi": [((1-eff_Bd2DK_DK)/eff_Bd2DK_DK)*3.0795e+04*fracRun1] },
+                                                              "2012" : {"KPiPi": [((1-eff_Bd2DK_DK)/eff_Bd2DK_DK)*3.0795e+04*(1-fracRun1)] }},
+                                                   "Bd2DK" : {"2011" : {"KPiPi": [3.0795e+04*fracRun1] },
+                                                              "2012" : {"KPiPi": [3.0795e+04*(1-fracRun1)] }}},
+                                "Bd2DRho"       : {"Bd2DPi": {"2011" : {"KPiPi": [7.5224e+04*fracRun1] },
+                                                              "2012" : {"KPiPi": [7.5224e+04*(1-fracRun1)] }},
+                                                   "Bd2DK" : {"2011" : {"KPiPi": [DRho_to_DKst_KHypo*3.7873e+03*fracRun1] },
+                                                              "2012" : {"KPiPi": [DRho_to_DKst_KHypo*3.7873e+03*(1-fracRun1)] }}},
+                                "Bd2DstPi"      : {"Bd2DPi": {"2011" : {"KPiPi": [6.1404e+04*fracRun1] },
+                                                              "2012" : {"KPiPi": [6.1404e+04*(1-fracRun1)] }},
+                                                   "Bd2DK" : {"2011" : {"KPiPi": [0] },
+                                                              "2012" : {"KPiPi": [0] }}},
+                                "Bd2DKst"       : {"Bd2DPi": {"2011" : {"KPiPi": [0] },
+                                                              "2012" : {"KPiPi": [0] }},
+                                                   "Bd2DK" : {"2011" : {"KPiPi": [3.7873e+03*fracRun1] },
+                                                              "2012" : {"KPiPi": [3.7873e+03*(1-fracRun1)] }}},
+                                "Combinatorial" :  {"Bd2DPi": {"2011" : {"KPiPi": [4.8362e+04*fracRun1] },
+                                                               "2012" : {"KPiPi": [4.8362e+04*(1-fracRun1)] }},
+                                                    "Bd2DK" : {"2011" : {"KPiPi": [2.1674e+04*fracRun1] },
+                                                               "2012" : {"KPiPi": [2.1674e+04*(1-fracRun1)] }}}
+                                }
 
     ############################################################
     #"Code" to identify the True ID for each component
@@ -252,7 +252,7 @@ def getconfig() :
                                                                                       "fracExpo"     : [9.38575e-01]}
     configdict["PDFList"]["BeautyMass"]["Combinatorial"]["Bd2DPi"]["2012"] = configdict["PDFList"]["BeautyMass"]["Combinatorial"]["Bd2DPi"]["2011"]
     configdict["PDFList"]["BeautyMass"]["Combinatorial"]["Bd2DK"]["2012"] = configdict["PDFList"]["BeautyMass"]["Combinatorial"]["Bd2DK"]["2011"]
-
+    
     ############################################################
     #Tagging calibration and mistag PDF. If "MistagPDF" : None,
     #then a average mistag is used
@@ -261,38 +261,38 @@ def getconfig() :
     configdict["Taggers"] = {}
     for comp in configdict["Components"].iterkeys():
         configdict["Taggers"][comp] = {}
-        configdict["Taggers"][comp] = {"OS" :
+        configdict["Taggers"][comp] = {"OS" : #From Bu, stat and syst combined
                                        {"Calibration":
-                                        {"p0"       : [0.37795],
-                                         "p1"       : [0.97541],
-                                         "deltap0"  : [0.018825],
-                                         "deltap1"  : [0.042438],
-                                         "avgeta"   : [0.37079],
-                                         "tageff"   : [0.38],
+                                        {"p0"       : [0.3737056],
+                                         "p1"       : [1.028621],
+                                         "deltap0"  : [0.011819],
+                                         "deltap1"  : [0.043134],
+                                         "avgeta"   : [0.37030718978], #this is the mean of the RooHistPDF loaded below
+                                         "tageff"   : [0.371],
                                          "tagasymm" : [0.0]
                                          },
                                         "MistagPDF" :
-                                        {"Type"     : "Mock",
-                                         "eta0"     : [0.0],
-                                         "etaavg"   : [0.37079],
-                                         "f"        : [0.25]
+                                        {"Type"       : "FromWorkspace",
+                                         "File"       : "root://eoslhcb.cern.ch//eos/lhcb/wg/b2oc/TD_DPi_3fb/MistagTemplates/templates_mistag.root",
+                                         "Workspace"  : "workspace",
+                                         "Name"       : "sigMistagPdf_2"
                                          }
                                         },
-                                       "SS":
+                                       "SS": #TO BE UPDATED!!!
                                        {"Calibration":
-                                        {"p0"       : [0.37110],
-                                         "p1"       : [1.0409],
-                                         "deltap0"  : [0.0056312],
-                                         "deltap1"  : [-0.0869332],
-                                         "avgeta"   : [0.38693],
-                                         "tageff"   : [0.80],
+                                        {"p0"       : [0.441492575813],
+                                         "p1"       : [1.0],
+                                         "deltap0"  : [0.0],
+                                         "deltap1"  : [0.0],
+                                         "avgeta"   : [0.441492575813], #this is the mean of the RooHistPDF loaded below
+                                         "tageff"   : [0.7128],
                                          "tagasymm" : [0.0]
                                          },
                                         "MistagPDF" :
-                                        {"Type"     : "Mock",
-                                         "eta0"     : [0.0],
-                                         "etaavg"   : [0.38693],
-                                         "f"        : [0.25]
+                                        {"Type"       : "FromWorkspace",
+                                         "File"       : "root://eoslhcb.cern.ch//eos/lhcb/wg/b2oc/TD_DPi_3fb/MistagTemplates/templates_mistag.root",
+                                         "Workspace"  : "workspace",
+                                         "Name"       : "sigMistagPdf_1"
                                          }
                                         }
                                        }
@@ -308,14 +308,13 @@ def getconfig() :
     for comp in configdict["Components"].iterkeys():
         configdict["ResolutionAcceptance"][comp] = {}
         configdict["ResolutionAcceptance"][comp] = {"TimeErrorPDF": None,
-                                                    "Acceptance":
+                                                    "Acceptance":  #From ANA note v2
                                                     {"Type": "Spline",
                                                      "KnotPositions" : [ 0.5, 1.0, 1.5, 2.0, 3.0, 12.0 ],
-                                                     "KnotCoefficients" : [ 4.5853e-01, 6.8963e-01, 8.8528e-01,
-                                                                            1.1296e+00, 1.2232e+00, 1.2277e+00 ]},
-                                                    "Resolution":
+                                                     "KnotCoefficients" : [ 0.3889, 0.5754, 0.8515, 1.0649, 1.2373, 1.4149]},
+                                                    "Resolution": #From ANA note v2
                                                     {"Type": "AverageModel",
-                                                     "Parameters": { 'sigmas': [ 0.050 ], 'fractions': [] },
+                                                     "Parameters": { 'sigmas': [ 0.05491 ], 'fractions': [] },
                                                      "Bias": [0.0],
                                                      "ScaleFactor": [1.0]}
                                                     }
@@ -328,8 +327,8 @@ def getconfig() :
     configdict["DetectionAsymmetry"] = {}
     configdict["ProductionAsymmetry"]["Signal"] = {}
     configdict["DetectionAsymmetry"]["Signal"] = {}
-    configdict["ProductionAsymmetry"]["Signal"] = [-0.0058] #from arXiv:1408.0275
-    configdict["DetectionAsymmetry"]["Signal"] = [0.005] #a random value, for now
+    configdict["ProductionAsymmetry"]["Signal"] = [-0.0124] #from ANA note v2
+    configdict["DetectionAsymmetry"]["Signal"] = [0.0086] #from arXiv:1408.0275v2 (OPPOSITE SIGN!!!)
     for comp in configdict["Components"].iterkeys():
         if comp != "Signal":
             #We don't really care about background
@@ -359,12 +358,17 @@ def getconfig() :
     ArgAbarfbar_d   =  0.002278
 
     #Signal (use more convenient interface with ArgLf_d, ArgLbarfbar_d and ModLf_d)
-    configdict["ACP"]["Signal"] = { "Gamma"                : [0.656],
-                                    "DeltaGamma"           : [0.00267],
-                                    "DeltaM"               : [0.510],
-                                    "ArgLf"                : [ArgqOverp_d + ArgAbarf_d - ArgAf_d],
-                                    "ArgLbarfbar"          : [ArgpOverq_d + ArgAfbar_d - ArgAbarfbar_d],
-                                    "ModLf"                : [ModAbarf_d/ModAf_d],
+    configdict["ACP"]["Signal"] = { "Gamma"                : [1.0 / 1.520], #Inverse lifetime from HFAG (http://www.slac.stanford.edu/xorg/hfag/osc/summer_2016/)
+                                    "DeltaGamma"           : [0.0],
+                                    "DeltaM"               : [0.5064], #Global average from HFAG (http://www.slac.stanford.edu/xorg/hfag/osc/summer_2016/)
+                                    #"ArgLf"                : [ArgqOverp_d + ArgAbarf_d - ArgAf_d],
+                                    #"ArgLbarfbar"          : [ArgpOverq_d + ArgAfbar_d - ArgAbarfbar_d],
+                                    #"ModLf"                : [ModAbarf_d/ModAf_d],
+                                    "C"                    : [1.0], #we neglect r^2 terms
+                                    "S"                    : [-0.031], #from decfile
+                                    "Sbar"                 : [0.029], #from decfile
+                                    "D"                    : [0], #from DeltaGamma=0
+                                    "Dbar"                 : [0], #from DeltaGamma=0
                                     "ParameteriseIntegral" : True,
                                     "NBinsAcceptance"      : 0} #keep at zero if using spline acceptance!
 

@@ -504,11 +504,11 @@ def makeText(size):
 def BuildParForPDF(workOut, typemode, varName, parName, samplemode, pdfDict):
 
 	par = False
-	if type(pdfDict[parName]) == list:
+	if type(pdfDict[parName]) == dict:
 		print "Creating parameter "+typemode+"_"+varName+"_"+parName+"_"+samplemode
 		par = WS(workOut, RooRealVar(typemode+"_"+varName+"_"+parName+"_"+samplemode,
-					     typemode+"_"+varName+"_"+parName+"_"+samplemode,
-					     *pdfDict[parName]))
+					     pdfDict[parName]["title"],
+					     *pdfDict[parName]["par"]))
 	elif type(pdfDict[parName]) == str:
 		print "Taking parameter "+pdfDict[parName]+" from workspace"
 		par = workOut.obj( pdfDict[parName] )
@@ -659,12 +659,15 @@ def BuildCrystalBallPlusGaussianPDF(workOut, obs, nickname, samplemode, pdfDict,
 	varName = obs.GetName()
 	typemode = nickname+"_CBplusG"
 	shiftMean = pdfDict["shiftMean"]
+	scaleWidths = pdfDict["scaleWidths"]
 
 	parList = []
 	for par in ["mean", "alpha", "n", "sigmaCB", "sigmaG", "fracG"]:
 		parList.append(BuildParForPDF(workOut, typemode, varName, par, samplemode, pdfDict))
 	if shiftMean:
 		parList.append(BuildParForPDF(workOut, typemode, varName, "shift", samplemode, pdfDict))
+	if scaleWidths:
+		parList.append(BuildParForPDF(workOut, typemode, varName, "scaleSigma", samplemode, pdfDict))
 	
 	#Build PDF
 	pdf = Bd2DhModels.buildCrystalBallPlusGaussianPDF(obs,
@@ -672,7 +675,32 @@ def BuildCrystalBallPlusGaussianPDF(workOut, obs, nickname, samplemode, pdfDict,
 							  samplemode,
 							  typemode,
 							  shiftMean,
+							  scaleWidths,
 							  debug)
+	
+	return WS(workOut, pdf)
+
+#------------------------------------------------------------
+def BuildCrystalBallPlusExponentialPDF(workOut, obs, nickname, samplemode, pdfDict, debug):
+
+	#Build parameters
+	varName = obs.GetName()
+	typemode = nickname+"_CBplusE"
+	shiftMean = pdfDict["shiftMean"]
+
+	parList = []
+	for par in ["mean", "alpha", "n", "sigmaCB", "cB", "fracExpo"]:
+		parList.append(BuildParForPDF(workOut, typemode, varName, par, samplemode, pdfDict))
+	if shiftMean:
+		parList.append(BuildParForPDF(workOut, typemode, varName, "shift", samplemode, pdfDict))
+
+	#Build PDF
+	pdf = Bd2DhModels.buildCrystalBallPlusExponentialPDF(obs,
+							     workOut,
+							     samplemode,
+							     typemode,
+							     shiftMean,
+							     debug)
 	
 	return WS(workOut, pdf)
 
@@ -730,12 +758,15 @@ def BuildJohnsonSUPlusGaussianPDF(workOut, obs, nickname, samplemode, pdfDict, d
 	varName = obs.GetName()
 	typemode = nickname+"_JplusG"
 	sameMean = pdfDict["sameMean"]
+	shiftMean = pdfDict["shiftMean"]
 
 	parList = []
-	for par in ["meanJ", "sigmaJ", "nuJ", "tauJ", "meanGshift", "sigmaG", "frac"]:
+	for par in ["meanJ", "sigmaJ", "nuJ", "tauJ", "sigmaG", "frac"]:
 		parList.append(BuildParForPDF(workOut, typemode, varName, par, samplemode, pdfDict))
+	if shiftMean:
+		parList.append(BuildParForPDF(workOut, typemode, varName, "shift", samplemode, pdfDict))
 	if not sameMean:
-		parList.append(BuildParForPDF(workOut, typemode, varName, "meanG", samplemode, pdfDict))
+		parList.append(BuildParForPDF(workOut, typemode, varName, "meanGshift", samplemode, pdfDict))
         
         #Build PDF
 	pdf = Bd2DhModels.buildJohnsonSUPlusGaussianPDF(obs,
@@ -743,6 +774,7 @@ def BuildJohnsonSUPlusGaussianPDF(workOut, obs, nickname, samplemode, pdfDict, d
 							samplemode,
 							typemode,
 							sameMean,
+                                                        shiftMean,
 							debug)
         
 	return WS(workOut, pdf)
@@ -923,6 +955,8 @@ def BuildCompPdf(workOut, workTemplates, configfile, component, hypothesys, samp
 			pdfList.append(BuildIpatiaPDF(workOut, obs, nickname, samplemodeyearhyp, pdfDict, debug))
 		elif "CrystalBallPlusGaussian" in pdfType:
 			pdfList.append(BuildCrystalBallPlusGaussianPDF(workOut, obs, nickname, samplemodeyearhyp, pdfDict, debug))
+		elif "CrystalBallPlusExponential" in pdfType:
+			pdfList.append(BuildCrystalBallPlusExponentialPDF(workOut, obs, nickname, samplemodeyearhyp, pdfDict, debug))
 		elif "DoubleGaussian" in pdfType:
 			pdfList.append(BuildDoubleGaussPDF(workOut, obs, nickname, samplemodeyearhyp, pdfDict, debug))
 		elif "Gaussian" in pdfType:
@@ -946,15 +980,15 @@ def BuildCompPdf(workOut, workTemplates, configfile, component, hypothesys, samp
 			exit(-1)
 
 	#Build yield variable
-	if type(configfile["Yields"][component][hypothesys]) == list:
-		if "Sig" in component: #Guarantee compatibility with runSFit.py
+	if type(configfile["Yields"][component][hypothesys]) == dict:
+		if "Sig" in component: #Guarantee compatibility with runSFit*.py scripts
 			nEvts = RooRealVar("nSig_"+samplemodeyearhyp+"_Evts",
-					   "nSig_"+samplemodeyearhyp+"_Evts",
-					   *configfile["Yields"][component][hypothesys])
+					   configfile["Yields"][component][hypothesys]["title"],
+					   *configfile["Yields"][component][hypothesys]["par"])
 		else:
 			nEvts = RooRealVar("n"+component+"_"+samplemodeyearhyp+"_Evts",
-					   "n"+component+"_"+samplemodeyearhyp+"_Evts",
-					   *configfile["Yields"][component][hypothesys])
+					   configfile["Yields"][component][hypothesys]["title"],
+					   *configfile["Yields"][component][hypothesys]["par"])
 	elif type(configfile["Yields"][component][hypothesys]) == str:
 		nEvts = workOut.obj(configfile["Yields"][component][hypothesys])
 	else:
@@ -1165,6 +1199,9 @@ def runMDFitter_Bd( debug,
 
 	MDSettings = mdt.getConfig()
 	MDSettings.Print("v")
+
+	fitResult = None
+	sWeightsFitResult = None
 
 	print ""
 	print "========================================="
@@ -1445,10 +1482,13 @@ def runMDFitter_Bd( debug,
 		fitOpts = [#RooFit.Range(rangeName),
 			RooFit.Save(1),
 			RooFit.Optimize(2),
+			RooFit.Offset(True),
 			RooFit.Strategy(2),
-			RooFit.Verbose(False),
+			#RooFit.Verbose(False),
 			RooFit.Timer(True),
-			RooFit.Offset(True)]
+			RooFit.NumCPU(4)]#,
+			#RooFit.Minimizer("Minuit2", "migrad")]#,
+			#RooFit.Minos(True)]
 		if None != constrPDFs:
 			fitOpts.append(RooFit.ExternalConstraints(constrPDFs))
 
@@ -1479,20 +1519,9 @@ def runMDFitter_Bd( debug,
 		corrMat.Print("v")
 
 		#Plot correlation and covariance matrices
-		gStyle.SetOptStat(0)
-		gStyle.SetPaintTextFormat("4.1f")
-		
-		cCov = TCanvas("cCov")
-		cCov.cd()
-		covMat.Draw("TEXT45COLZ")
-		namefile = outputplotdir+"MDFit_CovarianceMatrix.pdf"
-		cCov.SaveAs(namefile)
-
-		cCorr = TCanvas("cCorr")
-		cCorr.cd()
-		corrMat.Draw("TEXT45COLZ")
-		namefile = outputplotdir+"MDFit_CorrelationMatrix.pdf"
-		cCorr.SaveAs(namefile)
+		from B2DXFitters.FitResultGrabberUtils import PlotResultMatrix
+		PlotResultMatrix(fitResult, "covariance", outputplotdir+"MDFit_CovarianceMatrix.pdf")
+		PlotResultMatrix(fitResult, "correlation", outputplotdir+"MDFit_CorrelationMatrix.pdf")
 
 		#Update what is contained in workspace
 		fitResult = WS(workspaceOut, fitResult)
@@ -1552,7 +1581,7 @@ def runMDFitter_Bd( debug,
 						      namefile)
 
 
-	if sWeights:
+	if sWeights and not superimpose:
 
 		if fitResult.status() != 0 or fitResult.covQual() != 3:
 			print "ERROR: fit quality is bad. Not computing sWeights."
@@ -1851,6 +1880,17 @@ def runMDFitter_Bd( debug,
 				
 			del sWeightsCalculator
 
+
+	print ""
+	print "========================================="
+	print "Pretty-printing fit results"
+	print "========================================="
+	print ""
+	from B2DXFitters import FitResultGrabberUtils
+	if None != fitResult:
+		FitResultGrabberUtils.PrintLatexTable(fitResult)
+	if None != sWeightsFitResult:
+		FitResultGrabberUtils.PrintLatexTable(sWeightsFitResult)
 						
 	print ""
 	print "========================================="
