@@ -9,7 +9,7 @@ def getconfig() :
 
     ############################################
     # Define all basic variables
-    ############################################ 
+    ############################################
 
     configdict["BasicVariables"] = {}
     configdict["BasicVariables"]["BeautyMass"]    = { "Range"                  : [5090,    6000    ],
@@ -48,7 +48,7 @@ def getconfig() :
     configdict["BasicVariables"]["BacCharge"]     = { "Range"                  : [-1000.0, 1000.0  ],
                                                       "Name"                   : "BacCharge",
                                                       "InputName"              : "lab1_ID"}
-    
+
     configdict["BasicVariables"]["TagDecOS"]      = { "Range"                  : [-1.0,    1.0     ],
                                                       "Name"                   : "TagDecOS",
                                                       "InputName"              : "lab0_TAGDECISION_OS"}
@@ -64,15 +64,15 @@ def getconfig() :
     configdict["BasicVariables"]["MistagSS"]      = { "Range"                  : [ 0.0,    0.5     ],
                                                       "Name"                   : "MistagSS",
                                                       "InputName"              : "lab0_SS_PionBDT_PROB"}
-    
+
     configdict["AdditionalVariables"] = {}
     configdict["AdditionalVariables"]["TrueID"]   = { "Range"                  : [0.0, 1500.0],
                                                       "InputName"              : "TrueID" }
-    
+
 
     ############################################
     # Define all CPV and decay rate parameters
-    ############################################ 
+    ############################################
 
     #Parameters from https://svnweb.cern.ch/trac/lhcb/browser/DBASE/tags/Gen/DecFiles/v27r42/dkfiles/Bd_D-pi+,Kpipi=CPVDDalitz,DecProdCut.dec)
     ModqOverp_d     =  1
@@ -126,13 +126,13 @@ def getconfig() :
     ############################################
     # Define asymmetries
     ############################################
-    
+
     configdict["ProductionAsymmetry"] = {}
     configdict["DetectionAsymmetry"] = {}
     configdict["ProductionAsymmetry"]["Signal"] = {}
     configdict["DetectionAsymmetry"]["Signal"] = {}
     configdict["ProductionAsymmetry"]["Signal"] = [-0.0124] #from ANA note v2
-    configdict["DetectionAsymmetry"]["Signal"] = [0.0086] #from arXiv:1408.0275v2 (OPPOSITE SIGN!!!) 
+    configdict["DetectionAsymmetry"]["Signal"] = [0.0086] #from arXiv:1408.0275v2 (OPPOSITE SIGN!!!)
 
     ############################################
     # Define taggers and their calibration
@@ -140,7 +140,7 @@ def getconfig() :
 
     configdict["Taggers"] = {}
     configdict["Taggers"]["Signal"] = {}
-    configdict["Taggers"]["Signal"] = {"OS" : #From Bu, stat and syst combined 
+    configdict["Taggers"]["Signal"] = {"OS" : #From Bu, stat and syst combined
                                        {"Calibration":
                                         {"p0"       : [0.3737056],
                                          "p1"       : [1.028621],
@@ -153,14 +153,14 @@ def getconfig() :
                                         "MistagPDF" :
                                         {"Type"     : "BuildTemplate"}
                                         },
-                                       "SS": #TO BE UPDATED!!!
+                                       "SS": #From JpsiKst, stat and syst combined
                                        {"Calibration":
-                                        {"p0"       : [0.441492575813],
-                                         "p1"       : [1.0],
-                                         "deltap0"  : [0.0],
-                                         "deltap1"  : [0.0],
+                                        {"p0"       : [0.4424049],
+                                         "p1"       : [0.81302],
+                                         "deltap0"  : [0.00062332],
+                                         "deltap1"  : [0.0066248],
                                          "avgeta"   : [0.441492575813], #this is the mean of the RooHistPDF used in generation
-                                         "tageff"   : [0.7128, 0.01, 0.99], #float in the fit
+                                         "tageff"   : [0.816, 0.01, 0.99], #float in the fit
                                          "tagasymm" : [0.0]
                                          },
                                         "MistagPDF" :
@@ -171,7 +171,7 @@ def getconfig() :
     ############################################
     # Choose parameters to fix
     ############################################
-                                       
+
     configdict["constParams"] = []
     configdict["constParams"].append('Cf')
     configdict["constParams"].append('Cfbar')
@@ -207,7 +207,14 @@ def getconfig() :
                                                      [0.0092814,  -0.048821,      0.14218,                1] ]
                                                    ]
     #Add constraint for SS combination !!!
-    
+    configdict["gaussCons"]["multivarSSCalib"] = [ ['p0_SS', 'p1_SS', 'deltap0_SS', 'deltap1_SS'], #parname
+                                                   [0.007431465, 0.05246453784, 0.004264925, 0.08085860086], #errors
+                                                   [ [1,         -0.054207,       -0.01714,       -0.0048873],  #correlation matrix from EPM
+                                                     [-0.054207,         1,       -0.004997,       -0.0053978],
+                                                     [-0.01714, -0.004997,             1,         -0.071635],
+                                                     [-0.0048873,  -0.0053978,      -0.071635,                1] ]
+                                                   ]
+
     ############################################
     # Choose parameters to perform the
     # likelihood scan for
@@ -225,5 +232,5 @@ def getconfig() :
     configdict["randomiseParams"] = {'Sf'                          : {'min': -0.04,   'max': -0.02},
                                      'Sfbar'                       : {'min': 0.02, 'max': 0.04}
                                      }
-    
+
     return configdict

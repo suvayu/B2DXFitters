@@ -252,7 +252,7 @@ def getconfig() :
                                                                                       "fracExpo"     : [9.38575e-01]}
     configdict["PDFList"]["BeautyMass"]["Combinatorial"]["Bd2DPi"]["2012"] = configdict["PDFList"]["BeautyMass"]["Combinatorial"]["Bd2DPi"]["2011"]
     configdict["PDFList"]["BeautyMass"]["Combinatorial"]["Bd2DK"]["2012"] = configdict["PDFList"]["BeautyMass"]["Combinatorial"]["Bd2DK"]["2011"]
-    
+
     ############################################################
     #Tagging calibration and mistag PDF. If "MistagPDF" : None,
     #then a average mistag is used
@@ -278,14 +278,14 @@ def getconfig() :
                                          "Name"       : "sigMistagPdf_2"
                                          }
                                         },
-                                       "SS": #TO BE UPDATED!!!
+                                       "SS": #From JpsiKst, stat and syst combined
                                        {"Calibration":
-                                        {"p0"       : [0.441492575813],
-                                         "p1"       : [1.0],
-                                         "deltap0"  : [0.0],
-                                         "deltap1"  : [0.0],
+                                        {"p0"       : [0.4424049],
+                                         "p1"       : [0.81302],
+                                         "deltap0"  : [0.00062332],
+                                         "deltap1"  : [0.0066248],
                                          "avgeta"   : [0.441492575813], #this is the mean of the RooHistPDF loaded below
-                                         "tageff"   : [0.7128],
+                                         "tageff"   : [0.816],
                                          "tagasymm" : [0.0]
                                          },
                                         "MistagPDF" :
