@@ -321,7 +321,7 @@ def runSFit(debug, wsname,
         dataWA.Print("v")
         data.Print()
         dataWA.Print()
-        
+
     else:
 
         print ""
@@ -555,27 +555,28 @@ def runSFit(debug, wsname,
                 numdata = RooDataSet("numdata"+str(t), "numdata", data, data.get(), MDSettings.GetTagVarOutName(t).Data()+"!=0")
                 num = float( numdata.numEntries() )
                 den = float( data.numEntries() )
-                import uncertainties, math
-                from uncertainties import ufloat
-                tagefferr = ufloat(num, math.sqrt(num)) / ufloat(den, math.sqrt(den))
-                tagefferr = tagefferr.std_dev
+                # import uncertainties, math
+                # import math
+                # from uncertainties import ufloat
+                # tagefferr = ufloat(num, math.sqrt(num)) / ufloat(den, math.sqrt(den))
+                # tagefferr = tagefferr.std_dev
             else:
                 etamean[0] = dataWA.mean(obs.find(MDSettings.GetTagOmegaVarOutName(t).Data()), MDSettings.GetTagVarOutName(t).Data()+"!=0")
                 etasigma = dataWA.sigma(obs.find(MDSettings.GetTagOmegaVarOutName(t).Data()), MDSettings.GetTagVarOutName(t).Data()+"!=0")
                 numdata = RooDataSet("numdata"+str(t), "numdata", data, data.get(), MDSettings.GetTagVarOutName(t).Data()+"!=0", "sWeights")
                 num = numdata.sumEntries()
                 den = dataWA.sumEntries()
-                import uncertainties, math
-                from uncertainties import ufloat
-                tagefferr = ufloat(num, math.sqrt(num)) / ufloat(den, math.sqrt(den))
-                tagefferr = tagefferr.std_dev
+                # import uncertainties, math
+                # from uncertainties import ufloat
+                # tagefferr = ufloat(num, math.sqrt(num)) / ufloat(den, math.sqrt(den))
+                # tagefferr = tagefferr.std_dev
             del numdata
             tageff[0] = float( num / den )
             print "[INFO] New <eta>: "+str( etamean[0] )+" +- "+str( etasigma )
             print "[INFO] Config file <eta>: "+str( myconfigfile["Taggers"]["Signal"][nametag]["Calibration"]["avgeta"][0] )
-            print "[INFO] New tagging efficiency: "+str( tageff[0] )+" +- "+str( tagefferr )
+            # print "[INFO] New tagging efficiency: "+str( tageff[0] )+" +- "+str( tagefferr )
             print "[INFO] Config file tagging efficiency: "+str( myconfigfile["Taggers"]["Signal"][nametag]["Calibration"]["tageff"][0] )
-            
+
         p0 = copy.deepcopy(myconfigfile["Taggers"]["Signal"][nametag]["Calibration"]["p0"])
         p1 = copy.deepcopy(myconfigfile["Taggers"]["Signal"][nametag]["Calibration"]["p1"])
         deltap0 = copy.deepcopy(myconfigfile["Taggers"]["Signal"][nametag]["Calibration"]["deltap0"])
@@ -757,7 +758,7 @@ def runSFit(debug, wsname,
                         par = WS(ws, par)
                         genValDict[parname] = {}
                         genValDict[parname] = oldval
-                        
+
         #Build actual constraints
         from B2DXFitters.GaussianConstraintBuilder import GaussianConstraintBuilder
         constraintbuilder = GaussianConstraintBuilder(ws, myconfigfile["gaussCons"])
@@ -778,7 +779,7 @@ def runSFit(debug, wsname,
         resmodel, acc,
         terrpdf, mistagpdf,
         aProd, aDet)
-    
+
     if extended:
         print "[INFO] Performing extended maximum likelihood fit"
         Nsgn = WS(ws, RooRealVar("Nsgn", "N_{sgn}", 500000, 0, 1e+09))
@@ -857,15 +858,19 @@ def runSFit(debug, wsname,
         if toys or MC or unblind:  # Unblind yourself
             fitOpts_temp = [RooFit.Save(1),
                             RooFit.NumCPU(10),
+                            RooFit.Offset(False),
                             RooFit.Strategy(2),
                             RooFit.Minimizer("Minuit2", "migrad"),
                             RooFit.SumW2Error(False),
                             RooFit.Minos(True),
-                            #RooFit.Extended(False),
-                            # RooFit.Offset(True),
-                            RooFit.Verbose(False)]
+                            RooFit.Optimize(True),
+                            RooFit.Hesse(True),
+                            # RooFit.Extended(False),
+                            RooFit.PrintLevel(1),
+                            RooFit.Warnings(False),
+                            RooFit.PrintEvalErrors(-1)]
             if "gaussCons" in myconfigfile.keys():
-                fitOpts_temp.append( RooFit.ExternalConstraints(constList) )
+                fitOpts_temp.append(RooFit.ExternalConstraints(constList))
             fitOpts = RooLinkedList()
             for cmd in fitOpts_temp:
                 fitOpts.Add(cmd)
@@ -899,9 +904,7 @@ def runSFit(debug, wsname,
                             RooFit.Save(1),
                             RooFit.Strategy(2),
                             RooFit.SumW2Error(False),
-                            RooFit.Minos(False),
                             #RooFit.Extended(False),
-                            # RooFit.Offset(True),
                             RooFit.PrintLevel(1),
                             RooFit.Warnings(False),
                             RooFit.PrintEvalErrors(-1)]
@@ -977,7 +980,7 @@ def runSFit(debug, wsname,
                 print "Save tree with fit result for pull plots"
                 print "=========================================================="
                 print ""
-                
+
                 from B2DXFitters.FitResultGrabberUtils import CreatePullTree
                 if genValDict == {}:
                     genValDict = None

@@ -516,7 +516,7 @@ def BuildTotalPDF(workspaceIn, myconfigfile, obsDict, ACPDict, tagDict, resAccDi
         print pdfDict
         print "Yields:"
         print yieldCount
-        
+
     return {"PDF"      : pdfDict,
             "Events"   : yieldCount}
 
@@ -538,15 +538,15 @@ def BuildACPDict(workspaceIn, myconfigfile, debug):
                                                         myconfigfile["ACP"][comp]["ArgLbarfbar"][0],
                                                         myconfigfile["ACP"][comp]["ModLf"][0])
             ACPobs.printtable()
-            
+
             ACPDict[comp]["C"] = WS(workspaceIn, RooRealVar("C_"+comp, "C_"+comp, ACPobs.Cf()))
             ACPDict[comp]["S"] = WS(workspaceIn, RooRealVar("S_"+comp, "S_"+comp, ACPobs.Sf()))
             ACPDict[comp]["D"] = WS(workspaceIn, RooRealVar("D_"+comp, "D_"+comp, ACPobs.Df()))
             ACPDict[comp]["Sbar"] = WS(workspaceIn, RooRealVar("Sbar_"+comp, "Sbar_"+comp, ACPobs.Sfbar()))
             ACPDict[comp]["Dbar"] = WS(workspaceIn, RooRealVar("Dbar_"+comp, "Dbar_"+comp, ACPobs.Dfbar()))
-            
+
         else:
-            
+
             if debug:
                 print "Building CP coefficients directly from their values"
 
@@ -555,7 +555,7 @@ def BuildACPDict(workspaceIn, myconfigfile, debug):
             ACPDict[comp]["D"] = WS(workspaceIn, RooRealVar("D_"+comp, "D_"+comp, *myconfigfile["ACP"][comp]["D"]))
             ACPDict[comp]["Sbar"] = WS(workspaceIn, RooRealVar("Sbar_"+comp, "Sbar_"+comp, *myconfigfile["ACP"][comp]["Sbar"]))
             ACPDict[comp]["Dbar"] = WS(workspaceIn, RooRealVar("Dbar_"+comp, "Dbar_"+comp, *myconfigfile["ACP"][comp]["Dbar"]))
-            
+
         #Build other decay rate parameters
         ACPDict[comp]["Gamma"] = WS(workspaceIn, RooRealVar("Gamma_"+comp,
                                                             "Gamma_"+comp,
@@ -566,24 +566,24 @@ def BuildACPDict(workspaceIn, myconfigfile, debug):
         ACPDict[comp]["DeltaM"] = WS(workspaceIn, RooRealVar("DeltaM_"+comp,
                                                              "DeltaM_"+comp,
                                                              *myconfigfile["ACP"][comp]["DeltaM"]))
-        
+
     if debug:
         print "CP components dictionary:"
         print ACPDict
-        
+
     return ACPDict
-    
+
 #-----------------------------------------------------------------------------
 def BuildTimePDF(workspaceIn, myconfigfile, hypo, year, comp, mode, obsDict, ACPDict, tagDict, resAccDict, asymmDict, debug):
 
     pdf = workspaceIn.pdf("TimePDF_"+comp)
-    
+
     if not pdf:
 
         #Retrieve time and final state observables
         time = obsDict["BeautyTime"]
         qf = obsDict["BacCharge"]
-        
+
         #Retrieve CP coefficients and decay rate parameters
         C = ACPDict[comp]["C"]
         S = ACPDict[comp]["S"]
@@ -593,18 +593,18 @@ def BuildTimePDF(workspaceIn, myconfigfile, hypo, year, comp, mode, obsDict, ACP
         Gamma = ACPDict[comp]["Gamma"]
         DeltaGamma = ACPDict[comp]["DeltaGamma"]
         DeltaM = ACPDict[comp]["DeltaM"]
-        
+
         #Retrieve tagging
         mistagcalib = tagDict[comp]["Calibration"]
         mistagpdf = tagDict[comp]["MistagPDF"]
-        
+
         qt = []
         mistagobs = []
         for tagger in myconfigfile["Taggers"][comp].iterkeys():
             if "Mistag"+tagger in obsDict.keys() and "TagDec"+tagger in obsDict.keys():
                 mistagobs.append( obsDict["Mistag"+tagger] )
                 qt.append( obsDict["TagDec"+tagger] )
-                
+
         #Retrieve time error PDF, resolution and acceptance
         terrpdf = resAccDict[comp]["TimeErrorPDF"]
         resmodel = resAccDict[comp]["Resolution"]
@@ -626,7 +626,7 @@ def BuildTimePDF(workspaceIn, myconfigfile, hypo, year, comp, mode, obsDict, ACP
         config["NBinsAcceptance"] = myconfigfile["ACP"][comp]["NBinsAcceptance"]
         if "NBinsProperTimeErr" in myconfigfile["ACP"][comp].keys():
              config["NBinsProperTimeErr"] = myconfigfile["ACP"][comp]["NBinsProperTimeErr"]
-             
+
         #Build time PDF
         pdf = timepdfutils_Bd.buildBDecayTimePdf(
             config,
@@ -638,7 +638,7 @@ def BuildTimePDF(workspaceIn, myconfigfile, hypo, year, comp, mode, obsDict, ACP
             resmodel, acc,
             terrpdf, mistagpdf,
             aprod, adet)
-        
+
     return WS(workspaceIn, pdf)
 
 #-----------------------------------------------------------------------------
@@ -658,7 +658,7 @@ def BuildPDF(workspaceIn, myconfigfile, hypo, year, comp, mode, obs, workTemplat
                                           "TrueID_both"+year+"_"+comp+"_"+mode+"_"+hypo+"Hypo",
                                           obs, mean, sigma))
     elif obs.GetName() in ["BeautyMass", "CharmMass"]:
-        
+
         print obs.GetName(), comp, hypo, year, mode
         print  myconfigfile["PDFList"][obs.GetName()][comp][hypo][year]
         mode2 = mode
@@ -829,7 +829,7 @@ def BuildAnalyticalPdf(workspaceIn, shapeType, myconfigfile, hypo, year, comp, m
                                                           smyh,
                                                           comp,
                                                           False, #don't shift mean
-                                                          False, #don't scale widths
+                                                          # False, #don't scale widths
                                                           debug)
     elif shapeType == "Exponential":
         pdf = Bs2Dsh2011TDAnaModels.buildExponentialPDF(obs,
@@ -883,10 +883,10 @@ def BuildProtoData(workspaceIn, myconfigfile, obsDict, tagDict, resAccDict, pdfD
 
         for year in myconfigfile["Years"]:
             protoDataDict[hypo][year] = {}
-            
+
             for mode in myconfigfile["CharmModes"]:
                 protoDataDict[hypo][year][mode] = {}
-                
+
                 for comp in myconfigfile["Components"].iterkeys():
                     protoDataDict[hypo][year][mode][comp] = []
                     atLeast = 0
@@ -910,10 +910,10 @@ def BuildProtoData(workspaceIn, myconfigfile, obsDict, tagDict, resAccDict, pdfD
                                 protoDataDict[hypo][year][mode][comp][atLeast].SetName(protoDataDict[hypo][year][mode][comp][atLeast].GetName()+"both_"+year+"_"+comp+"_"+mode+"_"+hypo+"Hypo")
                                 protoDataDict[hypo][year][mode][comp][atLeast].SetTitle(protoDataDict[hypo][year][mode][comp][atLeast].GetName()+"both_"+year+"_"+comp+"_"+mode+"_"+hypo+"Hypo")
                                 protoDataDict[hypo][year][mode][comp][atLeast] = WS(workspaceIn, protoDataDict[hypo][year][mode][comp][atLeast])
-                                 
+
                                 atLeast = atLeast+1
                                 tag = tag+1
-                                 
+
                     #Check per-event error
                     if resAccDict[comp]["TimeErrorPDF"] != None:
                         if debug:

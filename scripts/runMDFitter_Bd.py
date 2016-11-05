@@ -1,7 +1,7 @@
 #!/bin/sh
 # -*- mode: python; coding: utf-8 -*-
 # vim: ft=python:sw=4:tw=78:expandtab
-# --------------------------------------------------------------------------- 
+# ---------------------------------------------------------------------------
 # @file runMDFitter_Bd.py
 #
 # @brief MDFit for Bd->DPi
@@ -9,7 +9,7 @@
 # @author Vincenzo Battista
 # @date 2016-05-20
 #
-# --------------------------------------------------------------------------- 
+# ---------------------------------------------------------------------------
 # This file is used as both a shell script and as a Python script.
 """:"
 # This part is run by the shell. It does some setup which is convenient to save
@@ -19,7 +19,7 @@
 if test -n "$CMTCONFIG" \
          -a -f $B2DXFITTERSROOT/$CMTCONFIG/libB2DXFittersDict.so \
      -a -f $B2DXFITTERSROOT/$CMTCONFIG/libB2DXFittersLib.so; then
-    # all ok, software environment set up correctly, so don't need to do 
+    # all ok, software environment set up correctly, so don't need to do
     # anything
     true
 else
@@ -148,7 +148,7 @@ def makeFitCanvasForSWeights(dataset,
 	#Create canvas
 	canv = TCanvas("canv_"+dataset.GetName(),"Canvas of "+dataset.GetTitle(), 1200, 1000)
 	canv.Divide(1,2)
-	
+
 	#Setup upper pad
 	canv.cd(1)
 	pad1 = canv.GetPad(1)
@@ -160,10 +160,10 @@ def makeFitCanvasForSWeights(dataset,
 	pad1.SetTickx(0)
 	if logScale:
 		pad1.SetLogy()
-		
+
 	frame_top = makeTopFrame(var,title,min,max,bins)
 	dataset.plotOn(frame_top)
-	
+
 
 	#Plot total PDF
 	model.plotOn(frame_top,
@@ -205,7 +205,7 @@ def makeFitCanvasForSWeights(dataset,
 	legend.SetShadowColor(0)
 	legend.SetBorderSize(0)
 	legend.SetTextFont(132)
-	
+
 	print ""
 	print "Adding data points to legend"
 	gr = TGraphErrors(10)
@@ -216,7 +216,7 @@ def makeFitCanvasForSWeights(dataset,
 	gr.SetMarkerSize(1.3)
 	gr.SetMarkerColor(kBlack)
 	legend.AddEntry("gr","Data","LEP")
-	
+
 	print "Adding PDFs to legend"
 	lineT = TLine()
 	lineT.SetLineColor(configfile["sWeightsFitPlot"]["Total"]["Color"])
@@ -243,13 +243,13 @@ def makeFitCanvasForSWeights(dataset,
 	lhcbtext.DrawTextNDC(configfile["LHCbText"]["X"],
 			     configfile["LHCbText"]["Y"],
 			     configfile["LHCbText"]["Text"])
-	
+
 	chi2text = makeText(0.05)
 	chi2text.DrawLatexNDC(configfile["Chi2"]["X"],configfile["Chi2"]["Y"],"#chi^{2}/ndof="+str(chi2ndof))
-	
+
 	pad1.Update()
 	pad1.Draw()
-	
+
 	#Setup lower pad
 	canv.cd(2)
 	pad2 = canv.GetPad(2)
@@ -264,19 +264,19 @@ def makeFitCanvasForSWeights(dataset,
 	pad2.SetGridx()
 	pad2.SetGridy()
 	pad2.SetLogy(0)
-	
+
 	gStyle.SetOptLogy(0)
-	
+
 	frame_bot = makeBottomFrame(var,min,max,bins,Xaxis)
 	frame_bot.addPlotable(pullHist,"P")
 	frame_bot.Draw()
-	
+
 	pad2.Update()
 	pad2.Draw()
 	canv.Update()
-	
+
 	canv.SaveAs(save+".pdf")
-	
+
 #------------------------------------------------------------
 def makeFitCanvas(dataset,
 		  model,
@@ -298,11 +298,11 @@ def makeFitCanvas(dataset,
 	Xaxis = configfile["AxisTitle"][var.GetName()][hypo]
 
 	var.SetTitle(Xaxis)
-	
+
         #Create canvas
 	canv = TCanvas("canv_"+dataset.GetName(),"Canvas of "+dataset.GetTitle(), 1200, 1000)
 	canv.Divide(1,2)
-        
+
         #Setup upper pad
 	canv.cd(1)
 	pad1 = canv.GetPad(1)
@@ -335,9 +335,9 @@ def makeFitCanvas(dataset,
 	else:
 	        #No fit: ndof only given by binning
 		chi2ndof = frame_top.chiSquare(0)
-	chi2ndof = round(chi2ndof,2) 
-	
-	#Plot other pdf components 
+	chi2ndof = round(chi2ndof,2)
+
+	#Plot other pdf components
 	for comp in dictionary[hypo].iterkeys():
 		if comp != "Total" and comp in dictionary[hypo].keys() and "Name" in dictionary[hypo][comp].keys() and "Style" in dictionary[hypo][comp].keys() and "Color" in dictionary[hypo][comp].keys():
 			print ""
@@ -380,7 +380,7 @@ def makeFitCanvas(dataset,
 	gr.SetMarkerSize(1.3)
 	gr.SetMarkerColor(kBlack)
 	legend.AddEntry("gr","Data","LEP")
-	
+
 	print "Adding Total PDF to legend"
 	line = TLine()
 	line.SetLineColor(dictionary["Total"]["Color"])
@@ -399,7 +399,7 @@ def makeFitCanvas(dataset,
 			lines[l].SetLineStyle(dictionary[hypo][comp]["Style"])
 			legend.AddEntry(lines[l], dictionary[hypo][comp]["Title"], "L")
 			l = l+1
-			
+
 	legend.Draw("SAME")
 
 	#Add some text
@@ -428,13 +428,13 @@ def makeFitCanvas(dataset,
 	pad2.SetGridx()
 	pad2.SetGridy()
 	pad2.SetLogy(0)
-        
+
 	gStyle.SetOptLogy(0)
-        
+
 	frame_bot = makeBottomFrame(var,min,max,bins,Xaxis)
 	frame_bot.addPlotable(pullHist,"P")
 	frame_bot.Draw()
-        
+
 	pad2.Update()
 	pad2.Draw()
 	canv.Update()
@@ -460,7 +460,7 @@ def makeTopFrame(var,title,min,max,bins):
 	frame_top.GetYaxis().SetNdivisions(512)
 	frame_top.GetXaxis().SetTitleOffset( 1.00 )
 	frame_top.GetYaxis().SetTitleOffset( 1.15 )
-        
+
 	return frame_top
 
 #------------------------------------------------------------
@@ -487,7 +487,7 @@ def makeBottomFrame(var,min,max,bins,Xaxis):
 	frame_bot.GetXaxis().SetLabelSize(0.10)#0.12)
 	frame_bot.GetXaxis().SetLabelFont( 132 )
 	frame_bot.GetYaxis().SetLabelFont( 132 )
-        
+
 	return frame_bot
 
 #------------------------------------------------------------
@@ -497,7 +497,7 @@ def makeText(size):
 	text.SetTextColor(1)
 	text.SetTextSize(size)
 	text.SetTextAlign(132)
-        
+
 	return text
 
 #------------------------------------------------------------
@@ -519,7 +519,7 @@ def BuildParForPDF(workOut, typemode, varName, parName, samplemode, pdfDict):
 	if not par:
 		print "ERROR when building "+parName+". Please check config file."
 		exit(-1)
-	
+
 	return par
 
 #------------------------------------------------------------
@@ -537,7 +537,7 @@ def BuildExponentialPDF(workOut, obs, nickname, samplemode, pdfDict, debug):
                                                         samplemode,
                                                         typemode,
                                                         debug)
-        
+
 	return WS(workOut, pdf)
 
 #------------------------------------------------------------
@@ -557,7 +557,7 @@ def BuildDoubleExponentialPDF(workOut, obs, nickname, samplemode, pdfDict, debug
 							      samplemode,
 							      typemode,
 							      debug)
-        
+
 	return WS(workOut, pdf)
 
 #------------------------------------------------------------
@@ -577,12 +577,12 @@ def BuildExponentialPlusConstantPDF(workOut, obs, nickname, samplemode, pdfDict,
 							  samplemode,
 							  typemode,
 							  debug)
-	
+
 	return WS(workOut, pdf)
-        
+
 #------------------------------------------------------------
 def BuildGaussPDF(workOut, obs, nickname, samplemode, pdfDict, debug):
-	
+
         #Build parameters
 	varName = obs.GetName()
 	typemode = nickname+"_G"
@@ -601,7 +601,7 @@ def BuildGaussPDF(workOut, obs, nickname, samplemode, pdfDict, debug):
                                                   typemode,
 						  shiftMean,
                                                   debug)
-        
+
 	return WS(workOut, pdf)
 
 #------------------------------------------------------------
@@ -618,7 +618,7 @@ def BuildDoubleGaussPDF(workOut, obs, nickname, samplemode, pdfDict, debug):
 		parList.append(BuildParForPDF(workOut, typemode, varName, par, samplemode, pdfDict))
 	if shiftMean:
 		parList.append(BuildParForPDF(workOut, typemode, varName, "shift", samplemode, pdfDict))
-	
+
 	#Build PDF
 	pdf = Bs2Dsh2011TDAnaModels.buildDoubleGaussPDF(obs,
 							workOut,
@@ -628,7 +628,7 @@ def BuildDoubleGaussPDF(workOut, obs, nickname, samplemode, pdfDict, debug):
 							sameMean,
 							shiftMean,
 							debug)
-	
+
 	return WS(workOut, pdf)
 
 #------------------------------------------------------------
@@ -648,7 +648,7 @@ def BuildCrystalBallPDF(workOut, obs, nickname, samplemode, pdfDict, debug):
                                                         samplemode,
                                                         typemode,
                                                         debug)
-        
+
 	return WS(workOut, pdf)
 
 
@@ -668,16 +668,16 @@ def BuildCrystalBallPlusGaussianPDF(workOut, obs, nickname, samplemode, pdfDict,
 		parList.append(BuildParForPDF(workOut, typemode, varName, "shift", samplemode, pdfDict))
 	if scaleWidths:
 		parList.append(BuildParForPDF(workOut, typemode, varName, "scaleSigma", samplemode, pdfDict))
-	
+
 	#Build PDF
 	pdf = Bd2DhModels.buildCrystalBallPlusGaussianPDF(obs,
 							  workOut,
 							  samplemode,
 							  typemode,
 							  shiftMean,
-							  scaleWidths,
+							  # scaleWidths,
 							  debug)
-	
+
 	return WS(workOut, pdf)
 
 #------------------------------------------------------------
@@ -701,7 +701,7 @@ def BuildCrystalBallPlusExponentialPDF(workOut, obs, nickname, samplemode, pdfDi
 							     typemode,
 							     shiftMean,
 							     debug)
-	
+
 	return WS(workOut, pdf)
 
 #------------------------------------------------------------
@@ -715,7 +715,7 @@ def BuildDoubleCrystalBallPDF(workOut, obs, nickname, samplemode, pdfDict, debug
 	parList = []
 	for par in ["mean", "alpha1", "alpha2", "n1", "n2", "sigma1", "sigma2", "frac"]:
 		parList.append(BuildParForPDF(workOut, typemode, varName, par, samplemode, pdfDict))
-        
+
         #Build PDF
 	pdf = Bs2Dsh2011TDAnaModels.buildDoubleCrystalBallPDF(obs,
                                                               workOut,
@@ -724,7 +724,7 @@ def BuildDoubleCrystalBallPDF(workOut, obs, nickname, samplemode, pdfDict, debug
                                                               False,
                                                               sameMean,
                                                               debug)
-        
+
 	return WS(workOut, pdf)
 
 #------------------------------------------------------------
@@ -748,9 +748,9 @@ def BuildJohnsonSUPDF(workOut, obs, nickname, samplemode, pdfDict, debug):
                                             typemode,
 					    shiftMean,
                                             debug)
-        
+
 	return WS(workOut, pdf)
-        
+
 #------------------------------------------------------------
 def BuildJohnsonSUPlusGaussianPDF(workOut, obs, nickname, samplemode, pdfDict, debug):
 
@@ -767,7 +767,7 @@ def BuildJohnsonSUPlusGaussianPDF(workOut, obs, nickname, samplemode, pdfDict, d
 		parList.append(BuildParForPDF(workOut, typemode, varName, "shift", samplemode, pdfDict))
 	if not sameMean:
 		parList.append(BuildParForPDF(workOut, typemode, varName, "meanGshift", samplemode, pdfDict))
-        
+
         #Build PDF
 	pdf = Bd2DhModels.buildJohnsonSUPlusGaussianPDF(obs,
 							workOut,
@@ -776,7 +776,7 @@ def BuildJohnsonSUPlusGaussianPDF(workOut, obs, nickname, samplemode, pdfDict, d
 							sameMean,
                                                         shiftMean,
 							debug)
-        
+
 	return WS(workOut, pdf)
 
 #------------------------------------------------------------
@@ -790,7 +790,7 @@ def BuildJohnsonSUPlusGaussianPlusExponentialPDF(workOut, obs, nickname, samplem
 	parList = []
 	for par in ["mean", "sigmaJ", "nuJ", "tauJ", "meanG", "sigmaG", "cB", "relFracSignal", "fracExponential"]:
 		parList.append(BuildParForPDF(workOut, typemode, varName, par, samplemode, pdfDict))
-	
+
 	#Build PDF
 	pdf = Bd2DhModels.buildJohnsonSUPlusGaussianPlusExponentialPDF(obs,
 								       workOut,
@@ -798,12 +798,12 @@ def BuildJohnsonSUPlusGaussianPlusExponentialPDF(workOut, obs, nickname, samplem
 								       typemode,
 								       sameMean,
 								       debug)
-	
+
 	return WS(workOut, pdf)
 
 #------------------------------------------------------------
 def BuildJohnsonSUPlus2GaussianPDF(workOut, obs, nickname, samplemode, pdfDict, debug):
-        
+
 	#Build parameters
 	varName = obs.GetName()
 	typemode = nickname+"_Jplus2G"
@@ -825,19 +825,19 @@ def BuildJohnsonSUPlus2GaussianPDF(workOut, obs, nickname, samplemode, pdfDict, 
 
 #------------------------------------------------------------
 def BuildIpatiaPDF(workOut, obs, nickname, samplemode, pdfDict, debug):
-	
+
 	#Build parameters
 	varName = obs.GetName()
 	typemode = nickname+"_Ipatia"
 	shiftMean = pdfDict["shiftMean"]
 	scaleTails = pdfDict["scaleTails"]
-	
+
 	parList = []
 	for par in ["l", "zeta", "fb", "mean", "sigma", "a1", "n1", "a2", "n2"]:
 		parList.append(BuildParForPDF(workOut, typemode, varName, par, samplemode, pdfDict))
 	if shiftMean:
 		parList.append(BuildParForPDF(workOut, typemode, varName, "shift", samplemode, pdfDict))
-	
+
 	#Build PDF
 	pdf = Bs2Dsh2011TDAnaModels.buildIpatiaPDF(obs,
 						   workOut,
@@ -846,7 +846,7 @@ def BuildIpatiaPDF(workOut, obs, nickname, samplemode, pdfDict, debug):
 						   shiftMean,
 						   scaleTails,
 						   debug)
-	
+
 	return WS(workOut, pdf)
 
 #------------------------------------------------------------
@@ -859,14 +859,14 @@ def BuildIpatiaPlusExponentialPDF(workOut, obs, nickname, samplemode, pdfDict, d
 	parList = []
 	for par in ["l", "zeta", "fb", "mean", "sigma", "a1", "n1", "a2", "n2", "cB", "frac"]:
 		parList.append(BuildParForPDF(workOut, typemode, varName, par, samplemode, pdfDict))
-	
+
 	#Build PDF
 	pdf = Bd2DhModels.buildIpatiaPlusExponentialPDF(obs,
 							workOut,
 							samplemode,
 							typemode,
 							debug)
-	
+
 	return WS(workOut, pdf)
 
 #------------------------------------------------------------
@@ -882,7 +882,7 @@ def BuildIpatiaGaussConvPDF(workOut, obs, nickname, samplemode, pdfDict, debug):
 		parList.append(BuildParForPDF(workOut, typemode, varName, par, samplemode, pdfDict))
 	if shiftMean:
 		parList.append(BuildParForPDF(workOut, typemode, varName, "shift", samplemode, pdfDict))
-	
+
 	#Build PDF
 	pdf = Bd2DhModels.buildIpatiaGaussConvPDF(obs,
 						  workOut,
@@ -890,7 +890,7 @@ def BuildIpatiaGaussConvPDF(workOut, obs, nickname, samplemode, pdfDict, debug):
 						  typemode,
 						  shiftMean,
 						  debug)
-	
+
 	return WS(workOut, pdf)
 
 #------------------------------------------------------------
@@ -970,7 +970,7 @@ def BuildCompPdf(workOut, workTemplates, configfile, component, hypothesys, samp
 		elif "DoubleExponential" in pdfType:
 			pdfList.append(BuildDoubleExponentialPDF(workOut, obs, nickname, samplemodeyearhyp, pdfDict, debug))
 		elif "Exponential" in pdfType:
-			pdfList.append(BuildExponentialPDF(workOut, obs, nickname, samplemodeyearhyp, pdfDict, debug)) 
+			pdfList.append(BuildExponentialPDF(workOut, obs, nickname, samplemodeyearhyp, pdfDict, debug))
 		elif "TakeInputPdf" in pdfType:
 			pdfList.append(TakeInputPdf(workOut, workTemplates, pdfDict))
 		elif "None" in pdfType:
@@ -1095,7 +1095,7 @@ def BuildExternalConstraints(workOut, configfile, toys, seed, debug):
 				print "ERROR: multivariate constraints not currently handled"
 				exit(-1)
 			return constrPDFs
-		
+
 	else:
 		print "No Gaussian constraints to apply"
 		return None
@@ -1141,7 +1141,7 @@ def runMDFitter_Bd( debug,
 	# Tune integrator configuration
 	RooAbsReal.defaultIntegratorConfig().setEpsAbs(1e-7)
 	RooAbsReal.defaultIntegratorConfig().setEpsRel(1e-7)
-	RooAbsReal.defaultIntegratorConfig().getConfigSection('RooIntegrator1D').setCatLabel('extrapolation','WynnEpsilon')
+	RooAbsReal.defaultIntegratorConfig().getConfigSection('RooIntegrator1D').setCatLabel('extrapolation','Wynn-Epsilon')
 	RooAbsReal.defaultIntegratorConfig().getConfigSection('RooIntegrator1D').setCatLabel('maxSteps','1000')
 	RooAbsReal.defaultIntegratorConfig().getConfigSection('RooIntegrator1D').setCatLabel('minSteps','0')
 	RooAbsReal.defaultIntegratorConfig().getConfigSection('RooAdaptiveGaussKronrodIntegrator1D').setCatLabel('method','21Points')
@@ -1152,7 +1152,7 @@ def runMDFitter_Bd( debug,
 	RooAbsData.setDefaultStorageType(RooAbsData.Tree)
 
 	from B2DXFitters.MDFitSettingTranslator import Translator
-	
+
 	from B2DXFitters.mdfitutils import getExpectedValue as getExpectedValue
 	from B2DXFitters.mdfitutils import getExpectedYield as getExpectedYield
 	from B2DXFitters.mdfitutils import setConstantIfSoConfigured as setConstantIfSoConfigured
@@ -1166,7 +1166,7 @@ def runMDFitter_Bd( debug,
 
 	#Handle some input options
 	hypoList = hypo.split("_")
-	
+
 	t = TString('_')
 	decayTS = TString(decay)
 	modeTS = TString(mode)
@@ -1174,12 +1174,12 @@ def runMDFitter_Bd( debug,
 	yearTS = TString(year)
 	hypoTS = TString(hypo)
 	datasetTS = TString("dataSet")+decayTS+t
-	
+
 	if merge == "pol" or merge == "both":
 		sampleTS = TString("both")
 	if merge == "year" or merge == "both":
 		yearTS = TString("run1")
-										
+
 	# Get the configuration file
 	samplemodeyear = sampleTS+t+modeTS+t+yearTS
 	myconfigfilegrabber = __import__(configName,fromlist=['getconfig']).getconfig
@@ -1210,7 +1210,7 @@ def runMDFitter_Bd( debug,
 	print "========================================="
 	print ""
 	workspace = GeneralUtils.LoadWorkspace(TString(inputFile), TString(workData), debug)
-	
+
 	workspaceTemplates = None
 	if templatesFile != "":
 		print ""
@@ -1230,7 +1230,7 @@ def runMDFitter_Bd( debug,
 		workspaceOut = GeneralUtils.LoadWorkspace(TString(initial),TString(workOut),debug)
 	else:
 		workspaceOut = RooWorkspace(workOut,workOut)
-	
+
 	print ""
 	print "========================================="
 	print "Get input observables from:"
@@ -1282,7 +1282,7 @@ def runMDFitter_Bd( debug,
 	else:
 		print "No additional preselection"
 		dataSet = dataSet_temp
-		
+
 	pidBins = {}
 	for h in range(0,hypoList.__len__()):
 		sam.setIndex(h)
@@ -1333,7 +1333,7 @@ def runMDFitter_Bd( debug,
 	print ""
 
 	BuildGlobalVariables(workspaceOut, myconfigfile, debug)
-	
+
 	print ""
 	print "========================================="
 	print "Build PDF to fit dataset:"
@@ -1386,7 +1386,7 @@ def runMDFitter_Bd( debug,
 						obs.setRange("Total",*myconfigfile["BasicVariables"][obs.GetName()]["Range"])
 					totInt = pdfDetails["PDF"].createIntegral(argset, RooFit.NormSet(argset), RooFit.Range("Total"))
 					#Get generated yield rescaled into signal range
-					corrYieldDictsWeights[pdfDetails["Yield"].GetName()] = pdfDetails["Yield"].getVal() * (sgnInt.getVal()/totInt.getVal()) 
+					corrYieldDictsWeights[pdfDetails["Yield"].GetName()] = pdfDetails["Yield"].getVal() * (sgnInt.getVal()/totInt.getVal())
 					if debug:
 						print "Integral and yield in the total region:"
 						print totInt.getVal()
@@ -1401,9 +1401,9 @@ def runMDFitter_Bd( debug,
 					pdfList[hyp][comp]["Color"] = pdfDetails["Color"]
 					pdfList[hyp][comp]["Style"] = pdfDetails["Style"]
 					pdfList[hyp][comp]["Name"]  = pdfDetails["Name"]
-					
+
 		idx = idx+1
-		
+
 	if debug:
 		print "PDF dictionary:"
 		for hyp in hypoList:
@@ -1416,7 +1416,7 @@ def runMDFitter_Bd( debug,
 		if toys:
 			print "Corrected yields dictionary:"
 			print corrYieldDictsWeights
-			
+
 	print "Create total PDF..."
 	pdf = RooSimultaneous("totEPDF", "totEPDF", sam)
 	for hyp in hypoList:
@@ -1429,7 +1429,7 @@ def runMDFitter_Bd( debug,
 									       hyp+"Hypo_EPDF",
 									       pdfList[hyp][comp]["PDF"],
 									       pdfList[hyp][comp]["Yield"]))
-		else:	
+		else:
 			pdfArgList = RooArgList()
 			yieldArgList = RooArgList()
 			for comp in compList:
@@ -1443,7 +1443,7 @@ def runMDFitter_Bd( debug,
 
 		pdf.addPdf(sumpdf,pidBins[hyp])
 
-		
+
 	if debug:
 		print "Total PDF:"
 		pdf.Print("v")
@@ -1452,8 +1452,8 @@ def runMDFitter_Bd( debug,
 	pdfList["Total"] = {}
 	pdfList["Total"]["Title"] = myconfigfile["pdfList"]["Total"]["Title"]
 	pdfList["Total"]["Color"] = myconfigfile["pdfList"]["Total"]["Color"]
-	pdfList["Total"]["Style"] = myconfigfile["pdfList"]["Total"]["Style"] 
-	
+	pdfList["Total"]["Style"] = myconfigfile["pdfList"]["Total"]["Style"]
+
 	if not superimpose:
 
 		print ""
@@ -1463,7 +1463,7 @@ def runMDFitter_Bd( debug,
 		print ""
 
 		constrPDFs = BuildExternalConstraints(workspaceOut, myconfigfile, toys, int(seed), debug)
-		
+
 		print ""
 		print "========================================="
 		print "Fit PDF:"
@@ -1486,7 +1486,7 @@ def runMDFitter_Bd( debug,
 			RooFit.Strategy(2),
 			#RooFit.Verbose(False),
 			RooFit.Timer(True),
-			RooFit.NumCPU(4)]#,
+			RooFit.NumCPU(1)]#,
 			#RooFit.Minimizer("Minuit2", "migrad")]#,
 			#RooFit.Minos(True)]
 		if None != constrPDFs:
@@ -1500,16 +1500,16 @@ def runMDFitter_Bd( debug,
 			fitResult = pdf.fitTo(dataSetBinned, *fitOpts)
 		else:
 			fitResult = pdf.fitTo(dataSet, *fitOpts)
-                
+
 		fitResult.SetName("FitTo_"+dataSet.GetName())
 		fitResult.SetTitle("Fit to "+dataSet.GetTitle())
-                
+
 		print ""
 		print "========================================="
 		print "Fit done. Summarizing results:"
 		print "========================================="
 		print ""
-                
+
 		fitResult.Print("v")
 
 		covMat = fitResult.covarianceMatrix()
@@ -1539,10 +1539,10 @@ def runMDFitter_Bd( debug,
 				print "for pull analysis"
 				print "========================================="
 				print ""
-				
+
 				from B2DXFitters import FitResultGrabberUtils
 				FitResultGrabberUtils.CreatePullTree(pullFile, fitResult)
-		
+
 	else:
 		fitResult = None
 
@@ -1586,7 +1586,7 @@ def runMDFitter_Bd( debug,
 		if fitResult.status() != 0 or fitResult.covQual() != 3:
 			print "ERROR: fit quality is bad. Not computing sWeights."
 			exit(-1)
-		
+
 		if compList.__len__() == 2:
 			print "WARNING: only one component included. Not computing sWeights."
 		else:
@@ -1608,7 +1608,7 @@ def runMDFitter_Bd( debug,
 				obs.setRange("Signal",*myconfigfile["sWeights"]["Range"][obs.GetName()])
 				signalWindow += " && "+obs.GetName()+">="+str(myconfigfile["sWeights"]["Range"][obs.GetName()][0])
 				signalWindow += " && "+obs.GetName()+"<="+str(myconfigfile["sWeights"]["Range"][obs.GetName()][1])
-					
+
 			#Select dataset corresponding to chosen hypo, and take only the selected signal peak window
 			dataSetForSWeights = dataSet.reduce(dataSet.get(), "sample==sample::"+pidBins[hyp]+signalWindow)
 
@@ -1623,7 +1623,7 @@ def runMDFitter_Bd( debug,
 				print "Obtained dataset:"
 				dataSetForSWeights.Print("v")
 
-			#Build new pdf, and select only one category (the one chosen in myconfigfile["sWeights"]["Hypo"]) 
+			#Build new pdf, and select only one category (the one chosen in myconfigfile["sWeights"]["Hypo"])
 			bkgPdfList = RooArgList()
 			bkgFracList = RooArgList()
 			countFrac = 0
@@ -1636,7 +1636,7 @@ def runMDFitter_Bd( debug,
 
 					print ""
 					print "Component: "+comp
-					
+
 					#Including bkg pdf with updated parameters from previous fit
 					bkgPdfList.add( workspaceOut.obj( pdfList[hyp][comp]["PDF"].GetName() ) )
 					#Computing fraction of bkg that falls into the signal region for each component
@@ -1654,7 +1654,7 @@ def runMDFitter_Bd( debug,
 					print "PDF integral in the signal region: "+str(thisintegralSgn.getVal())
 					print "PDF integral in the total region: "+str(thisintegralTot.getVal())
 					print "PDF integral ratio: "+str(integralratio[comp])
-					
+
 					#Accumulate total background yield
 					thisyield = workspaceOut.obj( pdfList[hyp][comp]["Yield"].GetName() ).getVal()
 					totBkgYield = totBkgYield + thisyield * integralratio[comp]
@@ -1667,7 +1667,7 @@ def runMDFitter_Bd( debug,
 						totGenBkg = totGenBkg + corrYieldDictsWeights[pdfList[hyp][comp]["Yield"].GetName()]
 
 						print "Generated background yield in the signal region: "+str(corrYieldDictsWeights[pdfList[hyp][comp]["Yield"].GetName()])
-					
+
 					countFrac = countFrac + 1
 					last = comp
 			if debug:
@@ -1679,7 +1679,7 @@ def runMDFitter_Bd( debug,
 				print "Dictionary of background integral ratios in the signal region:"
 				print integralratio
 				print ""
-				
+
 			for comp in compList:
 				if comp not in ["Total","Signal"] and "PDF" in pdfList[hyp][comp].keys() and "Yield" in pdfList[hyp][comp].keys():
 					if comp != last:
@@ -1693,7 +1693,7 @@ def runMDFitter_Bd( debug,
 				bkgPdfList.Print("v")
 				print "Background fractions list:"
 				bkgFracList.Print("v")
-				
+
 			#Build total bkg pdf + yield
 			totbkg = WS(workspaceOut, RooAddPdf(hyp+"Hypo_TotBkgPDF",
 							    hyp+"Hypo_TotBkgPDF",
@@ -1707,12 +1707,12 @@ def runMDFitter_Bd( debug,
 								  totBkgYield*2.0))
 
 			corrYieldDictsWeights[totbkgYield.GetName()] = totGenBkg
-			
+
 			totbkgE = WS(workspaceOut, RooExtendPdf(hyp+"Hypo_TotBkgEPDF",
 								hyp+"Hypo_TotBkgEPDF",
 								totbkg,
 								totbkgYield))
-			
+
 			#Convert signal yield to RooRealVar if needed
 			if pdfList[hyp]["Signal"]["Yield"].InheritsFrom("RooFormulaVar"):
 				sgnYield = WS(workspaceOut, RooRealVar(pdfList[hyp]["Signal"]["Yield"].GetName()+"_converted",
@@ -1734,7 +1734,7 @@ def runMDFitter_Bd( debug,
 				obs.setRange(*myconfigfile["sWeights"]["Range"][obs.GetName()])
 				dataSetForSWeights.get().find(obs.GetName()).setRange(*myconfigfile["sWeights"]["Range"][obs.GetName()])
 				observables.find(obs.GetName()).setRange(*myconfigfile["sWeights"]["Range"][obs.GetName()])
-			
+
 			print ""
 			print "========================================="
 			print "Computing sWeights"
@@ -1768,7 +1768,7 @@ def runMDFitter_Bd( debug,
 					print "Plotting fit result for sWeights: "+obs.GetName()
 					print ""
 
-					namefile = outputplotdir+"MDFitForSWeights_"+str(obs.GetName())+"_"+myconfigfile["sWeights"]["Hypo"] 
+					namefile = outputplotdir+"MDFitForSWeights_"+str(obs.GetName())+"_"+myconfigfile["sWeights"]["Hypo"]
 					makeFitCanvasForSWeights(dataSetForSWeights,
 								 mergedPdf,
 								 sgnE.GetName(),
@@ -1780,14 +1780,14 @@ def runMDFitter_Bd( debug,
 								 False,
 								 title,
 								 namefile)
-			
+
 			if toys:
 
 				if sWeightsFitResult.status() != 0 or sWeightsFitResult.covQual() != 3:
 					print "ERROR: fit quality is bad. Not creating pull tree."
 
 				else:
-				
+
 					print ""
 					print "========================================="
 					print "Create pull tree in"
@@ -1795,7 +1795,7 @@ def runMDFitter_Bd( debug,
 					print "for pull analysis"
 					print "========================================="
 					print ""
-					
+
 					from B2DXFitters import FitResultGrabberUtils
 					FitResultGrabberUtils.CreatePullTree(pullFilesWeights, sWeightsFitResult, corrYieldDictsWeights)
 
@@ -1819,14 +1819,14 @@ def runMDFitter_Bd( debug,
 				for o in myconfigfile["plotsWeights"].iterkeys():
 					canv = TCanvas("canv_"+o)
 					canv.cd()
-					
+
 					tWeights.Draw(o+">>hist_"+o,"","goff")
 					hist = gDirectory.Get("hist_"+o)
 					hist.SetLineColor(kRed)
 					hist.SetLineWidth(2)
 					hist.GetXaxis().SetTitle(myconfigfile["plotsWeights"][o])
 					hist.SetTitle("")
-					
+
 					tWeights.Draw(o+">>hist_sw_"+o,sWeights.Data(),"goff")
 					hist_sw = gDirectory.Get("hist_sw_"+o)
 					hist_sw.SetLineColor(kBlue)
@@ -1834,14 +1834,14 @@ def runMDFitter_Bd( debug,
 					hist_sw.GetXaxis().SetTitle(myconfigfile["plotsWeights"][o])
 					hist_sw.SetTitle("")
 
-					legend = TLegend(0.65,0.3,0.89,0.6) 
+					legend = TLegend(0.65,0.3,0.89,0.6)
 					legend.SetFillColor(4000)
 					legend.SetShadowColor(0)
 					legend.SetBorderSize(0)
 					legend.SetTextFont(132)
 					legend.AddEntry(hist,"Non-weighted","L")
 					legend.AddEntry(hist_sw,"sWeighted","L")
-					
+
 					hist.Draw()
 					hist_sw.Draw("E1SAME")
 					legend.Draw("SAME")
@@ -1861,8 +1861,8 @@ def runMDFitter_Bd( debug,
 				fWeights.Close()
 				del tWeights
 				del fWeights
-					
-			
+
+
 			if dim == 1:
 				sWeightsCalculator.printYieldsInRange( '*Evts',
 								       MDSettings.GetMassBVarOutName().Data() ,
@@ -1877,7 +1877,7 @@ def runMDFitter_Bd( debug,
 								       dMass.GetName(),
 								       dMass.getMin(),
 								       dMass.getMax() )
-				
+
 			del sWeightsCalculator
 
 
@@ -1886,12 +1886,12 @@ def runMDFitter_Bd( debug,
 	print "Pretty-printing fit results"
 	print "========================================="
 	print ""
-	from B2DXFitters import FitResultGrabberUtils
-	if None != fitResult:
-		FitResultGrabberUtils.PrintLatexTable(fitResult)
-	if None != sWeightsFitResult:
-		FitResultGrabberUtils.PrintLatexTable(sWeightsFitResult)
-						
+	# from B2DXFitters import FitResultGrabberUtils
+	# if None != fitResult:
+	# 	FitResultGrabberUtils.PrintLatexTable(fitResult)
+	# if None != sWeightsFitResult:
+	# 	FitResultGrabberUtils.PrintLatexTable(sWeightsFitResult)
+
 	print ""
 	print "========================================="
 	print "Saving output workspace"
@@ -1903,7 +1903,7 @@ def runMDFitter_Bd( debug,
 
 	if outputFile != "":
 		workspaceOut.SaveAs(outputFile)
-		
+
 
 #------------------------------------------------------------
 _usage = '%prog [options]'
@@ -2062,24 +2062,24 @@ parser.add_option( '--initial',
 #------------------------------------------------------------
 if __name__ == '__main__' :
 	( options, args ) = parser.parse_args()
-	
+
 	#if len( args ) > 0 :
 	#	parser.print_help()
 	#	exit( -1 )
-		
+
 	config = options.configName
 	last = config.rfind("/")
 	directory = config[:last+1]
 	configName = config[last+1:]
 	p = configName.rfind(".")
 	configName = configName[:p]
-	
+
 	import sys
 	sys.path.append(directory)
-	
+
 	print "Config file name: "+configName
 	print "Directory: "+directory
-	
+
 	runMDFitter_Bd( options.debug,
 			configName,
 			options.inputFile,
@@ -2109,4 +2109,4 @@ if __name__ == '__main__' :
 			options.pullFile,
 			options.pullFilesWeights,
 			options.outputplotdir)
-	
+

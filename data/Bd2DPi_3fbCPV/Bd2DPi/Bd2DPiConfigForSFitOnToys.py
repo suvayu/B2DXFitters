@@ -178,7 +178,7 @@ def getconfig() :
     configdict["constParams"].append('Df')
     configdict["constParams"].append('Dfbar')
     configdict["constParams"].append('.*scalefactor')
-    #configdict["constParams"].append('resmodel*_sigma')
+    configdict["constParams"].append('resmodel00_sigma')
 
     ############################################
     # Build gaussian constraints
@@ -191,7 +191,7 @@ def getconfig() :
     # Constraint on Gamma (error on gamma = rel. error on lifetime * gamma)
     configdict["gaussCons"]["Gamma"] = (0.004/1.520) * (1.0/1.520)
     # Constraint on resolution sigma
-    configdict["gaussCons"]["resmodel00_sigma"] = 0.00038
+    # configdict["gaussCons"]["resmodel00_sigma"] = 0.00038
     # Multivariate constraint for production and detection asymmetries
     configdict["gaussCons"]["multivarAsymm"] = [ ['ProdAsymm', 'DetAsymm'], #parname
                                                  [math.sqrt(0.0081*0.0081 + 0.0014*0.0014), 0.0046], #errors
@@ -199,14 +199,14 @@ def getconfig() :
                                                    [-0.65, 1] ]
                                                  ]
     # Multivariate constraint for OS combination
-    configdict["gaussCons"]["multivarOSCalib"] = [ ['p0_OS', 'p1_OS', 'deltap0_OS', 'deltap1_OS'], #parname
-                                                   [0.00276866695767, 0.0532951796942, 0.00269475453428, 0.037310097266], #errors
-                                                   [ [1,         0.14218,       -0.017668,       0.0092814],  #correlation matrix from EPM
-                                                     [0.14218,         1,       0.0092814,       -0.048821],
-                                                     [-0.017668, 0.0092814,             1,         0.14218],
-                                                     [0.0092814,  -0.048821,      0.14218,                1] ]
-                                                   ]
-    #Add constraint for SS combination !!!
+    # configdict["gaussCons"]["multivarOSCalib"] = [ ['p0_OS', 'p1_OS', 'deltap0_OS', 'deltap1_OS'], #parname
+    #                                                [0.00276866695767, 0.0532951796942, 0.00269475453428, 0.037310097266], #errors
+    #                                                [ [1,         0.14218,       -0.017668,       0.0092814],  #correlation matrix from EPM
+    #                                                  [0.14218,         1,       0.0092814,       -0.048821],
+    #                                                  [-0.017668, 0.0092814,             1,         0.14218],
+    #                                                  [0.0092814,  -0.048821,      0.14218,                1] ]
+    #                                                ]
+    #Add constraint for SS combination
     configdict["gaussCons"]["multivarSSCalib"] = [ ['p0_SS', 'p1_SS', 'deltap0_SS', 'deltap1_SS'], #parname
                                                    [0.007431465, 0.05246453784, 0.004264925, 0.08085860086], #errors
                                                    [ [1,         -0.054207,       -0.01714,       -0.0048873],  #correlation matrix from EPM
@@ -214,6 +214,7 @@ def getconfig() :
                                                      [-0.01714, -0.004997,             1,         -0.071635],
                                                      [-0.0048873,  -0.0053978,      -0.071635,                1] ]
                                                    ]
+
 
     ############################################
     # Choose parameters to perform the
