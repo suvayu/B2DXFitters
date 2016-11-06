@@ -829,7 +829,7 @@ def BuildAnalyticalPdf(workspaceIn, shapeType, myconfigfile, hypo, year, comp, m
                                                           smyh,
                                                           comp,
                                                           False, #don't shift mean
-                                                          # False, #don't scale widths
+                                                          False, #don't scale widths
                                                           debug)
     elif shapeType == "Exponential":
         pdf = Bs2Dsh2011TDAnaModels.buildExponentialPDF(obs,
