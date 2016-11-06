@@ -24,7 +24,7 @@ def getconfig() :
                                                                    "h-" : -1}},
                                  "MistagOS":      {"Type" : "RooRealVar",
                                                    "Title" : "#eta_{OS}",
-                                                   "Range" : [0.0,0.5]},
+                                                   "Range" : [0.0,0.48]},
                                  "MistagSS":      {"Type" : "RooRealVar",
                                                    "Title" : "#eta_{SS}",
                                                    "Range" : [0.0,0.5]},
@@ -267,13 +267,13 @@ def getconfig() :
                                          "p1"       : [1.028621],
                                          "deltap0"  : [0.011819],
                                          "deltap1"  : [0.043134],
-                                         "avgeta"   : [0.37030718978], #this is the mean of the RooHistPDF loaded below
+                                         "avgeta"   : [0.359657], #this is the mean of the RooHistPDF loaded below
                                          "tageff"   : [0.371],
                                          "tagasymm" : [0.0]
                                          },
                                         "MistagPDF" :
                                         {"Type"       : "FromWorkspace",
-                                         "File"       : "root://eoslhcb.cern.ch//eos/lhcb/wg/b2oc/TD_DPi_3fb/MistagTemplates/templates_mistag.root",
+                                         "File"       : "root://eoslhcb.cern.ch//eos/lhcb/wg/b2oc/TD_DPi_3fb/MistagTemplates/templates_mistag_OScut.root",
                                          "Workspace"  : "workspace",
                                          "Name"       : "sigMistagPdf_2"
                                          }

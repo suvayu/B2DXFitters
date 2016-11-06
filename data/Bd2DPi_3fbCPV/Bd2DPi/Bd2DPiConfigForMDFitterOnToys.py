@@ -56,7 +56,7 @@ def getconfig( samplemodeyear ) :
                                                       "Name"                   : "TagDecSS",
                                                       "InputName"              : "obsTagSSPionBDT"} 
 
-    configdict["BasicVariables"]["MistagOS"]      = { "Range"                  : [ 0.0,    0.5     ],
+    configdict["BasicVariables"]["MistagOS"]      = { "Range"                  : [ 0.0,    0.48     ],
                                                       "Name"                   : "MistagOS",
                                                       "InputName"              : "obsEtaOS"}
 

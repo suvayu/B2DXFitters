@@ -57,7 +57,7 @@ def getconfig() :
                                                       "Name"                   : "TagDecSS",
                                                       "InputName"              : "lab0_SS_PionBDT_DEC"}
 
-    configdict["BasicVariables"]["MistagOS"]      = { "Range"                  : [ 0.0,    0.5     ],
+    configdict["BasicVariables"]["MistagOS"]      = { "Range"                  : [ 0.0,    0.48     ],
                                                       "Name"                   : "MistagOS",
                                                       "InputName"              : "lab0_TAGOMEGA_OS"}
 
@@ -89,9 +89,9 @@ def getconfig() :
     ArgAbarfbar_d   =  0.002278
 
     configdict["ACP"] = {}
-    configdict["ACP"]["Signal"] = { "Gamma"                : [1.0 / 1.520, 0.01, 3.0], #Inverse lifetime from HFAG (http://www.slac.stanford.edu/xorg/hfag/osc/summer_2016/)
+    configdict["ACP"]["Signal"] = { "Gamma"                : [1.0 / 1.520, 0.1, 2.0], #Inverse lifetime from HFAG (http://www.slac.stanford.edu/xorg/hfag/osc/summer_2016/)
                                     "DeltaGamma"           : [0.0],
-                                    "DeltaM"               : [0.5064, 0.01, 3.0], #Global average from HFAG (http://www.slac.stanford.edu/xorg/hfag/osc/summer_2016/)
+                                    "DeltaM"               : [0.5064, 0.01, 2.0], #Global average from HFAG (http://www.slac.stanford.edu/xorg/hfag/osc/summer_2016/)
                                     #"ArgLf"                : [ArgqOverp_d + ArgAbarf_d - ArgAf_d],
                                     #"ArgLbarfbar"          : [ArgpOverq_d + ArgAfbar_d - ArgAbarfbar_d],
                                     #"ModLf"                : [ModAbarf_d/ModAf_d],
@@ -101,7 +101,7 @@ def getconfig() :
                                     "D"                    : [0], #from DeltaGamma=0
                                     "Dbar"                 : [0], #from DeltaGamma=0
                                     "ParameteriseIntegral" : True,
-                                    "CPlimit"              : {"upper":4.0, "lower":-4.0},
+                                    "CPlimit"              : {"upper":1.0, "lower":-1.0},
                                     "NBinsAcceptance"      : 0} #keep at zero if using spline acceptance!
 
     ############################################
@@ -131,8 +131,8 @@ def getconfig() :
     configdict["DetectionAsymmetry"] = {}
     configdict["ProductionAsymmetry"]["Signal"] = {}
     configdict["DetectionAsymmetry"]["Signal"] = {}
-    configdict["ProductionAsymmetry"]["Signal"] = [-0.0124] #from ANA note v2
-    configdict["DetectionAsymmetry"]["Signal"] = [0.0086] #from arXiv:1408.0275v2 (OPPOSITE SIGN!!!)
+    configdict["ProductionAsymmetry"]["Signal"] = [-0.0124, -1.0, 1.0] #from ANA note v2
+    configdict["DetectionAsymmetry"]["Signal"] = [0.0086, -1.0, 1.0] #from arXiv:1408.0275v2 (OPPOSITE SIGN!!!)
 
     ############################################
     # Define taggers and their calibration
@@ -142,11 +142,11 @@ def getconfig() :
     configdict["Taggers"]["Signal"] = {}
     configdict["Taggers"]["Signal"] = {"OS" : #From Bu, stat and syst combined
                                        {"Calibration":
-                                        {"p0"       : [0.3737056],
-                                         "p1"       : [1.028621],
-                                         "deltap0"  : [0.011819],
-                                         "deltap1"  : [0.043134],
-                                         "avgeta"   : [0.37030718978], #this is the mean of the RooHistPDF used in generation
+                                        {"p0"       : [0.3737056, 0.01, 0.8],
+                                         "p1"       : [1.028621, 0.3, 1.5],
+                                         "deltap0"  : [0.011819, 0.0001, 0.3],
+                                         "deltap1"  : [0.043134, 0.0001, 0.3],
+                                         "avgeta"   : [0.359657], #this is the mean of the RooHistPDF used in generation
                                          "tageff"   : [0.371, 0.01, 0.99], #float in the fit
                                          "tagasymm" : [0.0]
                                          },
@@ -155,10 +155,10 @@ def getconfig() :
                                         },
                                        "SS": #From JpsiKst, stat and syst combined
                                        {"Calibration":
-                                        {"p0"       : [0.4424049],
-                                         "p1"       : [0.81302],
-                                         "deltap0"  : [0.00062332],
-                                         "deltap1"  : [0.0066248],
+                                        {"p0"       : [0.4424049, 0.01, 0.8],
+                                         "p1"       : [0.81302, 0.3, 1.5],
+                                         "deltap0"  : [0.00062332, 0.000001, 0.1],
+                                         "deltap1"  : [0.0066248, 0.00001, 0.1],
                                          "avgeta"   : [0.441492575813], #this is the mean of the RooHistPDF used in generation
                                          "tageff"   : [0.816, 0.01, 0.99], #float in the fit
                                          "tagasymm" : [0.0]
@@ -178,7 +178,6 @@ def getconfig() :
     configdict["constParams"].append('Df')
     configdict["constParams"].append('Dfbar')
     configdict["constParams"].append('.*scalefactor')
-    configdict["constParams"].append('resmodel00_sigma')
 
     ############################################
     # Build gaussian constraints
@@ -199,13 +198,13 @@ def getconfig() :
                                                    [-0.65, 1] ]
                                                  ]
     # Multivariate constraint for OS combination
-    # configdict["gaussCons"]["multivarOSCalib"] = [ ['p0_OS', 'p1_OS', 'deltap0_OS', 'deltap1_OS'], #parname
-    #                                                [0.00276866695767, 0.0532951796942, 0.00269475453428, 0.037310097266], #errors
-    #                                                [ [1,         0.14218,       -0.017668,       0.0092814],  #correlation matrix from EPM
-    #                                                  [0.14218,         1,       0.0092814,       -0.048821],
-    #                                                  [-0.017668, 0.0092814,             1,         0.14218],
-    #                                                  [0.0092814,  -0.048821,      0.14218,                1] ]
-    #                                                ]
+    configdict["gaussCons"]["multivarOSCalib"] = [ ['p0_OS', 'p1_OS', 'deltap0_OS', 'deltap1_OS'], #parname
+                                                    [0.00276866695767, 0.0532951796942, 0.00269475453428, 0.037310097266], #errors
+                                                    [ [1,         0.14218,       -0.017668,       0.0092814],  #correlation matrix from EPM
+                                                      [0.14218,         1,       0.0092814,       -0.048821],
+                                                      [-0.017668, 0.0092814,             1,         0.14218],
+                                                      [0.0092814,  -0.048821,      0.14218,                1] ]
+                                                    ]
     #Add constraint for SS combination
     configdict["gaussCons"]["multivarSSCalib"] = [ ['p0_SS', 'p1_SS', 'deltap0_SS', 'deltap1_SS'], #parname
                                                    [0.007431465, 0.05246453784, 0.004264925, 0.08085860086], #errors
