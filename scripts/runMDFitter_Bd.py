@@ -675,7 +675,7 @@ def BuildCrystalBallPlusGaussianPDF(workOut, obs, nickname, samplemode, pdfDict,
 							  samplemode,
 							  typemode,
 							  shiftMean,
-							  # scaleWidths,
+							  scaleWidths,
 							  debug)
 
 	return WS(workOut, pdf)
@@ -1886,11 +1886,11 @@ def runMDFitter_Bd( debug,
 	print "Pretty-printing fit results"
 	print "========================================="
 	print ""
-	# from B2DXFitters import FitResultGrabberUtils
-	# if None != fitResult:
-	# 	FitResultGrabberUtils.PrintLatexTable(fitResult)
-	# if None != sWeightsFitResult:
-	# 	FitResultGrabberUtils.PrintLatexTable(sWeightsFitResult)
+	from B2DXFitters import FitResultGrabberUtils
+	if None != fitResult:
+		FitResultGrabberUtils.PrintLatexTable(fitResult)
+	if None != sWeightsFitResult:
+		FitResultGrabberUtils.PrintLatexTable(sWeightsFitResult)
 
 	print ""
 	print "========================================="
