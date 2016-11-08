@@ -57,7 +57,7 @@ def getconfig() :
                                                       "Name"                   : "TagDecSS",
                                                       "InputName"              : "lab0_SS_PionBDT_DEC"}
 
-    configdict["BasicVariables"]["MistagOS"]      = { "Range"                  : [ 0.0,    0.48     ],
+    configdict["BasicVariables"]["MistagOS"]      = { "Range"                  : [ 0.0,    0.5     ],
                                                       "Name"                   : "MistagOS",
                                                       "InputName"              : "lab0_TAGOMEGA_OS"}
 
@@ -144,8 +144,8 @@ def getconfig() :
                                        {"Calibration":
                                         {"p0"       : [0.3737056, 0.01, 0.8],
                                          "p1"       : [1.028621, 0.3, 1.5],
-                                         "deltap0"  : [0.011819, 0.0001, 0.3],
-                                         "deltap1"  : [0.043134, 0.0001, 0.3],
+                                         "deltap0"  : [0.011819, -0.1, 0.3],
+                                         "deltap1"  : [0.043134, -0.1, 0.3],
                                          "avgeta"   : [0.359657], #this is the mean of the RooHistPDF used in generation
                                          "tageff"   : [0.371, 0.01, 0.99], #float in the fit
                                          "tagasymm" : [0.0]
@@ -157,8 +157,8 @@ def getconfig() :
                                        {"Calibration":
                                         {"p0"       : [0.4424049, 0.01, 0.8],
                                          "p1"       : [0.81302, 0.3, 1.5],
-                                         "deltap0"  : [0.00062332, 0.000001, 0.1],
-                                         "deltap1"  : [0.0066248, 0.00001, 0.1],
+                                         "deltap0"  : [0.00062332, -0.1, 0.1],
+                                         "deltap1"  : [0.0066248, -0.1, 0.1],
                                          "avgeta"   : [0.441492575813], #this is the mean of the RooHistPDF used in generation
                                          "tageff"   : [0.816, 0.01, 0.99], #float in the fit
                                          "tagasymm" : [0.0]

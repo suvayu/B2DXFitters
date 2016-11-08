@@ -24,7 +24,7 @@ def getconfig() :
                                                                    "h-" : -1}},
                                  "MistagOS":      {"Type" : "RooRealVar",
                                                    "Title" : "#eta_{OS}",
-                                                   "Range" : [0.0,0.48]},
+                                                   "Range" : [0.0,0.5]},
                                  "MistagSS":      {"Type" : "RooRealVar",
                                                    "Title" : "#eta_{SS}",
                                                    "Range" : [0.0,0.5]},
@@ -273,7 +273,7 @@ def getconfig() :
                                          },
                                         "MistagPDF" :
                                         {"Type"       : "FromWorkspace",
-                                         "File"       : "root://eoslhcb.cern.ch//eos/lhcb/wg/b2oc/TD_DPi_3fb/MistagTemplates/templates_mistag_OScut.root",
+                                         "File"       : "root://eoslhcb.cern.ch//eos/lhcb/wg/b2oc/TD_DPi_3fb/MistagTemplates/templates_mistag.root",
                                          "Workspace"  : "workspace",
                                          "Name"       : "sigMistagPdf_2"
                                          }
