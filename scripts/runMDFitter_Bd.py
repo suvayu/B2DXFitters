@@ -1486,8 +1486,8 @@ def runMDFitter_Bd( debug,
 			RooFit.Strategy(2),
 			#RooFit.Verbose(False),
 			RooFit.Timer(True),
-			RooFit.NumCPU(1)]#,
-			#RooFit.Minimizer("Minuit2", "migrad")]#,
+			RooFit.NumCPU(8),
+			RooFit.Minimizer("Minuit2", "migrad")]#,
 			#RooFit.Minos(True)]
 		if None != constrPDFs:
 			fitOpts.append(RooFit.ExternalConstraints(constrPDFs))

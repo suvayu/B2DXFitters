@@ -555,26 +555,25 @@ def runSFit(debug, wsname,
                 numdata = RooDataSet("numdata"+str(t), "numdata", data, data.get(), MDSettings.GetTagVarOutName(t).Data()+"!=0")
                 num = float( numdata.numEntries() )
                 den = float( data.numEntries() )
-                # import uncertainties, math
-                # import math
-                # from uncertainties import ufloat
-                # tagefferr = ufloat(num, math.sqrt(num)) / ufloat(den, math.sqrt(den))
-                # tagefferr = tagefferr.std_dev
+                import uncertainties, math
+                from uncertainties import ufloat
+                tagefferr = ufloat(num, math.sqrt(num)) / ufloat(den, math.sqrt(den))
+                tagefferr = tagefferr.std_dev
             else:
                 etamean[0] = dataWA.mean(obs.find(MDSettings.GetTagOmegaVarOutName(t).Data()), MDSettings.GetTagVarOutName(t).Data()+"!=0")
                 etasigma = dataWA.sigma(obs.find(MDSettings.GetTagOmegaVarOutName(t).Data()), MDSettings.GetTagVarOutName(t).Data()+"!=0")
                 numdata = RooDataSet("numdata"+str(t), "numdata", data, data.get(), MDSettings.GetTagVarOutName(t).Data()+"!=0", "sWeights")
                 num = numdata.sumEntries()
                 den = dataWA.sumEntries()
-                # import uncertainties, math
-                # from uncertainties import ufloat
-                # tagefferr = ufloat(num, math.sqrt(num)) / ufloat(den, math.sqrt(den))
-                # tagefferr = tagefferr.std_dev
+                import uncertainties, math
+                from uncertainties import ufloat
+                tagefferr = ufloat(num, math.sqrt(num)) / ufloat(den, math.sqrt(den))
+                tagefferr = tagefferr.std_dev
             del numdata
             tageff[0] = float( num / den )
             print "[INFO] New <eta>: "+str( etamean[0] )+" +- "+str( etasigma )
             print "[INFO] Config file <eta>: "+str( myconfigfile["Taggers"]["Signal"][nametag]["Calibration"]["avgeta"][0] )
-            # print "[INFO] New tagging efficiency: "+str( tageff[0] )+" +- "+str( tagefferr )
+            print "[INFO] New tagging efficiency: "+str( tageff[0] )+" +- "+str( tagefferr )
             print "[INFO] Config file tagging efficiency: "+str( myconfigfile["Taggers"]["Signal"][nametag]["Calibration"]["tageff"][0] )
 
         p0 = copy.deepcopy(myconfigfile["Taggers"]["Signal"][nametag]["Calibration"]["p0"])
@@ -858,11 +857,11 @@ def runSFit(debug, wsname,
         if toys or MC or unblind:  # Unblind yourself
             fitOpts_temp = [RooFit.Save(1),
                             RooFit.NumCPU(10),
-                            RooFit.Offset(False),
+                            RooFit.Offset(True),
                             RooFit.Strategy(2),
                             RooFit.Minimizer("Minuit2", "migrad"),
                             RooFit.SumW2Error(False),
-                            RooFit.Minos(True),
+                            RooFit.Minos(False),#RooFit.Minos(True),
                             RooFit.Optimize(True),
                             RooFit.Hesse(True),
                             # RooFit.Extended(False),
@@ -894,13 +893,13 @@ def runSFit(debug, wsname,
             myfitresult.correlationMatrix().Print()
             myfitresult.covarianceMatrix().Print()
         else:  # Don't
-            fitOpts_temp = [RooFit.NumCPU(10),
-                            RooFit.Offset(False),
+            fitOpts_temp = [RooFit.NumCPU(8),
+                            RooFit.Offset(True),
                             RooFit.Extended(False),
                             RooFit.Minimizer("Minuit2", "migrad"),
                             RooFit.Optimize(True),
                             RooFit.Hesse(True),
-                            RooFit.Minos(True),
+                            #RooFit.Minos(True),
                             RooFit.Save(1),
                             RooFit.Strategy(2),
                             RooFit.SumW2Error(False),
@@ -988,6 +987,14 @@ def runSFit(debug, wsname,
 
     dataWA.Print("v")
     totPDF.Print("v")
+
+    print ""
+    print "========================================="
+    print "Pretty-printing fit results"
+    print "========================================="
+    print ""
+    from B2DXFitters import FitResultGrabberUtils
+    FitResultGrabberUtils.PrintLatexTable(myfitresult)
 
     workout = RooWorkspace("workspace", "workspace")
     getattr(workout, 'import')(data)
