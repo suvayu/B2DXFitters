@@ -134,11 +134,11 @@ bName = 'B_{d}'
 #timeDown = 0.2
 #timeUp = 15.0
 
-#dataSetToPlot  = 'dataSet_time_weighted'
-#pdfToPlot = 'time_signal'
+dataSetToPlot  = 'dataSet_time_weighted'
+pdfToPlot = 'time_signal'
 
-dataSetToPlot = 'dataSet_time_weighted'
-pdfToPlot = 'time_signal_RawTimePdf'
+#dataSetToPlot = 'dataSet_time_weighted'
+#pdfToPlot = 'time_signal_RawTimePdf'
 
 #fileToWriteOut = 'time_DsPi_BDTG123.pdf' 
 #------------------------------------------------------------------------------

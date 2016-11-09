@@ -7,7 +7,7 @@ def getconfig() :
 
     # PHYSICAL PARAMETERS
     configdict["Gammas"]        =  0.661376   # in ps^{-1}
-    configdict["DeltaGammas"]   =  -0.081
+    configdict["DeltaGammas"]   =  -0.08068783069
     configdict["DeltaMs"]       = 17.757   # in ps^{-1}
     configdict["TagEffSig"]     = 0.403
     configdict["TagOmegaSig"]   = 0.391
@@ -34,17 +34,23 @@ def getconfig() :
                                                        [0.0, 1.0, 0.0, 0.0],
                                                        [0.0, 0.0, 1.0, 0.0],
                                                        [0.0, 0.0, 0.0, 1.0]],
+#                                              "average": 0.4311, "tagEff": 0.6801705055, "aTagEff":0.0, "use":True}
                                               "average": 0.4311, "tagEff":0.63926, "aTagEff":0.0, "use":True}
+#                                              "average": 0.4311, "tagEff":0.70123, "aTagEff":0.0, "use":True}
     configdict["TaggingCalibration"]["OS"] = {"p0": 0.3604, "dp0": 0.0, "p1": 0.914, "dp1": 0.0,
                                               "cov": [ [1.0, 0.0, 0.0, 0.0],
                                                        [0.0, 1.0, 0.0, 0.0],
                                                        [0.0, 0.0, 1.0, 0.0],
                                                        [0.0, 0.0, 0.0, 1.0]],
+#                                              "average": 0.3597, "tagEff":0.3766009593, "aTagEff":0.0, "use":True}
                                               "average": 0.3597, "tagEff":0.37151, "aTagEff":0.0, "use":True}
+#                                              "average": 0.3597, "tagEff":0.39425, "aTagEff":0.0, "use":True}
 
 
-    configdict["Acceptance"] = { "knots": [0.50, 1.0,  1.5, 2.0, 3.0, 12.0],
-                                 "values": [4.2538e-01,5.9870e-01,8.4376e-01,1.0002e+00,1.0977e+00,1.1980e+00] }
+#    configdict["Acceptance"] = { "knots": [0.50, 0.75, 1.0, 1.5, 2.0, 3.0, 12.0],
+#                                 "values": [5.3341e-01,6.0771e-01,8.0080e-01,9.9213e-01,1.1265e+00,1.2121e+00,1.2823e+00] }
+    configdict["Acceptance"] = { "knots": [0.50, 1.0, 1.5, 2.0, 3.0, 12.0],
+                                 "values": [4.7115e-01,6.6919e-01,9.3061e-01,1.0547e+00,1.1660e+00,1.2518e+00] }
 
 
     configdict["constParams"] = []
@@ -68,6 +74,7 @@ def getconfig() :
         configdict["constParams"].append('var4')
         configdict["constParams"].append('var5')
         configdict["constParams"].append('var6')
+        configdict["constParams"].append('var7')
     if configdict["ConstrainsForTaggingCalib"] == False:
         configdict["constParams"].append('p0_OS')
         configdict["constParams"].append('p0_SS')

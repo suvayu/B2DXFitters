@@ -770,13 +770,21 @@ def runSFit(debug, wsname,
 
     if toys or unblind: #Unblind yourself 
         totPDF.printComponentTree();
-
         if binned:
-            myfitresult = totPDF.fitTo(dataWA_binned, RooFit.Save(1), RooFit.Optimize(2), RooFit.Strategy(2),
-                                       RooFit.Verbose(True), RooFit.SumW2Error(True), RooFit.Extended(False)) #,  RooFit.ExternalConstraints(constList))
-        else:
-            myfitresult = totPDF.fitTo(dataWA, RooFit.Save(1), RooFit.Optimize(2), RooFit.Strategy(2),
+            if constraints_for_tagging_calib:
+                myfitresult = totPDF.fitTo(dataWA_binned, RooFit.Save(1), RooFit.Optimize(2), RooFit.Strategy(2),
+                                       RooFit.Verbose(True), RooFit.SumW2Error(True), RooFit.Extended(False), RooFit.ExternalConstraints(taggingMultiVarGaussSet))
+            else:
+                myfitresult = totPDF.fitTo(dataWA_binned, RooFit.Save(1), RooFit.Optimize(2), RooFit.Strategy(2),
                                        RooFit.Verbose(True), RooFit.SumW2Error(True), RooFit.Extended(False))
+
+        else:
+            if constraints_for_tagging_calib:
+                myfitresult = totPDF.fitTo(dataWA, RooFit.Save(1), RooFit.Optimize(2), RooFit.Strategy(2),
+                                       RooFit.Verbose(True), RooFit.SumW2Error(True), RooFit.Extended(False), RooFit.ExternalConstraints(taggingMultiVarGaussSet))
+            else:
+                myfitresult = totPDF.fitTo(dataWA, RooFit.Save(1), RooFit.Optimize(2), RooFit.Strategy(2),
+                                       RooFit.Verbose(True), RooFit.SumW2Error(True), RooFit.Extended(False), RooFit.NumCPU(8))
         myfitresult.Print("v")
         myfitresult.correlationMatrix().Print()
         myfitresult.covarianceMatrix().Print()

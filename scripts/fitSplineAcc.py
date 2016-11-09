@@ -114,34 +114,7 @@ import os, sys, gc
 
 gROOT.SetBatch()
 
-P_down = 0.0
-P_up = 650000000.0
-PT_down  = 500.0
-PT_up = 45000.0
-nTr_down = 15.0
-nTr_up = 1000.0
-Terr_down = 0.005
-Terr_up = 0.1
 
-
-
-tauH = 1.661000
-tauL = 1.405000
-gammaH = 1.0/tauH 
-gammaL = 1.0/tauL  
-gamma = (gammaH + gammaL) / 2.0 
-tau = 1.512
-dgamma = gammaH - gammaL
-
-#tauH = 1.536875
-#tauL = 1.407125
-#gammaH = 1.0/tauH
-#gammaL = 1.0/tauL
-#gamma = (gammaH + gammaL) / 2.0
-#tau = 1.0 / gamma
-#dgamma = gammaH - gammaL
-
-dataName      = '../data/config_fitSignal.txt'
 #------------------------------------------------------------------------------
 # Get signature of signal obtained from MC for PIDK variable                                                                                                                                        
 # -----------------------------------------------------------------------------                                                                                                                      
@@ -208,8 +181,6 @@ def runFitSplineAcc( debug, configName, read, fileNameIn, wsname, workName,
 
     workspace = RooWorkspace("workspace","workspace")
 
-    wD = 2*(0.59)/(0.59+0.44) #Multiply by 2 to make weights closer to 1+-epsilon 
-    wU = 2*(0.44)/(0.59+0.44)
 
     if not read:
         workspace = RooWorkspace("workspace","workspace")
@@ -258,11 +229,20 @@ def runFitSplineAcc( debug, configName, read, fileNameIn, wsname, workName,
     time = obs.find(MDSettings.GetTimeVarOutName().Data())
     terr = obs.find(MDSettings.GetTerrVarOutName().Data())
 
-    time.setBins(200)
+    time.setBins(int(myconfigfile["Bins"]))
     dataF = RooDataSet("dataSet_time", "dataSet_time", data[0].get(), RooFit.Import(data[0]))
     dataF_binned = RooDataHist("data_fit_binned","data_fit_binned",RooArgSet(time,terr),dataF)
-    
-    
+
+
+    print "-------------------- Data set info --------------------"
+    print "[INFO] Data set unbinned: ",dataF.GetName(), dataF.numEntries(), dataF.sumEntries()
+    print "[INFO] Data set binned: ", dataF_binned.GetName(), dataF_binned.numEntries(), dataF.sumEntries() 
+    print "-------------------------------------------------------"
+    dataF.Print("v")
+    print "-------------------------------------------------------"
+    dataF_binned.Print("v") 
+    print "-------------------------------------------------------"
+        
     print "[INFO] Acceptance model: splines"
     tMax = time.getMax()
     tMin = time.getMin()
@@ -294,6 +274,8 @@ def runFitSplineAcc( debug, configName, read, fileNameIn, wsname, workName,
     tacc_list.add(tacc_var[len-1])
     print "[INFO]   n-2: ",tacc_var[len-2].GetName()
     print "[INFO]   n-1: ",tacc_var[len-1].GetName()
+
+    #tacc_var.append(RooRealVar("var"+str(numKnots+2), "var"+str(numKnots+2), 1.0, 0.0, 10.0))
     tacc_var.append(RooAddition("var"+str(numKnots+2), "var"+str(numKnots+2),
                                 RooArgList(tacc_var[len-2],tacc_var[len-1]), listCoeff))
     tacc_list.add(tacc_var[len])
@@ -302,17 +284,34 @@ def runFitSplineAcc( debug, configName, read, fileNameIn, wsname, workName,
     spl = RooCubicSplineFun("splinePdf", "splinePdf", time, "splineBinning", tacc_list)
 
     trm_mean  = RooRealVar( 'trm_mean' , 'Gaussian resolution model mean', 0.0, 'ps' )
-    trm_scale = RooRealVar( 'trm_scale', 'Gaussian resolution model scale factor', 1.201)
+    trm_scale = RooRealVar( 'trm_scale', 'Gaussian resolution model scale factor', myconfigfile["Resolution"]["scaleFactor"])
     trm = RooGaussEfficiencyModel("resmodel", "resmodel", time, spl, trm_mean, terr, trm_mean, trm_scale )
     
     #terrWork = GeneralUtils.LoadWorkspace(TString(myconfigfile["Resolution"]["templates"]["fileName"]),
 #					  TString(myconfigfile["Resolution"]["templates"]["workName"]), debug)
     terrpdf = GeneralUtils.CreateHistPDF(data[0], terr, TString("terr_template"), 20, debug)
 
-        
-    timePDF = RooBDecay('Bdecay', 'Bdecay', time, RooRealConstant.value(tau),
-			RooRealConstant.value(0.0), RooRealConstant.value(1.0),  RooRealConstant.value(0.0),
-			RooRealConstant.value(0.0),  RooRealConstant.value(0.0),  RooRealConstant.value(0.0),
+
+    print " -----------------------------------"
+    print "[INFO] Fixed parameters in RooBDecay"
+    print "------------------------------------"
+    print "[INFO] Delta Gammas : ",myconfigfile["DeltaGammas"]
+    print "[INFO] Gammas: ", myconfigfile["Gammas"]
+    print "[INFO] Tau: ", myconfigfile["Tau"]
+    print "[INFO] 1/Tau: ",1.0/myconfigfile["Tau"]
+    print "[INFO] DeltaMs: ",myconfigfile["DeltaMs"]
+    print "[INFO] cosh - 1.0"
+    print "[INFO] D*sinh - ", myconfigfile["sinh"]
+    print "[INFO] C*cos - ", myconfigfile["cos"]
+    print "[INFO] S*sin - ",myconfigfile["sin"]
+    print "------------------------------------"
+    timePDF = RooBDecay('Bdecay', 'Bdecay', time, RooRealConstant.value(myconfigfile["Tau"]),
+			RooRealConstant.value(myconfigfile["DeltaGammas"]), 
+                        RooRealConstant.value(1.0),  
+                        RooRealConstant.value(myconfigfile["sinh"]),
+			RooRealConstant.value(myconfigfile["cos"]),  
+                        RooRealConstant.value(myconfigfile["sin"]),  
+                        RooRealConstant.value(myconfigfile["DeltaMs"]),
 			trm, RooBDecay.SingleSided)
         
     noncondset = RooArgSet(time)
@@ -322,8 +321,10 @@ def runFitSplineAcc( debug, configName, read, fileNameIn, wsname, workName,
 			RooArgSet(terrpdf), RooFit.Conditional(RooArgSet(timePDF), noncondset))
     
     myfitresult = totPDF.fitTo(dataF_binned, RooFit.Save(1), RooFit.Optimize(2), RooFit.Strategy(2),
-			       RooFit.Verbose(False), RooFit.SumW2Error(True), RooFit.Extended(False),
-			       RooFit.Offset(True))
+			       RooFit.Verbose(False), 
+                               RooFit.SumW2Error(True), 
+                               RooFit.Extended(False))
+			       #RooFit.Offset(True))
 
 
     myfitresult.Print("v")
@@ -387,7 +388,7 @@ def runFitSplineAcc( debug, configName, read, fileNameIn, wsname, workName,
                                                     str(time.getBinWidth(1))+" "+
                                                     unit+")}") ).Data())
 
-        bin = 150
+        bin = 148
         dataF.plotOn(frame_m,RooFit.Binning( bin ), RooFit.Name("dataSetCut"))
         totPDF.plotOn(frame_m, RooFit.LineColor(kBlue+3),  RooFit.Name("FullPdf"))
         
@@ -409,11 +410,12 @@ def runFitSplineAcc( debug, configName, read, fileNameIn, wsname, workName,
         pad1.Draw()
         pad1.cd()
         frame_m.GetYaxis().SetRangeUser(0.1,frame_m.GetMaximum()*1.0)
-        frame_m.Draw()
+        #frame_m.Draw()
         if log:
             gStyle.SetOptLogy(1)
             frame_m.GetYaxis().SetTitleOffset( 1.10 )
             frame_m.GetYaxis().SetRangeUser(1.5,frame_m.GetMaximum()*1.5)
+        frame_m.Draw()
         legend.Draw("same")
         lhcbtext.DrawTextNDC(0.50,0.85,"LHCb")
         

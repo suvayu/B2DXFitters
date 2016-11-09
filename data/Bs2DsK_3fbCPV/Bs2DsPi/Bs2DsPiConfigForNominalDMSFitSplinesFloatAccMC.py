@@ -6,9 +6,9 @@ def getconfig() :
     from math import pi
 
     # PHYSICAL PARAMETERS
-    configdict["Gammas"]        =  0.661376   # in ps^{-1}
-    configdict["DeltaGammas"]   =  -0.10970
-    configdict["DeltaMs"]       = 20 #17.8   # in ps^{-1}
+    configdict["Gammas"]        =  0.6568953699   # in ps^{-1}
+    configdict["DeltaGammas"]   =  -0.1096968152
+    configdict["DeltaMs"]       = 17.799999999   # in ps^{-1}
     configdict["TagEffSig"]     = 0.403
     configdict["TagOmegaSig"]   = 0.391
     configdict["StrongPhase"]   = 20. / 180. * pi
@@ -34,23 +34,27 @@ def getconfig() :
                                                        [0.0, 1.0, 0.0, 0.0],
                                                        [0.0, 0.0, 1.0, 0.0],
                                                        [0.0, 0.0, 0.0, 1.0]],
-                                              "average": 0.4314, "tagEff":0.63926, "aTagEff":0.0, "use":True}
+#                                              "average": 0.4314, "tagEff":0.63926, "aTagEff":0.0, "use":True}
+                                              "average": 0.4314, "tagEff":0.70123, "aTagEff":0.0, "use":True}
+
     configdict["TaggingCalibration"]["OS"] = {"p0": 0.3607, "dp0": 0.0, "p1": 0.936, "dp1": 0.0,
                                               "cov": [ [1.0, 0.0, 0.0, 0.0],
                                                        [0.0, 1.0, 0.0, 0.0],
                                                        [0.0, 0.0, 1.0, 0.0],
                                                        [0.0, 0.0, 0.0, 1.0]],
-                                              "average": 0.3597, "tagEff":0.37151, "aTagEff":0.0, "use":True}
+#                                              "average": 0.3597, "tagEff":0.37151, "aTagEff":0.0, "use":True}
+                                              "average": 0.3597, "tagEff":0.39425, "aTagEff":0.0, "use":True}
 
 
     configdict["Acceptance"] = { "knots": [0.50, 1.0,  1.5, 2.0, 3.0, 12.0],
-                                 "values": [5.6512e-01, 6.3939e-01, 9.9391e-01, 1.0961e+00, 1.0567e+00, 1.2991e+00] }
+                                 "values": [4.0349e-01, 5.8534e-01, 7.7696e-01, 9.1592e-01, 9.9973e-01, 1.0705e+00] }
+#                                 "values": [5.6512e-01, 6.3939e-01, 9.9391e-01, 1.0961e+00, 1.0567e+00, 1.2991e+00] }
 
 
     configdict["constParams"] = []
     configdict["constParams"].append('Gammas_Bs2DsPi')
     configdict["constParams"].append('deltaGammas_Bs2DsPi')
-    #configdict["constParams"].append('DeltaMs_Bs2DsPi')
+#    configdict["constParams"].append('DeltaMs_Bs2DsPi')
     configdict["constParams"].append('C_Bs2DsPi')
     configdict["constParams"].append('Cbar_Bs2DsPi')
     configdict["constParams"].append('S_Bs2DsPi')

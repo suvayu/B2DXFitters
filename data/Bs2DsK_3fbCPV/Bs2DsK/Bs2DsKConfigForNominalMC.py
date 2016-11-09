@@ -6,9 +6,9 @@ def getconfig() :
     from math import pi
 
     # PHYSICAL PARAMETERS
-    configdict["Gammas"]        =  0.661376   # in ps^{-1}
-    configdict["DeltaGammas"]   =  -0.10970
-    configdict["DeltaMs"]       = 17.8   # in ps^{-1}
+    configdict["Gammas"]        =  0.6568953699   # in ps^{-1}
+    configdict["DeltaGammas"]   =  -0.1096968152
+    configdict["DeltaMs"]       = 17.799999999   # in ps^{-1}
     configdict["TagEffSig"]     = 0.403
     configdict["TagOmegaSig"]   = 0.391
     configdict["StrongPhase"]   = 20. / 180. * pi
@@ -20,6 +20,10 @@ def getconfig() :
 
     configdict["ConstrainsForTaggingCalib"] = False
     configdict["FixAcceptance"] = True
+
+    configdict["Asymmetries"] = {"Detection":0.0,
+                                 "Production":0.0}
+
 
     # Nominal MC Resolution and corresponding tagging parameters (DsK)
     configdict["Resolution"] = { "scaleFactor":{"p0":0.0, "p1":1.201, "p2":0.0},
@@ -34,17 +38,21 @@ def getconfig() :
                                                        [0.0, 1.0, 0.0, 0.0],
                                                        [0.0, 0.0, 1.0, 0.0],
                                                        [0.0, 0.0, 0.0, 1.0]],
-                                              "average": 0.4311, "tagEff":0.63926, "aTagEff":0.0, "use":True}
+                                              "average": 0.4311, "tagEff": 0.6801705055, "aTagEff":0.0, "use":True}
+#                                              "average": 0.4311, "tagEff":0.63926, "aTagEff":0.0, "use":True}
+#                                              "average": 0.4311, "tagEff":0.70123, "aTagEff":0.0, "use":True}
     configdict["TaggingCalibration"]["OS"] = {"p0": 0.3604, "dp0": 0.0, "p1": 0.914, "dp1": 0.0,
                                               "cov": [ [1.0, 0.0, 0.0, 0.0],
                                                        [0.0, 1.0, 0.0, 0.0],
                                                        [0.0, 0.0, 1.0, 0.0],
                                                        [0.0, 0.0, 0.0, 1.0]],
-                                              "average": 0.3597, "tagEff":0.37151, "aTagEff":0.0, "use":True}
+                                              "average": 0.3597, "tagEff":0.3766009593, "aTagEff":0.0, "use":True}
+#                                              "average": 0.3597, "tagEff":0.37151, "aTagEff":0.0, "use":True}
+#                                              "average": 0.3597, "tagEff":0.39425, "aTagEff":0.0, "use":True}
 
 
     configdict["Acceptance"] = { "knots": [0.50, 1.0,  1.5, 2.0, 3.0, 12.0],
-                                 "values": [4.4380e-01,6.5460e-01,8.9162e-01,1.0231e+00,1.1312e+00,1.2051e+00] }
+                                 "values": [4.2031e-01,6.0903e-01,8.1647e-01,9.4142e-01,1.0356e+00,1.1101e+00] }
 
 
     configdict["constParams"] = []
