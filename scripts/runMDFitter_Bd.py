@@ -1486,7 +1486,7 @@ def runMDFitter_Bd( debug,
 			RooFit.Strategy(2),
 			#RooFit.Verbose(False),
 			RooFit.Timer(True),
-			RooFit.NumCPU(8),
+			RooFit.NumCPU(4),
 			RooFit.Minimizer("Minuit2", "migrad")]#,
 			#RooFit.Minos(True)]
 		if None != constrPDFs:
