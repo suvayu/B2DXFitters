@@ -53,19 +53,19 @@ def getconfig() :
                                                       "Name"                   : "TagDecOS",
                                                       "InputName"              : "lab0_TAGDECISION_OS"}
     
-    #configdict["BasicVariables"]["TagDecSS"]      = { "Range"                  : [-1.0,    1.0     ],
-    #                                                  "Name"                   : "TagDecSS",
-    #                                                  "InputName"              : "lab0_SS_PionBDT_DEC"}
+    configdict["BasicVariables"]["TagDecSS"]      = { "Range"                  : [-1.0,    1.0     ],
+                                                      "Name"                   : "TagDecSS",
+                                                      "InputName"              : "lab0_SS_PionBDT_DEC"}
 
-    configdict["BasicVariables"]["MistagOS"]      = { "Range"                  : [ 0.0,    0.48     ],
+    configdict["BasicVariables"]["MistagOS"]      = { "Range"                  : [ 0.0,    0.5     ],
                                                       "Name"                   : "MistagOS",
                                                       "InputName"              : "lab0_TAGOMEGA_OS"}
 
-    #configdict["BasicVariables"]["MistagSS"]      = { "Range"                  : [ 0.0,    0.48     ],
-    #                                                  "Name"                   : "MistagSS",
-    #                                                  "InputName"              : "lab0_SS_PionBDT_PROB"}
+    configdict["BasicVariables"]["MistagSS"]      = { "Range"                  : [ 0.0,    0.5     ],
+                                                      "Name"                   : "MistagSS",
+                                                      "InputName"              : "lab0_SS_PionBDT_PROB"}
 
-    configdict["BasicVariables"]["BDTG"]           = { "Range"                  : [0.05, 1],
+    configdict["BasicVariables"]["BDTG"]           = { "Range"                  : [0.0, 1],
                                                        "Name"                   : "BDTG",
                                                        "InputName"              : "BDT_classifier"}
 
@@ -112,9 +112,9 @@ def getconfig() :
     ArgAbarfbar_d   =  0.002278
 
     configdict["ACP"] = {}
-    configdict["ACP"]["Signal"] = { "Gamma"                : [1.0 / 1.520, 0.0, 3.0], #HFAG: tau = (1.520 +- 0.004)ps
+    configdict["ACP"]["Signal"] = { "Gamma"                : [1.0 / 1.520, 0.1, 2.0], #Inverse lifetime from HFAG (http://www.slac.stanford.edu/xorg/hfag/osc/summer_2016/)
                                     "DeltaGamma"           : [0.0],
-                                    "DeltaM"               : [0.5096], #PDG: (0.5096 +- 0.0034)ps^-1
+                                    "DeltaM"               : [0.5064, 0.01, 2.0], #Global average from HFAG (http://www.slac.stanford.edu/xorg/hfag/osc/summer_2016/)
                                     #"ArgLf"                : [ArgqOverp_d + ArgAbarf_d - ArgAf_d],
                                     #"ArgLbarfbar"          : [ArgpOverq_d + ArgAfbar_d - ArgAbarfbar_d],
                                     #"ModLf"                : [ModAbarf_d/ModAf_d],
@@ -124,15 +124,12 @@ def getconfig() :
                                     "D"                   : [0.0],
                                     "Dbar"                : [0.0],
                                     "ParameteriseIntegral" : True,
-                                    "CPlimit"              : {"upper":4.0, "lower":-4.0},
+                                    "CPlimit"              : {"upper":1.0, "lower":-1.0},
                                     "NBinsAcceptance"      : 0} #keep at zero if using spline acceptance!
 
     ############################################
     # Define resolution and acceptance models
     ############################################
-
-    p0 = 1.064
-    p1 = -0.04554
 
     configdict["ResolutionAcceptance"] = {}
     configdict["ResolutionAcceptance"]["Signal"] = {}
@@ -141,8 +138,7 @@ def getconfig() :
                                                     {"Type": "Spline",
                                                      "Float": True,
                                                      "KnotPositions" : [ 0.5, 1.0, 1.5, 2.0, 3.0, 12.0 ],
-                                                     "KnotCoefficients" : [ 0.4067, 0.6005, 0.9140,
-                                                                            1.1096, 1.2761, 1.4256 ]},
+                                                     "KnotCoefficients" : [0.3889, 0.5754, 0.8515, 1.0649, 1.2373, 1.4149]},
                                                     "Resolution":
                                                     {"Type": "AverageModel",
                                                      "Parameters": { 'sigmas': [ 0.05491 ], 'fractions': [] }, #0.05491 +- 0.00038
@@ -158,8 +154,8 @@ def getconfig() :
     configdict["DetectionAsymmetry"] = {}
     configdict["ProductionAsymmetry"]["Signal"] = {}
     configdict["DetectionAsymmetry"]["Signal"] = {}
-    configdict["ProductionAsymmetry"]["Signal"] = [0.0035, -3.0, 3.0] #from arXiv:1408.0275 (Bbar - B)/(Bbar + B) = -0.0035 +- 0.0076 +- 0.0028
-    configdict["DetectionAsymmetry"]["Signal"] = [0.01] #from DsK? 
+    configdict["ProductionAsymmetry"]["Signal"] = [-0.0124, -3.0, 3.0]
+    configdict["DetectionAsymmetry"]["Signal"] = [0.0086, -1.0, 1.0] 
 
     ############################################
     # Define taggers and their calibration
@@ -167,32 +163,32 @@ def getconfig() :
 
     configdict["Taggers"] = {}
     configdict["Taggers"]["Signal"] = {}
-    configdict["Taggers"]["Signal"] = {"OS" : #Take it uncalibrated for now
-                                       {"Calibration":
-                                        {"p0"       : [3.70309005441588512e-01],
-                                         "p1"       : [1.0],
-                                         "deltap0"  : [0.0],
-                                         "deltap1"  : [0.0],
-                                         "avgeta"   : [3.70309005441588512e-01],
-                                         "tageff"   : [1.0],
+    configdict["Taggers"]["Signal"] = {"OS" :
+                                       {"Calibration":  #from EPM on Bu->D0Pi data
+                                        {"p0"       : [0.3737056, 0.01, 0.8],
+                                         "p1"       : [1.028621, 0.3, 1.5],
+                                         "deltap0"  : [0.011819, -0.1, 0.3],
+                                         "deltap1"  : [0.043134, -0.1, 0.3],
+                                         "avgeta"   : [0.347742], #<eta> on spline-corrected Bu->D0Pi
+                                         "tageff"   : [0.371, 0.1, 0.9],
                                          "tagasymm" : [0.0]
                                          },
                                         "MistagPDF" :
                                         {"Type"     : "BuildTemplate"}
-                                        }#,
-                                       #"SS": #Take it uncalibrated for now
-                                       #{"Calibration":
-                                       # {"p0"       : [4.41156811097588419e-01, 0.1, 0.5],
-                                       #  "p1"       : [1.0],
-                                       #  "deltap0"  : [0.0],
-                                       #  "deltap1"  : [0.0],
-                                       #  "avgeta"   : [4.41156811097588419e-01],
-                                       #  "tageff"   : [1.0],
-                                       #  "tagasymm" : [0.0]
-                                       #  },
-                                       # "MistagPDF" :
-                                       # {"Type"     : "BuildTemplate"}
-                                       # }
+                                        },
+                                       "SS": #Take it uncalibrated for now
+                                       {"Calibration":
+                                        {"p0"       : [0.4424049, 0.01, 0.8],
+                                         "p1"       : [0.81302, 0.3, 1.5],
+                                         "deltap0"  : [0.00062332, -0.1, 0.1],
+                                         "deltap1"  : [0.0066248, -0.1, 0.1],
+                                         "avgeta"   : [0.435], #<eta> on Bd->J/psiK*
+                                         "tageff"   : [0.816, 0.01, 0.99],
+                                         "tagasymm" : [0.0]
+                                         },
+                                        "MistagPDF" :
+                                        {"Type"     : "BuildTemplate"}
+                                        }
                                        }
 
     ############################################
@@ -204,9 +200,8 @@ def getconfig() :
     configdict["constParams"].append('Cfbar')
     configdict["constParams"].append('Df')
     configdict["constParams"].append('Dfbar')
-    #configdict["constParams"].append('Sf')
-    #configdict["constParams"].append('Sfbar')
     configdict["constParams"].append('.*scalefactor')
+    #configdict["constParams"].append('resmodel00_sigma')
 
     ############################################
     # Build gaussian constraints
@@ -214,11 +209,35 @@ def getconfig() :
     ############################################
 
     configdict["gaussCons"] = {}
-    # Error on production asymmetry = add in quadrature stat. and syst. errors
-    configdict["gaussCons"]["ProdAsymm"] = math.sqrt(0.0076*0.0076 + 0.0028*0.0028)
-    #Error on gamma = gamma central value * relative uncertainty on lifetime (= relative uncertainty on gamma)
-    configdict["gaussCons"]["Gamma"] = (1.0 / 1.520) * (0.004 / 1.520)
-
+    # Constraint on resolution
+    configdict["gaussCons"]["resmodel00_sigma"] = 0.00038
+    # Constraint on DeltaM
+    configdict["gaussCons"]["deltaM"] = 0.0019
+    # Constraint on Gamma (error on gamma = rel. error on lifetime * gamma)
+    configdict["gaussCons"]["Gamma"] = (0.004/1.520) * (1.0/1.520)
+    # Multivariate constraint for production and detection asymmetries
+    #configdict["gaussCons"]["multivarAsymm"] = [ ['ProdAsymm', 'DetAsymm'], #parname
+    #                                             [math.sqrt(0.0081*0.0081 + 0.0014*0.0014), 0.0046], #errors
+    #                                             [ [1, -0.65], #correlation matrix
+    #                                               [-0.65, 1] ]
+    #                                             ]
+    # Multivariate constraint for OS combination
+    configdict["gaussCons"]["multivarOSCalib"] = [ ['p0_OS', 'p1_OS', 'deltap0_OS', 'deltap1_OS'], #parname
+                                                   [0.00276866695767, 0.0532951796942, 0.00269475453428, 0.037310097266], #errors
+                                                   [ [1,         0.14218,       -0.017668,       0.0092814],  #correlation matrix from EPM
+                                                     [0.14218,         1,       0.0092814,       -0.048821],
+                                                     [-0.017668, 0.0092814,             1,         0.14218],
+                                                     [0.0092814,  -0.048821,      0.14218,                1] ]
+                                                   ]
+    #Add constraint for SS combination
+    configdict["gaussCons"]["multivarSSCalib"] = [ ['p0_SS', 'p1_SS', 'deltap0_SS', 'deltap1_SS'], #parname
+                                                   [0.007431465, 0.05246453784, 0.004264925, 0.08085860086], #errors
+                                                   [ [1,         -0.054207,       -0.01714,       -0.0048873],  #correlation matrix from EPM
+                                                     [-0.054207,         1,       -0.004997,       -0.0053978],
+                                                     [-0.01714, -0.004997,             1,         -0.071635],
+                                                     [-0.0048873,  -0.0053978,      -0.071635,                1] ]
+                                                   ]
+    
     ############################################
     # Choose parameters to blind
     ############################################
