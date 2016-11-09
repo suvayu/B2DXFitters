@@ -34,8 +34,7 @@ export nickname="SimpleSgnAndBkgTwoTaggersProdDetAsymmAccMeanResTimeFrom04ps"
 export massfitdescr="FullMDFit"
 #Tag to describe time fit configuration
 #Choose a meaningful name (e.g. SSbarFloating etc...) 
-#export timefitdescr="SSbarFloatAccProdDetAsymmGausConstHesse"
-export timefitdescr="TEST"
+export timefitdescr="SSbarFloatAccProdDetAsymmGausConstHesse"
 #Name of tree with weights
 export treename="merged"
 #Bachelor mass hypothesys
@@ -83,7 +82,7 @@ while (( $stop <= $fullstop )); do
     echo "...submitting job ${job} with starting seed ${seed}"
 
     #Submit job
-    #bsub -q $queue -M $mlimit -e ${output}ERROR -o ${output}OUTPUT -n 1,16 -R "span[hosts=-1]" -J ${jobname}_${job} source ${bashscriptpath}runSFitOnToys.sh $seed $stop $input $output $eosoutput $nickname $massfitdescr $timefitdescr $config $pol $mode $year $hypo $pyscriptpath
+    bsub -q $queue -M $mlimit -e ${output}ERROR -o ${output}OUTPUT -n 1,16 -R "span[hosts=-1]" -J ${jobname}_${job} source ${bashscriptpath}runSFitOnToys.sh $seed $stop $input $output $eosoutput $nickname $massfitdescr $timefitdescr $config $pol $mode $year $hypo $pyscriptpath
 
     source ${bashscriptpath}runSFitOnToys.sh $seed $stop $input $output $eosoutput $nickname $massfitdescr $timefitdescr $config $pol $mode $year $hypo $pyscriptpath
 

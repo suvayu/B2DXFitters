@@ -146,7 +146,7 @@ def getconfig() :
                                          "p1"       : [1.028621, 0.3, 1.5],
                                          "deltap0"  : [0.011819, -0.1, 0.3],
                                          "deltap1"  : [0.043134, -0.1, 0.3],
-                                         "avgeta"   : [0.359657], #this is the mean of the RooHistPDF used in generation
+                                         "avgeta"   : [0.347742], #<eta> on spline-corrected Bu->D0Pi
                                          "tageff"   : [0.371, 0.01, 0.99], #float in the fit
                                          "tagasymm" : [0.0]
                                          },
@@ -159,7 +159,7 @@ def getconfig() :
                                          "p1"       : [0.81302, 0.3, 1.5],
                                          "deltap0"  : [0.00062332, -0.1, 0.1],
                                          "deltap1"  : [0.0066248, -0.1, 0.1],
-                                         "avgeta"   : [0.441492575813], #this is the mean of the RooHistPDF used in generation
+                                         "avgeta"   : [0.435], #<eta> on Bd->J/psiK*
                                          "tageff"   : [0.816, 0.01, 0.99], #float in the fit
                                          "tagasymm" : [0.0]
                                          },
@@ -178,6 +178,7 @@ def getconfig() :
     configdict["constParams"].append('Df')
     configdict["constParams"].append('Dfbar')
     configdict["constParams"].append('.*scalefactor')
+    #configdict["constParams"].append('resmodel00_sigma')
 
     ############################################
     # Build gaussian constraints
@@ -185,18 +186,18 @@ def getconfig() :
     ############################################
 
     configdict["gaussCons"] = {}
+    # Constraint on resolution
+    configdict["gaussCons"]["resmodel00_sigma"] = 0.00038
     # Constraint on DeltaM
     configdict["gaussCons"]["deltaM"] = 0.0019
     # Constraint on Gamma (error on gamma = rel. error on lifetime * gamma)
     configdict["gaussCons"]["Gamma"] = (0.004/1.520) * (1.0/1.520)
-    # Constraint on resolution sigma
-    # configdict["gaussCons"]["resmodel00_sigma"] = 0.00038
     # Multivariate constraint for production and detection asymmetries
-    configdict["gaussCons"]["multivarAsymm"] = [ ['ProdAsymm', 'DetAsymm'], #parname
-                                                 [math.sqrt(0.0081*0.0081 + 0.0014*0.0014), 0.0046], #errors
-                                                 [ [1, -0.65], #correlation matrix
-                                                   [-0.65, 1] ]
-                                                 ]
+    #configdict["gaussCons"]["multivarAsymm"] = [ ['ProdAsymm', 'DetAsymm'], #parname
+    #                                             [math.sqrt(0.0081*0.0081 + 0.0014*0.0014), 0.0046], #errors
+    #                                             [ [1, -0.65], #correlation matrix
+    #                                               [-0.65, 1] ]
+    #                                             ]
     # Multivariate constraint for OS combination
     configdict["gaussCons"]["multivarOSCalib"] = [ ['p0_OS', 'p1_OS', 'deltap0_OS', 'deltap1_OS'], #parname
                                                     [0.00276866695767, 0.0532951796942, 0.00269475453428, 0.037310097266], #errors

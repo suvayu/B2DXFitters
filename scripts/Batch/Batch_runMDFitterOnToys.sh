@@ -28,18 +28,18 @@ export queue="1nh"
 export mlimit="150000"
 #Nickname for the current generation configuration
 #Choose a meaningful name (e.g. SgnAndBkgMeanResSplineAcc2TaggersNoAsymm etc...)
-export nicknamegen="SgnAndBkgTwoTaggersProdAsymm001AccMeanResTimeFrom02ps"
+export nicknamegen="SimpleSgnAndBkgTwoTaggersProdDetAsymmAccMeanResTimeFrom04ps"
 #Nickname for the current MD fit configuration
 #Choose a meaningful name (e.g. OnlyBmassNoLowMass etc...)
 export nicknamemd="FullMDFit"
 #Configuration file
 export config="/afs/cern.ch/user/v/vibattis/cmtuser/Urania_v5r0/PhysFit/B2DXFitters/data/Bd2DPi_3fbCPV/Bd2DPi/Bd2DPiConfigForMDFitterOnToys.py"
 #Temporary pathname to dump results
-export output="/afs/cern.ch/work/v/vibattis/public/B2DX/Bd2DPi/Toys/${nicknamegen}/MDFit_test/"
+export output="/afs/cern.ch/work/v/vibattis/public/B2DX/Bd2DPi/Toys/${nicknamegen}/MDFit/"
 #Pathname to dump outputfiles (eos recommendend)
-export eosoutput="/eos/lhcb/user/v/vibattis/B2DX/Bd2DPi/Toys/${nicknamegen}/MDFit_test/"
+export eosoutput="/eos/lhcb/wg/b2oc/TD_DPi_3fb/Toys/${nicknamegen}/MDFit/"
 #Input file directory
-export eosinput="/eos/lhcb/user/v/vibattis/B2DX/Bd2DPi/Toys/${nicknamegen}/Generator/"
+export eosinput="/eos/lhcb/wg/b2oc/TD_DPi_3fb/Toys/${nicknamegen}/Generator/"
 #Path where scripts are located
 export bashscriptpath="/afs/cern.ch/user/v/vibattis/cmtuser/Urania_v5r0/PhysFit/B2DXFitters/scripts/Bash/"
 export pyscriptpath="/afs/cern.ch/user/v/vibattis/cmtuser/Urania_v5r0/PhysFit/B2DXFitters/scripts/"
@@ -69,12 +69,12 @@ while (( $stop <= $fullstop )); do
     echo "...submitting job ${job} with starting seed ${seed}"
 
     #Submit jobs
-    #bsub -q $queue -M $mlimit -e ${output}ERROR -o ${output}OUTPUT -n 1,4 -R "span[hosts=-1]" -J ${jobname}_${seed} source ${bashscriptpath}runMDFitterOnToys.sh $seed $stop $output $eosoutput $eosinput $nicknamegen $nicknamemd $config $pyscriptpath
+    bsub -q $queue -M $mlimit -e ${output}ERROR -o ${output}OUTPUT -n 4 -R "span[hosts=-1]" -J ${jobname}_${seed} source ${bashscriptpath}runMDFitterOnToys.sh $seed $stop $output $eosoutput $eosinput $nicknamegen $nicknamemd $config $pyscriptpath
 
-    source ${bashscriptpath}runMDFitterOnToys.sh $seed $stop $output $eosoutput $eosinput $nicknamegen $nicknamemd $config $pyscriptpath
+    #source ${bashscriptpath}runMDFitterOnToys.sh $seed $stop $output $eosoutput $eosinput $nicknamegen $nicknamemd $config $pyscriptpath
 
     #Sleep to avoid afs overload and buffer space consumption (not sure this is the best trick)
-    if [[ "$(($job % 100))" -eq 0 ]]; then
+    if [[ "$(($job % 50))" -eq 0 ]]; then
         echo "Sleeping..."
         sleep 30
     fi

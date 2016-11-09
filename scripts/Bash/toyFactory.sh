@@ -25,8 +25,8 @@ while (( $seed < $stop )); do
     xrdcp -f ${output}GenToyWorkspace_${nickname}_${seed}.root root://eoslhcb.cern.ch/${eosoutput}GenToyWorkspace_${nickname}_${seed}.root
     rm -f ${output}GenToyWorkspace_${nickname}_${seed}.root
 
-    xrdcp -f ${output}GenToyTree_${nickname}_${seed}.root root://eoslhcb.cern.ch/${eosoutput}GenToyTree_${nickname}_${seed}.root
-    rm -f ${output}GenToyTree_${nickname}_${seed}.root
+    #xrdcp -f ${output}GenToyTree_${nickname}_${seed}.root root://eoslhcb.cern.ch/${eosoutput}GenToyTree_${nickname}_${seed}.root
+    #rm -f ${output}GenToyTree_${nickname}_${seed}.root
 
     xrdcp -f ${output}log_${nickname}_${seed}.txt root://eoslhcb.cern.ch/${eosoutput}log_${nickname}_${seed}.txt
 

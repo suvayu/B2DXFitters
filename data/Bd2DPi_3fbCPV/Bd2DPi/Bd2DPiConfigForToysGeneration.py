@@ -267,7 +267,7 @@ def getconfig() :
                                          "p1"       : [1.028621],
                                          "deltap0"  : [0.011819],
                                          "deltap1"  : [0.043134],
-                                         "avgeta"   : [0.363925900295], #this is the mean of the RooHistPDF loaded below
+                                         "avgeta"   : [0.347742], #<eta> on spline-corrected Bu->D0Pi
                                          "tageff"   : [0.371],
                                          "tagasymm" : [0.0]
                                          },
@@ -284,7 +284,7 @@ def getconfig() :
                                          "p1"       : [0.81302],
                                          "deltap0"  : [0.00062332],
                                          "deltap1"  : [0.0066248],
-                                         "avgeta"   : [0.435208799499], #this is the mean of the RooHistPDF loaded below
+                                         "avgeta"   : [0.435], #<eta> on Bd->J/psiK*
                                          "tageff"   : [0.816],
                                          "tagasymm" : [0.0]
                                          },
