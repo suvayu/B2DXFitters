@@ -226,6 +226,49 @@ def getTagEff(myconfig, ws, mdSet, par):
     return tagEffList, ws 
 
 
+def getaTagEff(myconfig, ws, mdSet, par):
+    numTag = mdSet.GetNumTagVar()
+    tagList = []
+    for i in range(0,numTag):
+        if mdSet.CheckUseTag(i) == True:
+            tagList.append(str(mdSet.GetTagMatch(i)))
+
+    from B2DXFitters.WS import WS as WS
+    tagEffList = RooArgList()
+    tagEffSig = [] 
+    tagEff = 0.0 
+    
+    if tagList.__len__() == 1:
+        if myconfig["TaggingCalibration"].has_key(tagList[0]): 
+            if myconfig["TaggingCalibration"][tagList[0]].has_key(par):
+                tagEff = myconfig["TaggingCalibration"][tagList[0]][par]
+                tagEffSig.append(WS(ws,RooRealVar(par+'_'+tagList[0], 'Signal tagging efficiency', tagEff, -1.0, 1.0)))
+                setConstantIfSoConfigured(tagEffSig[0],myconfig)
+                tagEffList.add(tagEffSig[0])
+            else:
+                print "[ERROR] Tagging efficiency is unknown. Please check the config file." 
+                exit(0) 
+        else:
+            print "[ERROR] Tagging efficiency is unknown. Please check the config file."
+            exit(0)
+    elif tagList.__len__()  == 2:
+        tagEff0 = myconfig["TaggingCalibration"][tagList[0]][par]
+        tagEff1 = myconfig["TaggingCalibration"][tagList[1]][par]
+        tagValue = [tagEff0, tagEff1] #[tagEff0 - tagEff0*tagEff1,  tagEff1 - tagEff0*tagEff1, tagEff0*tagEff1]
+        i = 0 
+        for tag in tagList:
+            tagEffSig.append(WS(ws,RooRealVar(par+'_'+tag, 'Signal tagging efficiency', tagValue[i], -1.0, 1.0)))
+            s = tagEffSig.__len__()
+            setConstantIfSoConfigured(tagEffSig[s-1],myconfig)
+            tagEffList.add(tagEffSig[s-1]) 
+            i = i+1
+    else:
+        print "[ERROR] More than two taggers are not supported"
+        exit(0) 
+    return tagEffList, ws 
+
+
+
 def getCalibratedMistag(myconfig, ws, mdSet, mistag, par):
     numTag = mdSet.GetNumTagVar()
     tagList = []
@@ -509,8 +552,12 @@ def runSFit(debug, wsname,
         print "s2 ",trm_scale_p2.GetName(), trm_scale_p2.getValV()
 
     # read out if constraints for the tagging calibration parameters should be used
-    constraints_for_tagging_calib = myconfigfile["ConstrainsForTaggingCalib"]
-    print "[INFO] Constrains: ",constraints_for_tagging_calib 
+    if myconfigfile.has_key("ConstrainsForTaggingCalib"):
+        constraints_for_tagging_calib = myconfigfile["ConstrainsForTaggingCalib"]
+    else:
+        constraints_for_tagging_calib = False
+
+    print "[INFO] Constrains: ",constraints_for_tagging_calib
 
 
     # Per-event mistag
@@ -613,7 +660,7 @@ def runSFit(debug, wsname,
 
     # Production, detector and tagging asymmetries
     # --------------------------------------------
-    aTagEffSigList, ws  = getTagEff(myconfigfile,ws,MDSettings,"aTagEff")
+    aTagEffSigList, ws  = getaTagEff(myconfigfile,ws,MDSettings,"aTagEff")
 
     if not toys:
         ws.Print("v")
@@ -773,15 +820,15 @@ def runSFit(debug, wsname,
         if binned:
             if constraints_for_tagging_calib:
                 myfitresult = totPDF.fitTo(dataWA_binned, RooFit.Save(1), RooFit.Optimize(2), RooFit.Strategy(2),
-                                       RooFit.Verbose(True), RooFit.SumW2Error(True), RooFit.Extended(False), RooFit.ExternalConstraints(taggingMultiVarGaussSet))
+                                       RooFit.Verbose(True), RooFit.SumW2Error(True), RooFit.Extended(False), RooFit.ExternalConstraints(taggingMultiVarGaussSet), RooFit.NumCPU(8))
             else:
                 myfitresult = totPDF.fitTo(dataWA_binned, RooFit.Save(1), RooFit.Optimize(2), RooFit.Strategy(2),
-                                       RooFit.Verbose(True), RooFit.SumW2Error(True), RooFit.Extended(False))
+                                       RooFit.Verbose(True), RooFit.SumW2Error(True), RooFit.Extended(False), RooFit.NumCPU(8))
 
         else:
             if constraints_for_tagging_calib:
                 myfitresult = totPDF.fitTo(dataWA, RooFit.Save(1), RooFit.Optimize(2), RooFit.Strategy(2),
-                                       RooFit.Verbose(True), RooFit.SumW2Error(True), RooFit.Extended(False), RooFit.ExternalConstraints(taggingMultiVarGaussSet))
+                                       RooFit.Verbose(True), RooFit.SumW2Error(True), RooFit.Extended(False), RooFit.ExternalConstraints(taggingMultiVarGaussSet), RooFit.NumCPU(8))
             else:
                 myfitresult = totPDF.fitTo(dataWA, RooFit.Save(1), RooFit.Optimize(2), RooFit.Strategy(2),
                                        RooFit.Verbose(True), RooFit.SumW2Error(True), RooFit.Extended(False), RooFit.NumCPU(8))
@@ -796,14 +843,14 @@ def runSFit(debug, wsname,
                 # old way
                 taggingMultiVarGaussSet.Print("v")
                 myfitresult = totPDF.fitTo(dataWA_binned, RooFit.Save(1), RooFit.Optimize(2), RooFit.Strategy(2), RooFit.Extended(False),
-                                           RooFit.ExternalConstraints(taggingMultiVarGaussSet),RooFit.SumW2Error(True), RooFit.PrintLevel(-1))
+                                           RooFit.ExternalConstraints(taggingMultiVarGaussSet),RooFit.SumW2Error(True), RooFit.PrintLevel(-1), RooFit.NumCPU(8))
                 # new way, activate also the lower totPDF above!
     #            myfitresult = totPDF.fitTo(dataWA_binned, RooFit.Save(1), RooFit.Optimize(2), RooFit.Strategy(2), RooFit.Extended(False),
     #                                       RooFit.ExternalConstraints(taggingMultiVarGaussSet),RooFit.ConditionalObservables(RooArgSet(mistag[0], mistag[1])),RooFit.SumW2Error(True), RooFit.PrintLevel(-1))
             else:
                 # old way
                 myfitresult = totPDF.fitTo(dataWA_binned, RooFit.Save(1), RooFit.Optimize(2), RooFit.Strategy(2), RooFit.Extended(False),
-                                       RooFit.SumW2Error(True), RooFit.PrintLevel(-1))
+                                       RooFit.SumW2Error(True), RooFit.PrintLevel(-1), RooFit.NumCPU(8))
                 # new way, activate also the lower totPDF above!
     #            myfitresult = totPDF.fitTo(dataWA_binned, RooFit.Save(1), RooFit.Optimize(2), RooFit.Strategy(2), RooFit.Extended(False),
     #                                       RooFit.ConditionalObservables(RooArgSet(mistag[0], mistag[1])),RooFit.SumW2Error(True), RooFit.PrintLevel(-1))
@@ -812,11 +859,11 @@ def runSFit(debug, wsname,
         else:
             if not constraints_for_tagging_calib:
                 myfitresult = totPDF.fitTo(dataWA, RooFit.Save(1), RooFit.Optimize(2), RooFit.Strategy(2), RooFit.Extended(False),
-                                           RooFit.SumW2Error(True), RooFit.PrintLevel(-1))            
+                                           RooFit.SumW2Error(True), RooFit.PrintLevel(-1), RooFit.NumCPU(8))
             else:
                 taggingMultiVarGaussSet.Print("v")
                 myfitresult = totPDF.fitTo(dataWA, RooFit.Save(1), RooFit.Optimize(2), RooFit.Strategy(2), RooFit.Extended(False),
-                                           RooFit.ExternalConstraints(taggingMultiVarGaussSet),RooFit.SumW2Error(True), RooFit.PrintLevel(-1))
+                                           RooFit.ExternalConstraints(taggingMultiVarGaussSet),RooFit.SumW2Error(True), RooFit.PrintLevel(-1), RooFit.NumCPU(8))
 
         print '[INFO Result] Matrix quality is',myfitresult.covQual()
         par = myfitresult.floatParsFinal() 

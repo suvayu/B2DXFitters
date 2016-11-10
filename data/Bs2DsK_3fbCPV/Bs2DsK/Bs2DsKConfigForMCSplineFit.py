@@ -24,7 +24,7 @@ def getconfig() :
 
     
 
-    configdict["Acceptance"] = { "knots": [0.50, 1.0,  1.5, 2.0, 3.0, 10.0],
+    configdict["Acceptance"] = { "knots": [0.50, 1.0,  1.5, 2.0, 3.0, 12.0],
                                  "values": [0.41, 0.603, 0.803, 0.93, 0.98, 1.0, 1.07] }
 
     configdict["Resolution"] = {"scaleFactor":1.201}
