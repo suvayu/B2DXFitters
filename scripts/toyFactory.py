@@ -1420,7 +1420,8 @@ def toyFactory(configName,
             if "2011" in myconfigfile["Years"] and "2012" in myconfigfile["Years"]:
                 for hypo in myconfigfile["Hypothesys"]:
                     for mode in myconfigfile["CharmModes"]:
-                        s = "nSig_both_"+mode+"_run1_"+hypo+"Hypo_Evts_sw"
+                        modelow = GeneralUtils.GetModeLower(TString(mode),debug)
+                        s = "nSig_both_"+modelow+"_run1_"+hypo+"Hypo_Evts_sw"
                         weight = WS(workspaceOut, RooRealVar(s, s, 1.0))
                         observables.add(weight)
                         totData.addColumn( weight )
@@ -1428,7 +1429,8 @@ def toyFactory(configName,
                 for hypo in myconfigfile["Hypothesys"]:
                     for year in myconfigfile["Years"]:
                         for mode in myconfigfile["CharmModes"]:
-                            s = "nSig_both_"+mode+"_"+year+"_"+hypo+"Hypo_Evts_sw"
+                            modelow = GeneralUtils.GetModeLower(TString(mode),debug)
+                            s = "nSig_both_"+modelow+"_"+year+"_"+hypo+"Hypo_Evts_sw"
                             weight = WS(workspaceOut, RooRealVar(s, s, 1.0))
                             observables.add(weight)
                             totData.addColumn( weight )
