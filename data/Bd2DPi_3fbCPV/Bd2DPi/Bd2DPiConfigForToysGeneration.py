@@ -49,7 +49,7 @@ def getconfig() :
     #bachelor PID bins the final dataset is splitted into
     ############################################################
 
-    configdict["Hypothesys"] = ["Bd2DPi", "Bd2DK"]
+    configdict["Hypothesys"] = ["Bd2DPi"]#, "Bd2DK"]
 
     ############################################################
     #Signal decay and Charm decay mode
@@ -83,7 +83,8 @@ def getconfig() :
 
     configdict["Components"] = {}
     configdict["Components"] = {"Signal"        : {"Bd2DPi": {"2011" : {"KPiPi": [5.2848e+05*fracRun1] },
-                                                              "2012" : {"KPiPi": [5.2848e+05*(1-fracRun1)] }},
+                                                              "2012" : {"KPiPi": [5.2848e+05*(1-fracRun1)] }} }}#,
+    '''
                                                    "Bd2DK" : {"2011" : {"KPiPi": [((1-eff_Bd2DPi_DPi)/eff_Bd2DPi_DPi)*5.2848e+05*fracRun1] },
                                                               "2012" : {"KPiPi": [((1-eff_Bd2DPi_DPi)/eff_Bd2DPi_DPi)*5.2848e+05*(1-fracRun1)] }}},
                                 "Bd2DK"         : {"Bd2DPi": {"2011" : {"KPiPi": [((1-eff_Bd2DK_DK)/eff_Bd2DK_DK)*3.0795e+04*fracRun1] },
@@ -107,6 +108,7 @@ def getconfig() :
                                                     "Bd2DK" : {"2011" : {"KPiPi": [2.1674e+04*fracRun1] },
                                                                "2012" : {"KPiPi": [2.1674e+04*(1-fracRun1)] }}}
                                 }
+    '''
 
     ############################################################
     #"Code" to identify the True ID for each component
@@ -267,7 +269,7 @@ def getconfig() :
                                          "p1"       : [1.028621],
                                          "deltap0"  : [0.011819],
                                          "deltap1"  : [0.043134],
-                                         "avgeta"   : [0.359657], #this is the mean of the RooHistPDF loaded below
+                                         "avgeta"   : [0.347742], #<eta> on spline-corrected Bu->D0Pi
                                          "tageff"   : [0.371], # the correct value here is 0.371
                                          "tagasymm" : [0.0]
                                          },
@@ -284,7 +286,7 @@ def getconfig() :
                                          "p1"       : [0.81302],
                                          "deltap0"  : [0.00062332],
                                          "deltap1"  : [0.0066248],
-                                         "avgeta"   : [0.441492575813], #this is the mean of the RooHistPDF loaded below
+                                         "avgeta"   : [0.435], #<eta> on Bd->J/psiK*
                                          "tageff"   : [0.816], # the correct value here is 0.816
                                          "tagasymm" : [0.0]
                                          },
