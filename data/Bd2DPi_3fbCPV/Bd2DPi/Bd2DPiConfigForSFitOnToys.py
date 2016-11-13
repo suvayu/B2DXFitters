@@ -180,6 +180,22 @@ def getconfig() :
     configdict["constParams"].append('.*scalefactor')
     #configdict["constParams"].append('resmodel00_sigma')
 
+    # configdict["constParams"].append('p0_OS')
+    # configdict["constParams"].append('p1_OS')
+    # configdict["constParams"].append('deltap0_OS')
+    # configdict["constParams"].append('deltap1_OS')
+
+    # configdict["constParams"].append('p0_SS')
+    # configdict["constParams"].append('p1_SS')
+    # configdict["constParams"].append('deltap0_SS')
+    # configdict["constParams"].append('deltap1_SS')
+
+    configdict["constParams"].append('deltaM')
+    configdict["constParams"].append('Gamma')
+    configdict["constParams"].append('resmodel00_sigma')
+    configdict["constParams"].append('ProdAsymm')
+    configdict["constParams"].append('DetAsymm')
+
     ############################################
     # Build gaussian constraints
     # See B2DXFitters/GaussianConstraintBuilder.py for documentation
@@ -189,15 +205,15 @@ def getconfig() :
     # Constraint on resolution
     configdict["gaussCons"]["resmodel00_sigma"] = 0.00038
     # Constraint on DeltaM
-    configdict["gaussCons"]["deltaM"] = 0.0019
+    # configdict["gaussCons"]["deltaM"] = 0.0019
     # Constraint on Gamma (error on gamma = rel. error on lifetime * gamma)
-    configdict["gaussCons"]["Gamma"] = (0.004/1.520) * (1.0/1.520)
+    # configdict["gaussCons"]["Gamma"] = (0.004/1.520) * (1.0/1.520)
     # Multivariate constraint for production and detection asymmetries
-    #configdict["gaussCons"]["multivarAsymm"] = [ ['ProdAsymm', 'DetAsymm'], #parname
-    #                                             [math.sqrt(0.0081*0.0081 + 0.0014*0.0014), 0.0046], #errors
-    #                                             [ [1, -0.65], #correlation matrix
-    #                                               [-0.65, 1] ]
-    #                                             ]
+    # configdict["gaussCons"]["multivarAsymm"] = [ ['ProdAsymm', 'DetAsymm'], #parname
+    #                                              [math.sqrt(0.0081*0.0081 + 0.0014*0.0014), 0.0046], #errors
+    #                                              [ [1, -0.65], #correlation matrix
+    #                                                [-0.65, 1] ]
+    #                                              ]
     # Multivariate constraint for OS combination
     configdict["gaussCons"]["multivarOSCalib"] = [ ['p0_OS', 'p1_OS', 'deltap0_OS', 'deltap1_OS'], #parname
                                                     [0.00276866695767, 0.0532951796942, 0.00269475453428, 0.037310097266], #errors
