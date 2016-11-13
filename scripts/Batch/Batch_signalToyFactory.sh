@@ -28,9 +28,9 @@ export queue="1nh"
 export mlimit="75000"
 #Nickname for the current configuration
 #Choose a meaningful name (e.g. SgnAndBkgMeanResSplineAcc2TaggersNoAsymm etc...)
-export nickname="SimpleSgnAndBkgTwoTaggersProdDetAsymmAccMeanResTimeFrom04psHiRes"
+export nickname="SimpleSgnAndBkgTwoTaggersProdDetAsymmAccMeanResTimeFrom04psSignal"
 #Configuration file
-export config="/afs/cern.ch/user/c/cofitzpa/cmtuser/Urania_v5r0/PhysFit/B2DXFitters/data/Bd2DPi_3fbCPV/Bd2DPi/Bd2DPiConfigForToysGenerationHiRes.py"
+export config="/afs/cern.ch/user/c/cofitzpa/cmtuser/Urania_v5r0/PhysFit/B2DXFitters/data/Bd2DPi_3fbCPV/Bd2DPi/Bd2DPiConfigForSignalToysGeneration.py"
 #Temporary pathname to dump results
 export output="/afs/cern.ch/work/c/cofitzpa/public/B2DX/Bd2DPi/Toys/${nickname}/Generator/"
 #Pathname to dump outputfiles (eos recommendend)
@@ -67,7 +67,7 @@ while (( $stop <= $fullstop )); do
     #Submit jobs
     bsub -q $queue -M $mlimit -e ${output}ERROR -o ${output}OUTPUT -n 1,4 -R "span[hosts=-1]" -J ${jobname}_${seed} source ${bashscriptpath}toyFactory.sh $seed $stop $output $eosoutput $nickname $config $pyscriptpath
    
-    #source ${bashscriptpath}toyFactory.sh $seed $stop $output $eosoutput $nickname $config $pyscriptpath
+   #source ${bashscriptpath}toyFactory.sh $seed $stop $output $eosoutput $nickname $config $pyscriptpath
 
     #Sleep to avoid afs overload and buffer space consumption (not sure this is the best trick)
     if [[ "$(($job % 50))" -eq 0 ]]; then
