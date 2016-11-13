@@ -1421,8 +1421,8 @@ def toyFactory(configName,
                 for hypo in myconfigfile["Hypothesys"]:
                     for mode in myconfigfile["CharmModes"]:
                         modelow = GeneralUtils.GetModeLower(TString(mode),debug)
-                        s = "nSig_both_"+modelow+"_run1_"+hypo+"Hypo_Evts_sw"
-                        weight = WS(workspaceOut, RooRealVar(s, s, 1.0))
+                        s = TString("nSig_both_")+modelow+TString("_run1_")+TString(hypo)+TString("Hypo_Evts_sw")
+                        weight = WS(workspaceOut, RooRealVar(s.Data(), s.Data(), 1.0))
                         observables.add(weight)
                         totData.addColumn( weight )
             else:
@@ -1430,8 +1430,8 @@ def toyFactory(configName,
                     for year in myconfigfile["Years"]:
                         for mode in myconfigfile["CharmModes"]:
                             modelow = GeneralUtils.GetModeLower(TString(mode),debug)
-                            s = "nSig_both_"+modelow+"_"+year+"_"+hypo+"Hypo_Evts_sw"
-                            weight = WS(workspaceOut, RooRealVar(s, s, 1.0))
+                            s = TString("nSig_both_")+modelow+TString("_")+TString(year)+TString("_")+TString(hypo)+TString("Hypo_Evts_sw")
+                            weight = WS(workspaceOut, RooRealVar(s.Data(), s.Data(), 1.0))
                             observables.add(weight)
                             totData.addColumn( weight )
 
