@@ -210,7 +210,7 @@ def runSFit(debug, wsname,
             configName, scan,
             binned, plotsWeights, noweight,
             sample, mode, year, hypo, merge, unblind, randomise, superimpose,
-            seed, preselection, UniformBlinding, extended):
+            seed, preselection, UniformBlinding, extended, fitresultFileName):
 
     if MC and not noweight:
         print "ERROR: cannot use sWeighted MC sample (for now)"
@@ -278,7 +278,7 @@ def runSFit(debug, wsname,
                                                         False, toys, False, False, debug))
         workspaceW.append(SFitUtils.ReadDataFromSWeights(TString(pathName), TString(treeName), MDSettings,
                                                          TString(sample), TString(mode), TString(year), TString(hypo), merge,
-                                                         True, toys, False, True, debug))
+                                                         True, toys, False, False, debug))
 
         print ""
         print "=========================================================="
@@ -605,7 +605,7 @@ def runSFit(debug, wsname,
                                             '<#eta>'+nametag,
                                             *etamean )) )
         thiscalib.append( WS(ws, RooRealVar('tageff_'+nametag,
-                                            '#epsilon_{eff}'+nametag,
+                                            '#varepsilon_{tag}'+nametag,
                                             *tageff)) )
         thiscalib.append( WS(ws, RooRealVar('tagasymm_'+nametag,
                                             'a_{tag}'+nametag,
@@ -738,7 +738,7 @@ def runSFit(debug, wsname,
                                                                 myconfigfile["gaussCons"][parname][0],
                                                                 myconfigfile["gaussCons"][parname][1],
                                                                 myconfigfile["gaussCons"][parname][2],
-                                                                True)
+                                                                False)
                     #Generate new set of correlated parameters
                     gInterpreter.ProcessLine('gRandom->SetSeed('+str(int(seed))+')')
                     RooRandom.randomGenerator().SetSeed(int(seed))
@@ -855,13 +855,15 @@ def runSFit(debug, wsname,
     if not superimpose:
 
         if toys or MC or unblind:  # Unblind yourself
+            MinosArgset = RooArgSet(S, Sbar)
             fitOpts_temp = [RooFit.Save(1),
-                            RooFit.NumCPU(10),
+                            RooFit.NumCPU(1),
                             RooFit.Offset(True),
                             RooFit.Strategy(2),
                             RooFit.Minimizer("Minuit2", "migrad"),
                             RooFit.SumW2Error(False),
-                            RooFit.Minos(False),#RooFit.Minos(True),
+                            RooFit.Minos(MinosArgset),
+                            # RooFit.Minos(False),#RooFit.Minos(True),
                             RooFit.Optimize(True),
                             RooFit.Hesse(True),
                             # RooFit.Extended(False),
@@ -988,6 +990,10 @@ def runSFit(debug, wsname,
     dataWA.Print("v")
     totPDF.Print("v")
 
+    # fitresultFile = TFile(fitresultFileName,"RECREATE")
+    # myfitresult.Write()
+    # fitresultFile.Close()
+
     print ""
     print "========================================="
     print "Pretty-printing fit results"
@@ -1078,6 +1084,11 @@ parser.add_option( '--fileNamePull',
                    dest = 'fileNamePull',
                    default = 'PullTree.root',
                    help = 'name of the file to store fit result for pull plots'
+                   )
+parser.add_option( '--fileNameFitresult',
+                   dest = 'fileNameFitresult',
+                   default='FitResult.root',
+                   help = 'name of the file to store fit result'
                    )
 parser.add_option( '--treeName',
                    dest = 'treeName',
@@ -1238,6 +1249,7 @@ if __name__ == '__main__' :
              options.seed,
              options.preselection,
              options.UniformBlinding,
-             options.extended)
+             options.extended,
+             options.fileNameFitresult)
 
 # -----------------------------------------------------------------------------
