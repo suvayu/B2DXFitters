@@ -372,8 +372,8 @@ def BuildMultivarGaussFromCorrMat(ws, name, paramnamelist, errors, correlation, 
                 eps = 1.1 * abs(min(v))
                 if eps < 1e-9: eps = 1e-9
                 print 'utils.BuildMultivarGaussFromCorrMat(...) ==> DEBUG: adding %e to diagonal' % eps
-                for i in xrange(0, n):
-                    cov[i][i] = cov[i][i] + eps
+                #for i in xrange(0, n):
+                #    cov[i][i] = cov[i][i] + eps
                 print 'utils.BuildMultivarGaussFromCorrMat(...) ==> DEBUG: Covariance matrix after fix:'
                 cov.Print()
     # all set up, construct final multivariate Gaussian
