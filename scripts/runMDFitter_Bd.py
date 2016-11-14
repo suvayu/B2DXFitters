@@ -1486,7 +1486,7 @@ def runMDFitter_Bd( debug,
 			RooFit.Strategy(2),
 			#RooFit.Verbose(False),
 			RooFit.Timer(True),
-			RooFit.NumCPU(4),
+			RooFit.NumCPU(1),
 			RooFit.Minimizer("Minuit2", "migrad")]#,
 			#RooFit.Minos(True)]
 		if None != constrPDFs:
@@ -1886,11 +1886,11 @@ def runMDFitter_Bd( debug,
 	print "Pretty-printing fit results"
 	print "========================================="
 	print ""
-	from B2DXFitters import FitResultGrabberUtils
-	if None != fitResult:
-		FitResultGrabberUtils.PrintLatexTable(fitResult)
-	if None != sWeightsFitResult:
-		FitResultGrabberUtils.PrintLatexTable(sWeightsFitResult)
+	# from B2DXFitters import FitResultGrabberUtils
+	# if None != fitResult:
+	# 	FitResultGrabberUtils.PrintLatexTable(fitResult)
+	# if None != sWeightsFitResult:
+	# 	FitResultGrabberUtils.PrintLatexTable(sWeightsFitResult)
 
 	print ""
 	print "========================================="

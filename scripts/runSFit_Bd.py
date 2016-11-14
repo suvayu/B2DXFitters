@@ -990,9 +990,9 @@ def runSFit(debug, wsname,
     dataWA.Print("v")
     totPDF.Print("v")
 
-    # fitresultFile = TFile(fitresultFileName,"RECREATE")
-    # myfitresult.Write()
-    # fitresultFile.Close()
+    fitresultFile = TFile(fitresultFileName,"RECREATE")
+    myfitresult.Write()
+    fitresultFile.Close()
 
     print ""
     print "========================================="
