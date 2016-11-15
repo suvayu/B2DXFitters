@@ -362,7 +362,7 @@ def getconfig() :
     #Signal (use more convenient interface with ArgLf_d, ArgLbarfbar_d and ModLf_d)
     configdict["ACP"]["Signal"] = { "Gamma"                : [1.0 / 1.520], #Inverse lifetime from HFAG (http://www.slac.stanford.edu/xorg/hfag/osc/summer_2016/)
                                     "DeltaGamma"           : [0.0],
-                                    "DeltaM"               : [0.5064], #Global average from HFAG (http://www.slac.stanford.edu/xorg/hfag/osc/summer_2016/)
+                                    "DeltaM"               : [0.5050], #semileptonic measurement HFAG (http://www.slac.stanford.edu/xorg/hfag/osc/summer_2016/)
                                     #"ArgLf"                : [ArgqOverp_d + ArgAbarf_d - ArgAf_d],
                                     #"ArgLbarfbar"          : [ArgpOverq_d + ArgAfbar_d - ArgAbarfbar_d],
                                     #"ModLf"                : [ModAbarf_d/ModAf_d],

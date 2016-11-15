@@ -91,7 +91,7 @@ def getconfig() :
     configdict["ACP"] = {}
     configdict["ACP"]["Signal"] = { "Gamma"                : [1.0 / 1.520, 0.1, 2.0], #Inverse lifetime from HFAG (http://www.slac.stanford.edu/xorg/hfag/osc/summer_2016/)
                                     "DeltaGamma"           : [0.0],
-                                    "DeltaM"               : [0.5064, 0.01, 2.0], #Global average from HFAG (http://www.slac.stanford.edu/xorg/hfag/osc/summer_2016/)
+                                    "DeltaM"               : [0.5050, 0.01, 2.0], #Global average from HFAG (http://www.slac.stanford.edu/xorg/hfag/osc/summer_2016/)
                                     #"ArgLf"                : [ArgqOverp_d + ArgAbarf_d - ArgAf_d],
                                     #"ArgLbarfbar"          : [ArgpOverq_d + ArgAfbar_d - ArgAbarfbar_d],
                                     #"ModLf"                : [ModAbarf_d/ModAf_d],
@@ -190,11 +190,11 @@ def getconfig() :
     # configdict["constParams"].append('deltap0_SS')
     # configdict["constParams"].append('deltap1_SS')
 
-    configdict["constParams"].append('deltaM')
-    configdict["constParams"].append('Gamma')
-    configdict["constParams"].append('resmodel00_sigma')
-    configdict["constParams"].append('ProdAsymm')
-    configdict["constParams"].append('DetAsymm')
+    # configdict["constParams"].append('deltaM')
+    # configdict["constParams"].append('Gamma')
+    # configdict["constParams"].append('resmodel00_sigma')
+    # configdict["constParams"].append('ProdAsymm')
+    # configdict["constParams"].append('DetAsymm')
 
     ############################################
     # Build gaussian constraints
@@ -205,9 +205,9 @@ def getconfig() :
     # Constraint on resolution
     configdict["gaussCons"]["resmodel00_sigma"] = 0.00038
     # Constraint on DeltaM
-    # configdict["gaussCons"]["deltaM"] = 0.0019
+    configdict["gaussCons"]["deltaM"] = math.sqrt(0.0021*0.0021 + 0.0010*0.0010)
     # Constraint on Gamma (error on gamma = rel. error on lifetime * gamma)
-    # configdict["gaussCons"]["Gamma"] = (0.004/1.520) * (1.0/1.520)
+    configdict["gaussCons"]["Gamma"] = (0.004/1.520) * (1.0/1.520)
     # Multivariate constraint for production and detection asymmetries
     # configdict["gaussCons"]["multivarAsymm"] = [ ['ProdAsymm', 'DetAsymm'], #parname
     #                                              [math.sqrt(0.0081*0.0081 + 0.0014*0.0014), 0.0046], #errors
