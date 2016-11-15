@@ -278,7 +278,7 @@ def runSFit(debug, wsname,
                                                         False, toys, False, False, debug))
         workspaceW.append(SFitUtils.ReadDataFromSWeights(TString(pathName), TString(treeName), MDSettings,
                                                          TString(sample), TString(mode), TString(year), TString(hypo), merge,
-                                                         True, toys, False, False, debug))
+                                                         True, toys, False, True, debug))
 
         print ""
         print "=========================================================="
