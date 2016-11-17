@@ -49,7 +49,7 @@ def getconfig() :
     #bachelor PID bins the final dataset is splitted into
     ############################################################
 
-    configdict["Hypothesys"] = ["Bd2DPi"]#, "Bd2DK"]
+    configdict["Hypothesys"] = ["Bd2DPi", "Bd2DK"]
 
     ############################################################
     #Signal decay and Charm decay mode
