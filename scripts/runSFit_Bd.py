@@ -857,13 +857,13 @@ def runSFit(debug, wsname,
         if toys or MC or unblind:  # Unblind yourself
             MinosArgset = RooArgSet(S, Sbar)
             fitOpts_temp = [RooFit.Save(1),
-                            RooFit.NumCPU(1),
+                            RooFit.NumCPU(8),
                             RooFit.Offset(True),
                             RooFit.Strategy(2),
                             RooFit.Minimizer("Minuit2", "migrad"),
                             RooFit.SumW2Error(False),
                             RooFit.Minos(MinosArgset),
-                            # RooFit.Minos(False),#RooFit.Minos(True),
+                            #RooFit.Minos(True),
                             RooFit.Optimize(True),
                             RooFit.Hesse(True),
                             # RooFit.Extended(False),
@@ -966,10 +966,10 @@ def runSFit(debug, wsname,
             cov = myfitresult.covarianceMatrix()
             cov.Print("v")
 
-            # Plot matrices
-            from B2DXFitters.FitResultGrabberUtils import PlotResultMatrix
-            PlotResultMatrix(myfitresult, "covariance", outputdir+"sFit_CovarianceMatrix.pdf")
-            PlotResultMatrix(myfitresult, "correlation", outputdir+"sFit_CorrelationMatrix.pdf")
+        # Plot matrices
+        from B2DXFitters.FitResultGrabberUtils import PlotResultMatrix
+        PlotResultMatrix(myfitresult, "covariance", outputdir+"sFit_CovarianceMatrix.pdf")
+        PlotResultMatrix(myfitresult, "correlation", outputdir+"sFit_CorrelationMatrix.pdf")
 
         if toys:
 

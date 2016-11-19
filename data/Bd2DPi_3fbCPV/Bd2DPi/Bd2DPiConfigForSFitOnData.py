@@ -113,16 +113,20 @@ def getconfig() :
 
     configdict["ACP"] = {}
     configdict["ACP"]["Signal"] = { "Gamma"                : [1.0 / 1.520, 0.1, 2.0], #Inverse lifetime from HFAG (http://www.slac.stanford.edu/xorg/hfag/osc/summer_2016/)
-                                    "DeltaGamma"           : [0.0],
+                                    "DeltaGamma"           : [0.0], # nominal
+                                    #"DeltaGamma"           : [0.007], #for systematics. HFAG: DG/G=-0.002+/-0.010 -> DG=-0.001+/-0.007
                                     "DeltaM"               : [0.5050, 0.01, 2.0],  # Global average from HFAG (http://www.slac.stanford.edu/xorg/hfag/osc/summer_2016/)
                                     #"ArgLf"                : [ArgqOverp_d + ArgAbarf_d - ArgAf_d],
                                     #"ArgLbarfbar"          : [ArgpOverq_d + ArgAfbar_d - ArgAbarfbar_d],
                                     #"ModLf"                : [ModAbarf_d/ModAf_d],
                                     "S"                   : [-0.031],
                                     "Sbar"                : [0.029],
-                                    "C"                   : [1.0],
-                                    "D"                   : [0.0],
-                                    "Dbar"                : [0.0],
+                                    "C"                   : [1.0], #nominal (r->0)
+                                    #"C"                   : [0.999402], #for systematics (r avg of BaBar, Belle = 0.0173)
+                                    "D"                   : [0.0], #nominal (DG=0)
+                                    "Dbar"                : [0.0], #nominal (DG=0)
+                                    #"D"                   : [-0.00973321], #for systematics (DG != 0)
+                                    #"Dbar"                : [-0.0151113], #for systematics (DG != 0)
                                     "ParameteriseIntegral" : True,
                                     "CPlimit"              : {"upper":1.0, "lower":-1.0},
                                     "NBinsAcceptance"      : 0} #keep at zero if using spline acceptance!
@@ -137,8 +141,10 @@ def getconfig() :
                                                     "Acceptance":
                                                     {"Type": "Spline",
                                                      "Float": True,
-                                                     "KnotPositions" : [ 0.5, 1.0, 1.5, 2.0, 3.0, 12.0 ],
-                                                     "KnotCoefficients" : [0.3889, 0.5754, 0.8515, 1.0649, 1.2373, 1.4149]},
+                                                     "KnotPositions" : [ 0.5, 1.0, 1.5, 2.0, 3.0, 12.0 ], #nominal
+                                                     #"KnotPositions" : [0.5, 0.8, 1.2, 1.5, 2.0, 3.0, 12.0], #for systematics   
+                                                     "KnotCoefficients" : [0.3889, 0.5754, 0.8515, 1.0649, 1.2373, 1.4149]}, #nominal
+                                                     #"KnotCoefficients" : [0.3889, 0.45, 0.5754, 0.8515, 1.0649, 1.2373, 1.4149]}, #for systematics
                                                     "Resolution":
                                                     {"Type": "AverageModel",
                                                      "Parameters": { 'sigmas': [ 0.05491 ], 'fractions': [] }, #0.05491 +- 0.00038
@@ -165,10 +171,10 @@ def getconfig() :
     configdict["Taggers"]["Signal"] = {}
     configdict["Taggers"]["Signal"] = {"OS" :
                                        {"Calibration":  #from EPM on Bu->D0Pi data
-                                        {"p0"       : [0.3737056, 0.01, 0.8],
-                                         "p1"       : [1.028621, 0.3, 1.5],
-                                         "deltap0"  : [0.011819, -0.1, 0.3],
-                                         "deltap1"  : [0.043134, -0.1, 0.3],
+                                        {"p0"       : [0.3737056],# 0.0, 1.0],
+                                         "p1"       : [1.028621],# 0.5, 1.5],
+                                         "deltap0"  : [0.011819],# -1.0, 1.0],
+                                         "deltap1"  : [0.043134],# -1.0, 1.0],
                                          "avgeta"   : [0.347742], #<eta> on spline-corrected Bu->D0Pi
                                          "tageff"   : [0.371, 0.1, 0.9],
                                          "tagasymm" : [0.0]
@@ -178,10 +184,10 @@ def getconfig() :
                                         },
                                        "SS": #Take it uncalibrated for now
                                        {"Calibration":
-                                        {"p0"       : [0.4424049, 0.01, 0.8],
-                                         "p1"       : [0.81302, 0.3, 1.5],
-                                         "deltap0"  : [0.00062332, -0.1, 0.1],
-                                         "deltap1"  : [0.0066248, -0.1, 0.1],
+                                        {"p0"       : [0.4424049],# 0.0, 1.0],
+                                         "p1"       : [0.81302],# 0.5, 1.5],
+                                         "deltap0"  : [0.00062332],# -1.0, 1.0],
+                                         "deltap1"  : [0.0066248],# -1.0, 1.0],
                                          "avgeta"   : [0.435], #<eta> on Bd->J/psiK*
                                          "tageff"   : [0.816, 0.01, 0.99],
                                          "tagasymm" : [0.0]
@@ -201,16 +207,16 @@ def getconfig() :
     configdict["constParams"].append('Df')
     configdict["constParams"].append('Dfbar')
     configdict["constParams"].append('.*scalefactor')
-    #configdict["constParams"].append('resmodel00_sigma')
+    configdict["constParams"].append('resmodel00_sigma')
 
     ############################################
     # Build gaussian constraints
     # See B2DXFitters/GaussianConstraintBuilder.py for documentation
     ############################################
-
+    
     configdict["gaussCons"] = {}
     # Constraint on resolution
-    configdict["gaussCons"]["resmodel00_sigma"] = 0.00038
+    #configdict["gaussCons"]["resmodel00_sigma"] = 0.00038
     # Constraint on DeltaM
     configdict["gaussCons"]["deltaM"] = math.sqrt(0.0021*0.0021 + 0.0010*0.0010)
     # Constraint on Gamma (error on gamma = rel. error on lifetime * gamma)
@@ -222,21 +228,29 @@ def getconfig() :
     #                                               [-0.65, 1] ]
     #                                             ]
     # Multivariate constraint for OS combination
-    configdict["gaussCons"]["multivarOSCalib"] = [ ['p0_OS', 'p1_OS', 'deltap0_OS', 'deltap1_OS'], #parname
-                                                   [0.00276866695767, 0.0532951796942, 0.00269475453428, 0.037310097266], #errors
-                                                   [ [1,         0.14218,       -0.017668,       0.0092814],  #correlation matrix from EPM
-                                                     [0.14218,         1,       0.0092814,       -0.048821],
-                                                     [-0.017668, 0.0092814,             1,         0.14218],
-                                                     [0.0092814,  -0.048821,      0.14218,                1] ]
-                                                   ]
+    #configdict["gaussCons"]["p0_OS"] = 0.00276866695767
+    #configdict["gaussCons"]["p1_OS"] = 0.0532951796942
+    #configdict["gaussCons"]["deltap0_OS"] = 0.00269475453428
+    #configdict["gaussCons"]["deltap1_OS"] = 0.037310097266
+    #configdict["gaussCons"]["multivarOSCalib"] = [ ['p0_OS', 'p1_OS', 'deltap0_OS', 'deltap1_OS'], #parname
+    #                                               [0.00276866695767, 0.0532951796942, 0.00269475453428, 0.037310097266], #errors
+    #                                               [ [1,         0.14218,       -0.017668,       0.0092814],  #correlation matrix from EPM
+    #                                                 [0.14218,         1,       0.0092814,       -0.048821],
+    #                                                 [-0.017668, 0.0092814,             1,         0.14218],
+    #                                                 [0.0092814,  -0.048821,      0.14218,                1] ]
+    #                                               ]
     #Add constraint for SS combination
-    configdict["gaussCons"]["multivarSSCalib"] = [ ['p0_SS', 'p1_SS', 'deltap0_SS', 'deltap1_SS'], #parname
-                                                   [0.007431465, 0.05246453784, 0.004264925, 0.08085860086], #errors
-                                                   [ [1,         -0.054207,       -0.01714,       -0.0048873],  #correlation matrix from EPM
-                                                     [-0.054207,         1,       -0.004997,       -0.0053978],
-                                                     [-0.01714, -0.004997,             1,         -0.071635],
-                                                     [-0.0048873,  -0.0053978,      -0.071635,                1] ]
-                                                   ]
+    #configdict["gaussCons"]["p0_SS"] = 0.007431465
+    #configdict["gaussCons"]["p1_SS"] = 0.05246453784
+    #configdict["gaussCons"]["deltap0_SS"] = 0.004264925
+    #configdict["gaussCons"]["deltap1_SS"] = 0.08085860086
+    #configdict["gaussCons"]["multivarSSCalib"] = [ ['p0_SS', 'p1_SS', 'deltap0_SS', 'deltap1_SS'], #parname
+    #                                               [0.007431465, 0.05246453784, 0.004264925, 0.08085860086], #errors
+    #                                               [ [1,         -0.054207,       -0.01714,       -0.0048873],  #correlation matrix from EPM
+    #                                                 [-0.054207,         1,       -0.004997,       -0.0053978],
+    #                                                 [-0.01714, -0.004997,             1,         -0.071635],
+    #                                                 [-0.0048873,  -0.0053978,      -0.071635,                1] ]
+    #                                               ]
 
     ############################################
     # Choose parameters to blind
