@@ -19,8 +19,12 @@ def getconfig() :
 
     configdict["Asymmetries"] = {"Detection":1.0/100.0,
                                  "Production":1.1/100.0}
+#    configdict["Asymmetries"] = {"Detection":0.0,
+#                                 "Production":0.0}
 
     configdict["TaggingCalibration"] = {}
+
+    configdict["ConstrainsForTaggingCalib"] = False
 
     configdict["UsedResolution"] = "Nominal"
 
@@ -45,6 +49,19 @@ def getconfig() :
                                                            [0.0002286, 0.0, 0.006685, 0.0],
                                                            [0.0, 0.0, 0.0, 1.0]],
                                                   "average": 0.369798, "tagEff":0.374, "aTagEff":0.0, "use":False}
+#        configdict["TaggingCalibration"]["OS"] = {"p0": 0.37718, "dp0": 0.014, "p1": 1.1244, "dp1": 0.066,
+#                                                  "cov": [ [5.212e-05, 0.0, 0.0002286, 0.0],
+#                                                           [0.0, 1.44e-6, 0.0, 7.488e-6],
+#                                                           [0.0002286, 0.0, 0.006685, 0.0],
+#                                                           [0.0, 7.488e-6, 0.0, 1.44e-4]],
+#                                                  "average": 0.369798, "tagEff":0.37151, "aTagEff":0.0, "use":False}
+#        configdict["TaggingCalibration"]["SS"] = {"p0": 0.44119, "dp0":-0.0163, "p1": 1.0868, "dp1": -0.031,
+#                                                  "cov": [ [2.903e-05, 0.0, 0.0001613, 0.0],
+#                                                           [0.0, 1.369e-05, 0.0, 1.03896e-4],
+#                                                           [0.0001613, 0.0, 0.006101, 0.0],
+#                                                           [0.0, 1.03896e-4, 0.0, 2.704e-3]],
+#                                                  "average": 0.43744, "tagEff":0.63926, "aTagEff":0.0, "use":True}
+
 
     if configdict["UsedResolution"] == "SingleGaussian":
     # Single Gaussian Resolution and corresponding Tagging Parameter
@@ -105,18 +122,18 @@ def getconfig() :
     configdict["constParams"].append('Sbar_Bs2DsPi')
     configdict["constParams"].append('D_Bs2DsPi')
     configdict["constParams"].append('Dbar_Bs2DsPi')
-    configdict["constParams"].append('tagEff_OS')
-    configdict["constParams"].append('tagEff_SS')
+#    configdict["constParams"].append('tagEff_OS')
+#    configdict["constParams"].append('tagEff_SS')
     configdict["constParams"].append('aTagEff_OS')
     configdict["constParams"].append('aTagEff_SS')
 #    configdict["constParams"].append('p0_OS')
 #    configdict["constParams"].append('p0_SS')
 #    configdict["constParams"].append('p1_OS')
 #    configdict["constParams"].append('p1_SS')
-#    configdict["constParams"].append('dp0_OS')
-#    configdict["constParams"].append('dp0_SS')
-#    configdict["constParams"].append('dp1_OS')
-#    configdict["constParams"].append('dp1_SS')
+    configdict["constParams"].append('dp0_OS')
+    configdict["constParams"].append('dp0_SS')
+    configdict["constParams"].append('dp1_OS')
+    configdict["constParams"].append('dp1_SS')
     configdict["constParams"].append('p0_mean_OS')
     configdict["constParams"].append('p0_mean_SS')
     configdict["constParams"].append('p1_mean_OS')

@@ -36,6 +36,8 @@ def getconfig() :
     configdict["BasicVariables"]["TagDecSS"]      = { "Range" : [-1.0,    1.0     ], "InputName" : "lab0_SS_nnetKaon_DEC"}
     configdict["BasicVariables"]["MistagOS"]      = { "Range" : [ 0.0,    0.5     ], "InputName" : "lab0_TAGOMEGA_OS"}
     configdict["BasicVariables"]["MistagSS"]      = { "Range" : [ 0.0,    0.5     ], "InputName" : "lab0_SS_nnetKaon_PROB"}
+#    configdict["BasicVariables"]["MistagOS"]      = { "Range" : [ 0.0,    0.45    ], "InputName" : "lab0_TAGOMEGA_OS"}
+#    configdict["BasicVariables"]["MistagSS"]      = { "Range" : [ 0.0,    0.45    ], "InputName" : "lab0_SS_nnetKaon_PROB"}
 
     # tagging calibration                                                                                               
     configdict["TaggingCalibration"] = {}

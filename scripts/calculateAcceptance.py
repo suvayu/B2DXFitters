@@ -211,6 +211,7 @@ def calculateAcceptance( debug,
     if fileData != "":
         print "[INFO] file Data Bs2DsPi: ",fileData
 
+    num = int(num) 
     workMCDsK  = GeneralUtils.LoadWorkspace(TString(fileMCDsK), TString(workNameMCDsK),debug)
     workMCDsPi = GeneralUtils.LoadWorkspace(TString(fileMCDsPi),TString(workNameMCDsPi),debug)
 
@@ -222,10 +223,10 @@ def calculateAcceptance( debug,
     pars_fin_dsk_mc  = rfr_dsk_mc.floatParsFinal()
     pars_fin_dspi_mc = rfr_dspi_mc.floatParsFinal()
     # Now prepare for the ratio
-    resvect_dsk      = ROOT.TVectorT('double')(6)
-    resvect_dspi     = ROOT.TVectorT('double')(6)
-    resvect_ratio    = ROOT.TVectorT('double')(6)
-    for i in range(0,6) : 
+    resvect_dsk      = ROOT.TVectorT('double')(num-1)
+    resvect_dspi     = ROOT.TVectorT('double')(num-1)
+    resvect_ratio    = ROOT.TVectorT('double')(num-1)
+    for i in range(0,num-1) : 
         resvect_dsk[i]    = pow(pars_fin_dsk_mc[i].getVal(),2)
         resvect_dspi[i]   = pow(pars_fin_dspi_mc[i].getVal(),2)
         resvect_ratio[i]  = pow(pars_fin_dsk_mc[i].getVal()/pars_fin_dspi_mc[i].getVal(),2)
@@ -241,9 +242,9 @@ def calculateAcceptance( debug,
     print "\hline"
     print "        & $v_{1}$ & $v_{2}$ & $v_{3}$ & $v_{4}$ & $v_{5}$ & $v_{6}$ \\\\" 
     print "\hline"
-    for i in range(0,6) :
+    for i in range(0,num-1) :
         toprint = "$v_{"+str(i+1)+"}$ &"
-        for j in range(0,6) :
+        for j in range(0,num-1) :
             if i == j : 
                 toprint += "  1.00   "
             else :
@@ -262,12 +263,12 @@ def calculateAcceptance( debug,
 
         pars_fit_data = rfr_data.floatParsFinal()
         totcov_mc = rfr_data.covarianceMatrix()
-        totcov_mc_red = ROOT.TMatrixTSym('double')(6,6)
-        totcov_mc.GetSub(1,6,1,6,totcov_mc_red)
+        totcov_mc_red = ROOT.TMatrixTSym('double')(num,num)
+        totcov_mc.GetSub(1,num,1,num,totcov_mc_red)
 
-        resvect_data = ROOT.TVectorT('double')(6) 
-        resvect_final = ROOT.TVectorT('double')(6)
-        for i in range(0,6) :
+        resvect_data = ROOT.TVectorT('double')(num-1) 
+        resvect_final = ROOT.TVectorT('double')(num-1)
+        for i in range(0,num-1) :
             resvect_data[i] = pow(pars_fit_data[i+1].getVal(),2)
             resvect_final[i] = resvect_data[i]*resvect_ratio[i]
         ratiocov_mc.NormByDiag(resvect_ratio)
@@ -282,9 +283,9 @@ def calculateAcceptance( debug,
         print "\hline"
         print "        & $v_{1}$ & $v_{2}$ & $v_{3}$ & $v_{4}$ & $v_{5}$ & $v_{6}$ \\\\" 
         print "\hline"
-        for i in range(0,6) :
+        for i in range(0,num-1) :
             toprint = "$v_{"+str(i+1)+"}$ &"
-            for j in range(0,6) :
+            for j in range(0,num-1) :
               if i == j : 
                   toprint += "  1.00   "
               else :

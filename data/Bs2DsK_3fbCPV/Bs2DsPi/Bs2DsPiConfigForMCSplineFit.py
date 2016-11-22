@@ -22,9 +22,16 @@ def getconfig() :
 
     configdict["Bins"] = 1000
 
-    configdict["Acceptance"] = { "knots":  [0.50,       1.0,        1.5,        2.0,        3.0,      12.0],
-                                 "values": [4.5579e-01, 7.0310e-01, 8.7709e-01, 1.1351e+00, 1.0e+00,  1.0, 1.0e+00] }
-    
+
+#    configdict["Acceptance"] = { "knots":  [0.50,       1.0,        1.5,        2.0,        3.0,      12.0],
+#                                 "values": [4.5579e-01, 7.0310e-01, 8.7709e-01, 1.1351e+00, 1.0e+00,  1.0, 1.0e+00] }
+#    configdict["Acceptance"] = { "knots":  [0.50,     0.75,  1.0,        1.5,        2.0,        3.0,      12.0],
+#                                 "values": [4.5579e-01, 5.5e-01, 7.0310e-01, 8.7709e-01, 1.1351e+00, 1.0e+00,  1.0, 1.0e+00] }
+#    configdict["Acceptance"] = { "knots":  [0.50,       1.0,        1.5,        2.0,        3.0,      6.0,  12.0],
+#                                 "values": [4.5579e-01, 7.0310e-01, 8.7709e-01, 1.1351e+00, 1.0e+00,  1.0e+00,  1.0, 1.0e+00] }
+    configdict["Acceptance"] = { "knots":  [0.50,       0.75, 1.0,        1.5,        2.0,        3.0,      6.0,  12.0],
+                                 "values": [4.5579e-01, 5.5e-01, 7.0310e-01, 8.7709e-01, 1.1351e+00, 1.0e+00,  1.0e+00,  1.0, 1.0e+00] }
+
     configdict["Resolution"] = {"scaleFactor":1.201}
 
     configdict["constParams"] = []
