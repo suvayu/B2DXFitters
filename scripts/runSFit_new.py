@@ -727,6 +727,17 @@ def runSFit(debug, wsname,
     sin =  DecRateCoeff_Bd('signal_sin' , 'signal_sin' , DecRateCoeff_Bd.kSin,  id, S, Sbar, *otherargs)
 
 
+    #Dec Rates to check significance!
+#    Sbar_minus = RooFormulaVar( 'Sbar_minus',"Sbar_minus", "-1*@0",RooArgList(Sbar))
+#
+#    cosh = DecRateCoeff_Bd('signal_cosh', 'signal_cosh', DecRateCoeff_Bd.kCosh, id, one1, one2, *otherargs)
+#    sinh = DecRateCoeff_Bd('signal_sinh', 'signal_sinh', DecRateCoeff_Bd.kSinh, id, D, D, *otherargs)
+#    cos =  DecRateCoeff_Bd('signal_cos' , 'signal_cos' , DecRateCoeff_Bd.kCos,  id, C, C, *otherargs)
+#    sin =  DecRateCoeff_Bd('signal_sin' , 'signal_sin' , DecRateCoeff_Bd.kSin,  id, Sbar_minus, Sbar, *otherargs)
+
+
+
+
     #if debug:
     #    print "[INFO] sin, cos, sinh, cosh created"
     #    cosh.Print("v")
