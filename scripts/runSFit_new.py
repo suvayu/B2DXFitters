@@ -713,13 +713,11 @@ def runSFit(debug, wsname,
     otherargs.append(aProd)
     otherargs.append(aDet)
 
-    print "Was soll das?"
     for i in range(0, numTag):
         print mistagPDFList[i]
         #getattr(wT,'import')(mistagPDFList[i])
         #wT.writeToFile("work_templates.root")
         #exit(0) 
-    print "And that??"
 
     cosh = DecRateCoeff_Bd('signal_cosh', 'signal_cosh', DecRateCoeff_Bd.kCosh, id, one1, one2, *otherargs)
     sinh = DecRateCoeff_Bd('signal_sinh', 'signal_sinh', DecRateCoeff_Bd.kSinh, id, D, Dbar, *otherargs)
