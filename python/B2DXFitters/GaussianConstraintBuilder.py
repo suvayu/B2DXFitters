@@ -183,8 +183,8 @@ class GaussianConstraintBuilder:
                 eps = 1.1 * abs(min(v))
                 if eps < 1e-9: eps = 1e-9
                 print 'DEBUG: adding %e to diagonal' % eps
-                for i in xrange(0, n):
-                    cov[i][i] = cov[i][i] + eps
+                # for i in xrange(0, n):
+                #     cov[i][i] = cov[i][i] + eps
                 print 'DEBUG: Covariance matrix after fix:'
                 cov.Print()
         # all set up, construct final multivariate Gaussian
@@ -215,7 +215,7 @@ class GaussianConstraintBuilder:
         """
         self._constraintlist.append(
                 self.__buildSimpleConstraint(self._ws, parname, error))
-    
+
     def addMultiVarConstraint(self, name, paramnamelist, errorsOrCovariance,
             correlation = None):
         """
@@ -227,7 +227,7 @@ class GaussianConstraintBuilder:
                                    matrix
         correlation             -- correlation matrix if errorsOrCovariance is
                                    a vector of errors, None otherwise
-        
+
         paramnamelist is a list of variables to be looked up in the workspace
         supplied during construction; their mean values are taken to be the
         current values of the variables named in paramnamelist
@@ -245,7 +245,7 @@ class GaussianConstraintBuilder:
         paramnamelist           -- list of parameters to be supplied
         mean                    -- desired central value of formula's value
         error                   -- desired uncertainty of formula's value
-        
+
         paramnamelist is a list of variables to be looked up in the workspace
         supplied during construction
         """

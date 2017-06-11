@@ -20,18 +20,21 @@ namespace Bs2DssthModels {
 
   RooAbsPdf* build_Bs2DsstPi_BKG(	RooAbsReal& mass, RooAbsReal& massDs,
 					RooWorkspace* work, RooWorkspace* workInt,
-				      	//RooAbsPdf* pdf_BdDsPi,
-					//Bool_t RooKeysPdfForCombo,
-					TString &samplemode, Int_t dim, bool debug = false);
+					TString &samplemode, TString merge, 
+					Int_t dim, bool debug = false);
   
   //===============================================================================                                                                                                       
   // Background 3D model for Bs->DsstK mass fitter.                                                                                                                                    
   //===============================================================================                                                                                                       
 
-  RooAbsPdf* build_Bs2DsstK_BKG(  RooAbsReal& mass, RooAbsReal& massDs,
-                                  RooWorkspace* work, RooWorkspace* workInt,
-				  Bool_t RooKeysPdfForCombo,
-                                  TString &samplemode, Int_t dim, bool debug = false);
+  RooAbsPdf* build_Bs2DsstK_BKG( RooAbsReal& mass,
+				 RooAbsReal& massDs,
+				 RooWorkspace* work,
+				 RooWorkspace* workInt,
+				 TString &samplemode,
+				 TString merge,
+				 Int_t dim,
+                                  bool debug = false);
 
 
 }

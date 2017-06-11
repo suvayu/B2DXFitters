@@ -234,6 +234,7 @@ void FitMeTool::fit( bool save2file,
   if ( m_config_saveFitResult2File ) {
     createOutputFile();
     m_fitResult -> Clone() -> Write(); 
+    m_workSpace -> import(*m_fitResult); 
     if ( m_config_debug ) printf( "    RooFitResult object stored to output ROOT file.\n" ); 
   }
 }
@@ -855,6 +856,91 @@ void FitMeTool::produceGraphicalModelStructure( const char* fileName )
   printf( "    Graphical representation of the structure of the model produced: model.gif.\n" );
 }
 
+
+void FitMeTool::printTotalYields(const char* wildcard)
+{
+
+  if ( m_config_debug )
+    printf( "==> FitMeTool::printTotalYields()\n");
+
+  // Get all model PDF variables matching a wildcard                                                                                                                                             
+  // -----------------------------------------------                                                                                                                                             
+  RooArgSet* vars = getMatchingVariableNames( "*Evts*", false );
+  if ( vars && vars -> getSize() == 0 ) {
+    printf( "[WARNING] Found no variable matching the wildcard '%s' ! Please check.\n",
+            wildcard);
+    return;
+  }
+
+  TIterator* it = vars -> createIterator();
+  TObject* obj  = NULL;
+  std::vector<TString> usedNames; 
+
+  while ( ( obj = it -> Next() ) ) 
+    {
+      RooAbsReal* nVar = dynamic_cast<RooAbsReal*>( obj );
+      if ( ! nVar ) continue;
+      TString name = nVar->GetName(); 
+      Ssiz_t first = name.First("_");
+      Ssiz_t lenght = name.Length();
+      name.Remove(first,lenght);
+      Bool_t notUsed = false; 
+      for (unsigned int i = 0; i < usedNames.size(); i++ )
+	{
+	  if ( usedNames[i] == name ) { notUsed = true; }
+	}
+      if ( notUsed == false)  { usedNames.push_back(name); } 
+    }
+
+  std::cout<<"##################################################################"<<std::endl;
+  std::cout<<"                  Total number of yields                          "<<std::endl; 
+  std::cout<<"##################################################################"<<std::endl; 
+
+  Double_t sigVal(0.0), sigErr(0.0);
+  Double_t bkgVal(0.0), bkgErr(0.0); 
+
+  for(unsigned int i = 0; i < usedNames.size(); i++ )
+    {
+      TString name = usedNames[i]+"*Evts*"; 
+      RooArgSet* varsType = getMatchingVariableNames( name.Data(), false );
+      TIterator* itType = varsType -> createIterator();
+      TObject* objType  = NULL;
+      Double_t val = 0.0;
+      Double_t err = 0.0; 
+      while ( ( objType = itType -> Next() ) )
+	{
+	  RooRealVar* nVar = dynamic_cast<RooRealVar*>( objType );
+	  if ( ! nVar ) continue;
+	  Double_t valC = nVar->getValV();
+	  Double_t errC = nVar->getError(); 
+	  val = val + valC;
+	  err = err + errC*errC;
+	  if ( usedNames[i] != "nSig" ) { bkgVal = bkgVal +valC; bkgErr = bkgErr+ errC*errC; }
+	  else {  sigVal = sigVal +valC; sigErr = sigErr+ errC*errC; } 
+	}
+      err = std::sqrt(err); 
+      printf( "%25s:  %10.2f +/- %5.2f \n", usedNames[i].Data(), val, err );
+    }
+  bkgErr = std::sqrt(bkgErr);
+  sigErr = std::sqrt(sigErr); 
+
+  std::cout<<"------------------------------------------------------------------"<<std::endl;
+  printf( "%25s:  %10.2f +/- %5.2f \n", "Background", bkgVal, bkgErr );
+  printf( "%25s:  %10.2f +/- %5.2f \n", "Signal", sigVal, sigErr );
+
+  Double_t SB = sigVal/bkgVal; 
+  Double_t SS = sigVal/std::sqrt(sigVal + bkgVal); 
+  std::cout<<"------------------------------------------------------------------"<<std::endl;
+  printf( "##################################################################\n" );
+  std::cout<<"------------------------------------------------------------------"<<std::endl;
+  std::cout<<"                Performance in full range                         "<<std::endl;
+  std::cout<<"------------------------------------------------------------------"<<std::endl;
+  printf( "%25s:  %10.2f  \n", "S/B", SB);
+  printf( "%25s:  %10.2f  \n", "S/sqrt(S+B)",SS);
+  std::cout<<"##################################################################"<<std::endl;
+
+
+}
 //=============================================================================
 // Calculate yields in a defined observable range given an input wildcard
 // for matching "yield variables" (public)
@@ -925,7 +1011,7 @@ void FitMeTool::printYieldsInRange( const char* wildcard,
 
   // Get all model PDF variables matching a wildcard
   // -----------------------------------------------
-  RooArgSet* vars = getMatchingVariableNames( "*Evts" );
+  RooArgSet* vars = getMatchingVariableNames( "*Evts*", true );
   if ( vars && vars -> getSize() == 0 ) {
     printf( "[WARNING] Found no variable matching the wildcard '%s' ! Please check.\n",
             wildcard );
@@ -946,9 +1032,21 @@ void FitMeTool::printYieldsInRange( const char* wildcard,
 
   TIterator* it = vars -> createIterator();
   TObject* obj  = NULL;
+  std::vector<TString> usedNames;
   while ( ( obj = it -> Next() ) ) {
     RooAbsReal* nVar = dynamic_cast<RooAbsReal*>( obj );
     if ( ! nVar ) continue;
+    TString name = nVar->GetName();
+    Ssiz_t first = name.First("_");
+    Ssiz_t lenght = name.Length();
+    name.Remove(first,lenght);
+    Bool_t notUsed = false;
+    for (unsigned int i = 0; i < usedNames.size(); i++ )
+      {
+	if ( usedNames[i] == name ) { notUsed = true; }
+      }
+    if ( notUsed == false)  { usedNames.push_back(name); }
+
     RooAbsPdf* epdf = getMatchingEPDFComponent( nVar -> GetName(), epdfs );
     if ( ! epdf ) {
       printf( "[ERROR] Cannot find an EPDF matching the yield variable '%s'. Yield variable skipped !\n",
@@ -977,7 +1075,52 @@ void FitMeTool::printYieldsInRange( const char* wildcard,
     printf( "%25s: %10.2f    ( %5.3f * %8.2f )\n",
             iter -> first, n * f, f, n );
   }
+
+  std::cout<<"------------------------------------------------------------------"<<std::endl;
+  Double_t sigVal(0.0), sigValTot(0.0);
+  Double_t bkgVal(0.0), bkgValTot(0.0); 
+
+  for(unsigned int i = 0; i < usedNames.size(); i++ )
+    {
+      Double_t val = 0.0;
+      Double_t valTot = 0.0; 
+      for ( std::map< const char*, std::pair<double,double > >::const_iterator iter = yieldsMap.begin();
+	    iter != yieldsMap.end(); ++iter ) 
+	{
+	  TString name = iter->first;
+	  if ( name.Contains(usedNames[i]) == true )
+	    {
+	      const double n = ( iter -> second ).first;
+	      const double f = iter -> second.second;
+	      val = val + n*f;
+	      valTot = valTot +n; 
+	      if ( usedNames[i] != "nSig" ) { bkgVal = bkgVal +n*f; bkgValTot = bkgValTot + n; }
+	      else {  sigVal = sigVal + n*f; sigValTot = sigValTot +n;}
+	    }
+	}
+      printf( "%25s:  %10.2f ( total: %10.2f )\n", usedNames[i].Data(), val, valTot );
+    }
+
+  std::cout<<"------------------------------------------------------------------"<<std::endl;
+  printf( "%25s:  %10.2f ( total: %10.2f )\n", "Background", bkgVal, bkgValTot );
+  printf( "%25s:  %10.2f ( total: %10.2f )\n", "Signal", sigVal, sigValTot );
+  std::cout<<"------------------------------------------------------------------"<<std::endl;
+  
+  Double_t SB = sigVal/bkgVal;
+  Double_t SS = sigVal/std::sqrt(sigVal + bkgVal);
+
+  Double_t SBTot = sigValTot/bkgValTot;
+  Double_t SSTot = sigValTot/std::sqrt(sigValTot + bkgValTot);
   printf( "##################################################################\n" );
+  std::cout<<"------------------------------------------------------------------"<<std::endl;
+  std::cout<<"                Performance in signal range                         "<<std::endl;
+  std::cout<<"------------------------------------------------------------------"<<std::endl;
+  printf( "%25s:  %10.2f ( total: %10.2f ) \n",   "S/B", SB, SBTot);
+  printf( "%25s:  %10.2f ( total: %10.2f )  \n", "S/sqrt(S+B)",SS, SSTot);
+
+  printf( "##################################################################\n" );
+
+
 }
 
 //=============================================================================
@@ -1047,7 +1190,7 @@ void FitMeTool::printYieldInRange( const char* yieldVarName,
 
   // Get the model EPDF yield variable matching the input name
   // ---------------------------------------------------------
-  RooArgSet* vars = getMatchingVariableNames( yieldVarName );
+  RooArgSet* vars = getMatchingVariableNames( yieldVarName, true );
   if ( ! vars ) {
     printf( "[ERROR] Found no variable matching the input name '%s' ! Please check.\n",
             yieldVarName );
@@ -1135,9 +1278,9 @@ RooAbsPdf* FitMeTool::getMatchingEPDFComponent( const char* yieldVarName,
 //=============================================================================
 // Get all model PDF variables matching a wildcard (protected)
 //=============================================================================
-RooArgSet* FitMeTool::getMatchingVariableNames( const char* wildcard )
+RooArgSet* FitMeTool::getMatchingVariableNames( const char* wildcard, bool debug )
 {
-  if ( m_config_debug )
+  if ( debug )
     printf( "==> FitMeTool::getMatchingVariableNames( wildcard='%s' )\n",
             wildcard );  
   
@@ -1154,7 +1297,7 @@ RooArgSet* FitMeTool::getMatchingVariableNames( const char* wildcard )
     vars -> add( *var ); 
   }
   
-  if ( m_config_debug ) vars -> Print( "v" );
+  if ( debug ) vars -> Print( "v" );
 
   return vars;
 }
@@ -1162,7 +1305,17 @@ RooArgSet* FitMeTool::getMatchingVariableNames( const char* wildcard )
 //=============================================================================
 // Prepare and save sWeights
 //=============================================================================
-void FitMeTool::savesWeights(const char* observableName, RooDataSet* data, TString& mode )
+void FitMeTool::savesWeights(const char* observableName, 
+                             RooDataSet* data, 
+                             TString& mode,
+                             bool save2file,
+                             const RooCmdArg& arg1,
+                             const RooCmdArg& arg2,
+                             const RooCmdArg& arg3,
+                             const RooCmdArg& arg4,
+                             const RooCmdArg& arg5,
+                             const RooCmdArg& arg6,
+                             const RooCmdArg& arg7)
 {
   if ( m_config_debug )
     printf( "==> FitMeTool::savesWeights( obs=%s, data=%s, mode=%s )\n",
@@ -1195,12 +1348,12 @@ void FitMeTool::savesWeights(const char* observableName, RooDataSet* data, TStri
     return;
   }
   
-  // Get all model PDF yield variables - assuming they match the wildcard "*Evts"
+  // Get all model PDF yield variables - assuming they match the wildcard "*Evts*"
   // ----------------------------------------------------------------------------
-  RooArgSet* vars2 = getMatchingVariableNames( "*Evts" );
+  RooArgSet* vars2 = getMatchingVariableNames( "*Evts*" );
   RooArgList* vars = new RooArgList( *vars2 );
   if ( vars && vars -> getSize() == 0 ) {
-    printf( "[WARNING] Found no yield variable matching the wildcard \"*Evts\" ! Please check.\n");
+    printf( "[WARNING] Found no yield variable matching the wildcard \"*Evts*\" ! Please check.\n");
     return;
   }  
 
@@ -1233,8 +1386,8 @@ void FitMeTool::savesWeights(const char* observableName, RooDataSet* data, TStri
     if ( param &&
          ( ! vars -> contains( *param ) ) &&
          ( ! param -> isConstant() ) ) {
-      printf( "[WARNING] Variable \"%s\" set to constant - sPlot technique requirement.\n",
-              param -> GetName() );
+      printf( "[WARNING] Variable \"%s\" set to constant (%lf) - sPlot technique requirement.\n",
+              param -> GetName(), param -> getVal() );
       param -> setConstant();
     }
     /*
@@ -1260,7 +1413,14 @@ void FitMeTool::savesWeights(const char* observableName, RooDataSet* data, TStri
     //  param -> setConstant(kFALSE);
     //}
   }
-  fit();
+  fit(save2file,
+      arg1,
+      arg2,
+      arg3,
+      arg4,
+      arg5,
+      arg6,
+      arg7);
   // Produce the new dataset with the sWeights for the yield variable
   // ----------------------------------------------------------------
   RooStats::SPlot* splot = NULL;

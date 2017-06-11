@@ -42,8 +42,11 @@
 	<function pattern = "WeightingUtils::*" />
         <class name = "PlotSettings" />
         <class name = "MDFitterSettings" />
+	<class name = "PIDCalibrationSample" />
         <class name = "HistPID1D" />
         <class name = "HistPID2D" />
+	<class name = "RooIpatia2" />
+	<class name = "RooApollonios" />
 
 	<class pattern = "Bdecaytree" />
 
@@ -57,7 +60,8 @@
 	    <field name = "m_nset" transient = "true" />
 	    <field name = "m_nsethash" transient = "true" />
 	</class>
-
+        <class name="DecRateCoeff_Bd"/>
+    
 	<class name="RooComplementCoef"/>
 	<class name="RooAbsGaussModelEfficiency"/>
 	<class name="RooCubicSplineKnot::S_jk" />
@@ -70,7 +74,12 @@
 	</class>
 	<class name="RooCubicSplineFun"/>
 	<class name="RooBinnedFun"/>
+	<class name="RooSwimmingAcceptance">
+	    <field name = "m_tps" transient = "true" />
+	    <field name = "m_M" transient = "true" />
+	</class>
 	<class name="RooGaussEfficiencyModel"/>
+        <class name="RooJohnsonSU"/>
 	<class name="RooKResModel">
 	    <field name = "_interpolation" transient = "true" />
 	    <field name = "_cacheMgr" transient = "true" />

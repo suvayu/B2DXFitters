@@ -106,6 +106,7 @@ __doc__ = """ real docstring """
 # -----------------------------------------------------------------------------
 # Load necessary libraries
 # -----------------------------------------------------------------------------
+#"
 from B2DXFitters import *
 from ROOT import *
 
@@ -126,12 +127,18 @@ def getDataNames ( myconfig ):
     Dmodes = myconfig["CharmModes"]
     year = myconfig["YearOfDataTaking"]
 
+    if "BachelorHypo" in myconfig.keys():
+        hypo = myconfig["BachelorHypo"]
+
     dataNames = []
     for y in year:
         for dmode in Dmodes:
-            dataName = "#"+decay+" "+dmode+" "+y
+            if "BachelorHypo" in myconfig.keys():
+                dataName = "#"+decay+" "+dmode+" "+y+" "+hypo+"Hypo"
+            else:
+                dataName = "#"+decay+" "+dmode+" "+y
             dataNames.append(TString(dataName))
-
+            
     return dataNames
 
 # -----------------------------------------------------------------------------                                                                                                         
@@ -165,13 +172,17 @@ def getDataBkgNames( myconfig ):
 # Get signature of background obtained from MC                                                                                                                                        
 # -----------------------------------------------------------------------------
 def getMCNames(myconfig):
+
     decay = myconfig["Decay"]
+    
+    if "BachelorHypo" in myconfig.keys():
+        hypo = myconfig["BachelorHypo"]
     
     decay2 = TString(decay)
     if decay2.Contains("Ds"):
         dsmode = "KKPi"
     elif decay2.Contains("D"):
-        dsmode = "KiPiPi"
+        dsmode = "KPiPi"
 
     year = myconfig["YearOfDataTaking"]
     magnet = ["MU","MD"]
@@ -179,8 +190,10 @@ def getMCNames(myconfig):
     MCNames = []
     for y in year:
         for m in magnet:
-            name = "#MC FileName "+dsmode+" "+m+" "+y
-            #name = "#MC FileName DsPi "+m+" "+y
+            if "BachelorHypo" in myconfig.keys():
+                name = "#MC FileName "+dsmode+" "+m+" "+y+" "+hypo+"Hypo"
+            else:
+                name = "#MC FileName "+dsmode+" "+m+" "+y
             MCNames.append(TString(name))
 
     return MCNames
@@ -228,7 +241,7 @@ def getMCPIDNames(myconfig):
     decay = myconfig["Decay"]
 
     decay2 = TString(decay) 
-    if decay2.Contains("K"):
+    if decay2.Contains("DsK"):
         part = ["Kaon","Pion","Proton"]
     else:
         part = ["Kaon","Pion"]
@@ -260,10 +273,16 @@ def getSignalNames(myconfig):
     Dmodes = myconfig["CharmModes"]
     year = myconfig["YearOfDataTaking"]
 
+    if "BachelorHypo" in myconfig.keys():
+        hypo = myconfig["BachelorHypo"]
+    
     signalNames = []
     for y in year:
         for dmode in Dmodes:
-            name = "#Signal "+decay+" "+dmode+" "+y
+            if "BachelorHypo" in myconfig.keys():
+                name = "#Signal "+decay+" "+dmode+" "+y+" "+hypo+"Hypo"
+            else:
+                name = "#Signal "+decay+" "+dmode+" "+y
             signalNames.append(TString(name))
         
     return signalNames
@@ -304,16 +323,22 @@ def getComboNames(myconfig):
     Dmodes = myconfig["CharmModes"]
     year = myconfig["YearOfDataTaking"]
 
+    if "BachelorHypo" in myconfig.keys():
+        hypo = myconfig["BachelorHypo"]
+
     dataNames = []
     for y in year:
         for dmode in Dmodes:
-            dataName = "#"+decay+" Combinatorial "+dmode+" "+y
+            if "BachelorHypo" in myconfig.keys():
+                dataName = "#"+decay+" Combinatorial "+dmode+" "+y+" "+hypo+"Hypo"
+            else:
+                dataName = "#"+decay+" Combinatorial "+dmode+" "+y
             dataNames.append(TString(dataName))
 
     return dataNames
 
 
-def getComboPIDNames(myconfig):
+def getComboPIDNames(myconfig, DsModes):
     decay = myconfig["Decay"]
 
     decay2 = TString(decay)
@@ -323,24 +348,86 @@ def getComboPIDNames(myconfig):
         com = "CombPi"
 
     magnet = ["Up","Down"]
-    if decay2.Contains("K"):
+    if decay2.Contains("DsK"):
         part = ["Kaon","Pion","Proton"]
     else:
         part = ["Kaon","Pion"]
-
     year = myconfig["YearOfDataTaking"]
     
+    if DsModes:
+        Dmodes = myconfig["CharmModes"]
+    else:
+        Dmodes = [""] 
     comboNames = []
     
     for y in year:
         for p in part:
             for m in magnet:
-                strip = "Str"+myconfig["Stripping"][y]
-                name = com + " " + p + " " + m + " " +y+" "+strip
-                comboNames.append(TString(name))
+                for d in Dmodes:
+                    strip = "Str"+myconfig["Stripping"][y]
+                    name = com + " " + p + " " + m + " " +y+" "+strip+ " " +d
+                    comboNames.append(TString(name))
     
     return comboNames
 
+
+def getCombPar(mode, o,  myconfig):
+    if type(mode) == TString:
+        mode = mode.Data()
+
+    if myconfig["CreateCombinatorial"][o].has_key(mode):
+        if myconfig["CreateCombinatorial"][o][mode].has_key("Cut"):
+            cut = TString(myconfig["CreateCombinatorial"][o][mode]["Cut"])
+        else:
+            cut = TString("")
+        if myconfig["CreateCombinatorial"][o][mode].has_key("Rho"):
+            rho = myconfig["CreateCombinatorial"][o][mode]["Rho"]
+        else:
+            rho = -1.0
+        if myconfig["CreateCombinatorial"][o][mode].has_key("Mirror"):
+            mirror = TString(myconfig["CreateCombinatorial"][o][mode]["Mirror"])
+        else:
+            mirror = TString("None")
+    else:
+        cut = TString("")
+        rho = -1.0
+        mirror = TString("None")
+    return cut, rho, mirror
+
+def getCombProperties(rho, mirror, rhoD, mirrorD):
+    print rho, rhoD, mirror, mirrorD
+    if rhoD != -1.0:
+        rhoF = rhoD
+    elif rho != -1.0:
+        rhoF = rho
+    else:
+        rhoF = 3.5
+
+    if mirrorD != TString("None"):
+        mirrorF = mirrorD
+    elif mirror != TString("None"):
+        mirrorF = mirror
+    else:
+        mirrorF = TString("Both")
+
+    return rhoF, mirrorF
+
+def matchMCName(MCNames,MCPIDUpName):
+
+    MC = TString(MCPIDUpName)
+    year = GeneralUtils.CheckDataYear(MC)
+    pol = GeneralUtils.CheckPolarity(MC, False)
+
+    for m in MCNames:
+        mc = TString(m)
+        y = GeneralUtils.CheckDataYear(mc)
+        p = GeneralUtils.CheckPolarity(mc, False)
+
+        if y == year and p == pol:
+            MCName = m
+            break;
+
+    return MCName
 
 # -----------------------------------------------------------------------------
 # Configuration settings
@@ -368,16 +455,28 @@ def prepareWorkspace( debug,
     saveNameTS = TString(save)
 
     #plot settings:
-    plotSettings = PlotSettings("plotSettings","plotSettings", "Plot", "pdf", 100, True, False, True)
-    plotSettings.Print("v")
+    dirPlot = "Plot"
+    extPlot = "pdf"
+    if myconfigfile.has_key("ControlPlots"):
+        if myconfigfile["ControlPlots"].has_key("Directory"):
+            dirPlot = myconfigfile["ControlPlots"]["Directory"]
+            if not os.path.exists(dirPlot):
+                os.makedirs(dirPlot)
+        if myconfigfile["ControlPlots"].has_key("Extension"):
+            extPlot = myconfigfile["ControlPlots"]["Extension"]
 
+    plotSettings = PlotSettings("plotSettings","plotSettings", TString(dirPlot), extPlot , 100, True, False, False)
+    plotSettings.Print("v")
+    #exit(0) 
 
     from B2DXFitters.MDFitSettingTranslator import Translator
-    mdt = Translator(myconfigfile,"MDSettings")
-
+    if MCPID or SignalPID or CombPID:
+        mdt = Translator(myconfigfile,"MDSettings",True)
+    else:
+        mdt = Translator(myconfigfile,"MDSettings",False)
     MDSettings = mdt.getConfig()
     MDSettings.Print("v")
-    
+    #exit(0)
 
     if initial != "":
         workspace = GeneralUtils.LoadWorkspace(TString(initial),TString(workName),debug)
@@ -398,8 +497,8 @@ def prepareWorkspace( debug,
     workspace.Print()
 
 
-    if DataBkgPID == True:
-        DataBkg = True
+ #   if DataBkgPID == True:
+ #       DataBkg = True
 
     if DataBkg:
         dataBkgNames, decayBkg = getDataBkgNames( myconfigfile )
@@ -420,14 +519,14 @@ def prepareWorkspace( debug,
 
         dataBkgPIDNames = getDataBkgPIDNames( myconfigfile )
         for i in range(0,dataBkgPIDNames.__len__()):
-            workspace = WeightingUtils.ObtainHistRatioOneSample(MDSettings,dataBkgPIDNames[i], workspace, workspace, plotSettings, debug)
+            workspace = WeightingUtils.ObtainHistRatioOneSample(MDSettings,dataBkgPIDNames[i], workspace, plotSettings, debug)
             workspace = WeightingUtils.ObtainPIDShapeFromCalibSampleOneSample(MDSettings, dataBkgPIDNames[i], workspace, plotSettings, debug)
             
     GeneralUtils.SaveWorkspace(workspace,saveNameTS, debug)
     workspace.Print()
 
-    if MCPID:
-        MC = True
+#    if MCPID:
+#        MC = True
 
     if MC:
         MCNames = getMCNames( myconfigfile )
@@ -438,7 +537,7 @@ def prepareWorkspace( debug,
             pol = GeneralUtils.CheckPolarity(MCNames[i],debug)
             workspace = MassFitUtils.ObtainSpecBack(TString(myconfigfile["dataName"]), TString(MCNames[i]),
                                                     MDSettings, decay, workspace, True, MDSettings.GetLum(year,pol), plotSettings, debug)
-
+ 
         GeneralUtils.SaveWorkspace(workspace,saveNameTS, debug)
         workspace.Print()
 
@@ -446,20 +545,25 @@ def prepareWorkspace( debug,
             year = myconfigfile["YearOfDataTaking"]
             sy = year.__len__()
             for i in range(0,sy):
+                print MCNames[2*i]
+                print MCNames[2*i+1]
                 workspace = MassFitUtils.CreatePdfSpecBackground(dataTS, TString(MCNames[2*i]), 
                                                                  dataTS, TString(MCNames[2*i+1]),
-                                                                 MDSettings, workspace, True, plotSettings, debug)
+                                                                 MDSettings, workspace, False, plotSettings, debug)
         GeneralUtils.SaveWorkspace(workspace,saveNameTS, debug)
         workspace.Print()
 
     if MCPID:
         MCPIDUpNames, MCPIDDownNames = getMCPIDNames(myconfigfile)
+        MCNames = getMCNames( myconfigfile )
         for i in range(0,MCPIDUpNames.__len__()):
             print MCPIDUpNames[i]
-            workspace = WeightingUtils.ObtainHistRatio(TString(myconfigfile["dataName"]), TString(MCNames[1]),
+            MCName = matchMCName(MCNames,MCPIDUpNames[i])
+            print MCName
+            workspace = WeightingUtils.ObtainHistRatio(TString(myconfigfile["dataName"]), TString(MCName),
                                                        MDSettings, MCPIDUpNames[i], workspace, plotSettings, debug)
         
-            workspace = WeightingUtils.ObtainPIDShapeFromCalibSample(TString(myconfigfile["dataName"]), TString(MCNames[1]),
+            workspace = WeightingUtils.ObtainPIDShapeFromCalibSample(TString(myconfigfile["dataName"]), TString(MCName),
                                                                      MDSettings, MCPIDUpNames[i], workspace, plotSettings, debug)
         workspace.Print()
         GeneralUtils.SaveWorkspace(workspace,saveNameTS, debug)
@@ -467,18 +571,20 @@ def prepareWorkspace( debug,
 
         for i in range(0,MCPIDDownNames.__len__()):
             print MCPIDDownNames[i]
-            workspace = WeightingUtils.ObtainHistRatio(TString(myconfigfile["dataName"]), TString(MCNames[0]),
+            MCName = matchMCName(MCNames,MCPIDDownNames[i])
+            print MCName
+            workspace = WeightingUtils.ObtainHistRatio(TString(myconfigfile["dataName"]), TString(MCName),
                                                        MDSettings, MCPIDDownNames[i], workspace, plotSettings, debug)
             
-            workspace = WeightingUtils.ObtainPIDShapeFromCalibSample(TString(myconfigfile["dataName"]), TString(MCNames[0]),
+            workspace = WeightingUtils.ObtainPIDShapeFromCalibSample(TString(myconfigfile["dataName"]), TString(MCName),
                                                                      MDSettings, MCPIDDownNames[i], workspace, plotSettings, debug)
             
         workspace.Print()
         GeneralUtils.SaveWorkspace(workspace,saveNameTS, debug)
         
 
-    if SignalPID:
-        Signal = True
+#    if SignalPID:
+#        Signal = True
 
     if Signal:
         signalNames = getSignalNames(myconfigfile)
@@ -488,7 +594,7 @@ def prepareWorkspace( debug,
             year = GeneralUtils.CheckDataYear(signalNames[i])
             workspace = MassFitUtils.ObtainSignal(TString(myconfigfile["dataName"]), signalNames[i],
                                                   MDSettings, decay, False, False, workspace, False,
-                                                  MDSettings.GetLum(year,"Down"), MDSettings.GetLum(year,"Up"), plotSettings, debug)
+                                                  1.0, 1.0, plotSettings, debug)
 
         workspace.Print()
         GeneralUtils.SaveWorkspace(workspace,saveNameTS, debug)
@@ -499,46 +605,59 @@ def prepareWorkspace( debug,
         
         for i in range(0,signalPIDNames.__len__()):
             
-            workspace = WeightingUtils.ObtainHistRatioOneSample(MDSettings, signalPIDNames[i], workspace, workspace, plotSettings, debug)
+            workspace = WeightingUtils.ObtainHistRatioOneSample(MDSettings, signalPIDNames[i], workspace, plotSettings, debug)
             
             workspace = WeightingUtils.ObtainPIDShapeFromCalibSampleOneSample(MDSettings, signalPIDNames[i], workspace, plotSettings, debug)
                         
-            
-        GeneralUtils.SaveWorkspace(workspace,saveNameTS, debug)
-        workspace.Print()
-
-    if Comb and myconfigfile.has_key("CreateRooKeysPdfForCombinatorial"):
-        comboNames = getComboNames(myconfigfile)
-        
-        mdt = Translator(myconfigfile,"MDSettingsComb")
-        obs = myconfigfile["CreateRooKeysPdfForCombinatorial"]
-        for o in obs:
-            MDSettingsComb = mdt.getConfig()
-            cut = TString(myconfigfile["CreateRooKeysPdfForCombinatorial"][o]["Cut"])
-            MDSettingsComb.SetDataCuts("All", cut);
-            for i in range(0,comboNames.__len__()):
-                if comboNames[i].Contains("Pi"): 
-                    name = TString("CombPi_")+TString(o)
-                else:
-                    name = TString("CombK_")+TString(o)  
-                workspace = MassFitUtils.ObtainData(dataTS, comboNames[i],  MDSettingsComb, name, plotSettings, workspace, debug)
-                if rookeypdf:
-                    MassFitUtils.CreatePdfSpecBackground(MDSettingsComb, dataTS, comboNames[i], o, name,
-                                                         myconfigfile["CreateRooKeysPdfForCombinatorial"][o]["Rho"],
-                                                         myconfigfile["CreateRooKeysPdfForCombinatorial"][o]["Mirror"],
-                                                         workspace, plotSettings, debug)
+            GeneralUtils.SaveWorkspace(workspace,saveNameTS, debug)
+            workspace.Print()
 
     if CombPID:
-        if myconfigfile["Calibrations"].has_key("Combinatorial"):
-            workspaceL = [GeneralUtils.LoadWorkspace(TString(myconfigfile["Calibrations"]["Combinatorial"]["FileNameUp"]),
-                                                     TString(myconfigfile["Calibrations"]["Combinatorial"]["WorkName"]),debug),
-                          GeneralUtils.LoadWorkspace(TString(myconfigfile["Calibrations"]["Combinatorial"]["FileNameDown"]),
-                                                     TString(myconfigfile["Calibrations"]["Combinatorial"]["WorkName"]),debug)]
-        combNames = getComboPIDNames(myconfigfile)
+        if MDSettings.CheckPIDComboShapeForDsModes():
+            check = myconfigfile.has_key("CreateCombinatorial")
+            if check == False:
+                print "[ERROR] You want to take PID Calib samples from recent workspace, please specify 'CreateRooKeysPdfForCombinatorial' in your config file"
+            else:
+                Comb = True 
 
+    if Comb and myconfigfile.has_key("CreateCombinatorial"):
+        comboNames = getComboNames(myconfigfile)
+
+        mdt = Translator(myconfigfile,"MDSettingsComb",True)
+        obs = myconfigfile["CreateCombinatorial"]
+        for o in obs:
+            MDSettingsComb = mdt.getConfig()
+            cuts = myconfigfile["CreateCombinatorial"][o]
+
+            cut, rho, mirror = getCombPar("All", o, myconfigfile)
+            MDSettingsComb.SetDataCuts("All", cut);
+
+            print cut, rho, mirror
+
+            for i in range(0,comboNames.__len__()):
+                dmode = GeneralUtils.CheckDMode(TString(comboNames[i]))
+                if dmode == "kkpi" or dmode == "":
+                    dmode = GeneralUtils.CheckKKPiMode(TString(comboNames[i]))
+                Dmode = GeneralUtils.GetModeCapital(dmode)
+                cutD, rhoD, mirrorD = getCombPar(Dmode, o, myconfigfile)
+                MDSettingsComb.SetDataCuts(Dmode, cutD)
+                print dmode, cutD, rhoD, mirrorD
+
+                if decay.Contains("Pi"):
+                    name = TString("CombPi_")+TString(o)
+                else:
+                    name = TString("CombK_")+TString(o)
+                workspace = MassFitUtils.ObtainData(dataTS, comboNames[i],  MDSettingsComb, name, plotSettings, workspace, debug)
+                if rookeypdf:
+                    rhoF, mirrorF = getCombProperties(rho, mirror, rhoD, mirrorD)
+                    MassFitUtils.CreatePdfSpecBackground(MDSettingsComb, dataTS, comboNames[i], o, name, rhoF, mirrorF, workspace, plotSettings, debug)
+
+
+    if CombPID:
+        combNames = getComboPIDNames(myconfigfile, MDSettings.CheckPIDComboShapeForDsModes())
+        print combNames 
         for i in range(0,combNames.__len__()):
-            workspace = WeightingUtils.ObtainHistRatioOneSample(MDSettings, combNames[i], workspace, workspaceL[i%2], plotSettings,  debug)
-            
+            workspace = WeightingUtils.ObtainHistRatioOneSample(MDSettings, combNames[i], workspace, plotSettings,  debug)
             workspace = WeightingUtils.ObtainPIDShapeFromCalibSampleOneSample(MDSettings, combNames[i], workspace, plotSettings, debug)
             
             workspace.Print()
@@ -639,7 +758,7 @@ parser.add_option( '--CombPID',
                    help= 'obtain PIDK shape for combinatorial background'
                    )
 
-parser.add_option( '--noRooKeysPdf',
+parser.add_option( '--noRooKeysPdf','--nRKP',
                    dest = 'rookeypdf',
                    action = 'store_false',
                    default = True,
@@ -656,12 +775,20 @@ if __name__ == '__main__' :
         parser.print_help()
         exit( -1 )
 
+
+    config = options.configName
+    last = config.rfind("/")
+    directory = config[:last+1]
+    configName = config[last+1:]
+    p = configName.rfind(".")
+    configName = configName[:p]
+    
     import sys
-    sys.path.append("../data/")
+    sys.path.append(directory)
         
     prepareWorkspace(  options.debug, 
                        options.save,
-                       options.configName,
+                       configName,
                        options.Data,
                        options.DataBkg, options.DataBkgPID,
                        options.MC, options.MCPID,

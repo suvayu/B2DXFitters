@@ -1,7 +1,7 @@
 ################################################################################
 # Package: B2DXFitters
 ################################################################################
-gaudi_subdir(B2DXFitters v2r4)
+gaudi_subdir(B2DXFitters v3r1)
 
 find_package(RELAX)
 find_package(ROOT COMPONENTS Core RooFitCore RooStats RooFit Hist Tree RIO

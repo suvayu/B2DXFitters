@@ -19,59 +19,85 @@
 #include "RooStringVar.h"
 #include "RooAbsPdf.h"
 #include "RooResolutionModel.h"
-
+#include "RooWorkspace.h"
+#include "TString.h"
+#include "RooAbsReal.h" 
 
 namespace Bd2DhModels {
 
-  //=============================================================================
-  // PDF background models for Bd -> D pi as defined in the
-  // Delta m_d analysis
-  // - combinatorial backgroud
-  // - physical backgrounds
-  //=============================================================================
-  RooAbsPdf* buildBdBackgroundPDFInMass( RooAbsReal& m_obs_mass,
-                                         RooStringVar& filesDir,
-                                         const long fracCombBkgEvts,
-                                         const long fracBd2DKEvts,
-                                         const long fracBd2DstPiEvts,
-                                         const long fracBd2DXEvts,
-                                         bool debug = false
-                                         );
+  RooAbsPdf* build_Bd2DPi_BKG_MDFitter( RooAbsReal& mass,
+					RooAbsReal& massDs,
+					RooWorkspace* work,
+					RooWorkspace* workInt,
+					TString &samplemode,
+					TString merge,
+					Int_t dim,
+					bool debug = true
+					);
 
-  //=============================================================================
-  // Extended PDF background models for Bd -> D pi as defined in the
-  // Delta m_d analysis
-  // - combinatorial backgroud
-  // - physical backgrounds
-  //=============================================================================  
-  RooAbsPdf* buildBdBackgroundEPDFInMass( RooAbsReal& m_obs_mass,
-                                          RooStringVar& filesDir,
-                                          RooRealVar& nCombBkgEvts,
-                                          RooRealVar& nBd2DKEvts,
-                                          RooRealVar& nBd2DRhoEvts,
-                                          RooRealVar& nBd2DstPiEvts,
-                                          RooRealVar& nBd2DXEvts,
-                                          bool debug = false
-                                          );
+  RooAbsPdf* buildExponentialPlusConstantPDF( RooAbsReal& obs,
+                                              RooWorkspace* workInt,
+                                              TString samplemode,
+                                              TString typemode,
+                                              bool debug = true);
 
-  //===========================================================================
-  // Extended PDF background models in time for Bd -> D pi as defined in the
-  // Delta m_d analysis, when no tagging information is used
-  // - combinatorial backgroud
-  // - Bd -> D K physical background
-  //===========================================================================
-  RooAbsPdf* buildBdBackgroundNoTagEPDFInTime( RooAbsReal& time,
-                                               RooRealVar& Gamma,
-                                               RooRealVar& nCombBkgEvts,
-                                               RooRealVar& CombBkgPTPdf_a,
-                                               RooRealVar& CombBkgPTPdf_f,
-                                               RooRealVar& CombBkgPTPdf_alpha,
-                                               RooRealVar& CombBkgPTPdf_beta,
-                                               RooRealVar& nBd2DKEvts,
-                                               RooResolutionModel* resModel,
-                                               RooAbsReal* acceptance,
-                                               bool debug = false
-                                               );
+  RooAbsPdf* buildJohnsonSUPDF( RooAbsReal& obs,
+                                RooWorkspace* workInt,
+                                TString samplemode,
+                                TString typemode,
+                                bool shiftMean = false,
+                                bool debug = true);
+
+  RooAbsPdf* buildCrystalBallPlusExponentialPDF( RooAbsReal& obs,
+                                                 RooWorkspace* workInt,
+                                                 TString samplemode,
+                                                 TString typemode,
+                                                 bool shiftMean = false,
+                                                 bool debug = true);
+
+  RooAbsPdf* buildCrystalBallPlusGaussianPDF( RooAbsReal& obs,
+                                              RooWorkspace* workInt,
+                                              TString samplemode,
+                                              TString typemode,
+                                              bool shiftMean = false,
+                                              bool scaleWidths = false,
+                                              bool debug = true);
+  
+  RooAbsPdf* buildJohnsonSUPlusGaussianPDF( RooAbsReal& obs,
+                                            RooWorkspace* workInt,
+                                            TString samplemode,
+                                            TString typemode,
+                                            bool sameMean = true,
+                                            bool shiftMean = false,
+                                            bool debug = true);
+  
+  RooAbsPdf* buildJohnsonSUPlusGaussianPlusExponentialPDF( RooAbsReal& obs,
+                                                           RooWorkspace* workInt,
+                                                           TString samplemode,
+                                                           TString typemode,
+                                                           bool debug = true);
+  
+  
+  RooAbsPdf* buildJohnsonSUPlus2GaussianPDF( RooAbsReal& obs,
+                                             RooWorkspace* workInt,
+                                             TString samplemode,
+                                             TString typemode,
+                                             bool sameMean = true,
+                                             bool debug = true);
+
+  RooAbsPdf* buildIpatiaPlusExponentialPDF(RooAbsReal& obs,
+                                           RooWorkspace* workInt,
+                                           TString samplemode,
+                                           TString typemode,
+                                           bool debug = true);
+  
+
+  RooAbsPdf* buildIpatiaGaussConvPDF(RooRealVar& obs,
+                                     RooWorkspace* workInt,
+                                     TString samplemode,
+                                     TString typemode,
+                                     bool shiftMean = false,
+                                     bool debug = true);
   
 } // end of namespace
 

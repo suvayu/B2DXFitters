@@ -302,6 +302,48 @@ HistPID2D::HistPID2D(const HistPID2D& other) :
 }
 
 
+std::pair <Double_t,Double_t> HistPID2D::GetValues(TString key1, TString key2,
+						   std::vector <TString> &basicName, std::vector <Double_t> &basicVal,
+						   std::vector <TString> &tNW, std::vector <Double_t> &pRV)
+{
+  std::pair <Double_t,Double_t> val; 
+
+  Double_t var1(-999999.0), var2(-999999.0);
+  for ( unsigned int i = 0; i<basicName.size(); i++ )
+    {
+      if ( basicName[i] == key1 ) { var1 = exp(basicVal[i]); continue;}
+      if ( basicName[i] == key2 ) { var2 = exp(basicVal[i]); continue;}
+    }
+  if ( var1 == -999999.0 )
+    {
+      for ( unsigned int i = 0; i<tNW.size(); i++ )
+	{
+	  if ( tNW[i] == key1 ) {var1 = pRV[i]; break;}
+	}
+    }
+  if ( var2 == -999999.0 )
+    {
+      for ( unsigned int i = 0; i<tNW.size(); i++ )
+      {
+	if ( tNW[i] == key2 ) {var2 = pRV[i]; break;}
+      }
+    }
+  val.first = var1;
+  val.second = var2;
+  return val; 
+}
+
+Double_t  HistPID2D::GetValues(TString key1, TString key2,
+			       std::vector <TString> &basicName, std::vector <Double_t> &basicVal,
+			       std::vector <TString> &tNW, std::vector <Double_t> &pRV, TString pol)
+{
+  std::pair <Double_t,Double_t> val = this->GetValues(key1, key2, basicName, basicVal, tNW, pRV);
+  Double_t weight = this->GetWeight(val.first, val.second, pol);
+  return weight; 
+}
+
+
+
 std::ostream & operator<< (std::ostream &out, const HistPID2D &s)         
 {
   out<<"HistPID("<<s.GetName()<<","<<s.GetTitle()<<")"<<std::endl;

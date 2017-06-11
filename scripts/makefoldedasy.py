@@ -13,10 +13,10 @@ uppertoy = 357
 
 runondata = True
 
-latex_xpos_1      =  0.75
-latex_xpos_2      =  0.75
+latex_xpos_1      =  0.55
+latex_xpos_2      =  0.55
 latex_ypos        =  0.875
-latex_string      = "LHCb"
+latex_string      = "LHCb Preliminary"
 
 if not runondata :
     if lowertoy == uppertoy :
@@ -31,9 +31,9 @@ if not runondata :
     for toy in range(lowertoy,uppertoy+1) :
         tree.Add("/afs/cern.ch/work/a/adudziak/public/Bs2DsKToys/Gamma70_5M_2T/DsK_Toys_sWeights_ForTimeFit_"+str(toy)+".root")
 else :
-    tree.Add('/afs/cern.ch/work/g/gligorov//public/Bs2DsKPlotsForPaper/NominalFit/sWeights_BsDsK_all_both_BDTGA.root')
+    tree.Add('/afs/cern.ch/work/a/adudziak/public/workspace/DsK3fbPAPER/nominal/sWeights_Bs2DsK_newBDTG_nominal.root')
 
-dms                      = 17.768
+dms                      = 17.757
 modulo                   = 2*pi/dms
 timebinning_unfolded     = array('d',[0,0.5,1.0,1.5,2.0,2.5,3.0,4.,5.,6.,7.,8.,9.,10.,15.])
 
@@ -55,36 +55,52 @@ for entry in range(tree.GetEntries()):
     tree.GetEntry(entry)
     if not runondata : 
         if fabs(tree.lab0_TRUEID-1)<0.1 : 
-            if tree.tagDecComb_idx < 0 and tree.lab1_ID_idx < 0 :
-                histo["DpKm_fold"].Fill((tree.lab0_LifetimeFit_ctau)%modulo,1)#pow((1-2*tree.tagOmegaComb),2))
-            if tree.tagDecComb_idx > 0 and tree.lab1_ID_idx < 0 :
-                histonorm["DpKm_fold"].Fill((tree.lab0_LifetimeFit_ctau)%modulo,1)#pow((1-2*tree.tagOmegaComb),2))
-            if tree.tagDecComb_idx < 0 and tree.lab1_ID_idx > 0 : 
-                histo["DmKp_fold"].Fill((tree.lab0_LifetimeFit_ctau)%modulo,1)#pow((1-2*tree.tagOmegaComb),2))
-            if tree.tagDecComb_idx > 0 and tree.lab1_ID_idx > 0 : 
-                histonorm["DmKp_fold"].Fill((tree.lab0_LifetimeFit_ctau)%modulo,1)#pow((1-2*tree.tagOmegaComb),2))
-            if tree.lab1_ID_idx < 0 :
-                histo["DpKm_unfold"].Fill((tree.lab0_LifetimeFit_ctau),1)
+            if tree.tagDecComb_idx < 0 and tree.BacCharge_idx < 0 :
+                histo["DpKm_fold"].Fill((tree.BeautyTime)%modulo,1)#pow((1-2*tree.tagOmegaComb),2))
+            if tree.tagDecComb_idx > 0 and tree.BacCharge_idx < 0 :
+                histonorm["DpKm_fold"].Fill((tree.BeautyTime)%modulo,1)#pow((1-2*tree.tagOmegaComb),2))
+            if tree.tagDecComb_idx < 0 and tree.BacCharge_idx > 0 : 
+                histo["DmKp_fold"].Fill((tree.BeautyTime)%modulo,1)#pow((1-2*tree.tagOmegaComb),2))
+            if tree.tagDecComb_idx > 0 and tree.BacCharge_idx > 0 : 
+                histonorm["DmKp_fold"].Fill((tree.BeautyTime)%modulo,1)#pow((1-2*tree.tagOmegaComb),2))
+            if tree.BacCharge_idx < 0 :
+                histo["DpKm_unfold"].Fill((tree.BeautyTime),1)
             else :
-                histo["DmKp_unfold"].Fill((tree.lab0_LifetimeFit_ctau),1)
+                histo["DmKp_unfold"].Fill((tree.BeautyTime),1)
     else :
-        thiseventweight = tree.nSig_both_pipipi_Evts_sw +\
-                          tree.nSig_both_kpipi_Evts_sw +\
-                          tree.nSig_both_phipi_Evts_sw +\
-                          tree.nSig_both_nonres_Evts_sw +\
-                          tree.nSig_both_kstk_Evts_sw
-        if tree.tagDecComb_idx < 0 and tree.lab1_ID_idx < 0 :
-            histo["DpKm_fold"].Fill((tree.lab0_LifetimeFit_ctau)%modulo,thiseventweight)
-        if tree.tagDecComb_idx > 0 and tree.lab1_ID_idx < 0 :
-            histonorm["DpKm_fold"].Fill((tree.lab0_LifetimeFit_ctau)%modulo,thiseventweight)
-        if tree.tagDecComb_idx < 0 and tree.lab1_ID_idx > 0 :
-            histo["DmKp_fold"].Fill((tree.lab0_LifetimeFit_ctau)%modulo,thiseventweight)
-        if tree.tagDecComb_idx > 0 and tree.lab1_ID_idx > 0 :
-            histonorm["DmKp_fold"].Fill((tree.lab0_LifetimeFit_ctau)%modulo,thiseventweight)
-        if tree.lab1_ID_idx < 0 :
-            histo["DpKm_unfold"].Fill((tree.lab0_LifetimeFit_ctau),thiseventweight)
+        thistagdec = 0
+        if (tree.TagDecSS_idx == tree.TagDecOS_idx) :
+            thistagdec = tree.TagDecSS_idx
+        elif (tree.TagDecSS_idx == 0) :
+            thistagdec = tree.TagDecOS_idx
+        elif (tree.TagDecOS_idx == 0) :
+            thistagdec = tree.TagDecSS_idx
+        elif (tree.TagDecSS_idx != 0 and tree.TagDecOS_idx != 0 and tree.TagDecSS_idx != tree.TagDecOS_idx) :
+            if (tree.MistagSS < tree.MistagOS) :
+                thistagdec = tree.TagDecSS_idx
+            else :
+                thistagdec = tree.TagDecOS_idx
         else :
-            histo["DmKp_unfold"].Fill((tree.lab0_LifetimeFit_ctau),thiseventweight)
+            thistagdec = 0
+        if thistagdec == 0 : continue
+
+        thiseventweight = tree.nSig_both_pipipi_run1_Evts_sw +\
+                          tree.nSig_both_kpipi_run1_Evts_sw +\
+                          tree.nSig_both_phipi_run1_Evts_sw +\
+                          tree.nSig_both_nonres_run1_Evts_sw +\
+                          tree.nSig_both_kstk_run1_Evts_sw
+        if thistagdec < 0 and tree.BacCharge_idx < 0 :
+            histo["DpKm_fold"].Fill((tree.BeautyTime)%modulo,thiseventweight)
+        if thistagdec > 0 and tree.BacCharge_idx < 0 :
+            histonorm["DpKm_fold"].Fill((tree.BeautyTime)%modulo,thiseventweight)
+        if thistagdec < 0 and tree.BacCharge_idx > 0 :
+            histo["DmKp_fold"].Fill((tree.BeautyTime)%modulo,thiseventweight)
+        if thistagdec > 0 and tree.BacCharge_idx > 0 :
+            histonorm["DmKp_fold"].Fill((tree.BeautyTime)%modulo,thiseventweight)
+        if tree.BacCharge_idx < 0 :
+            histo["DpKm_unfold"].Fill((tree.BeautyTime),thiseventweight)
+        else :
+            histo["DmKp_unfold"].Fill((tree.BeautyTime),thiseventweight)
 
 for histotype in ["DpKm_fold","DmKp_fold"] :
     histo[histotype].Sumw2()
@@ -123,8 +139,8 @@ foldedcanvas.Divide(2)
 foldedcanvas.cd(1)
 histodiff["DpKm_fold"].Draw("EP")
 histodiff["DpKm_fold"].GetYaxis().SetRangeUser(-0.5,0.5)
-function1 = TF1("function","[0]*(0.52257*cos("+str(dms)+"*x) - 0.89737*sin("+str(dms)+"*x))",0.,modulo)
-function2 = TF1("function","[0]*(0.52257*cos("+str(dms)+"*x) + 0.36351*sin("+str(dms)+"*x))",0.,modulo)
+function1 = TF1("function","[0]*(0.735*cos("+str(dms)+"*x) + 0.518*sin("+str(dms)+"*x))",0.,modulo)
+function2 = TF1("function","[0]*(0.735*cos("+str(dms)+"*x) - 0.496*sin("+str(dms)+"*x))",0.,modulo)
 function1.SetLineWidth(2)
 function2.SetLineWidth(2)
 function1.SetLineColor(2)
@@ -145,7 +161,7 @@ foldedcanvas.GetPad(2).Update()
 #histodiff["DpKm_fold"].DrawCopy("EP")
 #myLatex.DrawLatex(latex_xpos,latex_ypos,latex_string)
 
-foldedcanvas.SaveAs("/afs/cern.ch/work/g/gligorov//public/Bs2DsKPlotsForPaper/FoldedAsyDsK_"+plotsuffix+".pdf")
+foldedcanvas.SaveAs("/home/eitsch/cmtuser/Urania_v3r0/PhysFit/B2DXFitters/scripts/Asymmetry/foldedasyunblind.pdf")
 '''
 unfoldedcanvas = TCanvas("unfoldedcanvas","unfoldedcanvas",1600,600)
 unfoldedcanvas.Divide(2)

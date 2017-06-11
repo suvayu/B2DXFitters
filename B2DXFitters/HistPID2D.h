@@ -15,6 +15,7 @@
 #include "TH2F.h"
  
 #include <vector>
+using namespace std; 
 
 class HistPID2D : public TNamed{
 
@@ -47,6 +48,10 @@ public:
   std::vector <TH2F*> GetHist() { return _hist; }
   std::vector <TString> GetFileName() { return _fileName; }
   std::vector <TString> GetPolarity() { return _polarity; }
+
+  std::pair <Double_t,Double_t> GetValues(TString key1, TString key2, 
+					  std::vector <TString> &basicName, std::vector <Double_t> &basicVal,
+					  std::vector <TString> &tNW, std::vector <Double_t> &pRV);
   
   Double_t GetWeight(Double_t val1, Double_t val2, TString pol){
     Double_t _val = 0;
@@ -55,6 +60,12 @@ public:
     _val = hist->GetBinContent(bin);
     return _val;
   }
+
+  Double_t  GetValues(TString key1, TString key2,
+                      std::vector <TString> &basicName, std::vector <Double_t> &basicVal,
+                      std::vector <TString> &tNW, std::vector <Double_t> &pRV, TString pol);
+
+
   
   void SetHist( std::vector <TH2F*> hist ) { _hist = hist; }
   void SetHist( int i, TH2F* hist, TString pol, TString fileName ) { _hist[i] = hist; _polarity[i] = pol; _fileName[i] = fileName;  }

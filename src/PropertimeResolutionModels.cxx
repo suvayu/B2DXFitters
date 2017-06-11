@@ -176,14 +176,14 @@ namespace PTResModels {
   {
     if ( debug == true )
       {
-	printf( "==> PTResModels::tripleGausResolutionModel( .)\n" );
-	std::cout<<"[INFO] Scaling factor: "<<scalingfactor<<std::endl;
-	std::cout<<"[INFO] Bias on mean: "<<biasonmean<<std::endl;
-	std::cout<<"[INFO] Sigma1: "<<sigma1<<std::endl;
-	std::cout<<"[INFO] Sigma2: "<<sigma2<<std::endl;
-	std::cout<<"[INFO] Sigma3: "<<sigma3<<std::endl;
-	std::cout<<"[INFO] Frac1: "<<frac1<<std::endl;
-	std::cout<<"[INFO] Frac2: "<<frac2<<std::endl;
+	printf( "[INFO]  ==> PTResModels::tripleGausResolutionModel( .)\n" );
+	std::cout<<"[INFO]   Scaling factor: "<<scalingfactor<<std::endl;
+	std::cout<<"[INFO]   Bias on mean: "<<biasonmean<<std::endl;
+	std::cout<<"[INFO]   Sigma1: "<<sigma1<<std::endl;
+	std::cout<<"[INFO]   Sigma2: "<<sigma2<<std::endl;
+	std::cout<<"[INFO]   Sigma3: "<<sigma3<<std::endl;
+	std::cout<<"[INFO]   Frac1: "<<frac1<<std::endl;
+	std::cout<<"[INFO]   Frac2: "<<frac2<<std::endl;
       }
   
     RooRealVar  *bias;
@@ -230,15 +230,15 @@ namespace PTResModels {
   {
     if ( debug == true )
       {
-        printf( "==> PTResModels::tripleGausResolutionModel( .)\n" );
-	std::cout<<"[INFO] Scaling factor: "<<scalingfactor<<std::endl;
-	std::cout<<"[INFO] Bias on mean: "<<biasonmean<<std::endl;
-	std::cout<<"[INFO] Sigma1: "<<sigma1<<std::endl;
-	std::cout<<"[INFO] Sigma2: "<<sigma2<<std::endl;
-	std::cout<<"[INFO] Sigma3: "<<sigma3<<std::endl;
-	std::cout<<"[INFO] Frac1: "<<frac1<<std::endl;
-	std::cout<<"[INFO] Frac2: "<<frac2<<std::endl;
-	std::cout<<"[INFO] Frac3: "<<frac3<<std::endl;
+        printf( "[INFO]  ==> PTResModels::tripleGausResolutionModel( .)\n" );
+	std::cout<<"[INFO]   Scaling factor: "<<scalingfactor<<std::endl;
+	std::cout<<"[INFO]   Bias on mean: "<<biasonmean<<std::endl;
+	std::cout<<"[INFO]   Sigma1: "<<sigma1<<std::endl;
+	std::cout<<"[INFO]   Sigma2: "<<sigma2<<std::endl;
+	std::cout<<"[INFO]   Sigma3: "<<sigma3<<std::endl;
+	std::cout<<"[INFO]   Frac1: "<<frac1<<std::endl;
+	std::cout<<"[INFO]   Frac2: "<<frac2<<std::endl;
+	std::cout<<"[INFO]   Frac3: "<<frac3<<std::endl;
       }
 
     RooRealVar  *bias;
@@ -288,14 +288,14 @@ namespace PTResModels {
   {
     if ( debug == true )
       {
-        printf( "==> PTResModels::tripleGausEffModel( .)\n" );
-	std::cout<<"[INFO] Scaling factor: "<<scalingfactor<<std::endl;
-	std::cout<<"[INFO] Bias on mean: "<<biasonmean<<std::endl;
-	std::cout<<"[INFO] Sigma1: "<<sigma1<<std::endl;
-	std::cout<<"[INFO] Sigma2: "<<sigma2<<std::endl;
-	std::cout<<"[INFO] Sigma3: "<<sigma3<<std::endl;
-	std::cout<<"[INFO] Frac1: "<<frac1<<std::endl;
-	std::cout<<"[INFO] Frac2: "<<frac2<<std::endl;
+        printf( "[INFO]  ==> PTResModels::tripleGausEffModel( .)\n" );
+	std::cout<<"[INFO]   Scaling factor: "<<scalingfactor<<std::endl;
+	std::cout<<"[INFO]   Bias on mean: "<<biasonmean<<std::endl;
+	std::cout<<"[INFO]   Sigma1: "<<sigma1<<std::endl;
+	std::cout<<"[INFO]   Sigma2: "<<sigma2<<std::endl;
+	std::cout<<"[INFO]   Sigma3: "<<sigma3<<std::endl;
+	std::cout<<"[INFO]   Frac1: "<<frac1<<std::endl;
+	std::cout<<"[INFO]   Frac2: "<<frac2<<std::endl;
       }
     
     RooRealVar *bias;

@@ -32,8 +32,12 @@
 #include "B2DXFitters/Bs2Dsh2011TDAnaModels.h"
 #include "B2DXFitters/Bs2DshDsHHHPi0Models.h"
 #include "B2DXFitters/Bs2DssthModels.h"
+#include "B2DXFitters/RooApollonios.h"
+#include "B2DXFitters/RooIpatia2.h"
+#include "B2DXFitters/RooJohnsonSU.h"
 
 #include "B2DXFitters/RooBinnedPdf.h"
+#include "B2DXFitters/RooSwimmingAcceptance.h"
 #include "B2DXFitters/RooAbsEffResModel.h"
 #include "B2DXFitters/RooEffConvGenContext.h"
 #include "B2DXFitters/RooEffResModel.h"
@@ -45,6 +49,7 @@
 #include "B2DXFitters/WeightingUtils.h"
 #include "B2DXFitters/PlotSettings.h"
 #include "B2DXFitters/MDFitterSettings.h"
+#include "B2DXFitters/PIDCalibrationSample.h"
 #include "B2DXFitters/MCBackground.h"
 #include "B2DXFitters/HistPID1D.h"
 #include "B2DXFitters/HistPID2D.h"
@@ -61,6 +66,7 @@ template class std::pair<std::string,RooAbsData*>;
 #include "B2DXFitters/RooBinned1DQuinticBase.h"
 
 #include "B2DXFitters/DecRateCoeff.h"
+#include "B2DXFitters/DecRateCoeff_Bd.h"
 
 #include "B2DXFitters/RooAbsGaussModelEfficiency.h"
 #include "B2DXFitters/RooCubicSplineKnot.h"

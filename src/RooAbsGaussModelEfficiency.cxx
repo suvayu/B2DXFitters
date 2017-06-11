@@ -1,3 +1,5 @@
+#include <cmath>
+
 #include "B2DXFitters/RooAbsGaussModelEfficiency.h"
 #include "RVersion.h"
 #include "RooMath.h"
@@ -7,6 +9,10 @@
 RooAbsGaussModelEfficiency::~RooAbsGaussModelEfficiency()  {};
 
 namespace {
+    using std::exp;
+    using std::sqrt;
+    using std::erf;
+
     static const Double_t rootpi(sqrt(TMath::Pi())) ;
     std::complex<double> evalApprox(Double_t x, const std::complex<double>& z) {
       // compute exp(-x^2)cwerf(-i(z-x)), cwerf(z) = exp(-z^2)erfc(-iz)
@@ -56,7 +62,7 @@ namespace {
 
 N::N(double x, const std::complex<double>& z)
 {
-          _N[0] =  RooMath::erf(x);
+          _N[0] =  erf(x);
           _N[1] =  exp(-x*x);
           _N[2] =  eval(x,z);
 }

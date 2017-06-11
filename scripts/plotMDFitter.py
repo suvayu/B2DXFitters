@@ -140,23 +140,24 @@ parser.add_option( '-w', '--workspace',
                    help = 'RooWorkspace name as stored in ROOT file'
                    )
 
-parser.add_option( '-m', '--sample',
-                   dest = 'sample',
-                   metavar = 'SAMPLE',
-                   default = 'both',
-                   help = 'Sample: choose up or down '
+parser.add_option( '-p', '--pol','--polarity',
+                   dest = 'pol',
+                   metavar = 'POL',
+                   default = 'down',
+                   help = 'Sample: choose up, down or both'
                    )
-parser.add_option( '-o', '--mode',
+
+parser.add_option( '-m', '--mode',
                    dest = 'modeDs',
                    metavar = 'MODE',
                    default = 'kkpi',
                    help = 'Mode: choose all, kkpi, kpipi or pipipi'
                    )
 
-parser.add_option( '-y', '--year',
+parser.add_option( '--year',
                    dest = 'year',
-                   default = '',
-                   help = 'Mode: choose all, kkpi, kpipi or pipipi'
+                   default = "",
+                   help = 'year of data taking can be: 2011, 2012, run1'
                    )
 
 parser.add_option( '-t', '--toy',
@@ -181,9 +182,8 @@ parser.add_option( '-s', '--suffix',
                    )
 parser.add_option( '--merge',
                    dest = 'merge',
-                   action = 'store_true',
-                   default = False,
-                   help = 'merge magnet polarity'
+                   default = "",
+                   help = 'for merging magnet polarities use: --merge pol, for merging years of data taking use: --merge year, for merging both use: --merge both'
                    )
 parser.add_option( '--logscale', '--log',
                    dest = 'log',
@@ -193,7 +193,6 @@ parser.add_option( '--logscale', '--log',
                    )
 parser.add_option( '--bin',
                    dest = 'bin',
-                   action = 'store_true',
                    default = 100,
                    help = 'set number of bins'
                    )
@@ -226,12 +225,13 @@ def getTotPDF(w, sam, mod, year, merge, comp, debug):
     c = []
     n = []
 
-    smy = sm = GeneralUtils.GetSampleModeYear(TString(sam), TString(mod), TString(year), merge, debug )
+    hypo = TString("") 
+    smy = sm = GeneralUtils.GetSampleModeYearHypo(TString(sam), TString(mod), TString(year), hypo, merge, debug )
     for p in comp:
         for s in smy:
             var = w.var("n%s_%s_Evts"%(p,s))
             if var:
-                if p == "Sig":
+                if p == "Sig" or p == "CombBkg":
                     c.append("n%s_%s_Evts*%sEPDF_%s"%(p,s,p,s))
                 else:
                     c.append("n%s_%s_Evts*%sEPDF_m_%s"%(p,s,p,s))
@@ -292,9 +292,9 @@ def getTotPDF(w, sam, mod, year, merge, comp, debug):
     return modelPDF
 
 #------------------------------------------------------------------------------ 
-def getDataCut(sam, mod, year, debug):
+def getDataCut(sam, mod, year, merge, debug):
     
-    smy = sm = GeneralUtils.GetSampleModeYear(TString(sam), TString(mod), TString(year), merge, debug )
+    smy = sm = GeneralUtils.GetSampleModeYearHypo(TString(sam), TString(mod), TString(year), TString(""), merge, debug )
 
     c = [ ]
     for s in smy:
@@ -321,15 +321,16 @@ def plotDataSet( dataset, frame, Bin ) :
 #                    RooFit.What('N') )
 
 #------------------------------------------------------------------------------
-def plotFitModel( model, frame, var, sam, mode, year, decay, comp, color) :
+def plotFitModel( model, frame, var, sam, mode, year, merge, decay, comp, color) :
     #if debug :
-    
-    smy = sm = GeneralUtils.GetSampleModeYear(TString(sam), TString(mod), TString(year), merge, debug )
+
+    hypo = TString("")
+    smy = sm = GeneralUtils.GetSampleModeYearHypo(TString(sam), TString(mod), TString(year), TString(hypo), merge, debug )
     
     c = []
     for p in comp:
         for s in smy:
-            if p == "Sig":
+            if p == "Sig" or p == "CombBkg":
                 c.append("%sEPDF_%s"%(p,s))
             elif ((p == "Lb2DsDsstP" or p == "Bs2DsDsstPiRho") and decay == "Bs2DsK"):
                 c.append("PhysBkg%sPdf_m_%s_Tot"%(p,s))
@@ -453,19 +454,26 @@ if __name__ == '__main__' :
 
     f.Close()
     dim = int(options.dim)
-    bin = options.bin
+    bin = int(options.bin)
     mVarTS = TString(options.var)    
     mass = w.var(mVarTS.Data())
-    sam = TString(options.sample)
+    sam = TString(options.pol)
     mod = TString(options.modeDs)
     log = options.log 
     leg = options.legend
     yr = TString(options.year) 
     debug = options.debug 
-    configName = options.configName
+    
+    config = options.configName
+    last = config.rfind("/")
+    directory = config[:last+1]
+    configName = config[last+1:]
+    p = configName.rfind(".")
+    configName = configName[:p]
 
     import sys
-    sys.path.append("../data/")
+    sys.path.append(directory)
+    
     myconfigfilegrabber = __import__(configName,fromlist=['getconfig']).getconfig
     myconfigfile = myconfigfilegrabber()
 
@@ -492,10 +500,7 @@ if __name__ == '__main__' :
     Bin = RooBinning(range_dw,range_up,'P')
     Bin.addUniform(bin, range_dw, range_up)
           
-    merge = options.merge
-    if merge:
-        sam = "both" 
-        print "[WARNING] Option --merge used, sample changed to be 'both'." 
+    merge = TString(options.merge)
                 
     ty = TString("ToyNo")
     if options.toy : ty = TString("ToyYes")  
@@ -522,7 +527,7 @@ if __name__ == '__main__' :
 
     desc = getDescription(compLEG,ch) 
 
-    datacut = getDataCut(sam,mod,yr,debug)    
+    datacut = getDataCut(sam,mod,yr,merge,debug)    
 
     dataName = TString("combData")
     totName = TString("FullPdf")
@@ -564,7 +569,7 @@ if __name__ == '__main__' :
 
         
     if plotData : plotDataSet( dataset, frame_m,  Bin )
-    if plotModel : plotFitModel( modelPDF, frame_m, mVarTS, sam, mod, yr, ch, compPDF, colorPDF )
+    if plotModel : plotFitModel( modelPDF, frame_m, mVarTS, sam, mod, yr, merge, ch, compPDF, colorPDF )
     if plotData : plotDataSet( dataset, frame_m,  Bin )
 
     
@@ -607,12 +612,12 @@ if __name__ == '__main__' :
             if log:
                 frame_m.GetYaxis().SetRangeUser(1.5,frame_m.GetMaximum()*scale)
             else:
-                frame_m.GetYaxis().SetRangeUser(1,frame_m.GetMaximum()*scale)
+                frame_m.GetYaxis().SetRangeUser(1.0,frame_m.GetMaximum()*scale)
         else:
             print "[ERROR] You need to specify position of legend in configfile using 'LegendSettings'"
             exit(0) 
     else:
-        frame_m.GetYaxis().SetRangeUser(1.5,frame_m.GetMaximum()*1.1)
+        frame_m.GetYaxis().SetRangeUser(5.0,frame_m.GetMaximum()*1.1)
         legend = TLegend( 0.05, 0.05, 0.95, 0.95 )
         legend.SetTextSize(0.09)
 
@@ -675,8 +680,10 @@ if __name__ == '__main__' :
             yl = myconfigfile["LegendSettings"][mVarTS.Data()]["LHCbText"][1]
             lhcbtext.DrawTextNDC(xl,yl,"LHCb")
     else:
-        if mVarTS == "lab0_MassFitConsD_M" or mVarTS == "BeautyMass":
-            lhcbtext.DrawTextNDC(0.7,0.87,"LHCb")
+        if myconfigfile.has_key("LegendSettings"):
+            xl = myconfigfile["LegendSettings"][mVarTS.Data()]["LHCbText"][0]
+            yl = myconfigfile["LegendSettings"][mVarTS.Data()]["LHCbText"][1]
+            lhcbtext.DrawTextNDC(xl,yl,"LHCb")
         else:
             lhcbtext.DrawTextNDC(0.75,0.87,"LHCb")
 
@@ -756,15 +763,15 @@ if __name__ == '__main__' :
     graph2 = TGraph(2)
     graph2.SetMaximum(max)
     graph2.SetMinimum(min)
-    graph2.SetPoint(1,range_dw,-3)
-    graph2.SetPoint(2,range_up,-3)
+    graph2.SetPoint(0,range_dw,-3)
+    graph2.SetPoint(1,range_up,-3)
     graph2.SetLineColor(kRed)
 
     graph3 = TGraph(2)
     graph3.SetMaximum(max)
     graph3.SetMinimum(min)
-    graph3.SetPoint(1,range_dw,3)
-    graph3.SetPoint(2,range_up,3)
+    graph3.SetPoint(0,range_dw,3)
+    graph3.SetPoint(1,range_up,3)
     graph3.SetLineColor(kRed)
 
     pullHist.GetXaxis().SetLabelFont( 132 )

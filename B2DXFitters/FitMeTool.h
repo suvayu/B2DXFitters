@@ -67,7 +67,7 @@ public :
   
 public:
   // Fit and optionally save the result to a file
-  void fit( bool save2file = true,
+  void fit( bool save2file = false,
             const RooCmdArg& arg1 = RooCmdArg::none(),
             const RooCmdArg& arg2 = RooCmdArg::none(),
             const RooCmdArg& arg3 = RooCmdArg::none(),
@@ -151,7 +151,8 @@ public:
   
   // Produce a graphical representation of the model PDF with the dot tool
   void produceGraphicalModelStructure( const char* fileName = "model.gif" );
-  
+
+  void printTotalYields(const char* wildcard);
   // Calculate yields in a defined observable range given an input wildcard
   // for matching "yield variables"
   void printYieldsInRange( const char* wildcard,
@@ -177,7 +178,17 @@ public:
                                 );
  
   //Set sWeights
-  void savesWeights(const char* observableName, RooDataSet* data, TString &mode);
+  void savesWeights(const char* observableName, 
+                    RooDataSet* data, 
+                    TString &mode,
+                    bool save2file = false,
+                    const RooCmdArg& arg1 = RooCmdArg::none(),
+                    const RooCmdArg& arg2 = RooCmdArg::none(),
+                    const RooCmdArg& arg3 = RooCmdArg::none(),
+                    const RooCmdArg& arg4 = RooCmdArg::none(),
+                    const RooCmdArg& arg5 = RooCmdArg::none(),
+                    const RooCmdArg& arg6 = RooCmdArg::none(),
+                    const RooCmdArg& arg7 = RooCmdArg::none());
  
   
 protected:
@@ -200,7 +211,7 @@ protected:
                                        RooArgSet* epdfs = NULL );
   
   // Get all model PDF variables matching a wildcard
-  RooArgSet* getMatchingVariableNames( const char* wildcard = "*Evts" );  
+  RooArgSet* getMatchingVariableNames( const char* wildcard = "*Evts" , bool debug = false);  
   
  
 

@@ -1,0 +1,137 @@
+#Bd2DPi KPiPi 2011
+root://eoslhcb.cern.ch//eos/lhcb/user/l/lbel/TD_DsK3fb/MERGED/
+Bd_Dpi_2011_Dw.root
+Bd_Dpi_2011_Up.root
+DecayTree
+DecayTree
+###
+
+#Bd2DPi KPiPi 2012
+root://eoslhcb.cern.ch//eos/lhcb/user/l/lbel/TD_DsK3fb/MERGED/
+Bd_Dpi_2012_Dw.root
+Bd_Dpi_2012_Up.root
+DecayTree
+DecayTree
+###
+
+#MC FileName KPiPi MD 2011
+{"Mode":"Bd2DK",
+ "FileName":"root://eoslhcb.cern.ch//eos/lhcb/user/l/lbel/TD_DsK3fb_MC/Bd_D-K+_Dn/BDTG/B2DX_MC_11264011_Dn_BDTG_Bd.root",
+ "TreeName":"DecayTree"}
+{"Mode":"Bs2DsPi",
+ "FileName":"root://eoslhcb.cern.ch//eos/lhcb/user/l/lbel/TD_DsK3fb_MC/Bs_Dspi_KKpi_Dn/BDTG/B2DX_MC_13264021_Dn_BDTG_Bd.root",
+ "TreeName":"DecayTree"}
+{"Mode":"Lb2LcPi",
+ "FileName":"root://eoslhcb.cern.ch//eos/lhcb/user/l/lbel/TD_DsK3fb_MC/Lb_Lambdacpi_Dn/BDTG/B2DX_MC_15164001_Dn_BDTG_Bd.root",
+ "TreeName":"DecayTree"}
+{"Mode":"Bd2DRho",
+ "FileName":"root://eoslhcb.cern.ch//eos/lhcb/user/l/lbel/TD_DsK3fb_MC/Bd_D-rho+_Dn/BDTG/B2DX_MC_11164401_Dn_BDTG_Bd.root",
+ "TreeName":"DecayTree"}
+{"Mode":"Bd2DstPi",
+ "FileName":"root://eoslhcb.cern.ch//eos/lhcb/user/l/lbel/TD_DsK3fb_MC/Bd_Dst-pi+_D-pi0_Dn/BDTG/B2DX_MC_11164404_Dn_BDTG_Bd.root",
+ "TreeName":"DecayTree"}
+###
+
+#MC FileName KPiPi MU 2011
+{"Mode":"Bd2DK",
+ "FileName":"root://eoslhcb.cern.ch//eos/lhcb/user/l/lbel/TD_DsK3fb_MC/Bd_D-K+_Up/BDTG/B2DX_MC_11264011_Up_BDTG_Bd.root",
+ "TreeName":"DecayTree"}
+{"Mode":"Bs2DsPi",
+ "FileName":"root://eoslhcb.cern.ch//eos/lhcb/user/l/lbel/TD_DsK3fb_MC/Bs_Dspi_KKpi_Up/BDTG/B2DX_MC_13264021_Up_BDTG_Bd.root",
+ "TreeName":"DecayTree"}
+{"Mode":"Lb2LcPi",
+ "FileName":"root://eoslhcb.cern.ch//eos/lhcb/user/l/lbel/TD_DsK3fb_MC/Lb_Lambdacpi_Up/BDTG/B2DX_MC_15164001_Up_BDTG_Bd.root",
+ "TreeName":"DecayTree"}
+{"Mode":"Bd2DRho",
+ "FileName":"root://eoslhcb.cern.ch//eos/lhcb/user/l/lbel/TD_DsK3fb_MC/Bd_D-rho+_Up/BDTG/B2DX_MC_11164401_Up_BDTG_Bd.root",
+ "TreeName":"DecayTree"}
+{"Mode":"Bd2DstPi",
+ "FileName":"root://eoslhcb.cern.ch//eos/lhcb/user/l/lbel/TD_DsK3fb_MC/Bd_Dst-pi+_D-pi0_Up/BDTG/B2DX_MC_11164404_Up_BDTG_Bd.root",
+ "TreeName":"DecayTree"}
+###
+
+#MC FileName KPiPi MD 2012
+{"Mode":"Bd2DK",
+ "FileName":"root://eoslhcb.cern.ch//eos/lhcb/user/l/lbel/TD_DsK3fb_MC/Bd_D-K+_Dn/BDTG/B2DX_MC_11264011_Dn_BDTG_Bd.root",
+ "TreeName":"DecayTree"}
+{"Mode":"Bs2DsPi",
+ "FileName":"root://eoslhcb.cern.ch//eos/lhcb/user/l/lbel/TD_DsK3fb_MC/Bs_Dspi_KKpi_Dn/BDTG/B2DX_MC_13264021_Dn_BDTG_Bd.root",
+ "TreeName":"DecayTree"}
+{"Mode":"Lb2LcPi",
+ "FileName":"root://eoslhcb.cern.ch//eos/lhcb/user/l/lbel/TD_DsK3fb_MC/Lb_Lambdacpi_Dn/BDTG/B2DX_MC_15164001_Dn_BDTG_Bd.root",
+ "TreeName":"DecayTree"}
+{"Mode":"Bd2DRho",
+ "FileName":"root://eoslhcb.cern.ch//eos/lhcb/user/l/lbel/TD_DsK3fb_MC/Bd_D-rho+_Dn/BDTG/B2DX_MC_11164401_Dn_BDTG_Bd.root",
+ "TreeName":"DecayTree"}
+{"Mode":"Bd2DstPi",
+ "FileName":"root://eoslhcb.cern.ch//eos/lhcb/user/l/lbel/TD_DsK3fb_MC/Bd_Dst-pi+_D-pi0_Dn/BDTG/B2DX_MC_11164404_Dn_BDTG_Bd.root",
+ "TreeName":"DecayTree"}
+###
+
+#MC FileName KPiPi MU 2012
+{"Mode":"Bd2DK",
+ "FileName":"root://eoslhcb.cern.ch//eos/lhcb/user/l/lbel/TD_DsK3fb_MC/Bd_D-K+_Up/BDTG/B2DX_MC_11264011_Up_BDTG_Bd.root",
+ "TreeName":"DecayTree"}
+{"Mode":"Bs2DsPi",
+ "FileName":"root://eoslhcb.cern.ch//eos/lhcb/user/l/lbel/TD_DsK3fb_MC/Bs_Dspi_KKpi_Up/BDTG/B2DX_MC_13264021_Up_BDTG_Bd.root",
+ "TreeName":"DecayTree"}
+{"Mode":"Lb2LcPi",
+ "FileName":"root://eoslhcb.cern.ch//eos/lhcb/user/l/lbel/TD_DsK3fb_MC/Lb_Lambdacpi_Up/BDTG/B2DX_MC_15164001_Up_BDTG_Bd.root",
+ "TreeName":"DecayTree"}
+{"Mode":"Bd2DRho",
+ "FileName":"root://eoslhcb.cern.ch//eos/lhcb/user/l/lbel/TD_DsK3fb_MC/Bd_D-rho+_Up/BDTG/B2DX_MC_11164401_Up_BDTG_Bd.root",
+ "TreeName":"DecayTree"}
+{"Mode":"Bd2DstPi",
+ "FileName":"root://eoslhcb.cern.ch//eos/lhcb/user/l/lbel/TD_DsK3fb_MC/Bd_Dst-pi+_D-pi0_Up/BDTG/B2DX_MC_11164404_Up_BDTG_Bd.root",
+ "TreeName":"DecayTree"}
+###
+
+
+#PIDp
+/afs/cern.ch/user/l/lcarson/public/ForAgnieszka/
+EffHistos_Reco12_39Mom_Proton_MagDown_TightCuts.root
+EffHistos_Reco12_39Mom_Proton_MagUp_TightCuts.root
+###
+
+#PID3
+/afs/cern.ch/user/l/lcarson/public/ForAgnieszka/
+EffHistos_Reco12_39Mom_MagDown_0123.root
+EffHistos_Reco12_39Mom_MagUp_012.root
+###
+
+#PID
+/afs/cern.ch/user/l/lcarson/public/ForAgnieszka/
+EffHistos_Reco12_39Mom_MagDown_0123.root
+EffHistos_Reco12_39Mom_MagUp_012.root
+###
+
+#PID2
+/afs/cern.ch/user/l/lcarson/public/ForAgnieszka/
+EffHistos_Reco12_39Mom_MagDown_45678.root
+EffHistos_Reco12_39Mom_MagUp_3456.root
+###
+
+
+#PID Dsp
+/afs/cern.ch/user/l/lcarson/public/ForAgnieszka/
+EffHistos_Reco12_39Mom_Proton_MagDown_DLLpDLLpK.root
+EffHistos_Reco12_39Mom_Proton_MagDown_DLLpDLLpK.root
+###
+
+#PIDp2
+/afs/cern.ch/user/l/lcarson/public/ForAgnieszka/
+EffHistos_Reco12_36Mom_Proton_MagDown_DLL.root
+EffHistos_Reco12_36Mom_Proton_MagUp_DLL.root
+###
+
+#RatioDataMC2D
+/afs/cern.ch/work/a/adudziak/public/workspace/
+MomVsnTr_Comp_DPi_Down_hist.root
+MomVsnTr_Comp_DPi_Up_hist.root
+###
+
+#RatioDataMC3D
+/afs/cern.ch/work/a/adudziak/public/workspace/
+PtVsnTrVsP_Comp_DPi_Down_hist.root
+PtVsnTrVsP_Comp_DPi_Up_hist.root
+###

@@ -71,6 +71,7 @@ def getResolutionModel(
     if (type(config['DecayTimeResolutionModel']) == list or
             type(config['DecayTimeResolutionModel']) == tuple or
             type(config['DecayTimeResolutionModel']) == dict):
+        print "=>resmodelutils.getResolutionModel(): using list/tuple/dict to build resolution."
         if (type(config['DecayTimeResolutionModel']) == dict):
             sigmas = config['DecayTimeResolutionModel']['sigmas']
             fractions = config['DecayTimeResolutionModel']['fractions']
@@ -108,6 +109,7 @@ def getResolutionModel(
                     time, bias, sigma, sf)))
             else:
                 # spline acceptance
+                print "=>resmodelutils.getResolutionModel(): multiplying resolution by spline acceptance"
                 pdfs.add(WS(ws, RooGaussEfficiencyModel(
                     '%s_resmodel%02d' % (tacc_name, i),
                     '%s_resmodel%02d' % (tacc_name, i),
@@ -130,8 +132,10 @@ def getResolutionModel(
         if ('Spline' == config['AcceptanceFunction'] and
                 not 'GEN' in config['Context']):
             # if we're using a spline acceptance, we're done
+            print "=>resmodelutils.getResolutionModel(): using spline acceptance in fitting stage. Returning null acceptance (already included in resolution.)"
             tacc = None
     elif type(config['DecayTimeResolutionModel']) == str:
+        print "=>resmodelutils.getResolutionModel(): using per-event time resolution."
         if config['DecayTimeResolutionModel'] != 'GaussianWithPEDTE':
             raise TypeError('Unknown type of resolution model: %s' %
                     config['DecayTimeResolutionModel'])
@@ -147,11 +151,13 @@ def getResolutionModel(
             trm = WS(ws, RooGaussModel('GaussianWithPEDTE',
                 'GaussianWithPEDTE', time, bias, timeerr, sf))
         else:
+            print "=>resmodelutils.getResolutionModel(): multiplying resolution by spline acceptance"
             trm = WS(ws, RooGaussEfficiencyModel(
                 '%s_GaussianWithPEDTE' % tacc_name,
                 '%s_GaussianWithPEDTE' % tacc_name,
                 time, tacc, bias, timeerr, sf, sf))
             # if we're using a spline acceptance, we're done
+            print "=>resmodelutils.getResolutionModel(): using spline acceptance in fitting stage. Returning null acceptance (already included in resolution.)"
             tacc = None
         del bias
         del sf

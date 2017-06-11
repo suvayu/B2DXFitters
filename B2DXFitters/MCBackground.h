@@ -49,13 +49,16 @@ public:
   TString GetPolarity() { return _pol; }
   TString GetSampleMode() { TString samplemode = _mode + "_" + _pol; return samplemode; }
   TString GetYear() { return _year; }
-  TString GetSampleModeYear() 
+  TString GetHypo() { return _hypo; }
+  TString GetSampleModeYearHypo() 
   { 
-    TString smy; 
-    if ( _year != "" ) { smy =  _mode + "_" + _pol+ "_" + _year; }
-    else { smy = _mode + "_" + _pol; }
-    return smy; 
-  }
+    TString smyh; 
+    if ( _year != "" ) { smyh =  _mode + "_" + _pol+ "_" + _year; }
+    else { smyh = _mode + "_" + _pol; }
+
+    if( _hypo != "" ) { smyh.Append("_"+_hypo); }
+    return smyh; 
+  } 
 
   void SetMode(TString mode ) { _mode = mode; }
   void SetFileName(TString fileName ) { _fileName = fileName; }
@@ -66,6 +69,7 @@ public:
   void SetMirror(TString mirror ) { _opt = mirror; }
   void SetPolarity(TString pol ) { _pol = pol; }
   void SetYear(TString year) { _year = year; }
+  void SetHypo(TString hypo) { _hypo = hypo; }
 
   void ReloadTree(TString fileName = "", TString treeName = "")
   {
@@ -88,6 +92,7 @@ protected:
   TString _opt; 
   TString _pol;
   TString _year; 
+  TString _hypo;
 
 private:
   ClassDef(MCBackground, 1);

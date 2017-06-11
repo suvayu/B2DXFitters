@@ -382,7 +382,7 @@ class FitResult:
 
         # covariance matrix
         isSameDataSet = 'SameDataSet' in retVal._options
-	isSystematic = 'Systematic' in retVal._options
+        isSystematic = 'Systematic' in retVal._options
         for i in xrange(0, len(retVal._index2Name)):
             n = retVal._index2Name[i]
             sidx = self._name2Index[n]
@@ -460,10 +460,10 @@ class FitResult:
             if sidx not in self._finalparam: continue
 	    # also skip parameters which have ridiculously tiny errors in
 	    # one of the fit results
-	    if min(self._cov[sidx][sidx], other._cov[oidx][oidx]) < 1e-10:
+            if min(self._cov[sidx][sidx], other._cov[oidx][oidx]) < 1e-10:
                 print ('WARNING: Parameter %s has tiny error in one FitResult, '
                         'skipping to avoid spoiling the average' % n)
-		continue
+                continue
             retVal._name2Index[n] = idx
             retVal._index2Name[idx] = n
             retVal._initialparam[idx] = 0.
@@ -488,18 +488,18 @@ class FitResult:
                     other._finalparamlimhi[oidx])
 	# get inverse covariance matrices of two input fits
         from ROOT import TVectorD, TMatrixDSym, TDecompChol
-	c = []
-	for m in (self, other):
-	    nn = len(m._cov)
-	    c.append(TMatrixDSym(nn))
-	    for i in xrange(0, nn):
-		for j in xrange(0, nn):
-		    c[len(c) - 1][i][j] = m._cov[i][j]
-	    d = TDecompChol(c[len(c) - 1])
-	    if not d.Decompose():
+        c = []
+        for m in (self, other):
+            nn = len(m._cov)
+            c.append(TMatrixDSym(nn))
+            for i in xrange(0, nn):
+                for j in xrange(0, nn):
+                    c[len(c) - 1][i][j] = m._cov[i][j]
+            d = TDecompChol(c[len(c) - 1])
+            if not d.Decompose():
                raise ValueError('Cannot invert covariance matrices')
             d.Invert(c[len(c) - 1])
-	# ok, now select submatrix we need
+        # ok, now select submatrix we need
         for i in xrange(0, len(retVal._index2Name)):
             n = retVal._index2Name[i]
             sidx = self._name2Index[n]
@@ -512,7 +512,7 @@ class FitResult:
                 val = [ c[0][sidx][sidy], c[1][oidx][oidy] ]
                 retVal._cov[i][j] = val
                 if (i != j): retVal._cov[j][i] = val
-	del c
+        del c
         # loop over constant parameters
         for n in self._name2Index:
             idx = len(retVal._name2Index)
@@ -534,18 +534,27 @@ class FitResult:
         # mu = (C1^-1 + C2^-1)^-1 * (C1^-1 * mu1 + C2^-1 * mu2)
         # C =  (C1^-1 + C2^-1)^-1
         n = len(retVal._finalparam)
-        v1, v2 = TVectorD(n), TVectorD(n)
+        v1, v2, vtmp = TVectorD(n), TVectorD(n), TVectorD(n)
         c1, c2 = TMatrixDSym(n), TMatrixDSym(n)
         for i in xrange(0, n):
             v1[i], v2[i] = retVal._finalparam[i][0], retVal._finalparam[i][1]
             for j in xrange(0, n):
                 c1[i][j], c2[i][j] = retVal._cov[i][j][0], retVal._cov[i][j][1]
         c = TMatrixDSym(n)
-        c = c1 + c2
+        for i in xrange(0, n):
+            for j in xrange(0, n):
+                c[i][j] = c1[i][j] + c2[i][j]
         d = TDecompChol(c)
         if not d.Decompose():
             raise ValueError('Cannot invert covariance matrix')
-        v1 = c1 * v1 + c2 * v2
+        for i in xrange(0, n):
+            tmp = 0.
+            for j in xrange(0, n):
+                tmp += c1[i][j] * v1[j] + c2[i][j] * v2[j]
+            vtmp[i] = tmp
+        del tmp
+        for i in xrange(0, n):
+            v1[i] = vtmp[i]
         d.Solve(v1)
         d.Invert(c)
         # write back results (and reapply blinding)
@@ -634,9 +643,9 @@ def getDsHBlindFitResult(isData, isBlind, fitResult):
     """
     doBlind = isData and isBlind
     # common setup: rename list, blinding specification
-    renames = { 'C': 'Bs2DsK_C', 'D': 'Bs2DsK_D',
-            'Dbar': 'Bs2DsK_Dbar', 'S': 'Bs2DsK_S',
-            'Sbar': 'Bs2DsK_Sbar', 'DeltaMs': 'deltaMs',
+    renames = { 'C_Bs2DsK': 'Bs2DsK_C', 'D_Bs2DsK': 'Bs2DsK_D',
+            'Dbar_Bs2DsK': 'Bs2DsK_Dbar', 'S_Bs2DsK': 'Bs2DsK_S',
+            'Sbar_Bs2DsK': 'Bs2DsK_Sbar', 'DeltaMs_Bs2DsPi': 'deltaMs',
             'p0_0': 'Bs2DsK_Mistag0CalibB_p0',
             'p0_1': 'Bs2DsK_Mistag1CalibB_p0',
             'p0_2': 'Bs2DsK_Mistag2CalibB_p0',
@@ -646,14 +655,14 @@ def getDsHBlindFitResult(isData, isBlind, fitResult):
             }
     blinds = {
             # CP parameters blinded with random offset from 13 ... 17
+            '^deltaMs': [10.0, 20.0], 
             '^Bs2DsK_(C|D|Dbar|S|Sbar)$': [ 13.0, 17.0 ],
-	    # blind direct fits to gamma, strong and weak phase with offset 23 ... 27
-	    '^Bs2DsK_(lambda|delta|phi_w)$': [ 23., 27. ],
+        # blind direct fits to gamma, strong and weak phase with offset 23 ... 27
+        '^Bs2DsK_(lambda|delta|phi_w)$': [ 23., 27. ],
             # everything else connected with DsK is blinded with random offset
             # from +3 ... +7 (efficiencies, calibrations, ...)
             '^Bs2DsK': [ 3.0, 7.0 ],
             }
-    
     return FitResult(fitResult, renames, blinds if doBlind else { })
 
 # vim: ft=python:sw=4:tw=76

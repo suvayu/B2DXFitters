@@ -2,8 +2,10 @@ from B2DXFitters import *
 from ROOT import *
 
 class Translator:
-    def __init__( self, myconfigfile, name ) :
+    def __init__( self, myconfigfile, name , full) :
         md = MDFitterSettings(name,name)
+        if myconfigfile.has_key("dataName"):
+            md.SetConfigFile(myconfigfile["dataName"])
 
         if myconfigfile.has_key("BasicVariables"):
             names = myconfigfile["BasicVariables"]
@@ -38,10 +40,10 @@ class Translator:
                 elif name == "BDTG":
                     md.SetBDTG(myconfigfile["BasicVariables"][name]["InputName"], name,
                                myconfigfile["BasicVariables"][name]["Range"][0], myconfigfile["BasicVariables"][name]["Range"][1])
-                elif ( name == "TagDecOS" or name == "TagDecSS"):
+                elif "TagDec" in name :
                     md.AddTagVar(myconfigfile["BasicVariables"][name]["InputName"], name,
                                  myconfigfile["BasicVariables"][name]["Range"][0], myconfigfile["BasicVariables"][name]["Range"][1])
-                elif ( name  == "MistagOS" or name == "MistagSS"):
+                elif "Mistag" in name :
                     md.AddTagOmegaVar(myconfigfile["BasicVariables"][name]["InputName"], name,
                                       myconfigfile["BasicVariables"][name]["Range"][0], myconfigfile["BasicVariables"][name]["Range"][1])
 
@@ -50,45 +52,79 @@ class Translator:
             exit(0) 
 
         if myconfigfile.has_key('TaggingCalibration'):
-            tags = ["OS","SS"]
+            tags = ["OS", "SS"]
             for tag in tags:
                 if myconfigfile["TaggingCalibration"].has_key(tag):
-                    md.AddCalibration(myconfigfile["TaggingCalibration"][tag]["p0"],
+                    use = True
+                    if myconfigfile["TaggingCalibration"][tag].has_key("use"):
+                        use = myconfigfile["TaggingCalibration"][tag]["use"] 
+                    md.SetCalibration(tag,
+                                      myconfigfile["TaggingCalibration"][tag]["p0"],
                                       myconfigfile["TaggingCalibration"][tag]["p1"],
-                                      myconfigfile["TaggingCalibration"][tag]["average"])
-
-        if myconfigfile.has_key("ObtainPIDTemplates"):
-            size1 = len(myconfigfile["ObtainPIDTemplates"]["Variables"])
-            size2 = len(myconfigfile["ObtainPIDTemplates"]["Bins"])
-            if size1 != size2:
-                print '[ERROR] Size of variables for PID weighting is not equal to size bins. Please check if you set a number of bins for each variable'
-                exit(0)
-            md.SetWeightingDim(size1)
-            for var in myconfigfile["ObtainPIDTemplates"]["Variables"]:
-                md.AddPIDWeightVar(var)
-            for bin in myconfigfile["ObtainPIDTemplates"]["Bins"]:
-                md.AddPIDWeightBin(bin)
+                                      myconfigfile["TaggingCalibration"][tag]["average"],
+                                      use)
             
-        if myconfigfile.has_key('Calibrations'):
-            if myconfigfile["Calibrations"].has_key("Pion"):
-                md.SetCalibPion(myconfigfile["Calibrations"]["Pion"]["FileNameUp"],
-                                myconfigfile["Calibrations"]["Pion"]["FileNameDown"],
-                                myconfigfile["Calibrations"]["Pion"]["WorkName"])
             
-            if myconfigfile["Calibrations"].has_key("Kaon"):
-                md.SetCalibKaon(myconfigfile["Calibrations"]["Kaon"]["FileNameUp"],
-                                myconfigfile["Calibrations"]["Kaon"]["FileNameDown"],
-                                myconfigfile["Calibrations"]["Kaon"]["WorkName"])
 
-            if myconfigfile["Calibrations"].has_key("Proton"):
-                md.SetCalibProton(myconfigfile["Calibrations"]["Proton"]["FileNameUp"],
-                                  myconfigfile["Calibrations"]["Proton"]["FileNameDown"],
-                                  myconfigfile["Calibrations"]["Proton"]["WorkName"])
-
-            if myconfigfile["Calibrations"].has_key("Combinatorial"):
-                md.SetCalibCombo(myconfigfile["Calibrations"]["Combinatorial"]["FileNameUp"],
-                                 myconfigfile["Calibrations"]["Combinatorial"]["FileNameDown"],
-                                 myconfigfile["Calibrations"]["Combinatorial"]["WorkName"])
+        if full == True:            
+            if myconfigfile.has_key("ObtainPIDTemplates"):
+                size1 = len(myconfigfile["ObtainPIDTemplates"]["Variables"])
+                size2 = len(myconfigfile["ObtainPIDTemplates"]["Bins"])
+                if size1 != size2:
+                    print '[ERROR] Size of variables for PID weighting is not equal to size bins. Please check if you set a number of bins for each variable'
+                    exit(0)
+                md.SetWeightingDim(size1)
+                for var in myconfigfile["ObtainPIDTemplates"]["Variables"]:
+                    md.AddPIDWeightVar(var)
+                for bin in myconfigfile["ObtainPIDTemplates"]["Bins"]:
+                    md.AddPIDWeightBin(bin)
+            
+            if myconfigfile.has_key('Calibrations'):
+                year = myconfigfile["Stripping"]
+                particle = ["Pion","Kaon","Proton","Combinatorial"]
+            
+                for y in year:
+                    for p in particle:
+                    
+                        if myconfigfile["Calibrations"][y].has_key(p):
+                            polarity = myconfigfile["Calibrations"][y][p]
+                            for Pol in polarity:
+                                if Pol == "Down":
+                                    pol = TString("down")
+                                elif Pol == "Up":
+                                    pol = TString("up")
+                                else:
+                                    pol = TString("unknown")
+                                
+                                strip = myconfigfile["Stripping"][y]
+                                dataName = ""
+                                workName = "" 
+                                pidVarName = ""
+                                weightName = ""
+                                var1Name = ""
+                                var2Name = ""
+                                fileName = myconfigfile["Calibrations"][y][p][Pol]["FileName"]
+                                if  myconfigfile["Calibrations"][y][p][Pol].has_key("Type"):
+                                    t = myconfigfile["Calibrations"][y][p][Pol]["Type"]
+                                    if t == "Special" or fileName == "":
+                                        if myconfigfile["Calibrations"][y][p][Pol].has_key("WorkName"):
+                                            workName = myconfigfile["Calibrations"][y][p][Pol]["WorkName"]
+                                        if myconfigfile["Calibrations"][y][p][Pol].has_key("DataName"):
+                                            dataName = myconfigfile["Calibrations"][y][p][Pol]["DataName"]
+                                        if myconfigfile["Calibrations"][y][p][Pol].has_key("PIDVarName"):
+                                            pidVarName = myconfigfile["Calibrations"][y][p][Pol]["PIDVarName"]
+                                        if myconfigfile["Calibrations"][y][p][Pol].has_key("WeightName"):
+                                            weightName = myconfigfile["Calibrations"][y][p][Pol]["WeightName"]
+                                        if myconfigfile["Calibrations"][y][p][Pol].has_key("Variables"):
+                                            var1Name = myconfigfile["Calibrations"][y][p][Pol]["Variables"][0]
+                                            var2Name = myconfigfile["Calibrations"][y][p][Pol]["Variables"][1]
+                                        if p == "Combinatorial":
+                                            if ( fileName == "" ):
+                                                md.SetPIDComboShapeFor5Modes()
+                                else:
+                                    t = "" 
+                             
+                                md.SetCalibSample(fileName, workName, dataName, p, y, pol, strip, t, var1Name, var2Name, pidVarName, weightName)
 
 
         if myconfigfile.has_key('IntegratedLuminosity'):
@@ -132,17 +168,36 @@ class Translator:
                         md.SetDsHypoCut(Dmode, myconfigfile['AdditionalCuts'][Dmode]['DsHypo'])
 
         if myconfigfile.has_key('WeightingMassTemplates'):
-            md.SetMassWeighting(True) 
-            if myconfigfile["WeightingMassTemplates"].has_key("Variables"):
-                variables = myconfigfile["WeightingMassTemplates"]["Variables"]
-                for var in variables:
-                    md.AddWeightingMassVar(var)
-            if myconfigfile["WeightingMassTemplates"].has_key('PIDProton'):
-                md.SetPIDProton(myconfigfile["WeightingMassTemplates"]['PIDProton'])
-            if myconfigfile["WeightingMassTemplates"].has_key('PIDBach'):
-                md.SetPIDBach(myconfigfile["WeightingMassTemplates"]['PIDBach'])
-            if myconfigfile["WeightingMassTemplates"].has_key('PIDChild'):
-                md.SetPIDChild(myconfigfile["WeightingMassTemplates"]['PIDChild'])
+            md.SetMassWeighting(False)
+            if myconfigfile["WeightingMassTemplates"].has_key("Shift"):
+                shift = myconfigfile["WeightingMassTemplates"]["Shift"] 
+                for s in shift:
+                    print myconfigfile["WeightingMassTemplates"]["Shift"][s]
+                    md.SetMassShift(s,myconfigfile["WeightingMassTemplates"]["Shift"][s])
+                
+            hists = myconfigfile["WeightingMassTemplates"]
+            for hist in hists:
+                if hist != "Shift":
+                    if hist != "RatioDataMC":
+                        md.SetMassWeighting(True)
+                    file2011 = ""
+                    file2012 = ""
+                    if myconfigfile["WeightingMassTemplates"][hist].has_key("FileLabel"):
+                        if myconfigfile["WeightingMassTemplates"][hist]["FileLabel"].has_key("2011"):
+                            file2011 = myconfigfile["WeightingMassTemplates"][hist]["FileLabel"]["2011"]
+                        if myconfigfile["WeightingMassTemplates"][hist]["FileLabel"].has_key("2012"):
+                            file2012 = myconfigfile["WeightingMassTemplates"][hist]["FileLabel"]["2012"]
+                        if myconfigfile["WeightingMassTemplates"][hist]["FileLabel"].has_key("2011") == False and myconfigfile["WeightingMassTemplates"][hist]["FileLabel"].has_key("2012") == False: 
+                            file2011 = myconfigfile["WeightingMassTemplates"][hist]["FileLabel"]
+                            file2012 = file2011
+                    if myconfigfile["WeightingMassTemplates"][hist].has_key("Var"):
+                        var = myconfigfile["WeightingMassTemplates"][hist]["Var"]
+                    if myconfigfile["WeightingMassTemplates"][hist].has_key("HistName"):
+                        histName = myconfigfile["WeightingMassTemplates"][hist]["HistName"]        
+                    md.SetPIDProperties(hist, file2011, file2012, var[0], var[1], histName)
+                        #print hist, file2011, file2012, var[0], var[1], histName 
+            if myconfigfile["WeightingMassTemplates"].has_key("RatioDataMC"):
+                md.SetRatioDataMC(True)
 
         if myconfigfile.has_key('DsChildrenPrefix'):
             if myconfigfile['DsChildrenPrefix'].has_key("Child1"):
@@ -152,7 +207,6 @@ class Translator:
             if myconfigfile['DsChildrenPrefix'].has_key("Child3"):
                 md.SetChildPrefix(2,myconfigfile['DsChildrenPrefix']['Child3'])
             
-
         self.mdfit = md
         
     def getConfig( self ) :

@@ -55,10 +55,11 @@ namespace Bs2DshDsHHHPi0Models {
     
     RooArgList* list = new RooArgList();
 
+    /*
     TString nCombBkgName = "nCombBkg_"+samplemode+"_Evts";
     RooRealVar* nCombBkgEvts = GetObservable(workInt, nCombBkgName, debug);
     Double_t valCombBkg = nCombBkgEvts->getValV();
-
+    */
     TString nBs2DsDsstPiRhoName = "nBs2DsDsstPiRho_"+samplemode+"_Evts";
     RooRealVar* nBs2DsDsstPiRhoEvts = GetObservable(workInt, nBs2DsDsstPiRhoName, debug);
     Double_t valBs2DsDsstPiRho = nBs2DsDsstPiRhoEvts->getValV();
@@ -80,7 +81,7 @@ namespace Bs2DshDsHHHPi0Models {
 
     TString Mode = CheckDMode(samplemode,debug);
     if ( Mode == "" ) { Mode = CheckKKPiMode(samplemode, debug); }
-
+    /*
     TString cB1VarName = "CombBkg_slope_Bs1_"+Mode;
     RooRealVar* cB1Var = GetObservable(workInt, cB1VarName, debug);
     
@@ -110,7 +111,7 @@ namespace Bs2DshDsHHHPi0Models {
 	TString fracPIDCombName = "CombBkg_fracPIDKComb";
 	fracPIDComb =GetObservable(workInt, fracPIDCombName, debug);
       }
-    
+    */
     TString lumRatioName = "lumRatio";
     RooRealVar* lumRatio =GetObservable(workInt, lumRatioName, debug);
 
@@ -150,7 +151,7 @@ namespace Bs2DshDsHHHPi0Models {
 	pdf_Bd2DsPi_Tot = GetRooProdPdfDim(m, samplemode, pdf_Bd2DsPi, pdf_Bd2DsPi_Ds, pdf_Bd2DsPi_PIDK, dim, debug  );
       }
     // -------------------------------- Create Combinatorial Background --------------------------------------------//
-   
+    /*
     if (debug == true) cout<<"---------------  Create combinatorial background PDF -----------------"<<endl;
       
     RooAbsPdf* pdf_combBkg = NULL;
@@ -192,7 +193,7 @@ namespace Bs2DshDsHHHPi0Models {
 	CheckPDF(epdf_combBkg, debug);
 	list = AddEPDF(list, epdf_combBkg, nCombBkgEvts, debug);
       }
-    
+    */
     // --------------------------------- Read PDFs from Workspace -------------------------------------------------//
 
     if (debug == true) cout<<endl;
@@ -302,11 +303,11 @@ namespace Bs2DshDsHHHPi0Models {
     pdf_Bd2DsK = NULL;
 
     RooArgList* list = new RooArgList();
-
+    /*
     TString nCombBkgName = "nCombBkg_"+samplemode+"_Evts";
     RooRealVar* nCombBkgEvts = GetObservable(workInt, nCombBkgName, debug);
     Double_t valCombBkg = nCombBkgEvts->getValV();
-
+    */
     TString nBd2DKName = "nBd2DK_"+samplemode+"_Evts";                                                                                       
     RooRealVar*  nBd2DKEvts = GetObservable(workInt, nBd2DKName, debug);
     Double_t valBd2DK = nBd2DKEvts->getValV(); 
@@ -337,7 +338,7 @@ namespace Bs2DshDsHHHPi0Models {
 
     TString Mode = CheckDMode(samplemode,debug);
     if ( Mode == "" ) { Mode = CheckKKPiMode(samplemode, debug); }
-
+    /*
     TString cB1VarName = "CombBkg_slope_Bs1_"+Mode;
     RooRealVar* cB1Var = GetObservable(workInt, cB1VarName, debug);
     
@@ -355,7 +356,7 @@ namespace Bs2DshDsHHHPi0Models {
 	TString fracDsCombName = "CombBkg_fracDsComb_"+Mode;
 	fracDsComb =GetObservable(workInt, fracDsCombName, debug);
       }
-
+    */
     RooRealVar* g4_f1 = NULL;
     if( dim > 2)
       {
@@ -384,7 +385,7 @@ namespace Bs2DshDsHHHPi0Models {
     TString y = CheckDataYear(samplemode,debug); 
 
     // -------------------------------- Create Combinatorial Background --------------------------------------------//
-   
+    /*
     if (debug == true) cout<<"---------------  Create combinatorial background PDF -----------------"<<endl;
       
     RooAbsPdf* pdf_combBkg = NULL;
@@ -430,7 +431,7 @@ namespace Bs2DshDsHHHPi0Models {
 	CheckPDF(epdf_combBkg, debug);
 	list = AddEPDF(list, epdf_combBkg, nCombBkgEvts, debug);
       }
-
+    */
     // --------------------------------- Read PDFs from Workspace -------------------------------------------------//
 
     if (debug == true) cout<<endl;
