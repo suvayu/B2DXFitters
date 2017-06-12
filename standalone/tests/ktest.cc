@@ -78,19 +78,20 @@ int main()
 
   const int kbins(400);
   std::vector<std::string> fns;
-  fns.push_back("1e2*exp(-((x-1)/1e-2)**2)/sqrt(22/7)"); // delta function = 1
+  // fns.push_back("1e2*exp(-((x-1)/1e-2)**2)/sqrt(22/7)"); // delta function = 1
   fns.push_back("1e2*exp(-((x-0.5)/1e-2)**2)/sqrt(22/7)"); // delta function = 0.5
   fns.push_back("1e2*exp(-((x-1.5)/1e-2)**2)/sqrt(22/7)"); // delta function = 1.5
-  fns.push_back("1e2*exp(-((x-1)/1e-2)**2)/sqrt(22/7)"
-  		"+ 1e2*exp(-((x-1.5)/1e-2)**2)/sqrt(22/7)"); // delta function = 1 & 1.5
-  fns.push_back("1e2*exp(-((x-0.5)/1e-2)**2)/sqrt(22/7)"
-  		"+ 1e2*exp(-((x-1.5)/1e-2)**2)/sqrt(22/7)"); // delta function = 0.5 & 1.5
-  fns.push_back("1e1*exp(-((x-1)/1e-1)**2)/sqrt(22/7)"); // fat delta = 1
+  // fns.push_back("1e2*exp(-((x-1)/1e-2)**2)/sqrt(22/7)"
+  // 		"+ 1e2*exp(-((x-1.5)/1e-2)**2)/sqrt(22/7)"); // delta function = 1 & 1.5
+  // fns.push_back("1e2*exp(-((x-0.5)/1e-2)**2)/sqrt(22/7)"
+  // 		"+ 1e2*exp(-((x-1.5)/1e-2)**2)/sqrt(22/7)"); // delta function = 0.5 & 1.5
+  // fns.push_back("1e1*exp(-((x-1)/1e-1)**2)/sqrt(22/7)"); // fat delta = 1
+  fns.push_back("1e1*exp(-((x-0.8)/1e-1)**2)/sqrt(22/7)"); // fat delta = 0.8
   fns.push_back("1e1*exp(-((x-1.2)/1e-1)**2)/sqrt(22/7)"); // fat delta = 1.2
-  fns.push_back("(x<1.5 && x>0.5)?100:0"); // step function < 1
-  fns.push_back("(x>1)?100:0"); // step function > 1
-  fns.push_back("(x>0.5)?(2.0*x/3.0 - 1.0/3.0):0");	 // triangular
-  fns.push_back("(x>1.2)?(2.0*x/3.0 - 1.0/3.0):0");	 // triangular
+  // fns.push_back("(x<1.5 && x>0.5)?100:0"); // step function < 1
+  // fns.push_back("(x>1)?100:0"); // step function > 1
+  // fns.push_back("(x>0.5)?(2.0*x/3.0 - 1.0/3.0):0");	 // triangular
+  // fns.push_back("(x>1.2)?(2.0*x/3.0 - 1.0/3.0):0");	 // triangular
 
   std::string fname("RooKResModel_test");
   // fname += str(boost::format("%d") % i);
@@ -102,6 +103,7 @@ int main()
 
   const int nevents(2E5);
 
+  /* comment out ideal detector resolution
   std::cout << "===== With truth resolution: =====" << std::endl;
   for (unsigned i = 0; i < fns.size(); ++i) {
     TF1 func("func", fns[i].c_str(), 0, 2);
@@ -181,6 +183,8 @@ int main()
 
   canvas.Print((fname+"]").c_str());
   return 0;
+  */
+
   std::cout << "===== With Gaussian resolution: =====" << std::endl;
   for (unsigned i = 0; i < fns.size(); ++i) {
     TF1 func("func", fns[i].c_str(), 0, 2);
