@@ -1,3 +1,91 @@
+#Bs2DsK NonRes 2011
+../../ntuples/Bs2DsKFitTuple/
+MergedTree_Bs2DsX_MD_OFFLINE_DsK_NonRes.root
+MergedTree_Bs2DsX_MU_OFFLINE_DsK_NonRes.root
+DecayTree
+DecayTree
+###
+
+#Bs2DsK PhiPi 2011
+../../ntuples/Bs2DsKFitTuple/
+MergedTree_Bs2DsX_MD_OFFLINE_DsK_PhiPi.root
+MergedTree_Bs2DsX_MU_OFFLINE_DsK_PhiPi.root
+DecayTree
+DecayTree
+###
+
+#Bs2DsK KstK 2011
+../../ntuples/Bs2DsKFitTuple/
+MergedTree_Bs2DsX_MD_OFFLINE_DsK_KstK.root
+MergedTree_Bs2DsX_MU_OFFLINE_DsK_KstK.root
+DecayTree
+DecayTree
+###
+
+#Bs2DsK KPiPi 2011
+../../ntuples/Bs2DsKFitTuple/
+MergedTree_Bs2DsX_MD_OFFLINE_DsK_KPiPi.root
+MergedTree_Bs2DsX_MU_OFFLINE_DsK_KPiPi.root
+DecayTree
+DecayTree
+###
+
+#Bs2DsK PiPiPi 2011
+../../ntuples/Bs2DsKFitTuple/
+MergedTree_Bs2DsX_MD_OFFLINE_DsK_PiPiPi.root
+MergedTree_Bs2DsX_MU_OFFLINE_DsK_PiPiPi.root
+DecayTree
+DecayTree
+###
+
+#Bs2DsPi KPiPi 2011
+../../ntuples/Bs2DsKFitTuple/
+MergedTree_Bs2DsX_MD_OFFLINE_DsPi_KPiPi.root
+MergedTree_Bs2DsX_MU_OFFLINE_DsPi_KPiPi.root
+DecayTree;1
+DecayTree;1
+###
+
+#Bs2DsPi KstK 2011
+../../ntuples/Bs2DsKFitTuple/
+MergedTree_Bs2DsX_MD_OFFLINE_DsPi_KstK.root
+MergedTree_Bs2DsX_MU_OFFLINE_DsPi_KstK.root
+DecayTree
+DecayTree
+###
+
+#Bs2DsPi NonRes 2011
+../../ntuples/Bs2DsKFitTuple/
+MergedTree_Bs2DsX_MD_OFFLINE_DsPi_NonRes.root
+MergedTree_Bs2DsX_MU_OFFLINE_DsPi_NonRes.root
+DecayTree
+DecayTree
+###
+
+#Bs2DsPi PhiPi 2011
+../../ntuples/Bs2DsKFitTuple/
+MergedTree_Bs2DsX_MD_OFFLINE_DsPi_PhiPi.root
+MergedTree_Bs2DsX_MU_OFFLINE_DsPi_PhiPi.root
+DecayTree
+DecayTree
+###
+
+#Bs2DsPi PiPiPi 2011
+../../ntuples/Bs2DsKFitTuple/
+MergedTree_Bs2DsX_MD_OFFLINE_DsPi_PiPiPi.root
+MergedTree_Bs2DsX_MU_OFFLINE_DsPi_PiPiPi.root
+DecayTree
+DecayTree
+###
+
+#sWeights
+../../ntuples/sWeights/
+sWeights_BsDsK_all_both_BDTGA.root
+sWeights_BsDsK_all_both_BDTGA.root
+merged
+merged
+###
+
 #PIDp
 ../../ntuples/histos/
 EffHistos_Reco12_39Mom_Proton_MagDown_TightCuts.root
@@ -16,50 +104,187 @@ EffHistos_Reco12_39Mom_MagDown_45678.root
 EffHistos_Reco12_39Mom_MagUp_3456.root
 ###
 
-#PIDp3
-../../ntuples/histos/
-EffHistos_Reco12_39Mom_MagDown_Proton_DLLKDLLpK.root
-EffHistos_Reco12_39Mom_MagUp_Proton_DLLKDLLpK.root
-###
-
 #RatioDataMC2D
 ../../ntuples/histos/
 MomVsnTr_Comp_DPi_Down_hist.root
 MomVsnTr_Comp_DPi_Up_hist.root
 ###
 
+#MC FileName KKPi MD 2011
+{"Mode":"Bd2DK",
+ "FileName":"../../ntuples/MC/MCJanuary2014/MergedTree_Bd2DK_D2KPiPi_BsHypo_BDTG.root",
+ "TreeName":"DecayTree"}
+{"Mode":"Bs2DsPi",
+ "FileName":"../../ntuples/MC/MCJanuary2014/MergedTree_Bs2DsPi_Ds2KKPi_BsHypo_BDTG.root",
+ "TreeName":"DecayTree"}
+{"Mode":"Bs2DsRho",
+ "FileName":"../../ntuples/MC/MCJanuary2014/MergedTree_Bs2DsRho_Ds2KKPi_BsHypo_BDTG.root",
+ "TreeName":"DecayTree"}
+{"Mode":"Bs2DsstK",
+ "FileName":"../../ntuples/MC/MCJanuary2014/MergedTree_Bs2DsstK_Ds2KKPi_BsHypo_BDTG.root",
+ "TreeName":"DecayTree"}
+{"Mode":"Bs2DsstPi",
+ "FileName":"../../ntuples/MC/MCJanuary2014/MergedTree_Bs2DsstPi_Ds2KKPi_BsHypo_BDTG.root",
+ "TreeName":"DecayTree"}
+{"Mode":"Lb2Dsp",
+ "FileName":"../../ntuples/MC/MCJanuary2014/MergedTree_Lb2Dsp_Ds2KKPi_BsHypo_BDTG.root",
+ "TreeName":"DecayTree"}
+{"Mode":"Lb2Dsstp",
+ "FileName":"../../ntuples/MC/MCJanuary2014/MergedTree_Lb2Dsstp_Ds2KKPi_BsHypo_BDTG.root",
+ "TreeName":"DecayTree"}
+{"Mode":"Lb2LcK",
+ "FileName":"../../ntuples/MC/MCJanuary2014/MergedTree_Lb2LcK_Lc2pKPi_BsHypo_BDTG.root",
+ "TreeName":"DecayTree"}
+{"Mode":"Lb2LcPi",
+ "FileName":"../../ntuples/MC/MCJanuary2014/MergedTree_Lb2LcPi_Lc2pKPi_BsHypo_BDTG.root",
+ "TreeName":"DecayTree"}
+{"Mode":"Bd2DPi",
+ "FileName":"../../ntuples/MC/MCJanuary2014/MergedTree_Bd2DPi_D2KPiPi_BsHypo_BDTG.root",
+ "TreeName":"DecayTree"}
+###
+
+#MC FileName KKPi MU 2011
+{"Mode":"Bd2DK",
+ "FileName":"../../ntuples/MC/MCJanuary2014/MergedTree_Bd2DK_D2KPiPi_BsHypo_BDTG.root",
+ "TreeName":"DecayTree"}
+{"Mode":"Bs2DsRho",
+ "FileName":"../../ntuples/MC/MCJanuary2014/MergedTree_Bs2DsRho_Ds2KKPi_BsHypo_BDTG.root",
+ "TreeName":"DecayTree"}
+{"Mode":"Bs2DsstK",
+ "FileName":"../../ntuples/MC/MCJanuary2014/MergedTree_Bs2DsstK_Ds2KKPi_BsHypo_BDTG.root",
+ "TreeName":"DecayTree"}
+{"Mode":"Bs2DsstPi",
+ "FileName":"../../ntuples/MC/MCJanuary2014/MergedTree_Bs2DsstPi_Ds2KKPi_BsHypo_BDTG.root",
+ "TreeName":"DecayTree"}
+{"Mode":"Lb2Dsp",
+ "FileName":"../../ntuples/MC/MCJanuary2014/MergedTree_Lb2Dsp_Ds2KKPi_BsHypo_BDTG.root",
+ "TreeName":"DecayTree"}
+{"Mode":"Lb2Dsstp",
+ "FileName":"../../ntuples/MC/MCJanuary2014/MergedTree_Lb2Dsstp_Ds2KKPi_BsHypo_BDTG.root",
+ "TreeName":"DecayTree"}
+{"Mode":"Lb2LcK",
+ "FileName":"../../ntuples/MC/MCJanuary2014/MergedTree_Lb2LcK_Lc2pKPi_BsHypo_BDTG.root",
+ "TreeName":"DecayTree"}
+{"Mode":"Lb2LcPi",
+ "FileName":"../../ntuples/MC/MCJanuary2014/MergedTree_Lb2LcPi_Lc2pKPi_BsHypo_BDTG.root",
+ "TreeName":"DecayTree"}
+{"Mode":"Bd2DPi",
+ "FileName":"../../ntuples/MC/MCJanuary2014/MergedTree_Bd2DPi_D2KPiPi_BsHypo_BDTG.root",
+ "TreeName":"DecayTree"}
+###
+
 #Kfactor MC FileName MD
-../../ntuples/MC/MCJanuary2014/MergedTree_Bd2DK_D2KPiPi_BsHypo_BDTG.root
-../../ntuples/MC/MCJanuary2014/MergedTree_Lb2LcK_Lc2pKPi_BsHypo_BDTG.root
-../../ntuples/MC/MCJanuary2014/MergedTree_Lb2Dsstp_Ds2KKPi_BsHypo_BDTG.root
-../../ntuples/MC/MCJanuary2014/MergedTree_Lb2Dsp_Ds2KKPi_BsHypo_BDTG.root
-../../ntuples/MC/MCJanuary2014/MergedTree_Bs2DsstPi_Ds2KKPi_BsHypo_BDTG.root
-../../ntuples/MC/MCJanuary2014/MergedTree_Bs2DsRho_Ds2KKPi_BsHypo_BDTG.root
-../../ntuples/MC/MCJanuary2014/MergedTree_Bs2DsPi_Ds2KKPi_BsHypo_BDTG.root
-../../ntuples/MC/MCJanuary2014/MergedTree_Lb2LcPi_Lc2pKPi_BsHypo_BDTG.root
-../../ntuples/MC/MCJanuary2014/MergedTree_Bd2DPi_D2KPiPi_BsHypo_BDTG.root
+{"Mode":"Bd2DK",
+ "FileName":"../../ntuples/MC/MCJanuary2014/MergedTree_Bd2DK_D2KPiPi_BsHypo_BDTG.root",
+ "TreeName":"DecayTree"}
+{"Mode":"Bs2DsRho",
+ "FileName":"../../ntuples/MC/MCJanuary2014/MergedTree_Bs2DsRho_Ds2KKPi_BsHypo_BDTG.root",
+ "TreeName":"DecayTree"}
+{"Mode":"Bs2DsstPi",
+ "FileName":"../../ntuples/MC/MCJanuary2014/MergedTree_Bs2DsstPi_Ds2KKPi_BsHypo_BDTG.root",
+ "TreeName":"DecayTree"}
+{"Mode":"Lb2Dsp",
+ "FileName":"../../ntuples/MC/MCJanuary2014/MergedTree_Lb2Dsp_Ds2KKPi_BsHypo_BDTG.root",
+ "TreeName":"DecayTree"}
+{"Mode":"Lb2Dsstp",
+ "FileName":"../../ntuples/MC/MCJanuary2014/MergedTree_Lb2Dsstp_Ds2KKPi_BsHypo_BDTG.root",
+ "TreeName":"DecayTree"}
+{"Mode":"Lb2LcK",
+ "FileName":"../../ntuples/MC/MCJanuary2014/MergedTree_Lb2LcK_Lc2pKPi_BsHypo_BDTG.root",
+ "TreeName":"DecayTree"}
+{"Mode":"Lb2LcPi",
+ "FileName":"../../ntuples/MC/MCJanuary2014/MergedTree_Lb2LcPi_Lc2pKPi_BsHypo_BDTG.root",
+ "TreeName":"DecayTree"}
+{"Mode":"Bd2DPi",
+ "FileName":"../../ntuples/MC/MCJanuary2014/MergedTree_Bd2DPi_D2KPiPi_BsHypo_BDTG.root",
+ "TreeName":"DecayTree"}
 ###
 
 #Kfactor MC FileName MU
-../../ntuples/MC/MCJanuary2014/MergedTree_Bd2DK_D2KPiPi_BsHypo_BDTG.root
-../../ntuples/MC/MCJanuary2014/MergedTree_Lb2LcK_Lc2pKPi_BsHypo_BDTG.root
-../../ntuples/MC/MCJanuary2014/MergedTree_Lb2Dsstp_Ds2KKPi_BsHypo_BDTG.root
-../../ntuples/MC/MCJanuary2014/MergedTree_Lb2Dsp_Ds2KKPi_BsHypo_BDTG.root
-../../ntuples/MC/MCJanuary2014/MergedTree_Bs2DsstPi_Ds2KKPi_BsHypo_BDTG.root
-../../ntuples/MC/MCJanuary2014/MergedTree_Bs2DsRho_Ds2KKPi_BsHypo_BDTG.root
-../../ntuples/MC/MCJanuary2014/MergedTree_Bs2DsPi_Ds2KKPi_BsHypo_BDTG.root
-../../ntuples/MC/MCJanuary2014/MergedTree_Lb2LcPi_Lc2pKPi_BsHypo_BDTG.root
-../../ntuples/MC/MCJanuary2014/MergedTree_Bd2DPi_D2KPiPi_BsHypo_BDTG.root
+{"Mode":"Bd2DK",
+ "FileName":"../../ntuples/MC/MCJanuary2014/MergedTree_Bd2DK_D2KPiPi_BsHypo_BDTG.root",
+ "TreeName":"DecayTree"}
+{"Mode":"Bs2DsPi",
+ "FileName":"../../ntuples/MC/MCJanuary2014/MergedTree_Bs2DsPi_Ds2KKPi_BsHypo_BDTG.root",
+ "TreeName":"DecayTree"}
+{"Mode":"Bs2DsRho",
+ "FileName":"../../ntuples/MC/MCJanuary2014/MergedTree_Bs2DsRho_Ds2KKPi_BsHypo_BDTG.root",
+ "TreeName":"DecayTree"}
+{"Mode":"Bs2DsstPi",
+ "FileName":"../../ntuples/MC/MCJanuary2014/MergedTree_Bs2DsstPi_Ds2KKPi_BsHypo_BDTG.root",
+ "TreeName":"DecayTree"}
+{"Mode":"Lb2Dsp",
+ "FileName":"../../ntuples/MC/MCJanuary2014/MergedTree_Lb2Dsp_Ds2KKPi_BsHypo_BDTG.root",
+ "TreeName":"DecayTree"}
+{"Mode":"Lb2Dsstp",
+ "FileName":"../../ntuples/MC/MCJanuary2014/MergedTree_Lb2Dsstp_Ds2KKPi_BsHypo_BDTG.root",
+ "TreeName":"DecayTree"}
+{"Mode":"Lb2LcK",
+ "FileName":"../../ntuples/MC/MCJanuary2014/MergedTree_Lb2LcK_Lc2pKPi_BsHypo_BDTG.root",
+ "TreeName":"DecayTree"}
+{"Mode":"Lb2LcPi",
+ "FileName":"../../ntuples/MC/MCJanuary2014/MergedTree_Lb2LcPi_Lc2pKPi_BsHypo_BDTG.root",
+ "TreeName":"DecayTree"}
+{"Mode":"Bd2DPi",
+ "FileName":"../../ntuples/MC/MCJanuary2014/MergedTree_Bd2DPi_D2KPiPi_BsHypo_BDTG.root",
+ "TreeName":"DecayTree"}
 ###
 
-#Kfactor MC TreeName
+#Signal Bs2DsK KstK 2011
+../../ntuples/MC/MCJanuary2014/
+MergedTree_Bs2DsK_Ds2KKPi_BsHypo_OFFLINE_DsK_KstK.root
+MergedTree_Bs2DsK_Ds2KKPi_BsHypo_OFFLINE_DsK_KstK.root
 DecayTree;1
 DecayTree;1
+###
+
+#Signal Bs2DsK PhiPi 2011
+../../ntuples/MC/MCJanuary2014/
+MergedTree_Bs2DsK_Ds2KKPi_BsHypo_OFFLINE_DsK_PhiPi.root
+MergedTree_Bs2DsK_Ds2KKPi_BsHypo_OFFLINE_DsK_PhiPi.root
 DecayTree;1
 DecayTree;1
+###
+
+#Signal Bs2DsK NonRes 2011
+../../ntuples/MC/MCJanuary2014/
+MergedTree_Bs2DsK_Ds2KKPi_BsHypo_OFFLINE_DsK_NonRes.root
+MergedTree_Bs2DsK_Ds2KKPi_BsHypo_OFFLINE_DsK_NonRes.root
 DecayTree;1
 DecayTree;1
+###
+
+
+#Signal Bs2DsK KPiPi 2011
+../../ntuples/MC/MCJanuary2014/
+MergedTree_Bs2DsK_Ds2KPiPi_BsHypo_OFFLINE_DsK_KPiPi.root
+MergedTree_Bs2DsK_Ds2KPiPi_BsHypo_OFFLINE_DsK_KPiPi.root
 DecayTree;1
 DecayTree;1
+###
+
+#Signal Bs2DsK PiPiPi 2011
+../../ntuples/MC/MCJanuary2014/
+MergedTree_Bs2DsK_Ds2PiPiPi_BsHypo_OFFLINE_DsK_PiPiPi.root
+MergedTree_Bs2DsK_Ds2PiPiPi_BsHypo_OFFLINE_DsK_PiPiPi.root
 DecayTree;1
+DecayTree;1
+###
+
+#PID2m2
+../../ntuples/histos/
+EffHistos_Reco12_39Mom_MagDown_2m2_0123.root
+EffHistos_Reco12_39Mom_MagUp_2m2_012.root
+###
+
+#PID2m22
+../../ntuples/histos/
+EffHistos_Reco12_39Mom_MagDown_2m2_45678.root
+EffHistos_Reco12_39Mom_MagUp_2m2_3456.root
+###
+
+#PIDp3
+../../ntuples/histos/
+EffHistos_Reco12_39Mom_MagDown_Proton_DLLKDLLpK.root
+EffHistos_Reco12_39Mom_MagUp_Proton_DLLKDLLpK.root
 ###
