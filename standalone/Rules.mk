@@ -334,7 +334,7 @@ endif
 # locate genreflex, rootcint, gccxml for dictionaries
 GENREFLEX = $(shell $(ROOTCONFIG) --bindir)/genreflex
 ROOTCINT = $(shell $(ROOTCONFIG) --bindir)/rootcint
-GCCXML = $(shell which gccxml)
+GCCXML = $(shell which castxml)
 GCCXMLDIR = $(shell dirname $(GCCXML))
 ifneq ($(GENREFLEX),)
 GENREFLEX = $(shell which genreflex)

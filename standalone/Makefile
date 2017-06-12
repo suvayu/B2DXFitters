@@ -6,6 +6,11 @@ SUBDIRS = readTree taggingtoy
 STDOPTFLAGS.GNU = -O0
 TUNEFLAGS.GNU   = 
 
+# C++14
+CXXSTD.GNU = -std=c++14
+CXXSTD.Clang = -std=c++14
+CXXSTD.Intel = -std=c++14
+
 include Rules.mk
 -include local.mk
 
